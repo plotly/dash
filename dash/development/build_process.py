@@ -66,7 +66,7 @@ class BuildProcess(object):
 
     @job("run `npm i --ignore-scripts`")
     def npm(self):
-        """job to install npm packages"""
+        """Job to install npm packages."""
         os.chdir(self.main)
         self._clean_path(self.package_lock)
         run_command_with_process("npm i --ignore-scripts")
@@ -157,7 +157,7 @@ class BuildProcess(object):
 
 class Renderer(BuildProcess):
     def __init__(self):
-        # dash-renderer's path is binding with the dash folder hierarchy
+        """dash-renderer's path is binding with the dash folder hierarchy."""
         super(Renderer, self).__init__(
             self._concat(
                 os.path.dirname(__file__),

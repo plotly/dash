@@ -97,14 +97,14 @@ def pytest_runtest_makereport(item, call):  # pylint: disable=unused-argument
 
 @pytest.fixture
 def dash_thread_server():
-    """Start a local dash server in a new thread"""
+    """Start a local dash server in a new thread."""
     with ThreadedRunner() as starter:
         yield starter
 
 
 @pytest.fixture
 def dash_process_server():
-    """Start a Dash server with subprocess.Popen and waitress-serve"""
+    """Start a Dash server with subprocess.Popen and waitress-serve."""
     with ProcessRunner() as starter:
         yield starter
 

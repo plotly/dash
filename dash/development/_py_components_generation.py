@@ -10,9 +10,8 @@ from .base_component import Component
 
 # pylint: disable=unused-argument
 def generate_class_string(typename, props, description, namespace):
-    """
-    Dynamically generate class strings to have nicely formatted docstrings,
-    keyword arguments, and repr
+    """Dynamically generate class strings to have nicely formatted docstrings,
+    keyword arguments, and repr.
 
     Inspired by http://jameso.be/2013/08/06/namedtuple.html
 
@@ -26,7 +25,6 @@ def generate_class_string(typename, props, description, namespace):
     Returns
     -------
     string
-
     """
     # TODO _prop_names, _type, _namespace, and available_properties
     # can be modified by a Dash JS developer via setattr
@@ -111,8 +109,7 @@ def generate_class_string(typename, props, description, namespace):
 
 
 def generate_class_file(typename, props, description, namespace):
-    """
-    Generate a python class file (.py) given a class string
+    """Generate a python class file (.py) given a class string.
 
     Parameters
     ----------
@@ -123,7 +120,6 @@ def generate_class_file(typename, props, description, namespace):
 
     Returns
     -------
-
     """
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n" + \
@@ -175,8 +171,7 @@ def generate_classes_files(project_shortname, metadata, *component_generators):
 
 
 def generate_class(typename, props, description, namespace):
-    """
-    Generate a python class object given a class string
+    """Generate a python class object given a class string.
 
     Parameters
     ----------
@@ -187,7 +182,6 @@ def generate_class(typename, props, description, namespace):
 
     Returns
     -------
-
     """
     string = generate_class_string(typename, props, description, namespace)
     scope = {'Component': Component, '_explicitize_args': _explicitize_args}
@@ -198,8 +192,7 @@ def generate_class(typename, props, description, namespace):
 
 
 def required_props(props):
-    """
-    Pull names of required props from the props object
+    """Pull names of required props from the props object.
 
     Parameters
     ----------
@@ -215,8 +208,7 @@ def required_props(props):
 
 
 def create_docstring(component_name, props, description):
-    """
-    Create the Dash component docstring
+    """Create the Dash component docstring.
 
     Parameters
     ----------
@@ -258,8 +250,8 @@ Keyword arguments:\n{args}"""
 
 
 def prohibit_events(props):
-    """
-    Events have been removed. Raise an error if we see dashEvents or fireEvents
+    """Events have been removed. Raise an error if we see dashEvents or
+    fireEvents.
 
     Parameters
     ----------
@@ -277,8 +269,7 @@ def prohibit_events(props):
 
 
 def parse_wildcards(props):
-    """
-    Pull out the wildcard attributes from the Component props
+    """Pull out the wildcard attributes from the Component props.
 
     Parameters
     ----------
@@ -298,9 +289,8 @@ def parse_wildcards(props):
 
 
 def reorder_props(props):
-    """
-    If "children" is in props, then move it to the
-    front to respect dash convention
+    """If "children" is in props, then move it to the front to respect dash
+    convention.
 
     Parameters
     ----------
@@ -322,8 +312,8 @@ def reorder_props(props):
 
 
 def filter_props(props):
-    """
-    Filter props from the Component arguments to exclude:
+    """Filter props from the Component arguments to exclude:
+
         - Those without a "type" or a "flowType" field
         - Those with arg.type.name in {'func', 'symbol', 'instanceOf'}
 
@@ -397,8 +387,7 @@ def filter_props(props):
 # pylint: disable=too-many-arguments
 def create_prop_docstring(prop_name, type_object, required, description,
                           default, indent_num, is_flow_type=False):
-    """
-    Create the Dash component prop docstring
+    """Create the Dash component prop docstring.
 
     Parameters
     ----------
@@ -469,7 +458,7 @@ def create_prop_docstring(prop_name, type_object, required, description,
 
 
 def map_js_to_py_types_prop_types(type_object):
-    """Mapping from the PropTypes js type object to the Python type"""
+    """Mapping from the PropTypes js type object to the Python type."""
 
     def shape_or_exact():
         return 'dict containing keys {}.\n{}'.format(
@@ -515,7 +504,7 @@ def map_js_to_py_types_prop_types(type_object):
 
         # React's PropTypes.arrayOf
         arrayOf=lambda: (
-            "list" + ((" of {}").format(
+            "list" + (" of {}".format(
                 js_to_py_type(type_object["value"]) + 's'
                 if js_to_py_type(type_object["value"]).split(' ')[0] != 'dict'
                 else js_to_py_type(type_object["value"]).replace(
@@ -540,7 +529,7 @@ def map_js_to_py_types_prop_types(type_object):
 
 
 def map_js_to_py_types_flow_types(type_object):
-    """Mapping from the Flow js types to the Python type"""
+    """Mapping from the Flow js types to the Python type."""
 
     return dict(
         array=lambda: 'list',
@@ -587,8 +576,7 @@ def map_js_to_py_types_flow_types(type_object):
 
 
 def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
-    """
-    Convert JS types to Python types for the component definition
+    """Convert JS types to Python types for the component definition.
 
     Parameters
     ----------

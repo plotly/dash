@@ -196,9 +196,8 @@ class Component(with_metaclass(ComponentMeta, object)):
     # - __len__
 
     def __getitem__(self, id):  # pylint: disable=redefined-builtin
-        """Recursively find the element with the given ID through the tree
-        of children.
-        """
+        """Recursively find the element with the given ID through the tree of
+        children."""
 
         # A component's children can be undefined, a string, another component,
         # or a list of components.

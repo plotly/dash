@@ -241,10 +241,8 @@ def generate_class_string(name, props, project_shortname, prefix):
 
 # pylint: disable=R0914
 def generate_js_metadata(pkg_data, project_shortname):
-    """
-    Dynamically generate R function to supply JavaScript
-    and CSS dependency information required by the dash
-    package for R.
+    """Dynamically generate R function to supply JavaScript and CSS dependency
+    information required by the dash package for R.
 
     Parameters
     ----------
@@ -333,8 +331,7 @@ def wrap(tag, code):
 
 
 def write_help_file(name, props, description, prefix, rpkg_data):
-    """
-    Write R documentation file (.Rd) given component name and properties
+    """Write R documentation file (.Rd) given component name and properties.
 
     Parameters
     ----------
@@ -347,7 +344,6 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     Returns
     -------
     writes an R help file to the man directory for the generated R package
-
     """
     funcname = format_fn_name(prefix, name)
     file_name = funcname + ".Rd"
@@ -436,8 +432,7 @@ def write_class_file(name,
 
 
 def write_js_metadata(pkg_data, project_shortname, has_wildcards):
-    """
-    Write an internal (not exported) R function to return all JS
+    """Write an internal (not exported) R function to return all JS
     dependencies as required by dash.
 
     Parameters
@@ -446,7 +441,6 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
 
     Returns
     -------
-
     """
     function_string = generate_js_metadata(
         pkg_data=pkg_data, project_shortname=project_shortname
@@ -493,8 +487,7 @@ def generate_rpkg(
         package_suggests,
         has_wildcards,
 ):
-    """
-    Generate documents for R package creation
+    """Generate documents for R package creation.
 
     Parameters
     ----------
@@ -505,10 +498,10 @@ def generate_rpkg(
     package_depends
     package_imports
     package_suggests
+    has_wildcards
 
     Returns
     -------
-
     """
     # Leverage package.json to import specifics which are also applicable
     # to R package that we're generating here, use .get in case the key
@@ -737,7 +730,7 @@ def make_namespace_exports(components, prefix):
 
 
 def get_r_prop_types(type_object):
-    """Mapping from the PropTypes js type object to the R type"""
+    """Mapping from the PropTypes js type object to the R type."""
 
     def shape_or_exact():
         return 'lists containing elements {}.\n{}'.format(
@@ -782,7 +775,7 @@ def get_r_prop_types(type_object):
         ),
         # React's PropTypes.arrayOf
         arrayOf=lambda: (
-            "list" + ((" of {}s").format(
+            "list" + (" of {}s".format(
                 get_r_type(type_object["value"]))
                       if get_r_type(type_object["value"]) != ""
                       else "")
@@ -808,7 +801,7 @@ def get_r_type(type_object, is_flow_type=False, indent_num=0):
     ----------
     type_object: dict
         react-docgen-generated prop type dictionary
-
+    is_flow_type: bool
     indent_num: int
         Number of indents to use for the docstring for the prop
     Returns

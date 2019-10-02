@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods
-"""Utils methods for pytest-dash such wait_for wrappers"""
+"""Utils methods for pytest-dash such wait_for wrappers."""
 import time
 import logging
 from selenium.common.exceptions import WebDriverException

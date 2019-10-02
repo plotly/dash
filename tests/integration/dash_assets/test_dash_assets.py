@@ -10,8 +10,7 @@ from dash import Dash
 
 def test_dada001_assets(dash_duo):
     app = Dash(__name__, assets_ignore=".*ignored.*")
-    app.index_string = """
-    <!DOCTYPE html>
+    app.index_string = """<!DOCTYPE html>
     <html>
         <head>
             {%metas%}
@@ -27,8 +26,7 @@ def test_dada001_assets(dash_duo):
                 {%renderer%}
             </footer>
         </body>
-    </html>
-    """
+    </html>"""
 
     app.layout = html.Div(
         [html.Div("Content", id="content"), dcc.Input(id="test")], id="layout"
@@ -92,8 +90,7 @@ def test_dada002_external_files_init(dash_duo):
         __name__, external_scripts=js_files, external_stylesheets=css_files
     )
 
-    app.index_string = """
-    <!DOCTYPE html>
+    app.index_string = """<!DOCTYPE html>
     <html>
         <head>
             {%metas%}
@@ -111,8 +108,7 @@ def test_dada002_external_files_init(dash_duo):
                 {%renderer%}
             </footer>
         </body>
-    </html>
-    """
+    </html>"""
 
     app.layout = html.Div()
 
