@@ -38,6 +38,23 @@ const defaults = {
     }
 };
 
+const asyncHelperOptions = {
+    mode: 'production',
+    entry: './src/isComponentReady.js',
+    output: {
+        path: path.resolve(__dirname, dashLibraryName),
+        filename: `dash_renderer.async.min.js`,
+        library: dashLibraryName
+    },
+    externals: {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+        'plotly.js': 'Plotly',
+        'prop-types': 'PropTypes'
+    }
+    ...defaults
+}
+
 const rendererOptions = {
     mode: 'development',
     entry: {
@@ -54,16 +71,6 @@ const rendererOptions = {
         'react-dom': 'ReactDOM',
         'plotly.js': 'Plotly',
         'prop-types': 'PropTypes'
-    },
-    optimization: {
-        splitChunks: {
-            cacheGroups: {
-                vendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    priority: -10
-                }
-            }
-        }
     },
     ...defaults
 };
@@ -89,6 +96,7 @@ module.exports = (_, argv) => {
                     }
                 ),
             ],
-        }, rendererOptions)
+        }, rendererOptions),
+        asyncHelperOptions
     ];
 };
