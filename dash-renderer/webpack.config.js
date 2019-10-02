@@ -44,7 +44,8 @@ const asyncHelperOptions = {
     output: {
         path: path.resolve(__dirname, dashLibraryName),
         filename: `dash_renderer.async.min.js`,
-        library: dashLibraryName
+        library: `dash_renderer_async`,
+        libraryTarget: 'umd'
     },
     externals: {
         react: 'React',
