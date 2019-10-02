@@ -3,12 +3,9 @@ import dash
 from dash import Dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-from dash.development.base_component import Component
 import dash_html_components as html
 import dash_core_components as dcc
-import dash_renderer_test_components
 
-from bs4 import BeautifulSoup
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -20,9 +17,6 @@ from .utils import wait_for
 from multiprocessing import Value
 import time
 import json
-import string
-import plotly
-import requests
 
 
 TIMEOUT = 20
@@ -256,7 +250,6 @@ class Tests(IntegrationTests):
             html.Div(id='child-a'),
             html.Div(id='child-b')
         ])
-        grandparent = lambda: self.driver.find_element_by_id('grandparent')
         parenta = lambda: self.driver.find_element_by_id('parent-a')
         parentb = lambda: self.driver.find_element_by_id('parent-b')
         childa = lambda: self.driver.find_element_by_id('child-a')
@@ -1001,171 +994,3 @@ class Tests(IntegrationTests):
         )[0].click()
 
         self.wait_for_text_to_equal('#graph2_info', json.dumps(graph_2_expected_clickdata))
-
-    def test_single_input_multi_outputs_on_multiple_components(self):
-        call_count = Value('i')
-
-        app = dash.Dash(__name__)
-
-        N_OUTPUTS = 50
-
-        app.layout = html.Div([
-            html.Button('click me', id='btn'),
-        ] + [html.Div(id='output-{}'.format(i)) for i in range(N_OUTPUTS)])
-
-        @app.callback([Output('output-{}'.format(i), 'children') for i in range(N_OUTPUTS)],
-                      [Input('btn', 'n_clicks')])
-        def update_output(n_clicks):
-            if n_clicks is None:
-                raise PreventUpdate
-
-            call_count.value += 1
-            return ['{}={}'.format(i, i + n_clicks) for i in range(N_OUTPUTS)]
-
-        self.startServer(app)
-
-        btn = self.wait_for_element_by_css_selector('#btn')
-
-        for click in range(1, 20):
-            btn.click()
-
-            for i in range(N_OUTPUTS):
-                self.wait_for_text_to_equal(
-                    '#output-{}'.format(i), '{}={}'.format(i, i + click))
-
-            self.assertEqual(call_count.value, click)
-
-    def test_multi_outputs_on_single_component(self):
-        call_count = Value('i')
-        app = dash.Dash(__name__)
-
-        app.layout = html.Div([
-            dcc.Input(id='input', value='dash'),
-            html.Div(html.Div(id='output'), id='output-container'),
-        ])
-
-        @app.callback(
-            [Output('output', 'children'),
-             Output('output', 'style'),
-             Output('output', 'className')],
-
-            [Input('input', 'value')])
-        def update_output(value):
-            call_count.value += 1
-            return [
-                value,
-                {'fontFamily': value},
-                value
-            ]
-
-        self.startServer(app)
-
-        def html_equal(selector, inner_html):
-            return self.driver.find_element_by_css_selector(selector)\
-                       .get_property('innerHTML') == inner_html
-
-        wait_for(
-            lambda: html_equal(
-                '#output-container',
-                '<div id="output" class="dash" style="font-family: dash;">dash</div>'
-            ),
-            get_message=lambda: self.driver.find_element_by_css_selector('#output-container').get_property('innerHTML')
-        )
-
-        self.assertEqual(call_count.value, 1)
-
-        el = self.wait_for_element_by_css_selector('#input')
-        el.send_keys(' hello')
-
-        wait_for(
-            lambda: html_equal(
-                '#output-container',
-                '<div id="output" class="dash hello" style="font-family: &quot;dash hello&quot;;">dash hello</div>'
-            ),
-            get_message=lambda: self.driver.find_element_by_css_selector('#output-container').get_property('innerHTML')
-        )
-
-        self.assertEqual(call_count.value, 7)
-
-    def test_single_output_as_multi(self):
-        app = dash.Dash(__name__)
-
-        app.layout = html.Div([
-            dcc.Input(id='input', value=''),
-            html.Div(html.Div(id='output'), id='output-container'),
-        ])
-
-        @app.callback(
-            [Output('output', 'children')],
-            [Input('input', 'value')])
-        def update_output(value):
-            return ['out' + value]
-
-        self.startServer(app)
-
-        input = self.wait_for_element_by_css_selector('#input')
-        input.send_keys('house')
-        self.wait_for_text_to_equal('#output', 'outhouse')
-
-    def test_multi_output_circular_dependencies(self):
-        app = dash.Dash(__name__)
-        app.layout = html.Div([
-            dcc.Input(id='a'),
-            dcc.Input(id='b'),
-            html.P(id='c')
-        ])
-
-        @app.callback(Output('a', 'value'), [Input('b', 'value')])
-        def set_a(b):
-            return ((b or '') + 'X')[:100]
-
-        @app.callback(
-            [Output('b', 'value'), Output('c', 'children')],
-            [Input('a', 'value')])
-        def set_bc(a):
-            return [a, a]
-
-        self.startServer(
-            app, debug=True, use_debugger=True,
-            use_reloader=False, dev_tools_hot_reload=False)
-
-        self.assertEqual(
-            'Circular Dependencies',
-            self.driver.find_element_by_css_selector('span.dash-fe-error__title').text,
-            "circular dependencies should be captured by debug menu"
-        )
-
-        self.assertEqual(
-            {'X'},
-            set(self.driver.find_element_by_css_selector('#c').text),
-            "the UI still renders the output triggered by callback"
-        )
-
-    def test_set_props_behavior(self):
-        app = dash.Dash(__name__)
-        app.layout = html.Div([
-            dash_renderer_test_components.UncontrolledInput(
-                id='id',
-                value=''
-            ),
-            html.Div(
-                id='container',
-                children=dash_renderer_test_components.UncontrolledInput(
-                    value=''
-                ),
-            )
-        ])
-
-        self.startServer(
-            app,
-            debug=True,
-            use_reloader=False,
-            use_debugger=True,
-            dev_tools_hot_reload=False,
-        )
-
-        self.wait_for_element_by_css_selector('#id').send_keys('hello input with ID')
-        self.wait_for_text_to_equal('#id', 'hello input with ID')
-
-        self.wait_for_element_by_css_selector('#container input').send_keys('hello input without ID')
-        self.wait_for_text_to_equal('#container input', 'hello input without ID')
