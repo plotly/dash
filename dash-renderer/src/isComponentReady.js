@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import {lazy} from 'react';
 
 export default (target, promise) => {
     let resolve;
