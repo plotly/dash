@@ -4,24 +4,7 @@ const path = require('path');
 const packagejson = require('./package.json');
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
-const defaultOptions = {
-    mode: 'development',
-    devtool: 'none',
-    entry: {
-        main: ['whatwg-fetch', './src/index.js'],
-    },
-    output: {
-        path: path.resolve(__dirname, dashLibraryName),
-        filename: `${dashLibraryName}.dev.js`,
-        library: dashLibraryName,
-        libraryTarget: 'window',
-    },
-    externals: {
-        react: 'React',
-        'react-dom': 'ReactDOM',
-        'plotly.js': 'Plotly',
-        'prop-types': 'PropTypes',
-    },
+const defaults = {
     plugins: [],
     module: {
         rules: [
@@ -50,35 +33,62 @@ const defaultOptions = {
             {
                 test: /\.txt$/i,
                 use: 'raw-loader',
-            },
-        ],
+            }
+        ]
+    }
+};
+
+const rendererOptions = {
+    mode: 'development',
+    entry: {
+        main: ['whatwg-fetch', './src/index.js'],
     },
+    output: {
+        path: path.resolve(__dirname, dashLibraryName),
+        filename: `${dashLibraryName}.dev.js`,
+        library: dashLibraryName,
+        libraryTarget: 'window',
+    },
+    externals: {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+        'plotly.js': 'Plotly',
+        'prop-types': 'PropTypes'
+    },
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    priority: -10
+                }
+            }
+        }
+    },
+    ...defaults
 };
 
 module.exports = (_, argv) => {
     const devtool = argv.build === 'local' ? 'source-map' : 'none';
     return [
-        R.mergeDeepLeft({devtool}, defaultOptions),
-        R.mergeDeepLeft(
-            {
-                devtool: devtool,
-                mode: 'production',
-                output: {
-                    filename: `${dashLibraryName}.min.js`,
-                },
-                plugins: [
-                    new webpack.NormalModuleReplacementPlugin(
-                        /(.*)GlobalErrorContainer.react(\.*)/,
-                        function(resource) {
-                            resource.request = resource.request.replace(
-                                /GlobalErrorContainer.react/,
-                                'GlobalErrorContainerPassthrough.react'
-                            );
-                        }
-                    ),
-                ],
+        R.mergeDeepLeft({ devtool }, rendererOptions),
+        R.mergeDeepLeft({
+            devtool,
+            mode: 'production',
+            output: {
+                filename: `${dashLibraryName}.min.js`,
             },
-            defaultOptions
-        ),
+            plugins: [
+                new webpack.NormalModuleReplacementPlugin(
+                    /(.*)GlobalErrorContainer.react(\.*)/,
+                    function (resource) {
+                        resource.request = resource.request.replace(
+                            /GlobalErrorContainer.react/,
+                            'GlobalErrorContainerPassthrough.react'
+                        );
+                    }
+                ),
+            ],
+        }, rendererOptions)
     ];
 };
