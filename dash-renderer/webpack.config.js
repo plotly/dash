@@ -38,29 +38,6 @@ const defaults = {
     }
 };
 
-const asyncHelperOptions = {
-    mode: 'production',
-    entry: './src/isComponentReady.js',
-    output: {
-        path: path.resolve(__dirname, dashLibraryName),
-        filename: `dash_renderer.async.min.js`,
-        library: `dash_renderer_async`,
-        libraryTarget: 'umd'
-    },
-    externals: {
-        react: {
-            'commonjs': 'react',
-            'commonjs2': 'react',
-            'amd': 'react',
-            'root': 'React'
-        },
-        'react-dom': 'ReactDOM',
-        'plotly.js': 'Plotly',
-        'prop-types': 'PropTypes'
-    },
-    ...defaults
-}
-
 const rendererOptions = {
     mode: 'development',
     entry: {
@@ -102,7 +79,6 @@ module.exports = (_, argv) => {
                     }
                 ),
             ],
-        }, rendererOptions),
-        asyncHelperOptions
+        }, rendererOptions)
     ];
 };

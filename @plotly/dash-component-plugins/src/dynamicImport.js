@@ -1,6 +1,6 @@
-import {lazy} from 'react';
+import { lazy } from 'react';
 
-export default (target, promise) => {
+export const decorate = (target, promise) => {
     let resolve;
     const isReady = new Promise(r => {
         resolve = r;
@@ -26,3 +26,6 @@ export default (target, promise) => {
 
     return state.get;
 };
+
+export const isReady = target => target &&
+    target._dashprivate_isLazyComponentReady;
