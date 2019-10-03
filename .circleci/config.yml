@@ -44,7 +44,7 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
-              - "venv"
+              - venv
       - run:
           name: 🌸 Python & JS Lint
           command: |
@@ -103,7 +103,7 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
-              - "venv"
+              - venv
       - run:
           name: ️️🏗️ build core
           command: |
@@ -154,7 +154,7 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
-              - "venv"
+              - venv
       - run:
           name: ️️🏗️ build misc
           command: |
@@ -188,7 +188,7 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
-          PERCY_PARALLEL_TOTAL: '-1'
+          PERCY_PARALLEL_TOTAL: -1
           PYVERSION: python37
     parallelism: 3
     steps:
@@ -224,7 +224,7 @@ jobs:
       docker:
         - image: circleci/python:3.6-stretch-node-browsers
           environment:
-            PERCY_ENABLE: '0'
+            PERCY_ENABLE: 0
             PYVERSION: python36
 
   test-27:
@@ -232,7 +232,7 @@ jobs:
       docker:
         - image: circleci/python:2.7-stretch-node-browsers
           environment:
-            PERCY_ENABLE: '0'
+            PERCY_ENABLE: 0
             PYVERSION: python27
 
 workflows:
