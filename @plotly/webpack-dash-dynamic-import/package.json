@@ -1,6 +1,6 @@
 {
   "name": "@plotly/webpack-dash-dynamic-import",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Webpack Plugin for Dynamic Import in Dash",
   "repository": {
     "type": "git",
