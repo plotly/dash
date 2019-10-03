@@ -87,8 +87,7 @@ no_update = _NoUpdate()
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
-    """
-    Dash is a framework for building analytical web applications.
+    """Dash is a framework for building analytical web applications.
     No JavaScript required.
 
     If a parameter can be set by an environment variable, that is listed as:
@@ -354,9 +353,7 @@ class Dash(object):
             self.init_app()
 
     def init_app(self, app=None):
-        """
-        Initialize the parts of Dash that require a flask app
-        """
+        """Initialize the parts of Dash that require a flask app."""
         config = self.config
 
         if app is not None:
@@ -384,7 +381,7 @@ class Dash(object):
 
         @self.server.errorhandler(exceptions.PreventUpdate)
         def _handle_error(_):
-            """Handle a halted callback and return an empty 204 response"""
+            """Handle a halted callback and return an empty 204 response."""
             return "", 204
 
         prefix = config.routes_pathname_prefix
@@ -785,16 +782,14 @@ class Dash(object):
         favicon="",
         renderer="",
     ):
-        """
-        Called to create the initial HTML string that is loaded on page.
+        """Called to create the initial HTML string that is loaded on page.
         Override this method to provide you own custom HTML.
 
         :Example:
 
             class MyDash(dash.Dash):
                 def interpolate_index(self, **kwargs):
-                    return '''
-                    <!DOCTYPE html>
+                    return '''<!DOCTYPE html>
                     <html>
                         <head>
                             <title>My App</title>
@@ -807,12 +802,10 @@ class Dash(object):
                             {renderer}
                             <div id="custom-footer">My custom footer</div>
                         </body>
-                    </html>
-                    '''.format(
-                        app_entry=kwargs.get('app_entry'),
-                        config=kwargs.get('config'),
-                        scripts=kwargs.get('scripts'),
-                        renderer=kwargs.get('renderer'))
+                    </html>'''.format(app_entry=kwargs.get('app_entry'),
+                                      config=kwargs.get('config'),
+                                      scripts=kwargs.get('scripts'),
+                                      renderer=kwargs.get('renderer'))
 
         :param metas: Collected & formatted meta tags.
         :param title: The title of the app.
@@ -1178,8 +1171,7 @@ class Dash(object):
     def clientside_callback(
         self, clientside_function, output, inputs=[], state=[]
     ):
-        """
-        Create a callback that updates the output by calling a clientside
+        """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
 
         Unlike `@app.calllback`, `clientside_callback` is not a decorator:
@@ -1533,9 +1525,8 @@ class Dash(object):
         dev_tools_silence_routes_logging=None,
         dev_tools_prune_errors=None,
     ):
-        """
-        Activate the dev tools, called by `run_server`. If your application is
-        served by wsgi and you want to activate the dev tools, you can call
+        """Activate the dev tools, called by `run_server`. If your application
+        is served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
 
         All parameters can be set by environment variables as listed.
@@ -1749,8 +1740,7 @@ class Dash(object):
         dev_tools_prune_errors=None,
         **flask_run_options
     ):
-        """
-        Start the flask server in local mode, you should not run this on a
+        """Start the flask server in local mode, you should not run this on a
         production server, use gunicorn/waitress instead.
 
         If a parameter can be set by an environment variable, that is listed

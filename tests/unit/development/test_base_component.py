@@ -13,6 +13,7 @@ Component._valid_wildcard_attributes = ["data-", "aria-"]
 
 def nested_tree():
     """This tree has a few unique properties:
+
     - children is mixed strings and components (as in c2)
     - children is just components (as in c)
     - children is just strings (as in c1)

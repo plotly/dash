@@ -25,10 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 def import_app(app_file, application_name="app"):
-    """
-    Import a dash application from a module.
-    The import path is in dot notation to the module.
-    The variable named app will be returned.
+    """Import a dash application from a module. The import path is in dot
+    notation to the module. The variable named app will be returned.
 
     :Example:
 
@@ -97,7 +95,7 @@ class BaseDashRunner(object):
 
     @property
     def url(self):
-        """the default server url"""
+        """The default server url."""
         return "http://localhost:{}".format(self.port)
 
     @property
@@ -106,9 +104,9 @@ class BaseDashRunner(object):
 
 
 class ThreadedRunner(BaseDashRunner):
-    """Runs a dash application in a thread
+    """Runs a dash application in a thread.
 
-    this is the default flavor to use in dash integration tests
+    This is the default flavor to use in dash integration tests.
     """
 
     def __init__(self, keep_open=False, stop_timeout=3):
@@ -129,7 +127,7 @@ class ThreadedRunner(BaseDashRunner):
 
     # pylint: disable=arguments-differ,C0330
     def start(self, app, **kwargs):
-        """Start the app server in threading flavor"""
+        """Start the app server in threading flavor."""
         app.server.add_url_rule(
             self.stop_route, self.stop_route, self._stop_server
         )
@@ -167,9 +165,9 @@ class ThreadedRunner(BaseDashRunner):
 
 
 class ProcessRunner(BaseDashRunner):
-    """Runs a dash application in a waitress-serve subprocess
+    """Runs a dash application in a waitress-serve subprocess.
 
-    this flavor is closer to production environment but slower
+    This flavor is closer to production environment but slower.
     """
 
     def __init__(self, keep_open=False, stop_timeout=3):
@@ -187,7 +185,7 @@ class ProcessRunner(BaseDashRunner):
         port=8050,
         start_timeout=3,
     ):
-        """Start the server with waitress-serve in process flavor """
+        """Start the server with waitress-serve in process flavor."""
         if not (app_module or raw_command):  # need to set a least one
             logging.error(
                 "the process runner needs to start with"
@@ -253,7 +251,7 @@ class RRunner(ProcessRunner):
 
     # pylint: disable=arguments-differ
     def start(self, app, start_timeout=2):
-        """Start the server with waitress-serve in process flavor """
+        """Start the server with waitress-serve in process flavor."""
 
         # app is a R string chunk
         if not (os.path.isfile(app) and os.path.exists(app)):

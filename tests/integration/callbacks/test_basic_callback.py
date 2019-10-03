@@ -47,7 +47,7 @@ def test_cbsc001_simple_callback(dash_duo):
 
 
 def test_cbsc002_callbacks_generating_children(dash_duo):
-    """ Modify the DOM tree by adding new components in the callbacks"""
+    """Modify the DOM tree by adding new components in the callbacks."""
 
     # some components don't exist in the initial render
     app = dash.Dash(__name__, suppress_callback_exceptions=True)

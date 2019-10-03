@@ -60,8 +60,7 @@ def patch_collections_abc(member):
 
 
 class AttributeDict(dict):
-    """
-    Dictionary subclass enabling attribute lookup/assignment of keys/values.
+    """Dictionary subclass enabling attribute lookup/assignment of keys/values.
 
     For example::
         >>> m = AttributeDict({'foo': 'bar'})
@@ -95,7 +94,7 @@ class AttributeDict(dict):
         object.__setattr__(self, "_read_only_msg", msg)
 
     def finalize(self, msg="Object is final: No new keys may be added."):
-        """Prevent any new keys being set"""
+        """Prevent any new keys being set."""
         object.__setattr__(self, "_final", msg)
 
     def __setitem__(self, key, val):

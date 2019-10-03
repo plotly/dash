@@ -7,7 +7,7 @@ class DashComposite(Browser):
         self.server = server
 
     def start_server(self, app, **kwargs):
-        """start the local server with app"""
+        """Start the local server with app."""
 
         # start server with app and pass Dash arguments
         self.server(app, **kwargs)

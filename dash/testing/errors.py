@@ -11,16 +11,16 @@ class NoAppFoundError(DashTestingError):
 
 
 class DashAppLoadingError(DashTestingError):
-    """The dash app failed to load"""
+    """The dash app failed to load."""
 
 
 class ServerCloseError(DashTestingError):
-    """The server cannot be closed"""
+    """The server cannot be closed."""
 
 
 class TestingTimeoutError(DashTestingError):
-    """all timeout error about dash testing"""
+    """All timeout error about dash testing."""
 
 
 class BrowserError(DashTestingError):
-    """all browser relevant errors"""
+    """All browser relevant errors."""
