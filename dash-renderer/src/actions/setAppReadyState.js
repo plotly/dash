@@ -4,6 +4,7 @@ import {createAction} from 'redux-actions';
 import isSimpleComponent from '../isSimpleComponent';
 import Registry from './../registry';
 import {getAction} from './constants';
+import {isReady} from '@plotly/dash-component-plugins';
 
 const isAppReady = layout => {
     const queue = [layout];
@@ -42,11 +43,10 @@ const isAppReady = layout => {
                 type,
             });
 
-            const isReady =
-                component && component._dashprivate_isLazyComponentReady;
+            const ready = isReady(component);
 
-            if (isReady && typeof isReady.then === 'function') {
-                promises.push(isReady);
+            if (ready && typeof ready.then === 'function') {
+                promises.push(ready);
             }
         });
     });
