@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  "python-2.7": &test-template
+  python-2.7: &test-template
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
         environment:
@@ -53,7 +53,7 @@ jobs:
               python --version
               npm run test
 
-  "python-3.6":
+  python-3.6:
     <<: *test-template
     docker:
       - image: circleci/python:3.6-stretch-node-browsers
@@ -61,7 +61,7 @@ jobs:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
 
-  "python-3.7":
+  python-3.7:
     <<: *test-template
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -73,6 +73,6 @@ workflows:
   version: 2
   build:
     jobs:
-      - "python-2.7"
-      - "python-3.6"
-      - "python-3.7"
+      - python-2.7
+      - python-3.6
+      - python-3.7

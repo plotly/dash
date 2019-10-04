@@ -11,7 +11,7 @@ Vanilla HTML components for [Dash][]
     ```
     _Note: venv\Scripts\activate for windows_
 
-2. Install python packages required to build components.
+2. Install Python packages required to build components.
     ```
     $ pip install -r dev-requirements.txt
     ```
@@ -56,7 +56,7 @@ _Note: This step will have already been done for you when you ran `npm install`_
         # Import dash_html_components to your layout, then run it:
         $ python my_dash_layout.py
 
-#### Installing python package locally
+#### Installing Python package locally
 
 Before publishing to PyPi, you can test installing the module locally:
 
@@ -65,7 +65,7 @@ Before publishing to PyPi, you can test installing the module locally:
 $ npm run install-local
 ```
 
-#### Uninstalling python package locally
+#### Uninstalling Python package locally
 
 ```sh
 $ npm run uninstall-local

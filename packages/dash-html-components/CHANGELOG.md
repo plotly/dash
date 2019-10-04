@@ -70,7 +70,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.12.0] - 2018-06-01
 ### Changed
-- `dash_html_components/__init__.py` now imports from python class files rather than generating classes at runtime,
+- `dash_html_components/__init__.py` now imports from Python class files rather than generating classes at runtime,
 adding support for IDE auto complete etc.
 
 ## [0.11.0] - 2018-06-01
