@@ -11,84 +11,120 @@ import {
 export interface IPaginator {
     loadNext(): void;
     loadPrevious(): void;
+    loadFirst(): void;
+    loadLast(): void;
+    loadPage(page: number): void;
+    hasPrevious(): boolean;
+    hasNext(): boolean;
+    isLast(): boolean;
+    lastPage: number | undefined;
 }
 
-export function lastPage(data: Data, page_size: number) {
-    return Math.max(Math.ceil(data.length / page_size) - 1, 0);
+export interface IPaginatorParams {
+    setProps: SetProps;
+    page_current: number;
+    page_count: number | undefined;
 }
 
-function getBackEndPagination(
-    page_current: number,
-    setProps: SetProps
-): IPaginator {
-    return {
-        loadNext: () => {
-            page_current++;
-            setProps({ page_current, ...clearSelection });
-        },
-        loadPrevious: () => {
-            if (page_current <= 0) {
-                return;
-            }
-
-            page_current--;
-            setProps({ page_current, ...clearSelection });
-        }
-    };
-}
-
-function getFrontEndPagination(
-    page_current: number,
-    page_size: number,
-    setProps: SetProps,
-    data: Data
+export function lastPage(
+    data: Data,
+    page_size: number
 ) {
-    return {
-        loadNext: () => {
-            const maxPageIndex = lastPage(data, page_size);
-
-            if (page_current >= maxPageIndex) {
-                return;
-            }
-
-            page_current++;
-            setProps({ page_current, ...clearSelection });
-        },
-        loadPrevious: () => {
-            if (page_current <= 0) {
-                return;
-            }
-
-            page_current--;
-            setProps({ page_current, ...clearSelection });
-        }
-    };
+    return Math.ceil(data.length / page_size);
 }
 
-function getNoPagination() {
+function makePaginator(
+    params: IPaginatorParams | null
+): IPaginator {
+
+    if (params === null) {
+        return {
+            loadNext() { },
+            loadPrevious() { },
+            loadFirst() { },
+            loadLast() { },
+            loadPage() { },
+            hasPrevious() { return true; },
+            hasNext() { return true; },
+            isLast() { return false; },
+            lastPage: undefined
+        };
+    }
+
+    let {
+        setProps,
+        page_current,
+        page_count
+    } = params;
+
+    function updatePage() {
+        setProps({
+            page_current,
+            ...clearSelection
+        });
+    }
+
+    function loadPage(page: number) {
+
+        page = Math.max(0, page);
+        page = page_count ? Math.min(page_count - 1, page) : page;
+
+        page_current = page;
+        updatePage();
+    }
+
     return {
-        loadNext: () => { },
-        loadPrevious: () => { }
+
+        loadNext: () => loadPage(page_current + 1),
+
+        loadPrevious: () => loadPage(page_current - 1),
+
+        loadFirst: () => loadPage(0),
+
+        loadPage,
+
+        loadLast: () => {
+            if (page_count) { loadPage(page_count - 1); }
+        },
+
+        hasPrevious: () => {
+            return page_current !== 0;
+        },
+
+        hasNext: () => {
+            return page_count ? page_current !== page_count - 1 : true;
+        },
+
+        isLast: () => {
+            return page_count ? page_current === page_count - 1 : false;
+        },
+
+        lastPage: page_count ? Math.max(0, page_count - 1) : undefined
     };
 }
 
 const getter = (
-    page_action: TableAction,
+    table_action: TableAction,
     page_current: number,
     page_size: number,
+    page_count: number | undefined,
     setProps: SetProps,
     data: Data
 ): IPaginator => {
-    switch (page_action) {
-        case TableAction.None:
-            return getNoPagination();
-        case TableAction.Native:
-            return getFrontEndPagination(page_current, page_size, setProps, data);
-        case TableAction.Custom:
-            return getBackEndPagination(page_current, setProps);
-        default:
-            throw new Error(`Unknown pagination mode: '${page_action}'`);
+
+    if (table_action === TableAction.Native) {
+        page_count = lastPage(data, page_size);
     }
+
+    if (page_count) { page_count = Math.max(page_count, 1); }
+
+    return makePaginator(
+        table_action === TableAction.None ? null : {
+            setProps,
+            page_current,
+            page_count
+        }
+    );
 };
 
 export default memoizeOneFactory(getter);

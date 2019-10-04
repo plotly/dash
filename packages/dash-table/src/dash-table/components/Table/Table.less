@@ -140,409 +140,475 @@
     }
 }
 
-.dash-spreadsheet-container {
-    .reset-css();
-    display: flex;
-    flex-direction: row;
-    position: relative;
+.dash-table-container {
 
-    // This overrides Chrome's default `font-size: medium;` which is causing performance issues
-    // with AutoInputResize sub-component in react-select
-    // https://github.com/JedWatson/react-input-autosize/blob/05b0f86a7f8b16de99c2b31296ff0d3307f15957/src/AutosizeInput.js#L58
-    table {
-        font-size: inherit;
+    .previous-next-container {
+	display: inline-block;
+	float: right;
+	padding: 5px 0px;
+
+
+	.page-number {
+	    font-family: monospace;
+	    display: inline-block;
+	    .last-page {
+		min-width: 30px;
+		display: inline-block;
+		text-align: center;
+		margin: 0.5em;
+	    }
+	}
+
+	input.current-page {
+	    display: inline-block;
+	    border-bottom: solid lightgrey 1px !important;
+	    color: black;
+	    border: none;
+	    width: 30px;
+	    text-align: center;
+	    font-family: monospace;
+	    font-size: 10pt;
+	    margin: 0.5em;
+
+	    &::placeholder {
+		color: black;
+	    }
+	    
+	    &:focus {
+		outline: none;
+		
+		&::placeholder {
+		    opacity: 0;
+		}
+	    }
+	}
+
+	button.previous-page, button.next-page, button.first-page, button.last-page {
+	    transition-duration: 400ms;
+	    padding: 5px;
+	    border: none;
+	    display: inline-block;
+	    margin-left: 5px;
+	    margin-right: 5px;
+
+	    &:hover {
+		color: hotpink;
+		
+		&:disabled {
+		    color: graytext
+		}
+	    }
+
+	    &:focus {
+		outline: none;
+	    }
+	}
     }
+    
+    .dash-spreadsheet-container {
+	.reset-css();
+	display: flex;
+	flex-direction: row;
+	position: relative;
 
-    .dash-spreadsheet-inner {
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
+	// This overrides Chrome's default `font-size: medium;` which is causing performance issues
+	// with AutoInputResize sub-component in react-select
+	// https://github.com/JedWatson/react-input-autosize/blob/05b0f86a7f8b16de99c2b31296ff0d3307f15957/src/AutosizeInput.js#L58
+	table {
+            font-size: inherit;
+	}
 
-        *,
-        *:after,
-        *:before {
-            box-sizing: inherit;
-        }
-
-        .Select {
-            overflow: hidden;
-            position: static;
-        }
-
-        .Select,
-        .Select-control {
-            background-color: inherit;
-        }
-
-        .Select-value {
+	.dash-spreadsheet-inner {
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            margin-top: -2px;
-        }
 
-        .marker-row {
-            tr {
-                visibility: hidden !important;
+            *,
+            *:after,
+            *:before {
+		box-sizing: inherit;
             }
 
+            .Select {
+		overflow: hidden;
+		position: static;
+            }
+
+            .Select,
+            .Select-control {
+		background-color: inherit;
+            }
+
+            .Select-value {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		margin-top: -2px;
+            }
+
+            .marker-row {
+		tr {
+                    visibility: hidden !important;
+		}
+
+		td, th {
+                    height: 0 !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+		}
+            }
+
+            .dash-filter {
+		input::placeholder {
+                    color: inherit;
+                    font-size: 0.8em;
+                    padding-right: 5px;
+		}
+
+		& + .dash-filter {
+                    &:not(:hover):not(:focus-within) {
+			input::placeholder {
+                            color: transparent;
+			}
+                    }
+		}
+
+		&.invalid {
+                    background-color: pink;
+		}
+            }
+
+            &:not(.dash-empty-11) {
+		.row-0 {
+                    tr:last-of-type {
+			td, th {
+                            border-bottom: none !important;
+			}
+                    }
+		}
+            }
+
+            &:not(.dash-empty-01) {
+		.cell-0-0,
+		.cell-1-0 {
+                    tr {
+			td:last-of-type,
+			th:last-of-type {
+                            border-right: none !important;
+			}
+                    }
+		}
+            }
+
+            &.dash-freeze-left,
+            &.dash-freeze-top,
+            &.dash-virtualized {
+		overflow: hidden !important;
+
+		.row-0 {
+                    display: flex;
+                    flex: 0 0 auto;
+                    flex-direction: row;
+		}
+
+		.row-1 {
+                    display: flex;
+                    flex-direction: row;
+                    overflow: auto;
+		}
+
+		.cell-0-0,
+		.cell-1-0 {
+                    flex: 0 0 auto;
+                    left: 0;
+                    position: sticky;
+                    position:-webkit-sticky;
+                    z-index: 400;
+		}
+
+		.cell-0-1 {
+                    z-index: 300;
+                    flex: 0 0 auto;
+		}
+
+		.cell-1-1 {
+                    flex: 0 0 auto;
+		}
+            }
+
+            &.dash-fill-width {
+		.cell-0-1,
+		.cell-1-1 {
+                    flex: 1 0 auto;
+		}
+
+		table {
+                    width: 100%;
+		}
+            }
+
+            td {
+		background-color: inherit;
+
+		&.focused {
+                    margin: -1px;
+                    z-index: 200;
+		}
+
+		.dash-cell-value-container {
+                    width: 100%;
+                    height: 100%;
+		}
+
+		.dash-input-cell-value-container {
+                    position: relative;
+		}
+
+		.dash-cell-value {
+                    height: 100%;
+                    width: 100%;
+		}
+
+		input.dash-cell-value {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    &.unfocused::selection {
+			background-color: transparent;
+                    }
+                    &.unfocused {
+			caret-color: transparent;
+                    }
+		}
+
+		.cell-value-shadow {
+                    margin: auto 0;
+                    opacity: 0;
+		}
+
+		.input-cell-value-shadow {
+                    display: inline-block;
+                    height: initial;
+                    width: initial;
+		}
+
+		.dropdown-cell-value-shadow {
+                    display: block;
+                    height: 0px;
+                    padding: 0 42px 0 10px;
+		}
+            }
+
+            th.dash-filter {
+		position: relative;
+
+		& input {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    height: 100%;
+                    width: 100%;
+		}
+            }
+
+            th {
+		white-space: nowrap;
+
+		.column-header--clear,
+		.column-header--delete,
+		.column-header--edit,
+		.column-header--hide
+		    .column-header--sort {
+                    .not-selectable();
+                    cursor: pointer;
+		}
+            }
+
+            // cell content styling
             td, th {
-                height: 0 !important;
-                padding: 0 !important;
-                margin: 0 !important;
+		background-clip: padding-box;
+		padding: 2px;
+		overflow-x: hidden;
+		white-space: nowrap;
+
+		height: 30px;
+
+		text-align: right;
+
+		div.dash-cell-value {
+                    display: inline;
+                    vertical-align: middle;
+                    white-space: inherit;
+                    overflow: inherit;
+                    text-overflow: inherit;
+		}
             }
-        }
+	}
 
-        .dash-filter {
-            input::placeholder {
-                color: inherit;
-                font-size: 0.8em;
-                padding-right: 5px;
+	.dash-spreadsheet-inner textarea {
+            white-space: pre;
+	}
+
+	.dash-spreadsheet-inner table {
+            border-collapse: collapse;
+
+            font-family: monospace;
+            --accent: hotpink;
+            --border: lightgrey;
+            --text-color: rgb(60, 60, 60);
+            --hover: rgb(253, 253, 253);
+            --background-color-ellipses: rgb(253, 253, 253);
+            --faded-text: rgb(250, 250, 250);
+            --faded-text-header: rgb(180, 180, 180);
+            --selected-background: rgba(255, 65, 54, 0.2);
+            --faded-dropdown: rgb(240, 240, 240);
+            --muted: rgb(200, 200, 200);
+	}
+
+	/* focus happens after copying to clipboard */
+	.dash-spreadsheet-inner table:focus {
+            outline: none;
+	}
+
+	.dash-spreadsheet-inner thead {
+            display: table-row-group;
+	}
+
+	.elip {
+            text-align: center;
+            width: 100%;
+            background-color: var(--background-color-ellipses);
+	}
+
+	.dash-spreadsheet-inner td.dropdown {
+            /*
+             * To view the dropdown's contents, we need
+             * overflow-y: visible.
+             * Unfortunately, overflow-x: hidden and overflow-y: visible
+             * can't both be set at the same time.
+             * So, we have to make both overflow-x: visible and overflow-y: visble
+             *
+             * See https://stackoverflow.com/questions/6421966/
+             *
+             * There might be another solution with parent divs, but I haven't
+             * tried it.
+             */
+            overflow-x: visible;
+	}
+
+	.dash-spreadsheet-inner :not(.cell--selected) tr:hover,
+	tr:hover input :not(.cell--selected) {
+            background-color: var(--hover);
+	}
+
+	.dash-spreadsheet-inner th {
+            background-color: rgb(250, 250, 250);
+	}
+
+	.dash-spreadsheet-inner td {
+            background-color: white;
+	}
+
+	.expanded-row--empty-cell {
+            background-color: transparent;
+	}
+
+	.expanded-row {
+            text-align: center;
+	}
+
+	.dash-spreadsheet-inner input:not([type=radio]):not([type=checkbox]) {
+            padding: 0px;
+            margin: 0px;
+            height: calc(100% - 1px);
+            line-height: 30px;
+            border: none;
+            font-family: inherit;
+            text-align: right;
+            box-sizing: border-box;
+            color: var(--text-color);
+            background-color: transparent; /* so as to not overlay the box shadow */
+
+            /* browser's default text-shadow is `$color 0px 0px 0px;`
+             * for `input`, which makes it look a little bit heavier than dropdowns
+             * or bare `td`
+             */
+            text-shadow: none;
+	}
+
+	.dash-spreadsheet-inner input.unfocused {
+            color: transparent;
+            text-shadow: 0 0 0 var(--text-color);
+            cursor: default;
+	}
+
+	.dash-spreadsheet-inner input.unfocused:focus {
+            outline: none;
+	}
+
+	.toggle-row {
+            border: none;
+            box-shadow: none;
+            width: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
+            cursor: pointer;
+            color: var(--faded-text);
+	}
+
+	.toggle-row--expanded {
+            color: var(--accent);
+	}
+
+	.dash-spreadsheet-inner tr:hover .toggle-row {
+            color: var(--accent);
+	}
+
+	.dash-spreadsheet-inner .dash-delete-cell,
+	.dash-spreadsheet-inner .dash-delete-header {
+            .not-selectable();
+
+            font-size: 1.3rem;
+            text-align: center;
+            cursor: pointer;
+            color: var(--muted);
+	}
+	.dash-spreadsheet-inner .dash-delete-cell:hover,
+	.dash-spreadsheet-inner .dash-delete-header:hover {
+            color: var(--accent);
+	}
+
+	.dash-spreadsheet-inner {
+            [class^='column-header--'] {
+		cursor: pointer;
+		float: left;
             }
 
-            & + .dash-filter {
-                &:not(:hover):not(:focus-within) {
-                    input::placeholder {
-                        color: transparent;
-                    }
-                }
+            .column-header--select {
+		height: auto;
             }
 
-            &.invalid {
-                background-color: pink;
-            }
-        }
-
-        &:not(.dash-empty-11) {
-            .row-0 {
-                tr:last-of-type {
-                    td, th {
-                        border-bottom: none !important;
-                    }
-                }
-            }
-        }
-
-        &:not(.dash-empty-01) {
-            .cell-0-0,
-            .cell-1-0 {
-                tr {
-                    td:last-of-type,
-                    th:last-of-type {
-                        border-right: none !important;
-                    }
-                }
-            }
-        }
-
-        &.dash-freeze-left,
-        &.dash-freeze-top,
-        &.dash-virtualized {
-            overflow: hidden !important;
-
-            .row-0 {
-                display: flex;
-                flex: 0 0 auto;
-                flex-direction: row;
+            .column-header--select,
+            .column-header--sort {
+		color: var(--faded-text-header);
             }
 
-            .row-1 {
-                display: flex;
-                flex-direction: row;
-                overflow: auto;
-            }
-
-            .cell-0-0,
-            .cell-1-0 {
-                flex: 0 0 auto;
-                left: 0;
-                position: sticky;
-                position:-webkit-sticky;
-                z-index: 400;
-            }
-
-            .cell-0-1 {
-                z-index: 300;
-                flex: 0 0 auto;
-            }
-
-            .cell-1-1 {
-                flex: 0 0 auto;
-            }
-        }
-
-        &.dash-fill-width {
-            .cell-0-1,
-            .cell-1-1 {
-                flex: 1 0 auto;
-            }
-
-             table {
-                width: 100%;
-            }
-        }
-
-        td {
-            background-color: inherit;
-
-            &.focused {
-                margin: -1px;
-                z-index: 200;
-            }
-
-            .dash-cell-value-container {
-                width: 100%;
-                height: 100%;
-            }
-
-            .dash-input-cell-value-container {
-                position: relative;
-            }
-
-            .dash-cell-value {
-                height: 100%;
-                width: 100%;
-            }
-
-            input.dash-cell-value {
-                position: absolute;
-                left: 0;
-                top: 0;
-                &.unfocused::selection {
-                    background-color: transparent;
-                }
-                &.unfocused {
-                    caret-color: transparent;
-                }
-            }
-
-            .cell-value-shadow {
-                margin: auto 0;
-                opacity: 0;
-            }
-
-            .input-cell-value-shadow {
-                display: inline-block;
-                height: initial;
-                width: initial;
-            }
-
-            .dropdown-cell-value-shadow {
-                display: block;
-                height: 0px;
-                padding: 0 42px 0 10px;
-            }
-        }
-
-        th.dash-filter {
-            position: relative;
-
-            & input {
-                position: absolute;
-                left: 0;
-                top: 0;
-                height: 100%;
-                width: 100%;
-            }
-        }
-
-        th {
-            white-space: nowrap;
 
             .column-header--clear,
             .column-header--delete,
             .column-header--edit,
-            .column-header--hide
-            .column-header--sort {
-                .not-selectable();
-                cursor: pointer;
+            .column-header--hide {
+		opacity: 0.1;
+		padding-left: 2px;
+		padding-right: 2px;
             }
-        }
 
-        // cell content styling
-        td, th {
-            background-clip: padding-box;
-            padding: 2px;
-            overflow-x: hidden;
-            white-space: nowrap;
-
-            height: 30px;
-
-            text-align: right;
-
-            div.dash-cell-value {
-                display: inline;
-                vertical-align: middle;
-                white-space: inherit;
-                overflow: inherit;
-                text-overflow: inherit;
+            th:hover {
+		[class^='column-header--']:not(.disabled) {
+                    color: var(--accent);
+                    opacity: 1;
+		}
             }
-        }
-    }
-
-    .dash-spreadsheet-inner textarea {
-        white-space: pre;
-    }
-
-    .dash-spreadsheet-inner table {
-        border-collapse: collapse;
-
-        font-family: monospace;
-        --accent: hotpink;
-        --border: lightgrey;
-        --text-color: rgb(60, 60, 60);
-        --hover: rgb(253, 253, 253);
-        --background-color-ellipses: rgb(253, 253, 253);
-        --faded-text: rgb(250, 250, 250);
-        --faded-text-header: rgb(180, 180, 180);
-        --selected-background: rgba(255, 65, 54, 0.2);
-        --faded-dropdown: rgb(240, 240, 240);
-        --muted: rgb(200, 200, 200);
-    }
-
-    /* focus happens after copying to clipboard */
-    .dash-spreadsheet-inner table:focus {
-        outline: none;
-    }
-
-    .dash-spreadsheet-inner thead {
-        display: table-row-group;
-    }
-
-    .elip {
-        text-align: center;
-        width: 100%;
-        background-color: var(--background-color-ellipses);
-    }
-
-    .dash-spreadsheet-inner td.dropdown {
-        /*
-        * To view the dropdown's contents, we need
-        * overflow-y: visible.
-        * Unfortunately, overflow-x: hidden and overflow-y: visible
-        * can't both be set at the same time.
-        * So, we have to make both overflow-x: visible and overflow-y: visble
-        *
-        * See https://stackoverflow.com/questions/6421966/
-        *
-        * There might be another solution with parent divs, but I haven't
-        * tried it.
-        */
-        overflow-x: visible;
-    }
-
-    .dash-spreadsheet-inner :not(.cell--selected) tr:hover,
-    tr:hover input :not(.cell--selected) {
-        background-color: var(--hover);
-    }
-
-    .dash-spreadsheet-inner th {
-        background-color: rgb(250, 250, 250);
-    }
-
-    .dash-spreadsheet-inner td {
-        background-color: white;
-    }
-
-    .expanded-row--empty-cell {
-        background-color: transparent;
-    }
-
-    .expanded-row {
-        text-align: center;
-    }
-
-    .dash-spreadsheet-inner input:not([type=radio]):not([type=checkbox]) {
-        padding: 0px;
-        margin: 0px;
-        height: calc(100% - 1px);
-        line-height: 30px;
-        border: none;
-        font-family: inherit;
-        text-align: right;
-        box-sizing: border-box;
-        color: var(--text-color);
-        background-color: transparent; /* so as to not overlay the box shadow */
-
-        /* browser's default text-shadow is `$color 0px 0px 0px;`
-        * for `input`, which makes it look a little bit heavier than dropdowns
-        * or bare `td`
-        */
-        text-shadow: none;
-    }
-
-    .dash-spreadsheet-inner input.unfocused {
-        color: transparent;
-        text-shadow: 0 0 0 var(--text-color);
-        cursor: default;
-    }
-
-    .dash-spreadsheet-inner input.unfocused:focus {
-        outline: none;
-    }
-
-    .toggle-row {
-        border: none;
-        box-shadow: none;
-        width: 10px;
-        padding-left: 10px;
-        padding-right: 10px;
-        cursor: pointer;
-        color: var(--faded-text);
-    }
-
-    .toggle-row--expanded {
-        color: var(--accent);
-    }
-
-    .dash-spreadsheet-inner tr:hover .toggle-row {
-        color: var(--accent);
-    }
-
-    .dash-spreadsheet-inner .dash-delete-cell,
-    .dash-spreadsheet-inner .dash-delete-header {
-        .not-selectable();
-
-        font-size: 1.3rem;
-        text-align: center;
-        cursor: pointer;
-        color: var(--muted);
-    }
-    .dash-spreadsheet-inner .dash-delete-cell:hover,
-    .dash-spreadsheet-inner .dash-delete-header:hover {
-        color: var(--accent);
-    }
-
-    .dash-spreadsheet-inner {
-        [class^='column-header--'] {
-            cursor: pointer;
-            float: left;
-        }
-
-        .column-header--select {
-            height: auto;
-        }
-
-        .column-header--select,
-        .column-header--sort {
-            color: var(--faded-text-header);
-        }
-
-
-        .column-header--clear,
-        .column-header--delete,
-        .column-header--edit,
-        .column-header--hide {
-            opacity: 0.1;
-            padding-left: 2px;
-            padding-right: 2px;
-        }
-
-        th:hover {
-            [class^='column-header--']:not(.disabled) {
-                color: var(--accent);
-                opacity: 1;
-            }
-        }
+	}
     }
 }

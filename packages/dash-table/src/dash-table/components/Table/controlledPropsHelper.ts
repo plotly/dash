@@ -37,6 +37,7 @@ export default () => {
             page_action,
             page_current,
             page_size,
+            page_count,
             selected_columns,
             selected_rows,
             sort_action,
@@ -92,6 +93,7 @@ export default () => {
             page_action,
             page_current,
             page_size,
+            page_count,
             setProps,
             virtual.data
         );

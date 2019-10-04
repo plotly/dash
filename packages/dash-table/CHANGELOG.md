@@ -10,9 +10,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [#597](https://github.com/plotly/dash-table/issues/597)
 - Add `is blank` unary operator. Returns true for `undefined`, `null` and `''`.
 
+[#299](https://github.com/plotly/dash-table/issues/299)
+- New prop `page_count` that sets the maximum number of pages that are
+  accessible via the pagination menu when using backend pagination.
+
 ### Changed
 [#598](https://github.com/plotly/dash-table/issues/598)
 - Allow values with whitespaces in column filters
+
+[#580](https://github.com/plotly/dash-table/issues/580)
+- Change pagination menu button UI to use arrow icons instead of plain
+  buttons
+- Move pagination menu to bottom-right of table
+- Include go-to-first and go-to-last buttons
+- Include current-page and total-pages display in pagination menu
+- Include input box for user to navigate directly to a page
 
 ### Fixed
 [#460](https://github.com/plotly/dash-table/issues/460)

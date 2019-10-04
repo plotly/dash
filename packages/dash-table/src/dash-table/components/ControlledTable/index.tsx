@@ -38,6 +38,8 @@ import queryLexicon from 'dash-table/syntax-tree/lexicon/query';
 import dataLoading from 'dash-table/derived/table/data_loading';
 import reconcile from 'dash-table/type/reconcile';
 
+import PageNavigation from 'dash-table/components/PageNavigation';
+
 const DEFAULT_STYLE = {
     width: '100%'
 };
@@ -629,18 +631,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         ) || page_action === TableAction.Custom;
     }
 
-    loadNext = () => {
-        const { paginator } = this.props;
-
-        paginator.loadNext();
-    }
-
-    loadPrevious = () => {
-        const { paginator } = this.props;
-
-        paginator.loadPrevious();
-    }
-
     applyStyle = () => {
         const {
             fixed_columns,
@@ -807,7 +797,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             tooltip_duration
         );
 
-        const { export_columns, export_format, export_headers, virtual, merge_duplicate_headers } = this.props;
+        const { export_columns, export_format, export_headers, virtual, merge_duplicate_headers, paginator, page_current, page_count } = this.props;
         const buttonProps = {
             export_columns,
             export_format,
@@ -820,6 +810,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         return (<div
             id={id}
+            className='dash-table-container'
             onCopy={this.onCopy}
             onKeyDown={this.handleKeyDown}
             onPaste={this.onPaste}
@@ -859,10 +850,10 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 </div>
             </div>
             {!this.displayPagination ? null : (
-                <div>
-                    <button className='previous-page' onClick={this.loadPrevious}>Previous</button>
-                    <button className='next-page' onClick={this.loadNext}>Next</button>
-                </div>
+                <PageNavigation
+                    paginator={paginator}
+                    page_current={page_current}
+                    page_count={page_count} />
             )}
         </div>);
     }
