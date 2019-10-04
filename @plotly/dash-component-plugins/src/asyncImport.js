@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 
-export const decorate = (target, promise) => {
+export const asyncDecorator = (target, promise) => {
     let resolve;
     const isReady = new Promise(r => {
         resolve = r;

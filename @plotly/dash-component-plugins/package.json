@@ -1,6 +1,6 @@
 {
   "name": "@plotly/dash-component-plugins",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Plugins for Dash Components",
   "repository": {
     "type": "git",

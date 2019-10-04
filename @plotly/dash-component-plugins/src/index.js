@@ -1,3 +1,3 @@
-import { decorate, isReady } from './dynamicImport';
+import { asyncDecorator, isReady } from './dynamicImport';
 
-export { decorate, isReady };
+export { asyncDecorator, isReady };
