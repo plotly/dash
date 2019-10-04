@@ -1,12 +1,12 @@
 version: 2
 jobs:
-  "percy-finalize":
+  percy-finalize:
     docker:
       - image: percyio/agent
     steps:
       - run: percy finalize --all
 
-  'lint-unit-37': &lint-unit
+  lint-unit-37: &lint-unit
     working_directory: ~/project
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -26,7 +26,7 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
-              - "venv"
+              - venv
       - run:
           name: 🌸 Lint
           command: |
@@ -41,21 +41,21 @@ jobs:
           command: |
             npm run test-unit
 
-  'lint-unit-36':
+  lint-unit-36:
     <<: *lint-unit
     docker:
       - image: circleci/python:3.6-stretch-node-browsers
         environment:
           PYTHON_VERSION: py36
 
-  'lint-unit-27':
+  lint-unit-27:
     <<: *lint-unit
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
         environment:
           PYTHON_VERSION: py27
 
-  'build-dash-37': &build-dash
+  build-dash-37: &build-dash
     working_directory: ~/project
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -75,7 +75,7 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
-              - "venv"
+              - venv
       - run:
           name: 🏗️ build dash
           command: |
@@ -96,27 +96,27 @@ jobs:
           paths:
             - packages
 
-  "build-dash-36":
+  build-dash-36:
     <<: *build-dash
     docker:
       - image: circleci/python:3.6-stretch-node-browsers
         environment:
           PYTHON_VERSION: py36
 
-  'build-dash-27':
+  build-dash-27:
     <<: *build-dash
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
         environment:
           PYTHON_VERSION: py27
 
-  "test-37": &test
+  test-37: &test
     working_directory: ~/project
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
             PYTHON_VERSION: py37
-            PERCY_PARALLEL_TOTAL: '-1'
+            PERCY_PARALLEL_TOTAL: -1
     parallelism: 3
     steps:
       - checkout
@@ -142,29 +142,29 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  "test-36":
+  test-36:
     <<: *test
     docker:
       - image: circleci/python:3.6-stretch-node-browsers
         environment:
           PYTHON_VERSION: py36
-          PERCY_ENABLE: '0'
+          PERCY_ENABLE: 0
 
-  'test-27':
+  test-27:
     <<: *test
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
         environment:
           PYTHON_VERSION: py27
-          PERCY_ENABLE: '0'
+          PERCY_ENABLE: 0
 
-  "test-legacy-37": &test-legacy
+  test-legacy-37: &test-legacy
     working_directory: ~/project
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
             PYTHON_VERSION: py37
-            PERCY_PARALLEL_TOTAL: '-1'
+            PERCY_PARALLEL_TOTAL: -1
     parallelism: 2
     steps:
       - checkout
@@ -192,56 +192,56 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  "test-legacy-36":
+  test-legacy-36:
     <<: *test-legacy
     docker:
       - image: circleci/python:3.6-stretch-node-browsers
         environment:
           PYTHON_VERSION: py36
-          PERCY_ENABLE: '0'
-  'test-legacy-27':
+          PERCY_ENABLE: 0
+  test-legacy-27:
     <<: *test-legacy
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
         environment:
           PYTHON_VERSION: py27
-          PERCY_ENABLE: '0'
+          PERCY_ENABLE: 0
 
 workflows:
   version: 2
   python3.7:
     jobs:
-      - 'lint-unit-37'
-      - 'build-dash-37'
-      - "test-37":
+      - lint-unit-37
+      - build-dash-37
+      - test-37:
           requires:
             - build-dash-37
-      - "test-legacy-37":
+      - test-legacy-37:
           requires:
             - build-dash-37
-      - "percy-finalize":
+      - percy-finalize:
           requires:
-            - "test-37"
-            - "test-legacy-37"
+            - test-37
+            - test-legacy-37
 
   python3.6:
     jobs:
-      - 'lint-unit-36'
-      - 'build-dash-36'
-      - "test-36":
+      - lint-unit-36
+      - build-dash-36
+      - test-36:
           requires:
             - build-dash-36
-      - "test-legacy-36":
+      - test-legacy-36:
           requires:
             - build-dash-36
 
   python2.7:
     jobs:
-      - 'lint-unit-27'
-      - 'build-dash-27'
-      - "test-27":
+      - lint-unit-27
+      - build-dash-27
+      - test-27:
           requires:
             - build-dash-27
-      - "test-legacy-27":
+      - test-legacy-27:
           requires:
             - build-dash-27
