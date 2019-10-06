@@ -14,7 +14,7 @@ def read_req_file(req_type):
 setup(
     name="dash",
     version=main_ns["__version__"],
-    author="chris p",
+    author="Chris Parmer",
     author_email="chris@plot.ly",
     packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
