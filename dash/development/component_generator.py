@@ -51,8 +51,6 @@ def generate_components(
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
 
-    is_windows = sys.platform == "win32"
-
     extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
 
     reserved_patterns = "|".join("^{}$".format(p) for p in reserved_words)
@@ -60,10 +58,9 @@ def generate_components(
     os.environ["NODE_PATH"] = "node_modules"
 
     cmd = shlex.split(
-        'node {} "{}" "{}" {}'.format(
+        'node "{}" "{}" "{}" {}'.format(
             extract_path, ignore, reserved_patterns, components_source
         ),
-        posix=not is_windows,
     )
 
     shutil.copyfile(
@@ -71,7 +68,7 @@ def generate_components(
     )
 
     proc = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     out, err = proc.communicate()
     status = proc.poll()
