@@ -14,11 +14,11 @@ jobs:
       - checkout
 
       - run:
-          name: Write job name
+          name: ✍️ Write job name
           command: echo $CIRCLE_JOB > circlejob.txt
 
       - run:
-          name: Install dependencies
+          name: 🏗️ Install dependencies
           command: |
               sudo pip install virtualenv --upgrade
               python -m venv venv || virtualenv venv
@@ -27,7 +27,7 @@ jobs:
               npm install --ignore-scripts
 
       - run:
-          name: Install dependencies (dash)
+          name: 🏗️ Install dependencies (dash)
           command: |
               git clone --depth 1 git@github.com:plotly/dash.git dash-main
               git clone --depth 1 git@github.com:plotly/dash-core-components.git
@@ -39,7 +39,7 @@ jobs:
               cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
 
       - run:
-          name: Build
+          name: 🧰 Build
           command: |
               . venv/bin/activate
               python --version
@@ -47,7 +47,7 @@ jobs:
               npm run build
 
       - run:
-          name: Run tests
+          name: 🧪 Run tests
           command: |
               . venv/bin/activate
               python --version
