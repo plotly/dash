@@ -257,6 +257,7 @@ class RRunner(ProcessRunner):
             # app is already a file in a dir - use that as cwd
             if not cwd:
                 cwd = os.path.dirname(app)
+                logger.info("RRunner inferred cwd from app path: %s", cwd)
         else:
             path = (
                 "/tmp/app_{}.R".format(uuid.uuid4().hex)
@@ -281,6 +282,18 @@ class RRunner(ProcessRunner):
                     if "/dash/testing/" not in entry[1].replace("\\", "/"):
                         cwd = os.path.dirname(os.path.realpath(entry[1]))
                         break
+            if cwd:
+                logger.info(
+                    "RRunner inferred cwd from the Python call stack: %s",
+                    cwd
+                )
+            else:
+                logger.warning(
+                    "RRunner found no cwd in the Python call stack. "
+                    "You may wish to specify an explicit working directory "
+                    "using something like: "
+                    "dashr.run_server(app, cwd=os.path.dirname(__file__))"
+                )
 
         logger.info("Run dashR app with Rscript => %s", app)
         args = shlex.split(
