@@ -96,6 +96,7 @@ def test_dveh006_long_python_errors(dash_duo):
     )
 
     dash_duo.find_element("#python").click()
+    dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
     dash_duo.find_element("#python").click()
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "2")
 

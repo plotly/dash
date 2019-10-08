@@ -7,6 +7,7 @@ import shlex
 import threading
 import subprocess
 import logging
+import inspect
 
 import runpy
 import future.utils as utils
@@ -25,14 +26,12 @@ logger = logging.getLogger(__name__)
 
 
 def import_app(app_file, application_name="app"):
-    """
-    Import a dash application from a module.
-    The import path is in dot notation to the module.
-    The variable named app will be returned.
+    """Import a dash application from a module. The import path is in dot
+    notation to the module. The variable named app will be returned.
 
     :Example:
 
-        >>> app = import_app('my_app.app')
+        >>> app = import_app("my_app.app")
 
     Will import the application in module `app` of the package `my_app`.
 
@@ -97,7 +96,7 @@ class BaseDashRunner(object):
 
     @property
     def url(self):
-        """the default server url"""
+        """The default server url."""
         return "http://localhost:{}".format(self.port)
 
     @property
@@ -106,9 +105,9 @@ class BaseDashRunner(object):
 
 
 class ThreadedRunner(BaseDashRunner):
-    """Runs a dash application in a thread
+    """Runs a dash application in a thread.
 
-    this is the default flavor to use in dash integration tests
+    This is the default flavor to use in dash integration tests.
     """
 
     def __init__(self, keep_open=False, stop_timeout=3):
@@ -129,7 +128,7 @@ class ThreadedRunner(BaseDashRunner):
 
     # pylint: disable=arguments-differ,C0330
     def start(self, app, **kwargs):
-        """Start the app server in threading flavor"""
+        """Start the app server in threading flavor."""
         app.server.add_url_rule(
             self.stop_route, self.stop_route, self._stop_server
         )
@@ -167,9 +166,9 @@ class ThreadedRunner(BaseDashRunner):
 
 
 class ProcessRunner(BaseDashRunner):
-    """Runs a dash application in a waitress-serve subprocess
+    """Runs a dash application in a waitress-serve subprocess.
 
-    this flavor is closer to production environment but slower
+    This flavor is closer to production environment but slower.
     """
 
     def __init__(self, keep_open=False, stop_timeout=3):
@@ -187,7 +186,7 @@ class ProcessRunner(BaseDashRunner):
         port=8050,
         start_timeout=3,
     ):
-        """Start the server with waitress-serve in process flavor """
+        """Start the server with waitress-serve in process flavor."""
         if not (app_module or raw_command):  # need to set a least one
             logging.error(
                 "the process runner needs to start with"
@@ -250,11 +249,16 @@ class RRunner(ProcessRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self, app, start_timeout=2):
-        """Start the server with waitress-serve in process flavor """
+    def start(self, app, start_timeout=2, cwd=None):
+        """Start the server with subprocess and Rscript."""
 
         # app is a R string chunk
-        if not (os.path.isfile(app) and os.path.exists(app)):
+        if (os.path.isfile(app) and os.path.exists(app)):
+            # app is already a file in a dir - use that as cwd
+            if not cwd:
+                cwd = os.path.dirname(app)
+                logger.info("RRunner inferred cwd from app path: %s", cwd)
+        else:
             path = (
                 "/tmp/app_{}.R".format(uuid.uuid4().hex)
                 if not self.is_windows
@@ -262,15 +266,34 @@ class RRunner(ProcessRunner):
                     (os.getenv("TEMP"), "app_{}.R".format(uuid.uuid4().hex))
                 )
             )
-            logger.info("RRuner start => app is R code chunk")
-            logger.info("make a temporay R file for execution=> %s", path)
-            logger.debug("the content of dashR app")
+            logger.info("RRunner start => app is R code chunk")
+            logger.info("make a temporary R file for execution => %s", path)
+            logger.debug("content of the dashR app")
             logger.debug("%s", app)
 
             with open(path, "w") as fp:
                 fp.write(app)
 
             app = path
+
+            # try to find the path to the calling script to use as cwd
+            if not cwd:
+                for entry in inspect.stack():
+                    if "/dash/testing/" not in entry[1].replace("\\", "/"):
+                        cwd = os.path.dirname(os.path.realpath(entry[1]))
+                        break
+            if cwd:
+                logger.info(
+                    "RRunner inferred cwd from the Python call stack: %s",
+                    cwd
+                )
+            else:
+                logger.warning(
+                    "RRunner found no cwd in the Python call stack. "
+                    "You may wish to specify an explicit working directory "
+                    "using something like: "
+                    "dashr.run_server(app, cwd=os.path.dirname(__file__))"
+                )
 
         logger.info("Run dashR app with Rscript => %s", app)
         args = shlex.split(
@@ -281,7 +304,7 @@ class RRunner(ProcessRunner):
 
         try:
             self.proc = subprocess.Popen(
-                args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd
             )
             # wait until server is able to answer http request
             wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
