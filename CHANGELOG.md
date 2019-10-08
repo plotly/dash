@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [1.4.0] - 2019-10-08
 ### Added
 - [#948](https://github.com/plotly/dash/pull/948) Support setting working directory for R apps run using the `dashr` fixture, primarily useful for tests with assets. `dashr.start_server` supports a `cwd` argument to set an explicit working directory, and has smarter defaults when it's omitted: if `app` is a path to an R script, uses the directory of that path; if `app` is a string, uses the directory the test file itself is in.
 - [#944](https://github.com/plotly/dash/pull/944)
