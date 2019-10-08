@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [1.3.0] - 2019-10-08
 ### Added
 - Added `search_value` prop to `Dropdown`, for server-side options loading/filtering. [#660](https://github.com/plotly/dash-core-components/pull/660)
 
