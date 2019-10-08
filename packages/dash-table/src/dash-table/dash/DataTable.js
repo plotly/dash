@@ -680,6 +680,9 @@ export const propTypes = {
         PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     ),
 
+    /**
+     * Dash-assigned callback that gets fired when the user makes changes.
+     */
     setProps: PropTypes.func,
 
     /**
