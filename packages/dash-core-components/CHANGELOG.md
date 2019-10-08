@@ -6,6 +6,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Added `search_value` prop to `Dropdown`, for server-side options loading/filtering. [#660](https://github.com/plotly/dash-core-components/pull/660)
 
+### Updated
+- Upgraded plotly.js to 1.50.0 [#675](https://github.com/plotly/dash-core-components/pull/675)
+  - [Feature release 1.50.0](https://github.com/plotly/plotly.js/releases/tag/v1.50.0) which contains:
+    - A new `treemap` trace type for display of hierarchical data.
+    - `texttemplate` support for all traces with on-graph text, and custom date formatting for templated on-graph and hover text.
+    - Transitions (animation) for `bar` charts.
+    - Numerous other performance improvements, features, and bug fixes.
+  - Patch release [1.49.5](https://github.com/plotly/plotly.js/releases/tag/v1.49.5) containing several bug fixes.
+
 ## [1.2.1] - 2019-09-19
 ### Fixed
 - Fix regression in DatePickerRange, DatePickerSingle, Input

@@ -19,6 +19,8 @@ def test_stcp100_clear_data_on_all_types(store_app, dash_dcc):
     # button click sets clear_data=True on all type of stores
     dash_dcc.find_element("#clear-btn").click()
 
+    dash_dcc.wait_for_text_to_equal("#output", "")
+
     assert (
         not dash_dcc.find_element("#output").text
         and not dash_dcc.get_local_storage()

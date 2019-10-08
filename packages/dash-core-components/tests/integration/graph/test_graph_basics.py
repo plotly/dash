@@ -1,6 +1,9 @@
 import pytest
 import pandas as pd
+from multiprocessing import Value
 import numpy as np
+from time import sleep
+
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
@@ -67,9 +70,11 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc):
             )
         ],
     )
+    call_count = Value("i", 0)
 
     @app.callback(Output("graph", "figure"), [Input("graph", "relayoutData")])
     def selected_df_figure(selection):
+        call_count.value += 1
         figure["data"][0]["x"] = df.columns
         figure["data"][0]["y"] = df.index
         figure["data"][0]["z"] = df.values
@@ -78,6 +83,8 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc):
     dash_dcc.start_server(app)
 
     wait.until(lambda: dash_dcc.driver.title == "Dash", timeout=2)
-    assert (
-        len({dash_dcc.driver.title for _ in range(20)}) == 1
-    ), "after the first update, there should contain no extra Updating..."
+    sleep(1)
+    # TODO: not sure 2 calls actually makes sense here, shouldn't it be 1?
+    # but that's what we had as of the 608 fix, PR 621, so let's lock that
+    # in for now.
+    assert call_count.value == 2
