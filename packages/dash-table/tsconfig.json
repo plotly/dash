@@ -4,17 +4,20 @@
         "outDir": "./dist",
         "baseUrl": ".",
         "paths": {
-            "core/*": ["src/core/*"],
-            "dash-table/*": ["src/dash-table/*"],
-            "tests": ["src/tests"]
+            "core/*": [
+                "src/core/*"
+            ],
+            "dash-table/*": [
+                "src/dash-table/*"
+            ],
+            "tests": [
+                "src/tests"
+            ]
         }
     },
-    "exclude": [
-        "dash_table/*",
-        "dist/*",
-        "node_modules/*",
-        "storybook-static/*",
-        "tests/*",
-        "vv/*"
+    "include": [
+        "src/*",
+        "demo/*",
+        "@Types"
     ]
 }

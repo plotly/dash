@@ -1,8 +1,4 @@
-import { configure, getStorybook, setAddon } from '@storybook/react';
-
-import createPercyAddon from '@percy-io/percy-storybook';
-const { percyAddon, serializeStories } = createPercyAddon();
-setAddon(percyAddon);
+import { configure } from '@storybook/react';
 
 const req = require.context('./../tests/visual/percy-storybook', true, /\.percy\./);
 function loadStories() {
@@ -10,4 +6,3 @@ function loadStories() {
 }
 
 configure(loadStories, module);
-serializeStories(getStorybook);
