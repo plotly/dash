@@ -27,12 +27,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Include input box for user to navigate directly to a page
 
 ### Fixed
+
 [#460](https://github.com/plotly/dash-table/issues/460)
 - The `datestartswith` relational operator now supports number comparison
 - Fixed a bug where the implicit operator for columns was `equal` instead of the expected default for the column type
 
 [#546](https://github.com/plotly/dash-table/issues/546)
 - Visible columns are used correctly for both header and data rows
+
+[#563](https://github.com/plotly/dash-table/issues/563)
+- Fixed a bug where any string beginning with a relational operator was being interpreted as that operator being applied to the rest of the string (e.g., "lens" was interpreted as "<=ns")
 
 [#591](https://github.com/plotly/dash-table/issues/591)
 - Fixed row and column selection when multiple tables are present

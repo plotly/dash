@@ -71,8 +71,6 @@ describe('filter', () => {
             .within(() => cy.get('.dash-cell-value')
                 .then($el => cell_1 = $el[0].innerHTML));
 
-        DashTable.getFilterById('ccc').click();
-        DOM.focused.type(`gt`);
         DashTable.getFilterById('ddd').click();
         DOM.focused.type('"20 a000');
         DashTable.getFilterById('eee').click();
@@ -85,12 +83,10 @@ describe('filter', () => {
         DashTable.getCellById(1, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', cell_1));
 
         DashTable.getFilterById('bbb').within(() => cy.get('input').should('have.value', '! !"'));
-        DashTable.getFilterById('ccc').within(() => cy.get('input').should('have.value', 'gt'));
         DashTable.getFilterById('ddd').within(() => cy.get('input').should('have.value', '"20 a000'));
         DashTable.getFilterById('eee').within(() => cy.get('input').should('have.value', 'is prime2'));
 
         DashTable.getFilterById('bbb').should('have.class', 'invalid');
-        DashTable.getFilterById('ccc').should('have.class', 'invalid');
         DashTable.getFilterById('ddd').should('have.class', 'invalid');
         DashTable.getFilterById('eee').should('have.class', 'invalid');
     });
@@ -113,14 +109,43 @@ describe('filter', () => {
         DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '100'));
     });
 
+    it('does not use text-based relational operators unless they are followed by a space', () => {
+        DashTable.getCellById(2, 'ccc').click();
+        DOM.focused.type(`le5${Key.Enter}`);
+
+        DashTable.getFilterById('ccc').click();
+        DOM.focused.type(`le5${Key.Enter}`);
+        DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', 'le5'));
+        DashTable.getCellById(0, 'rows').within(() => cy.get('.dash-cell-value').should('have.html', '3'));
+
+        cy.get('.clear-filters').click();
+
+        DashTable.getFilterById('ccc').click();
+        DOM.focused.type(`le 5${Key.Enter}`);
+        DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '1'));
+        DashTable.getCellById(1, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '2'));
+        DashTable.getCellById(2, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '4'));
+        DashTable.getCellById(3, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '5'));
+    });
+
+    it('uses symbol relational operators that are not followed by a space', () => {
+        DashTable.getFilterById('ccc').click();
+        DOM.focused.type(`<=5${Key.Enter}`);
+        DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '1'));
+        DashTable.getCellById(1, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '2'));
+        DashTable.getCellById(2, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '3'));
+        DashTable.getCellById(3, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '4'));
+        DashTable.getCellById(4, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '5'));
+    });
+
     it('typing invalid followed by valid query fragment does not reset invalid', () => {
         DashTable.getFilterById('ccc').click();
-        DOM.focused.type(`gt`);
+        DOM.focused.type(`is prime2`);
         DashTable.getFilterById('ddd').click();
         DOM.focused.type('lt 20000');
         DashTable.getFilterById('eee').click();
 
-        DashTable.getFilterById('ccc').within(() => cy.get('input').should('have.value', 'gt'));
+        DashTable.getFilterById('ccc').within(() => cy.get('input').should('have.value', 'is prime2'));
         DashTable.getFilterById('ddd').within(() => cy.get('input').should('have.value', 'lt 20000'));
     });
 

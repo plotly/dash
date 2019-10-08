@@ -589,5 +589,17 @@ describe('Query Syntax Tree', () => {
             expect(tree.evaluate({ a: 'abc v' })).to.equal(true);
             expect(tree.evaluate({ a: 'abc w' })).to.equal(false);
         });
+
+        it('correctly interprets text-based with no spaces as invalid', () => {
+            const tree = new QuerySyntaxTree('{a} le5');
+            expect(tree.isValid).to.equal(false);
+        });
+
+        it('correctly interprets non-text-based with no spaces as valid', () => {
+            const tree = new QuerySyntaxTree('{a}<=5');
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate({ a: 4 })).to.equal(true);
+
+        });
     });
 });
