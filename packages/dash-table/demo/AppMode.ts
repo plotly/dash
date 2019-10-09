@@ -20,6 +20,7 @@ export enum AppMode {
     Default = 'default',
     Formatting = 'formatting',
     ReadOnly = 'readonly',
+    SomeReadOnly = 'someReadonly',
     ColumnsInSpace = 'columnsInSpace',
     SingleHeaders = 'singleHeaders',
     TaleOfTwoTables = 'taleOfTwoTables',
@@ -129,6 +130,18 @@ function getReadonlyState() {
 
     R.forEach(column => {
         column.editable = false;
+    }, state.tableProps.columns || []);
+
+    return state;
+}
+
+function getSomeReadonlyState() {
+    const state = getDefaultState();
+    state.tableProps.editable = true;
+    state.tableProps.row_deletable = false;
+
+    R.forEach(column => {
+        column.editable = !R.includes(column.id, ['bbb', 'eee', 'fff']);
     }, state.tableProps.columns || []);
 
     return state;
@@ -336,6 +349,8 @@ function getModeState(mode: string | null) {
             return getFormattingState();
         case AppMode.ReadOnly:
             return getReadonlyState();
+        case AppMode.SomeReadOnly:
+            return getSomeReadonlyState();
         case AppMode.ColumnsInSpace:
             return getSpaceInColumn();
         case AppMode.Tooltips:

@@ -164,6 +164,7 @@ class Contents {
                     formatters[columnIndex](datum[column.id]);
 
                 return (<CellLabel
+                    active={active}
                     className={className}
                     key={`column-${columnIndex}`}
                     value={resolvedValue}
