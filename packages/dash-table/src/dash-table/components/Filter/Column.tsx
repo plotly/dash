@@ -3,6 +3,7 @@ import React, { CSSProperties, PureComponent } from 'react';
 import IsolatedInput from 'core/components/IsolatedInput';
 
 import { ColumnId } from 'dash-table/components/Table/props';
+import TableClipboardHelper from 'dash-table/utils/TableClipboardHelper';
 
 type SetFilter = (ev: any) => void;
 
@@ -51,6 +52,13 @@ export default class ColumnFilter extends PureComponent<IColumnFilterProps, ISta
             style={style}
         >
             <IsolatedInput
+                onCopy={(e: any) => {
+                    e.stopPropagation();
+                    TableClipboardHelper.clearClipboard();
+                }}
+                onPaste={(e: any) => {
+                    e.stopPropagation();
+                }}
                 value={value}
                 placeholder={`filter data...`}
                 stopPropagation={true}

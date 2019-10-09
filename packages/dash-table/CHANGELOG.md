@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [#618](https://github.com/plotly/dash-table/issues/618) Fix a bug with keyboard navigation not
 working correctly in certain circumstances when the table contains `readonly` columns.
 
+- [#206](https://github.com/plotly/dash-table/issues/206) Fix a bug with copy/paste to and from
+column filters not working.
+
 ## [4.4.0] - 2019-10-08
 ### Added
 [#546](https://github.com/plotly/dash-table/issues/546)

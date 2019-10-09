@@ -4,6 +4,8 @@ import { KEY_CODES } from 'dash-table/utils/unicode';
 type Submit = (value: string | undefined) => void;
 
 interface IProps {
+    onCopy?: (e: any) => void;
+    onPaste?: (e: any) => void;
     placeholder?: string;
     updateOnBlur?: boolean;
     updateOnSubmit?: boolean;
@@ -84,6 +86,8 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
 
     render() {
         const {
+            onCopy,
+            onPaste,
             placeholder,
             updateOnBlur,
             updateOnSubmit
@@ -100,6 +104,8 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
             type='text'
             value={this.state.value || ''}
             onChange={this.handleChange}
+            onCopy={onCopy}
+            onPaste={onPaste}
             placeholder={placeholder}
             {...props}
         />);
