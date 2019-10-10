@@ -22,13 +22,13 @@ def test_resources_eager():
 
     assert len(filtered) == 3
     assert filtered[0].get("external_url") == "a.js"
-    assert filtered[0].get("dynamic") == False  # include (eager when eager)
+    assert filtered[0].get("dynamic") is False  # include (eager when eager)
     assert filtered[1].get("external_url") == "b.js"
     assert (
-        filtered[1].get("dynamic") == True
+        filtered[1].get("dynamic") is True
     )  # exclude (lazy when eager -> closest to exclude)
     assert filtered[2].get("external_url") == "c.js"
-    assert filtered[2].get("dynamic") == False  # include (always matches settings)
+    assert filtered[2].get("dynamic") is False  # include (always matches settings)
 
 
 def test_resources_lazy():
@@ -47,8 +47,8 @@ def test_resources_lazy():
 
     assert len(filtered) == 3
     assert filtered[0].get("external_url") == "a.js"
-    assert filtered[0].get("dynamic") == True  # exclude (no eager when lazy)
+    assert filtered[0].get("dynamic") is True  # exclude (no eager when lazy)
     assert filtered[1].get("external_url") == "b.js"
-    assert filtered[1].get("dynamic") == True  # exclude (lazy when lazy)
+    assert filtered[1].get("dynamic") is True  # exclude (lazy when lazy)
     assert filtered[2].get("external_url") == "c.js"
-    assert filtered[2].get("dynamic") == True  # exclude (always matches settings)
+    assert filtered[2].get("dynamic") is True  # exclude (always matches settings)
