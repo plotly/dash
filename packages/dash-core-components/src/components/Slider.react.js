@@ -156,6 +156,9 @@ Slider.propTypes = {
      */
     max: PropTypes.number,
 
+    /**
+     * Configuration for tooltips describing the current slider value
+     */
     tooltip: PropTypes.exact({
         /**
          * Determines whether tooltips should always be visible
@@ -166,8 +169,8 @@ Slider.propTypes = {
         /**
          * Determines the placement of tooltips
          * See https://github.com/react-component/tooltip#api
-         * top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft` will
-         * in reality appear to be on the top right of the handle
+         * top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft`
+         * will in reality appear to be on the top right of the handle
          */
         placement: PropTypes.oneOf([
             'left',
