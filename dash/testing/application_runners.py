@@ -7,6 +7,7 @@ import shlex
 import threading
 import subprocess
 import logging
+import inspect
 
 import runpy
 import future.utils as utils
@@ -30,7 +31,7 @@ def import_app(app_file, application_name="app"):
 
     :Example:
 
-        >>> app = import_app('my_app.app')
+        >>> app = import_app("my_app.app")
 
     Will import the application in module `app` of the package `my_app`.
 
@@ -250,11 +251,16 @@ class RRunner(ProcessRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self, app, start_timeout=2):
-        """Start the server with waitress-serve in process flavor."""
+    def start(self, app, start_timeout=2, cwd=None):
+        """Start the server with subprocess and Rscript."""
 
         # app is a R string chunk
-        if not (os.path.isfile(app) and os.path.exists(app)):
+        if (os.path.isfile(app) and os.path.exists(app)):
+            # app is already a file in a dir - use that as cwd
+            if not cwd:
+                cwd = os.path.dirname(app)
+                logger.info("RRunner inferred cwd from app path: %s", cwd)
+        else:
             path = (
                 "/tmp/app_{}.R".format(uuid.uuid4().hex)
                 if not self.is_windows
@@ -262,15 +268,34 @@ class RRunner(ProcessRunner):
                     (os.getenv("TEMP"), "app_{}.R".format(uuid.uuid4().hex))
                 )
             )
-            logger.info("RRuner start => app is R code chunk")
-            logger.info("make a temporay R file for execution=> %s", path)
-            logger.debug("the content of dashR app")
+            logger.info("RRunner start => app is R code chunk")
+            logger.info("make a temporary R file for execution => %s", path)
+            logger.debug("content of the dashR app")
             logger.debug("%s", app)
 
             with open(path, "w") as fp:
                 fp.write(app)
 
             app = path
+
+            # try to find the path to the calling script to use as cwd
+            if not cwd:
+                for entry in inspect.stack():
+                    if "/dash/testing/" not in entry[1].replace("\\", "/"):
+                        cwd = os.path.dirname(os.path.realpath(entry[1]))
+                        break
+            if cwd:
+                logger.info(
+                    "RRunner inferred cwd from the Python call stack: %s",
+                    cwd
+                )
+            else:
+                logger.warning(
+                    "RRunner found no cwd in the Python call stack. "
+                    "You may wish to specify an explicit working directory "
+                    "using something like: "
+                    "dashr.run_server(app, cwd=os.path.dirname(__file__))"
+                )
 
         logger.info("Run dashR app with Rscript => %s", app)
         args = shlex.split(
@@ -281,7 +306,7 @@ class RRunner(ProcessRunner):
 
         try:
             self.proc = subprocess.Popen(
-                args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd
             )
             # wait until server is able to answer http request
             wait.until(
