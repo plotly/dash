@@ -159,7 +159,7 @@ jobs:
           name: ️️🏗️ build misc
           command: |
               . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-              git clone --depth 1 https://github.com/plotly/dash-table.git
+              git clone --depth 1 -b exp-dynamic https://github.com/plotly/dash-table.git
               cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
               cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
