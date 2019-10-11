@@ -1,5 +1,9 @@
+from textwrap import dedent
+
+
 class DashException(Exception):
-    pass
+    def __init__(self, msg=""):
+        super(DashException, self).__init__(dedent(msg).strip())
 
 
 class ObsoleteKwargException(DashException):

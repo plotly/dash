@@ -39,3 +39,6 @@ class CallbackContext:
     @has_context
     def response(self):
         return getattr(flask.g, 'dash_response')
+
+
+callback_context = CallbackContext()

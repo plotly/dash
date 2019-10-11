@@ -7,7 +7,7 @@ import hashlib
 import collections
 import subprocess
 import logging
-from io import open  # pylint: disable=redefined-builtin
+import io
 from functools import wraps
 import future.utils as utils
 from . import exceptions
@@ -186,7 +186,7 @@ def run_command_with_process(cmd):
 
 
 def compute_md5(path):
-    with open(path, encoding="utf-8") as fp:
+    with io.open(path, encoding="utf-8") as fp:
         return hashlib.md5(fp.read().encode("utf-8")).hexdigest()
 
 

@@ -5,13 +5,13 @@ class DashDependency:
         self.component_property = component_property
 
     def __str__(self):
-        return '{}.{}'.format(
+        return "{}.{}".format(
             self.component_id,
             self.component_property
         )
 
     def __repr__(self):
-        return '<{} `{}`>'.format(self.__class__.__name__, self)
+        return "<{} `{}`>".format(self.__class__.__name__, self)
 
     def __eq__(self, other):
         return isinstance(other, DashDependency) and str(self) == str(other)
@@ -25,11 +25,11 @@ class Output(DashDependency):  # pylint: disable=too-few-public-methods
 
 
 class Input(DashDependency):  # pylint: disable=too-few-public-methods
-    """Input of callback trigger an update when it is updated."""
+    """Input of callback: trigger an update when it is updated."""
 
 
 class State(DashDependency):  # pylint: disable=too-few-public-methods
-    """Use the value of a state in a callback but don't trigger updates."""
+    """Use the value of a State in a callback but don't trigger updates."""
 
 
 class ClientsideFunction:
@@ -47,7 +47,7 @@ class ClientsideFunction:
         self.function_name = function_name
 
     def __repr__(self):
-        return 'ClientsideFunction({}, {})'.format(
+        return "ClientsideFunction({}, {})".format(
             self.namespace,
             self.function_name
         )
