@@ -89,8 +89,8 @@ def test_scripts_on_request(dash_duo):
     time.sleep(2)
 
     scripts = dash_duo.driver.find_elements(By.CSS_SELECTOR, "script")
-    assert (findSyncPlotlyJs(scripts) is None) is True
-    assert (findAsyncPlotlyJs(scripts) is None) is True
+    assert findSyncPlotlyJs(scripts) is None
+    assert findAsyncPlotlyJs(scripts) is None
 
     dash_duo.find_element("#btn").click()
 
@@ -98,5 +98,5 @@ def test_scripts_on_request(dash_duo):
     time.sleep(2)
 
     scripts = dash_duo.driver.find_elements(By.CSS_SELECTOR, "script")
-    assert (findSyncPlotlyJs(scripts) is None) is True
-    assert (findAsyncPlotlyJs(scripts) is None) is False
+    assert findSyncPlotlyJs(scripts) is None
+    assert findAsyncPlotlyJs(scripts) is not None
