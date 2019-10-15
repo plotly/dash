@@ -571,8 +571,9 @@ function updateOutput(
          * Create the dash_clientside namespace if it doesn't exist and inject 
          * no_update and PreventUpdate.
          */
-        if (!window.dash_clientside)
+        if (!window.dash_clientside) {
           window.dash_clientside = {};
+        }
         
         if (!window.dash_clientside.no_update) {
           Object.defineProperty(window.dash_clientside, 'no_update', {
