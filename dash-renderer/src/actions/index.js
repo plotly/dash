@@ -568,8 +568,6 @@ function updateOutput(
             })
         );
 
-        dispatch(setAppIsReady());
-
         return props;
     }
 
@@ -917,6 +915,8 @@ function updateOutput(
                                 );
                             });
                         }
+
+                        dispatch(setAppIsReady());
                     }
                 };
                 if (multi) {
