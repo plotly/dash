@@ -305,6 +305,7 @@ class Dash(object):
 
         # list of dependencies
         self.callback_map = {}
+        self.used_outputs = []
 
         # list of inline scripts
         self._inline_scripts = []
@@ -806,15 +807,10 @@ class Dash(object):
         callback_id = create_callback_id(output)
 
         self.callback_map[callback_id] = {
-            "inputs": [
-                {"id": c.component_id, "property": c.component_property}
-                for c in inputs
-            ],
-            "state": [
-                {"id": c.component_id, "property": c.component_property}
-                for c in state
-            ],
+            "inputs": [c.to_dict() for c in inputs],
+            "state": [c.to_dict() for c in state],
         }
+        self.used_outputs.extend(output if callback_id.startswith("..") else [output])
 
         return callback_id
 

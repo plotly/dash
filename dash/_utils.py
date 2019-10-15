@@ -163,7 +163,13 @@ def create_callback_id(output):
     if isinstance(output, (list, tuple)):
         return "..{}..".format(
             "...".join(
-                "{}.{}".format(x.component_id, x.component_property)
+                "{}.{}".format(
+                    # A single dot within a dict id key or value is OK
+                    # but in case of multiple dots together escape each dot
+                    # with `\` so we don't mistake it for multi-outputs
+                    x.component_id_str().replace(".", "\\."),
+                    x.component_property
+                )
                 for x in output
             )
         )

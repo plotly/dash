@@ -1,15 +1,10 @@
 import collections
-from itertools import chain
-import pprint
 import re
 
-from .development.base_component import Component
-from .dependencies import Input, Output, State
+from .development.base_component import Component, _strings
+from .dependencies import Input, Output, State, ANY, ALLSMALLER, PREVIOUS
 from . import exceptions
-from ._utils import create_callback_id, patch_collections_abc
-
-# py2/3 json.dumps-compatible strings - these are equivalent in py3, not in py2
-_strings = (type(u""), type(""))
+from ._utils import patch_collections_abc
 
 
 def validate_callback(app, layout, output, inputs, state):
@@ -52,58 +47,89 @@ def validate_callback(app, layout, output, inputs, state):
         if is_multi:
             for o in output:
                 if o == i:
+                    # Note: different but overlapping wildcards compare as equal
                     bad = o
-        else:
-            if output == i:
-                bad = output
+        elif output == i:
+            bad = output
         if bad:
             raise exceptions.SameInputOutputException(
                 "Same output and input: {}".format(bad)
             )
 
-    if is_multi:
-        if len(set(output)) != len(output):
-            raise exceptions.DuplicateCallbackOutput(
-                "Same output was used more than once in a "
-                "multi output callback!\nDuplicates:\n{}".format(
-                    ",\n".join(str(x) for x in output if output.count(x) > 1)
-                )
-            )
-
-    callback_id = create_callback_id(output)
-
-    callbacks = set(
-        chain(
-            *(
-                x[2:-2].split("...") if x.startswith("..") else [x]
-                for x in app.callback_map
+    if is_multi and len(set(output)) != len(output):
+        raise exceptions.DuplicateCallbackOutput(
+            """
+            Same output was used more than once in a multi output callback!
+            Duplicates:
+            {}
+            """.format(
+                ",\n".join(str(x) for x in output if output.count(x) > 1)
             )
         )
-    )
 
-    if is_multi:
-        dups = callbacks.intersection(str(y) for y in output)
-        if dups:
-            raise exceptions.DuplicateCallbackOutput(
+    any_keys = get_wildcard_keys(outputs[0], (ANY,))
+    for out in outputs[1:]:
+        if get_wildcard_keys(out, (ANY,)) != any_keys:
+            raise exceptions.InconsistentCallbackWildcards(
                 """
-                Multi output {} contains an `Output` object
-                that was already assigned.
-                Duplicates:
-                {}
+                All `Output` items must have matching wildcard `ANY` values.
+                `ALL` wildcards need not match, only `ANY`.
+
+                Output {} does not match the first output {}.
                 """.format(
-                    callback_id, pprint.pformat(dups)
+                    out, outputs[0]
                 )
             )
-    else:
-        if callback_id in callbacks:
+
+    matched_wildcards = (ANY, ALLSMALLER, PREVIOUS)
+    for dep in list(inputs) + list(state):
+        wildcard_keys = get_wildcard_keys(dep, matched_wildcards)
+        if wildcard_keys - any_keys:
+            raise exceptions.InconsistentCallbackWildcards(
+                """
+                `Input` and `State` items can only have {}
+                wildcards on keys where the `Output`(s) have `ANY` wildcards.
+                `ALL` wildcards need not match, and you need not match every
+                `ANY` in the `Output`(s).
+
+                This callback has `ANY` on keys {}.
+                {} has these wildcards on keys {}.
+                """.format(
+                    matched_wildcards, any_keys, dep, wildcard_keys
+                )
+            )
+
+    dups = set()
+    for out in outputs:
+        for used_out in app.used_outputs:
+            if out == used_out:
+                dups.add(str(used_out))
+    if dups:
+        if is_multi or len(dups) > 1 or str(output) != list(dups)[0]:
             raise exceptions.DuplicateCallbackOutput(
                 """
-                You have already assigned a callback to the output
-                with ID "{}" and property "{}". An output can only have
-                a single callback function. Try combining your inputs and
-                callback functions together into one function.
+                One or more `Output` is already set by a callback.
+                Note that two wildcard outputs can refer to the same component
+                even if they don't match exactly.
+
+                The new callback lists output(s):
+                {}
+                Already used:
+                {}
                 """.format(
-                    output.component_id, output.component_property
+                    ", ".join([str(o) for o in outputs]),
+                    ", ".join(dups)
+                )
+            )
+        else:
+            raise exceptions.DuplicateCallbackOutput(
+                """
+                {} was already assigned to a callback.
+                Any given output can only have one callback that sets it.
+                Try combining your inputs and callback functions together
+                into one function.
+                """.format(
+                    repr(output)
                 )
             )
 
@@ -130,16 +156,7 @@ def validate_callback_args(args, cls, layout, validate_ids):
                 )
             )
 
-        if not isinstance(arg.component_id, _strings):
-            raise exceptions.IncorrectTypeException(
-                """
-                component_id must be a string or dict, found {!r}
-                """.format(
-                    arg.component_id
-                )
-            )
-
-        if not isinstance(arg.component_property, _strings):
+        if not isinstance(getattr(arg, "component_property", None), _strings):
             raise exceptions.IncorrectTypeException(
                 """
                 component_property must be a string, found {!r}
@@ -148,68 +165,135 @@ def validate_callback_args(args, cls, layout, validate_ids):
                 )
             )
 
-        invalid_characters = ["."]
-        if any(x in arg.component_id for x in invalid_characters):
-            raise exceptions.InvalidComponentIdError(
+        if hasattr(arg, "component_event"):
+            raise exceptions.NonExistentEventException(
                 """
-                The element `{}` contains {} in its ID.
-                Periods are not allowed in IDs.
+                Events have been removed.
+                Use the associated property instead.
+                """
+            )
+
+        if isinstance(arg.component_id, dict):
+            validate_id_dict(arg, layout, validate_ids, cls.allowed_wildcards)
+
+        elif isinstance(arg.component_id, _strings):
+            validate_id_string(arg, layout, validate_ids)
+
+        else:
+            raise exceptions.IncorrectTypeException(
+                """
+                component_id must be a string or dict, found {!r}
                 """.format(
-                    arg.component_id, invalid_characters
+                    arg.component_id
                 )
             )
 
-        if validate_ids:
-            top_id = getattr(layout, "id", None)
-            arg_id = arg.component_id
-            arg_prop = getattr(arg, "component_property", None)
-            if arg_id not in layout and arg_id != top_id:
-                raise exceptions.NonExistentIdException(
-                    """
-                    Attempting to assign a callback to the component with
-                    id "{}" but no components with that id exist in the layout.
 
-                    Here is a list of IDs in layout:
-                    {}
+def validate_id_dict(arg, layout, validate_ids, wildcards):
+    arg_id = arg.component_id
 
-                    If you are assigning callbacks to components that are
-                    generated by other callbacks (and therefore not in the
-                    initial layout), you can suppress this exception by setting
-                    `suppress_callback_exceptions=True`.
-                    """.format(
-                        arg_id, [k for k in layout] + ([top_id] if top_id else [])
-                    )
+    def id_match(c):
+        c_id = getattr(c, "id", None)
+        return isinstance(c_id, dict) and all(
+            k in c and v in wildcards or v == c_id.get(k)
+        )
+
+    if validate_ids:
+        component = None
+        if id_match(layout):
+            component = layout
+        else:
+            for c in layout._traverse():
+                if id_match(c):
+                    component = c
+                    break
+        if component:
+            # for wildcards it's not unusual to have no matching components
+            # initially; this isn't a problem and we shouldn't force users to
+            # set suppress_callback_exceptions in this case; but if we DO have
+            # a matching component, we can check that the prop is valid
+            validate_prop_for_component(arg, component)
+
+    for k, v in arg_id.items():
+        if not (k and isinstance(k, _strings)):
+            raise exceptions.IncorrectTypeException(
+                """
+                Wildcard ID keys must be non-empty strings,
+                found {!r} in id {!r}
+                """.format(
+                    k, arg_id
                 )
-
-            component = layout if top_id == arg_id else layout[arg_id]
-
-            if (
-                arg_prop
-                and arg_prop not in component.available_properties
-                and not any(
-                    arg_prop.startswith(w)
-                    for w in component.available_wildcard_properties
+            )
+        if not (v in wildcards or isinstance(v, _strings + (int, float, bool))):
+            wildcard_msg = (
+                ",\n                or wildcards: {}".format(wildcards)
+                if wildcards else ""
+            )
+            raise exceptions.IncorrectTypeException(
+                """
+                Wildcard {} ID values must be strings, numbers, bools{}
+                found {!r} in id {!r}
+                """.format(
+                    arg.__class__.__name__, wildcard_msg, k, arg_id
                 )
-            ):
-                raise exceptions.NonExistentPropException(
-                    """
-                    Attempting to assign a callback with the property "{0}"
-                    but component "{1}" doesn't have "{0}" as a property.
+            )
 
-                    Here are the available properties in "{1}":
-                    {2}
-                    """.format(
-                        arg_prop, arg_id, component.available_properties
-                    )
-                )
 
-            if hasattr(arg, "component_event"):
-                raise exceptions.NonExistentEventException(
-                    """
-                    Events have been removed.
-                    Use the associated property instead.
-                    """
+def validate_id_string(arg, layout, validate_ids):
+    arg_id = arg.component_id
+
+    invalid_chars = ".{"
+    invalid_found = [x for x in invalid_chars if x in arg_id]
+    if invalid_found:
+        raise exceptions.InvalidComponentIdError(
+            """
+            The element `{}` contains `{}` in its ID.
+            Characters `{}` are not allowed in IDs.
+            """.format(
+                arg_id, "`, `".join(invalid_found), "`, `".join(invalid_chars)
+            )
+        )
+
+    if validate_ids:
+        top_id = getattr(layout, "id", None)
+        if arg_id not in layout and arg_id != top_id:
+            raise exceptions.NonExistentIdException(
+                """
+                Attempting to assign a callback to the component with
+                id "{}" but no components with that id exist in the layout.
+
+                Here is a list of IDs in layout:
+                {}
+
+                If you are assigning callbacks to components that are
+                generated by other callbacks (and therefore not in the
+                initial layout), you can suppress this exception by setting
+                `suppress_callback_exceptions=True`.
+                """.format(
+                    arg_id, [k for k in layout] + ([top_id] if top_id else [])
                 )
+            )
+
+        component = layout if top_id == arg_id else layout[arg_id]
+        validate_prop_for_component(arg, component)
+
+
+def validate_prop_for_component(arg, component):
+    arg_prop = arg.component_property
+    if arg_prop not in component.available_properties and not any(
+        arg_prop.startswith(w) for w in component.available_wildcard_properties
+    ):
+        raise exceptions.NonExistentPropException(
+            """
+            Attempting to assign a callback with the property "{0}"
+            but component "{1}" doesn't have "{0}" as a property.
+
+            Here are the available properties in "{1}":
+            {2}
+            """.format(
+                arg_prop, arg.component_id, component.available_properties
+            )
+        )
 
 
 def validate_multi_return(output, output_value, callback_id):
@@ -224,7 +308,7 @@ def validate_multi_return(output, output_value, callback_id):
             )
         )
 
-    if not len(output_value) == len(output):
+    if len(output_value) != len(output):
         raise exceptions.InvalidCallbackReturnValue(
             """
             Invalid number of output values for {}.
@@ -344,6 +428,13 @@ def fail_callback_output(output_value, output):
             property=output.component_property, id=output.component_id
         )
     )
+
+
+def get_wildcard_keys(dep, wildcards):
+    _id = dep.component_id
+    if not isinstance(_id, dict):
+        return set()
+    return {k for k, v in _id.items() if v in wildcards}
 
 
 def check_obsolete(kwargs):

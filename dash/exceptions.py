@@ -64,6 +64,10 @@ class DuplicateCallbackOutput(CantHaveMultipleOutputs):
     pass
 
 
+class InconsistentCallbackWildcards(CallbackException):
+    pass
+
+
 class PreventUpdate(CallbackException):
     pass
 

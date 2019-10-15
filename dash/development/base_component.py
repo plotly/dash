@@ -7,6 +7,9 @@ from .._utils import patch_collections_abc
 
 MutableSequence = patch_collections_abc("MutableSequence")
 
+# py2/3 json.dumps-compatible strings - these are equivalent in py3, not in py2
+_strings = (type(u""), type(""))
+
 
 # pylint: disable=no-init,too-few-public-methods
 class ComponentRegistry:
@@ -121,6 +124,24 @@ class Component(with_metaclass(ComponentMeta, object)):
                     "Did you forget to wrap multiple `children` in an array?\n" +
                     "Prop {} has value {}\n".format(k, repr(v))
                 )
+
+            if k == "id":
+                if isinstance(v, dict):
+                    for id_key, id_val in v.items():
+                        if not isinstance(id_key, _strings):
+                            raise TypeError(
+                                "dict id keys must be strings,\n" +
+                                "found {!r} in id {!r}".format(id_key, v)
+                            )
+                        if not isinstance(id_val, _strings + (int, float, bool)):
+                            raise TypeError(
+                                "dict id values must be strings, numbers or bools,\n" +
+                                "found {!r} in id {!r}".format(id_val, v)
+                            )
+                elif not isinstance(v, _strings):
+                    raise TypeError(
+                        "`id` prop must be a string or dict, not {!r}".format(v)
+                    )
 
             setattr(self, k, v)
 

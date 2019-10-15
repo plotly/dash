@@ -1,20 +1,90 @@
-class DashDependency:
-    # pylint: disable=too-few-public-methods
+class _Wildcard:  # pylint: disable=too-few-public-methods
+    def __init__(self, name):
+        self._name = name
+
+    def __str__(self):
+        return self._name
+
+    def __repr__(self):
+        return "<{}>".format(self)
+
+    def to_json(self):
+        # used in serializing wildcards - arrays are not allowed as
+        # id values, so make the wildcards look like length-1 arrays.
+        return '["{}"]'.format(self._name)
+
+
+ANY = _Wildcard("ANY")
+ALL = _Wildcard("ALL")
+ALLSMALLER = _Wildcard("ALLSMALLER")
+PREVIOUS = _Wildcard("PREVIOUS")
+
+
+class DashDependency:  # pylint: disable=too-few-public-methods
     def __init__(self, component_id, component_property):
         self.component_id = component_id
         self.component_property = component_property
 
     def __str__(self):
-        return "{}.{}".format(
-            self.component_id,
-            self.component_property
-        )
+        return "{}.{}".format(self.component_id_str(), self.component_property)
 
     def __repr__(self):
         return "<{} `{}`>".format(self.__class__.__name__, self)
 
+    def component_id_str(self):
+        i = self.component_id
+
+        def json(k, v):
+            vstr = v.to_json() if hasattr(v, "to_json") else json.dumps(v)
+            return "{}:{}".format(json.dumps(k), vstr)
+
+        if isinstance(i, dict):
+            return ("{" + ",".join(json(k, i[k]) for k in sorted(i)) + "}")
+
+        return i
+
+    def to_dict(self):
+        return {"id": self.component_id_str(), "property": self.component_property}
+
     def __eq__(self, other):
-        return isinstance(other, DashDependency) and str(self) == str(other)
+        """
+        We use "==" to denote two deps that refer to the same prop on
+        the same component. In the case of wildcard deps, this means
+        the same prop on *at least one* of the same components.
+        """
+        return (
+            isinstance(other, DashDependency)
+            and self.component_property == other.component_property
+            and self._id_matches(other)
+        )
+
+    def _id_matches(self, other):
+        other_id = other.component_id
+        if isinstance(self.component_id, dict):
+            if not isinstance(other_id, dict):
+                return False
+            for k, v in self.component_id.items():
+                if k not in other_id:
+                    return False
+                other_v = other_id[k]
+                if v == other_v:
+                    continue
+                v_wild = isinstance(v, _Wildcard)
+                other_wild = isinstance(other_v, _Wildcard)
+                if v_wild or other_wild:
+                    if not (v_wild and other_wild):
+                        continue  # one wild, one not
+                    if v is ALL or other_v is ALL:
+                        continue  # either ALL
+                    if v is ANY or other_v is ANY:
+                        return False  # ANY and either ALLSMALLER or PREVIOUS
+                else:
+                    return False
+            return True
+        elif isinstance(other_id, dict):
+            return False
+        else:
+            return self.component_id == other_id
 
     def __hash__(self):
         return hash(str(self))
@@ -23,17 +93,22 @@ class DashDependency:
 class Output(DashDependency):  # pylint: disable=too-few-public-methods
     """Output of a callback."""
 
+    allowed_wildcards = (ANY, ALL)
+
 
 class Input(DashDependency):  # pylint: disable=too-few-public-methods
     """Input of callback: trigger an update when it is updated."""
+
+    allowed_wildcards = (ANY, ALL, ALLSMALLER, PREVIOUS)
 
 
 class State(DashDependency):  # pylint: disable=too-few-public-methods
     """Use the value of a State in a callback but don't trigger updates."""
 
+    allowed_wildcards = (ANY, ALL, ALLSMALLER, PREVIOUS)
 
-class ClientsideFunction:
-    # pylint: disable=too-few-public-methods
+
+class ClientsideFunction:  # pylint: disable=too-few-public-methods
     def __init__(self, namespace=None, function_name=None):
 
         if namespace.startswith('_dashprivate_'):
@@ -47,7 +122,4 @@ class ClientsideFunction:
         self.function_name = function_name
 
     def __repr__(self):
-        return "ClientsideFunction({}, {})".format(
-            self.namespace,
-            self.function_name
-        )
+        return "ClientsideFunction({}, {})".format(self.namespace, self.function_name)
