@@ -566,27 +566,27 @@ function updateOutput(
     // Clientside hook
     if (clientside_function) {
         let returnValue;
-          
+
         /*
-         * Create the dash_clientside namespace if it doesn't exist and inject 
+         * Create the dash_clientside namespace if it doesn't exist and inject
          * no_update and PreventUpdate.
          */
         if (!window.dash_clientside) {
-          window.dash_clientside = {};
+            window.dash_clientside = {};
         }
-        
+
         if (!window.dash_clientside.no_update) {
-          Object.defineProperty(window.dash_clientside, 'no_update', {
-            value: {description: 'Return to prevent updating an Output.'},
-            writable: false
-          });
-      
-          Object.defineProperty(window.dash_clientside, 'PreventUpdate', {
-            value: {description: 'Throw to prevent updating all Outputs.'},
-            writable: false
-          });
+            Object.defineProperty(window.dash_clientside, 'no_update', {
+                value: {description: 'Return to prevent updating an Output.'},
+                writable: false,
+            });
+
+            Object.defineProperty(window.dash_clientside, 'PreventUpdate', {
+                value: {description: 'Throw to prevent updating all Outputs.'},
+                writable: false,
+            });
         }
-        
+
         try {
             returnValue = window.dash_clientside[clientside_function.namespace][
                 clientside_function.function_name
@@ -595,15 +595,14 @@ function updateOutput(
                 ...(has('state', payload) ? pluck('value', payload.state) : [])
             );
         } catch (e) {
-          
             /*
              * Prevent all updates.
              */
             if (e === window.dash_clientside.PreventUpdate) {
-              updateRequestQueue(true, STATUS.PREVENT_UPDATE);
-              return;
+                updateRequestQueue(true, STATUS.PREVENT_UPDATE);
+                return;
             }
-          
+
             /* eslint-disable no-console */
             console.error(
                 `The following error occurred while executing ${clientside_function.namespace}.${clientside_function.function_name} ` +
@@ -648,12 +647,12 @@ function updateOutput(
              * like a successful serverside response (200 status code)
              */
             updateRequestQueue(false, STATUS.OK);
-            
+
             /*
              * Prevent update.
              */
-            if(outputValue === window.dash_clientside.no_update) {
-              return;
+            if (outputValue === window.dash_clientside.no_update) {
+                return;
             }
 
             // Update the layout with the new result
