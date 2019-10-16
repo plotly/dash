@@ -275,6 +275,7 @@ class Dash(object):
             compress=compress,
             meta_tags=meta_tags or [],
             external_scripts=external_scripts or [],
+            inline_scripts=[],
             external_stylesheets=external_stylesheets or [],
             suppress_callback_exceptions=get_combined_config(
                 "suppress_callback_exceptions",
@@ -629,6 +630,10 @@ class Dash(object):
                 if isinstance(src, dict)
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
+            ] +
+            [
+                '<script>{}</script>'.format(src)
+                for src in self.config.inline_scripts
             ]
         )
 
@@ -1155,7 +1160,7 @@ class Dash(object):
 
     # pylint: disable=dangerous-default-value
     def clientside_callback(
-        self, clientside_function, output, inputs=[], state=[]
+        self, clientside_function, output, inputs=[], state=[], source=None
     ):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
@@ -1199,6 +1204,22 @@ class Dash(object):
         """
         self._validate_callback(output, inputs, state)
         callback_id = _create_callback_id(output)
+
+        # If JS source is explicitly given, inject it into the dash_clientside
+        # namespace.
+        if source is not None:
+            self.config.inline_scripts.append(
+                """
+                if (!window.dash_clientside) {{
+                    window.dash_clientside = {{}};
+                }}
+                window.dash_clientside.{0} = Object.assign(
+                    window.dash_clientside.{0} || {{}}, {{{1}: {2}}}
+                );
+                """.format(clientside_function.namespace,
+                           clientside_function.function_name,
+                           source.strip())
+            )
 
         self.callback_map[callback_id] = {
             "inputs": [
