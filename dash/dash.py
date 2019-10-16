@@ -12,6 +12,7 @@ import threading
 import re
 import logging
 import pprint
+import inspect
 
 from functools import wraps
 from textwrap import dedent
@@ -23,7 +24,7 @@ from werkzeug.debug.tbtools import get_current_traceback
 import plotly
 import dash_renderer
 
-from .dependencies import Input, Output, State
+from .dependencies import Input, Output, State, ClientsideFunction
 from .resources import Scripts, Css
 from .development.base_component import Component, ComponentRegistry
 from . import exceptions
@@ -1248,24 +1249,61 @@ class Dash(object):
     # TODO - Check this map for recursive or other ill-defined non-tree
     # relationships
     # pylint: disable=dangerous-default-value
-    def callback(self, output, inputs=[], state=[]):
+    def callback(self, output, inputs=[], state=[], clientside=False):
         self._validate_callback(output, inputs, state)
 
-        callback_id = _create_callback_id(output)
         multi = isinstance(output, (list, tuple))
 
-        self.callback_map[callback_id] = {
-            "inputs": [
-                {"id": c.component_id, "property": c.component_property}
-                for c in inputs
-            ],
-            "state": [
-                {"id": c.component_id, "property": c.component_property}
-                for c in state
-            ],
-        }
+        # If clientside is specified, defer callback definition until the
+        # function name is known.
+        if not clientside:
+            callback_id = _create_callback_id(output)
+            self.callback_map[callback_id] = {
+                "inputs": [
+                    {"id": c.component_id, "property": c.component_property}
+                    for c in inputs
+                ],
+                "state": [
+                    {"id": c.component_id, "property": c.component_property}
+                    for c in state
+                ],
+            }
 
         def wrap_func(func):
+            print(func)
+            # func should be interpreted as native JS code and injected.
+            if clientside:
+
+                # First we need to strip out the decorator. This may not handle
+                # all edge cases ...
+                source = re.sub(r'^[\s\S]*?(?=def\s*)', '',
+                                inspect.getsource(func).strip()).split('\n')
+
+                # Convert single line comments. This will not handle trailing
+                # comments since these are hard to capture without a true syntax
+                # parser.
+                for i, line in enumerate(source):
+                    source[i] = re.sub(r'^(?:\s*)#', '//', line)
+
+                # Convert def : -> function { and close with }. This assumes
+                # that the first line is the function definition and not a
+                # comment.
+                source[0] = re.sub(':$', ' {', re.sub(r'^def\s+', 'function ',
+                    source[0].strip()
+                ))
+                source.append('}')
+
+                # Now inject the clientside function. All other JS syntax is up
+                # to the user.
+                self.clientside_callback(
+                    ClientsideFunction('_inline_callbacks', func.__name__),
+                    output, inputs=inputs, state=state, source='\n'.join(source)
+                )
+
+                # Return None because the source is JS and should not be run
+                # by the python interpreter.
+                return None
+
             @wraps(func)
             def add_context(*args, **kwargs):
                 # don't touch the comment on the next line - used by debugger
