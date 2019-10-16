@@ -88,3 +88,48 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc):
     # but that's what we had as of the 608 fix, PR 621, so let's lock that
     # in for now.
     assert call_count.value == 2
+
+
+@pytest.mark.DCC672
+def test_grbs002_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
+    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app.layout = html.Div([
+        html.H1('subplot issue'),
+        dcc.Location(id='url', refresh=False),
+        dcc.Loading(id="page-content")
+    ])
+
+    @app.callback(Output('page-content', 'children'), [Input('url', 'value')])
+    def render_page(url):
+        return [
+            dcc.Dropdown(
+                id='my-dropdown',
+                options=[
+                    {'label': 'option 1', 'value': '1'},
+                    {'label': 'option 2', 'value': '2'}
+                ],
+                value='1'
+            ),
+            dcc.Graph(id='my-graph')
+        ]
+
+    @app.callback(Output('my-graph', 'figure'), [Input('my-dropdown', 'value')])
+    def update_graph(value):
+        values = [1, 2, 3]
+        ranges = [1, 2, 3]
+
+        return {
+            'data': [{
+                'x': ranges,
+                'y': values,
+                'line': {
+                    'shape': 'spline'
+                }
+            }],
+        }
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_element('#my-graph .main-svg')
+
+    assert not dash_dcc.get_logs()
