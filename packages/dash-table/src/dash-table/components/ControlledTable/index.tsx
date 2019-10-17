@@ -587,6 +587,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     onPaste = (e: any) => {
         const {
             active_cell,
+            columns,
             data,
             editable,
             filter_query,
@@ -606,6 +607,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             e,
             active_cell,
             viewport.indices,
+            columns,
             visibleColumns,
             data,
             true,

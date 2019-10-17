@@ -9,7 +9,8 @@ export default (
     values: any[][],
     activeCell: ICellCoordinates,
     derived_viewport_indices: number[],
-    columns: Columns,
+    columns_: Columns,
+    visibleColumns: Columns,
     data: Data,
     overflowColumns: boolean = true,
     overflowRows: boolean = true
@@ -23,16 +24,20 @@ export default (
     }
 
     // don't modify the data and columns directly -- we may abort the paste
+    // Individual rows will be modified, needs to be a deep clone
     let newData = R.clone(data);
-    const newColumns = R.clone(columns);
+    // Might add columns, not modifying the columns themselves, shallow clone is sufficient
+    let newColumns = columns_.slice(0);
+    let newVisibleColumns = visibleColumns.slice(0);
 
-    if (overflowColumns && values[0].length + (activeCell as any).column >= columns.length) {
+    if (overflowColumns && values[0].length + (activeCell as any).column >= visibleColumns.length) {
+        const _newColumns = [];
         for (
-            let i = columns.length;
+            let i = visibleColumns.length;
             i < values[0].length + (activeCell as any).column;
             i++
         ) {
-            newColumns.push({
+            _newColumns.push({
                 id: `Column ${i + 1}`,
                 name: `Column ${i + 1}`,
                 type: ColumnType.Any,
@@ -40,12 +45,20 @@ export default (
             } as any);
             newData.forEach(row => (row[`Column ${i}`] = ''));
         }
+
+        newColumns = R.insertAll(
+            R.indexOf(R.last(visibleColumns), columns_) + 1,
+            _newColumns,
+            newColumns
+        );
+
+        newVisibleColumns = R.concat(newVisibleColumns, _newColumns);
     }
 
     const realActiveRow = derived_viewport_indices[(activeCell as any).row];
     if (overflowRows && values.length + realActiveRow >= data.length) {
         const emptyRow: any = {};
-        columns.forEach(c => (emptyRow[c.id] = ''));
+        visibleColumns.forEach(c => (emptyRow[c.id] = ''));
         newData = R.concat(
             newData,
             R.repeat(
@@ -73,7 +86,7 @@ export default (
             }
 
             const jOffset = (activeCell as any).column + j;
-            const col = newColumns[jOffset];
+            const col = newVisibleColumns[jOffset];
             if (!col || !col.editable) {
                 continue;
             }
