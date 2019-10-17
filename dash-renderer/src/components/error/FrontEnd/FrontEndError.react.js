@@ -17,19 +17,12 @@ class FrontEndError extends Component {
     }
 
     render() {
-        const {e, resolve, inAlertsTray} = this.props;
+        const {e, inAlertsTray} = this.props;
         const {collapsed} = this.state;
 
-        let cardClasses;
-        // if resolve is defined, the error should be a standalone card
-        if (resolve) {
-            cardClasses = 'dash-error-card';
-        } else {
-            cardClasses = 'dash-error-card__content';
-        }
-        if (inAlertsTray) {
-            cardClasses += ' dash-error-card--alerts-tray';
-        }
+        const cardClasses =
+            'dash-error-card__content' +
+            (inAlertsTray ? ' dash-error-card--alerts-tray' : '');
 
         /* eslint-disable no-inline-comments */
         const errorHeader = (
@@ -178,7 +171,6 @@ FrontEndError.propTypes = {
         timestamp: PropTypes.object,
         error: errorPropTypes,
     }),
-    resolve: PropTypes.func,
     inAlertsTray: PropTypes.bool,
     isListItem: PropTypes.bool,
 };

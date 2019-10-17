@@ -44,7 +44,6 @@ export const setConfig = createAction(getAction('SET_CONFIG'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const onError = createAction(getAction('ON_ERROR'));
-export const resolveError = createAction(getAction('RESOLVE_ERROR'));
 
 export {setAppIsReady};
 
