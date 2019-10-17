@@ -56,7 +56,7 @@ class IntegrationTests(unittest.TestCase):
         s.server_process.start()
         time.sleep(0.5)
 
-        # Visit the dash page
+        # Visit the Dash page
         s.driver.get('http://localhost:8050')
         time.sleep(0.5)
 

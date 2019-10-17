@@ -127,10 +127,10 @@ class Tests(IntegrationTests):
         time.sleep(2)
         self.wait_for_text_to_equal('#container', '1, 0')
         print(timestamp_1.value)
-        print((time.time()  - (24 * 60 * 60)) * 1000)
+        print((time.time() - (24 * 60 * 60)) * 1000)
         self.assertTrue(
             timestamp_1.value >
-            ((time.time()  - (24 * 60 * 60)) * 1000))
+            ((time.time() - (24 * 60 * 60)) * 1000))
         self.assertEqual(timestamp_2.value, -1)
         self.assertEqual(call_count.value, 2)
         self.snapshot('button-1 click')
@@ -142,7 +142,7 @@ class Tests(IntegrationTests):
         self.assertEqual(timestamp_1.value, prev_timestamp_1)
         self.assertTrue(
             timestamp_2.value >
-            ((time.time()  - 24 * 60 * 60) * 1000))
+            ((time.time() - 24 * 60 * 60) * 1000))
         self.assertEqual(call_count.value, 3)
         self.snapshot('button-2 click')
         prev_timestamp_2 = timestamp_2.value

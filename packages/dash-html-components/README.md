@@ -9,7 +9,7 @@ Vanilla HTML components for [Dash][]
     $ virtualenv venv
     $ venv/bin/activate
     ```
-    _Note: venv\Scripts\activate for windows_
+    _Note: venv\Scripts\activate for Windows_
 
 2. Install Python packages required to build components.
     ```
@@ -51,7 +51,7 @@ _Note: This step will have already been done for you when you ran `npm install`_
         # Now you're done. For subsequent changes, if you've got `npm run build:watch`
         $ python setup.py install
 
-3. Run the dash layout you want to test
+3. Run the Dash layout you want to test
 
         # Import dash_html_components to your layout, then run it:
         $ python my_dash_layout.py
