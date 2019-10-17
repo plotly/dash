@@ -35485,7 +35485,6 @@ var actionList = {
   SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
   SET_CONFIG: 'SET_CONFIG',
   ON_ERROR: 'ON_ERROR',
-  RESOLVE_ERROR: 'RESOLVE_ERROR',
   SET_HOOKS: 'SET_HOOKS'
 };
 var getAction = function getAction(action) {
@@ -35502,7 +35501,7 @@ var getAction = function getAction(action) {
 /*!******************************!*\
   !*** ./src/actions/index.js ***!
   \******************************/
-/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setLayout, setAppLifecycle, setConfig, setHooks, onError, resolveError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
+/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setLayout, setAppLifecycle, setConfig, setHooks, onError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -35516,7 +35515,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setConfig", function() { return setConfig; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setHooks", function() { return setHooks; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onError", function() { return onError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resolveError", function() { return resolveError; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hydrateInitialOutputs", function() { return hydrateInitialOutputs; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCSRFHeader", function() { return getCSRFHeader; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "redo", function() { return redo; });
@@ -35652,7 +35650,6 @@ var setAppLifecycle = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["create
 var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('SET_CONFIG'));
 var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('SET_HOOKS'));
 var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('ON_ERROR'));
-var resolveError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('RESOLVE_ERROR'));
 function hydrateInitialOutputs() {
   return function (dispatch, getState) {
     triggerDefaultState(dispatch, getState);
@@ -37293,10 +37290,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! prop-types */ "prop-types");
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var radium__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! radium */ "./node_modules/radium/es/index.js");
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! uniqid */ "./node_modules/uniqid/index.js");
-/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(uniqid__WEBPACK_IMPORTED_MODULE_16__);
-/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
+/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! uniqid */ "./node_modules/uniqid/index.js");
+/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(uniqid__WEBPACK_IMPORTED_MODULE_15__);
+/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
 
 
 
@@ -37334,7 +37330,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-
 var UnconnectedComponentErrorBoundary =
 /*#__PURE__*/
 function (_Component) {
@@ -37348,8 +37343,9 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(UnconnectedComponentErrorBoundary).call(this, props));
     _this.state = {
       myID: props.componentId,
-      myUID: uniqid__WEBPACK_IMPORTED_MODULE_16___default()(),
-      oldChildren: null
+      myUID: uniqid__WEBPACK_IMPORTED_MODULE_15___default()(),
+      oldChildren: null,
+      hasError: false
     };
     return _this;
   }
@@ -37358,27 +37354,25 @@ function (_Component) {
     key: "componentDidCatch",
     value: function componentDidCatch(error, info) {
       var dispatch = this.props.dispatch;
-      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_17__["onError"])({
+      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_16__["onError"])({
         myUID: this.state.myUID,
         myID: this.state.myID,
         type: 'frontEnd',
         error: error,
         info: info
       }));
-      dispatch(_actions__WEBPACK_IMPORTED_MODULE_17__["revert"]);
+      dispatch(_actions__WEBPACK_IMPORTED_MODULE_16__["revert"]);
     }
     /* eslint-disable react/no-did-update-set-state */
 
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
-      var error = this.props.error;
-      var myUID = this.state.myUID;
-      var hasError = Object(ramda__WEBPACK_IMPORTED_MODULE_15__["includes"])(myUID, Object(ramda__WEBPACK_IMPORTED_MODULE_15__["pluck"])('myUID')(error.frontEnd));
+      var prevChildren = prevProps.children;
 
-      if (!hasError && prevState.oldChildren !== prevProps.children && prevProps.children !== this.props.children) {
+      if (!this.state.hasError && prevChildren !== prevState.oldChildren && prevChildren !== this.props.children) {
         this.setState({
-          oldChildren: prevProps.children
+          oldChildren: prevChildren
         });
       }
     }
@@ -37387,15 +37381,17 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var error = this.props.error;
-      var myUID = this.state.myUID;
-      var hasError = Object(ramda__WEBPACK_IMPORTED_MODULE_15__["includes"])(myUID, Object(ramda__WEBPACK_IMPORTED_MODULE_15__["pluck"])('myUID')(error.frontEnd));
-
-      if (hasError) {
-        return this.state.oldChildren;
-      }
-
-      return this.props.children;
+      var _this$state = this.state,
+          hasError = _this$state.hasError,
+          oldChildren = _this$state.oldChildren;
+      return hasError ? oldChildren : this.props.children;
+    }
+  }], [{
+    key: "getDerivedStateFromError",
+    value: function getDerivedStateFromError(_) {
+      return {
+        hasError: true
+      };
     }
   }]);
 
@@ -37568,22 +37564,10 @@ function (_Component) {
 
       var _this$props = this.props,
           e = _this$props.e,
-          resolve = _this$props.resolve,
           inAlertsTray = _this$props.inAlertsTray;
       var collapsed = this.state.collapsed;
-      var cardClasses; // if resolve is defined, the error should be a standalone card
-
-      if (resolve) {
-        cardClasses = 'dash-error-card';
-      } else {
-        cardClasses = 'dash-error-card__content';
-      }
-
-      if (inAlertsTray) {
-        cardClasses += ' dash-error-card--alerts-tray';
-      }
+      var cardClasses = 'dash-error-card__content' + (inAlertsTray ? ' dash-error-card--alerts-tray' : '');
       /* eslint-disable no-inline-comments */
-
 
       var errorHeader = React.createElement("div", {
         className: "dash-fe-error-top test-devtools-error-toggle",
@@ -37688,7 +37672,6 @@ FrontEndError.propTypes = {
     timestamp: prop_types__WEBPACK_IMPORTED_MODULE_19___default.a.object,
     error: errorPropTypes
   }),
-  resolve: prop_types__WEBPACK_IMPORTED_MODULE_19___default.a.func,
   inAlertsTray: prop_types__WEBPACK_IMPORTED_MODULE_19___default.a.bool,
   isListItem: prop_types__WEBPACK_IMPORTED_MODULE_19___default.a.bool
 };
@@ -37799,10 +37782,11 @@ function (_Component) {
 
       var inAlertsTray = this.props.inAlertsTray;
       var cardClasses = 'dash-error-card dash-error-card--container';
-      var errorElements = this.props.errors.map(function (error) {
+      var errorElements = this.props.errors.map(function (error, i) {
         return react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement(_FrontEndError_react__WEBPACK_IMPORTED_MODULE_15__["FrontEndError"], {
           e: error,
-          isListItem: true
+          isListItem: true,
+          key: i
         });
       });
 
@@ -37829,7 +37813,6 @@ function (_Component) {
 
 FrontEndErrorContainer.propTypes = {
   errors: prop_types__WEBPACK_IMPORTED_MODULE_14___default.a.array,
-  resolve: prop_types__WEBPACK_IMPORTED_MODULE_14___default.a.func,
   inAlertsTray: prop_types__WEBPACK_IMPORTED_MODULE_14___default.a.any
 };
 FrontEndErrorContainer.propTypes = {
@@ -37877,8 +37860,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! prop-types */ "prop-types");
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var radium__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! radium */ "./node_modules/radium/es/index.js");
-/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
-/* harmony import */ var _menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./menu/DebugMenu.react */ "./src/components/error/menu/DebugMenu.react.js");
+/* harmony import */ var _menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./menu/DebugMenu.react */ "./src/components/error/menu/DebugMenu.react.js");
 
 
 
@@ -37915,7 +37897,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-
 var UnconnectedGlobalErrorContainer =
 /*#__PURE__*/
 function (_Component) {
@@ -37928,33 +37909,16 @@ function (_Component) {
   }
 
   _createClass(UnconnectedGlobalErrorContainer, [{
-    key: "resolveError",
-    value: function resolveError(dispatch, type, myId) {
-      if (type === 'backEnd') {
-        dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_15__["resolveError"])({
-          type: type
-        })); // dispatch(revert);
-      } else {
-        dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_15__["resolveError"])({
-          myId: myId,
-          type: type
-        }));
-      }
-    }
-  }, {
     key: "render",
     value: function render() {
       var _this$props = this.props,
           error = _this$props.error,
-          dispatch = _this$props.dispatch,
           dependenciesRequest = _this$props.dependenciesRequest;
       return react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement("div", {
         id: "_dash-global-error-container"
-      }, react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement(_menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_16__["DebugMenu"], {
+      }, react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement(_menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_15__["DebugMenu"], {
         error: error,
-        dependenciesRequest: dependenciesRequest,
-        dispatch: dispatch,
-        resolveError: this.resolveError
+        dependenciesRequest: dependenciesRequest
       }, react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement("div", {
         id: "_dash-app-content"
       }, this.props.children)));
@@ -37967,17 +37931,12 @@ function (_Component) {
 UnconnectedGlobalErrorContainer.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.object,
   error: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.object,
-  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.object,
-  dispatch: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.func
+  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.object
 };
 var GlobalErrorContainer = Object(react_redux__WEBPACK_IMPORTED_MODULE_11__["connect"])(function (state) {
   return {
     error: state.error,
     dependenciesRequest: state.dependenciesRequest
-  };
-}, function (dispatch) {
-  return {
-    dispatch: dispatch
   };
 })(Object(radium__WEBPACK_IMPORTED_MODULE_14__["default"])(UnconnectedGlobalErrorContainer));
 /* harmony default export */ __webpack_exports__["default"] = (GlobalErrorContainer);
@@ -38102,7 +38061,6 @@ function (_Component) {
     key: "render",
     value: function render() {
       var _this$props = this.props,
-          resolve = _this$props.resolve,
           visible = _this$props.visible,
           error = _this$props.error,
           toastsEnabled = _this$props.toastsEnabled;
@@ -38111,8 +38069,7 @@ function (_Component) {
       if (toastsEnabled) {
         var errors = Object(ramda__WEBPACK_IMPORTED_MODULE_13__["concat"])(error.frontEnd, error.backEnd);
         frontEndErrors = react__WEBPACK_IMPORTED_MODULE_11___default.a.createElement(_FrontEnd_FrontEndErrorContainer_react__WEBPACK_IMPORTED_MODULE_15__["FrontEndErrorContainer"], {
-          errors: errors,
-          resolve: resolve
+          errors: errors
         });
       }
 
@@ -38130,7 +38087,6 @@ function (_Component) {
 
 GlobalErrorOverlay.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.object,
-  resolve: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.func,
   visible: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.bool,
   error: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.object,
   toastsEnabled: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.any
@@ -38728,8 +38684,6 @@ function (_Component) {
           callbackGraphOpened = _this$state.callbackGraphOpened;
       var _this$props = this.props,
           error = _this$props.error,
-          resolveError = _this$props.resolveError,
-          dispatch = _this$props.dispatch,
           dependenciesRequest = _this$props.dependenciesRequest;
       var menuClasses = opened ? 'dash-debug-menu dash-debug-menu--opened' : 'dash-debug-menu dash-debug-menu--closed';
       var menuContent = opened ? react__WEBPACK_IMPORTED_MODULE_11___default.a.createElement("div", {
@@ -38805,9 +38759,6 @@ function (_Component) {
           });
         }
       }, menuContent), react__WEBPACK_IMPORTED_MODULE_11___default.a.createElement(_GlobalErrorOverlay_react__WEBPACK_IMPORTED_MODULE_22__["default"], {
-        resolve: function resolve(type, myId) {
-          return resolveError(dispatch, type, myId);
-        },
         error: error,
         visible: !(Object(ramda__WEBPACK_IMPORTED_MODULE_12__["isEmpty"])(error.backEnd) && Object(ramda__WEBPACK_IMPORTED_MODULE_12__["isEmpty"])(error.frontEnd)),
         toastsEnabled: toastsEnabled
@@ -38821,9 +38772,7 @@ function (_Component) {
 DebugMenu.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.object,
   error: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.object,
-  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.object,
-  resolveError: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.func,
-  dispatch: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.func
+  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.object
 };
 
 
@@ -39894,6 +39843,7 @@ var graphs = function graphs() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return error; });
 /* harmony import */ var core_js_modules_es_symbol__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.symbol */ "./node_modules/core-js/modules/es.symbol.js");
 /* harmony import */ var core_js_modules_es_symbol__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_symbol__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var core_js_modules_es_symbol_description__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! core-js/modules/es.symbol.description */ "./node_modules/core-js/modules/es.symbol.description.js");
@@ -39945,7 +39895,6 @@ var initialError = {
   frontEnd: [],
   backEnd: []
 };
-
 function error() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialError;
   var action = arguments.length > 1 ? arguments[1] : undefined;
@@ -39972,34 +39921,12 @@ function error() {
         return state;
       }
 
-    case 'RESOLVE_ERROR':
-      {
-        if (action.payload.type === 'frontEnd') {
-          var removeIdx = Object(ramda__WEBPACK_IMPORTED_MODULE_12__["findIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_12__["propEq"])('myUID', action.payload.myUID))(state.frontEnd);
-          return {
-            frontEnd: Object(ramda__WEBPACK_IMPORTED_MODULE_12__["remove"])(removeIdx, 1, state.frontEnd),
-            backEnd: state.backEnd
-          };
-        } else if (action.payload.type === 'backEnd') {
-          var _removeIdx = Object(ramda__WEBPACK_IMPORTED_MODULE_12__["findIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_12__["propEq"])('myUID', action.payload.myUID))(state.backEnd);
-
-          return {
-            frontEnd: state.frontEnd,
-            backEnd: Object(ramda__WEBPACK_IMPORTED_MODULE_12__["remove"])(_removeIdx, 1, state.backEnd)
-          };
-        }
-
-        return state;
-      }
-
     default:
       {
         return state;
       }
   }
 }
-
-/* harmony default export */ __webpack_exports__["default"] = (error);
 
 /***/ }),
 
