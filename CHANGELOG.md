@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [1.4.1] - 2019-10-17
 ### Fixed
 - [#969](https://github.com/plotly/dash/pull/969) Fix warnings emitted by react devtools coming from our own devtools components.
 
