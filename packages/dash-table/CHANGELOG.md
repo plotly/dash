@@ -11,6 +11,9 @@ working correctly in certain circumstances when the table contains `readonly` co
 - [#206](https://github.com/plotly/dash-table/issues/206) Fix a bug with copy/paste to and from
 column filters not working.
 
+- [#561](https://github.com/plotly/dash-table/issues/561) Fix an incorrect React PureComponent
+usage causing warnings in DevTools.
+
 ## [4.4.0] - 2019-10-08
 ### Added
 [#546](https://github.com/plotly/dash-table/issues/546)

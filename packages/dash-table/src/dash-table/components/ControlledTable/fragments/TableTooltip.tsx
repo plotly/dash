@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 
 import Tooltip, { ITooltipProps, Arrow } from 'dash-table/components/Tooltip';
 import tooltipHelper from 'dash-table/components/tooltipHelper';
@@ -10,7 +10,7 @@ interface IState {
     cell?: any;
 }
 
-export default class TableTooltip extends PureComponent<ITooltipProps, IState> {
+export default class TableTooltip extends Component<ITooltipProps, IState> {
     constructor(props: ITooltipProps) {
         super(props);
 
