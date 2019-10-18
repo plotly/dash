@@ -280,14 +280,13 @@ def test_clsd008_clientside_inline_source(dash_duo):
         return 'Server says "{}"'.format(value)
 
     app.clientside_callback(
-        ClientsideFunction(namespace="clientside", function_name="display_inline"),
-        Output("output-clientside", "children"),
-        [Input("input", "value")],
-        source="""
+        """
         function (value) {
             return 'Client says "' + value + '"';
         }
-        """
+        """,
+        Output("output-clientside", "children"),
+        [Input("input", "value")],
     )
 
     dash_duo.start_server(app)

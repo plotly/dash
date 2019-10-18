@@ -275,7 +275,6 @@ class Dash(object):
             compress=compress,
             meta_tags=meta_tags or [],
             external_scripts=external_scripts or [],
-            inline_scripts=[],
             external_stylesheets=external_stylesheets or [],
             suppress_callback_exceptions=get_combined_config(
                 "suppress_callback_exceptions",
@@ -304,6 +303,9 @@ class Dash(object):
 
         # list of dependencies
         self.callback_map = {}
+
+        # list of inline scripts
+        self._inline_scripts = []
 
         # index_string has special setter so can't go in config
         self._index_string = ""
@@ -633,7 +635,7 @@ class Dash(object):
             ] +
             [
                 '<script>{}</script>'.format(src)
-                for src in self.config.inline_scripts
+                for src in self._inline_scripts
             ]
         )
 
@@ -1160,7 +1162,7 @@ class Dash(object):
 
     # pylint: disable=dangerous-default-value
     def clientside_callback(
-        self, clientside_function, output, inputs=[], state=[], source=None
+        self, clientside_function, output, inputs=[], state=[]
     ):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
@@ -1205,21 +1207,32 @@ class Dash(object):
         self._validate_callback(output, inputs, state)
         callback_id = _create_callback_id(output)
 
-        # If JS source is explicitly given, inject it into the dash_clientside
-        # namespace.
-        if source is not None:
-            self.config.inline_scripts.append(
+        # If JS source is explicitly given, create a namespace and function
+        # name, then inject the code.
+        if isinstance(clientside_function, str):
+
+            out0 = output
+            if isinstance(output, (list, tuple)):
+                out0 = output[0]
+
+            namespace = '_dashprivate_{}'.format(out0.component_id)
+            function_name = '{}'.format(out0.component_property)
+
+            self._inline_scripts.append(
                 """
                 if (!window.dash_clientside) {{
                     window.dash_clientside = {{}};
                 }}
-                window.dash_clientside.{0} = Object.assign(
-                    window.dash_clientside.{0} || {{}}, {{{1}: {2}}}
+                window.dash_clientside["{0}"] = Object.assign(
+                    window.dash_clientside["{0}"] || {{}}, {{"{1}": {2}}}
                 );
-                """.format(clientside_function.namespace,
-                           clientside_function.function_name,
-                           source.strip())
+                """.format(namespace, function_name, clientside_function)
             )
+
+        # Callback is stored in an external asset.
+        else:
+            namespace = clientside_function.namespace
+            function_name = clientside_function.function_name
 
         self.callback_map[callback_id] = {
             "inputs": [
@@ -1231,8 +1244,8 @@ class Dash(object):
                 for c in state
             ],
             "clientside_function": {
-                "namespace": clientside_function.namespace,
-                "function_name": clientside_function.function_name,
+                "namespace": namespace,
+                "function_name": function_name,
             },
         }
 
