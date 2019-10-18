@@ -280,7 +280,14 @@ def test_clsd008_clientside_inline_source(dash_duo):
         return 'Server says "{}"'.format(value)
 
     app.clientside_callback(
+<<<<<<< HEAD
         """
+=======
+        ClientsideFunction(namespace="inline", function_name="display_inline"),
+        Output("output-clientside", "children"),
+        [Input("input", "value")],
+        source="""
+>>>>>>> 0cca349ea768831c59dd4b350ba1238ea53fb154
         function (value) {
             return 'Client says "' + value + '"';
         }
@@ -303,3 +310,33 @@ def test_clsd008_clientside_inline_source(dash_duo):
     dash_duo.wait_for_text_to_equal(
         "#output-clientside", 'Client says "hello world"'
     )
+
+def test_clsd009_clientside_inline_decorator(dash_duo):
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value=1),
+            dcc.Input(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "value"),
+        [Input("input", "value")],
+        clientside=True
+    )
+    def add_to_four_outputs(value):
+        # Interior code is JS not python so disable linting.
+        # pylint: disable=all
+        return parseInt(value) + 1;
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal('#input', '1')
+    dash_duo.wait_for_text_to_equal('#output', '2')
+
+    dash_duo.wait_for_element("#input").send_keys("1")
+
+    dash_duo.wait_for_text_to_equal('#input', '11')
+    dash_duo.wait_for_text_to_equal('#output', '12')
