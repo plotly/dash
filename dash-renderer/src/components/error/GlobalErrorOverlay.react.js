@@ -11,15 +11,13 @@ export default class GlobalErrorOverlay extends Component {
     }
 
     render() {
-        const {resolve, visible, error, toastsEnabled} = this.props;
+        const {visible, error, toastsEnabled} = this.props;
 
         let frontEndErrors;
         if (toastsEnabled) {
             const errors = concat(error.frontEnd, error.backEnd);
 
-            frontEndErrors = (
-                <FrontEndErrorContainer errors={errors} resolve={resolve} />
-            );
+            frontEndErrors = <FrontEndErrorContainer errors={errors} />;
         }
         return (
             <div>
@@ -36,7 +34,6 @@ export default class GlobalErrorOverlay extends Component {
 
 GlobalErrorOverlay.propTypes = {
     children: PropTypes.object,
-    resolve: PropTypes.func,
     visible: PropTypes.bool,
     error: PropTypes.object,
     toastsEnabled: PropTypes.any,

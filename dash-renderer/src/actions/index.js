@@ -43,7 +43,6 @@ export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
 export const setConfig = createAction(getAction('SET_CONFIG'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
 export const onError = createAction(getAction('ON_ERROR'));
-export const resolveError = createAction(getAction('RESOLVE_ERROR'));
 
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
