@@ -35,6 +35,11 @@ class State(DashDependency):  # pylint: disable=too-few-public-methods
 class ClientsideFunction:
     # pylint: disable=too-few-public-methods
     def __init__(self, namespace=None, function_name=None):
+
+        if namespace in ['PreventUpdate', 'no_update']:
+            raise ValueError('"{}" is a forbidden namespace in'
+                             ' dash_clientside.'.format(namespace))
+
         self.namespace = namespace
         self.function_name = function_name
 
