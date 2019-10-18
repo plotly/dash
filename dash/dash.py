@@ -1174,7 +1174,7 @@ class Dash(object):
         (Dash will look for the JavaScript function at
         `window.dash_clientside[namespace][function_name]`), or it may take
         a string argument that contains the clientside function source.
-        
+
         For example, when using a `dash.dependencies.ClientsideFunction`:
         ```
         app.clientside_callback(
@@ -1192,10 +1192,10 @@ class Dash(object):
 
         Include a JavaScript file by including it your `assets/` folder. The
         file can be named anything but you'll need to assign the function's
-        namespace to the `window.dash_clientside` namespace. For example, 
-        this file might look like:    
+        namespace to the `window.dash_clientside` namespace. For example,
+        this file might look like:
         ```
-        window.dash_clientside = Object.assign(window.dash_clientside || {}, 
+        window.dash_clientside = Object.assign(window.dash_clientside || {},
             {
                 my_function: function(input_value_1, input_value_2) {
                     return (
@@ -1206,8 +1206,8 @@ class Dash(object):
             }
         );
         ```
-        
-        Alternatively, you can pass the JavaScript source directly to 
+
+        Alternatively, you can pass the JavaScript source directly to
         `clientside_callback`. In this case, the same example would look like:
         ```
         app.clientside_callback(
