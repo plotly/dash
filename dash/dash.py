@@ -1168,13 +1168,14 @@ class Dash(object):
         (JavaScript) function instead of a Python function.
 
         Unlike `@app.calllback`, `clientside_callback` is not a decorator:
-        it takes a
+        it takes either a
         `dash.dependencies.ClientsideFunction(namespace, function_name)`
         argument that describes which JavaScript function to call
         (Dash will look for the JavaScript function at
-        `window[namespace][function_name]`).
-
-        For example:
+        `window.dash_clientside[namespace][function_name]`), or it may take
+        a string argument that contains the clientside function source.
+        
+        For example, when using a `dash.dependencies.ClientsideFunction`:
         ```
         app.clientside_callback(
             ClientsideFunction('my_clientside_library', 'my_function'),
@@ -1185,23 +1186,43 @@ class Dash(object):
         ```
 
         With this signature, Dash's front-end will call
-        `window.my_clientside_library.my_function` with the current
-        values of the `value` properties of the components
-        `my-input` and `another-input` whenever those values change.
+        `window.dash_clientside.my_clientside_library.my_function` with the
+        current values of the `value` properties of the components `my-input`
+        and `another-input` whenever those values change.
 
-        Include a JavaScript file by including it your `assets/` folder.
-        The file can be named anything but you'll need to assign the
-        function's namespace to the `window`. For example, this file might
-        look like:
+        Include a JavaScript file by including it your `assets/` folder. The
+        file can be named anything but you'll need to assign the function's
+        namespace to the `window.dash_clientside` namespace. For example, 
+        this file might look like:    
         ```
-        window.my_clientside_library = {
-            my_function: function(input_value_1, input_value_2) {
+        window.dash_clientside = Object.assign(window.dash_clientside || {}, 
+            {
+                my_function: function(input_value_1, input_value_2) {
+                    return (
+                        parseFloat(input_value_1, 10) +
+                        parseFloat(input_value_2, 10)
+                    );
+                }
+            }
+        );
+        ```
+        
+        Alternatively, you can pass the JavaScript source directly to 
+        `clientside_callback`. In this case, the same example would look like:
+        ```
+        app.clientside_callback(
+            '''
+            function(input_value_1, input_value_2) {
                 return (
                     parseFloat(input_value_1, 10) +
                     parseFloat(input_value_2, 10)
                 );
             }
-        }
+            ''',
+            Output('my-div' 'children'),
+            [Input('my-input', 'value'),
+             Input('another-input', 'value')]
+        )
         ```
         """
         self._validate_callback(output, inputs, state)
