@@ -17,8 +17,8 @@ class FrontEndErrorContainer extends Component {
         const inAlertsTray = this.props.inAlertsTray;
         let cardClasses = 'dash-error-card dash-error-card--container';
 
-        const errorElements = this.props.errors.map(error => {
-            return <FrontEndError e={error} isListItem={true} />;
+        const errorElements = this.props.errors.map((error, i) => {
+            return <FrontEndError e={error} isListItem={true} key={i} />;
         });
         if (inAlertsTray) {
             cardClasses += ' dash-error-card--alerts-tray';
@@ -42,7 +42,6 @@ class FrontEndErrorContainer extends Component {
 
 FrontEndErrorContainer.propTypes = {
     errors: PropTypes.array,
-    resolve: PropTypes.func,
     inAlertsTray: PropTypes.any,
 };
 
