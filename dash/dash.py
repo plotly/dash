@@ -1193,18 +1193,17 @@ class Dash(object):
         Include a JavaScript file by including it your `assets/` folder. The
         file can be named anything but you'll need to assign the function's
         namespace to the `window.dash_clientside` namespace. For example,
-        this file might look like:
+        this file might look:
         ```
-        window.dash_clientside = Object.assign(window.dash_clientside || {},
-            {
-                my_function: function(input_value_1, input_value_2) {
-                    return (
-                        parseFloat(input_value_1, 10) +
-                        parseFloat(input_value_2, 10)
-                    );
-                }
+        window.dash_clientside = window.dash_clientside || {};
+        window.dash_clientside.my_clientside_library = {
+            my_function: function(input_value_1, input_value_2) {
+                return (
+                    parseFloat(input_value_1, 10) +
+                    parseFloat(input_value_2, 10)
+                );
             }
-        );
+        }
         ```
 
         Alternatively, you can pass the JavaScript source directly to
@@ -1241,13 +1240,12 @@ class Dash(object):
 
             self._inline_scripts.append(
                 """
-                if (!window.dash_clientside) {{
-                    window.dash_clientside = {{}};
-                }}
-                window.dash_clientside["{0}"] = Object.assign(
-                    window.dash_clientside["{0}"] || {{}}, {{"{1}": {2}}}
-                );
-                """.format(namespace, function_name, clientside_function)
+                var clientside = window.dash_clientside = window.dash_clientside || {{}};
+                var ns = clientside["{0}"] = clientside["{0}"] || {{}};
+                ns["{1}"] = {2};
+                """.format(namespace.replace('"', '\\"'),
+                           function_name.replace('"', '\\"'),
+                           clientside_function)
             )
 
         # Callback is stored in an external asset.
