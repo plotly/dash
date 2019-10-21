@@ -44,6 +44,22 @@ _js_dist = [
         ).format(__version__),
         'namespace': package_name,
         'dynamic': True
+    },
+    {
+        'relative_package_path': 'async~export.js',
+        'external_url': (
+            'https://unpkg.com/dash-table@{}/dash_table/async~export.js'
+        ).format(__version__),
+        'namespace': package_name,
+        'async': True
+    },
+    {
+        'relative_package_path': 'async~export.js.map',
+        'external_url': (
+            'https://unpkg.com/dash-table@{}/dash_table/async~export.js.map'
+        ).format(__version__),
+        'namespace': package_name,
+        'dynamic': True
     }
 ]
 

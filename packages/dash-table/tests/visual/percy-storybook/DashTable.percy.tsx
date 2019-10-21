@@ -30,7 +30,7 @@ function makeSelection(coords: any[], data: any[], columns: any[]) {
 const fixtureStories = storiesOf('DashTable/Fixtures', module);
 fixtures.forEach(fixture => {
     // update active and selected cells for the new cell object format
-    const {data, columns, active_cell, selected_cells} = fixture.props;
+    const { data, columns, active_cell, selected_cells } = fixture.props;
     if (Array.isArray(active_cell)) {
         fixture.props.active_cell = makeCell(
             active_cell[0], active_cell[1], data as any[], columns as any[]
@@ -309,7 +309,7 @@ storiesOf('DashTable/Without id', module)
         fixed_rows={{ headers: true }}
         row_deletable={true}
         row_selectable={true}
-        style_table={{height: 500, width: 200}}
+        style_table={{ height: 500, width: 200 }}
         style_data_conditional={style_data_conditional}
     />))
     .add('with set height and width and colors', () => (<DataTable
@@ -320,9 +320,9 @@ storiesOf('DashTable/Without id', module)
         fixed_rows={{ headers: true }}
         row_deletable={true}
         row_selectable={true}
-        style_table={{height: 500, width: 200}}
+        style_table={{ height: 500, width: 200 }}
         style_data_conditional={[{
-            if: { column_id: 'a'},
+            if: { column_id: 'a' },
             background_color: 'yellow'
         }]}
     />))
@@ -335,7 +335,7 @@ storiesOf('DashTable/Without id', module)
             fixed_rows={{ headers: true }}
             row_deletable={true}
             row_selectable={true}
-            style_table={{height: 500, width: 400}}
+            style_table={{ height: 500, width: 400 }}
             css={[{
                 selector: '.dash-spreadsheet',
                 rule: 'border: 4px solid hotpink'
@@ -349,7 +349,7 @@ storiesOf('DashTable/Without id', module)
             fixed_rows={{ headers: true }}
             row_deletable={true}
             row_selectable={true}
-            style_table={{height: 500, width: 400}}
+            style_table={{ height: 500, width: 400 }}
             css={[{
                 selector: '.dash-spreadsheet',
                 rule: 'border: 4px solid cyan'
@@ -359,27 +359,27 @@ storiesOf('DashTable/Without id', module)
     );
 
 storiesOf('DashTable/Export', module)
-        .add('Export Button for xlsx file', () => (<DataTable
-            setProps={setProps}
-            data={dataA2J.slice(0, 10)}
-            columns={columnsA2J.slice(0, 10)}
-            export_format= {ExportFormat.Xlsx}
-        />))
-        .add('Export Button for csv file', () => (<DataTable
-            setProps={setProps}
-            data={dataA2J.slice(0, 10)}
-            columns={columnsA2J.slice(0, 10)}
-            export_format={ExportFormat.Xlsx}
-        />))
-        .add('No export Button for file formatted not supported', () => (<DataTable
-            setProps={setProps}
-            data={dataA2J.slice(0, 10)}
-            columns={columnsA2J.slice(0, 10)}
-            export_format= {'json'}
-        />))
-        .add('No export Button', () => (<DataTable
-            setProps={setProps}
-            data={dataA2J.slice(0, 10)}
-            columns={columnsA2J.slice(0, 10)}
-            export_format= {ExportFormat.None}
-        />));
+    .add('Export Button for xlsx file', () => (<DataTable
+        setProps={setProps}
+        data={dataA2J.slice(0, 10)}
+        columns={columnsA2J.slice(0, 10)}
+        export_format={ExportFormat.Xlsx}
+    />))
+    .add('Export Button for csv file', () => (<DataTable
+        setProps={setProps}
+        data={dataA2J.slice(0, 10)}
+        columns={columnsA2J.slice(0, 10)}
+        export_format={ExportFormat.Xlsx}
+    />))
+    .add('No export Button for file formatted not supported', () => (<DataTable
+        setProps={setProps}
+        data={dataA2J.slice(0, 10)}
+        columns={columnsA2J.slice(0, 10)}
+        export_format={'json'}
+    />))
+    .add('No export Button', () => (<DataTable
+        setProps={setProps}
+        data={dataA2J.slice(0, 10)}
+        columns={columnsA2J.slice(0, 10)}
+        export_format={ExportFormat.None}
+    />));

@@ -1,6 +1,7 @@
-import { transformMultiDimArray, getMergeRanges, createHeadings, createWorksheet } from 'dash-table/components/Export/utils';
 import * as R from 'ramda';
 import { ExportHeaders } from 'dash-table/components/Table/props';
+
+import { transformMultiDimArray, getMergeRanges, createHeadings, createWorkbook } from 'dash-table/components/Export/utils';
 
 describe('export', () => {
 
@@ -225,10 +226,10 @@ describe('export', () => {
         ];
 
         const columnID = ['col1', 'col2', 'col4'];
-        it('create sheet with column names as headers for name or display header mode', () => {
-            const wsName = createWorksheet(Headings, data, columnID, ExportHeaders.Names, true);
-            const wsDisplay = createWorksheet(Headings, data, columnID, ExportHeaders.Display, true);
-            const wsDisplayNoMerge = createWorksheet(Headings, data, columnID, ExportHeaders.Display, false);
+        it('create sheet with column names as headers for name or display header mode', async () => {
+            const wsName = await createWorkbook(Headings, data, columnID, ExportHeaders.Names, true);
+            const wsDisplay = await createWorkbook(Headings, data, columnID, ExportHeaders.Display, true);
+            const wsDisplayNoMerge = await createWorkbook(Headings, data, columnID, ExportHeaders.Display, false);
             const expectedWS = {
                 A1: {t: 's', v: 'rows'},
                 A2: {t: 's', v: 'rows'},
@@ -256,12 +257,12 @@ describe('export', () => {
             expectedWSDisplay['!merges'] = [ {s: {r: 0, c: 0}, e: {r: 0, c: 1}},
                 {s: {r: 1, c: 1}, e: {r: 1, c: 2}},
                 {s: {r: 3, c: 0}, e: {r: 3, c: 2}} ];
-            expect(wsName).to.deep.equal(expectedWS);
-            expect(wsDisplayNoMerge).to.deep.equal(expectedWS);
-            expect(wsDisplay).to.deep.equal(expectedWSDisplay);
+            expect(wsName.Sheets.SheetJS).to.deep.equal(expectedWS);
+            expect(wsDisplayNoMerge.Sheets.SheetJS).to.deep.equal(expectedWS);
+            expect(wsDisplay.Sheets.SheetJS).to.deep.equal(expectedWSDisplay);
         });
-        it('create sheet with column ids as headers', () => {
-            const ws = createWorksheet(Headings, data, columnID, ExportHeaders.Ids, true);
+        it('create sheet with column ids as headers', async () => {
+            const ws = await createWorkbook(Headings, data, columnID, ExportHeaders.Ids, true);
             const expectedWS = {
                 A1: {t: 's', v: 'col1'},
                 A2: {t: 'n', v: 1},
@@ -276,10 +277,10 @@ describe('export', () => {
                 C3: {t: 'n', v: 4},
                 C4: {t: 'n', v: 3}};
             expectedWS['!ref'] = 'A1:C4';
-            expect(ws).to.deep.equal(expectedWS);
+            expect(ws.Sheets.SheetJS).to.deep.equal(expectedWS);
         });
-        it('create sheet with no headers', () => {
-            const ws = createWorksheet([], data, columnID, ExportHeaders.None, true);
+        it('create sheet with no headers', async () => {
+            const ws = await createWorkbook([], data, columnID, ExportHeaders.None, true);
             const expectedWS = {
                 A1: {t: 'n', v: 1},
                 A2: {t: 'n', v: 2},
@@ -291,15 +292,15 @@ describe('export', () => {
                 C2: {t: 'n', v: 4},
                 C3: {t: 'n', v: 3}};
             expectedWS['!ref'] = 'A1:C3';
-            expect(ws).to.deep.equal(expectedWS);
+            expect(ws.Sheets.SheetJS).to.deep.equal(expectedWS);
         });
-        it('create sheet with undefined column for clearable columns', () => {
+        it('create sheet with undefined column for clearable columns', async () => {
             const newData = [
                 {col2: 2, col4: 3},
                 {col2: 3, col4: 4},
                 {col2: 2, col4: 3}
             ];
-            const ws = createWorksheet(Headings, newData, columnID, ExportHeaders.Display, false);
+            const ws = await createWorkbook(Headings, newData, columnID, ExportHeaders.Display, false);
             const expectedWS = {A1: {t: 's', v: 'rows'},
                     A2: {t: 's', v: 'rows'},
                     A3: {t: 's', v: 'rows'},
@@ -319,7 +320,7 @@ describe('export', () => {
                     C6: {t: 'n', v: 4},
                     C7: {t: 'n', v: 3}};
             expectedWS['!ref'] = 'A1:C7';
-            expect(ws).to.deep.equal(expectedWS);
+            expect(ws.Sheets.SheetJS).to.deep.equal(expectedWS);
         });
     });
 

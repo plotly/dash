@@ -1,7 +1,6 @@
-import XLSX from 'xlsx';
 import React from 'react';
 import { IDerivedData, Columns, ExportHeaders, ExportFormat, ExportColumns } from 'dash-table/components/Table/props';
-import { createWorkbook, createHeadings, createWorksheet } from './utils';
+import { createWorkbook, createHeadings, exportWorkbook } from './utils';
 import getHeaderRows from 'dash-table/derived/header/headerRows';
 
 interface IExportButtonProps {
@@ -21,19 +20,16 @@ export default React.memo((props: IExportButtonProps) => {
 
     const exportedColumns = export_columns === ExportColumns.Visible ? visibleColumns : columns;
 
-    const handleExport = () => {
+    const handleExport = async () => {
         const columnID = exportedColumns.map(column => column.id);
         const columnHeaders = exportedColumns.map(column => column.name);
 
         const maxLength = getHeaderRows(columns);
         const heading = (export_headers !== ExportHeaders.None) ? createHeadings(columnHeaders, maxLength) : [];
-        const ws = createWorksheet(heading, virtual_data.data, columnID, export_headers, merge_duplicate_headers);
-        const wb = createWorkbook(ws);
-        if (export_format === ExportFormat.Xlsx) {
-            XLSX.writeFile(wb, 'Data.xlsx', {bookType: 'xlsx', type: 'buffer'});
-        } else if (export_format === ExportFormat.Csv) {
-            XLSX.writeFile(wb, 'Data.csv', {bookType: 'csv', type: 'buffer'});
-        }
+
+        const wb = await createWorkbook(heading, virtual_data.data, columnID, export_headers, merge_duplicate_headers);
+
+        await exportWorkbook(wb, export_format);
     };
 
     return (<div>

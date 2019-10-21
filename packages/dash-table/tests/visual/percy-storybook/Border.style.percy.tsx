@@ -180,20 +180,20 @@ const scenarios: ITest[] = [
     }, {
         name: 'horizontal border between header and first row should be blue',
         props: {
-            css: [{selector: 'th', rule: 'border: 1px solid pink'}],
-            style_data: {border: '1px solid blue'}
+            css: [{ selector: 'th', rule: 'border: 1px solid pink' }],
+            style_data: { border: '1px solid blue' }
         }
     }, {
         name: 'horizontal border between header and filter should be purple',
         props: {
             filter_action: TableAction.Native,
-            css: [{selector: 'th', rule: 'border: 1px solid pink'}],
-            style_filter: {border: '1px solid purple'}
+            css: [{ selector: 'th', rule: 'border: 1px solid pink' }],
+            style_filter: { border: '1px solid purple' }
         }
     }, {
         name: 'horizontal border between active cell (0, 0) and header should be pink',
         props: {
-            css: [{selector: 'th', rule: 'border: 1px solid red'}],
+            css: [{ selector: 'th', rule: 'border: 1px solid red' }],
             active_cell: {
                 column: 0,
                 column_id: 'a',
@@ -318,7 +318,7 @@ const ops_scenarios: ITest[] = [
     }, {
         name: 'vertical border between column A and column B should be blue',
         props: {
-            css: [{ selector: 'td[data-dash-column="a"]', rule: 'border: 1px solid green'}],
+            css: [{ selector: 'td[data-dash-column="a"]', rule: 'border: 1px solid green' }],
             style_data_conditional: [{
                 if: { column_id: 'b' },
                 border: '1px solid blue'
@@ -327,7 +327,7 @@ const ops_scenarios: ITest[] = [
     }, {
         name: 'horizontal border between header and column A should be dashed blue',
         props: {
-            css: [{ selector: 'th', rule: 'border: 1px solid red'}],
+            css: [{ selector: 'th', rule: 'border: 1px solid red' }],
             style_data_conditional: [{
                 if: { column_id: 'a' },
                 border: '1px dashed blue'
@@ -336,7 +336,7 @@ const ops_scenarios: ITest[] = [
     }, {
         name: 'vertical border between active cell (0, 0) and cell on column B should be pink',
         props: {
-            css: [{ selector: 'td[data-dash-column="b"]', rule: 'border: 1px solid blue'}],
+            css: [{ selector: 'td[data-dash-column="b"]', rule: 'border: 1px solid blue' }],
             active_cell: {
                 column: 0,
                 column_id: 'a',

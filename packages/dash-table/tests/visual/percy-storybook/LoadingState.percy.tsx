@@ -6,13 +6,11 @@ import DataTable from 'dash-table/dash/DataTable';
 
 const setProps = () => { };
 
-
 const data = [
     { City: 'NYC', Neighborhood: 'Brooklyn', 'Temperature (F)': 70 },
     { City: 'Montreal', Neighborhood: 'Mile End', 'Temperature (F)': 60 },
     { City: 'Los Angeles', Neighborhood: 'Venice', 'Temperature (F)': 90 }
 ];
-
 
 const columns = R.map(
     i => ({ name: i, id: i, presentation: 'dropdown' }),

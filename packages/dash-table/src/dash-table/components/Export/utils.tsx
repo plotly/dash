@@ -1,6 +1,8 @@
 import * as R from 'ramda';
-import XLSX from 'xlsx';
+import { WorkBook } from 'xlsx/types';
+
 import { Data, ExportHeaders } from 'dash-table/components/Table/props';
+import LazyLoader from 'dash-table/LazyLoader';
 
 interface IMergeObject {
     s: {r: number, c: number};
@@ -47,13 +49,9 @@ export function getMergeRanges(array: string[][]) {
     return R.filter((item: IMergeObject) => item.s.c !== item.e.c || item.s.r !== item.e.r, apiMergeArray);
 }
 
-export function createWorkbook(ws: XLSX.WorkSheet) {
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'SheetJS');
-    return wb;
-}
+export async function createWorkbook(heading: string[][], data: Data, columnID: string[], exportHeader: string, mergeDuplicateHeaders: boolean ) {
+    const XLSX = await LazyLoader.xlsx;
 
-export function createWorksheet(heading: string[][], data: Data, columnID: string[], exportHeader: ExportHeaders, mergeDuplicateHeaders: boolean) {
     const ws = XLSX.utils.aoa_to_sheet([]);
 
     data = R.map(R.pick(columnID))(data);
@@ -73,7 +71,20 @@ export function createWorksheet(heading: string[][], data: Data, columnID: strin
     } else if (exportHeader === ExportHeaders.Ids) {
         XLSX.utils.sheet_add_json(ws, data, { header: columnID });
     }
-    return ws;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'SheetJS');
+    return wb;
+}
+
+export async function exportWorkbook (wb: WorkBook, format: string) {
+    const XLSX = await LazyLoader.xlsx;
+
+    if (format === 'xlsx') {
+        XLSX.writeFile(wb, 'Data.xlsx', { bookType: 'xlsx', type: 'buffer' });
+    } else if (format === 'csv') {
+        XLSX.writeFile(wb, 'Data.csv', { bookType: 'csv', type: 'buffer' });
+    }
 }
 
 export function createHeadings(columnHeaders: (string | string[])[], maxLength: number) {

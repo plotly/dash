@@ -136,8 +136,8 @@ storiesOf('DashTable/Style type condition', module)
     .add('single selected cells on dark themes', () => (<DataTable
         id='styling-11'
         data={data}
-        selected_cells={[{row: 1, column: 1, column_id: 'Region'}]}
-        active_cell={{row: 1, column: 1}}
+        selected_cells={[{ row: 1, column: 1, column_id: 'Region' }]}
+        active_cell={{ row: 1, column: 1 }}
         columns={R.map(
             i => ({ name: i, id: i }),
             R.keysIn(data[0]))
@@ -155,8 +155,8 @@ storiesOf('DashTable/Style type condition', module)
     .add('multiple selected cells on dark themes', () => (<DataTable
         id='styling-12'
         data={data}
-        selected_cells={[{row: 1, column: 1, column_id: 'Region'}, {row: 1, column: 2, column_id: 'Temperature'}, {row: 2, column: 1, column_id: 'Region'}, {row: 2, column: 2, column_id: 'Temperature'}]}
-        active_cell={{row: 1, column: 1}}
+        selected_cells={[{ row: 1, column: 1, column_id: 'Region' }, { row: 1, column: 2, column_id: 'Temperature' }, { row: 2, column: 1, column_id: 'Region' }, { row: 2, column: 2, column_id: 'Temperature' }]}
+        active_cell={{ row: 1, column: 1 }}
         columns={R.map(
             i => ({ name: i, id: i }),
             R.keysIn(data[0]))
@@ -356,8 +356,8 @@ storiesOf('DashTable/Style type condition', module)
     />))
     .add('paging', () => (<DataTable
         id='styling-20'
-        data= {mock.data}
-        columns={ mock.columns.map((col: any) => R.merge(col, {
+        data={mock.data}
+        columns={mock.columns.map((col: any) => R.merge(col, {
             name: col.name,
             deletable: true
         }))}
@@ -366,7 +366,7 @@ storiesOf('DashTable/Style type condition', module)
         }}
         row_deletable={true}
         row_selectable={true}
-        pagination_mode= {'fe'}
+        pagination_mode={'fe'}
         style_data_conditional={[{
             if: { column_editable: true }, background_color: 'MediumPurple'
         }]}

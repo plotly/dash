@@ -3,6 +3,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import random from 'core/math/random';
 import DataTable from 'dash-table/dash/DataTable';
+
 const setProps = () => { };
 
 const columns = ['a', 'b', 'c'];
@@ -42,18 +43,18 @@ const props = Object.assign({}, baseProps, {
 
 storiesOf('DashTable/Width percentages', module)
     .add('without frozen columns or rows', () => (<DataTable
-        { ...props }
-        />))
+        {...props}
+    />))
     .add('with frozen rows', () => (<DataTable
-        { ...props }
+        {...props}
         fixed_rows={{ headers: true }}
-        />))
+    />))
     .add('with frozen columns', () => (<DataTable
-        { ...props }
+        {...props}
         fixed_columns={{ headers: true }}
     />))
     .add('with frozen rows and frozen columns', () => (<DataTable
-        { ...props }
+        {...props}
         fixed_columns={{ headers: true }}
         fixed_rows={{ headers: true }}
     />));

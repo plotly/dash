@@ -31,7 +31,7 @@ jobs:
                     python -m venv venv || virtualenv venv
                     . venv/bin/activate
                     pip install -r dev-requirements.txt --quiet
-                    git clone --depth 1 git@github.com:plotly/dash.git dash-main
+                    git clone --depth 1 -b exp-dynamic git@github.com:plotly/dash.git dash-main
                     pip install -e ./dash-main[dev] --quiet
 
             - run:
@@ -107,7 +107,7 @@ jobs:
                     python -m venv venv || virtualenv venv
                     . venv/bin/activate
                     pip install -r dev-requirements.txt --quiet
-                    git clone --depth 1 git@github.com:plotly/dash.git dash-main
+                    git clone --depth 1 -b exp-dynamic git@github.com:plotly/dash.git dash-main
                     pip install -e ./dash-main[dev] --quiet
 
             - run:
@@ -212,7 +212,7 @@ jobs:
                 name: Install dependencies (dash)
                 command: |
                     . venv/bin/activate
-                    git clone --depth 1 git@github.com:plotly/dash.git dash-main
+                    git clone --depth 1 -b exp-dynamic git@github.com:plotly/dash.git dash-main
                     pip install -e ./dash-main[dev,testing] --quiet
                     cd dash-main/dash-renderer && npm run build && pip install -e . && cd ../..
 
