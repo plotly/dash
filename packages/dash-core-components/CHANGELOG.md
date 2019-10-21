@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+- [#616](https://github.com/plotly/dash-core-components/pull/616) Async Graph and Plotly.js
+
 ## [1.3.1] - 2019-10-17
 ### Updated
 - Upgraded plotly.js to 1.50.1 [#681](https://github.com/plotly/dash-core-components/issues/681)

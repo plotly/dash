@@ -33,14 +33,16 @@ Locally](README.md#testing-locally) section of README.md.
 
 ## Updating Plotly.js
 
-1. Download the latest plotly.js from the cdn: `$ wget https://github.com/plotly/plotly.js/releases/tag/v1.49.4`
-2. Update `dash_core_components/__init__.py` plotly.js `external_url`
-3. Update `CHANGELOG.md` with links to the releases and a description of the changes. The message should state (see the existing `CHANGELOG.md` for examples):
+1. Update the version of `plotly.js` in package.json. Always use an exact version without "^" or "~"
+2. Run `npm install` followed by `npm run build`, this will ensure the latest version of Plotly.js is in `node_modules` and copy
+that version over with the other build artifacts
+3. Update `dash_core_components_base/__init__.py` plotly.js `relative_package_path` and `external_url`
+4. Update `CHANGELOG.md` with links to the releases and a description of the changes. The message should state (see the existing `CHANGELOG.md` for examples):
     * If you're only bumping the patch level, the heading is "Fixed" and the text starts "Patched plotly.js". Otherwise the heading is "Updated" and the text starts "Upgraded plotly.js"
     * The new plotly.js version number, and the PR in which this was done
     * All major or minor versions included, with links to their release pages and a summary of the major new features in each. If there are multiple minor/major releases included, be sure to look at all of their release notes to construct the summary. Call minor versions "feature" versions for the benefit of users not steeped in semver terminology.
     * All patch versions included, with links to their release pages and a note that these fix bugs
-4. When bumping the dcc version, a plotly.js patch/minor/major constitutes a dcc patch/minor/major respectively as well.
+5. When bumping the dcc version, a plotly.js patch/minor/major constitutes a dcc patch/minor/major respectively as well.
 
 ## Financial Contributions
 

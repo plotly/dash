@@ -63,7 +63,7 @@
     "no-extend-native": ["error"],
     "no-extra-bind": ["error"],
     "no-extra-boolean-cast": ["error"],
-    "no-inline-comments": ["error"],
+    "no-inline-comments": ["off"],
     "no-implicit-coercion": ["error"],
     "no-implied-eval": ["error"],
     "no-inner-declarations": ["off"],

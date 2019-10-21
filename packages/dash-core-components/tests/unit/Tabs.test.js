@@ -102,16 +102,24 @@ describe('Tabs correctly appends classes', () => {
     // removed here by using the styled-jsx/babel-test plugin in .babelrc
     test('props.className =>', () => {
         expect(tabs.find('#tabs').prop('class')).toEqual(
-            'tab-container ' + testClass
+            expect.stringMatching(
+                new RegExp(`jsx-\\d+\\stab-container\\s${testClass}`)
+            )
         );
     });
     test('props.content_className =>', () => {
         expect(tabs.find('.tab-content').prop('class')).toEqual(
-            'tab-content ' + testContentClass
+            expect.stringMatching(
+                new RegExp(`jsx-\\d+\\stab-content\\s${testContentClass}`)
+            )
         );
     });
     test('props.parent_className=>', () => {
-        expect(tabs.prop('class')).toEqual('tab-parent ' + testParentClass);
+        expect(tabs.prop('class')).toEqual(
+            expect.stringMatching(
+                new RegExp(`jsx-\\d+\\stab-parent\\s${testParentClass}`)
+            )
+        );
     });
 });
 describe('Tabs render content correctly', () => {

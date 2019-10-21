@@ -10,6 +10,10 @@ def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
     dash_dcc.start_server(platter_app)
 
     dash_dcc.wait_for_element("#waitfor")
+
+    # wait for Graph to be ready
+    dash_dcc.wait_for_element("#graph .main-svg")
+
     dash_dcc.percy_snapshot("gallery")
 
     dash_dcc.find_element("#dropdown .Select-input input").send_keys(u"北")
