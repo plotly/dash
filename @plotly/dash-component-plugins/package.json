@@ -1,0 +1,16 @@
+{
+  "name": "@plotly/dash-component-plugins",
+  "version": "1.0.1",
+  "description": "Plugins for Dash Components",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:plotly/dash.git"
+  },
+  "bugs": {
+    "url": "https://github.com/plotly/dash/issues"
+  },
+  "homepage": "https://github.com/plotly/dash",
+  "main": "src/index.js",
+  "author": "Marc-André Rivet",
+  "license": "MIT"
+}

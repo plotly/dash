@@ -36,8 +36,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.6.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-react": "^7.0.0",
+    "@plotly/dash-component-plugins": "^1.0.1",
     "@svgr/webpack": "^4.1.0",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
@@ -57,9 +59,9 @@
     "prettier-stylelint": "^0.4.2",
     "raw-loader": "^3.1.0",
     "style-loader": "^1.0.0",
-    "webpack-dev-server": "^3.1.11",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.8",
+    "webpack-dev-server": "^3.1.11",
     "webpack-serve": "^3.1.1",
     "whatwg-fetch": "^2.0.2"
   }

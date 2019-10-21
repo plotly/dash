@@ -212,6 +212,7 @@ class Dash(object):
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
+        eager_loading=False,
         include_assets_files=True,
         url_base_pathname=None,
         requests_pathname_prefix=None,
@@ -227,6 +228,11 @@ class Dash(object):
         plugins=None,
         **obsolete
     ):
+        # Apply _force_eager_loading overrides from modules
+        for module_name in ComponentRegistry.registry:
+            module = sys.modules[module_name]
+            eager = getattr(module, '_force_eager_loading', False)
+            eager_loading = eager_loading or eager
 
         for key in obsolete:
             if key in ["components_cache_max_age", "static_folder"]:
@@ -288,6 +294,7 @@ class Dash(object):
                 "name",
                 "assets_folder",
                 "assets_url_path",
+                "eager_loading",
                 "url_base_pathname",
                 "routes_pathname_prefix",
                 "requests_pathname_prefix",
@@ -314,7 +321,7 @@ class Dash(object):
 
         # static files from the packages
         self.css = Css(serve_locally)
-        self.scripts = Scripts(serve_locally)
+        self.scripts = Scripts(serve_locally, eager_loading)
 
         self.registered_paths = collections.defaultdict(set)
 
@@ -612,7 +619,9 @@ class Dash(object):
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
-                self.scripts._resources._filter_resources(deps, dev_bundles=dev)
+                self.scripts._resources._filter_resources(
+                    deps, dev_bundles=dev
+                )
             )
             + self.config.external_scripts
             + self._collect_and_register_resources(
@@ -655,7 +664,9 @@ class Dash(object):
 
         tags = []
         if not has_ie_compat:
-            tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
+            tags.append(
+                '<meta http-equiv="X-UA-Compatible" content="IE=edge">'
+            )
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
 
@@ -931,7 +942,9 @@ class Dash(object):
                             {2}
                         """
                             ).format(
-                                arg_prop, arg_id, component.available_properties
+                                arg_prop,
+                                arg_id,
+                                component.available_properties,
                             )
                         )
 
@@ -1071,8 +1084,9 @@ class Dash(object):
                     location_header=(
                         "The value in question is located at"
                         if not toplevel
-                        else "The value in question is either the only value returned,"
-                        "\nor is in the top level of the returned list,"
+                        else "The value in question is either the only value "
+                        "returned,\nor is in the top level of the returned "
+                        "list,"
                     ),
                     location=(
                         "\n"
@@ -1456,7 +1470,8 @@ class Dash(object):
     @staticmethod
     def _serve_default_favicon():
         return flask.Response(
-            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
+            pkgutil.get_data("dash", "favicon.ico"),
+            content_type="image/x-icon",
         )
 
     def get_asset_url(self, path):

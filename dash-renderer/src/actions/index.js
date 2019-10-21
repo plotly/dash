@@ -33,16 +33,19 @@ import cookie from 'cookie';
 import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
 import {applyPersistence, prunePersistence} from '../persistence';
+import setAppIsReady from './setAppReadyState';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
 export const computeGraphs = createAction(getAction('COMPUTE_GRAPHS'));
 export const computePaths = createAction(getAction('COMPUTE_PATHS'));
-export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
 export const setConfig = createAction(getAction('SET_CONFIG'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
+export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const onError = createAction(getAction('ON_ERROR'));
+
+export {setAppIsReady};
 
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
@@ -175,7 +178,7 @@ function reduceInputIds(nodeIds, InputGraph) {
     /*
      * Create input-output(s) pairs,
      * sort by number of outputs,
-     * and remove redudant inputs (inputs that update the same output)
+     * and remove redundant inputs (inputs that update the same output)
      */
     const inputOutputPairs = nodeIds.map(nodeId => ({
         input: nodeId,
@@ -194,7 +197,7 @@ function reduceInputIds(nodeIds, InputGraph) {
      * trigger components to update multiple times.
      *
      * For example, [A, B] => C and [A, D] => E
-     * The unique inputs might be [A, B, D] but that is redudant.
+     * The unique inputs might be [A, B, D] but that is redundant.
      * We only need to update B and D or just A.
      *
      * In these cases, we'll supply an additional list of outputs
@@ -215,10 +218,15 @@ function reduceInputIds(nodeIds, InputGraph) {
 }
 
 export function notifyObservers(payload) {
-    return function(dispatch, getState) {
+    return async function(dispatch, getState) {
         const {id, props, excludedOutputs} = payload;
 
-        const {graphs, requestQueue} = getState();
+        const {graphs, isAppReady, requestQueue} = getState();
+
+        if (isAppReady !== true) {
+            await isAppReady;
+        }
+
         const {InputGraph} = graphs;
         /*
          * Figure out all of the output id's that depend on this input.
@@ -942,6 +950,8 @@ function updateOutput(
                                 );
                             });
                         }
+
+                        dispatch(setAppIsReady());
                     }
                 };
                 if (multi) {

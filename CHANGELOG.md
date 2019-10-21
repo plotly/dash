@@ -21,6 +21,7 @@ updates in clientside functions.
   - Three new `dash.testing` methods: `clear_local_storage`, `clear_session_storage`, and `clear_storage` (to clear both together)
 - [#937](https://github.com/plotly/dash/pull/937) `dash.testing` adds two APIs `zoom_in_graph_by_ratio` and `click_at_coord_fractions` about advanced interactions using mouse `ActionChain`
 - [#938](https://github.com/plotly/dash/issues/938) Add debugging traces to dash backend about serving component suites, to verify the installed packages whenever in doubt.
+- [#899](https://github.com/plotly/dash/pull/899) Add support for async dependencies and components
 
 ### Fixed
 - [#944](https://github.com/plotly/dash/pull/944) Fix a bug with persistence being toggled on/off on an existing component.
