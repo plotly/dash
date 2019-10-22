@@ -711,7 +711,7 @@ class Dash(object):
             package.__path__,
         )
 
-        response=flask.Response(
+        response = flask.Response(
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype,
         )
@@ -721,7 +721,7 @@ class Dash(object):
         request_etag = flask.request.headers.get('If-None-Match')
 
         if '"{}"'.format(tag) == request_etag:
-            response = flask.Response(None, status = 304)
+            response = flask.Response(None, status=304)
 
         return response
 
