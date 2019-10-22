@@ -711,10 +711,19 @@ class Dash(object):
             package.__path__,
         )
 
-        return flask.Response(
+        response=flask.Response(
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype,
         )
+        response.add_etag()
+        (tag, weak) = response.get_etag()
+
+        request_etag = flask.request.headers.get('If-None-Match')
+
+        if '"{}"'.format(tag) == request_etag:
+            response = flask.Response(None, status = 304)
+
+        return response
 
     def index(self, *args, **kwargs):  # pylint: disable=unused-argument
         scripts = self._generate_scripts_html()
