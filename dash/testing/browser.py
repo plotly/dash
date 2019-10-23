@@ -445,7 +445,7 @@ class Browser(DashPageMixin):
         elem_or_selector,
         start_fraction=0.5,
         zoom_box_fraction=0.2,
-        compare=True
+        compare=True,
     ):
         """Zoom out a graph with a zoom box fraction of component dimension
         default start at middle with a rectangle of 1/5 of the dimension use
@@ -507,7 +507,11 @@ class Browser(DashPageMixin):
 
             # wait for the hook_id to present and all callbacks get fired
             self.wait_for_element_by_id(hook_id)
-            until(lambda: self.redux_state_rqs, timeout=10)
+            until(
+                lambda: self.redux_state_rqs
+                and all((_["status"] == 200 for _ in self.redux_state_rqs)),
+                timeout=10,
+            )
 
             self.percy_snapshot(path)
             if assert_check:
