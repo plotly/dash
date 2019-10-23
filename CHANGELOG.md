@@ -5,9 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 ### Added
 - [#964](https://github.com/plotly/dash/pull/964) Adds support for preventing
-updates in clientside functions. 
+updates in clientside functions.
   - Reject all updates with `throw window.dash_clientside.PreventUpdate;`
   - Reject a single output by returning `window.dash_clientside.no_update`
+- [#973](https://github.com/plotly/dash/pull/973) Adds support for resource caching and adds a fallback caching mechanism through etag
 
 ## [1.4.1] - 2019-10-17
 ### Fixed
