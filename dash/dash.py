@@ -685,7 +685,6 @@ class Dash(object):
             path_in_package_dist,
         )
 
-        fingerprint = res is not None
         # Resolve real resource name from fingerprinted resource path
         path_in_package_dist = (
             res.group(1) + res.group(3)
@@ -733,7 +732,7 @@ class Dash(object):
             mimetype=mimetype,
         )
 
-        if fingerprint:
+        if res is not None:
             # Fingerprinted resources are good forever (1 year)
             # No need for ETag as the fingerprint changes with each build
             response.cache_control.max_age = 31536000  # 1 year
