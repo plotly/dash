@@ -541,12 +541,15 @@ class Dash(object):
 
             modified = int(os.stat(module_path).st_mtime)
 
-            return "{}_dash-component-suites/{}/{}?v={}&m={}".format(
+            return "{}_dash-component-suites/{}/{}.v{}m{}.{}".format(
                 self.config.requests_pathname_prefix,
                 namespace,
-                relative_package_path,
-                importlib.import_module(namespace).__version__,
+                '.'.join(relative_package_path.split('.')[:-1]),
+                importlib.import_module(namespace).__version__.replace(
+                    '.', '_'
+                ),
                 modified,
+                '.'.join(relative_package_path.split('.')[-1:]),
             )
 
         srcs = []
@@ -676,6 +679,18 @@ class Dash(object):
 
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
+        # Check if the resource has a fingerprint
+        res = re.match(
+            "^(.*)[.]v\d+_\d+_\d+(-\w+[.]?\d+)?m\d{10}([.]js)$",
+            path_in_package_dist,
+        )
+
+        fingerprint = res is not None
+        # Resolve real resource name from fingerprinted resource path
+        path_in_package_dist = (
+            res[1] + res[3] if res is not None else path_in_package_dist
+        )
+
         if package_name not in self.registered_paths:
             raise exceptions.DependencyException(
                 "Error loading dependency.\n"
@@ -715,13 +730,21 @@ class Dash(object):
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype,
         )
-        response.add_etag()
-        (tag,) = response.get_etag()[:1]
 
-        request_etag = flask.request.headers.get('If-None-Match')
+        if fingerprint:
+            # Fingerprinted resources are good forever (1 year)
+            # No need for ETag as the fingerprint changes with each build
+            response.cache_control.max_age = 31536000  # 1 year
+        else:
+            # Non-fingerprinted resources are given an ETag that
+            # will be used / check on future requests
+            response.add_etag()
+            tag = response.get_etag()[:1][0]
 
-        if '"{}"'.format(tag) == request_etag:
-            response = flask.Response(None, status=304)
+            request_etag = flask.request.headers.get('If-None-Match')
+
+            if '"{}"'.format(tag) == request_etag:
+                response = flask.Response(None, status=304)
 
         return response
 

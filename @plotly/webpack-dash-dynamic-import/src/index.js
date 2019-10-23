@@ -1,4 +1,16 @@
-const resolveImportSource = `\
+const fs = require('fs');
+
+function getFingerprint() {
+    const package = fs.readFileSync('./package.json');
+    const packageJson = JSON.parse(package);
+
+    const timestamp = Math.round(Date.now() / 1000);
+    const version = packageJson.version.replace(/[.]/g, '_');
+
+    return `"v${version}m${timestamp}"`;
+}
+
+const resolveImportSource = () => `\
 Object.defineProperty(__webpack_require__, 'p', {
     get: (function () {
         let script = document.currentScript;
@@ -15,7 +27,16 @@ Object.defineProperty(__webpack_require__, 'p', {
             return url;
         };
     })()
-});`
+});
+
+const __jsonpScriptSrc__ = jsonpScriptSrc;
+jsonpScriptSrc = function(chunkId) {
+    const srcFragments = __jsonpScriptSrc__(chunkId).split('.');
+    srcFragments.splice(-1, 0, ${getFingerprint()});
+
+    return srcFragments.join('.');
+}
+`
 
 class WebpackDashDynamicImport {
     apply(compiler) {
@@ -23,7 +44,7 @@ class WebpackDashDynamicImport {
             compilation.mainTemplate.hooks.requireExtensions.tap('WebpackDashDynamicImport > RequireExtensions', (source, chunk, hash) => {
                 return [
                     source,
-                    resolveImportSource
+                    resolveImportSource()
                 ]
             });
         });
