@@ -740,7 +740,7 @@ class Dash(object):
             # Non-fingerprinted resources are given an ETag that
             # will be used / check on future requests
             response.add_etag()
-            tag = response.get_etag()[:1][0]
+            tag = response.get_etag()[0]
 
             request_etag = flask.request.headers.get('If-None-Match')
 
