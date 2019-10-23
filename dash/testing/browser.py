@@ -504,7 +504,11 @@ class Browser(DashPageMixin):
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
             self.driver.get("{}/{}".format(self.server_url.rstrip("/"), path))
+
+            # wait for the hook_id to present and all callbacks get fired
             self.wait_for_element_by_id(hook_id)
+            until(lambda: self.redux_state_rqs, timeout=10)
+
             self.percy_snapshot(path)
             if assert_check:
                 assert not self.driver.find_elements_by_css_selector(
