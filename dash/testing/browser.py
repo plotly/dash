@@ -509,7 +509,7 @@ class Browser(DashPageMixin):
             self.wait_for_element_by_id(hook_id)
             until(
                 lambda: self.redux_state_rqs
-                and all((_["status"] == 200 for _ in self.redux_state_rqs)),
+                and all((_["responseTime"] for _ in self.redux_state_rqs)),
                 timeout=10,
             )
 
