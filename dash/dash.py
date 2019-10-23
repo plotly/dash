@@ -681,7 +681,7 @@ class Dash(object):
     def serve_component_suites(self, package_name, path_in_package_dist):
         # Check if the resource has a fingerprint
         res = re.match(
-            "^(.*)[.]v\d+_\d+_\d+(-\w+[.]?\d+)?m\d{10}([.]js)$",
+            r'^(.*)[.]v\d+_\d+_\d+(-\w+[.]?\d+)?m\d{10}([.]js)$',
             path_in_package_dist,
         )
 
