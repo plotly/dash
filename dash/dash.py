@@ -688,7 +688,7 @@ class Dash(object):
         fingerprint = res is not None
         # Resolve real resource name from fingerprinted resource path
         path_in_package_dist = (
-            res[1] + res[3] if res is not None else path_in_package_dist
+            res.group(1) + res.group(3) if res is not None else path_in_package_dist
         )
 
         if package_name not in self.registered_paths:
