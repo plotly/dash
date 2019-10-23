@@ -716,7 +716,7 @@ class Dash(object):
             mimetype=mimetype,
         )
         response.add_etag()
-        (tag, weak) = response.get_etag()
+        (tag,) = response.get_etag()[:1]
 
         request_etag = flask.request.headers.get('If-None-Match')
 
