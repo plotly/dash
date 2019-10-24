@@ -31,10 +31,13 @@ Object.defineProperty(__webpack_require__, 'p', {
 
 const __jsonpScriptSrc__ = jsonpScriptSrc;
 jsonpScriptSrc = function(chunkId) {
-    const srcFragments = __jsonpScriptSrc__(chunkId).split('.');
-    srcFragments.splice(1, 0, ${getFingerprint()});
+    const srcFragments = __jsonpScriptSrc__(chunkId).split('/');
+    const fileFragments = srcFragments.slice(-1)[0].split('.');
 
-    return srcFragments.join('.');
+    fileFragments.splice(1, 0, ${getFingerprint()});
+    srcFragments.splice(-1, 1, fileFragments.join('.'))
+
+    return srcFragments.join('/');
 }
 `
 
