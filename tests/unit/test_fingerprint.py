@@ -2,7 +2,7 @@
 from dash.fingerprint import build_fingerprint, check_fingerprint
 
 version = 1
-hash = 1
+hash_value = 1
 
 valid_resources = [
     {'path': 'react@16.8.6.min.js', 'fingerprint': 'react@16.v1m1.8.6.min.js'},
@@ -37,7 +37,7 @@ invalid_fingerprints = [
 def test_fingerprint():
     for resource in valid_resources:
         # The fingerprint matches expectations
-        fingerprint = build_fingerprint(resource.get('path'), resource.get('version', version), resource.get('hash', hash))
+        fingerprint = build_fingerprint(resource.get('path'), resource.get('version', version), resource.get('hash', hash_value))
         assert fingerprint == resource.get('fingerprint')
 
         (original_path, has_fingerprint) = check_fingerprint(fingerprint)
