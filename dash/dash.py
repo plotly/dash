@@ -24,6 +24,7 @@ import plotly
 import dash_renderer
 
 from .dependencies import Input, Output, State
+from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
 from .development.base_component import Component, ComponentRegistry
 from . import exceptions
@@ -541,15 +542,14 @@ class Dash(object):
 
             modified = int(os.stat(module_path).st_mtime)
 
-            return "{}_dash-component-suites/{}/{}.v{}m{}.{}".format(
+            return "{}_dash-component-suites/{}/{}".format(
                 self.config.requests_pathname_prefix,
                 namespace,
-                '.'.join(relative_package_path.split('.')[:-1]),
-                importlib.import_module(namespace).__version__.replace(
-                    '.', '_'
+                build_fingerprint(
+                    relative_package_path,
+                    importlib.import_module(namespace).__version__,
+                    modified,
                 ),
-                modified,
-                '.'.join(relative_package_path.split('.')[-1:]),
             )
 
         srcs = []
@@ -679,17 +679,8 @@ class Dash(object):
 
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
-        # Check if the resource has a fingerprint
-        res = re.match(
-            r'^(.*)[.]v\d+_\d+_\d+(-\w+[.]?\d+)?m\d{10}([.]js)$',
-            path_in_package_dist,
-        )
-
-        # Resolve real resource name from fingerprinted resource path
-        path_in_package_dist = (
-            res.group(1) + res.group(3)
-            if res is not None
-            else path_in_package_dist
+        (path_in_package_dist, has_fingerprint) = check_fingerprint(
+            path_in_package_dist
         )
 
         if package_name not in self.registered_paths:
@@ -732,7 +723,7 @@ class Dash(object):
             mimetype=mimetype,
         )
 
-        if res is not None:
+        if has_fingerprint:
             # Fingerprinted resources are good forever (1 year)
             # No need for ETag as the fingerprint changes with each build
             response.cache_control.max_age = 31536000  # 1 year
