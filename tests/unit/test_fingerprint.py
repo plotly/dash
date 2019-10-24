@@ -5,13 +5,13 @@ version = 1
 hash = 1
 
 valid_resources = [
-    {'path':'react@16.8.6.min.js', 'fingerprint': 'react@16.v1m1.8.6.min.js'},
-    {'path':'react@16.8.6.min.js', 'fingerprint': 'react@16.v1_1_1m1234567890abcdef.8.6.min.js', 'version': '1.1.1', 'hash': '1234567890abcdef' },
-    {'path':'react@16.8.6.min.js', 'fingerprint': 'react@16.v1_1_1-alpha_1m1234567890abcdef.8.6.min.js', 'version': '1.1.1-alpha.1', 'hash': '1234567890abcdef' },
-    {'path':'dash.plotly.js', 'fingerprint': 'dash.v1m1.plotly.js'},
-    {'path':'dash.plotly.j_s', 'fingerprint': 'dash.v1m1.plotly.j_s'},
-    {'path':'dash.plotly.css', 'fingerprint': 'dash.v1m1.plotly.css'},
-    {'path':'dash.plotly.xxx.yyy.zzz', 'fingerprint': 'dash.v1m1.plotly.xxx.yyy.zzz'}
+    {'path': 'react@16.8.6.min.js', 'fingerprint': 'react@16.v1m1.8.6.min.js'},
+    {'path': 'react@16.8.6.min.js', 'fingerprint': 'react@16.v1_1_1m1234567890abcdef.8.6.min.js', 'version': '1.1.1', 'hash': '1234567890abcdef' },
+    {'path': 'react@16.8.6.min.js', 'fingerprint': 'react@16.v1_1_1-alpha_1m1234567890abcdef.8.6.min.js', 'version': '1.1.1-alpha.1', 'hash': '1234567890abcdef' },
+    {'path': 'dash.plotly.js', 'fingerprint': 'dash.v1m1.plotly.js'},
+    {'path': 'dash.plotly.j_s', 'fingerprint': 'dash.v1m1.plotly.j_s'},
+    {'path': 'dash.plotly.css', 'fingerprint': 'dash.v1m1.plotly.css'},
+    {'path': 'dash.plotly.xxx.yyy.zzz', 'fingerprint': 'dash.v1m1.plotly.xxx.yyy.zzz'}
 ]
 
 valid_fingerprints = [
