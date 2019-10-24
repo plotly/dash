@@ -13,7 +13,7 @@ valid_resources = [
 ]
 
 valid_fingerprints = [
-    'react.v1_1_2m1571771240.@16.8.6.min.js',
+    'react@16.v1_1_2m1571771240.8.6.min.js',
     'dash.plotly.v1_1_1m1234567890.js',
     'dash.plotly.v1_1_1m1234567890.j_s',
     'dash.plotly.v1_1_1m1234567890.css',
