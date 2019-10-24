@@ -7,13 +7,13 @@ check_regex = re.compile(
 )
 
 
-def build_fingerprint(path, version, modified):
+def build_fingerprint(path, version, hash):
     res = build_regex.match(path)
 
     return '{}.v{}m{}{}'.format(
         res.group('filename'),
         str(version).replace('.', '_'),
-        modified,
+        hash,
         res.group('extension'),
     )
 
