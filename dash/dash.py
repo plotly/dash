@@ -16,33 +16,30 @@ import pprint
 from functools import wraps
 from textwrap import dedent
 
-from quart_compress import Compress
-from werkzeug.debug.tbtools import get_current_traceback
-
 import flask
 import quart
+from quart_compress import Compress
+from asgiref.sync import sync_to_async
+import inspect
+from werkzeug.debug.tbtools import get_current_traceback
 
 import plotly
 import dash_renderer
 
-from dash.dependencies import Input, Output, State
-from dash.resources import Scripts, Css
-from dash.development.base_component import Component, ComponentRegistry
-from dash import exceptions
-from dash._utils import AttributeDict as _AttributeDict
-from dash._utils import interpolate_str as _interpolate
-from dash._utils import format_tag as _format_tag
-from dash._utils import generate_hash as _generate_hash
-from dash._utils import patch_collections_abc as _patch_collections_abc
-from dash import _watch
-from dash._utils import get_asset_path as _get_asset_path
-from dash._utils import create_callback_id as _create_callback_id
-from dash._configs import get_combined_config, pathname_configs
-from dash.version import __version__
-
-from asgiref.sync import sync_to_async
-
-import inspect
+from .dependencies import Input, Output, State
+from .resources import Scripts, Css
+from .development.base_component import Component, ComponentRegistry
+from . import exceptions
+from ._utils import AttributeDict as _AttributeDict
+from ._utils import interpolate_str as _interpolate
+from ._utils import format_tag as _format_tag
+from ._utils import generate_hash as _generate_hash
+from ._utils import patch_collections_abc as _patch_collections_abc
+from . import _watch
+from ._utils import get_asset_path as _get_asset_path
+from ._utils import create_callback_id as _create_callback_id
+from ._configs import get_combined_config, pathname_configs
+from .version import __version__
 
 _default_index = """<!DOCTYPE html>
 <html>
@@ -218,6 +215,7 @@ class Dash(object):
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
+        eager_loading=False,
         include_assets_files=True,
         url_base_pathname=None,
         requests_pathname_prefix=None,
@@ -233,6 +231,11 @@ class Dash(object):
         plugins=None,
         **obsolete
     ):
+        # Apply _force_eager_loading overrides from modules
+        for module_name in ComponentRegistry.registry:
+            module = sys.modules[module_name]
+            eager = getattr(module, '_force_eager_loading', False)
+            eager_loading = eager_loading or eager
 
         for key in obsolete:
             if key in ["components_cache_max_age", "static_folder"]:
@@ -294,6 +297,7 @@ class Dash(object):
                 "name",
                 "assets_folder",
                 "assets_url_path",
+                "eager_loading",
                 "url_base_pathname",
                 "routes_pathname_prefix",
                 "requests_pathname_prefix",
@@ -320,7 +324,7 @@ class Dash(object):
 
         # static files from the packages
         self.css = Css(serve_locally)
-        self.scripts = Scripts(serve_locally)
+        self.scripts = Scripts(serve_locally, eager_loading)
 
         self.registered_paths = collections.defaultdict(set)
 
@@ -618,7 +622,9 @@ class Dash(object):
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
-                self.scripts._resources._filter_resources(deps, dev_bundles=dev)
+                self.scripts._resources._filter_resources(
+                    deps, dev_bundles=dev
+                )
             )
             + self.config.external_scripts
             + self._collect_and_register_resources(
@@ -661,7 +667,9 @@ class Dash(object):
 
         tags = []
         if not has_ie_compat:
-            tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
+            tags.append(
+                '<meta http-equiv="X-UA-Compatible" content="IE=edge">'
+            )
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
 
@@ -937,7 +945,9 @@ class Dash(object):
                             {2}
                         """
                             ).format(
-                                arg_prop, arg_id, component.available_properties
+                                arg_prop,
+                                arg_id,
+                                component.available_properties,
                             )
                         )
 
@@ -1077,8 +1087,9 @@ class Dash(object):
                     location_header=(
                         "The value in question is located at"
                         if not toplevel
-                        else "The value in question is either the only value returned,"
-                        "\nor is in the top level of the returned list,"
+                        else "The value in question is either the only value "
+                        "returned,\nor is in the top level of the returned "
+                        "list,"
                     ),
                     location=(
                         "\n"
@@ -1254,10 +1265,11 @@ class Dash(object):
             @wraps(func)
             async def add_context(*args, **kwargs):
                 # don't touch the comment on the next line - used by debugger
-                if not inspect.iscoroutinefunction(func):
-                    output_value = await sync_to_async(func)(*args, **kwargs)  # %% callback invoked %%
+                if inspect.iscoroutinefunction(func):
+                    output_value = await func(*args, **kwargs) # %% callback invoked
                 else:
-                    output_value = await func(*args, **kwargs)  # %% callback invoked %%
+                    output_value = await sync_to_async(func)(*args, **kwargs) # %% callback invoked
+
                 if multi:
                     if not isinstance(output_value, (list, tuple)):
                         raise exceptions.InvalidCallbackReturnValue(
@@ -1331,7 +1343,7 @@ class Dash(object):
         return wrap_func
 
     async def dispatch(self):
-        body = await quart.request.get_json()
+        body = quart.request.get_json()
         inputs = body.get("inputs", [])
         state = body.get("state", [])
         output = body["output"]
@@ -1353,7 +1365,7 @@ class Dash(object):
             else []
         )
 
-        response = quart.g.dash_response = quart.Response(None,
+        response = quart.g.dash_response = quart.Response(
             mimetype="application/json"
         )
 
@@ -1377,8 +1389,7 @@ class Dash(object):
                 ][0]
             )
 
-        response_data = await self.callback_map[output]["callback"](*args)
-        response.set_data(response_data)
+        response.set_data(await self.callback_map[output]["callback"](*args))
         return response
 
     def _validate_layout(self):
@@ -1466,7 +1477,8 @@ class Dash(object):
     @staticmethod
     def _serve_default_favicon():
         return quart.Response(
-            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
+            pkgutil.get_data("dash", "favicon.ico"),
+            content_type="image/x-icon",
         )
 
     def get_asset_url(self, path):
