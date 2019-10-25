@@ -40,10 +40,10 @@ class DashPageMixin(object):
         if self.driver.execute_script(
             "return window.store"
         ) and self.driver.execute_script(
-            "return window.store.getState().requestQueue"
+            "return window.store.getState().dependenciesRequest"
         ):
             return self.redux_state_rqs and all(
-                (_["responseTime"] for _ in self.redux_state_rqs)
+                (_.get("responseTime") for _ in self.redux_state_rqs)
             )
         return True
 
