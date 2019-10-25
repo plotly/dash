@@ -100,7 +100,7 @@ class Browser(DashPageMixin):
         except percy.errors.Error:
             logger.exception("percy runner failed to finalize properly")
 
-    def percy_snapshot(self, name=""):
+    def percy_snapshot(self, name="", wait_for_callbacks=False):
         """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`.
         It also combines the snapshot `name` with the python version.
         """
@@ -108,6 +108,8 @@ class Browser(DashPageMixin):
             name, sys.version_info.major, sys.version_info.minor
         )
         logger.info("taking snapshot name => %s", snapshot_name)
+        if wait_for_callbacks:
+            until(self._wait_for_callbacks, timeout=10)
         self.percy_runner.snapshot(name=snapshot_name)
 
     def take_snapshot(self, name):
@@ -498,7 +500,9 @@ class Browser(DashPageMixin):
             if entries:
                 self._last_ts = entries[-1]["timestamp"]
 
-    def visit_and_snapshot(self, resource_path, hook_id, assert_check=True):
+    def visit_and_snapshot(
+        self, resource_path, hook_id, wait_for_callbacks=True, assert_check=True
+    ):
         try:
             path = resource_path.lstrip("/")
             if path != resource_path:
@@ -507,13 +511,7 @@ class Browser(DashPageMixin):
 
             # wait for the hook_id to present and all callbacks get fired
             self.wait_for_element_by_id(hook_id)
-            until(
-                lambda: self.redux_state_rqs
-                and all((_["responseTime"] for _ in self.redux_state_rqs)),
-                timeout=10,
-            )
-
-            self.percy_snapshot(path)
+            self.percy_snapshot(path, wait_for_callbacks=wait_for_callbacks)
             if assert_check:
                 assert not self.driver.find_elements_by_css_selector(
                     "div.dash-debug-alert"

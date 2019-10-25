@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import dash.testing.wait as wait
 
 
 class DashPageMixin(object):
@@ -35,6 +36,17 @@ class DashPageMixin(object):
         return self.driver.execute_script(
             "return window.store.getState().requestQueue"
         )
+
+    def _wait_for_callbacks(self):
+        if self.driver.execute_script(
+            "return window.store"
+        ) and self.driver.execute_script(
+            "return window.store.getState().requestQueue"
+        ):
+            return self.redux_state_rqs and all(
+                (_["responseTime"] for _ in self.redux_state_rqs)
+            )
+        return True
 
     def get_local_storage(self, store_id="local"):
         return self.driver.execute_script(
