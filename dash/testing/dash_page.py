@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-import dash.testing.wait as wait
 
 
 class DashPageMixin(object):
