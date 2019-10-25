@@ -16,27 +16,33 @@ import pprint
 from functools import wraps
 from textwrap import dedent
 
-import flask
-from flask_compress import Compress
+from quart_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
+
+import flask
+import quart
 
 import plotly
 import dash_renderer
 
-from .dependencies import Input, Output, State
-from .resources import Scripts, Css
-from .development.base_component import Component, ComponentRegistry
-from . import exceptions
-from ._utils import AttributeDict as _AttributeDict
-from ._utils import interpolate_str as _interpolate
-from ._utils import format_tag as _format_tag
-from ._utils import generate_hash as _generate_hash
-from ._utils import patch_collections_abc as _patch_collections_abc
-from . import _watch
-from ._utils import get_asset_path as _get_asset_path
-from ._utils import create_callback_id as _create_callback_id
-from ._configs import get_combined_config, pathname_configs
-from .version import __version__
+from dash.dependencies import Input, Output, State
+from dash.resources import Scripts, Css
+from dash.development.base_component import Component, ComponentRegistry
+from dash import exceptions
+from dash._utils import AttributeDict as _AttributeDict
+from dash._utils import interpolate_str as _interpolate
+from dash._utils import format_tag as _format_tag
+from dash._utils import generate_hash as _generate_hash
+from dash._utils import patch_collections_abc as _patch_collections_abc
+from dash import _watch
+from dash._utils import get_asset_path as _get_asset_path
+from dash._utils import create_callback_id as _create_callback_id
+from dash._configs import get_combined_config, pathname_configs
+from dash.version import __version__
+
+from asgiref.sync import sync_to_async
+
+import inspect
 
 _default_index = """<!DOCTYPE html>
 <html>
@@ -212,7 +218,6 @@ class Dash(object):
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
-        eager_loading=False,
         include_assets_files=True,
         url_base_pathname=None,
         requests_pathname_prefix=None,
@@ -228,11 +233,6 @@ class Dash(object):
         plugins=None,
         **obsolete
     ):
-        # Apply _force_eager_loading overrides from modules
-        for module_name in ComponentRegistry.registry:
-            module = sys.modules[module_name]
-            eager = getattr(module, '_force_eager_loading', False)
-            eager_loading = eager_loading or eager
 
         for key in obsolete:
             if key in ["components_cache_max_age", "static_folder"]:
@@ -247,13 +247,13 @@ class Dash(object):
 
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
-        if isinstance(server, flask.Flask):
+        if isinstance(server, quart.Quart):
             self.server = server
             if name is None:
                 name = getattr(server, "name", "__main__")
         elif isinstance(server, bool):
             name = name if name else "__main__"
-            self.server = flask.Flask(name) if server else None
+            self.server = quart.Quart(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
@@ -294,7 +294,6 @@ class Dash(object):
                 "name",
                 "assets_folder",
                 "assets_url_path",
-                "eager_loading",
                 "url_base_pathname",
                 "routes_pathname_prefix",
                 "requests_pathname_prefix",
@@ -321,7 +320,7 @@ class Dash(object):
 
         # static files from the packages
         self.css = Css(serve_locally)
-        self.scripts = Scripts(serve_locally, eager_loading)
+        self.scripts = Scripts(serve_locally)
 
         self.registered_paths = collections.defaultdict(set)
 
@@ -364,7 +363,7 @@ class Dash(object):
         )
 
         self.server.register_blueprint(
-            flask.Blueprint(
+            quart.Blueprint(
                 assets_blueprint_name,
                 config.name,
                 static_folder=self.config.assets_folder,
@@ -481,7 +480,7 @@ class Dash(object):
         layout = self._layout_value()
 
         # TODO - Set browser cache limit - pass hash into frontend
-        return flask.Response(
+        return quart.Response(
             json.dumps(layout, cls=plotly.utils.PlotlyJSONEncoder),
             mimetype="application/json",
         )
@@ -512,7 +511,7 @@ class Dash(object):
             _reload.hard = False
             _reload.changed_assets = []
 
-        return flask.jsonify(
+        return quart.jsonify(
             {
                 "reloadHash": _hash,
                 "hard": hard,
@@ -522,7 +521,7 @@ class Dash(object):
         )
 
     def serve_routes(self):
-        return flask.Response(
+        return quart.Response(
             json.dumps(self.routes, cls=plotly.utils.PlotlyJSONEncoder),
             mimetype="application/json",
         )
@@ -619,9 +618,7 @@ class Dash(object):
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
-                self.scripts._resources._filter_resources(
-                    deps, dev_bundles=dev
-                )
+                self.scripts._resources._filter_resources(deps, dev_bundles=dev)
             )
             + self.config.external_scripts
             + self._collect_and_register_resources(
@@ -664,9 +661,7 @@ class Dash(object):
 
         tags = []
         if not has_ie_compat:
-            tags.append(
-                '<meta http-equiv="X-UA-Compatible" content="IE=edge">'
-            )
+            tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
 
@@ -711,7 +706,7 @@ class Dash(object):
             package.__path__,
         )
 
-        return flask.Response(
+        return quart.Response(
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype,
         )
@@ -830,7 +825,7 @@ class Dash(object):
         )
 
     def dependencies(self):
-        return flask.jsonify(
+        return quart.jsonify(
             [
                 {
                     "output": k,
@@ -942,9 +937,7 @@ class Dash(object):
                             {2}
                         """
                             ).format(
-                                arg_prop,
-                                arg_id,
-                                component.available_properties,
+                                arg_prop, arg_id, component.available_properties
                             )
                         )
 
@@ -1084,9 +1077,8 @@ class Dash(object):
                     location_header=(
                         "The value in question is located at"
                         if not toplevel
-                        else "The value in question is either the only value "
-                        "returned,\nor is in the top level of the returned "
-                        "list,"
+                        else "The value in question is either the only value returned,"
+                        "\nor is in the top level of the returned list,"
                     ),
                     location=(
                         "\n"
@@ -1260,9 +1252,12 @@ class Dash(object):
 
         def wrap_func(func):
             @wraps(func)
-            def add_context(*args, **kwargs):
+            async def add_context(*args, **kwargs):
                 # don't touch the comment on the next line - used by debugger
-                output_value = func(*args, **kwargs)  # %% callback invoked %%
+                if not inspect.iscoroutinefunction(func):
+                    output_value = await sync_to_async(func)(*args, **kwargs)  # %% callback invoked %%
+                else:
+                    output_value = await func(*args, **kwargs)  # %% callback invoked %%
                 if multi:
                     if not isinstance(output_value, (list, tuple)):
                         raise exceptions.InvalidCallbackReturnValue(
@@ -1335,30 +1330,30 @@ class Dash(object):
 
         return wrap_func
 
-    def dispatch(self):
-        body = flask.request.get_json()
+    async def dispatch(self):
+        body = await quart.request.get_json()
         inputs = body.get("inputs", [])
         state = body.get("state", [])
         output = body["output"]
 
         args = []
 
-        flask.g.input_values = input_values = {
+        quart.g.input_values = input_values = {
             "{}.{}".format(x["id"], x["property"]): x.get("value")
             for x in inputs
         }
-        flask.g.state_values = {
+        quart.g.state_values = {
             "{}.{}".format(x["id"], x["property"]): x.get("value")
             for x in state
         }
         changed_props = body.get("changedPropIds")
-        flask.g.triggered_inputs = (
+        quart.g.triggered_inputs = (
             [{"prop_id": x, "value": input_values[x]} for x in changed_props]
             if changed_props
             else []
         )
 
-        response = flask.g.dash_response = flask.Response(
+        response = quart.g.dash_response = quart.Response(None,
             mimetype="application/json"
         )
 
@@ -1382,7 +1377,8 @@ class Dash(object):
                 ][0]
             )
 
-        response.set_data(self.callback_map[output]["callback"](*args))
+        response_data = await self.callback_map[output]["callback"](*args)
+        response.set_data(response_data)
         return response
 
     def _validate_layout(self):
@@ -1469,9 +1465,8 @@ class Dash(object):
 
     @staticmethod
     def _serve_default_favicon():
-        return flask.Response(
-            pkgutil.get_data("dash", "favicon.ico"),
-            content_type="image/x-icon",
+        return quart.Response(
+            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
 
     def get_asset_url(self, path):
