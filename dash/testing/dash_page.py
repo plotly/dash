@@ -36,12 +36,12 @@ class DashPageMixin(object):
             "return window.store.getState().requestQueue"
         )
 
+    @property
+    def window_store(self):
+        return self.driver.execute_script("return window.store")
+
     def _wait_for_callbacks(self):
-        if self.driver.execute_script(
-            "return window.store"
-        ) and self.driver.execute_script(
-            "return window.store.getState().dependenciesRequest"
-        ):
+        if self.window_store:
             return self.redux_state_rqs and all(
                 (_.get("responseTime") for _ in self.redux_state_rqs)
             )
