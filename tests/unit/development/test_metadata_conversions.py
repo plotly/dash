@@ -10,7 +10,10 @@ from . import expected_table_component_doc
 
 expected_arg_strings = OrderedDict(
     [
-        ["children", "a list of or a singular dash component, string or number"],
+        [
+            "children",
+            "a list of or a singular dash component, string or number",
+        ],
         ["optionalArray", "list"],
         ["optionalBool", "boolean"],
         ["optionalFunc", ""],
@@ -19,12 +22,18 @@ expected_arg_strings = OrderedDict(
         ["optionalString", "string"],
         ["optionalSymbol", ""],
         ["optionalElement", "dash component"],
-        ["optionalNode", "a list of or a singular dash component, string or number"],
+        [
+            "optionalNode",
+            "a list of or a singular dash component, string or number",
+        ],
         ["optionalMessage", ""],
         ["optionalEnum", "a value equal to: 'News', 'Photos'"],
         ["optionalUnion", "string | number"],
         ["optionalArrayOf", "list of numbers"],
-        ["optionalObjectOf", "dict with strings as keys and values of type number"],
+        [
+            "optionalObjectOf",
+            "dict with strings as keys and values of type number",
+        ],
         [
             "optionalObjectWithExactAndNestedDescription",
             "\n".join(
@@ -75,7 +84,9 @@ def test_docstring(load_test_metadata_json):
         load_test_metadata_json["description"],
     )
     prohibit_events(load_test_metadata_json["props"]),
-    assert not list(unified_diff(expected_table_component_doc, docstring.splitlines()))
+    assert not list(
+        unified_diff(expected_table_component_doc, docstring.splitlines())
+    )
 
 
 def test_docgen_to_python_args(load_test_metadata_json):

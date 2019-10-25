@@ -23,7 +23,8 @@ def nested_tree():
     """
     c1 = Component(id="0.1.x.x.0", children="string")
     c2 = Component(
-        id="0.1.x.x", children=[10, None, "wrap string", c1, "another string", 4.51]
+        id="0.1.x.x",
+        children=[10, None, "wrap string", c1, "another string", 4.51],
     )
     c3 = Component(
         id="0.1.x",
@@ -190,7 +191,9 @@ def test_to_plotly_json_with_nested_children_with_mixed_strings_and_without_list
         },
     }
 
-    res = json.loads(json.dumps(c.to_plotly_json(), cls=plotly.utils.PlotlyJSONEncoder))
+    res = json.loads(
+        json.dumps(c.to_plotly_json(), cls=plotly.utils.PlotlyJSONEncoder)
+    )
     assert res == expected
 
 
@@ -343,7 +346,12 @@ def test_to_plotly_json_with_children():
 
 def test_to_plotly_json_with_wildcards():
     c = Component(
-        id="a", **{"aria-expanded": "true", "data-toggle": "toggled", "data-none": None}
+        id="a",
+        **{
+            "aria-expanded": "true",
+            "data-toggle": "toggled",
+            "data-none": None,
+        }
     )
     c._prop_names = ("id",)
     c._type = "MyComponent"
@@ -365,7 +373,10 @@ def test_len():
     assert len(Component(children="Hello World")) == 1
     assert len(Component(children=Component())) == 1
     assert len(Component(children=[Component(), Component()])) == 2
-    assert len(Component(children=[Component(children=Component()), Component()])) == 3
+    assert (
+        len(Component(children=[Component(children=Component()), Component()]))
+        == 3
+    )
 
 
 def test_iter():
@@ -379,8 +390,13 @@ def test_iter():
     c = Component(
         id="1",
         children=[
-            Component(id="2", children=[Component(id="3", children=Component(id="4"))]),
-            Component(id="5", children=[Component(id="6", children="Hello World")]),
+            Component(
+                id="2",
+                children=[Component(id="3", children=Component(id="4"))],
+            ),
+            Component(
+                id="5", children=[Component(id="6", children="Hello World")]
+            ),
             Component(),
             Component(children="Hello World"),
             Component(children=Component(id="7")),

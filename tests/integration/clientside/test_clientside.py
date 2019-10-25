@@ -270,41 +270,45 @@ def test_clsd006_PreventUpdate(dash_duo):
         [
             dcc.Input(id="first", value=1),
             dcc.Input(id="second", value=1),
-            dcc.Input(id="third", value=1)
+            dcc.Input(id="third", value=1),
         ]
     )
 
     app.clientside_callback(
-        ClientsideFunction(namespace="clientside", function_name="add1_prevent_at_11"),
+        ClientsideFunction(
+            namespace="clientside", function_name="add1_prevent_at_11"
+        ),
         Output("second", "value"),
         [Input("first", "value")],
-        [State("second", "value")]
+        [State("second", "value")],
     )
 
     app.clientside_callback(
-        ClientsideFunction(namespace="clientside", function_name="add1_prevent_at_11"),
+        ClientsideFunction(
+            namespace="clientside", function_name="add1_prevent_at_11"
+        ),
         Output("third", "value"),
         [Input("second", "value")],
-        [State("third", "value")]
+        [State("third", "value")],
     )
 
     dash_duo.start_server(app)
 
-    dash_duo.wait_for_text_to_equal("#first", '1')
-    dash_duo.wait_for_text_to_equal("#second", '2')
-    dash_duo.wait_for_text_to_equal("#third", '2')
+    dash_duo.wait_for_text_to_equal("#first", "1")
+    dash_duo.wait_for_text_to_equal("#second", "2")
+    dash_duo.wait_for_text_to_equal("#third", "2")
 
     dash_duo.find_element("#first").send_keys("1")
 
-    dash_duo.wait_for_text_to_equal("#first", '11')
-    dash_duo.wait_for_text_to_equal("#second", '2')
-    dash_duo.wait_for_text_to_equal("#third", '2')
+    dash_duo.wait_for_text_to_equal("#first", "11")
+    dash_duo.wait_for_text_to_equal("#second", "2")
+    dash_duo.wait_for_text_to_equal("#third", "2")
 
     dash_duo.find_element("#first").send_keys("1")
 
-    dash_duo.wait_for_text_to_equal("#first", '111')
-    dash_duo.wait_for_text_to_equal("#second", '3')
-    dash_duo.wait_for_text_to_equal("#third", '3')
+    dash_duo.wait_for_text_to_equal("#first", "111")
+    dash_duo.wait_for_text_to_equal("#second", "3")
+    dash_duo.wait_for_text_to_equal("#third", "3")
 
 
 def test_clsd006_no_update(dash_duo):
@@ -314,33 +318,33 @@ def test_clsd006_no_update(dash_duo):
         [
             dcc.Input(id="first", value=1),
             dcc.Input(id="second", value=1),
-            dcc.Input(id="third", value=1)
+            dcc.Input(id="third", value=1),
         ]
     )
 
     app.clientside_callback(
-        ClientsideFunction(namespace="clientside", function_name="add1_no_update_at_11"),
-        [Output("second", "value"),
-         Output("third", "value")],
+        ClientsideFunction(
+            namespace="clientside", function_name="add1_no_update_at_11"
+        ),
+        [Output("second", "value"), Output("third", "value")],
         [Input("first", "value")],
-        [State("second", "value"),
-         State("third", "value")]
+        [State("second", "value"), State("third", "value")],
     )
 
     dash_duo.start_server(app)
 
-    dash_duo.wait_for_text_to_equal("#first", '1')
-    dash_duo.wait_for_text_to_equal("#second", '2')
-    dash_duo.wait_for_text_to_equal("#third", '2')
+    dash_duo.wait_for_text_to_equal("#first", "1")
+    dash_duo.wait_for_text_to_equal("#second", "2")
+    dash_duo.wait_for_text_to_equal("#third", "2")
 
     dash_duo.find_element("#first").send_keys("1")
 
-    dash_duo.wait_for_text_to_equal("#first", '11')
-    dash_duo.wait_for_text_to_equal("#second", '2')
-    dash_duo.wait_for_text_to_equal("#third", '3')
+    dash_duo.wait_for_text_to_equal("#first", "11")
+    dash_duo.wait_for_text_to_equal("#second", "2")
+    dash_duo.wait_for_text_to_equal("#third", "3")
 
     dash_duo.find_element("#first").send_keys("1")
 
-    dash_duo.wait_for_text_to_equal("#first", '111')
-    dash_duo.wait_for_text_to_equal("#second", '3')
-    dash_duo.wait_for_text_to_equal("#third", '4')
+    dash_duo.wait_for_text_to_equal("#first", "111")
+    dash_duo.wait_for_text_to_equal("#second", "3")
+    dash_duo.wait_for_text_to_equal("#third", "4")

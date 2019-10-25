@@ -713,10 +713,12 @@ def test_inin015_with_custom_renderer_interpolated(dash_duo):
                     {renderer}
                     <div id="custom-footer">My custom footer</div>
                 </body>
-            </html>""".format(app_entry=kwargs["app_entry"],
-                              config=kwargs["config"],
-                              scripts=kwargs["scripts"],
-                              renderer=renderer)
+            </html>""".format(
+                app_entry=kwargs["app_entry"],
+                config=kwargs["config"],
+                scripts=kwargs["scripts"],
+                renderer=renderer,
+            )
 
     app = CustomDash()
 
@@ -975,7 +977,8 @@ def test_inin023_wrong_callback_id():
     app.layout = html.Div(
         [
             html.Div(
-                [html.Div(id="inner-div"), dcc.Input(id="inner-input")], id="outer-div"
+                [html.Div(id="inner-div"), dcc.Input(id="inner-input")],
+                id="outer-div",
             ),
             dcc.Input(id="outer-input"),
         ],
@@ -986,7 +989,9 @@ def test_inin023_wrong_callback_id():
 
     with pytest.raises(NonExistentIdException) as err:
 
-        @app.callback(Output("nuh-uh", "children"), [Input("inner-input", "value")])
+        @app.callback(
+            Output("nuh-uh", "children"), [Input("inner-input", "value")]
+        )
         def f(a):
             return a
 
@@ -996,7 +1001,9 @@ def test_inin023_wrong_callback_id():
 
     with pytest.raises(NonExistentIdException) as err:
 
-        @app.callback(Output("inner-div", "children"), [Input("yeah-no", "value")])
+        @app.callback(
+            Output("inner-div", "children"), [Input("yeah-no", "value")]
+        )
         def g(a):
             return a
 
@@ -1014,6 +1021,8 @@ def test_inin023_wrong_callback_id():
             return [a, a]
 
     # the right way
-    @app.callback(Output("inner-div", "children"), [Input("inner-input", "value")])
+    @app.callback(
+        Output("inner-div", "children"), [Input("inner-input", "value")]
+    )
     def h(a):
         return a

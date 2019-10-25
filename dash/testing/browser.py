@@ -445,7 +445,7 @@ class Browser(DashPageMixin):
         elem_or_selector,
         start_fraction=0.5,
         zoom_box_fraction=0.2,
-        compare=True
+        compare=True,
     ):
         """Zoom out a graph with a zoom box fraction of component dimension
         default start at middle with a rectangle of 1/5 of the dimension use

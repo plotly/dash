@@ -156,7 +156,9 @@ def test_loadcomponents(write_metada_file):
     assert repr(a_component(**a_kwargs)) == repr(c[1](**a_kwargs))
 
 
-def test_loadcomponents_from_generated_class(write_metada_file, make_namespace):
+def test_loadcomponents_from_generated_class(
+    write_metada_file, make_namespace
+):
     my_component_runtime = generate_class(
         "MyComponent",
         METADATA["MyComponent.react.js"]["props"],
@@ -172,7 +174,9 @@ def test_loadcomponents_from_generated_class(write_metada_file, make_namespace):
     )
 
     generate_classes("default_namespace", METADATA_PATH)
-    from default_namespace.MyComponent import MyComponent as MyComponent_buildtime
+    from default_namespace.MyComponent import (
+        MyComponent as MyComponent_buildtime,
+    )
     from default_namespace.A import A as A_buildtime
 
     my_component_kwargs = {

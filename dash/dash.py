@@ -234,7 +234,7 @@ class Dash(object):
         # Apply _force_eager_loading overrides from modules
         for module_name in ComponentRegistry.registry:
             module = sys.modules[module_name]
-            eager = getattr(module, '_force_eager_loading', False)
+            eager = getattr(module, "_force_eager_loading", False)
             eager_loading = eager_loading or eager
 
         for key in obsolete:
@@ -1266,9 +1266,13 @@ class Dash(object):
             async def add_context(*args, **kwargs):
                 # don't touch the comment on the next line - used by debugger
                 if inspect.iscoroutinefunction(func):
-                    output_value = await func(*args, **kwargs) # %% callback invoked
+                    output_value = await func(
+                        *args, **kwargs
+                    )  # %% callback invoked
                 else:
-                    output_value = await sync_to_async(func)(*args, **kwargs) # %% callback invoked
+                    output_value = await sync_to_async(func)(
+                        *args, **kwargs
+                    )  # %% callback invoked
 
                 if multi:
                     if not isinstance(output_value, (list, tuple)):

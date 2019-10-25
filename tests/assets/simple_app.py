@@ -26,7 +26,9 @@ def on_value(value):
     return value
 
 
-@app.callback(Output("style-output", "style"), [Input("style-btn", "n_clicks")])
+@app.callback(
+    Output("style-output", "style"), [Input("style-btn", "n_clicks")]
+)
 def on_style(value):
     if value is None:
         raise PreventUpdate

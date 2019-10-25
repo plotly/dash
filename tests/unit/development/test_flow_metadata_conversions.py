@@ -15,12 +15,18 @@ _dir = os.path.dirname(os.path.abspath(__file__))
 
 expected_arg_strings = OrderedDict(
     [
-        ["children", "a list of or a singular dash component, string or number"],
+        [
+            "children",
+            "a list of or a singular dash component, string or number",
+        ],
         ["requiredString", "string"],
         ["optionalString", "string"],
         ["optionalBoolean", "boolean"],
         ["optionalFunc", ""],
-        ["optionalNode", "a list of or a singular dash component, string or number"],
+        [
+            "optionalNode",
+            "a list of or a singular dash component, string or number",
+        ],
         ["optionalArray", "list"],
         ["requiredUnion", "string | number"],
         [
@@ -119,7 +125,9 @@ def load_test_flow_metadata_json():
     path = os.path.join(_dir, "flow_metadata_test.json")
     with open(path) as data_file:
         json_string = data_file.read()
-        data = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(json_string)
+        data = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(
+            json_string
+        )
     return data
 
 

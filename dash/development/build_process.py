@@ -142,7 +142,7 @@ class BuildProcess(object):
                 self._concat(self.build_folder, target),
             )
 
-        _script = 'build:dev' if build == 'local' else 'build:js'
+        _script = "build:dev" if build == "local" else "build:js"
         logger.info("run `npm run %s`", _script)
         os.chdir(self.main)
         run_command_with_process("npm run {}".format(_script))

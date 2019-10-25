@@ -51,8 +51,8 @@ def pytest_addoption(parser):
     dash.addoption(
         "--percy-assets",
         action="store",
-        default='tests/assets',
-        help="configure how Percy will discover your app's assets"
+        default="tests/assets",
+        help="configure how Percy will discover your app's assets",
     )
 
     dash.addoption(

@@ -28,7 +28,9 @@ def test_resources_eager():
         filtered[1].get("dynamic") is True
     )  # exclude (lazy when eager -> closest to exclude)
     assert filtered[2].get("external_url") == "c.js"
-    assert filtered[2].get("dynamic") is False  # include (always matches settings)
+    assert (
+        filtered[2].get("dynamic") is False
+    )  # include (always matches settings)
 
 
 def test_resources_lazy():
@@ -51,4 +53,6 @@ def test_resources_lazy():
     assert filtered[1].get("external_url") == "b.js"
     assert filtered[1].get("dynamic") is True  # exclude (lazy when lazy)
     assert filtered[2].get("external_url") == "c.js"
-    assert filtered[2].get("dynamic") is True  # exclude (always matches settings)
+    assert (
+        filtered[2].get("dynamic") is True
+    )  # exclude (always matches settings)

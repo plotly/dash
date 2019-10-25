@@ -6,58 +6,59 @@ import dash._utils as utils
 def test_ddut001_attribute_dict():
     a = utils.AttributeDict()
 
-    assert str(a) == '{}'
+    assert str(a) == "{}"
     with pytest.raises(AttributeError):
         a.k
     with pytest.raises(KeyError):
-        a['k']
-    assert a.first('no', 'k', 'nope') is None
+        a["k"]
+    assert a.first("no", "k", "nope") is None
 
     a.k = 1
 
     assert a.k == 1
-    assert a['k'] == 1
-    assert a.first('no', 'k', 'nope') == 1
+    assert a["k"] == 1
+    assert a.first("no", "k", "nope") == 1
 
-    a['k'] = 2
+    a["k"] = 2
 
     assert a.k == 2
-    assert a['k'] == 2
+    assert a["k"] == 2
 
-    a.set_read_only(['k', 'q'], 'boo')
+    a.set_read_only(["k", "q"], "boo")
 
     with pytest.raises(AttributeError) as err:
         a.k = 3
-    assert err.value.args == ('boo', 'k')
+    assert err.value.args == ("boo", "k")
     assert a.k == 2
 
     with pytest.raises(AttributeError) as err:
-        a['k'] = 3
-    assert err.value.args == ('boo', 'k')
+        a["k"] = 3
+    assert err.value.args == ("boo", "k")
     assert a.k == 2
 
-    a.set_read_only(['q'])
+    a.set_read_only(["q"])
 
     a.k = 3
     assert a.k == 3
 
     with pytest.raises(AttributeError) as err:
         a.q = 3
-    assert err.value.args == ('Attribute is read-only', 'q')
-    assert 'q' not in a
+    assert err.value.args == ("Attribute is read-only", "q")
+    assert "q" not in a
 
-    a.finalize('nope')
+    a.finalize("nope")
 
     with pytest.raises(AttributeError) as err:
         a.x = 4
-    assert err.value.args == ('nope', 'x')
-    assert 'x' not in a
+    assert err.value.args == ("nope", "x")
+    assert "x" not in a
 
     a.finalize()
 
     with pytest.raises(AttributeError) as err:
         a.x = 4
     assert err.value.args == (
-        'Object is final: No new keys may be added.', 'x'
+        "Object is final: No new keys may be added.",
+        "x",
     )
-    assert 'x' not in a
+    assert "x" not in a

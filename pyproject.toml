@@ -1,0 +1,22 @@
+[tool.black]
+line-length = 79
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | venv*
+  | .circleci
+  | .github
+  | .pytest_cache
+  | @plotly
+  | dash.egg-info
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

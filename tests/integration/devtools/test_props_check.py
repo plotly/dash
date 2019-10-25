@@ -56,13 +56,9 @@ test_cases = {
         "name": "nested object with bad value",
         "component": DataTable,
         "props": {
-            "columns": [{
-                "id": "id",
-                "name": "name",
-                "format": {
-                    "locale": "asdf"
-                }
-            }]
+            "columns": [
+                {"id": "id", "name": "name", "format": {"locale": "asdf"}}
+            ]
         },
     },
     "invalid-shape-3": {
@@ -70,13 +66,9 @@ test_cases = {
         "name": "invalid oneOf within nested object",
         "component": DataTable,
         "props": {
-            "columns": [{
-                "id": "id",
-                "name": "name",
-                "on_change": {
-                    "action": "asdf"
-                }
-            }]
+            "columns": [
+                {"id": "id", "name": "name", "on_change": {"action": "asdf"}}
+            ]
         },
     },
     "invalid-shape-4": {
@@ -84,13 +76,9 @@ test_cases = {
         "name": "invalid key within deeply nested object",
         "component": DataTable,
         "props": {
-            "columns": [{
-                "id": "id",
-                "name": "name",
-                "on_change": {
-                    "asdf": "asdf"
-                }
-            }]
+            "columns": [
+                {"id": "id", "name": "name", "on_change": {"asdf": "asdf"}}
+            ]
         },
     },
     "invalid-shape-5": {
@@ -139,13 +127,9 @@ test_cases = {
         "name": "nested string instead of number/null",
         "component": DataTable,
         "props": {
-            "columns": [{
-                "id": "id",
-                "name": "name",
-                "format": {
-                    "prefix": "asdf"
-                }
-            }]
+            "columns": [
+                {"id": "id", "name": "name", "format": {"prefix": "asdf"}}
+            ]
         },
     },
     "allow-null": {
@@ -153,13 +137,9 @@ test_cases = {
         "name": "nested null",
         "component": DataTable,
         "props": {
-            "columns": [{
-                "id": "id",
-                "name": "name",
-                "format": {
-                    "prefix": None
-                }
-            }]
+            "columns": [
+                {"id": "id", "name": "name", "format": {"prefix": None}}
+            ]
         },
     },
     "allow-null-2": {
@@ -203,7 +183,9 @@ test_cases = {
         "name": "allow exact with optional and required keys",
         "component": dcc.Dropdown,
         "props": {
-            "options": [{"label": "new york", "value": "ny", "disabled": False}]
+            "options": [
+                {"label": "new york", "value": "ny", "disabled": False}
+            ]
         },
     },
     "allow-exact-with-optional-and-required-2": {
@@ -218,7 +200,9 @@ test_cases = {
 def test_dvpc001_prop_check_errors_with_path(dash_duo):
     app = dash.Dash(__name__)
 
-    app.layout = html.Div([html.Div(id="content"), dcc.Location(id="location")])
+    app.layout = html.Div(
+        [html.Div(id="content"), dcc.Location(id="location")]
+    )
 
     @app.callback(
         Output("content", "children"), [Input("location", "pathname")]

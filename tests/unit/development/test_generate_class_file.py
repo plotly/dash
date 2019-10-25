@@ -64,7 +64,8 @@ def written_class_string(make_component_dir):
 def test_class_string(expected_class_string, component_class_string):
     assert not list(
         unified_diff(
-            expected_class_string.splitlines(), component_class_string.splitlines()
+            expected_class_string.splitlines(),
+            component_class_string.splitlines(),
         )
     )
 
@@ -74,7 +75,8 @@ def test_class_string(expected_class_string, component_class_string):
 def test_class_file(expected_class_string, written_class_string):
     assert not list(
         unified_diff(
-            expected_class_string.splitlines(), written_class_string.splitlines()
+            expected_class_string.splitlines(),
+            written_class_string.splitlines(),
         )
     )
     assert not has_trailing_space(written_class_string)

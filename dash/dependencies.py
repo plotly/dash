@@ -5,13 +5,10 @@ class DashDependency:
         self.component_property = component_property
 
     def __str__(self):
-        return '{}.{}'.format(
-            self.component_id,
-            self.component_property
-        )
+        return "{}.{}".format(self.component_id, self.component_property)
 
     def __repr__(self):
-        return '<{} `{}`>'.format(self.__class__.__name__, self)
+        return "<{} `{}`>".format(self.__class__.__name__, self)
 
     def __eq__(self, other):
         return isinstance(other, DashDependency) and str(self) == str(other)
@@ -36,15 +33,16 @@ class ClientsideFunction:
     # pylint: disable=too-few-public-methods
     def __init__(self, namespace=None, function_name=None):
 
-        if namespace in ['PreventUpdate', 'no_update']:
-            raise ValueError('"{}" is a forbidden namespace in'
-                             ' dash_clientside.'.format(namespace))
+        if namespace in ["PreventUpdate", "no_update"]:
+            raise ValueError(
+                '"{}" is a forbidden namespace in'
+                " dash_clientside.".format(namespace)
+            )
 
         self.namespace = namespace
         self.function_name = function_name
 
     def __repr__(self):
-        return 'ClientsideFunction({}, {})'.format(
-            self.namespace,
-            self.function_name
+        return "ClientsideFunction({}, {})".format(
+            self.namespace, self.function_name
         )

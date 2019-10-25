@@ -61,7 +61,11 @@ def test_to_plotly_json(component_class):
 
 
 def test_arguments_become_attributes(component_class):
-    kwargs = {"id": "my-id", "children": "text children", "optionalArray": [[1, 2, 3]]}
+    kwargs = {
+        "id": "my-id",
+        "children": "text children",
+        "optionalArray": [[1, 2, 3]],
+    }
     component_instance = component_class(**kwargs)
     for k, v in list(kwargs.items()):
         assert getattr(component_instance, k) == v
@@ -104,7 +108,9 @@ def test_repr_with_wildcards(component_class):
 
 def test_docstring(component_class):
     assert not list(
-        unified_diff(expected_table_component_doc, component_class.__doc__.splitlines())
+        unified_diff(
+            expected_table_component_doc, component_class.__doc__.splitlines()
+        )
     )
 
 

@@ -42,6 +42,9 @@ def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
 
     rqs = dash_duo.redux_state_rqs
     assert len(rqs) == 1
-    assert rqs[0]["controllerId"] == "output-1.children" and not rqs[0]['rejected']
+    assert (
+        rqs[0]["controllerId"] == "output-1.children"
+        and not rqs[0]["rejected"]
+    )
 
     assert dash_duo.get_logs() == []
