@@ -9,6 +9,7 @@ updates in clientside functions.
   - Reject all updates with `throw window.dash_clientside.PreventUpdate;`
   - Reject a single output by returning `window.dash_clientside.no_update`
 - [#899](https://github.com/plotly/dash/pull/899) Add support for async dependencies and components
+- [#973](https://github.com/plotly/dash/pull/973) Adds support for resource caching and adds a fallback caching mechanism through etag
 
 
 ### Fixed
