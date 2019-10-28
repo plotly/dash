@@ -255,7 +255,7 @@ class RRunner(ProcessRunner):
         """Start the server with subprocess and Rscript."""
 
         # app is a R string chunk
-        if (os.path.isfile(app) and os.path.exists(app)):
+        if os.path.isfile(app) and os.path.exists(app):
             # app is already a file in a dir - use that as cwd
             if not cwd:
                 cwd = os.path.dirname(app)
