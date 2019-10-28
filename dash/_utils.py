@@ -60,8 +60,7 @@ def patch_collections_abc(member):
 
 
 class AttributeDict(dict):
-    """
-    Dictionary subclass enabling attribute lookup/assignment of keys/values.
+    """Dictionary subclass enabling attribute lookup/assignment of keys/values.
 
     For example::
         >>> m = AttributeDict({'foo': 'bar'})
@@ -95,7 +94,7 @@ class AttributeDict(dict):
         object.__setattr__(self, "_read_only_msg", msg)
 
     def finalize(self, msg="Object is final: No new keys may be added."):
-        """Prevent any new keys being set"""
+        """Prevent any new keys being set."""
         object.__setattr__(self, "_final", msg)
 
     def __setitem__(self, key, val):
@@ -129,7 +128,8 @@ def create_callback_id(output):
 
 
 def run_command_with_process(cmd):
-    proc = subprocess.Popen(shlex.split(cmd, posix=sys.platform != "win32"))
+    is_win = sys.platform == "win32"
+    proc = subprocess.Popen(shlex.split(cmd, posix=is_win), shell=is_win)
     proc.wait()
     if proc.poll() is None:
         logger.warning("🚨 trying to terminate subprocess in safe way")

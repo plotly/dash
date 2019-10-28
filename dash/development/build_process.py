@@ -66,7 +66,7 @@ class BuildProcess(object):
 
     @job("run `npm i --ignore-scripts`")
     def npm(self):
-        """job to install npm packages"""
+        """Job to install npm packages."""
         os.chdir(self.main)
         self._clean_path(self.package_lock)
         run_command_with_process("npm i --ignore-scripts")
@@ -147,7 +147,7 @@ class BuildProcess(object):
         os.chdir(self.main)
         run_command_with_process("npm run {}".format(_script))
 
-        logger.info("generate the `__init__.py` from template and verisons")
+        logger.info("generate the `__init__.py` from template and versions")
         with open(self._concat(self.main, "init.template")) as fp:
             t = string.Template(fp.read())
 
@@ -157,7 +157,7 @@ class BuildProcess(object):
 
 class Renderer(BuildProcess):
     def __init__(self):
-        # dash-renderer's path is binding with the dash folder hierarchy
+        """dash-renderer's path is binding with the dash folder hierarchy."""
         super(Renderer, self).__init__(
             self._concat(
                 os.path.dirname(__file__),

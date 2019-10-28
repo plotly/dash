@@ -110,7 +110,8 @@ class Component(with_metaclass(ComponentMeta, object)):
                 for k in self.__dict__
                 if any(
                     k.startswith(w)
-                    for w in self._valid_wildcard_attributes  # pylint:disable=no-member
+                    # pylint:disable=no-member
+                    for w in self._valid_wildcard_attributes
                 )
             }
         )
@@ -196,9 +197,8 @@ class Component(with_metaclass(ComponentMeta, object)):
     # - __len__
 
     def __getitem__(self, id):  # pylint: disable=redefined-builtin
-        """Recursively find the element with the given ID through the tree
-        of children.
-        """
+        """Recursively find the element with the given ID through the tree of
+        children."""
 
         # A component's children can be undefined, a string, another component,
         # or a list of components.

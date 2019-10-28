@@ -13,7 +13,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.action_chains import ActionChains
 
-from selenium.common.exceptions import WebDriverException, TimeoutException
+from selenium.common.exceptions import (
+    WebDriverException,
+    TimeoutException,
+    MoveTargetOutOfBoundsException,
+)
 
 from dash.testing.wait import (
     text_to_equal,
@@ -97,8 +101,8 @@ class Browser(DashPageMixin):
             logger.exception("percy runner failed to finalize properly")
 
     def percy_snapshot(self, name=""):
-        """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`
-        it also combines the snapshot `name` with the python version
+        """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`.
+        It also combines the snapshot `name` with the python version.
         """
         snapshot_name = "{} - py{}.{}".format(
             name, sys.version_info.major, sys.version_info.minor
@@ -107,8 +111,9 @@ class Browser(DashPageMixin):
         self.percy_runner.snapshot(name=snapshot_name)
 
     def take_snapshot(self, name):
-        """hook method to take snapshot when a selenium test fails
-        The snapshot is placed under
+        """Hook method to take snapshot when a selenium test fails. The
+        snapshot is placed under.
+
             - `/tmp/dash_artifacts` in linux
             - `%TEMP` in windows
         with a filename combining test case name and the
@@ -131,18 +136,24 @@ class Browser(DashPageMixin):
 
     def find_element(self, selector):
         """find_element returns the first found element by the css `selector`
-        shortcut to `driver.find_element_by_css_selector`
-        """
+        shortcut to `driver.find_element_by_css_selector`."""
         return self.driver.find_element_by_css_selector(selector)
 
     def find_elements(self, selector):
         """find_elements returns a list of all elements matching the css
-        `selector`. shortcut to `driver.find_elements_by_css_selector`
+        `selector`.
+
+        shortcut to `driver.find_elements_by_css_selector`.
         """
         return self.driver.find_elements_by_css_selector(selector)
 
+    def _get_element(self, elem_or_selector):
+        if isinstance(elem_or_selector, str):
+            return self.find_element(elem_or_selector)
+        return elem_or_selector
+
     def _wait_for(self, method, args, timeout, msg):
-        """abstract generic pattern for explicit WebDriverWait"""
+        """Abstract generic pattern for explicit WebDriverWait."""
         _wait = (
             self._wd_wait
             if timeout is None
@@ -159,15 +170,13 @@ class Browser(DashPageMixin):
 
     def wait_for_element(self, selector, timeout=None):
         """wait_for_element is shortcut to `wait_for_element_by_css_selector`
-        timeout if not set, equals to the fixture's `wait_timeout`
-        """
+        timeout if not set, equals to the fixture's `wait_timeout`."""
         return self.wait_for_element_by_css_selector(selector, timeout)
 
     def wait_for_element_by_css_selector(self, selector, timeout=None):
-        """explicit wait until the element is present,
-        timeout if not set, equals to the fixture's `wait_timeout`
-        shortcut to `WebDriverWait` with `EC.presence_of_element_located`
-        """
+        """Explicit wait until the element is present, timeout if not set,
+        equals to the fixture's `wait_timeout` shortcut to `WebDriverWait` with
+        `EC.presence_of_element_located`."""
         return self._wait_for(
             EC.presence_of_element_located,
             ((By.CSS_SELECTOR, selector),),
@@ -178,10 +187,9 @@ class Browser(DashPageMixin):
         )
 
     def wait_for_element_by_id(self, element_id, timeout=None):
-        """explicit wait until the element is present,
-        timeout if not set, equals to the fixture's `wait_timeout`
-        shortcut to `WebDriverWait` with `EC.presence_of_element_located`
-        """
+        """Explicit wait until the element is present, timeout if not set,
+        equals to the fixture's `wait_timeout` shortcut to `WebDriverWait` with
+        `EC.presence_of_element_located`."""
         return self._wait_for(
             EC.presence_of_element_located,
             ((By.ID, element_id),),
@@ -192,10 +200,9 @@ class Browser(DashPageMixin):
         )
 
     def wait_for_style_to_equal(self, selector, style, val, timeout=None):
-        """explicit wait until the element's style has expected `value`
-        timeout if not set, equals to the fixture's `wait_timeout`
-        shortcut to `WebDriverWait` with customized `style_to_equal` condition
-        """
+        """Explicit wait until the element's style has expected `value` timeout
+        if not set, equals to the fixture's `wait_timeout` shortcut to
+        `WebDriverWait` with customized `style_to_equal` condition."""
         return self._wait_for(
             method=style_to_equal,
             args=(selector, style, val),
@@ -206,9 +213,11 @@ class Browser(DashPageMixin):
         )
 
     def wait_for_text_to_equal(self, selector, text, timeout=None):
-        """explicit wait until the element's text equals the expected `text`.
+        """Explicit wait until the element's text equals the expected `text`.
+
         timeout if not set, equals to the fixture's `wait_timeout`
-        shortcut to `WebDriverWait` with customized `text_to_equal` condition
+        shortcut to `WebDriverWait` with customized `text_to_equal`
+        condition.
         """
         return self._wait_for(
             method=text_to_equal,
@@ -220,9 +229,11 @@ class Browser(DashPageMixin):
         )
 
     def wait_for_contains_text(self, selector, text, timeout=None):
-        """explicit wait until the element's text contains the expected `text`.
+        """Explicit wait until the element's text contains the expected `text`.
+
         timeout if not set, equals to the fixture's `wait_timeout`
-        shortcut to `WebDriverWait` with customized `contains_text` condition
+        shortcut to `WebDriverWait` with customized `contains_text`
+        condition.
         """
         return self._wait_for(
             method=contains_text,
@@ -234,9 +245,10 @@ class Browser(DashPageMixin):
         )
 
     def wait_for_page(self, url=None, timeout=10):
-        """wait_for_page navigates to the url in webdriver
-        wait until the renderer is loaded in browser. use the `server_url`
-        if url is not provided.
+        """wait_for_page navigates to the url in webdriver wait until the
+        renderer is loaded in browser.
+
+        use the `server_url` if url is not provided.
         """
         self.driver.get(self.server_url if url is None else url)
         try:
@@ -258,8 +270,8 @@ class Browser(DashPageMixin):
                 )
             )
 
-    def select_dcc_dropdown(self, selector, value=None, index=None):
-        dropdown = self.driver.find_element_by_css_selector(selector)
+    def select_dcc_dropdown(self, elem_or_selector, value=None, index=None):
+        dropdown = self._get_element(elem_or_selector)
         dropdown.click()
 
         menu = dropdown.find_element_by_css_selector("div.Select-menu-outer")
@@ -287,24 +299,21 @@ class Browser(DashPageMixin):
         )
 
     def toggle_window(self):
-        """switch between the current working window and the new opened one"""
+        """Switch between the current working window and the new opened one."""
         idx = (self._window_idx + 1) % 2
         self.switch_window(idx=idx)
         self._window_idx += 1
 
     def switch_window(self, idx=0):
-        """switch to window by window index
-        shortcut to `driver.switch_to.window`
-        """
+        """Switch to window by window index shortcut to
+        `driver.switch_to.window`."""
         if len(self.driver.window_handles) <= idx:
             raise BrowserError("there is no second window in Browser")
 
         self.driver.switch_to.window(self.driver.window_handles[idx])
 
     def open_new_tab(self, url=None):
-        """open a new tab in browser
-        url is not set, equals to `server_url`
-        """
+        """Open a new tab in browser url is not set, equals to `server_url`."""
         self.driver.execute_script(
             'window.open("{}", "new window")'.format(
                 self.server_url if url is None else url
@@ -412,13 +421,15 @@ class Browser(DashPageMixin):
     def _is_windows():
         return sys.platform == "win32"
 
-    def multiple_click(self, selector, clicks):
-        """multiple_click click the element with number of `clicks`"""
+    def multiple_click(self, elem_or_selector, clicks):
+        """multiple_click click the element with number of `clicks`."""
         for _ in range(clicks):
-            self.find_element(selector).click()
+            self._get_element(elem_or_selector).click()
 
-    def clear_input(self, elem):
-        """simulate key press to clear the input"""
+    def clear_input(self, elem_or_selector):
+        """Simulate key press to clear the input."""
+        elem = self._get_element(elem_or_selector)
+
         (
             ActionChains(self.driver)
             .click(elem)
@@ -429,9 +440,45 @@ class Browser(DashPageMixin):
             .send_keys(Keys.DELETE)
         ).perform()
 
+    def zoom_in_graph_by_ratio(
+        self,
+        elem_or_selector,
+        start_fraction=0.5,
+        zoom_box_fraction=0.2,
+        compare=True
+    ):
+        """Zoom out a graph with a zoom box fraction of component dimension
+        default start at middle with a rectangle of 1/5 of the dimension use
+        `compare` to control if we check the svg get changed."""
+        elem = self._get_element(elem_or_selector)
+
+        prev = elem.get_attribute("innerHTML")
+        w, h = elem.size["width"], elem.size["height"]
+        try:
+            ActionChains(self.driver).move_to_element_with_offset(
+                elem, w * start_fraction, h * start_fraction
+            ).drag_and_drop_by_offset(
+                elem, w * zoom_box_fraction, h * zoom_box_fraction
+            ).perform()
+        except MoveTargetOutOfBoundsException:
+            logger.exception("graph offset outside of the boundary")
+        if compare:
+            assert prev != elem.get_attribute(
+                "innerHTML"
+            ), "SVG content should be different after zoom"
+
+    def click_at_coord_fractions(self, elem_or_selector, fx, fy):
+        elem = self._get_element(elem_or_selector)
+
+        ActionChains(self.driver).move_to_element_with_offset(
+            elem, elem.size["width"] * fx, elem.size["height"] * fy
+        ).click().perform()
+
     def get_logs(self):
-        """return a list of `SEVERE` level logs after last reset time stamps
-        (default to 0, resettable by `reset_log_timestamp`. Chrome only
+        """Return a list of `SEVERE` level logs after last reset time stamps
+        (default to 0, resettable by `reset_log_timestamp`.
+
+        Chrome only
         """
         if self.driver.name.lower() == "chrome":
             return [
@@ -445,7 +492,7 @@ class Browser(DashPageMixin):
         return None
 
     def reset_log_timestamp(self):
-        """reset_log_timestamp only work with chrome webdrier"""
+        """reset_log_timestamp only work with chrome webdrier."""
         if self.driver.name.lower() == "chrome":
             entries = self.driver.get_log("browser")
             if entries:
@@ -453,10 +500,10 @@ class Browser(DashPageMixin):
 
     def visit_and_snapshot(self, resource_path, hook_id, assert_check=True):
         try:
-            path = resource_path.lstrip('/')
+            path = resource_path.lstrip("/")
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
-            self.driver.get("{}/{}".format(self.server_url.rstrip('/'), path))
+            self.driver.get("{}/{}".format(self.server_url.rstrip("/"), path))
             self.wait_for_element_by_id(hook_id)
             self.percy_snapshot(path)
             if assert_check:
@@ -470,7 +517,7 @@ class Browser(DashPageMixin):
 
     @property
     def driver(self):
-        """expose the selenium webdriver as fixture property"""
+        """Expose the selenium webdriver as fixture property."""
         return self._driver
 
     @property
@@ -483,8 +530,10 @@ class Browser(DashPageMixin):
 
     @server_url.setter
     def server_url(self, value):
-        """set the server url so the selenium is aware of the local server port
-        it also implicitly calls `wait_for_page`
+        """Set the server url so the selenium is aware of the local server
+        port.
+
+        It also implicitly calls `wait_for_page`.
         """
         self._url = value
         self.wait_for_page()

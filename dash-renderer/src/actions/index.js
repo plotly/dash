@@ -33,17 +33,19 @@ import cookie from 'cookie';
 import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
 import {applyPersistence, prunePersistence} from '../persistence';
+import setAppIsReady from './setAppReadyState';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
 export const computeGraphs = createAction(getAction('COMPUTE_GRAPHS'));
 export const computePaths = createAction(getAction('COMPUTE_PATHS'));
-export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
 export const setConfig = createAction(getAction('SET_CONFIG'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
+export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const onError = createAction(getAction('ON_ERROR'));
-export const resolveError = createAction(getAction('RESOLVE_ERROR'));
+
+export {setAppIsReady};
 
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
@@ -176,7 +178,7 @@ function reduceInputIds(nodeIds, InputGraph) {
     /*
      * Create input-output(s) pairs,
      * sort by number of outputs,
-     * and remove redudant inputs (inputs that update the same output)
+     * and remove redundant inputs (inputs that update the same output)
      */
     const inputOutputPairs = nodeIds.map(nodeId => ({
         input: nodeId,
@@ -195,7 +197,7 @@ function reduceInputIds(nodeIds, InputGraph) {
      * trigger components to update multiple times.
      *
      * For example, [A, B] => C and [A, D] => E
-     * The unique inputs might be [A, B, D] but that is redudant.
+     * The unique inputs might be [A, B, D] but that is redundant.
      * We only need to update B and D or just A.
      *
      * In these cases, we'll supply an additional list of outputs
@@ -216,10 +218,15 @@ function reduceInputIds(nodeIds, InputGraph) {
 }
 
 export function notifyObservers(payload) {
-    return function(dispatch, getState) {
+    return async function(dispatch, getState) {
         const {id, props, excludedOutputs} = payload;
 
-        const {graphs, requestQueue} = getState();
+        const {graphs, isAppReady, requestQueue} = getState();
+
+        if (isAppReady !== true) {
+            await isAppReady;
+        }
+
         const {InputGraph} = graphs;
         /*
          * Figure out all of the output id's that depend on this input.
@@ -566,6 +573,27 @@ function updateOutput(
     // Clientside hook
     if (clientside_function) {
         let returnValue;
+
+        /*
+         * Create the dash_clientside namespace if it doesn't exist and inject
+         * no_update and PreventUpdate.
+         */
+        if (!window.dash_clientside) {
+            window.dash_clientside = {};
+        }
+
+        if (!window.dash_clientside.no_update) {
+            Object.defineProperty(window.dash_clientside, 'no_update', {
+                value: {description: 'Return to prevent updating an Output.'},
+                writable: false,
+            });
+
+            Object.defineProperty(window.dash_clientside, 'PreventUpdate', {
+                value: {description: 'Throw to prevent updating all Outputs.'},
+                writable: false,
+            });
+        }
+
         try {
             returnValue = window.dash_clientside[clientside_function.namespace][
                 clientside_function.function_name
@@ -574,6 +602,14 @@ function updateOutput(
                 ...(has('state', payload) ? pluck('value', payload.state) : [])
             );
         } catch (e) {
+            /*
+             * Prevent all updates.
+             */
+            if (e === window.dash_clientside.PreventUpdate) {
+                updateRequestQueue(true, STATUS.PREVENT_UPDATE);
+                return;
+            }
+
             /* eslint-disable no-console */
             console.error(
                 `The following error occurred while executing ${clientside_function.namespace}.${clientside_function.function_name} ` +
@@ -615,9 +651,16 @@ function updateOutput(
 
             /*
              * Update the request queue by treating a successful clientside
-             * like a succesful serverside response (200 status code)
+             * like a successful serverside response (200 status code)
              */
             updateRequestQueue(false, STATUS.OK);
+
+            /*
+             * Prevent update.
+             */
+            if (outputValue === window.dash_clientside.no_update) {
+                return;
+            }
 
             // Update the layout with the new result
             const appliedProps = doUpdateProps(outputId, updatedProps);
@@ -907,6 +950,8 @@ function updateOutput(
                                 );
                             });
                         }
+
+                        dispatch(setAppIsReady());
                     }
                 };
                 if (multi) {

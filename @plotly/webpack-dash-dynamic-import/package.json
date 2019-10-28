@@ -1,0 +1,16 @@
+{
+  "name": "@plotly/webpack-dash-dynamic-import",
+  "version": "1.0.0",
+  "description": "Webpack Plugin for Dynamic Import in Dash",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:plotly/dash.git"
+  },
+  "bugs": {
+    "url": "https://github.com/plotly/dash/issues"
+  },
+  "homepage": "https://github.com/plotly/dash",
+  "main": "src/index.js",
+  "author": "Marc-André Rivet",
+  "license": "MIT"
+}

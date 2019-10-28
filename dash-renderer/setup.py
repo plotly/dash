@@ -12,6 +12,6 @@ setup(
     packages=["dash_renderer"],
     include_package_data=True,
     license="MIT",
-    description="Front-end component renderer for dash",
+    description="Front-end component renderer for Dash",
     install_requires=[],
 )
