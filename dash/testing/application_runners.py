@@ -5,7 +5,9 @@ import os
 import uuid
 import shlex
 import threading
+import shutil
 import subprocess
+from distutils import dir_util
 import logging
 import inspect
 
@@ -210,9 +212,7 @@ class ProcessRunner(BaseDashRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(
-                lambda: self.accessible(self.url), timeout=start_timeout
-            )
+            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
@@ -255,19 +255,15 @@ class RRunner(ProcessRunner):
         """Start the server with subprocess and Rscript."""
 
         # app is a R string chunk
-        if (os.path.isfile(app) and os.path.exists(app)):
+        if os.path.isfile(app) and os.path.exists(app):
             # app is already a file in a dir - use that as cwd
             if not cwd:
                 cwd = os.path.dirname(app)
                 logger.info("RRunner inferred cwd from app path: %s", cwd)
         else:
-            path = (
-                "/tmp/app_{}.R".format(uuid.uuid4().hex)
-                if not self.is_windows
-                else os.path.join(
-                    (os.getenv("TEMP"), "app_{}.R".format(uuid.uuid4().hex))
-                )
-            )
+            tmp = "/tmp" if not self.is_windows else os.getenv("TEMP")
+            path = "{}/app_{}.R".format(tmp, uuid.uuid4().hex)
+
             logger.info("RRunner start => app is R code chunk")
             logger.info("make a temporary R file for execution => %s", path)
             logger.debug("content of the dashR app")
@@ -283,11 +279,11 @@ class RRunner(ProcessRunner):
                 for entry in inspect.stack():
                     if "/dash/testing/" not in entry[1].replace("\\", "/"):
                         cwd = os.path.dirname(os.path.realpath(entry[1]))
+                        logger.warning("get cwd from inspect => %s", cwd)
                         break
             if cwd:
                 logger.info(
-                    "RRunner inferred cwd from the Python call stack: %s",
-                    cwd
+                    "RRunner inferred cwd from the Python call stack: %s", cwd
                 )
             else:
                 logger.warning(
@@ -296,6 +292,23 @@ class RRunner(ProcessRunner):
                     "using something like: "
                     "dashr.run_server(app, cwd=os.path.dirname(__file__))"
                 )
+
+            # try copying all valid sub folders (i.e. assets) in cwd to tmp
+            # note that the R assets folder name can be any valid folder name
+            assets = [
+                os.path.join(cwd, _)
+                for _ in os.listdir(cwd)
+                if not _.startswith("__")
+                and os.path.isdir(os.path.join(cwd, _))
+            ]
+
+            for asset in assets:
+                target = os.path.join(tmp, os.path.basename(asset))
+                if os.path.exists(target):
+                    logger.debug("delete existing target %s", target)
+                    shutil.rmtree(target)
+                logger.debug("copying %s into tmp %s", asset, tmp)
+                dir_util.copy_tree(asset, target)
 
         logger.info("Run dashR app with Rscript => %s", app)
         args = shlex.split(
@@ -309,9 +322,7 @@ class RRunner(ProcessRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd
             )
             # wait until server is able to answer http request
-            wait.until(
-                lambda: self.accessible(self.url), timeout=start_timeout
-            )
+            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
