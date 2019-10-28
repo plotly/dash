@@ -37,7 +37,7 @@ def test_external(mocker):
     mocker.patch("dash_core_components._js_dist")
     mocker.patch("dash_html_components._js_dist")
     dcc._js_dist = _monkey_patched_js_dist  # noqa: W0212
-    dcc.__version__ = 1
+    dcc.__version__ = "1.0.0"
 
     app = dash.Dash(
         __name__, assets_folder="tests/assets", assets_ignore="load_after.+.js"
@@ -66,7 +66,7 @@ def test_internal(mocker):
     mocker.patch("dash_core_components._js_dist")
     mocker.patch("dash_html_components._js_dist")
     dcc._js_dist = _monkey_patched_js_dist  # noqa: W0212,
-    dcc.__version__ = 1
+    dcc.__version__ = "1.0.0"
 
     app = dash.Dash(
         __name__, assets_folder="tests/assets", assets_ignore="load_after.+.js"
@@ -83,10 +83,10 @@ def test_internal(mocker):
 
     assert resource == [
         "/_dash-component-suites/"
-        "dash_core_components/external_javascript.js?v=1&m=1",
+        "dash_core_components/external_javascript.v1_0_0m1.js",
         "/_dash-component-suites/"
-        "dash_core_components/external_css.css?v=1&m=1",
-        "/_dash-component-suites/" "dash_core_components/fake_dcc.js?v=1&m=1",
+        "dash_core_components/external_css.v1_0_0m1.css",
+        "/_dash-component-suites/" "dash_core_components/fake_dcc.v1_0_0m1.js",
     ]
 
     assert (
