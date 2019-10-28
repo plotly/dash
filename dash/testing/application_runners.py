@@ -312,7 +312,7 @@ class RRunner(ProcessRunner):
 
         logger.info("Run dashR app with Rscript => %s", app)
         args = shlex.split(
-            "Rscript {}".format(os.path.realpath(app)),
+            "Rscript -e \'source(\"{}\")\'".format(os.path.realpath(app)),
             posix=not self.is_windows,
         )
         logger.debug("start dash process with %s", args)
