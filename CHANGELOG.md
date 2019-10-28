@@ -5,10 +5,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 ### Added
 - [#964](https://github.com/plotly/dash/pull/964) Adds support for preventing
-updates in clientside functions. 
+updates in clientside functions.
   - Reject all updates with `throw window.dash_clientside.PreventUpdate;`
   - Reject a single output by returning `window.dash_clientside.no_update`
 - [#899](https://github.com/plotly/dash/pull/899) Add support for async dependencies and components
+
+
+### Fixed
+- [#974](https://github.com/plotly/dash/pull/974) Fix and improve a percy snapshot behavior issue we found in dash-docs testing. It adds a flag `wait_for_callbacks`
+to ensure that, in the context of a dash app testing, the percy snapshot action will happen only after all callbacks get fired.
 
 ## [1.4.1] - 2019-10-17
 ### Fixed
