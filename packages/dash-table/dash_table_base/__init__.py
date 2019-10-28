@@ -60,6 +60,22 @@ _js_dist = [
         ).format(__version__),
         'namespace': package_name,
         'dynamic': True
+    },
+    {
+        'relative_package_path': 'async~table.js',
+        'external_url': (
+            'https://unpkg.com/dash-table@{}/dash_table/async~table.js'
+        ).format(__version__),
+        'namespace': package_name,
+        'async': True
+    },
+    {
+        'relative_package_path': 'async~table.js.map',
+        'external_url': (
+            'https://unpkg.com/dash-table@{}/dash_table/async~table.js.map'
+        ).format(__version__),
+        'namespace': package_name,
+        'dynamic': True
     }
 ]
 
