@@ -679,7 +679,7 @@ class Dash(object):
 
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
-        (path_in_package_dist, has_fingerprint) = check_fingerprint(
+        path_in_package_dist, has_fingerprint = check_fingerprint(
             path_in_package_dist
         )
 
