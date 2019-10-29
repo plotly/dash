@@ -261,8 +261,11 @@ class RRunner(ProcessRunner):
                 cwd = os.path.dirname(app)
                 logger.info("RRunner inferred cwd from app path: %s", cwd)
         else:
-            tmp = "/tmp" if not self.is_windows else os.getenv("TEMP")
-            path = "{}/app_{}.R".format(tmp, uuid.uuid4().hex)
+            tmp = os.path.join(
+                "/tmp" if not self.is_windows else os.getenv("TEMP"),
+                uuid.uuid4().hex,
+            )
+            path = os.path.join(tmp, "app.R")
 
             logger.info("RRunner start => app is R code chunk")
             logger.info("make a temporary R file for execution => %s", path)
@@ -307,13 +310,14 @@ class RRunner(ProcessRunner):
                 if os.path.exists(target):
                     logger.debug("delete existing target %s", target)
                     shutil.rmtree(target)
-                logger.debug("copying %s into tmp %s", asset, tmp)
+                logger.debug("copying %s => %s", asset, tmp)
                 distutils.dir_util.copy_tree(asset, target)
                 logger.debug("copied with %s", os.listdir(target))
 
         logger.info("Run dashR app with Rscript => %s", app)
+
         args = shlex.split(
-            "Rscript -e \'source(\"{}\")\'".format(os.path.realpath(app)),
+            "Rscript -e 'source(\"{}\")'".format(os.path.realpath(app)),
             posix=not self.is_windows,
         )
         logger.debug("start dash process with %s", args)
@@ -331,3 +335,5 @@ class RRunner(ProcessRunner):
             return
 
         self.started = True
+
+        return app
