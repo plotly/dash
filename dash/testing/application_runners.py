@@ -7,7 +7,6 @@ import shlex
 import threading
 import shutil
 import subprocess
-import distutils
 import logging
 import inspect
 
@@ -212,7 +211,9 @@ class ProcessRunner(BaseDashRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+            wait.until(
+                lambda: self.accessible(self.url), timeout=start_timeout
+            )
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
@@ -311,7 +312,7 @@ class RRunner(ProcessRunner):
                     logger.debug("delete existing target %s", target)
                     shutil.rmtree(target)
                 logger.debug("copying %s => %s", asset, tmp)
-                distutils.dir_util.copy_tree(asset, target)
+                shutil.copytree(asset, target)
                 logger.debug("copied with %s", os.listdir(target))
 
         logger.info("Run dashR app with Rscript => %s", app)
@@ -327,7 +328,9 @@ class RRunner(ProcessRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+            wait.until(
+                lambda: self.accessible(self.url), timeout=start_timeout
+            )
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
@@ -335,5 +338,3 @@ class RRunner(ProcessRunner):
             return
 
         self.started = True
-
-        return app
