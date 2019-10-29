@@ -11,6 +11,11 @@ updates in clientside functions.
 - [#899](https://github.com/plotly/dash/pull/899) Add support for async dependencies and components
 - [#973](https://github.com/plotly/dash/pull/973) Adds support for resource caching and adds a fallback caching mechanism through etag
 
+
+### Fixed
+- [#974](https://github.com/plotly/dash/pull/974) Fix and improve a percy snapshot behavior issue we found in dash-docs testing. It adds a flag `wait_for_callbacks`
+to ensure that, in the context of a dash app testing, the percy snapshot action will happen only after all callbacks get fired.
+
 ## [1.4.1] - 2019-10-17
 ### Fixed
 - [#969](https://github.com/plotly/dash/pull/969) Fix warnings emitted by react devtools coming from our own devtools components.
