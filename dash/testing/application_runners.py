@@ -62,6 +62,7 @@ class BaseDashRunner(object):
         self.started = None
         self.keep_open = keep_open
         self.stop_timeout = stop_timeout
+        self._tmp_app_path = None
 
     def start(self, *args, **kwargs):
         raise NotImplementedError  # pragma: no cover
@@ -103,6 +104,10 @@ class BaseDashRunner(object):
     @property
     def is_windows(self):
         return sys.platform == "win32"
+
+    @property
+    def tmp_app_path(self):
+        return self._tmp_app_path
 
 
 class ThreadedRunner(BaseDashRunner):
@@ -262,15 +267,17 @@ class RRunner(ProcessRunner):
                 cwd = os.path.dirname(app)
                 logger.info("RRunner inferred cwd from app path: %s", cwd)
         else:
-            tmp = os.path.join(
+            self._tmp_app_path = os.path.join(
                 "/tmp" if not self.is_windows else os.getenv("TEMP"),
                 uuid.uuid4().hex,
             )
             try:
-                os.mkdir(tmp)
+                os.mkdir(self.tmp_app_path)
             except OSError:
-                logger.exception("cannot make temporary folder %s", tmp)
-            path = os.path.join(tmp, "app.R")
+                logger.exception(
+                    "cannot make temporary folder %s", self.tmp_app_path
+                )
+            path = os.path.join(self.tmp_app_path, "app.R")
 
             logger.info("RRunner start => app is R code chunk")
             logger.info("make a temporary R file for execution => %s", path)
@@ -311,11 +318,11 @@ class RRunner(ProcessRunner):
             ]
 
             for asset in assets:
-                target = os.path.join(tmp, os.path.basename(asset))
+                target = os.path.join(self.tmp_app_path, os.path.basename(asset))
                 if os.path.exists(target):
                     logger.debug("delete existing target %s", target)
                     shutil.rmtree(target)
-                logger.debug("copying %s => %s", asset, tmp)
+                logger.debug("copying %s => %s", asset, self.tmp_app_path)
                 shutil.copytree(asset, target)
                 logger.debug("copied with %s", os.listdir(target))
 
