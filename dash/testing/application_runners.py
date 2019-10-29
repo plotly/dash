@@ -266,6 +266,10 @@ class RRunner(ProcessRunner):
                 "/tmp" if not self.is_windows else os.getenv("TEMP"),
                 uuid.uuid4().hex,
             )
+            try:
+                os.mkdir(tmp)
+            except OSError:
+                logger.exception("cannot make temporary folder %s", tmp)
             path = os.path.join(tmp, "app.R")
 
             logger.info("RRunner start => app is R code chunk")
