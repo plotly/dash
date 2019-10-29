@@ -318,7 +318,9 @@ class RRunner(ProcessRunner):
             ]
 
             for asset in assets:
-                target = os.path.join(self.tmp_app_path, os.path.basename(asset))
+                target = os.path.join(
+                    self.tmp_app_path, os.path.basename(asset)
+                )
                 if os.path.exists(target):
                     logger.debug("delete existing target %s", target)
                     shutil.rmtree(target)
@@ -336,7 +338,7 @@ class RRunner(ProcessRunner):
 
         try:
             self.proc = subprocess.Popen(
-                args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd
+                args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
             wait.until(
