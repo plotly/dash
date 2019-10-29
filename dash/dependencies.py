@@ -1,3 +1,6 @@
+import json
+
+
 class _Wildcard:  # pylint: disable=too-few-public-methods
     def __init__(self, name):
         self._name = name
@@ -17,7 +20,6 @@ class _Wildcard:  # pylint: disable=too-few-public-methods
 ANY = _Wildcard("ANY")
 ALL = _Wildcard("ALL")
 ALLSMALLER = _Wildcard("ALLSMALLER")
-PREVIOUS = _Wildcard("PREVIOUS")
 
 
 class DashDependency:  # pylint: disable=too-few-public-methods
@@ -34,17 +36,23 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     def component_id_str(self):
         i = self.component_id
 
-        def json(k, v):
+        def _dump(v):
+            return json.dumps(v, sort_keys=True, separators=(",", ":"))
+
+        def _json(k, v):
             vstr = v.to_json() if hasattr(v, "to_json") else json.dumps(v)
             return "{}:{}".format(json.dumps(k), vstr)
 
         if isinstance(i, dict):
-            return ("{" + ",".join(json(k, i[k]) for k in sorted(i)) + "}")
+            return ("{" + ",".join(_json(k, i[k]) for k in sorted(i)) + "}")
 
         return i
 
     def to_dict(self):
-        return {"id": self.component_id_str(), "property": self.component_property}
+        return {
+            "id": self.component_id_str(),
+            "property": self.component_property
+        }
 
     def __eq__(self, other):
         """
@@ -59,13 +67,18 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         )
 
     def _id_matches(self, other):
+        my_id = self.component_id
         other_id = other.component_id
-        if isinstance(self.component_id, dict):
-            if not isinstance(other_id, dict):
+        self_dict = isinstance(my_id, dict)
+        other_dict = isinstance(other_id, dict)
+
+        if self_dict != other_dict:
+            return False
+        if self_dict:
+            if set(my_id.keys()) != set(other_id.keys()):
                 return False
-            for k, v in self.component_id.items():
-                if k not in other_id:
-                    return False
+
+            for k, v in my_id.items():
                 other_v = other_id[k]
                 if v == other_v:
                     continue
@@ -77,14 +90,13 @@ class DashDependency:  # pylint: disable=too-few-public-methods
                     if v is ALL or other_v is ALL:
                         continue  # either ALL
                     if v is ANY or other_v is ANY:
-                        return False  # ANY and either ALLSMALLER or PREVIOUS
+                        return False  # one ANY, one ALLSMALLER
                 else:
                     return False
             return True
-        elif isinstance(other_id, dict):
-            return False
-        else:
-            return self.component_id == other_id
+
+        # both strings
+        return my_id == other_id
 
     def __hash__(self):
         return hash(str(self))
@@ -99,13 +111,13 @@ class Output(DashDependency):  # pylint: disable=too-few-public-methods
 class Input(DashDependency):  # pylint: disable=too-few-public-methods
     """Input of callback: trigger an update when it is updated."""
 
-    allowed_wildcards = (ANY, ALL, ALLSMALLER, PREVIOUS)
+    allowed_wildcards = (ANY, ALL, ALLSMALLER)
 
 
 class State(DashDependency):  # pylint: disable=too-few-public-methods
     """Use the value of a State in a callback but don't trigger updates."""
 
-    allowed_wildcards = (ANY, ALL, ALLSMALLER, PREVIOUS)
+    allowed_wildcards = (ANY, ALL, ALLSMALLER)
 
 
 class ClientsideFunction:  # pylint: disable=too-few-public-methods

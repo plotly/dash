@@ -13,7 +13,7 @@ import {combineReducers} from 'redux';
 import layout from './layout';
 import graphs from './dependencyGraph';
 import paths from './paths';
-import requestQueue from './requestQueue';
+import pendingCallbacks from './pendingCallbacks';
 import appLifecycle from './appLifecycle';
 import history from './history';
 import error from './error';
@@ -34,7 +34,7 @@ function mainReducer() {
         layout,
         graphs,
         paths,
-        requestQueue,
+        pendingCallbacks,
         config,
         history,
         error,
@@ -50,7 +50,8 @@ function mainReducer() {
 function getInputHistoryState(itempath, props, state) {
     const {graphs, layout, paths} = state;
     const {InputGraph} = graphs;
-    const keyObj = filter(equals(itempath), paths);
+    // TODO: wildcards?
+    const keyObj = filter(equals(itempath), paths.strs);
     let historyEntry;
     if (!isEmpty(keyObj)) {
         const id = keys(keyObj)[0];
@@ -58,11 +59,12 @@ function getInputHistoryState(itempath, props, state) {
         keys(props).forEach(propKey => {
             const inputKey = `${id}.${propKey}`;
             if (
+                // TODO: wildcards?
                 InputGraph.hasNode(inputKey) &&
                 InputGraph.dependenciesOf(inputKey).length > 0
             ) {
                 historyEntry.props[propKey] = view(
-                    lensPath(concat(paths[id], ['props', propKey])),
+                    lensPath(concat(paths.strs[id], ['props', propKey])),
                     layout
                 );
             }

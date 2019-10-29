@@ -1,17 +1,14 @@
 import {connect} from 'react-redux';
-import {includes, isEmpty, isNil} from 'ramda';
+import {includes, isEmpty} from 'ramda';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
-import {
-    computeGraphs,
-    computePaths,
-    hydrateInitialOutputs,
-    setLayout,
-} from './actions/index';
-import {applyPersistence} from './persistence';
+import {hydrateInitialOutputs, setGraphs, setPaths, setLayout} from './actions';
+import {computePaths} from './actions/paths';
+import {computeGraphs} from './actions/dependencies';
 import apiThunk from './actions/api';
+import {applyPersistence} from './persistence';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 
@@ -42,7 +39,6 @@ class UnconnectedContainer extends Component {
             graphs,
             layout,
             layoutRequest,
-            paths,
         } = props;
 
         if (isEmpty(layoutRequest)) {
@@ -53,9 +49,8 @@ class UnconnectedContainer extends Component {
                     layoutRequest.content,
                     dispatch
                 );
+                dispatch(setPaths(computePaths(finalLayout, [])));
                 dispatch(setLayout(finalLayout));
-            } else if (isNil(paths)) {
-                dispatch(computePaths({subTree: layout, startingPath: []}));
             }
         }
 
@@ -67,7 +62,7 @@ class UnconnectedContainer extends Component {
             dependenciesRequest.status === STATUS.OK &&
             isEmpty(graphs)
         ) {
-            dispatch(computeGraphs(dependenciesRequest.content));
+            dispatch(setGraphs(computeGraphs(dependenciesRequest.content)));
         }
 
         if (
@@ -77,7 +72,6 @@ class UnconnectedContainer extends Component {
             // LayoutRequest and its computed stores
             layoutRequest.status === STATUS.OK &&
             !isEmpty(layout) &&
-            !isNil(paths) &&
             // Hasn't already hydrated
             appLifecycle === getAppState('STARTED')
         ) {
@@ -118,20 +112,15 @@ class UnconnectedContainer extends Component {
             return (
                 <div className="_dash-error">Error loading dependencies</div>
             );
-        } else if (
-            appLifecycle === getAppState('HYDRATED') &&
-            config.ui === true
-        ) {
-            return (
+        } else if (appLifecycle === getAppState('HYDRATED')) {
+            return config.ui === true ? (
                 <GlobalErrorContainer>
                     <TreeContainer
                         _dashprivate_layout={layout}
                         _dashprivate_path={[]}
                     />
                 </GlobalErrorContainer>
-            );
-        } else if (appLifecycle === getAppState('HYDRATED')) {
-            return (
+            ) : (
                 <TreeContainer
                     _dashprivate_layout={layout}
                     _dashprivate_path={[]}
@@ -151,7 +140,6 @@ UnconnectedContainer.propTypes = {
     dependenciesRequest: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
-    paths: PropTypes.object,
     history: PropTypes.any,
     error: PropTypes.object,
     config: PropTypes.object,
@@ -165,7 +153,6 @@ const Container = connect(
         layoutRequest: state.layoutRequest,
         layout: state.layout,
         graphs: state.graphs,
-        paths: state.paths,
         history: state.history,
         error: state.error,
         config: state.config,

@@ -34,8 +34,12 @@ from ._utils import (
     generate_hash,
     get_asset_path,
     get_relative_path,
+    inputs_to_dict,
+    inputs_to_vals,
     interpolate_str,
     patch_collections_abc,
+    split_callback_id,
+    stringify_id,
     strip_relative_path
 )
 from . import _validate
@@ -917,33 +921,39 @@ class Dash(object):
             def add_context(*args, **kwargs):
                 # don't touch the comment on the next line - used by debugger
                 output_value = func(*args, **kwargs)  # %% callback invoked %%
-                if multi:
-                    _validate.validate_multi_return(
-                        output, output_value, callback_id
-                    )
 
-                    component_ids = collections.defaultdict(dict)
-                    has_update = False
-                    for i, o in enumerate(output):
-                        val = output_value[i]
-                        if not isinstance(val, _NoUpdate):
+                if isinstance(output_value, _NoUpdate):
+                    raise PreventUpdate
+
+                output_spec = flask.g.outputs_list
+                # wrap single outputs so we can treat them all the same
+                # for validation and response creation
+                if not multi:
+                    output_value, output_spec = [output_value], [output_spec]
+
+                _validate.validate_multi_return(
+                    output_spec, output_value, callback_id
+                )
+
+                component_ids = collections.defaultdict(dict)
+                has_update = False
+                for val, spec in zip(output_value, output_spec):
+                    if isinstance(val, _NoUpdate):
+                        continue
+                    for vali, speci in (
+                        zip(val, spec)
+                        if isinstance(spec, list)
+                        else [[val, spec]]
+                    ):
+                        if not isinstance(vali, _NoUpdate):
                             has_update = True
-                            o_id, o_prop = o.component_id, o.component_property
-                            component_ids[o_id][o_prop] = val
+                            id_str = stringify_id(speci["id"])
+                            component_ids[id_str][speci["property"]] = vali
 
-                    if not has_update:
-                        raise PreventUpdate
+                if not has_update:
+                    raise PreventUpdate
 
-                    response = {"response": component_ids, "multi": True}
-                else:
-                    if isinstance(output_value, _NoUpdate):
-                        raise PreventUpdate
-
-                    response = {
-                        "response": {
-                            "props": {output.component_property: output_value}
-                        }
-                    }
+                response = {"response": component_ids, "multi": True}
 
                 try:
                     jsonResponse = json.dumps(
@@ -962,44 +972,23 @@ class Dash(object):
 
     def dispatch(self):
         body = flask.request.get_json()
-        inputs = body.get("inputs", [])
-        state = body.get("state", [])
+        flask.g.inputs_list = inputs = body.get("inputs", [])
+        flask.g.states_list = state = body.get("state", [])
         output = body["output"]
+        flask.g.outputs_list = body.get("outputs") or split_callback_id(output)
 
-        args = []
-
-        flask.g.input_values = input_values = {
-            "{}.{}".format(x["id"], x["property"]): x.get("value")
-            for x in inputs
-        }
-        flask.g.state_values = {
-            "{}.{}".format(x["id"], x["property"]): x.get("value")
-            for x in state
-        }
-        changed_props = body.get("changedPropIds")
-        flask.g.triggered_inputs = (
-            [{"prop_id": x, "value": input_values[x]} for x in changed_props]
-            if changed_props
-            else []
-        )
+        flask.g.input_values = input_values = inputs_to_dict(inputs)
+        flask.g.state_values = inputs_to_dict(state)
+        changed_props = body.get("changedPropIds", [])
+        flask.g.triggered_inputs = [
+            {"prop_id": x, "value": input_values.get(x)} for x in changed_props
+        ]
 
         response = flask.g.dash_response = flask.Response(
             mimetype="application/json"
         )
 
-        def pluck_val(_props, component_registration):
-            for c in _props:
-                if (
-                    c["property"] == component_registration["property"] and
-                    c["id"] == component_registration["id"]
-                ):
-                    return c.get("value", None)
-
-        for component_registration in self.callback_map[output]["inputs"]:
-            args.append(pluck_val(inputs, component_registration))
-
-        for component_registration in self.callback_map[output]["state"]:
-            args.append(pluck_val(state, component_registration))
+        args = inputs_to_vals(inputs) + inputs_to_vals(state)
 
         response.set_data(self.callback_map[output]["callback"](*args))
         return response

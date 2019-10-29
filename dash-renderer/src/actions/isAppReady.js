@@ -2,11 +2,13 @@ import {path} from 'ramda';
 import {isReady} from '@plotly/dash-component-plugins';
 
 import Registry from '../registry';
+import {getPath} from './paths';
 
 export default (layout, paths, targets) => {
     const promises = [];
+
     targets.forEach(id => {
-        const pathOfId = paths[id];
+        const pathOfId = getPath(paths, id);
         if (!pathOfId) {
             return;
         }

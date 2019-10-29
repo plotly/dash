@@ -1,52 +1,9 @@
-import {DepGraph} from 'dependency-graph';
-import {isMultiOutputProp, parseMultipleOutputs} from '../utils';
-
 const initialGraph = {};
 
 const graphs = (state = initialGraph, action) => {
-    if (action.type === 'COMPUTE_GRAPHS') {
-        const dependencies = action.payload;
-        const inputGraph = new DepGraph();
-        const multiGraph = new DepGraph();
-
-        dependencies.forEach(function registerDependency(dependency) {
-            const {output, inputs} = dependency;
-
-            if (isMultiOutputProp(output)) {
-                parseMultipleOutputs(output).forEach(out => {
-                    multiGraph.addNode(out);
-                    inputs.forEach(i => {
-                        const inputId = `${i.id}.${i.property}`;
-                        if (!multiGraph.hasNode(inputId)) {
-                            multiGraph.addNode(inputId);
-                        }
-                        multiGraph.addDependency(inputId, out);
-                    });
-                });
-            } else {
-                multiGraph.addNode(output);
-                inputs.forEach(i => {
-                    const inputId = `${i.id}.${i.property}`;
-                    if (!multiGraph.hasNode(inputId)) {
-                        multiGraph.addNode(inputId);
-                    }
-                    multiGraph.addDependency(inputId, output);
-                });
-            }
-
-            inputs.forEach(inputObject => {
-                const inputId = `${inputObject.id}.${inputObject.property}`;
-                inputGraph.addNode(output);
-                if (!inputGraph.hasNode(inputId)) {
-                    inputGraph.addNode(inputId);
-                }
-                inputGraph.addDependency(inputId, output);
-            });
-        });
-
-        return {InputGraph: inputGraph, MultiGraph: multiGraph};
+    if (action.type === 'SET_GRAPHS') {
+        return action.payload;
     }
-
     return state;
 };
 

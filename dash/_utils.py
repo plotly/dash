@@ -8,11 +8,15 @@ import collections
 import subprocess
 import logging
 import io
+import json
 from functools import wraps
 import future.utils as utils
 from . import exceptions
 
 logger = logging.getLogger()
+
+# py2/3 json.dumps-compatible strings - these are equivalent in py3, not in py2
+_strings = (type(u""), type(""))
 
 
 def interpolate_str(template, **data):
@@ -71,6 +75,7 @@ def get_relative_path(requests_pathname, path):
             path.lstrip("/")
         ]
     )
+
 
 def strip_relative_path(requests_pathname, path):
     if path is None:
@@ -174,7 +179,43 @@ def create_callback_id(output):
             )
         )
 
-    return "{}.{}".format(output.component_id, output.component_property)
+    return "{}.{}".format(
+        output.component_id_str().replace(".", "\\."),
+        output.component_property
+    )
+
+
+# inverse of create_callback_id - should only be relevant if an old renderer is
+# hooked up to a new back end, which will only happen in special cases like
+# embedded
+def split_callback_id(callback_id):
+    if callback_id.startswith(".."):
+        return [split_callback_id(oi) for oi in callback_id[2:-2].split("...")]
+
+    id_, prop = callback_id.rsplit(".", 1)
+    return {"id": id_, "property": prop}
+
+
+def stringify_id(id_):
+    if isinstance(id_, dict):
+        return json.dumps(id_, sort_keys=True, separators=(",", ":"))
+    return id_
+
+
+def inputs_to_dict(inputs):
+    inputs = {}
+    for i in inputs:
+        for ii in (i if isinstance(i, list) else [i]):
+            id_str = stringify_id(ii["id"])
+            inputs["{}.{}".format(id_str, ii["property"])] = ii.get("value")
+    return inputs
+
+
+def inputs_to_vals(inputs):
+    return [
+        [ii.get("value") for ii in i] if isinstance(i, list) else i.get("value")
+        for i in inputs
+    ]
 
 
 def run_command_with_process(cmd):

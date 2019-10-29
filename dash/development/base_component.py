@@ -3,12 +3,9 @@ import inspect
 import sys
 from future.utils import with_metaclass
 
-from .._utils import patch_collections_abc
+from .._utils import patch_collections_abc, _strings, stringify_id
 
 MutableSequence = patch_collections_abc("MutableSequence")
-
-# py2/3 json.dumps-compatible strings - these are equivalent in py3, not in py2
-_strings = (type(u""), type(""))
 
 
 # pylint: disable=no-init,too-few-public-methods
@@ -112,7 +109,7 @@ class Component(with_metaclass(ComponentMeta, object)):
                 raise TypeError(
                     "{} received an unexpected keyword argument: `{}`".format(
                         error_string_prefix, k
-                    ) + "\nAllowed arguments: {}".format(                        # pylint: disable=no-member
+                    ) + "\nAllowed arguments: {}".format(  # pylint: disable=no-member
                         ", ".join(sorted(self._prop_names))
                     )
                 )
@@ -266,16 +263,16 @@ class Component(with_metaclass(ComponentMeta, object)):
         for t in self._traverse_with_paths():
             yield t[1]
 
+    @staticmethod
+    def _id_str(component):
+        id_ = stringify_id(getattr(component, "id", ""))
+        return id_ and " (id={:s})".format(id_)
+
     def _traverse_with_paths(self):
         """Yield each item with its path in the tree."""
         children = getattr(self, "children", None)
         children_type = type(children).__name__
-        children_id = (
-            "(id={:s})".format(children.id)
-            if getattr(children, "id", False)
-            else ""
-        )
-        children_string = children_type + " " + children_id
+        children_string = children_type + self._id_str(children)
 
         # children is just a component
         if isinstance(children, Component):
@@ -287,12 +284,10 @@ class Component(with_metaclass(ComponentMeta, object)):
         # children is a list of components
         elif isinstance(children, (tuple, MutableSequence)):
             for idx, i in enumerate(children):
-                list_path = "[{:d}] {:s} {}".format(
+                list_path = "[{:d}] {:s}{}".format(
                     idx,
                     type(i).__name__,
-                    "(id={:s})".format(i.id)
-                    if getattr(i, "id", False)
-                    else "",
+                    self._id_str(i),
                 )
                 yield list_path, i
 
@@ -305,7 +300,6 @@ class Component(with_metaclass(ComponentMeta, object)):
         """Yield IDs in the tree of children."""
         for t in self._traverse():
             if isinstance(t, Component) and getattr(t, "id", None) is not None:
-
                 yield t.id
 
     def __len__(self):

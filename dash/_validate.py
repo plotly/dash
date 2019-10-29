@@ -1,10 +1,10 @@
 import collections
 import re
 
-from .development.base_component import Component, _strings
-from .dependencies import Input, Output, State, ANY, ALLSMALLER, PREVIOUS
+from .development.base_component import Component
+from .dependencies import Input, Output, State, ANY, ALLSMALLER
 from . import exceptions
-from ._utils import patch_collections_abc
+from ._utils import patch_collections_abc, _strings, stringify_id
 
 
 def validate_callback(app, layout, output, inputs, state):
@@ -81,7 +81,7 @@ def validate_callback(app, layout, output, inputs, state):
                 )
             )
 
-    matched_wildcards = (ANY, ALLSMALLER, PREVIOUS)
+    matched_wildcards = (ANY, ALLSMALLER)
     for dep in list(inputs) + list(state):
         wildcard_keys = get_wildcard_keys(dep, matched_wildcards)
         if wildcard_keys - any_keys:
@@ -196,6 +196,7 @@ def validate_id_dict(arg, layout, validate_ids, wildcards):
         c_id = getattr(c, "id", None)
         return isinstance(c_id, dict) and all(
             k in c and v in wildcards or v == c_id.get(k)
+            for k, v in arg_id.items()
         )
 
     if validate_ids:
@@ -296,7 +297,7 @@ def validate_prop_for_component(arg, component):
         )
 
 
-def validate_multi_return(output, output_value, callback_id):
+def validate_multi_return(outputs_list, output_value, callback_id):
     if not isinstance(output_value, (list, tuple)):
         raise exceptions.InvalidCallbackReturnValue(
             """
@@ -308,15 +309,39 @@ def validate_multi_return(output, output_value, callback_id):
             )
         )
 
-    if len(output_value) != len(output):
+    if len(output_value) != len(outputs_list):
         raise exceptions.InvalidCallbackReturnValue(
             """
             Invalid number of output values for {}.
             Expected {}, got {}
             """.format(
-                callback_id, len(output), len(output_value)
+                callback_id, len(outputs_list), len(output_value)
             )
         )
+
+    for i, outi in enumerate(outputs_list):
+        if isinstance(outi, list):
+            vi = output_value[i]
+            if not isinstance(vi, (list, tuple)):
+                raise exceptions.InvalidCallbackReturnValue(
+                    """
+                    The callback {} ouput {} is a wildcard multi-output.
+                    Expected the output type to be a list or tuple but got:
+                    {}.
+                    """.format(
+                        callback_id, i, repr(vi)
+                    )
+                )
+
+            if len(vi) != len(outi):
+                raise exceptions.InvalidCallbackReturnValue(
+                    """
+                    Invalid number of output values for {}.
+                    Expected {}, got {}
+                    """.format(
+                        callback_id, len(vi), len(outi)
+                    )
+                )
 
 
 def fail_callback_output(output_value, output):
@@ -505,12 +530,12 @@ def validate_layout(layout, layout_value):
             """
         )
 
-    layout_id = getattr(layout_value, "id", None)
+    layout_id = stringify_id(getattr(layout_value, "id", None))
 
     component_ids = {layout_id} if layout_id else set()
     # pylint: disable=protected-access
     for component in layout_value._traverse():
-        component_id = getattr(component, "id", None)
+        component_id = stringify_id(getattr(component, "id", None))
         if component_id and component_id in component_ids:
             raise exceptions.DuplicateIdError(
                 """
