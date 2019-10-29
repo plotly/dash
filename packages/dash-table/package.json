@@ -114,6 +114,7 @@
     "xlsx": "^0.15.1"
   },
   "files": [
+    "/dash_table/async~*{.js,.map}",
     "/dash_table/bundle*{.js,.map}"
   ],
   "peerDependencies": {
