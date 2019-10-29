@@ -1445,6 +1445,9 @@ class Dash(object):
 
         self._validate_layout()
 
+        self._generate_scripts_html()
+        self._generate_css_dist_html()
+
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:
