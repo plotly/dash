@@ -22,13 +22,10 @@ import {
     type,
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
+import isSimpleComponent from './isSimpleComponent';
 import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
 import checkPropTypes from 'check-prop-types';
-
-const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
-const isSimpleComponent = component =>
-    includes(type(component), SIMPLE_COMPONENT_TYPES);
 
 function validateComponent(componentDefinition) {
     if (type(componentDefinition) === 'Array') {

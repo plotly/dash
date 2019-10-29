@@ -1,5 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
+from dash_table import DataTable
 import dash
 from dash.dependencies import Input, Output
 
@@ -8,8 +9,8 @@ test_cases = {
     "not-boolean": {
         "fail": True,
         "name": 'simple "not a boolean" check',
-        "component": dcc.Graph,
-        "props": {"animate": 0},
+        "component": dcc.Input,
+        "props": {"debounce": 0},
     },
     "missing-required-nested-prop": {
         "fail": True,
@@ -47,26 +48,50 @@ test_cases = {
     "invalid-shape-1": {
         "fail": True,
         "name": "invalid key within nested object",
-        "component": dcc.Graph,
-        "props": {"config": {"asdf": "that"}},
+        "component": DataTable,
+        "props": {"active_cell": {"asdf": "that"}},
     },
     "invalid-shape-2": {
         "fail": True,
         "name": "nested object with bad value",
-        "component": dcc.Graph,
-        "props": {"config": {"edits": {"legendPosition": "asdf"}}},
+        "component": DataTable,
+        "props": {
+            "columns": [{
+                "id": "id",
+                "name": "name",
+                "format": {
+                    "locale": "asdf"
+                }
+            }]
+        },
     },
     "invalid-shape-3": {
         "fail": True,
         "name": "invalid oneOf within nested object",
-        "component": dcc.Graph,
-        "props": {"config": {"toImageButtonOptions": {"format": "asdf"}}},
+        "component": DataTable,
+        "props": {
+            "columns": [{
+                "id": "id",
+                "name": "name",
+                "on_change": {
+                    "action": "asdf"
+                }
+            }]
+        },
     },
     "invalid-shape-4": {
         "fail": True,
         "name": "invalid key within deeply nested object",
-        "component": dcc.Graph,
-        "props": {"config": {"toImageButtonOptions": {"asdf": "test"}}},
+        "component": DataTable,
+        "props": {
+            "columns": [{
+                "id": "id",
+                "name": "name",
+                "on_change": {
+                    "asdf": "asdf"
+                }
+            }]
+        },
     },
     "invalid-shape-5": {
         "fail": True,
@@ -88,7 +113,7 @@ test_cases = {
     "no-properties": {
         "fail": False,
         "name": "no properties",
-        "component": dcc.Graph,
+        "component": dcc.Input,
         "props": {},
     },
     "nested-children": {
@@ -112,21 +137,29 @@ test_cases = {
     "nested-prop-failure": {
         "fail": True,
         "name": "nested string instead of number/null",
-        "component": dcc.Graph,
+        "component": DataTable,
         "props": {
-            "figure": {"data": [{}]},
-            "config": {
-                "toImageButtonOptions": {"width": None, "height": "test"}
-            },
+            "columns": [{
+                "id": "id",
+                "name": "name",
+                "format": {
+                    "prefix": "asdf"
+                }
+            }]
         },
     },
     "allow-null": {
         "fail": False,
         "name": "nested null",
-        "component": dcc.Graph,
+        "component": DataTable,
         "props": {
-            "figure": {"data": [{}]},
-            "config": {"toImageButtonOptions": {"width": None, "height": None}},
+            "columns": [{
+                "id": "id",
+                "name": "name",
+                "format": {
+                    "prefix": None
+                }
+            }]
         },
     },
     "allow-null-2": {

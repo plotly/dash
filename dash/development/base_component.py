@@ -110,7 +110,8 @@ class Component(with_metaclass(ComponentMeta, object)):
                 for k in self.__dict__
                 if any(
                     k.startswith(w)
-                    for w in self._valid_wildcard_attributes  # pylint:disable=no-member
+                    # pylint:disable=no-member
+                    for w in self._valid_wildcard_attributes
                 )
             }
         )

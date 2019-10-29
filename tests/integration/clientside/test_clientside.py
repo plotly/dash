@@ -4,7 +4,7 @@ from multiprocessing import Value
 import dash_html_components as html
 import dash_core_components as dcc
 from dash import Dash
-from dash.dependencies import Input, Output, ClientsideFunction
+from dash.dependencies import Input, Output, State, ClientsideFunction
 
 
 def test_clsd001_simple_clientside_serverside_callback(dash_duo):
@@ -261,3 +261,86 @@ def test_clsd005_clientside_fails_when_returning_a_promise(dash_duo):
     dash_duo.wait_for_text_to_equal("#input", "hello")
     dash_duo.wait_for_text_to_equal("#side-effect", "side effect")
     dash_duo.wait_for_text_to_equal("#output", "output")
+
+
+def test_clsd006_PreventUpdate(dash_duo):
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="first", value=1),
+            dcc.Input(id="second", value=1),
+            dcc.Input(id="third", value=1)
+        ]
+    )
+
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside", function_name="add1_prevent_at_11"),
+        Output("second", "value"),
+        [Input("first", "value")],
+        [State("second", "value")]
+    )
+
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside", function_name="add1_prevent_at_11"),
+        Output("third", "value"),
+        [Input("second", "value")],
+        [State("third", "value")]
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#first", '1')
+    dash_duo.wait_for_text_to_equal("#second", '2')
+    dash_duo.wait_for_text_to_equal("#third", '2')
+
+    dash_duo.find_element("#first").send_keys("1")
+
+    dash_duo.wait_for_text_to_equal("#first", '11')
+    dash_duo.wait_for_text_to_equal("#second", '2')
+    dash_duo.wait_for_text_to_equal("#third", '2')
+
+    dash_duo.find_element("#first").send_keys("1")
+
+    dash_duo.wait_for_text_to_equal("#first", '111')
+    dash_duo.wait_for_text_to_equal("#second", '3')
+    dash_duo.wait_for_text_to_equal("#third", '3')
+
+
+def test_clsd006_no_update(dash_duo):
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="first", value=1),
+            dcc.Input(id="second", value=1),
+            dcc.Input(id="third", value=1)
+        ]
+    )
+
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside", function_name="add1_no_update_at_11"),
+        [Output("second", "value"),
+         Output("third", "value")],
+        [Input("first", "value")],
+        [State("second", "value"),
+         State("third", "value")]
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#first", '1')
+    dash_duo.wait_for_text_to_equal("#second", '2')
+    dash_duo.wait_for_text_to_equal("#third", '2')
+
+    dash_duo.find_element("#first").send_keys("1")
+
+    dash_duo.wait_for_text_to_equal("#first", '11')
+    dash_duo.wait_for_text_to_equal("#second", '2')
+    dash_duo.wait_for_text_to_equal("#third", '3')
+
+    dash_duo.find_element("#first").send_keys("1")
+
+    dash_duo.wait_for_text_to_equal("#first", '111')
+    dash_duo.wait_for_text_to_equal("#second", '3')
+    dash_duo.wait_for_text_to_equal("#third", '4')

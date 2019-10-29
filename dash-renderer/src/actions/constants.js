@@ -8,6 +8,7 @@ const actionList = {
     SET_CONFIG: 'SET_CONFIG',
     ON_ERROR: 'ON_ERROR',
     SET_HOOKS: 'SET_HOOKS',
+    SET_APP_READY: 'SET_APP_READY',
 };
 
 export const getAction = action => {

@@ -22,6 +22,20 @@ window.dash_clientside.clientside = {
         return parseInt(value, 10) + 1;
     },
 
+    add1_prevent_at_11: function (value1, value2) {
+        if (parseInt(value1, 10) === 11) {
+            throw window.dash_clientside.PreventUpdate;
+        }
+        return parseInt(value2, 10) + 1;
+    },
+
+    add1_no_update_at_11: function (value1, value2, value3) {
+        if (parseInt(value1, 10) === 11) {
+            return [window.dash_clientside.no_update, parseInt(value3, 10) + 1];
+        }
+        return [parseInt(value2, 10) + 1, parseInt(value3, 10) + 1];
+    },
+
     add_to_four_outputs: function(value) {
         return [
             parseInt(value) + 1,

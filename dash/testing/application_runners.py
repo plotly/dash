@@ -210,7 +210,9 @@ class ProcessRunner(BaseDashRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+            wait.until(
+                lambda: self.accessible(self.url), timeout=start_timeout
+            )
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
@@ -253,7 +255,7 @@ class RRunner(ProcessRunner):
         """Start the server with subprocess and Rscript."""
 
         # app is a R string chunk
-        if (os.path.isfile(app) and os.path.exists(app)):
+        if os.path.isfile(app) and os.path.exists(app):
             # app is already a file in a dir - use that as cwd
             if not cwd:
                 cwd = os.path.dirname(app)
@@ -307,7 +309,9 @@ class RRunner(ProcessRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+            wait.until(
+                lambda: self.accessible(self.url), timeout=start_timeout
+            )
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")

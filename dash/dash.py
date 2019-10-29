@@ -24,6 +24,7 @@ import plotly
 import dash_renderer
 
 from .dependencies import Input, Output, State
+from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
 from .development.base_component import Component, ComponentRegistry
 from . import exceptions
@@ -212,6 +213,7 @@ class Dash(object):
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
+        eager_loading=False,
         include_assets_files=True,
         url_base_pathname=None,
         requests_pathname_prefix=None,
@@ -227,6 +229,11 @@ class Dash(object):
         plugins=None,
         **obsolete
     ):
+        # Apply _force_eager_loading overrides from modules
+        for module_name in ComponentRegistry.registry:
+            module = sys.modules[module_name]
+            eager = getattr(module, '_force_eager_loading', False)
+            eager_loading = eager_loading or eager
 
         for key in obsolete:
             if key in ["components_cache_max_age", "static_folder"]:
@@ -288,6 +295,7 @@ class Dash(object):
                 "name",
                 "assets_folder",
                 "assets_url_path",
+                "eager_loading",
                 "url_base_pathname",
                 "routes_pathname_prefix",
                 "requests_pathname_prefix",
@@ -314,7 +322,7 @@ class Dash(object):
 
         # static files from the packages
         self.css = Css(serve_locally)
-        self.scripts = Scripts(serve_locally)
+        self.scripts = Scripts(serve_locally, eager_loading)
 
         self.registered_paths = collections.defaultdict(set)
 
@@ -534,12 +542,14 @@ class Dash(object):
 
             modified = int(os.stat(module_path).st_mtime)
 
-            return "{}_dash-component-suites/{}/{}?v={}&m={}".format(
+            return "{}_dash-component-suites/{}/{}".format(
                 self.config.requests_pathname_prefix,
                 namespace,
-                relative_package_path,
-                importlib.import_module(namespace).__version__,
-                modified,
+                build_fingerprint(
+                    relative_package_path,
+                    importlib.import_module(namespace).__version__,
+                    modified,
+                ),
             )
 
         srcs = []
@@ -612,7 +622,9 @@ class Dash(object):
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
-                self.scripts._resources._filter_resources(deps, dev_bundles=dev)
+                self.scripts._resources._filter_resources(
+                    deps, dev_bundles=dev
+                )
             )
             + self.config.external_scripts
             + self._collect_and_register_resources(
@@ -655,7 +667,9 @@ class Dash(object):
 
         tags = []
         if not has_ie_compat:
-            tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
+            tags.append(
+                '<meta http-equiv="X-UA-Compatible" content="IE=edge">'
+            )
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
 
@@ -665,6 +679,10 @@ class Dash(object):
 
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
+        path_in_package_dist, has_fingerprint = check_fingerprint(
+            path_in_package_dist
+        )
+
         if package_name not in self.registered_paths:
             raise exceptions.DependencyException(
                 "Error loading dependency.\n"
@@ -700,10 +718,27 @@ class Dash(object):
             package.__path__,
         )
 
-        return flask.Response(
+        response = flask.Response(
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype,
         )
+
+        if has_fingerprint:
+            # Fingerprinted resources are good forever (1 year)
+            # No need for ETag as the fingerprint changes with each build
+            response.cache_control.max_age = 31536000  # 1 year
+        else:
+            # Non-fingerprinted resources are given an ETag that
+            # will be used / check on future requests
+            response.add_etag()
+            tag = response.get_etag()[0]
+
+            request_etag = flask.request.headers.get('If-None-Match')
+
+            if '"{}"'.format(tag) == request_etag:
+                response = flask.Response(None, status=304)
+
+        return response
 
     def index(self, *args, **kwargs):  # pylint: disable=unused-argument
         scripts = self._generate_scripts_html()
@@ -931,7 +966,9 @@ class Dash(object):
                             {2}
                         """
                             ).format(
-                                arg_prop, arg_id, component.available_properties
+                                arg_prop,
+                                arg_id,
+                                component.available_properties,
                             )
                         )
 
@@ -1071,8 +1108,9 @@ class Dash(object):
                     location_header=(
                         "The value in question is located at"
                         if not toplevel
-                        else "The value in question is either the only value returned,"
-                        "\nor is in the top level of the returned list,"
+                        else "The value in question is either the only value "
+                        "returned,\nor is in the top level of the returned "
+                        "list,"
                     ),
                     location=(
                         "\n"
@@ -1456,7 +1494,8 @@ class Dash(object):
     @staticmethod
     def _serve_default_favicon():
         return flask.Response(
-            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
+            pkgutil.get_data("dash", "favicon.ico"),
+            content_type="image/x-icon",
         )
 
     def get_asset_url(self, path):
