@@ -309,6 +309,7 @@ class RRunner(ProcessRunner):
                     shutil.rmtree(target)
                 logger.debug("copying %s into tmp %s", asset, tmp)
                 dir_util.copy_tree(asset, target)
+                logger.debug("copied with %s", os.listdir(target))
 
         logger.info("Run dashR app with Rscript => %s", app)
         args = shlex.split(
