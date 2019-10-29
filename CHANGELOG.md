@@ -2,13 +2,16 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [1.5.0] - 2019-10-29
 ### Added
-- [#964](https://github.com/plotly/dash/pull/964) Adds support for preventing
-updates in clientside functions. 
+- [#964](https://github.com/plotly/dash/pull/964) Adds support for preventing updates in clientside functions.
   - Reject all updates with `throw window.dash_clientside.PreventUpdate;`
   - Reject a single output by returning `window.dash_clientside.no_update`
 - [#899](https://github.com/plotly/dash/pull/899) Add support for async dependencies and components
+- [#973](https://github.com/plotly/dash/pull/973) Adds support for resource caching and adds a fallback caching mechanism through etag
+
+### Fixed
+- [#974](https://github.com/plotly/dash/pull/974) Fix and improve a percy snapshot behavior issue we found in dash-docs testing. It adds a flag `wait_for_callbacks` to ensure that, in the context of a dash app testing, the percy snapshot action will happen only after all callbacks get fired.
 
 ## [1.4.1] - 2019-10-17
 ### Fixed
