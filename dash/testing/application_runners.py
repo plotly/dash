@@ -338,7 +338,10 @@ class RRunner(ProcessRunner):
 
         try:
             self.proc = subprocess.Popen(
-                args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=self.tmp_app_path if self.tmp_app_path else cwd,
             )
             # wait until server is able to answer http request
             wait.until(
