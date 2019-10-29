@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixed
+- [#986](https://github.com/plotly/dash/pull/986) Fix bug with evaluation of `_force_eager_loading` when application is loaded with gunicorn
+
 ## [1.5.0] - 2019-10-29
 ### Added
 - [#964](https://github.com/plotly/dash/pull/964) Adds support for preventing updates in clientside functions.
