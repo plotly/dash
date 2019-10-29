@@ -1436,9 +1436,8 @@ class Dash(object):
             eager = getattr(module, '_force_eager_loading', False)
             eager_loading = eager_loading or eager
 
-        # static files from the packages
-        self.css = Css(self.css.config.serve_locally)
-        self.scripts = Scripts(self.scripts.config.serve_locally, eager_loading)
+        # Update eager_loading settings
+        self.scripts.config.eager_loading = eager_loading
 
         if self.config.include_assets_files:
             self._walk_assets_directory()
