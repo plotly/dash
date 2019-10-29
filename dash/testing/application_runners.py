@@ -7,7 +7,7 @@ import shlex
 import threading
 import shutil
 import subprocess
-from distutils import dir_util
+import distutils
 import logging
 import inspect
 
@@ -308,7 +308,7 @@ class RRunner(ProcessRunner):
                     logger.debug("delete existing target %s", target)
                     shutil.rmtree(target)
                 logger.debug("copying %s into tmp %s", asset, tmp)
-                dir_util.copy_tree(asset, target)
+                distutils.dir_util.copy_tree(asset, target)
                 logger.debug("copied with %s", os.listdir(target))
 
         logger.info("Run dashR app with Rscript => %s", app)
