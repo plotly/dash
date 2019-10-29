@@ -87,6 +87,74 @@ window["dash_renderer"] =
 /************************************************************************/
 /******/ ({
 
+/***/ "./node_modules/@plotly/dash-component-plugins/src/asyncImport.js":
+/*!************************************************************************!*\
+  !*** ./node_modules/@plotly/dash-component-plugins/src/asyncImport.js ***!
+  \************************************************************************/
+/*! exports provided: asyncDecorator, isReady */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "asyncDecorator", function() { return asyncDecorator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isReady", function() { return isReady; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+
+
+const asyncDecorator = (target, promise) => {
+    let resolve;
+    const isReady = new Promise(r => {
+        resolve = r;
+    });
+
+    const state = {
+        isReady,
+        get: Object(react__WEBPACK_IMPORTED_MODULE_0__["lazy"])(() => {
+            return Promise.resolve(promise()).then(res => {
+                setTimeout(async () => {
+                    await resolve(true);
+                    state.isReady = true;
+                }, 0);
+
+                return res;
+            });
+        }),
+    };
+
+    Object.defineProperty(target, '_dashprivate_isLazyComponentReady', {
+        get: () => state.isReady,
+    });
+
+    return state.get;
+};
+
+const isReady = target => target &&
+    target._dashprivate_isLazyComponentReady;
+
+
+/***/ }),
+
+/***/ "./node_modules/@plotly/dash-component-plugins/src/index.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/@plotly/dash-component-plugins/src/index.js ***!
+  \******************************************************************/
+/*! exports provided: asyncDecorator, isReady */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _asyncImport__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./asyncImport */ "./node_modules/@plotly/dash-component-plugins/src/asyncImport.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "asyncDecorator", function() { return _asyncImport__WEBPACK_IMPORTED_MODULE_0__["asyncDecorator"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isReady", function() { return _asyncImport__WEBPACK_IMPORTED_MODULE_0__["isReady"]; });
+
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/base64-js/index.js":
 /*!*****************************************!*\
   !*** ./node_modules/base64-js/index.js ***!
@@ -31476,7 +31544,7 @@ var zipWith = /*#__PURE__*/Object(_internal_curry3_js__WEBPACK_IMPORTED_MODULE_0
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/** @license React v16.10.2
+/** @license React v16.11.0
  * react-is.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -33294,6 +33362,743 @@ function warning(message) {
 
 /***/ }),
 
+/***/ "./node_modules/regenerator-runtime/runtime.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/regenerator-runtime/runtime.js ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+var runtime = (function (exports) {
+  "use strict";
+
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
+  }
+  exports.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  exports.isGeneratorFunction = function(genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor
+      ? ctor === GeneratorFunction ||
+        // For the native GeneratorFunction constructor, the best we can
+        // do is to check its .name property.
+        (ctor.displayName || ctor.name) === "GeneratorFunction"
+      : false;
+  };
+
+  exports.mark = function(genFun) {
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
+  exports.awrap = function(arg) {
+    return { __await: arg };
+  };
+
+  function AsyncIterator(generator) {
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
+          });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration.
+          result.value = unwrapped;
+          resolve(result);
+        }, function(error) {
+          // If a rejected Promise was yielded, throw the rejection back
+          // into the async generator function so it can be handled there.
+          return invoke("throw", error, resolve, reject);
+        });
+      }
+    }
+
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
+        // If enqueue has been called before, then we want to wait until
+        // all previous Promises have been resolved before calling invoke,
+        // so that results are always delivered in the correct order. If
+        // enqueue has not been called before, then it is important to
+        // call invoke immediately, without waiting on a callback to fire,
+        // so that the async generator function has the opportunity to do
+        // any necessary setup in a predictable way. This predictability
+        // is why the Promise constructor synchronously invokes its
+        // executor callback, and why async functions synchronously
+        // execute code before the first await. Since we implement simple
+        // async functions in terms of async generators, it is especially
+        // important to get this right, even though it requires care.
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+    return this;
+  };
+  exports.AsyncIterator = AsyncIterator;
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  exports.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return exports.isGeneratorFunction(outerFn)
+      ? iter // If outerFn is a generator, return the full iterator.
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var delegateResult = maybeInvokeDelegate(delegate, context);
+          if (delegateResult) {
+            if (delegateResult === ContinueSentinel) continue;
+            return delegateResult;
+          }
+        }
+
+        if (context.method === "next") {
+          // Setting context._sent for legacy support of Babel's
+          // function.sent implementation.
+          context.sent = context._sent = context.arg;
+
+        } else if (context.method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw context.arg;
+          }
+
+          context.dispatchException(context.arg);
+
+        } else if (context.method === "return") {
+          context.abrupt("return", context.arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done
+            ? GenStateCompleted
+            : GenStateSuspendedYield;
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done
+          };
+
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(context.arg) call above.
+          context.method = "throw";
+          context.arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Call delegate.iterator[context.method](context.arg) and handle the
+  // result, either by returning a { value, done } result from the
+  // delegate iterator, or by modifying context.method and context.arg,
+  // setting context.delegate to null, and returning the ContinueSentinel.
+  function maybeInvokeDelegate(delegate, context) {
+    var method = delegate.iterator[context.method];
+    if (method === undefined) {
+      // A .throw or .return when the delegate iterator has no .throw
+      // method always terminates the yield* loop.
+      context.delegate = null;
+
+      if (context.method === "throw") {
+        // Note: ["return"] must be used for ES3 parsing compatibility.
+        if (delegate.iterator["return"]) {
+          // If the delegate iterator has a return method, give it a
+          // chance to clean up.
+          context.method = "return";
+          context.arg = undefined;
+          maybeInvokeDelegate(delegate, context);
+
+          if (context.method === "throw") {
+            // If maybeInvokeDelegate(context) changed context.method from
+            // "return" to "throw", let that override the TypeError below.
+            return ContinueSentinel;
+          }
+        }
+
+        context.method = "throw";
+        context.arg = new TypeError(
+          "The iterator does not provide a 'throw' method");
+      }
+
+      return ContinueSentinel;
+    }
+
+    var record = tryCatch(method, delegate.iterator, context.arg);
+
+    if (record.type === "throw") {
+      context.method = "throw";
+      context.arg = record.arg;
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    var info = record.arg;
+
+    if (! info) {
+      context.method = "throw";
+      context.arg = new TypeError("iterator result is not an object");
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    if (info.done) {
+      // Assign the result of the finished delegate to the temporary
+      // variable specified by delegate.resultName (see delegateYield).
+      context[delegate.resultName] = info.value;
+
+      // Resume execution at the desired location (see delegateYield).
+      context.next = delegate.nextLoc;
+
+      // If context.method was "throw" but the delegate handled the
+      // exception, let the outer generator proceed normally. If
+      // context.method was "next", forget context.arg since it has been
+      // "consumed" by the delegate iterator. If context.method was
+      // "return", allow the original .return call to continue in the
+      // outer generator.
+      if (context.method !== "return") {
+        context.method = "next";
+        context.arg = undefined;
+      }
+
+    } else {
+      // Re-yield the result returned by the delegate method.
+      return info;
+    }
+
+    // The delegate iterator is finished, so forget it and continue with
+    // the outer generator.
+    context.delegate = null;
+    return ContinueSentinel;
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[toStringTagSymbol] = "Generator";
+
+  // A Generator should always return itself as the iterator object when the
+  // @@iterator function is called on it. Some browsers' implementations of the
+  // iterator prototype chain incorrectly implement this, causing the Generator
+  // object to not be returned from this call. This ensures that doesn't happen.
+  // See https://github.com/facebook/regenerator/issues/274 for more details.
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
+
+  Gp.toString = function() {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  exports.keys = function(object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1, next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  exports.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      // Resetting context._sent for legacy support of Babel's
+      // function.sent implementation.
+      this.sent = this._sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.method = "next";
+      this.arg = undefined;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+
+        if (caught) {
+          // If the dispatched exception was caught by a catch block,
+          // then let that catch block handle the exception normally.
+          context.method = "next";
+          context.arg = undefined;
+        }
+
+        return !! caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev &&
+            hasOwn.call(entry, "finallyLoc") &&
+            this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry &&
+          (type === "break" ||
+           type === "continue") &&
+          finallyEntry.tryLoc <= arg &&
+          arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.method = "next";
+        this.next = finallyEntry.finallyLoc;
+        return ContinueSentinel;
+      }
+
+      return this.complete(record);
+    },
+
+    complete: function(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" ||
+          record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = this.arg = record.arg;
+        this.method = "return";
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      if (this.method === "next") {
+        // Deliberately forget the last sent value so that we don't
+        // accidentally pass it on to the delegate.
+        this.arg = undefined;
+      }
+
+      return ContinueSentinel;
+    }
+  };
+
+  // Regardless of whether this script is executing as a CommonJS module
+  // or not, return the runtime object so that we can declare the variable
+  // regeneratorRuntime in the outer scope, which allows this module to be
+  // injected easily by `bin/regenerator --include-runtime script.js`.
+  return exports;
+
+}(
+  // If this script is executing as a CommonJS module, use module.exports
+  // as the regeneratorRuntime namespace. Otherwise create a new empty
+  // object. Either way, the resulting object will be used to initialize
+  // the regeneratorRuntime variable at the top of this file.
+   true ? module.exports : undefined
+));
+
+try {
+  regeneratorRuntime = runtime;
+} catch (accidentalStrictMode) {
+  // This module should not be running in strict mode, so the above
+  // assignment should always work unless something is misconfigured. Just
+  // in case runtime.js accidentally runs in strict mode, we can escape
+  // strict mode using a global Function call. This could conceivably fail
+  // if a Content Security Policy forbids using Function, but in that case
+  // the proper solution is to fix the accidental strict mode problem. If
+  // you've misconfigured your bundler to force strict mode and applied a
+  // CSP to forbid Function, and you're not willing to fix either of those
+  // problems, please detail your unique predicament in a GitHub issue.
+  Function("r", "regeneratorRuntime = r")(runtime);
+}
+
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js":
 /*!****************************************************************************!*\
   !*** ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js ***!
@@ -34612,6 +35417,7 @@ function (_Component) {
         if (Object(ramda__WEBPACK_IMPORTED_MODULE_13__["isEmpty"])(layout)) {
           var finalLayout = Object(_persistence__WEBPACK_IMPORTED_MODULE_19__["applyPersistence"])(layoutRequest.content, dispatch);
           dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_18__["setLayout"])(finalLayout));
+          dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_18__["setAppIsReady"])());
         } else if (Object(ramda__WEBPACK_IMPORTED_MODULE_13__["isNil"])(paths)) {
           dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_18__["computePaths"])({
             subTree: layout,
@@ -35020,10 +35826,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_23___default = /*#__PURE__*/__webpack_require__.n(react_redux__WEBPACK_IMPORTED_MODULE_23__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./actions */ "./src/actions/index.js");
-/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./persistence */ "./src/persistence.js");
-/* harmony import */ var _components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./components/error/ComponentErrorBoundary.react */ "./src/components/error/ComponentErrorBoundary.react.js");
-/* harmony import */ var check_prop_types__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! check-prop-types */ "./node_modules/check-prop-types/index.js");
-/* harmony import */ var check_prop_types__WEBPACK_IMPORTED_MODULE_28___default = /*#__PURE__*/__webpack_require__.n(check_prop_types__WEBPACK_IMPORTED_MODULE_28__);
+/* harmony import */ var _isSimpleComponent__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./isSimpleComponent */ "./src/isSimpleComponent.js");
+/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./persistence */ "./src/persistence.js");
+/* harmony import */ var _components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./components/error/ComponentErrorBoundary.react */ "./src/components/error/ComponentErrorBoundary.react.js");
+/* harmony import */ var check_prop_types__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! check-prop-types */ "./node_modules/check-prop-types/index.js");
+/* harmony import */ var check_prop_types__WEBPACK_IMPORTED_MODULE_29___default = /*#__PURE__*/__webpack_require__.n(check_prop_types__WEBPACK_IMPORTED_MODULE_29__);
 
 
 
@@ -35088,11 +35895,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 
-var SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
 
-var isSimpleComponent = function isSimpleComponent(component) {
-  return Object(ramda__WEBPACK_IMPORTED_MODULE_24__["includes"])(Object(ramda__WEBPACK_IMPORTED_MODULE_24__["type"])(component), SIMPLE_COMPONENT_TYPES);
-};
 
 function validateComponent(componentDefinition) {
   if (Object(ramda__WEBPACK_IMPORTED_MODULE_24__["type"])(componentDefinition) === 'Array') {
@@ -35105,7 +35908,7 @@ function validateComponent(componentDefinition) {
 }
 
 var createContainer = function createContainer(component, path) {
-  return isSimpleComponent(component) ? component : react__WEBPACK_IMPORTED_MODULE_19___default.a.createElement(AugmentedTreeContainer, {
+  return Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_26__["default"])(component) ? component : react__WEBPACK_IMPORTED_MODULE_19___default.a.createElement(AugmentedTreeContainer, {
     key: component && component.props && component.props.id,
     _dashprivate_layout: component,
     _dashprivate_path: path
@@ -35118,7 +35921,7 @@ function CheckedComponent(p) {
       props = p.props,
       children = p.children,
       type = p.type;
-  var errorMessage = check_prop_types__WEBPACK_IMPORTED_MODULE_28___default()(element.propTypes, props, 'component prop', element);
+  var errorMessage = check_prop_types__WEBPACK_IMPORTED_MODULE_29___default()(element.propTypes, props, 'component prop', element);
 
   if (errorMessage) {
     Object(_exceptions__WEBPACK_IMPORTED_MODULE_22__["propTypeErrorHandler"])(errorMessage, props, type);
@@ -35167,14 +35970,14 @@ function (_Component) {
         return null;
       }
 
-      if (isSimpleComponent(_dashprivate_layout)) {
+      if (Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_26__["default"])(_dashprivate_layout)) {
         return _dashprivate_layout;
       }
 
       validateComponent(_dashprivate_layout);
       var element = _registry__WEBPACK_IMPORTED_MODULE_21__["default"].resolve(_dashprivate_layout);
       var props = Object(ramda__WEBPACK_IMPORTED_MODULE_24__["omit"])(['children'], _dashprivate_layout.props);
-      return _dashprivate_config.props_check ? react__WEBPACK_IMPORTED_MODULE_19___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_27__["default"], {
+      return _dashprivate_config.props_check ? react__WEBPACK_IMPORTED_MODULE_19___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_28__["default"], {
         componentType: _dashprivate_layout.type,
         componentId: _dashprivate_layout.props.id,
         key: element && element.props && element.props.id
@@ -35187,7 +35990,7 @@ function (_Component) {
           setProps: setProps
         },
         type: _dashprivate_layout.type
-      })) : react__WEBPACK_IMPORTED_MODULE_19___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_27__["default"], {
+      })) : react__WEBPACK_IMPORTED_MODULE_19___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_28__["default"], {
         componentType: _dashprivate_layout.type,
         componentId: _dashprivate_layout.props.id,
         key: element && element.props && element.props.id
@@ -35222,7 +36025,7 @@ function (_Component) {
         })(Object(ramda__WEBPACK_IMPORTED_MODULE_24__["keysIn"])(newProps)); // setProps here is triggered by the UI - record these changes
         // for persistence
 
-        Object(_persistence__WEBPACK_IMPORTED_MODULE_26__["recordUiEdit"])(_dashprivate_layout, newProps, _dashprivate_dispatch); // Always update this component's props
+        Object(_persistence__WEBPACK_IMPORTED_MODULE_27__["recordUiEdit"])(_dashprivate_layout, newProps, _dashprivate_dispatch); // Always update this component's props
 
         _dashprivate_dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_25__["updateProps"])({
           props: newProps,
@@ -35304,7 +36107,7 @@ function getNestedIds(layout) {
 
     if (children) {
       var filteredChildren = Object(ramda__WEBPACK_IMPORTED_MODULE_24__["filter"])(function (child) {
-        return !isSimpleComponent(child) && !isLoadingComponent(child);
+        return !Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_26__["default"])(child) && !isLoadingComponent(child);
       }, Array.isArray(children) ? children : [children]);
       queue.push.apply(queue, _toConsumableArray(filteredChildren));
     }
@@ -35485,7 +36288,8 @@ var actionList = {
   SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
   SET_CONFIG: 'SET_CONFIG',
   ON_ERROR: 'ON_ERROR',
-  SET_HOOKS: 'SET_HOOKS'
+  SET_HOOKS: 'SET_HOOKS',
+  SET_APP_READY: 'SET_APP_READY'
 };
 var getAction = function getAction(action) {
   if (actionList[action]) {
@@ -35501,7 +36305,7 @@ var getAction = function getAction(action) {
 /*!******************************!*\
   !*** ./src/actions/index.js ***!
   \******************************/
-/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setLayout, setAppLifecycle, setConfig, setHooks, onError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
+/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setAppLifecycle, setConfig, setHooks, setLayout, onError, setAppIsReady, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -35510,10 +36314,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRequestQueue", function() { return setRequestQueue; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "computeGraphs", function() { return computeGraphs; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "computePaths", function() { return computePaths; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLayout", function() { return setLayout; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setAppLifecycle", function() { return setAppLifecycle; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setConfig", function() { return setConfig; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setHooks", function() { return setHooks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLayout", function() { return setLayout; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onError", function() { return onError; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hydrateInitialOutputs", function() { return hydrateInitialOutputs; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCSRFHeader", function() { return getCSRFHeader; });
@@ -35575,17 +36379,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_24___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_24__);
 /* harmony import */ var core_js_modules_web_dom_collections_iterator__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! core-js/modules/web.dom-collections.iterator */ "./node_modules/core-js/modules/web.dom-collections.iterator.js");
 /* harmony import */ var core_js_modules_web_dom_collections_iterator__WEBPACK_IMPORTED_MODULE_25___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_iterator__WEBPACK_IMPORTED_MODULE_25__);
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/lib/index.js");
-/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_27___default = /*#__PURE__*/__webpack_require__.n(redux_actions__WEBPACK_IMPORTED_MODULE_27__);
-/* harmony import */ var _reducers_utils__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../reducers/utils */ "./src/reducers/utils.js");
-/* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../reducers/constants */ "./src/reducers/constants.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./constants */ "./src/actions/constants.js");
-/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! cookie */ "./node_modules/cookie/index.js");
-/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_31___default = /*#__PURE__*/__webpack_require__.n(cookie__WEBPACK_IMPORTED_MODULE_31__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
-/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
-/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ../persistence */ "./src/persistence.js");
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! regenerator-runtime/runtime */ "./node_modules/regenerator-runtime/runtime.js");
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_26___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_26__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/lib/index.js");
+/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_28___default = /*#__PURE__*/__webpack_require__.n(redux_actions__WEBPACK_IMPORTED_MODULE_28__);
+/* harmony import */ var _reducers_utils__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../reducers/utils */ "./src/reducers/utils.js");
+/* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../reducers/constants */ "./src/reducers/constants.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./constants */ "./src/actions/constants.js");
+/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! cookie */ "./node_modules/cookie/index.js");
+/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_32___default = /*#__PURE__*/__webpack_require__.n(cookie__WEBPACK_IMPORTED_MODULE_32__);
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
+/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ../persistence */ "./src/persistence.js");
+/* harmony import */ var _setAppReadyState__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./setAppReadyState */ "./src/actions/setAppReadyState.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "setAppIsReady", function() { return _setAppReadyState__WEBPACK_IMPORTED_MODULE_36__["default"]; });
+
+
 
 
 
@@ -35621,6 +36431,10 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
@@ -35641,24 +36455,26 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-var updateProps = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('ON_PROP_CHANGE'));
-var setRequestQueue = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('SET_REQUEST_QUEUE'));
-var computeGraphs = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('COMPUTE_GRAPHS'));
-var computePaths = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('COMPUTE_PATHS'));
-var setLayout = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('SET_LAYOUT'));
-var setAppLifecycle = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('SET_APP_LIFECYCLE'));
-var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('SET_CONFIG'));
-var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('SET_HOOKS'));
-var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('ON_ERROR'));
+
+var updateProps = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_31__["getAction"])('ON_PROP_CHANGE'));
+var setRequestQueue = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_31__["getAction"])('SET_REQUEST_QUEUE'));
+var computeGraphs = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_31__["getAction"])('COMPUTE_GRAPHS'));
+var computePaths = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_31__["getAction"])('COMPUTE_PATHS'));
+var setAppLifecycle = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_31__["getAction"])('SET_APP_LIFECYCLE'));
+var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_31__["getAction"])('SET_CONFIG'));
+var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_31__["getAction"])('SET_HOOKS'));
+var setLayout = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_31__["getAction"])('SET_LAYOUT'));
+var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_31__["getAction"])('ON_ERROR'));
+
 function hydrateInitialOutputs() {
   return function (dispatch, getState) {
     triggerDefaultState(dispatch, getState);
-    dispatch(setAppLifecycle(Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_29__["getAppState"])('HYDRATED')));
+    dispatch(setAppLifecycle(Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_30__["getAppState"])('HYDRATED')));
   };
 }
 function getCSRFHeader() {
   return {
-    'X-CSRFToken': cookie__WEBPACK_IMPORTED_MODULE_31___default.a.parse(document.cookie)._csrf_token
+    'X-CSRFToken': cookie__WEBPACK_IMPORTED_MODULE_32___default.a.parse(document.cookie)._csrf_token
   };
 }
 
@@ -35692,7 +36508,7 @@ function triggerDefaultState(dispatch, getState) {
      * and the invisible inputs
      */
 
-    if (InputGraph.dependenciesOf(nodeId).length > 0 && InputGraph.dependantsOf(nodeId).length === 0 && Object(ramda__WEBPACK_IMPORTED_MODULE_26__["has"])(componentId, getState().paths)) {
+    if (InputGraph.dependenciesOf(nodeId).length > 0 && InputGraph.dependantsOf(nodeId).length === 0 && Object(ramda__WEBPACK_IMPORTED_MODULE_27__["has"])(componentId, getState().paths)) {
       inputNodeIds.push(nodeId);
     }
   });
@@ -35703,8 +36519,8 @@ function triggerDefaultState(dispatch, getState) {
         componentProp = _inputOutput$input$sp2[1]; // Get the initial property
 
 
-    var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["concat"])(getState().paths[componentId], ['props', componentProp]));
-    var propValue = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["view"])(propLens, getState().layout);
+    var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["concat"])(getState().paths[componentId], ['props', componentProp]));
+    var propValue = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["view"])(propLens, getState().layout);
     dispatch(notifyObservers({
       id: componentId,
       props: _defineProperty({}, componentProp, propValue),
@@ -35716,10 +36532,10 @@ function triggerDefaultState(dispatch, getState) {
 function redo() {
   return function (dispatch, getState) {
     var history = getState().history;
-    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])('REDO')());
+    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])('REDO')());
     var next = history.future[0]; // Update props
 
-    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])('REDO_PROP_CHANGE')({
+    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])('REDO_PROP_CHANGE')({
       itempath: getState().paths[next.id],
       props: next.props
     })); // Notify observers
@@ -35730,11 +36546,11 @@ function redo() {
     }));
   };
 }
-var UNDO = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])('UNDO')();
+var UNDO = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])('UNDO')();
 function undo() {
   return undo_revert(UNDO);
 }
-var REVERT = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])('REVERT')();
+var REVERT = Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])('REVERT')();
 function revert() {
   return undo_revert(REVERT);
 }
@@ -35745,7 +36561,7 @@ function undo_revert(undo_or_revert) {
     dispatch(undo_or_revert);
     var previous = history.past[history.past.length - 1]; // Update props
 
-    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])('UNDO_PROP_CHANGE')({
+    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_28__["createAction"])('UNDO_PROP_CHANGE')({
       itempath: getState().paths[previous.id],
       props: previous.props
     })); // Notify observers
@@ -35761,7 +36577,7 @@ function reduceInputIds(nodeIds, InputGraph) {
   /*
    * Create input-output(s) pairs,
    * sort by number of outputs,
-   * and remove redudant inputs (inputs that update the same output)
+   * and remove redundant inputs (inputs that update the same output)
    */
   var inputOutputPairs = nodeIds.map(function (nodeId) {
     return {
@@ -35771,7 +36587,7 @@ function reduceInputIds(nodeIds, InputGraph) {
       excludedOutputs: []
     };
   });
-  var sortedInputOutputPairs = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["sort"])(function (a, b) {
+  var sortedInputOutputPairs = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["sort"])(function (a, b) {
     return b.outputs.length - a.outputs.length;
   }, inputOutputPairs);
   /*
@@ -35779,7 +36595,7 @@ function reduceInputIds(nodeIds, InputGraph) {
    * trigger components to update multiple times.
    *
    * For example, [A, B] => C and [A, D] => E
-   * The unique inputs might be [A, B, D] but that is redudant.
+   * The unique inputs might be [A, B, D] but that is redundant.
    * We only need to update B and D or just A.
    *
    * In these cases, we'll supply an additional list of outputs
@@ -35787,9 +36603,9 @@ function reduceInputIds(nodeIds, InputGraph) {
    */
 
   sortedInputOutputPairs.forEach(function (pair, i) {
-    var outputsThatWillBeUpdated = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["pluck"])('outputs', Object(ramda__WEBPACK_IMPORTED_MODULE_26__["slice"])(0, i, sortedInputOutputPairs)));
+    var outputsThatWillBeUpdated = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["pluck"])('outputs', Object(ramda__WEBPACK_IMPORTED_MODULE_27__["slice"])(0, i, sortedInputOutputPairs)));
     pair.outputs.forEach(function (output) {
-      if (Object(ramda__WEBPACK_IMPORTED_MODULE_26__["includes"])(output, outputsThatWillBeUpdated)) {
+      if (Object(ramda__WEBPACK_IMPORTED_MODULE_27__["includes"])(output, outputsThatWillBeUpdated)) {
         pair.excludedOutputs.push(output);
       }
     });
@@ -35798,172 +36614,202 @@ function reduceInputIds(nodeIds, InputGraph) {
 }
 
 function notifyObservers(payload) {
-  return function (dispatch, getState) {
-    var id = payload.id,
-        props = payload.props,
-        excludedOutputs = payload.excludedOutputs;
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee(dispatch, getState) {
+        var id, props, excludedOutputs, _getState2, graphs, isAppReady, requestQueue, InputGraph, outputObservers, changedProps, depOrder, queuedObservers, newRequestQueue, promises, i, outputIdAndProp, requestUid;
 
-    var _getState2 = getState(),
-        graphs = _getState2.graphs,
-        requestQueue = _getState2.requestQueue;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                id = payload.id, props = payload.props, excludedOutputs = payload.excludedOutputs;
+                _getState2 = getState(), graphs = _getState2.graphs, isAppReady = _getState2.isAppReady, requestQueue = _getState2.requestQueue;
 
-    var InputGraph = graphs.InputGraph;
-    /*
-     * Figure out all of the output id's that depend on this input.
-     * This includes id's that are direct children as well as
-     * grandchildren.
-     * grandchildren will get filtered out in a later stage.
-     */
+                if (!(isAppReady !== true)) {
+                  _context.next = 5;
+                  break;
+                }
 
-    var outputObservers = [];
-    var changedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["keys"])(props);
-    changedProps.forEach(function (propName) {
-      var node = "".concat(id, ".").concat(propName);
+                _context.next = 5;
+                return isAppReady;
 
-      if (!InputGraph.hasNode(node)) {
-        return;
-      }
+              case 5:
+                InputGraph = graphs.InputGraph;
+                /*
+                 * Figure out all of the output id's that depend on this input.
+                 * This includes id's that are direct children as well as
+                 * grandchildren.
+                 * grandchildren will get filtered out in a later stage.
+                 */
 
-      InputGraph.dependenciesOf(node).forEach(function (outputId) {
-        /*
-         * Multiple input properties that update the same
-         * output can change at once.
-         * For example, `n_clicks` and `n_clicks_previous`
-         * on a button component.
-         * We only need to update the output once for this
-         * update, so keep outputObservers unique.
-         */
-        if (!Object(ramda__WEBPACK_IMPORTED_MODULE_26__["includes"])(outputId, outputObservers)) {
-          outputObservers.push(outputId);
-        }
-      });
-    });
+                outputObservers = [];
+                changedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["keys"])(props);
+                changedProps.forEach(function (propName) {
+                  var node = "".concat(id, ".").concat(propName);
 
-    if (excludedOutputs) {
-      outputObservers = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["reject"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["flip"])(ramda__WEBPACK_IMPORTED_MODULE_26__["includes"])(excludedOutputs), outputObservers);
-    }
+                  if (!InputGraph.hasNode(node)) {
+                    return;
+                  }
 
-    if (Object(ramda__WEBPACK_IMPORTED_MODULE_26__["isEmpty"])(outputObservers)) {
-      return;
-    }
-    /*
-     * There may be several components that depend on this input.
-     * And some components may depend on other components before
-     * updating. Get this update order straightened out.
-     */
+                  InputGraph.dependenciesOf(node).forEach(function (outputId) {
+                    /*
+                     * Multiple input properties that update the same
+                     * output can change at once.
+                     * For example, `n_clicks` and `n_clicks_previous`
+                     * on a button component.
+                     * We only need to update the output once for this
+                     * update, so keep outputObservers unique.
+                     */
+                    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_27__["includes"])(outputId, outputObservers)) {
+                      outputObservers.push(outputId);
+                    }
+                  });
+                });
+
+                if (excludedOutputs) {
+                  outputObservers = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["reject"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["flip"])(ramda__WEBPACK_IMPORTED_MODULE_27__["includes"])(excludedOutputs), outputObservers);
+                }
+
+                if (!Object(ramda__WEBPACK_IMPORTED_MODULE_27__["isEmpty"])(outputObservers)) {
+                  _context.next = 12;
+                  break;
+                }
+
+                return _context.abrupt("return");
+
+              case 12:
+                /*
+                 * There may be several components that depend on this input.
+                 * And some components may depend on other components before
+                 * updating. Get this update order straightened out.
+                 */
+                depOrder = InputGraph.overallOrder();
+                outputObservers = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["sort"])(function (a, b) {
+                  return depOrder.indexOf(b) - depOrder.indexOf(a);
+                }, outputObservers);
+                queuedObservers = [];
+                outputObservers.forEach(function filterObservers(outputIdAndProp) {
+                  var outputIds;
+
+                  if (Object(_utils__WEBPACK_IMPORTED_MODULE_33__["isMultiOutputProp"])(outputIdAndProp)) {
+                    outputIds = Object(_utils__WEBPACK_IMPORTED_MODULE_33__["parseMultipleOutputs"])(outputIdAndProp).map(function (e) {
+                      return e.split('.')[0];
+                    });
+                  } else {
+                    outputIds = [outputIdAndProp.split('.')[0]];
+                  }
+                  /*
+                   * before we make the POST to update the output, check
+                   * that the output doesn't depend on any other inputs that
+                   * that depend on the same controller.
+                   * if the output has another input with a shared controller,
+                   * then don't update this output yet.
+                   * when each dependency updates, it'll dispatch its own
+                   * `notifyObservers` action which will allow this
+                   * component to update.
+                   *
+                   * for example, if A updates B and C (A -> [B, C]) and B updates C
+                   * (B -> C), then when A updates, this logic will
+                   * reject C from the queue since it will end up getting updated
+                   * by B.
+                   *
+                   * in this case, B will already be in queuedObservers by the time
+                   * this loop hits C because of the overallOrder sorting logic
+                   */
 
 
-    var depOrder = InputGraph.overallOrder();
-    outputObservers = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["sort"])(function (a, b) {
-      return depOrder.indexOf(b) - depOrder.indexOf(a);
-    }, outputObservers);
-    var queuedObservers = [];
-    outputObservers.forEach(function filterObservers(outputIdAndProp) {
-      var outputIds;
+                  var controllers = InputGraph.dependantsOf(outputIdAndProp);
+                  var controllersInFutureQueue = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["intersection"])(queuedObservers, controllers);
+                  /*
+                   * check that the output hasn't been triggered to update already
+                   * by a different input.
+                   *
+                   * for example:
+                   * Grandparent -> [Parent A, Parent B] -> Child
+                   *
+                   * when Grandparent changes, it will trigger Parent A and Parent B
+                   * to each update Child.
+                   * one of the components (Parent A or Parent B) will queue up
+                   * the change for Child. if this update has already been queued up,
+                   * then skip the update for the other component
+                   */
 
-      if (Object(_utils__WEBPACK_IMPORTED_MODULE_32__["isMultiOutputProp"])(outputIdAndProp)) {
-        outputIds = Object(_utils__WEBPACK_IMPORTED_MODULE_32__["parseMultipleOutputs"])(outputIdAndProp).map(function (e) {
-          return e.split('.')[0];
-        });
-      } else {
-        outputIds = [outputIdAndProp.split('.')[0]];
-      }
-      /*
-       * before we make the POST to update the output, check
-       * that the output doesn't depend on any other inputs that
-       * that depend on the same controller.
-       * if the output has another input with a shared controller,
-       * then don't update this output yet.
-       * when each dependency updates, it'll dispatch its own
-       * `notifyObservers` action which will allow this
-       * component to update.
-       *
-       * for example, if A updates B and C (A -> [B, C]) and B updates C
-       * (B -> C), then when A updates, this logic will
-       * reject C from the queue since it will end up getting updated
-       * by B.
-       *
-       * in this case, B will already be in queuedObservers by the time
-       * this loop hits C because of the overallOrder sorting logic
-       */
+                  var controllerIsInExistingQueue = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["any"])(function (r) {
+                    return Object(ramda__WEBPACK_IMPORTED_MODULE_27__["includes"])(r.controllerId, controllers) && r.status === 'loading';
+                  }, requestQueue);
+                  /*
+                   * TODO - Place throttling logic here?
+                   *
+                   * Only process the last two requests for a _single_ output
+                   * at a time.
+                   *
+                   * For example, if A -> B, and A is changed 10 times, then:
+                   * 1 - processing the first two requests
+                   * 2 - if more than 2 requests come in while the first two
+                   *     are being processed, then skip updating all of the
+                   *     requests except for the last 2
+                   */
+
+                  /*
+                   * also check that this observer is actually in the current
+                   * component tree.
+                   * observers don't actually need to be rendered at the moment
+                   * of a controller change.
+                   * for example, perhaps the user has hidden one of the observers
+                   */
+
+                  if (controllersInFutureQueue.length === 0 && Object(ramda__WEBPACK_IMPORTED_MODULE_27__["any"])(function (e) {
+                    return Object(ramda__WEBPACK_IMPORTED_MODULE_27__["has"])(e, getState().paths);
+                  })(outputIds) && !controllerIsInExistingQueue) {
+                    queuedObservers.push(outputIdAndProp);
+                  }
+                });
+                /*
+                 * record the set of output IDs that will eventually need to be
+                 * updated in a queue. not all of these requests will be fired in this
+                 * action
+                 */
+
+                newRequestQueue = queuedObservers.map(function (i) {
+                  return {
+                    controllerId: i,
+                    status: 'loading',
+                    uid: Object(_utils__WEBPACK_IMPORTED_MODULE_33__["uid"])(),
+                    requestTime: Date.now()
+                  };
+                });
+                dispatch(setRequestQueue(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["concat"])(requestQueue, newRequestQueue)));
+                promises = [];
+
+                for (i = 0; i < queuedObservers.length; i++) {
+                  outputIdAndProp = queuedObservers[i];
+                  requestUid = newRequestQueue[i].uid;
+                  promises.push(updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedProps.map(function (prop) {
+                    return "".concat(id, ".").concat(prop);
+                  })));
+                }
+                /* eslint-disable consistent-return */
 
 
-      var controllers = InputGraph.dependantsOf(outputIdAndProp);
-      var controllersInFutureQueue = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["intersection"])(queuedObservers, controllers);
-      /*
-       * check that the output hasn't been triggered to update already
-       * by a different input.
-       *
-       * for example:
-       * Grandparent -> [Parent A, Parent B] -> Child
-       *
-       * when Grandparent changes, it will trigger Parent A and Parent B
-       * to each update Child.
-       * one of the components (Parent A or Parent B) will queue up
-       * the change for Child. if this update has already been queued up,
-       * then skip the update for the other component
-       */
+                return _context.abrupt("return", Promise.all(promises));
 
-      var controllerIsInExistingQueue = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["any"])(function (r) {
-        return Object(ramda__WEBPACK_IMPORTED_MODULE_26__["includes"])(r.controllerId, controllers) && r.status === 'loading';
-      }, requestQueue);
-      /*
-       * TODO - Place throttling logic here?
-       *
-       * Only process the last two requests for a _single_ output
-       * at a time.
-       *
-       * For example, if A -> B, and A is changed 10 times, then:
-       * 1 - processing the first two requests
-       * 2 - if more than 2 requests come in while the first two
-       *     are being processed, then skip updating all of the
-       *     requests except for the last 2
-       */
+              case 21:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
 
-      /*
-       * also check that this observer is actually in the current
-       * component tree.
-       * observers don't actually need to be rendered at the moment
-       * of a controller change.
-       * for example, perhaps the user has hidden one of the observers
-       */
-
-      if (controllersInFutureQueue.length === 0 && Object(ramda__WEBPACK_IMPORTED_MODULE_26__["any"])(function (e) {
-        return Object(ramda__WEBPACK_IMPORTED_MODULE_26__["has"])(e, getState().paths);
-      })(outputIds) && !controllerIsInExistingQueue) {
-        queuedObservers.push(outputIdAndProp);
-      }
-    });
-    /*
-     * record the set of output IDs that will eventually need to be
-     * updated in a queue. not all of these requests will be fired in this
-     * action
-     */
-
-    var newRequestQueue = queuedObservers.map(function (i) {
-      return {
-        controllerId: i,
-        status: 'loading',
-        uid: Object(_utils__WEBPACK_IMPORTED_MODULE_32__["uid"])(),
-        requestTime: Date.now()
+      return function (_x, _x2) {
+        return _ref.apply(this, arguments);
       };
-    });
-    dispatch(setRequestQueue(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["concat"])(requestQueue, newRequestQueue)));
-    var promises = [];
-
-    for (var i = 0; i < queuedObservers.length; i++) {
-      var outputIdAndProp = queuedObservers[i];
-      var requestUid = newRequestQueue[i].uid;
-      promises.push(updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedProps.map(function (prop) {
-        return "".concat(id, ".").concat(prop);
-      })));
-    }
-    /* eslint-disable consistent-return */
-
-
-    return Promise.all(promises);
-    /* eslint-enable consistent-return */
-  };
+    }()
+  );
 }
 
 function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPropIds) {
@@ -35978,7 +36824,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
 
   var getThisRequestIndex = function getThisRequestIndex() {
     var postRequestQueue = getState().requestQueue;
-    var thisRequestIndex = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["findIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["propEq"])('uid', requestUid), postRequestQueue);
+    var thisRequestIndex = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["findIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["propEq"])('uid', requestUid), postRequestQueue);
     return thisRequestIndex;
   };
 
@@ -35991,7 +36837,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
       return;
     }
 
-    var updatedQueue = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["adjust"])(thisRequestIndex, Object(ramda__WEBPACK_IMPORTED_MODULE_26__["mergeLeft"])({
+    var updatedQueue = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["adjust"])(thisRequestIndex, Object(ramda__WEBPACK_IMPORTED_MODULE_27__["mergeLeft"])({
       status: status,
       responseTime: Date.now(),
       rejected: rejected
@@ -36031,39 +36877,39 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
       state = _dependenciesRequest$.state,
       clientside_function = _dependenciesRequest$.clientside_function;
 
-  var validKeys = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["keys"])(getState().paths);
+  var validKeys = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["keys"])(getState().paths);
   payload.inputs = inputs.map(function (inputObject) {
     // Make sure the component id exists in the layout
-    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_26__["includes"])(inputObject.id, validKeys)) {
+    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_27__["includes"])(inputObject.id, validKeys)) {
       throw new ReferenceError('An invalid input object was used in an ' + '`Input` of a Dash callback. ' + 'The id of this object is `' + inputObject.id + '` and the property is `' + inputObject.property + '`. The list of ids in the current layout is ' + '`[' + validKeys.join(', ') + ']`');
     }
 
-    var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["concat"])(getState().paths[inputObject.id], ['props', inputObject.property]));
+    var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["concat"])(getState().paths[inputObject.id], ['props', inputObject.property]));
     return {
       id: inputObject.id,
       property: inputObject.property,
-      value: Object(ramda__WEBPACK_IMPORTED_MODULE_26__["view"])(propLens, layout)
+      value: Object(ramda__WEBPACK_IMPORTED_MODULE_27__["view"])(propLens, layout)
     };
   });
   var inputsPropIds = inputs.map(function (p) {
     return "".concat(p.id, ".").concat(p.property);
   });
   payload.changedPropIds = changedPropIds.filter(function (p) {
-    return Object(ramda__WEBPACK_IMPORTED_MODULE_26__["includes"])(p, inputsPropIds);
+    return Object(ramda__WEBPACK_IMPORTED_MODULE_27__["includes"])(p, inputsPropIds);
   });
 
   if (state.length > 0) {
     payload.state = state.map(function (stateObject) {
       // Make sure the component id exists in the layout
-      if (!Object(ramda__WEBPACK_IMPORTED_MODULE_26__["includes"])(stateObject.id, validKeys)) {
+      if (!Object(ramda__WEBPACK_IMPORTED_MODULE_27__["includes"])(stateObject.id, validKeys)) {
         throw new ReferenceError('An invalid input object was used in a ' + '`State` object of a Dash callback. ' + 'The id of this object is `' + stateObject.id + '` and the property is `' + stateObject.property + '`. The list of ids in the current layout is ' + '`[' + validKeys.join(', ') + ']`');
       }
 
-      var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["concat"])(getState().paths[stateObject.id], ['props', stateObject.property]));
+      var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["concat"])(getState().paths[stateObject.id], ['props', stateObject.property]));
       return {
         id: stateObject.id,
         property: stateObject.property,
-        value: Object(ramda__WEBPACK_IMPORTED_MODULE_26__["view"])(propLens, layout)
+        value: Object(ramda__WEBPACK_IMPORTED_MODULE_27__["view"])(propLens, layout)
       };
     });
   }
@@ -36082,10 +36928,10 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
     // or if persistence changed, whether this updates other props.
 
 
-    var updatedProps2 = Object(_persistence__WEBPACK_IMPORTED_MODULE_34__["prunePersistence"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["path"])(itempath, layout), updatedProps, dispatch); // In case the update contains whole components, see if any of
+    var updatedProps2 = Object(_persistence__WEBPACK_IMPORTED_MODULE_35__["prunePersistence"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["path"])(itempath, layout), updatedProps, dispatch); // In case the update contains whole components, see if any of
     // those components have props to update to persist user edits.
 
-    var _applyPersistence = Object(_persistence__WEBPACK_IMPORTED_MODULE_34__["applyPersistence"])({
+    var _applyPersistence = Object(_persistence__WEBPACK_IMPORTED_MODULE_35__["applyPersistence"])({
       props: updatedProps2
     }, dispatch),
         props = _applyPersistence.props;
@@ -36113,7 +36959,15 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
        */
 
 
-      updateRequestQueue(false, _constants_constants__WEBPACK_IMPORTED_MODULE_33__["STATUS"].OK); // Update the layout with the new result
+      updateRequestQueue(false, _constants_constants__WEBPACK_IMPORTED_MODULE_34__["STATUS"].OK);
+      /*
+       * Prevent update.
+       */
+
+      if (outputValue === window.dash_clientside.no_update) {
+        return;
+      } // Update the layout with the new result
+
 
       var appliedProps = doUpdateProps(outputId, updatedProps);
       /*
@@ -36130,13 +36984,45 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
     };
 
     var returnValue;
+    /*
+     * Create the dash_clientside namespace if it doesn't exist and inject
+     * no_update and PreventUpdate.
+     */
+
+    if (!window.dash_clientside) {
+      window.dash_clientside = {};
+    }
+
+    if (!window.dash_clientside.no_update) {
+      Object.defineProperty(window.dash_clientside, 'no_update', {
+        value: {
+          description: 'Return to prevent updating an Output.'
+        },
+        writable: false
+      });
+      Object.defineProperty(window.dash_clientside, 'PreventUpdate', {
+        value: {
+          description: 'Throw to prevent updating all Outputs.'
+        },
+        writable: false
+      });
+    }
 
     try {
       var _window$dash_clientsi;
 
-      returnValue = (_window$dash_clientsi = window.dash_clientside[clientside_function.namespace])[clientside_function.function_name].apply(_window$dash_clientsi, _toConsumableArray(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["pluck"])('value', payload.inputs)).concat(_toConsumableArray(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["has"])('state', payload) ? Object(ramda__WEBPACK_IMPORTED_MODULE_26__["pluck"])('value', payload.state) : [])));
+      returnValue = (_window$dash_clientsi = window.dash_clientside[clientside_function.namespace])[clientside_function.function_name].apply(_window$dash_clientsi, _toConsumableArray(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["pluck"])('value', payload.inputs)).concat(_toConsumableArray(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["has"])('state', payload) ? Object(ramda__WEBPACK_IMPORTED_MODULE_27__["pluck"])('value', payload.state) : [])));
     } catch (e) {
+      /*
+       * Prevent all updates.
+       */
+      if (e === window.dash_clientside.PreventUpdate) {
+        updateRequestQueue(true, _constants_constants__WEBPACK_IMPORTED_MODULE_34__["STATUS"].PREVENT_UPDATE);
+        return;
+      }
       /* eslint-disable no-console */
+
+
       console.error("The following error occurred while executing ".concat(clientside_function.namespace, ".").concat(clientside_function.function_name, " ") + "in order to update component \"".concat(payload.output, "\" \u22C1\u22C1\u22C1"));
       console.error(e);
       /* eslint-enable no-console */
@@ -36147,22 +37033,22 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
        * mechanism
        */
 
-      updateRequestQueue(true, _constants_constants__WEBPACK_IMPORTED_MODULE_33__["STATUS"].CLIENTSIDE_ERROR);
+      updateRequestQueue(true, _constants_constants__WEBPACK_IMPORTED_MODULE_34__["STATUS"].CLIENTSIDE_ERROR);
       return;
     } // Returning promises isn't support atm
 
 
-    if (Object(ramda__WEBPACK_IMPORTED_MODULE_26__["type"])(returnValue) === 'Promise') {
+    if (Object(ramda__WEBPACK_IMPORTED_MODULE_27__["type"])(returnValue) === 'Promise') {
       /* eslint-disable no-console */
       console.error('The clientside function ' + "".concat(clientside_function.namespace, ".").concat(clientside_function.function_name, " ") + 'returned a Promise instead of a value. Promises are not ' + 'supported in Dash clientside right now, but may be in the ' + 'future.');
       /* eslint-enable no-console */
 
-      updateRequestQueue(true, _constants_constants__WEBPACK_IMPORTED_MODULE_33__["STATUS"].CLIENTSIDE_ERROR);
+      updateRequestQueue(true, _constants_constants__WEBPACK_IMPORTED_MODULE_34__["STATUS"].CLIENTSIDE_ERROR);
       return;
     }
 
-    if (Object(_utils__WEBPACK_IMPORTED_MODULE_32__["isMultiOutputProp"])(payload.output)) {
-      Object(_utils__WEBPACK_IMPORTED_MODULE_32__["parseMultipleOutputs"])(payload.output).forEach(function (outputPropId, i) {
+    if (Object(_utils__WEBPACK_IMPORTED_MODULE_33__["isMultiOutputProp"])(payload.output)) {
+      Object(_utils__WEBPACK_IMPORTED_MODULE_33__["parseMultipleOutputs"])(payload.output).forEach(function (outputPropId, i) {
         updateClientsideOutput(outputPropId, returnValue[i]);
       });
     } else {
@@ -36186,14 +37072,14 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
   /* eslint-disable consistent-return */
 
 
-  return fetch("".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_32__["urlBase"])(config), "_dash-update-component"), Object(ramda__WEBPACK_IMPORTED_MODULE_26__["mergeDeepRight"])(config.fetch, {
+  return fetch("".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_33__["urlBase"])(config), "_dash-update-component"), Object(ramda__WEBPACK_IMPORTED_MODULE_27__["mergeDeepRight"])(config.fetch, {
     /* eslint-enable consistent-return */
     method: 'POST',
     headers: getCSRFHeader(),
     body: JSON.stringify(payload)
   })).then(function handleResponse(res) {
     var isRejected = function isRejected() {
-      var latestRequestIndex = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["findLastIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["propEq"])('controllerId', outputIdAndProp), getState().requestQueue);
+      var latestRequestIndex = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["findLastIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["propEq"])('controllerId', outputIdAndProp), getState().requestQueue);
       /*
        * Note that if the latest request is still `loading`
        * or even if the latest request failed,
@@ -36205,14 +37091,14 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
       return rejected;
     };
 
-    if (res.status !== _constants_constants__WEBPACK_IMPORTED_MODULE_33__["STATUS"].OK) {
+    if (res.status !== _constants_constants__WEBPACK_IMPORTED_MODULE_34__["STATUS"].OK) {
       // update the status of this request
       updateRequestQueue(true, res.status);
       /*
        * This is a 204 response code, there's no content to process.
        */
 
-      if (res.status === _constants_constants__WEBPACK_IMPORTED_MODULE_33__["STATUS"].PREVENT_UPDATE) {
+      if (res.status === _constants_constants__WEBPACK_IMPORTED_MODULE_34__["STATUS"].PREVENT_UPDATE) {
         return;
       }
       /*
@@ -36264,10 +37150,10 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
 
       var multi = data.multi;
 
-      var handleResponse = function handleResponse(_ref) {
-        var _ref2 = _slicedToArray(_ref, 2),
-            outputIdAndProp = _ref2[0],
-            props = _ref2[1];
+      var handleResponse = function handleResponse(_ref2) {
+        var _ref3 = _slicedToArray(_ref2, 2),
+            outputIdAndProp = _ref3[0],
+            props = _ref3[1];
 
         // Backward compatibility
         var pathKey = multi ? outputIdAndProp : outputComponentId;
@@ -36287,11 +37173,11 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
          * TODO - Do we need to wait for updateProps to finish?
          */
 
-        if (Object(ramda__WEBPACK_IMPORTED_MODULE_26__["has"])('children', appliedProps)) {
+        if (Object(ramda__WEBPACK_IMPORTED_MODULE_27__["has"])('children', appliedProps)) {
           var newChildren = appliedProps.children;
           dispatch(computePaths({
             subTree: newChildren,
-            startingPath: Object(ramda__WEBPACK_IMPORTED_MODULE_26__["concat"])(getState().paths[pathKey], ['props', 'children'])
+            startingPath: Object(ramda__WEBPACK_IMPORTED_MODULE_27__["concat"])(getState().paths[pathKey], ['props', 'children'])
           }));
           /*
            * if children contains objects with IDs, then we
@@ -36299,7 +37185,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
            * new children components
            */
 
-          if (Object(ramda__WEBPACK_IMPORTED_MODULE_26__["includes"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["type"])(newChildren), ['Array', 'Object']) && !Object(ramda__WEBPACK_IMPORTED_MODULE_26__["isEmpty"])(newChildren)) {
+          if (Object(ramda__WEBPACK_IMPORTED_MODULE_27__["includes"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["type"])(newChildren), ['Array', 'Object']) && !Object(ramda__WEBPACK_IMPORTED_MODULE_27__["isEmpty"])(newChildren)) {
             /*
              * TODO: We're just naively crawling
              * the _entire_ layout to recompute the
@@ -36308,12 +37194,12 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
              * to compute the subtree
              */
             var newProps = {};
-            Object(_reducers_utils__WEBPACK_IMPORTED_MODULE_28__["crawlLayout"])(newChildren, function appendIds(child) {
-              if (Object(_reducers_utils__WEBPACK_IMPORTED_MODULE_28__["hasId"])(child)) {
-                Object(ramda__WEBPACK_IMPORTED_MODULE_26__["keys"])(child.props).forEach(function (childProp) {
+            Object(_reducers_utils__WEBPACK_IMPORTED_MODULE_29__["crawlLayout"])(newChildren, function appendIds(child) {
+              if (Object(_reducers_utils__WEBPACK_IMPORTED_MODULE_29__["hasId"])(child)) {
+                Object(ramda__WEBPACK_IMPORTED_MODULE_27__["keys"])(child.props).forEach(function (childProp) {
                   var componentIdAndProp = "".concat(child.props.id, ".").concat(childProp);
 
-                  if (Object(ramda__WEBPACK_IMPORTED_MODULE_26__["has"])(componentIdAndProp, InputGraph.nodes)) {
+                  if (Object(ramda__WEBPACK_IMPORTED_MODULE_27__["has"])(componentIdAndProp, InputGraph.nodes)) {
                     newProps[componentIdAndProp] = {
                       id: child.props.id,
                       props: _defineProperty({}, childProp, child.props[childProp])
@@ -36349,22 +37235,22 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
              */
 
             var outputIds = [];
-            Object(ramda__WEBPACK_IMPORTED_MODULE_26__["keys"])(newProps).forEach(function (idAndProp) {
+            Object(ramda__WEBPACK_IMPORTED_MODULE_27__["keys"])(newProps).forEach(function (idAndProp) {
               if ( // It's an output
               InputGraph.dependenciesOf(idAndProp).length === 0 &&
               /*
                * And none of its inputs are generated in this
                * request
                */
-              Object(ramda__WEBPACK_IMPORTED_MODULE_26__["intersection"])(InputGraph.dependantsOf(idAndProp), Object(ramda__WEBPACK_IMPORTED_MODULE_26__["keys"])(newProps)).length === 0) {
+              Object(ramda__WEBPACK_IMPORTED_MODULE_27__["intersection"])(InputGraph.dependantsOf(idAndProp), Object(ramda__WEBPACK_IMPORTED_MODULE_27__["keys"])(newProps)).length === 0) {
                 outputIds.push(idAndProp);
                 delete newProps[idAndProp];
               }
             }); // Dispatch updates to inputs
 
-            var reducedNodeIds = reduceInputIds(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["keys"])(newProps), InputGraph);
+            var reducedNodeIds = reduceInputIds(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["keys"])(newProps), InputGraph);
             var depOrder = InputGraph.overallOrder();
-            var sortedNewProps = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["sort"])(function (a, b) {
+            var sortedNewProps = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["sort"])(function (a, b) {
               return depOrder.indexOf(a.input) - depOrder.indexOf(b.input);
             }, reducedNodeIds);
             sortedNewProps.forEach(function (inputOutput) {
@@ -36374,8 +37260,8 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
             }); // Dispatch updates to lone outputs
 
             outputIds.forEach(function (idAndProp) {
-              var requestUid = Object(_utils__WEBPACK_IMPORTED_MODULE_32__["uid"])();
-              dispatch(setRequestQueue(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["append"])({
+              var requestUid = Object(_utils__WEBPACK_IMPORTED_MODULE_33__["uid"])();
+              dispatch(setRequestQueue(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["append"])({
                 // TODO - Are there any implications of doing this??
                 controllerId: null,
                 status: 'loading',
@@ -36385,6 +37271,8 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
               updateOutput(idAndProp, getState, requestUid, dispatch, changedPropIds);
             });
           }
+
+          dispatch(Object(_setAppReadyState__WEBPACK_IMPORTED_MODULE_36__["default"])());
         }
       };
 
@@ -36395,7 +37283,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
       }
     });
   })["catch"](function (err) {
-    var message = "Callback error updating ".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_32__["isMultiOutputProp"])(payload.output) ? Object(_utils__WEBPACK_IMPORTED_MODULE_32__["parseMultipleOutputs"])(payload.output).join(', ') : payload.output);
+    var message = "Callback error updating ".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_33__["isMultiOutputProp"])(payload.output) ? Object(_utils__WEBPACK_IMPORTED_MODULE_33__["parseMultipleOutputs"])(payload.output).join(', ') : payload.output);
     handleAsyncError(err, message, dispatch);
   });
 }
@@ -36421,7 +37309,7 @@ function serialize(state) {
   var InputGraph = graphs.InputGraph;
   var allNodes = InputGraph.nodes;
   var savedState = {};
-  Object(ramda__WEBPACK_IMPORTED_MODULE_26__["keys"])(allNodes).forEach(function (nodeId) {
+  Object(ramda__WEBPACK_IMPORTED_MODULE_27__["keys"])(allNodes).forEach(function (nodeId) {
     var _nodeId$split = nodeId.split('.'),
         _nodeId$split2 = _slicedToArray(_nodeId$split, 2),
         componentId = _nodeId$split2[0],
@@ -36432,15 +37320,214 @@ function serialize(state) {
      */
 
 
-    if (InputGraph.dependenciesOf(nodeId).length > 0 && Object(ramda__WEBPACK_IMPORTED_MODULE_26__["has"])(componentId, paths)) {
+    if (InputGraph.dependenciesOf(nodeId).length > 0 && Object(ramda__WEBPACK_IMPORTED_MODULE_27__["has"])(componentId, paths)) {
       // Get the property
-      var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_26__["concat"])(paths[componentId], ['props', componentProp]));
-      var propValue = Object(ramda__WEBPACK_IMPORTED_MODULE_26__["view"])(propLens, layout);
+      var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_27__["concat"])(paths[componentId], ['props', componentProp]));
+      var propValue = Object(ramda__WEBPACK_IMPORTED_MODULE_27__["view"])(propLens, layout);
       savedState[nodeId] = propValue;
     }
   });
   return savedState;
 }
+
+/***/ }),
+
+/***/ "./src/actions/setAppReadyState.js":
+/*!*****************************************!*\
+  !*** ./src/actions/setAppReadyState.js ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var core_js_modules_es_symbol__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.symbol */ "./node_modules/core-js/modules/es.symbol.js");
+/* harmony import */ var core_js_modules_es_symbol__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_symbol__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var core_js_modules_es_symbol_description__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! core-js/modules/es.symbol.description */ "./node_modules/core-js/modules/es.symbol.description.js");
+/* harmony import */ var core_js_modules_es_symbol_description__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_symbol_description__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var core_js_modules_es_symbol_iterator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! core-js/modules/es.symbol.iterator */ "./node_modules/core-js/modules/es.symbol.iterator.js");
+/* harmony import */ var core_js_modules_es_symbol_iterator__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_symbol_iterator__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var core_js_modules_es_array_for_each__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! core-js/modules/es.array.for-each */ "./node_modules/core-js/modules/es.array.for-each.js");
+/* harmony import */ var core_js_modules_es_array_for_each__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_for_each__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var core_js_modules_es_array_from__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! core-js/modules/es.array.from */ "./node_modules/core-js/modules/es.array.from.js");
+/* harmony import */ var core_js_modules_es_array_from__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_from__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var core_js_modules_es_array_is_array__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! core-js/modules/es.array.is-array */ "./node_modules/core-js/modules/es.array.is-array.js");
+/* harmony import */ var core_js_modules_es_array_is_array__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_is_array__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var core_js_modules_es_array_iterator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! core-js/modules/es.array.iterator */ "./node_modules/core-js/modules/es.array.iterator.js");
+/* harmony import */ var core_js_modules_es_array_iterator__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_iterator__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var core_js_modules_es_date_to_string__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! core-js/modules/es.date.to-string */ "./node_modules/core-js/modules/es.date.to-string.js");
+/* harmony import */ var core_js_modules_es_date_to_string__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_date_to_string__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var core_js_modules_es_object_entries__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! core-js/modules/es.object.entries */ "./node_modules/core-js/modules/es.object.entries.js");
+/* harmony import */ var core_js_modules_es_object_entries__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_entries__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var core_js_modules_es_object_to_string__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! core-js/modules/es.object.to-string */ "./node_modules/core-js/modules/es.object.to-string.js");
+/* harmony import */ var core_js_modules_es_object_to_string__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_to_string__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var core_js_modules_es_promise__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! core-js/modules/es.promise */ "./node_modules/core-js/modules/es.promise.js");
+/* harmony import */ var core_js_modules_es_promise__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_promise__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var core_js_modules_es_regexp_to_string__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! core-js/modules/es.regexp.to-string */ "./node_modules/core-js/modules/es.regexp.to-string.js");
+/* harmony import */ var core_js_modules_es_regexp_to_string__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_regexp_to_string__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var core_js_modules_es_string_iterator__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! core-js/modules/es.string.iterator */ "./node_modules/core-js/modules/es.string.iterator.js");
+/* harmony import */ var core_js_modules_es_string_iterator__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_iterator__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_13__);
+/* harmony import */ var core_js_modules_web_dom_collections_iterator__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! core-js/modules/web.dom-collections.iterator */ "./node_modules/core-js/modules/web.dom-collections.iterator.js");
+/* harmony import */ var core_js_modules_web_dom_collections_iterator__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_iterator__WEBPACK_IMPORTED_MODULE_14__);
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! regenerator-runtime/runtime */ "./node_modules/regenerator-runtime/runtime.js");
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_15__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/lib/index.js");
+/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(redux_actions__WEBPACK_IMPORTED_MODULE_17__);
+/* harmony import */ var _isSimpleComponent__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../isSimpleComponent */ "./src/isSimpleComponent.js");
+/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./../registry */ "./src/registry.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./constants */ "./src/actions/constants.js");
+/* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! @plotly/dash-component-plugins */ "./node_modules/@plotly/dash-component-plugins/src/index.js");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+
+
+
+
+
+
+
+var isAppReady = function isAppReady(layout) {
+  var queue = [layout];
+  var res = {};
+  /* Would be much simpler if the Registry was aware of what it contained... */
+
+  while (queue.length) {
+    var elementLayout = queue.shift();
+
+    if (!elementLayout) {
+      continue;
+    }
+
+    var children = elementLayout.props && elementLayout.props.children;
+    var namespace = elementLayout.namespace;
+    var type = elementLayout.type;
+    res[namespace] = res[namespace] || {};
+    res[namespace][type] = type;
+
+    if (children) {
+      var filteredChildren = Object(ramda__WEBPACK_IMPORTED_MODULE_16__["filter"])(function (child) {
+        return !Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_18__["default"])(child);
+      }, Array.isArray(children) ? children : [children]);
+      queue.push.apply(queue, _toConsumableArray(filteredChildren));
+    }
+  }
+
+  var promises = [];
+  Object.entries(res).forEach(function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2),
+        namespace = _ref2[0],
+        item = _ref2[1];
+
+    Object.entries(item).forEach(function (_ref3) {
+      var _ref4 = _slicedToArray(_ref3, 1),
+          type = _ref4[0];
+
+      var component = _registry__WEBPACK_IMPORTED_MODULE_19__["default"].resolve({
+        namespace: namespace,
+        type: type
+      });
+      var ready = Object(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_21__["isReady"])(component);
+
+      if (ready && typeof ready.then === 'function') {
+        promises.push(ready);
+      }
+    });
+  });
+  return promises.length ? Promise.all(promises) : true;
+};
+
+var setAction = Object(redux_actions__WEBPACK_IMPORTED_MODULE_17__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_20__["getAction"])('SET_APP_READY'));
+/* harmony default export */ __webpack_exports__["default"] = (function () {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref5 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee(dispatch, getState) {
+        var ready;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                ready = isAppReady(getState().layout);
+
+                if (!(ready === true)) {
+                  _context.next = 5;
+                  break;
+                }
+
+                /* All async is ready */
+                dispatch(setAction(true));
+                _context.next = 9;
+                break;
+
+              case 5:
+                /* Waiting on async */
+                dispatch(setAction(ready));
+                _context.next = 8;
+                return ready;
+
+              case 8:
+                /**
+                 * All known async is ready.
+                 *
+                 * Callbacks were blocked while waiting, we can safely
+                 * assume that no update to layout happened to invalidate.
+                 */
+                dispatch(setAction(true));
+
+              case 9:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      return function (_x, _x2) {
+        return _ref5.apply(this, arguments);
+      };
+    }()
+  );
+});
 
 /***/ }),
 
@@ -38957,12 +40044,27 @@ function propTypeErrorHandler(message, props, type) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DashRenderer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DashRenderer */ "./src/DashRenderer.js");
-/* eslint-env browser */
-
-
  // make DashRenderer globally available
 
 window.DashRenderer = _DashRenderer__WEBPACK_IMPORTED_MODULE_0__["DashRenderer"];
+
+/***/ }),
+
+/***/ "./src/isSimpleComponent.js":
+/*!**********************************!*\
+  !*** ./src/isSimpleComponent.js ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+
+var SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
+/* harmony default export */ __webpack_exports__["default"] = (function (component) {
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(component), SIMPLE_COMPONENT_TYPES);
+});
 
 /***/ }),
 
@@ -40084,6 +41186,31 @@ var customHooks = function customHooks() {
 
 /***/ }),
 
+/***/ "./src/reducers/isAppReady.js":
+/*!************************************!*\
+  !*** ./src/reducers/isAppReady.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return config; });
+/* harmony import */ var _actions_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions/constants */ "./src/actions/constants.js");
+
+function config() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  if (action.type === Object(_actions_constants__WEBPACK_IMPORTED_MODULE_0__["getAction"])('SET_APP_READY')) {
+    return action.payload;
+  }
+
+  return state;
+}
+
+/***/ }),
+
 /***/ "./src/reducers/layout.js":
 /*!********************************!*\
   !*** ./src/reducers/layout.js ***!
@@ -40222,16 +41349,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var core_js_modules_web_dom_collections_iterator__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_iterator__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/index.js");
-/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
-/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
-/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
-/* harmony import */ var _requestQueue__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./requestQueue */ "./src/reducers/requestQueue.js");
-/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
-/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
-/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
-/* harmony import */ var _hooks__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
-/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
+/* harmony import */ var _isAppReady__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./isAppReady */ "./src/reducers/isAppReady.js");
+/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
+/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
+/* harmony import */ var _requestQueue__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./requestQueue */ "./src/reducers/requestQueue.js");
+/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
+/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
+/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
+/* harmony import */ var _hooks__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
+/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
 
 
 
@@ -40269,22 +41397,24 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 
+
 var apiRequests = ['dependenciesRequest', 'layoutRequest', 'reloadRequest', 'loginRequest'];
 
 function mainReducer() {
   var parts = {
-    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_20__["default"],
-    layout: _layout__WEBPACK_IMPORTED_MODULE_16__["default"],
-    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_17__["default"],
-    paths: _paths__WEBPACK_IMPORTED_MODULE_18__["default"],
-    requestQueue: _requestQueue__WEBPACK_IMPORTED_MODULE_19__["default"],
-    config: _config__WEBPACK_IMPORTED_MODULE_25__["default"],
-    history: _history__WEBPACK_IMPORTED_MODULE_21__["default"],
-    error: _error__WEBPACK_IMPORTED_MODULE_22__["default"],
-    hooks: _hooks__WEBPACK_IMPORTED_MODULE_23__["default"]
+    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_21__["default"],
+    isAppReady: _isAppReady__WEBPACK_IMPORTED_MODULE_16__["default"],
+    layout: _layout__WEBPACK_IMPORTED_MODULE_17__["default"],
+    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_18__["default"],
+    paths: _paths__WEBPACK_IMPORTED_MODULE_19__["default"],
+    requestQueue: _requestQueue__WEBPACK_IMPORTED_MODULE_20__["default"],
+    config: _config__WEBPACK_IMPORTED_MODULE_26__["default"],
+    history: _history__WEBPACK_IMPORTED_MODULE_22__["default"],
+    error: _error__WEBPACK_IMPORTED_MODULE_23__["default"],
+    hooks: _hooks__WEBPACK_IMPORTED_MODULE_24__["default"]
   };
   Object(ramda__WEBPACK_IMPORTED_MODULE_14__["forEach"])(function (r) {
-    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_24__["default"])(r);
+    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_25__["default"])(r);
   }, apiRequests);
   return Object(redux__WEBPACK_IMPORTED_MODULE_15__["combineReducers"])(parts);
 }
