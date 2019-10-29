@@ -11,7 +11,7 @@ valid_resources = [
     {'path': 'dash.plotly.js', 'fingerprint': 'dash.v1m1.plotly.js'},
     {'path': 'dash.plotly.j_s', 'fingerprint': 'dash.v1m1.plotly.j_s'},
     {'path': 'dash.plotly.css', 'fingerprint': 'dash.v1m1.plotly.css'},
-    {'path': 'dash.plotly.xxx.yyy.zzz', 'fingerprint': 'dash.v1m1.plotly.xxx.yyy.zzz'}
+    {'path': 'dash.plotly.xxx.yyy.zzz', 'fingerprint': 'dash.v1m1.plotly.xxx.yyy.zzz'},
     {'path': 'dash~plotly.js', 'fingerprint': 'dash~plotly.v1m1.js'}
 ]
 
