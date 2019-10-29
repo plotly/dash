@@ -24,7 +24,7 @@ const getCurrentScript = function() {
 };
 
 const isLocalScript = function(script) {
-    return /\/_dash-components-suite\//.test(script.src);
+    return /\\\/_dash-component-suites\\\//.test(script.src);
 };
 
 Object.defineProperty(__webpack_require__, 'p', {

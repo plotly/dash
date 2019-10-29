@@ -1,6 +1,6 @@
 import re
 
-build_regex = re.compile(r'^(?P<filename>[\w@-]+)(?P<extension>.*)$')
+build_regex = re.compile(r'^(?P<filename>[\w@~-]+)(?P<extension>.*)$')
 
 check_regex = re.compile(
     r'^(?P<filename>.*)[.]v[\w-]+m[0-9a-fA-F]+(?P<extension>(?:(?:(?<![.])[.])?[\w])+)$'
