@@ -12,6 +12,7 @@ valid_resources = [
     {'path': 'dash.plotly.j_s', 'fingerprint': 'dash.v1m1.plotly.j_s'},
     {'path': 'dash.plotly.css', 'fingerprint': 'dash.v1m1.plotly.css'},
     {'path': 'dash.plotly.xxx.yyy.zzz', 'fingerprint': 'dash.v1m1.plotly.xxx.yyy.zzz'}
+    {'path': 'dash~plotly.js', 'fingerprint': 'dash~plotly.v1m1.js'}
 ]
 
 valid_fingerprints = [
@@ -23,7 +24,8 @@ valid_fingerprints = [
     'dash.plotly.v1_1_1-alpha1m1234567890.js',
     'dash.plotly.v1_1_1-alpha_3m1234567890.js',
     'dash.plotly.v1_1_1m1234567890123.js',
-    'dash.plotly.v1_1_1m4bc3.js'
+    'dash.plotly.v1_1_1m4bc3.js',
+    'dash~plotly.v1m1.js'
 ]
 
 invalid_fingerprints = [
