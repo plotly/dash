@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Fixed
+- [#987](https://github.com/plotly/dash/pull/987) Fix cache string handling for component suites with nested folders in their packages.
 - [#986](https://github.com/plotly/dash/pull/986) Fix a bug with evaluation of `_force_eager_loading` when application is loaded with gunicorn
 
 ## [1.5.0] - 2019-10-29
