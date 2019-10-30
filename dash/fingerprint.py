@@ -1,31 +1,27 @@
 import re
 
-build_regex = re.compile(r'^(?P<filename>[\w@~-]+)(?P<extension>.*)$')
-
-check_regex = re.compile(
-    r'^(?P<filename>.*)[.]v[\w-]+m[0-9a-fA-F]+(?P<extension>(?:(?:(?<![.])[.])?[\w])+)$'
-)
+cache_regex = re.compile(r"^v[\w-]+m[0-9a-fA-F]+$")
 
 
 def build_fingerprint(path, version, hash_value):
-    res = build_regex.match(path)
+    path_parts = path.split("/")
+    filename, extension = path_parts[-1].split(".", 1)
 
-    return '{}.v{}m{}{}'.format(
-        res.group('filename'),
-        str(version).replace('.', '_'),
+    return "{}.v{}m{}.{}".format(
+        "/".join(path_parts[:-1] + [filename]),
+        str(version).replace(".", "_"),
         hash_value,
-        res.group('extension'),
+        extension,
     )
 
 
 def check_fingerprint(path):
-    # Check if the resource has a fingerprint
-    res = check_regex.match(path)
+    path_parts = path.split("/")
+    name_parts = path_parts[-1].split(".")
 
-    # Resolve real resource name from fingerprinted resource path
-    return (
-        res.group('filename') + res.group('extension')
-        if res is not None
-        else path,
-        res is not None,
-    )
+    # Check if the resource has a fingerprint
+    if len(name_parts) > 2 and cache_regex.match(name_parts[1]):
+        original_name = ".".join([name_parts[0]] + name_parts[2:])
+        return "/".join(path_parts[:-1] + [original_name]), True
+
+    return path, False
