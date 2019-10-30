@@ -229,12 +229,6 @@ class Dash(object):
         plugins=None,
         **obsolete
     ):
-        # Apply _force_eager_loading overrides from modules
-        for module_name in ComponentRegistry.registry:
-            module = sys.modules[module_name]
-            eager = getattr(module, '_force_eager_loading', False)
-            eager_loading = eager_loading or eager
-
         for key in obsolete:
             if key in ["components_cache_max_age", "static_folder"]:
                 raise exceptions.ObsoleteKwargException(
@@ -272,6 +266,7 @@ class Dash(object):
             assets_external_path=get_combined_config(
                 "assets_external_path", assets_external_path, ""
             ),
+            eager_loading=eager_loading,
             include_assets_files=get_combined_config(
                 "include_assets_files", include_assets_files, True
             ),
@@ -1434,6 +1429,16 @@ class Dash(object):
             component_ids.add(component_id)
 
     def _setup_server(self):
+        # Apply _force_eager_loading overrides from modules
+        eager_loading = self.config.eager_loading
+        for module_name in ComponentRegistry.registry:
+            module = sys.modules[module_name]
+            eager = getattr(module, '_force_eager_loading', False)
+            eager_loading = eager_loading or eager
+
+        # Update eager_loading settings
+        self.scripts.config.eager_loading = eager_loading
+
         if self.config.include_assets_files:
             self._walk_assets_directory()
 
