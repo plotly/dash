@@ -54,9 +54,9 @@ export function hydrateInitialOutputs() {
     };
 }
 
-export function getCSRFHeader() {
+export function getCSRFHeader(config = {headerName: 'X-CSRFToken', cookieName: '_csrf_token'}) {
     return {
-        'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
+        [config.headerName]: cookie.parse(document.cookie)[config.cookieName],
     };
 }
 
@@ -708,7 +708,7 @@ function updateOutput(
             /* eslint-enable consistent-return */
 
             method: 'POST',
-            headers: getCSRFHeader(),
+            headers: getCSRFHeader(hooks.csrf_config),
             body: JSON.stringify(payload),
         })
     )

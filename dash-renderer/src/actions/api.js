@@ -3,22 +3,22 @@ import {mergeDeepRight} from 'ramda';
 import {handleAsyncError, getCSRFHeader} from '../actions';
 import {urlBase} from '../utils';
 
-function GET(path, fetchConfig) {
+function GET(path, fetchConfig, csrfConfig) {
     return fetch(
         path,
         mergeDeepRight(fetchConfig, {
             method: 'GET',
-            headers: getCSRFHeader(),
+            headers: getCSRFHeader(csrfConfig),
         })
     );
 }
 
-function POST(path, fetchConfig, body = {}) {
+function POST(path, fetchConfig, csrfConfig, body = {}) {
     return fetch(
         path,
         mergeDeepRight(fetchConfig, {
             method: 'POST',
-            headers: getCSRFHeader(),
+            headers: getCSRFHeader(csrfConfig),
             body: body ? JSON.stringify(body) : null,
         })
     );
@@ -28,14 +28,14 @@ const request = {GET, POST};
 
 export default function apiThunk(endpoint, method, store, id, body) {
     return (dispatch, getState) => {
-        const config = getState().config;
+        const {config, hooks} = getState();
         const url = `${urlBase(config)}${endpoint}`;
 
         dispatch({
             type: store,
             payload: {id, status: 'loading'},
         });
-        return request[method](url, config.fetch, body)
+        return request[method](url, config.fetch, hooks.csrf_config, body)
             .then(res => {
                 const contentType = res.headers.get('content-type');
                 if (

@@ -20,6 +20,7 @@ AppProvider.propTypes = {
     hooks: PropTypes.shape({
         request_pre: PropTypes.func,
         request_post: PropTypes.func,
+        csrf_config: PropTypes.object,
     }),
 };
 
@@ -27,6 +28,7 @@ AppProvider.defaultProps = {
     hooks: {
         request_pre: null,
         request_post: null,
+        csrf_config: null,
     },
 };
 
