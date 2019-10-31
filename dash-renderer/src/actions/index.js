@@ -480,15 +480,15 @@ function updateOutput(
         if (!includes(inputObject.id, validKeys)) {
             throw new ReferenceError(
                 'An invalid input object was used in an ' +
-                '`Input` of a Dash callback. ' +
-                'The id of this object is `' +
-                inputObject.id +
-                '` and the property is `' +
-                inputObject.property +
-                '`. The list of ids in the current layout is ' +
-                '`[' +
-                validKeys.join(', ') +
-                ']`'
+                    '`Input` of a Dash callback. ' +
+                    'The id of this object is `' +
+                    inputObject.id +
+                    '` and the property is `' +
+                    inputObject.property +
+                    '`. The list of ids in the current layout is ' +
+                    '`[' +
+                    validKeys.join(', ') +
+                    ']`'
             );
         }
         const propLens = lensPath(
@@ -516,15 +516,15 @@ function updateOutput(
             if (!includes(stateObject.id, validKeys)) {
                 throw new ReferenceError(
                     'An invalid input object was used in a ' +
-                    '`State` object of a Dash callback. ' +
-                    'The id of this object is `' +
-                    stateObject.id +
-                    '` and the property is `' +
-                    stateObject.property +
-                    '`. The list of ids in the current layout is ' +
-                    '`[' +
-                    validKeys.join(', ') +
-                    ']`'
+                        '`State` object of a Dash callback. ' +
+                        'The id of this object is `' +
+                        stateObject.id +
+                        '` and the property is `' +
+                        stateObject.property +
+                        '`. The list of ids in the current layout is ' +
+                        '`[' +
+                        validKeys.join(', ') +
+                        ']`'
                 );
             }
             const propLens = lensPath(
@@ -599,7 +599,7 @@ function updateOutput(
         try {
             returnValue = window.dash_clientside[clientside_function.namespace][
                 clientside_function.function_name
-                ](
+            ](
                 ...pluck('value', payload.inputs),
                 ...(has('state', payload) ? pluck('value', payload.state) : [])
             );
@@ -615,7 +615,7 @@ function updateOutput(
             /* eslint-disable no-console */
             console.error(
                 `The following error occurred while executing ${clientside_function.namespace}.${clientside_function.function_name} ` +
-                `in order to update component "${payload.output}" ⋁⋁⋁`
+                    `in order to update component "${payload.output}" ⋁⋁⋁`
             );
             console.error(e);
             /* eslint-enable no-console */
@@ -635,10 +635,10 @@ function updateOutput(
             /* eslint-disable no-console */
             console.error(
                 'The clientside function ' +
-                `${clientside_function.namespace}.${clientside_function.function_name} ` +
-                'returned a Promise instead of a value. Promises are not ' +
-                'supported in Dash clientside right now, but may be in the ' +
-                'future.'
+                    `${clientside_function.namespace}.${clientside_function.function_name} ` +
+                    'returned a Promise instead of a value. Promises are not ' +
+                    'supported in Dash clientside right now, but may be in the ' +
+                    'future.'
             );
             /* eslint-enable no-console */
             updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
@@ -714,263 +714,263 @@ function updateOutput(
             body: JSON.stringify(payload),
         })
     )
-    .then(function handleResponse(res) {
-        const isRejected = () => {
-            const latestRequestIndex = findLastIndex(
-                propEq('controllerId', outputIdAndProp),
-                getState().requestQueue
-            );
-            /*
-             * Note that if the latest request is still `loading`
-             * or even if the latest request failed,
-             * we still reject this response in favor of waiting
-             * for the latest request to finish.
-             */
-            const rejected = latestRequestIndex > getThisRequestIndex();
-            return rejected;
-        };
+        .then(function handleResponse(res) {
+            const isRejected = () => {
+                const latestRequestIndex = findLastIndex(
+                    propEq('controllerId', outputIdAndProp),
+                    getState().requestQueue
+                );
+                /*
+                 * Note that if the latest request is still `loading`
+                 * or even if the latest request failed,
+                 * we still reject this response in favor of waiting
+                 * for the latest request to finish.
+                 */
+                const rejected = latestRequestIndex > getThisRequestIndex();
+                return rejected;
+            };
 
-        if (res.status !== STATUS.OK) {
-            // update the status of this request
-            updateRequestQueue(true, res.status);
+            if (res.status !== STATUS.OK) {
+                // update the status of this request
+                updateRequestQueue(true, res.status);
 
-            /*
-             * This is a 204 response code, there's no content to process.
-             */
-            if (res.status === STATUS.PREVENT_UPDATE) {
-                return;
+                /*
+                 * This is a 204 response code, there's no content to process.
+                 */
+                if (res.status === STATUS.PREVENT_UPDATE) {
+                    return;
+                }
+
+                /*
+                 * eject into `catch` handler below to display error
+                 * message in ui
+                 */
+                throw res;
             }
 
             /*
-             * eject into `catch` handler below to display error
-             * message in ui
-             */
-            throw res;
-        }
-
-        /*
-         * Check to see if another request has already come back
-         * _after_ this one.
-         * If so, ignore this request.
-         */
-        if (isRejected()) {
-            updateRequestQueue(true, res.status);
-            return;
-        }
-
-        res.json().then(function handleJson(data) {
-            /*
-             * Even if the `res` was received in the correct order,
-             * the remainder of the response (res.json()) could happen
-             * at different rates causing the parsed responses to
-             * get out of order
+             * Check to see if another request has already come back
+             * _after_ this one.
+             * If so, ignore this request.
              */
             if (isRejected()) {
                 updateRequestQueue(true, res.status);
                 return;
             }
 
-            updateRequestQueue(false, res.status);
-
-            // Fire custom request_post hook if any
-            if (hooks.request_post !== null) {
-                hooks.request_post(payload, data.response);
-            }
-
-            /*
-             * it's possible that this output item is no longer visible.
-             * for example, the could still be request running when
-             * the user switched the chapter
-             *
-             * if it's not visible, then ignore the rest of the updates
-             * to the store
-             */
-
-            const multi = data.multi;
-
-            const handleResponse = ([outputIdAndProp, props]) => {
-                // Backward compatibility
-                const pathKey = multi ? outputIdAndProp : outputComponentId;
-
-                const appliedProps = doUpdateProps(pathKey, props);
-                if (!appliedProps) {
+            res.json().then(function handleJson(data) {
+                /*
+                 * Even if the `res` was received in the correct order,
+                 * the remainder of the response (res.json()) could happen
+                 * at different rates causing the parsed responses to
+                 * get out of order
+                 */
+                if (isRejected()) {
+                    updateRequestQueue(true, res.status);
                     return;
                 }
 
-                dispatch(
-                    notifyObservers({
-                        id: pathKey,
-                        props: appliedProps,
-                    })
-                );
+                updateRequestQueue(false, res.status);
+
+                // Fire custom request_post hook if any
+                if (hooks.request_post !== null) {
+                    hooks.request_post(payload, data.response);
+                }
 
                 /*
-                 * If the response includes children, then we need to update our
-                 * paths store.
-                 * TODO - Do we need to wait for updateProps to finish?
+                 * it's possible that this output item is no longer visible.
+                 * for example, the could still be request running when
+                 * the user switched the chapter
+                 *
+                 * if it's not visible, then ignore the rest of the updates
+                 * to the store
                  */
-                if (has('children', appliedProps)) {
-                    const newChildren = appliedProps.children;
+
+                const multi = data.multi;
+
+                const handleResponse = ([outputIdAndProp, props]) => {
+                    // Backward compatibility
+                    const pathKey = multi ? outputIdAndProp : outputComponentId;
+
+                    const appliedProps = doUpdateProps(pathKey, props);
+                    if (!appliedProps) {
+                        return;
+                    }
+
                     dispatch(
-                        computePaths({
-                            subTree: newChildren,
-                            startingPath: concat(
-                                getState().paths[pathKey],
-                                ['props', 'children']
-                            ),
+                        notifyObservers({
+                            id: pathKey,
+                            props: appliedProps,
                         })
                     );
 
                     /*
-                     * if children contains objects with IDs, then we
-                     * need to dispatch a propChange for all of these
-                     * new children components
+                     * If the response includes children, then we need to update our
+                     * paths store.
+                     * TODO - Do we need to wait for updateProps to finish?
                      */
-                    if (
-                        includes(type(newChildren), ['Array', 'Object']) &&
-                        !isEmpty(newChildren)
-                    ) {
+                    if (has('children', appliedProps)) {
+                        const newChildren = appliedProps.children;
+                        dispatch(
+                            computePaths({
+                                subTree: newChildren,
+                                startingPath: concat(
+                                    getState().paths[pathKey],
+                                    ['props', 'children']
+                                ),
+                            })
+                        );
+
                         /*
-                         * TODO: We're just naively crawling
-                         * the _entire_ layout to recompute the
-                         * the dependency graphs.
-                         * We don't need to do this - just need
-                         * to compute the subtree
+                         * if children contains objects with IDs, then we
+                         * need to dispatch a propChange for all of these
+                         * new children components
                          */
-                        const newProps = {};
-                        crawlLayout(newChildren, function appendIds(child) {
-                            if (hasId(child)) {
-                                keys(child.props).forEach(childProp => {
-                                    const componentIdAndProp = `${child.props.id}.${childProp}`;
-                                    if (
-                                        has(
-                                            componentIdAndProp,
-                                            InputGraph.nodes
-                                        )
-                                    ) {
-                                        newProps[componentIdAndProp] = {
-                                            id: child.props.id,
-                                            props: {
-                                                [childProp]:
-                                                    child.props[childProp],
+                        if (
+                            includes(type(newChildren), ['Array', 'Object']) &&
+                            !isEmpty(newChildren)
+                        ) {
+                            /*
+                             * TODO: We're just naively crawling
+                             * the _entire_ layout to recompute the
+                             * the dependency graphs.
+                             * We don't need to do this - just need
+                             * to compute the subtree
+                             */
+                            const newProps = {};
+                            crawlLayout(newChildren, function appendIds(child) {
+                                if (hasId(child)) {
+                                    keys(child.props).forEach(childProp => {
+                                        const componentIdAndProp = `${child.props.id}.${childProp}`;
+                                        if (
+                                            has(
+                                                componentIdAndProp,
+                                                InputGraph.nodes
+                                            )
+                                        ) {
+                                            newProps[componentIdAndProp] = {
+                                                id: child.props.id,
+                                                props: {
+                                                    [childProp]:
+                                                        child.props[childProp],
+                                                },
+                                            };
+                                        }
+                                    });
+                                }
+                            });
+
+                            /*
+                             * Organize props by shared outputs so that we
+                             * only make one request per output component
+                             * (even if there are multiple inputs).
+                             *
+                             * For example, we might render 10 inputs that control
+                             * a single output. If that is the case, we only want
+                             * to make a single call, not 10 calls.
+                             */
+
+                            /*
+                             * In some cases, the new item will be an output
+                             * with its inputs already rendered (not rendered)
+                             * as part of this update.
+                             * For example, a tab with global controls that
+                             * renders different content containers without any
+                             * additional inputs.
+                             *
+                             * In that case, we'll call `updateOutput` with that output
+                             * and just "pretend" that one if its inputs changed.
+                             *
+                             * If we ever add logic that informs the user on
+                             * "which input changed", we'll have to account for this
+                             * special case (no input changed?)
+                             */
+
+                            const outputIds = [];
+                            keys(newProps).forEach(idAndProp => {
+                                if (
+                                    // It's an output
+                                    InputGraph.dependenciesOf(idAndProp)
+                                        .length === 0 &&
+                                    /*
+                                     * And none of its inputs are generated in this
+                                     * request
+                                     */
+                                    intersection(
+                                        InputGraph.dependantsOf(idAndProp),
+                                        keys(newProps)
+                                    ).length === 0
+                                ) {
+                                    outputIds.push(idAndProp);
+                                    delete newProps[idAndProp];
+                                }
+                            });
+
+                            // Dispatch updates to inputs
+                            const reducedNodeIds = reduceInputIds(
+                                keys(newProps),
+                                InputGraph
+                            );
+                            const depOrder = InputGraph.overallOrder();
+                            const sortedNewProps = sort(
+                                (a, b) =>
+                                    depOrder.indexOf(a.input) -
+                                    depOrder.indexOf(b.input),
+                                reducedNodeIds
+                            );
+                            sortedNewProps.forEach(function(inputOutput) {
+                                const payload = newProps[inputOutput.input];
+                                payload.excludedOutputs =
+                                    inputOutput.excludedOutputs;
+                                dispatch(notifyObservers(payload));
+                            });
+
+                            // Dispatch updates to lone outputs
+                            outputIds.forEach(idAndProp => {
+                                const requestUid = uid();
+                                dispatch(
+                                    setRequestQueue(
+                                        append(
+                                            {
+                                                // TODO - Are there any implications of doing this??
+                                                controllerId: null,
+                                                status: 'loading',
+                                                uid: requestUid,
+                                                requestTime: Date.now(),
                                             },
-                                        };
-                                    }
-                                });
-                            }
-                        });
-
-                        /*
-                         * Organize props by shared outputs so that we
-                         * only make one request per output component
-                         * (even if there are multiple inputs).
-                         *
-                         * For example, we might render 10 inputs that control
-                         * a single output. If that is the case, we only want
-                         * to make a single call, not 10 calls.
-                         */
-
-                        /*
-                         * In some cases, the new item will be an output
-                         * with its inputs already rendered (not rendered)
-                         * as part of this update.
-                         * For example, a tab with global controls that
-                         * renders different content containers without any
-                         * additional inputs.
-                         *
-                         * In that case, we'll call `updateOutput` with that output
-                         * and just "pretend" that one if its inputs changed.
-                         *
-                         * If we ever add logic that informs the user on
-                         * "which input changed", we'll have to account for this
-                         * special case (no input changed?)
-                         */
-
-                        const outputIds = [];
-                        keys(newProps).forEach(idAndProp => {
-                            if (
-                                // It's an output
-                                InputGraph.dependenciesOf(idAndProp)
-                                    .length === 0 &&
-                                /*
-                                 * And none of its inputs are generated in this
-                                 * request
-                                 */
-                                intersection(
-                                    InputGraph.dependantsOf(idAndProp),
-                                    keys(newProps)
-                                ).length === 0
-                            ) {
-                                outputIds.push(idAndProp);
-                                delete newProps[idAndProp];
-                            }
-                        });
-
-                        // Dispatch updates to inputs
-                        const reducedNodeIds = reduceInputIds(
-                            keys(newProps),
-                            InputGraph
-                        );
-                        const depOrder = InputGraph.overallOrder();
-                        const sortedNewProps = sort(
-                            (a, b) =>
-                                depOrder.indexOf(a.input) -
-                                depOrder.indexOf(b.input),
-                            reducedNodeIds
-                        );
-                        sortedNewProps.forEach(function(inputOutput) {
-                            const payload = newProps[inputOutput.input];
-                            payload.excludedOutputs =
-                                inputOutput.excludedOutputs;
-                            dispatch(notifyObservers(payload));
-                        });
-
-                        // Dispatch updates to lone outputs
-                        outputIds.forEach(idAndProp => {
-                            const requestUid = uid();
-                            dispatch(
-                                setRequestQueue(
-                                    append(
-                                        {
-                                            // TODO - Are there any implications of doing this??
-                                            controllerId: null,
-                                            status: 'loading',
-                                            uid: requestUid,
-                                            requestTime: Date.now(),
-                                        },
-                                        getState().requestQueue
+                                            getState().requestQueue
+                                        )
                                     )
-                                )
-                            );
-                            updateOutput(
-                                idAndProp,
+                                );
+                                updateOutput(
+                                    idAndProp,
 
-                                getState,
-                                requestUid,
-                                dispatch,
-                                changedPropIds
-                            );
-                        });
+                                    getState,
+                                    requestUid,
+                                    dispatch,
+                                    changedPropIds
+                                );
+                            });
+                        }
+
+                        dispatch(setAppIsReady());
                     }
-
-                    dispatch(setAppIsReady());
+                };
+                if (multi) {
+                    Object.entries(data.response).forEach(handleResponse);
+                } else {
+                    handleResponse([outputIdAndProp, data.response.props]);
                 }
-            };
-            if (multi) {
-                Object.entries(data.response).forEach(handleResponse);
-            } else {
-                handleResponse([outputIdAndProp, data.response.props]);
-            }
+            });
+        })
+        .catch(err => {
+            const message = `Callback error updating ${
+                isMultiOutputProp(payload.output)
+                    ? parseMultipleOutputs(payload.output).join(', ')
+                    : payload.output
+            }`;
+            handleAsyncError(err, message, dispatch);
         });
-    })
-    .catch(err => {
-        const message = `Callback error updating ${
-            isMultiOutputProp(payload.output)
-                ? parseMultipleOutputs(payload.output).join(', ')
-                : payload.output
-        }`;
-        handleAsyncError(err, message, dispatch);
-    });
 }
 
 export function handleAsyncError(err, message, dispatch) {
