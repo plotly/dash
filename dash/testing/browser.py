@@ -109,7 +109,7 @@ class Browser(DashPageMixin):
         )
         logger.info("taking snapshot name => %s", snapshot_name)
         if wait_for_callbacks:
-            until(self._wait_for_callbacks, timeout=60)
+            until(self._wait_for_callbacks, timeout=30)
         self.percy_runner.snapshot(name=snapshot_name)
 
     def take_snapshot(self, name):
