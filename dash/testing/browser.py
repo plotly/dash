@@ -110,12 +110,12 @@ class Browser(DashPageMixin):
         logger.info("taking snapshot name => %s", snapshot_name)
         try:
             if wait_for_callbacks:
-                until(self._wait_for_callbacks, timeout=10)
+                until(self._wait_for_callbacks, timeout=10, poll=0.5)
         except TestingTimeoutError:
             self.driver.refresh()
             # for snapshot intensive case, it might happens that
             # the selenium get stuck, give it one more chance after refresh
-            until(self._wait_for_callbacks, timeout=60)
+            until(self._wait_for_callbacks, timeout=60, poll=1)
 
         self.percy_runner.snapshot(name=snapshot_name)
 
