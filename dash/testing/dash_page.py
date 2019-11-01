@@ -1,4 +1,7 @@
 from bs4 import BeautifulSoup
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class DashPageMixin(object):
@@ -42,6 +45,7 @@ class DashPageMixin(object):
 
     def _wait_for_callbacks(self):
         if self.window_store:
+            logger.warning("status of state rq %s", self.redux_state_rqs)
             return self.redux_state_rqs and all(
                 (_.get("responseTime") for _ in self.redux_state_rqs)
             )
