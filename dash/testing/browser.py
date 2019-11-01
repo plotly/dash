@@ -26,7 +26,11 @@ from dash.testing.wait import (
     until,
 )
 from dash.testing.dash_page import DashPageMixin
-from dash.testing.errors import DashAppLoadingError, BrowserError
+from dash.testing.errors import (
+    DashAppLoadingError,
+    BrowserError,
+    TestingTimeoutError,
+)
 from dash.testing.consts import SELENIUM_GRID_DEFAULT
 
 
@@ -108,8 +112,23 @@ class Browser(DashPageMixin):
             name, sys.version_info.major, sys.version_info.minor
         )
         logger.info("taking snapshot name => %s", snapshot_name)
-        if wait_for_callbacks:
-            until(self._wait_for_callbacks, timeout=10)
+        try:
+            if wait_for_callbacks:
+                until(
+                    self._wait_for_callbacks,
+                    timeout=40,
+                    poll=0.5,
+                    sleep_first=True,
+                )
+        except TestingTimeoutError:
+            logger.error(
+                "wait_for_callbacks failed => status of invalid rqs %s",
+                list(
+                    _ for _ in self.redux_state_rqs if not _.get("responseTime")
+                ),
+            )
+            logger.debug("full content of the rqs => %s", self.redux_state_rqs)
+
         self.percy_runner.snapshot(name=snapshot_name)
 
     def take_snapshot(self, name):

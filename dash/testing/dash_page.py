@@ -1,4 +1,7 @@
+import logging
 from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
 
 
 class DashPageMixin(object):
@@ -41,9 +44,13 @@ class DashPageMixin(object):
         return self.driver.execute_script("return window.store")
 
     def _wait_for_callbacks(self):
-        if self.window_store:
-            return self.redux_state_rqs and all(
-                (_.get("responseTime") for _ in self.redux_state_rqs)
+        if self.window_store and self.redux_state_rqs:
+            return all(
+                (
+                    _.get("responseTime")
+                    for _ in self.redux_state_rqs
+                    if _.get("controllerId")
+                )
             )
         return True
 
