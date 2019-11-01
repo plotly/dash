@@ -1,5 +1,5 @@
-from bs4 import BeautifulSoup
 import logging
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
