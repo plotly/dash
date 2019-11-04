@@ -1,5 +1,11 @@
 version: 2
 jobs:
+  percy-finalize:
+    docker:
+      - image: percyio/agent
+    steps:
+      - run: percy finalize --all
+
   artifacts:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -216,7 +222,7 @@ jobs:
       - run:
           name: 🦔 percy finalize
           command: npx percy finalize --all
-          when: always
+          when: on_fail
 
   test-36:
       <<: *test
@@ -245,7 +251,12 @@ workflows:
           requires:
             - build-core-37
             - build-misc-37
+      - percy-finalize:
+          requires:
+            - test-37
       - artifacts:
+          requires:
+            - percy-finalize
           filters:
             branches:
               only:
