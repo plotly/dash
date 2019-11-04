@@ -5,7 +5,7 @@ function getFingerprint() {
     const packageJson = JSON.parse(package);
 
     const timestamp = Math.round(Date.now() / 1000);
-    const version = packageJson.version.replace(/[.]/g, '_');
+    const version = packageJson.version.replace(/[.]/g, '_').replace(/[+]/g, '__');
 
     return `"v${version}m${timestamp}"`;
 }

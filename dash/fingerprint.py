@@ -9,7 +9,7 @@ def build_fingerprint(path, version, hash_value):
 
     return "{}.v{}m{}.{}".format(
         "/".join(path_parts[:-1] + [filename]),
-        str(version).replace(".", "_"),
+        str(version).replace(".", "_").replace("+", "__"),
         hash_value,
         extension,
     )
