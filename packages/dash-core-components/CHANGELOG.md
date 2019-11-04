@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Updated
+- [#693](https://github.com/plotly/dash-core-components/pull/693) Upgraded plotly.js to 1.51.1
+  - [Feature release 1.51.0](https://github.com/plotly/plotly.js/releases/tag/v1.51.0) which contains:
+    - A new `image` trace type to display 3- or 4-channel color images as data
+    - `automargin` for `pie` charts for better readability when labeling lots of small slices
+    - Toggle-type `updatemenus`
+    - `zh-CN` localization
+    - And various other small features and bug fixes
+  - Patch release [1.51.1](https://github.com/plotly/plotly.js/releases/tag/v1.51.1) containing several bug fixes.
+
 ## [1.4.0] - 2019-10-29
 ### Added
 - [#616](https://github.com/plotly/dash-core-components/pull/616) Async Graph and Plotly.js

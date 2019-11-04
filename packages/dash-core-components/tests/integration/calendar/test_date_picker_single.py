@@ -114,9 +114,7 @@ def test_dtps011_memory_persistence(dash_dcc):
     switch.click()
 
     memorized = dash_dcc.select_date_single("dps-memory", day="4")
-    amnesiaed = dash_dcc.select_date_single(
-        "dps-none", day="1", outside_month=True
-    )
+    amnesiaed = dash_dcc.select_date_single("dps-none", day="11")
 
     switch.click()
     assert dash_dcc.wait_for_text_to_equal("#out", "switched")
