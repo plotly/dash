@@ -246,8 +246,6 @@ workflows:
             - build-core-37
             - build-misc-37
       - artifacts:
-          requires:
-            - percy-finalize
           filters:
             branches:
               only:
