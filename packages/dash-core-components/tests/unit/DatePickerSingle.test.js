@@ -1,4 +1,4 @@
-import DatePickerSingle from '../../src/components/DatePickerSingle.react';
+import DatePickerSingle from '../../src/fragments/DatePickerSingle.react';
 import {merge} from 'ramda';
 import React from 'react';
 import {mount, render} from 'enzyme';

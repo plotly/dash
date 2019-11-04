@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- [#692](https://github.com/plotly/dash-core-components/pull/692) Async DatePickerSingle, DatePickerRange, Dropdown, Markdown, Upload components
+
 ### Updated
 - [#693](https://github.com/plotly/dash-core-components/pull/693) Upgraded plotly.js to 1.51.1
   - [Feature release 1.51.0](https://github.com/plotly/plotly.js/releases/tag/v1.51.0) which contains:

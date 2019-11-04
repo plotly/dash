@@ -1,4 +1,4 @@
-import Markdown from '../../src/components/Markdown.react.js';
+import Markdown from '../../src/fragments/Markdown.react.js';
 import React from 'react';
 import {shallow, render} from 'enzyme';
 

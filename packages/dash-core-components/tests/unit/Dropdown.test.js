@@ -1,4 +1,4 @@
-import Dropdown from '../../src/components/Dropdown.react.js';
+import Dropdown from '../../src/fragments/Dropdown.react.js';
 import React from 'react';
 import {mount, render} from 'enzyme';
 import {validate} from './utils';

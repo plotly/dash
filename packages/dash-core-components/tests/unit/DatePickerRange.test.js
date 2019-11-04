@@ -1,4 +1,4 @@
-import DatePickerRange from '../../src/components/DatePickerRange.react';
+import DatePickerRange from '../../src/fragments/DatePickerRange.react';
 import {merge} from 'ramda';
 import React from 'react';
 import {mount, render} from 'enzyme';

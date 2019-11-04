@@ -1,24 +1,8 @@
 import PropTypes from 'prop-types';
-import {isNil, pluck, omit, type} from 'ramda';
-import React, {Component} from 'react';
-import ReactDropdown from 'react-virtualized-select';
-import createFilterOptions from 'react-select-fast-filter-options';
-import './css/react-virtualized-select@3.1.0.css';
-import './css/react-virtualized@9.9.0.css';
+import React, {Component, lazy, Suspense} from 'react';
+import LazyLoader from '../utils/LazyLoader';
 
-// Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
-// Split on spaces
-const REGEX = /\s+/;
-const TOKENIZER = {
-    tokenize(text) {
-        return text.split(REGEX).filter(
-            // Filter empty tokens
-            text => text
-        );
-    },
-};
-
-const DELIMETER = ',';
+const RealDropdown = lazy(LazyLoader.dropdown);
 
 /**
  * Dropdown is an interactive dropdown element for selecting one or more
@@ -31,79 +15,11 @@ const DELIMETER = ',';
  * which have the benefit of showing the users all of the items at once.
  */
 export default class Dropdown extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            filterOptions: createFilterOptions({
-                options: props.options,
-                tokenizer: TOKENIZER,
-            }),
-        };
-    }
-
-    componentWillReceiveProps(newProps) {
-        if (newProps.options !== this.props.options) {
-            this.setState({
-                filterOptions: createFilterOptions({
-                    options: newProps.options,
-                    tokenizer: TOKENIZER,
-                }),
-            });
-        }
-    }
-
     render() {
-        const {
-            id,
-            multi,
-            options,
-            setProps,
-            style,
-            loading_state,
-            value,
-        } = this.props;
-        const {filterOptions} = this.state;
-        let selectedValue;
-        if (type(value) === 'array') {
-            selectedValue = value.join(DELIMETER);
-        } else {
-            selectedValue = value;
-        }
         return (
-            <div
-                id={id}
-                style={style}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-            >
-                <ReactDropdown
-                    filterOptions={filterOptions}
-                    options={options}
-                    value={selectedValue}
-                    onChange={selectedOption => {
-                        if (multi) {
-                            let value;
-                            if (isNil(selectedOption)) {
-                                value = [];
-                            } else {
-                                value = pluck('value', selectedOption);
-                            }
-                            setProps({value});
-                        } else {
-                            let value;
-                            if (isNil(selectedOption)) {
-                                value = null;
-                            } else {
-                                value = selectedOption.value;
-                            }
-                            setProps({value});
-                        }
-                    }}
-                    onInputChange={search_value => setProps({search_value})}
-                    {...omit(['setProps', 'value'], this.props)}
-                />
-            </div>
+            <Suspense fallback={null}>
+                <RealDropdown {...this.props} />
+            </Suspense>
         );
     }
 }
@@ -268,3 +184,6 @@ Dropdown.defaultProps = {
     persisted_props: ['value'],
     persistence_type: 'local',
 };
+
+export const propTypes = Dropdown.propTypes;
+export const defaultProps = Dropdown.defaultProps;

@@ -2,21 +2,7 @@ import React, {Component, PureComponent, Suspense} from 'react';
 import PropTypes from 'prop-types';
 
 import {asyncDecorator} from '@plotly/dash-component-plugins';
-
-const loader = {
-    plotly: () =>
-        Promise.resolve(
-            window.Plotly ||
-                import(/* webpackChunkName: "plotlyjs" */ 'plotly.js').then(
-                    ({default: Plotly}) => {
-                        window.Plotly = Plotly;
-                        return Plotly;
-                    }
-                )
-        ),
-    graph: () =>
-        import(/* webpackChunkName: "graph" */ '../fragments/Graph.react'),
-};
+import LazyLoader from '../utils/LazyLoader';
 
 const EMPTY_EXTEND_DATA = [];
 
@@ -101,7 +87,7 @@ class PlotlyGraph extends Component {
 }
 
 const RealPlotlyGraph = asyncDecorator(PlotlyGraph, () =>
-    loader.plotly().then(() => loader.graph())
+    LazyLoader.plotly().then(LazyLoader.graph)
 );
 
 class ControlledPlotlyGraph extends PureComponent {
@@ -114,7 +100,7 @@ class ControlledPlotlyGraph extends PureComponent {
     }
 }
 
-export const graphPropTypes = {
+PlotlyGraph.propTypes = {
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
@@ -492,7 +478,7 @@ export const graphPropTypes = {
     }),
 };
 
-export const graphDefaultProps = {
+PlotlyGraph.defaultProps = {
     clickData: null,
     clickAnnotationData: null,
     hoverData: null,
@@ -519,8 +505,7 @@ export const graphDefaultProps = {
     config: {},
 };
 
-PlotlyGraph.propTypes = graphPropTypes;
-
-PlotlyGraph.defaultProps = graphDefaultProps;
+export const graphPropTypes = PlotlyGraph.propTypes;
+export const graphDefaultProps = PlotlyGraph.defaultProps;
 
 export default PlotlyGraph;
