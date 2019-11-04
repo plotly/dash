@@ -26,7 +26,11 @@ from dash.testing.wait import (
     until,
 )
 from dash.testing.dash_page import DashPageMixin
-from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
+from dash.testing.errors import (
+    DashAppLoadingError,
+    BrowserError,
+    TestingTimeoutError,
+)
 from dash.testing.consts import SELENIUM_GRID_DEFAULT
 
 
@@ -113,9 +117,10 @@ class Browser(DashPageMixin):
                 until(self._wait_for_callbacks, timeout=10, poll=0.5)
         except TestingTimeoutError:
             self.driver.refresh()
+
             # for snapshot intensive case, it might happens that
             # the selenium get stuck, give it one more chance after refresh
-            until(self._wait_for_callbacks, timeout=80, poll=1)
+            until(self._wait_for_callbacks, timeout=60, poll=1)
 
         self.percy_runner.snapshot(name=snapshot_name)
 
