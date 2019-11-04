@@ -45,7 +45,6 @@ class DashPageMixin(object):
 
     def _wait_for_callbacks(self):
         if self.window_store:
-            logger.debug("status of state rq %s", self.redux_state_rqs)
             return self.redux_state_rqs and all(
                 (
                     _.get("responseTime")
