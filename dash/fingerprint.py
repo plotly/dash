@@ -1,7 +1,7 @@
 import re
 
 cache_regex = re.compile(r"^v[\w-]+m[0-9a-fA-F]+$")
-
+version_clean = re.compile(r"[^\w-]")
 
 def build_fingerprint(path, version, hash_value):
     path_parts = path.split("/")
@@ -9,7 +9,7 @@ def build_fingerprint(path, version, hash_value):
 
     return "{}.v{}m{}.{}".format(
         "/".join(path_parts[:-1] + [filename]),
-        str(version).replace(".", "_").replace("+", "__"),
+        re.sub(version_clean, "_", str(version)),
         hash_value,
         extension,
     )

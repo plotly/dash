@@ -19,7 +19,7 @@ valid_resources = [
     },
     {
         "path": "react@16.8.6.min.js",
-        "fingerprint": "react@16.v1_1_1-alpha_x_y_y_X_Y_Z_1_2_3__metadata_xx_yy_zz_XX_YY_ZZ_11_22_33_mmm1234567890abcdefABCDEF.8.6.min.js",
+        "fingerprint": "react@16.v1_1_1-alpha_x_y_y_X_Y_Z_1_2_3_metadata_xx_yy_zz_XX_YY_ZZ_11_22_33_mmm1234567890abcdefABCDEF.8.6.min.js",
         "version": "1.1.1-alpha.x.y.y.X.Y.Z.1.2.3+metadata.xx.yy.zz.XX.YY.ZZ.11.22.33.mm",
         "hash": "1234567890abcdefABCDEF",
     },
