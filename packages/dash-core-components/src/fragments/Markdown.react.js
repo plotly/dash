@@ -5,12 +5,6 @@ import Markdown from 'react-markdown';
 import {propTypes, defaultProps} from '../components/Markdown.react';
 import '../components/css/highlight.css';
 
-// eslint-disable-next-line valid-jsdoc
-/**
- * A component that renders Markdown text as specified by the
- * GitHub Markdown spec. These component uses
- * [react-markdown](https://rexxars.github.io/react-markdown/) under the hood.
- */
 export default class DashMarkdown extends Component {
     constructor(props) {
         super(props);

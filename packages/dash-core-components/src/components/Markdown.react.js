@@ -4,6 +4,12 @@ import LazyLoader from '../utils/LazyLoader';
 
 const RealDashMarkdown = lazy(LazyLoader.markdown);
 
+// eslint-disable-next-line valid-jsdoc
+/**
+ * A component that renders Markdown text as specified by the
+ * GitHub Markdown spec. These component uses
+ * [react-markdown](https://rexxars.github.io/react-markdown/) under the hood.
+ */
 export default class DashMarkdown extends Component {
     render() {
         return (
