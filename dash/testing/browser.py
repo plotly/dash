@@ -116,7 +116,7 @@ class Browser(DashPageMixin):
                 self.driver.refresh()
                 # for snapshot intensive case, it might happens that
                 # the selenium get stuck, give it one more chance after refresh
-                until(self._wait_for_callbacks, timeout=20, poll=1)
+                until(self._wait_for_callbacks, timeout=50, poll=1)
 
         self.percy_runner.snapshot(name=snapshot_name)
 
