@@ -3,6 +3,9 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+### Added
+- [#990](https://github.com/plotly/dash/pull/990) Add support for custom configurable CSRF header of dash-renderer
+
 ### Fixed
 - [#983](https://github.com/plotly/dash/pull/983) Fix the assets loading issues when dashR application runner is handling with an app defined by string chunk.
 
