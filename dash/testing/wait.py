@@ -13,9 +13,11 @@ def until(
     wait_cond,
     timeout,
     poll=0.1,
+    sleep_first=False,
     msg="expected condition not met within timeout",
 ):  # noqa: C0330
-    res = wait_cond()
+
+    res = False if sleep_first else wait_cond()
     logger.debug(
         "start wait.until with method, timeout, poll => %s %s %s",
         wait_cond,
@@ -34,9 +36,13 @@ def until(
 
 
 def until_not(
-    wait_cond, timeout, poll=0.1, msg="expected condition met within timeout"
+    wait_cond,
+    timeout,
+    poll=0.1,
+    sleep_first=False,
+    msg="expected condition met within timeout",
 ):  # noqa: C0330
-    res = wait_cond()
+    res = False if sleep_first else wait_cond()
     logger.debug(
         "start wait.until_not method, timeout, poll => %s %s %s",
         wait_cond,
