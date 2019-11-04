@@ -116,25 +116,19 @@ class Browser(DashPageMixin):
             if wait_for_callbacks:
                 until(
                     self._wait_for_callbacks,
-                    timeout=10,
-                    poll=0.5,
+                    timeout=60,
+                    poll=1,
                     sleep_first=True,
                 )
         except TestingTimeoutError:
-            self.driver.refresh()
             logger.debug("rq full content %s", self.redux_state_rqs)
             logger.warning(
-                "status of invalid rqs %s",
+                "wait_for_callbacks failed => status of invalid rqs %s",
                 list(
                     _
                     for _ in self.redux_state_rqs
                     if not _.get("responseTime") or _.get("status") == "loading"
                 ),
-            )
-            # for snapshot intensive case, it might happens that
-            # the selenium get stuck, give it one more chance after refresh
-            until(
-                self._wait_for_callbacks, timeout=60, poll=1, sleep_first=True
             )
 
         self.percy_runner.snapshot(name=snapshot_name)
