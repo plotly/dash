@@ -1,11 +1,5 @@
 version: 2
 jobs:
-  percy-finalize:
-    docker:
-      - image: percyio/agent
-    steps:
-      - run: percy finalize --all
-
   artifacts:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -189,6 +183,7 @@ jobs:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
           PERCY_PARALLEL_TOTAL: -1
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python37
     parallelism: 3
     steps:
@@ -218,6 +213,10 @@ jobs:
           path: test-reports
       - store_artifacts:
           path: /tmp/dash_artifacts
+      - run:
+          name: 🦔 percy finalize
+          command: npx percy finalize --all
+          when: always
 
   test-36:
       <<: *test
@@ -246,9 +245,6 @@ workflows:
           requires:
             - build-core-37
             - build-misc-37
-      - percy-finalize:
-          requires:
-            - test-37
       - artifacts:
           requires:
             - percy-finalize
