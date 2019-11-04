@@ -44,8 +44,8 @@ class DashPageMixin(object):
         return self.driver.execute_script("return window.store")
 
     def _wait_for_callbacks(self):
-        if self.window_store:
-            return self.redux_state_rqs and all(
+        if self.window_store and self.redux_state_rqs:
+            return all(
                 (
                     _.get("responseTime")
                     for _ in self.redux_state_rqs

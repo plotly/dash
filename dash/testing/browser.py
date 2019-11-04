@@ -117,6 +117,7 @@ class Browser(DashPageMixin):
                 until(self._wait_for_callbacks, timeout=10, poll=0.5)
         except TestingTimeoutError:
             self.driver.refresh()
+            logger.debug("rq full content %s", self.redux_state_rqs)
             logger.warning(
                 "status of invalid rqs %s",
                 list(
