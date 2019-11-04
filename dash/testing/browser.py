@@ -116,20 +116,18 @@ class Browser(DashPageMixin):
             if wait_for_callbacks:
                 until(
                     self._wait_for_callbacks,
-                    timeout=60,
-                    poll=1,
+                    timeout=40,
+                    poll=0.5,
                     sleep_first=True,
                 )
         except TestingTimeoutError:
-            logger.debug("rq full content %s", self.redux_state_rqs)
-            logger.warning(
+            logger.error(
                 "wait_for_callbacks failed => status of invalid rqs %s",
                 list(
-                    _
-                    for _ in self.redux_state_rqs
-                    if not _.get("responseTime") or _.get("status") == "loading"
+                    _ for _ in self.redux_state_rqs if not _.get("responseTime")
                 ),
             )
+            logger.debug("full content of the rqs => %s", self.redux_state_rqs)
 
         self.percy_runner.snapshot(name=snapshot_name)
 
