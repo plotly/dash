@@ -116,8 +116,8 @@ def test_fingerprint():
         (original_path, has_fingerprint) = check_fingerprint(fingerprint)
         # The inverse operation returns that the fingerprint was valid
         # and the original path
-        assert has_fingerprint, original_path
-        assert original_path == resource.get("path"), original_path
+        assert has_fingerprint
+        assert original_path == resource.get("path")
 
     for resource in valid_fingerprints:
         (_, has_fingerprint) = check_fingerprint(resource)
