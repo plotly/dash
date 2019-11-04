@@ -112,10 +112,11 @@ class Browser(DashPageMixin):
             if wait_for_callbacks:
                 until(self._wait_for_callbacks, timeout=10, poll=0.5)
         except TestingTimeoutError:
-            self.driver.refresh()
-            # for snapshot intensive case, it might happens that
-            # the selenium get stuck, give it one more chance after refresh
-            until(self._wait_for_callbacks, timeout=60, poll=1)
+            for _ in range(2):
+                self.driver.refresh()
+                # for snapshot intensive case, it might happens that
+                # the selenium get stuck, give it one more chance after refresh
+                until(self._wait_for_callbacks, timeout=20, poll=1)
 
         self.percy_runner.snapshot(name=snapshot_name)
 
