@@ -121,6 +121,9 @@ class Browser(DashPageMixin):
                     sleep_first=True,
                 )
         except TestingTimeoutError:
+            # API will log the error but this TimeoutError should not block
+            # the test execution to continue and it will still do a snapshot
+            # as diff reference for the build run.
             logger.error(
                 "wait_for_callbacks failed => status of invalid rqs %s",
                 list(

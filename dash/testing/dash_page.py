@@ -44,7 +44,10 @@ class DashPageMixin(object):
         return self.driver.execute_script("return window.store")
 
     def _wait_for_callbacks(self):
-        if self.window_store and self.redux_state_rqs:
+        if self.window_store:
+            # note that there is still a small chance of Negative True
+            # where we get two earlier requests in the queue, this returns
+            # True but there are still more requests to come
             return all(
                 (
                     _.get("responseTime")
@@ -52,6 +55,7 @@ class DashPageMixin(object):
                     if _.get("controllerId")
                 )
             )
+
         return True
 
     def get_local_storage(self, store_id="local"):
