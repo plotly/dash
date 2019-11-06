@@ -457,7 +457,6 @@ class Browser(DashPageMixin):
         (
             ActionChains(self.driver)
             .move_to_element(elem)
-            .pause(0.2)
             .click(elem)
             .send_keys(Keys.END)
             .key_down(Keys.SHIFT)
