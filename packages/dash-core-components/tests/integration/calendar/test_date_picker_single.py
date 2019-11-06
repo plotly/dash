@@ -125,3 +125,23 @@ def test_dtps011_memory_persistence(dash_dcc):
     )
     switched = dash_dcc.find_element("#dps-none input").get_attribute("value")
     assert switched != amnesiaed and switched == ""
+
+
+def test_dtps012_initial_month(dash_dcc):
+    app = dash.Dash(__name__)
+    app.layout = html.Div([
+        dcc.DatePickerSingle(
+            id="dps-initial-month",
+            min_date_allowed=datetime(2010, 1, 1),
+            max_date_allowed=datetime(2099, 12, 31)
+        )
+    ])
+
+    dash_dcc.start_server(app)
+
+    date_picker = dash_dcc.find_element('#dps-initial-month')
+    date_picker.click()
+    dash_dcc.wait_for_text_to_equal(
+        '#dps-initial-month .CalendarMonth.CalendarMonth_1[data-visible=true] strong',
+        'January 2010'
+    )
