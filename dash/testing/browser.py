@@ -454,7 +454,6 @@ class Browser(DashPageMixin):
         """Simulate key press to clear the input."""
         elem = self._get_element(elem_or_selector)
         logger.debug("clear input with %s => %s", elem_or_selector, elem)
-        # elem.click()  # moving the click out of ActionChains fixes the issue
         (
             ActionChains(self.driver)
             .move_to_element(elem)
