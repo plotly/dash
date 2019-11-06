@@ -28,7 +28,8 @@ def until(
     while not res:
         if time.time() > end_time:
             raise TestingTimeoutError(msg)
-        time.sleep(poll)
+        time.sleep(poll * 2 if sleep_first else poll)
+        sleep_first = False
         res = wait_cond()
         logger.debug("poll => %s", time.time())
 
@@ -53,7 +54,8 @@ def until_not(
     while res:
         if time.time() > end_time:
             raise TestingTimeoutError(msg)
-        time.sleep(poll)
+        time.sleep(poll * 2 if sleep_first else poll)
+        sleep_first = False
         res = wait_cond()
         logger.debug("poll => %s", time.time())
 

@@ -453,13 +453,16 @@ class Browser(DashPageMixin):
     def clear_input(self, elem_or_selector):
         """Simulate key press to clear the input."""
         elem = self._get_element(elem_or_selector)
-
+        logger.debug("clear input with %s => %s", elem_or_selector, elem)
+        # elem.click()  # moving the click out of ActionChains fixes the issue
         (
             ActionChains(self.driver)
+            .move_to_element(elem)
+            .pause(0.2)
             .click(elem)
-            .send_keys(Keys.HOME)
-            .key_down(Keys.SHIFT)
             .send_keys(Keys.END)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.HOME)
             .key_up(Keys.SHIFT)
             .send_keys(Keys.DELETE)
         ).perform()
@@ -523,7 +526,11 @@ class Browser(DashPageMixin):
                 self._last_ts = entries[-1]["timestamp"]
 
     def visit_and_snapshot(
-        self, resource_path, hook_id, wait_for_callbacks=True, assert_check=True
+        self,
+        resource_path,
+        hook_id,
+        wait_for_callbacks=True,
+        assert_check=True,
     ):
         try:
             path = resource_path.lstrip("/")
