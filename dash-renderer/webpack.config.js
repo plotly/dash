@@ -10,7 +10,7 @@ const defaults = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /node_modules\/(?!@plotly\/dash-component-plugins)/,
+                exclude: /node_modules\/(?!@plotly\/dash-component-plugins\/|uniqid\/|check-prop-types\/)/,
                 use: {
                     loader: 'babel-loader',
                 },
