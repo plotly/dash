@@ -126,8 +126,8 @@ class BuildProcess(object):
             "version": self.version,
             "package": self.name.replace(" ", "_").replace("-", "_"),
         }
-        for name, subfolder, filename, target in self.deps_info:
-            version = self.deps[name]["version"]
+        for scope, name, subfolder, filename, target in self.deps_info:
+            version = self.deps["/".join(filter(None, [scope, name]))]["version"]
             versions[name.replace("-", "").replace(".", "")] = version
 
             logger.info("copy npm dependency => %s", filename)
@@ -138,7 +138,7 @@ class BuildProcess(object):
                 else "{}@{}.{}".format(name, version, ext)
             )
             shutil.copyfile(
-                self._concat(self.npm_modules, name, subfolder, filename),
+                self._concat(self.npm_modules, scope, name, subfolder, filename),
                 self._concat(self.build_folder, target),
             )
 
@@ -166,12 +166,13 @@ class Renderer(BuildProcess):
                 "dash-renderer",
             ),
             (
-                ("react", "umd", "react.production.min.js", None),
-                ("react", "umd", "react.development.js", None),
-                ("react-dom", "umd", "react-dom.production.min.js", None),
-                ("react-dom", "umd", "react-dom.development.js", None),
-                ("prop-types", None, "prop-types.min.js", None),
-                ("prop-types", None, "prop-types.js", None),
+                ("@babel", "polyfill", "dist", "polyfill.min.js", None),
+                (None, "react", "umd", "react.production.min.js", None),
+                (None, "react", "umd", "react.development.js", None),
+                (None, "react-dom", "umd", "react-dom.production.min.js", None),
+                (None, "react-dom", "umd", "react-dom.development.js", None),
+                (None, "prop-types", None, "prop-types.min.js", None),
+                (None, "prop-types", None, "prop-types.js", None),
             ),
         )
 
