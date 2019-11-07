@@ -2,7 +2,6 @@ import {connect} from 'react-redux';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
 import Radium from 'radium';
-import {includes, pluck} from 'ramda';
 import uniqid from 'uniqid';
 import {onError, revert} from '../../actions';
 
@@ -13,7 +12,12 @@ class UnconnectedComponentErrorBoundary extends Component {
             myID: props.componentId,
             myUID: uniqid(),
             oldChildren: null,
+            hasError: false,
         };
+    }
+
+    static getDerivedStateFromError(_) {
+        return {hasError: true};
     }
 
     componentDidCatch(error, info) {
@@ -32,30 +36,22 @@ class UnconnectedComponentErrorBoundary extends Component {
 
     /* eslint-disable react/no-did-update-set-state */
     componentDidUpdate(prevProps, prevState) {
-        const {error} = this.props;
-        const {myUID} = this.state;
-        const hasError = includes(myUID, pluck('myUID')(error.frontEnd));
+        const prevChildren = prevProps.children;
         if (
-            !hasError &&
-            prevState.oldChildren !== prevProps.children &&
-            prevProps.children !== this.props.children
+            !this.state.hasError &&
+            prevChildren !== prevState.oldChildren &&
+            prevChildren !== this.props.children
         ) {
             this.setState({
-                oldChildren: prevProps.children,
+                oldChildren: prevChildren,
             });
         }
     }
     /* eslint-enable react/no-did-update-set-state */
 
     render() {
-        const {error} = this.props;
-        const {myUID} = this.state;
-        const hasError = includes(myUID, pluck('myUID')(error.frontEnd));
-
-        if (hasError) {
-            return this.state.oldChildren;
-        }
-        return this.props.children;
+        const {hasError, oldChildren} = this.state;
+        return hasError ? oldChildren : this.props.children;
     }
 }
 

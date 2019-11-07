@@ -31,7 +31,7 @@ class DebugMenu extends Component {
             toastsEnabled,
             callbackGraphOpened,
         } = this.state;
-        const {error, resolveError, dispatch, dependenciesRequest} = this.props;
+        const {error, dependenciesRequest} = this.props;
 
         const menuClasses = opened
             ? 'dash-debug-menu dash-debug-menu--opened'
@@ -136,7 +136,6 @@ class DebugMenu extends Component {
                     {menuContent}
                 </div>
                 <GlobalErrorOverlay
-                    resolve={(type, myId) => resolveError(dispatch, type, myId)}
                     error={error}
                     visible={
                         !(isEmpty(error.backEnd) && isEmpty(error.frontEnd))
@@ -154,8 +153,6 @@ DebugMenu.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
     dependenciesRequest: PropTypes.object,
-    resolveError: PropTypes.func,
-    dispatch: PropTypes.func,
 };
 
 export {DebugMenu};
