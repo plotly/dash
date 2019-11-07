@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+- [#687](https://github.com/plotly/dash-core-components/pull/687/) Use `start_date`, `min_date_allowed`, `end_date`, or `max_date_allowed` for the initial visible month if the value of the parameter `initial_visible_month` is not supplied.
+
 ## [1.5.0] - 2019-11-04
 ### Added
 - [#692](https://github.com/plotly/dash-core-components/pull/692) Async DatePickerSingle, DatePickerRange, Dropdown, Markdown, Upload components
