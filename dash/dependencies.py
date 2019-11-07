@@ -42,7 +42,7 @@ class ClientsideFunction:
         if namespace in ['PreventUpdate', 'no_update']:
             raise ValueError('"{}" is a forbidden namespace in'
                              ' dash_clientside.'.format(namespace))
-                             
+
         self.namespace = namespace
         self.function_name = function_name
 
