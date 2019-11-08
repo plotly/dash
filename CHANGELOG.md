@@ -5,10 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 ### Fixed
-- [#1001](https://github.com/plotly/dash/pull/1001) Fix and improve the `clear_input()` API in `dash.testing`, so it's more robust handling react `input`
-
-### Added
-- [#1001](https://github.com/plotly/dash/pull/1001) Added `sleep_first` parameters in both `wait.until` and `wait.until_not` APIs, users can control the execution order of time sleep and condition check function call.
+- [#1001](https://github.com/plotly/dash/pull/1001)
+  - Fix and improve the `clear_input()` API in `dash.testing`, so it's more robust handling react `input`.
+  - make the `percy_snapshot()` API more robust, and the timeout of `wait_for_callbacks` (if set to True) will not fail the snapshot execution, but logged as potential error.
 
 ## [1.6.0] - 2019-11-04
 ### Fixed
