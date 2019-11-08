@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "dash"
+version = "1.6.2"
+description = ""
+authors = ["Chris Parmer <chris@plot.ly>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+flask = "^1.1"
+plotly = "^4.2"
+future = "^0.18.2"
+flask-compress = "^1.4"
+dash_renderer = "=1.2.0"
+
+[tool.poetry.dev-dependencies]
+
+
+[tool.poetry.testing-dependencies]
+pytest = "^3.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
