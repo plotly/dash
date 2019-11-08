@@ -12,5 +12,8 @@
   "homepage": "https://github.com/plotly/dash",
   "main": "src/index.js",
   "author": "Marc-André Rivet",
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "/src/**"
+  ]
 }
