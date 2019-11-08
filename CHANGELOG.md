@@ -2,6 +2,9 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+- [#1006](https://github.com/plotly/dash/pull/1006) IE11 / ES5 compatibility and validation
+
 ## [1.6.0] - 2019-11-04
 ### Fixed
 - [#999](https://github.com/plotly/dash/pull/999) Fix fingerprint for component suites with `metadata` in version.
