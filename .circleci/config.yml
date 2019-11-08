@@ -189,6 +189,7 @@ jobs:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
           PERCY_PARALLEL_TOTAL: -1
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python37
     parallelism: 3
     steps:
@@ -218,6 +219,10 @@ jobs:
           path: test-reports
       - store_artifacts:
           path: /tmp/dash_artifacts
+      - run:
+          name: 🦔 percy finalize
+          command: npx percy finalize --all
+          when: on_fail
 
   test-36:
       <<: *test
