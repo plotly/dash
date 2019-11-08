@@ -41,7 +41,7 @@
     "@babel/polyfill": "7.7.0",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-react": "^7.0.0",
-    "@plotly/dash-component-plugins": "^1.0.1",
+    "@plotly/dash-component-plugins": "^1.0.2-rc1",
     "@svgr/webpack": "^4.1.0",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
