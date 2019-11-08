@@ -42,7 +42,7 @@ class DashPageMixin(object):
 
     def _wait_for_callbacks(self):
         if self.window_store:
-            # note that there is still a small chance of FP(Fasle Positive)
+            # note that there is still a small chance of FP (False Positive)
             # where we get two earlier requests in the queue, this returns
             # True but there are still more requests to come
             return self.redux_state_rqs and all(
