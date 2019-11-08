@@ -104,6 +104,27 @@ class Browser(DashPageMixin):
         except percy.errors.Error:
             logger.exception("percy runner failed to finalize properly")
 
+    def visit_and_snapshot(
+        self, resource_path, hook_id, wait_for_callbacks=True, assert_check=True
+    ):
+        try:
+            path = resource_path.lstrip("/")
+            if path != resource_path:
+                logger.warning("we stripped the left '/' in resource_path")
+            self.driver.get("{}/{}".format(self.server_url.rstrip("/"), path))
+
+            # wait for the hook_id to present and all callbacks get fired
+            self.wait_for_element_by_id(hook_id)
+            self.percy_snapshot(path, wait_for_callbacks=wait_for_callbacks)
+            if assert_check:
+                assert not self.driver.find_elements_by_css_selector(
+                    "div.dash-debug-alert"
+                ), "devtools should not raise an error alert"
+            self.driver.back()
+        except WebDriverException as e:
+            logger.exception("snapshot at resource %s error", path)
+            raise e
+
     def percy_snapshot(self, name="", wait_for_callbacks=False):
         """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`.
         It also combines the snapshot `name` with the python version.
@@ -523,31 +544,6 @@ class Browser(DashPageMixin):
             entries = self.driver.get_log("browser")
             if entries:
                 self._last_ts = entries[-1]["timestamp"]
-
-    def visit_and_snapshot(
-        self,
-        resource_path,
-        hook_id,
-        wait_for_callbacks=True,
-        assert_check=True,
-    ):
-        try:
-            path = resource_path.lstrip("/")
-            if path != resource_path:
-                logger.warning("we stripped the left '/' in resource_path")
-            self.driver.get("{}/{}".format(self.server_url.rstrip("/"), path))
-
-            # wait for the hook_id to present and all callbacks get fired
-            self.wait_for_element_by_id(hook_id)
-            self.percy_snapshot(path, wait_for_callbacks=wait_for_callbacks)
-            if assert_check:
-                assert not self.driver.find_elements_by_css_selector(
-                    "div.dash-debug-alert"
-                ), "devtools should not raise an error alert"
-            self.driver.back()
-        except WebDriverException as e:
-            logger.exception("snapshot at resource %s error", path)
-            raise e
 
     @property
     def driver(self):
