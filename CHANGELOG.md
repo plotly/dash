@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 ### Fixed
-- [#1001](https://github.com/plotly/dash/pull/1001) Fix and imporve the `clear_input()` API in `dash.testing`, so it's more robust handling react `input`
+- [#1001](https://github.com/plotly/dash/pull/1001) Fix and improve the `clear_input()` API in `dash.testing`, so it's more robust handling react `input`
 
 ### Added
 - [#1001](https://github.com/plotly/dash/pull/1001) Added `sleep_first` parameters in both `wait.until` and `wait.until_not` APIs, users can control the execution order of time sleep and condition check function call.
