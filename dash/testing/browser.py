@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 import os
 import sys
+import time
 import logging
 import warnings
 import percy
@@ -135,12 +136,10 @@ class Browser(DashPageMixin):
         logger.info("taking snapshot name => %s", snapshot_name)
         try:
             if wait_for_callbacks:
-                until(
-                    self._wait_for_callbacks,
-                    timeout=40,
-                    poll=0.5,
-                    sleep_first=True,
-                )
+                # the extra one second sleep adds safe margin in the context
+                # of wait_for_callbacks
+                time.sleep(1)
+                until(self._wait_for_callbacks, timeout=40, poll=0.3)
         except TestingTimeoutError:
             # API will log the error but this TimeoutError should not block
             # the test execution to continue and it will still do a snapshot
