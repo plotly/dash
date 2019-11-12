@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Fixed
 - [#1006](https://github.com/plotly/dash/pull/1006) IE11 / ES5 compatibility and validation
+- [#1006](https://github.com/plotly/dash/pull/1006) Fix renderer wrapper component TreeContainer to prevent useless re-renders
 - [#1001](https://github.com/plotly/dash/pull/1001)
   - Fix and improve the `clear_input()` API in `dash.testing`, so it's more robust handling react `input`.
   - make the `percy_snapshot()` API more robust, and the timeout of `wait_for_callbacks` (if set to True) will not fail the snapshot execution, but logged as potential error.
