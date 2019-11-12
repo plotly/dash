@@ -64,12 +64,12 @@ class BuildProcess(object):
         for path in self.asset_paths:
             self._clean_path(path)
 
-    @job("run `npm i --ignore-scripts`")
+    @job("run `npm ci`")
     def npm(self):
         """Job to install npm packages."""
         os.chdir(self.main)
         self._clean_path(self.package_lock)
-        run_command_with_process("npm i --ignore-scripts")
+        run_command_with_process("npm ci")
 
     @job("build the renderer in dev mode")
     def watch(self):
