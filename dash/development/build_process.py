@@ -24,6 +24,7 @@ class BuildProcess(object):
         self.main = main
         self.deps_info = deps_info
         self.npm_modules = self._concat(self.main, "node_modules")
+        self.package_lock = self._concat(self.main, "package-lock.json")
         self.package = self._concat(self.main, "package.json")
         self._parse_package(path=self.package)
         self.asset_paths = (self.build_folder, self.npm_modules)
