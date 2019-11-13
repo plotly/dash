@@ -109,7 +109,7 @@ jobs:
           command: |
               . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
               cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 -b 1003-dash-ie11 https://github.com/plotly/dash-core-components.git
+              git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
               cd dash-renderer-test-components && npm ci && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
@@ -159,9 +159,9 @@ jobs:
           name: ️️🏗️ build misc
           command: |
               . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-              git clone --depth 1 -b 1003-dash-ie11 https://github.com/plotly/dash-table.git
+              git clone --depth 1 https://github.com/plotly/dash-table.git
               cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 -b 1003-dash-ie11 https://github.com/plotly/dash-html-components.git
+              git clone --depth 1 https://github.com/plotly/dash-html-components.git
               cd dash-html-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               ls -la packages
       - persist_to_workspace:
