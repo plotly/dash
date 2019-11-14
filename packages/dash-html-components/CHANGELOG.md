@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.0.2] - 2019-11-14
 ### Fixed
 - [#143](https://github.com/plotly/dash-html-components/pull/143) Fix IE11 compatibility issues and ES5 compatibility and validation
 
