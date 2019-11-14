@@ -10,7 +10,7 @@ const defaults = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /node_modules/,
+                exclude: /node_modules\/(?!uniqid\/|check-prop-types\/)/,
                 use: {
                     loader: 'babel-loader',
                 },
