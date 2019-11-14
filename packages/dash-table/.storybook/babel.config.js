@@ -6,4 +6,8 @@ const presets = [
     '@babel/preset-react'
 ];
 
-module.exports = { presets };
+const plugins = [
+    '@babel/plugin-transform-regenerator'
+];
+
+module.exports = { presets, plugins };

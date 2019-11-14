@@ -8,7 +8,7 @@ describe('loading states uneditable', () => {
         cy.visit('http://localhost:8084');
     });
 
-    it('does not permit editing when data are loading', () => {
+    it('prevents editing while loading', () => {
         // Table is editable
         DashTable
             .getCell(0, 0)
@@ -25,29 +25,56 @@ describe('loading states uneditable', () => {
             .click()
             .find('.dash-input-cell-value-container > input').should('have.length', 0);
 
-        DOM.focused.type(`Hello${Key.Enter}`);
-        DashTable.getCell(1, 0, State.Any).click();
-
         DashTable
             .getCell(0, 0, State.Any)
-            .within(() => cy.get('.dash-cell-value')
-                .should('not.have.html', 'Hello'));
+            .within(() => cy.get('.dash-cell-value').should('not.have.html', 'Hello'));
+
+        cy.get('#change-data-property').should('have.value', 'change_data');
 
         cy.wait(5000);
 
         // Table is editable
         DashTable
-            .getCell(0, 0)
+            .getCell(0, 0, State.Ready)
             .click()
             .find('.dash-input-cell-value-container > input').should('have.length', 1);
 
         DOM.focused.type(`Hello${Key.Enter}`);
-        DashTable.getCell(1, 0).click();
 
         DashTable
             .getCell(0, 0)
             .within(() => cy.get('.dash-cell-value')
                 .should('have.html', 'Hello'));
+    });
+
+    it('keeps focus on callback completion', () => {
+        cy.get('#change-data-property').click();
+        DOM.focused.type(`change_data${Key.Enter}`);
+
+        DashTable.getCell(0, 0, State.Loading).click();
+        cy.wait(5000);
+        DashTable.getCell(0, 0, State.Ready);
+
+        DOM.focused.type(`Hello${Key.Enter}`);
+        DashTable
+            .getCell(0, 0)
+            .within(() => cy.get('.dash-cell-value')
+                .should('have.html', 'Hello'));
+    });
+
+    it('does not steal focus on callback completion', () => {
+        DashTable.getCell(0, 0, State.Ready).click();
+
+        cy.get('#change-data-property').click();
+        DOM.focused.type(`change_data${Key.Enter}`);
+
+        DashTable.getCell(0, 0, State.Loading);
+        DOM.focused.should('have.id', 'change-data-property');
+
+        cy.wait(5000);
+
+        DashTable.getCell(0, 0, State.Ready);
+        DOM.focused.should('have.id', 'change-data-property');
     });
 
     it('permits editing when a non-data prop is being changed', () => {

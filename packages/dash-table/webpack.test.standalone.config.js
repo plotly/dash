@@ -1,17 +1,17 @@
 const options = {
+    entry: ['@babel/polyfill'],
     ts: {
         transpileOnly: true
     },
     preprocessor: {
-        variables: {
+        definitions: ['TEST', 'TEST_COPY_PASTE'],
+        variable: {
             mode: 'eager'
-        },
-        definitions: ['TEST', 'TEST_COPY_PASTE']
+        }
     },
     mode: 'development'
 };
 
 let config = require('./.config/webpack/base.js')(options);
-delete config.plugins;
 
 module.exports = config;

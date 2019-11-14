@@ -1,6 +1,7 @@
 /* eslint no-magic-numbers: 0 */
+import '@babel/polyfill/noConflict';
 import * as R from 'ramda';
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { DataTable } from 'dash-table/index';
 import Environment from 'core/environment';
 import { memoizeOne } from 'core/memoizer';

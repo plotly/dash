@@ -4,6 +4,7 @@ import React, {
 
 interface IProps {
     active: boolean;
+    applyFocus: boolean;
     className: string;
     value: any;
 }
@@ -35,14 +36,14 @@ export default class CellLabel extends PureComponent<IProps> {
     }
 
     private setFocus() {
-        const { active } = this.props;
+        const { active, applyFocus } = this.props;
         if (!active) {
             return;
         }
 
         const el = this.refs.el as HTMLDivElement;
 
-        if (el && document.activeElement !== el) {
+        if (applyFocus && el && document.activeElement !== el) {
             el.focus();
         }
     }

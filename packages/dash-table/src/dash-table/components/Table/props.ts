@@ -84,7 +84,7 @@ export interface ICellCoordinates {
 export type ColumnId = string;
 export type Columns = IColumn[];
 export type Data = Datum[];
-export type Datum =  IDatumObject | any;
+export type Datum = IDatumObject | any;
 export type Indices = number[];
 export type RowId = string | number;
 export type SelectedCells = ICellCoordinates[];
@@ -172,7 +172,7 @@ export interface IDatetimeColumn extends ITypeColumn {
 
 export interface IBaseColumn {
     clearable?: boolean | boolean[] | 'first' | 'last';
-    deletable?: boolean | boolean[] | 'first' |'last';
+    deletable?: boolean | boolean[] | 'first' | 'last';
     editable: boolean;
     hideable?: boolean | boolean[] | 'first' | 'last';
     renamable?: boolean | boolean[] | 'first' | 'last';
@@ -256,6 +256,7 @@ export interface IUSerInterfaceTooltip {
 
 export interface IState {
     activeMenu?: 'show/hide';
+    applyFocus?: boolean;
     currentTooltip?: IUSerInterfaceTooltip;
     forcedResizeOnly: boolean;
     rawFilterQuery: string;
@@ -410,6 +411,7 @@ export type SanitizedProps = Omit<Omit<
     Merge<PropsWithDefaults, {
         fixed_columns: number;
         fixed_rows: number;
+        loading_state: boolean;
         visibleColumns: Columns;
     }>,
     'locale_format'>,
@@ -429,8 +431,6 @@ export type ControlledTableProps = SanitizedProps & IState & {
     virtual: IDerivedData;
     virtual_selected_rows: Indices;
     virtualized: IVirtualizedDerivedData;
-
-    loading_state: ILoadingState | undefined;
 };
 
 export type SetFilter = (
@@ -462,6 +462,7 @@ export type HeaderFactoryProps = ControlledTableProps & {
 
 export interface ICellFactoryProps {
     active_cell: ICellCoordinates;
+    applyFocus?: boolean;
     dropdown: StaticDropdowns;
     dropdown_conditional: ConditionalDropdowns;
     dropdown_data: DataDropdowns;
@@ -474,6 +475,7 @@ export interface ICellFactoryProps {
     fixed_rows: number;
     id: string;
     is_focused?: boolean;
+    loading_state: boolean;
     paginator: IPaginator;
     row_deletable: boolean;
     row_selectable: Selection;
@@ -498,6 +500,4 @@ export interface ICellFactoryProps {
     virtualization: boolean;
     virtualized: IVirtualizedDerivedData;
     visibleColumns: Columns;
-
-    loading_state?: ILoadingState;
 }

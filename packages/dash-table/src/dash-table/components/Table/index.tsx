@@ -26,6 +26,7 @@ import derivedFilterMap from 'dash-table/derived/filter/map';
 
 import controlledPropsHelper from './controlledPropsHelper';
 import derivedPropsHelper from './derivedPropsHelper';
+import DOM from 'core/browser/DOM';
 
 const DERIVED_REGEX = /^derived_/;
 
@@ -49,24 +50,42 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
     }
 
     componentWillReceiveProps(nextProps: SanitizedAndDerivedProps) {
-        if (nextProps.filter_query === this.props.filter_query) {
-            return;
-        }
-
         this.setState(state => {
-            const { workFilter: { map: currentMap, value } } = state;
+            const { applyFocus: currentApplyFocus, workFilter: { map: currentMap, value } } = state;
 
-            if (value !== nextProps.filter_query) {
-                const map = this.filterMap(
-                    currentMap,
-                    nextProps.filter_query,
-                    nextProps.visibleColumns
-                );
+            const nextState: Partial<StandaloneState> = {};
 
-                return map !== currentMap ? { workFilter: { map, value} } : null;
-            } else {
-                return null;
+            // state for filter
+            if (nextProps.filter_query !== this.props.filter_query) {
+                if (value !== nextProps.filter_query) {
+                    const map = this.filterMap(
+                        currentMap,
+                        nextProps.filter_query,
+                        nextProps.visibleColumns
+                    );
+
+                    if (map !== currentMap) {
+                        nextState.workFilter = { map, value };
+                    }
+                }
             }
+
+            // state for applying focus
+            if (nextProps.active_cell !== this.props.active_cell) {
+                nextState.applyFocus = true;
+            } else if (nextProps.loading_state !== this.props.loading_state) {
+                const activeElement = document.activeElement as HTMLElement;
+                const tdElement = DOM.getFirstParentOfType(activeElement, 'td');
+                const tableElement = DOM.getParentById(tdElement, this.props.id);
+
+                nextState.applyFocus = !!tableElement;
+            }
+
+            if (nextState.applyFocus === currentApplyFocus) {
+                delete nextState.applyFocus;
+            }
+
+            return R.keysIn(nextState).length ? nextState as any : null;
         });
     }
 

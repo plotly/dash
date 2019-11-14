@@ -14,6 +14,7 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
+import '@babel/polyfill';
 import './commands';
 
 // Alternatively you can use CommonJS syntax:

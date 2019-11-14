@@ -15,8 +15,6 @@ import { IEdgesMatrices } from 'dash-table/derived/edges/type';
 import { memoizeOne } from 'core/memoizer';
 import memoizerCache from 'core/cache/memoizer';
 
-import dataLoading from 'dash-table/derived/table/data_loading';
-
 export default class CellFactory {
 
     private get props() {
@@ -38,12 +36,14 @@ export default class CellFactory {
     public createCells(dataEdges: IEdgesMatrices | undefined, dataOpEdges: IEdgesMatrices | undefined) {
         const {
             active_cell,
+            applyFocus,
             dropdown_conditional,
             dropdown,
             data,
             dropdown_data,
             id,
             is_focused,
+            loading_state,
             row_deletable,
             row_selectable,
             selected_cells,
@@ -54,8 +54,7 @@ export default class CellFactory {
             style_data,
             style_data_conditional,
             virtualized,
-            visibleColumns,
-            loading_state
+            visibleColumns
         } = this.props;
 
         const relevantStyles = this.relevantStyles(
@@ -118,26 +117,25 @@ export default class CellFactory {
             selected_cells
         );
 
-        const data_loading = dataLoading(loading_state);
-
         const partialCellContents = this.cellContents.partialGet(
             visibleColumns,
             virtualized.data,
             virtualized.offset,
             !!is_focused,
             dropdowns,
-            data_loading
+            loading_state
         );
 
         const cellContents = this.cellContents.get(
             partialCellContents,
             active_cell,
+            applyFocus || false,
             visibleColumns,
             virtualized.data,
             virtualized.offset,
             !!is_focused,
             dropdowns,
-            data_loading
+            loading_state
         );
 
         const ops = this.getDataOpCells(

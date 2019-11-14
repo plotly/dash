@@ -12,6 +12,7 @@ import {
 
 interface ICellProps {
     active: boolean;
+    applyFocus: boolean;
     className: string;
     focused: boolean;
     onChange: (e: ChangeEvent) => void;
@@ -115,14 +116,14 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
     }
 
     private setFocus() {
-        const { active } = this.props;
+        const { active, applyFocus } = this.props;
         if (!active) {
             return;
         }
 
         const input = this.refs.textInput as HTMLInputElement;
 
-        if (input && document.activeElement !== input) {
+        if (applyFocus && input && document.activeElement !== input) {
             input.focus();
             input.setSelectionRange(0, input.value ? input.value.length : 0);
         }

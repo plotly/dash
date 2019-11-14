@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixes
+- [#637](https://github.com/plotly/dash-table/pull/637) Fix multiple issues
+  - Fix IE11 compatibility issues and add ES5 compatibility and validation
+  - Fix a bug with `loading_state` being handled incorrectly, causing the table to steal focus
+
 ## [4.5.0] - 2019-10-29
 ### Changed
 - [#554](https://github.com/plotly/dash-table/pull/554) Async loading of `xlsx` library on export

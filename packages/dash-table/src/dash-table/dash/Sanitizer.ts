@@ -18,6 +18,7 @@ import {
 } from 'dash-table/components/Table/props';
 import headerRows from 'dash-table/derived/header/headerRows';
 import resolveFlag from 'dash-table/derived/cell/resolveFlag';
+import dataLoading from 'dash-table/derived/table/data_loading';
 
 const D3_DEFAULT_LOCALE: INumberLocale = {
     symbol: ['$', ''],
@@ -81,8 +82,8 @@ export default class Sanitizer {
         const visibleColumns = this.getVisibleColumns(columns, props.hidden_columns);
 
         let headerFormat = props.export_headers;
-        if (props.export_format === ExportFormat.Xlsx &&  R.isNil(headerFormat)) {
-            headerFormat =  ExportHeaders.Names;
+        if (props.export_format === ExportFormat.Xlsx && R.isNil(headerFormat)) {
+            headerFormat = ExportHeaders.Names;
         } else if (props.export_format === ExportFormat.Csv && R.isNil(headerFormat)) {
             headerFormat = ExportHeaders.Ids;
         }
@@ -92,6 +93,7 @@ export default class Sanitizer {
             export_headers: headerFormat,
             fixed_columns: getFixedColumns(props.fixed_columns, props.row_deletable, props.row_selectable),
             fixed_rows: getFixedRows(props.fixed_rows, props.columns, props.filter_action),
+            loading_state: dataLoading(props.loading_state),
             locale_format,
             visibleColumns
         });

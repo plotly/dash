@@ -3,7 +3,7 @@ version: 2
 jobs:
     "server-test":
         docker:
-            - image: circleci/python:3.6.7-node-browsers
+            - image: circleci/python:3.6-node-browsers
             - image: cypress/base:10
 
         steps:
@@ -12,7 +12,7 @@ jobs:
                 key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
             - run:
                 name: Install npm packages
-                command: npm install
+                command: npm ci
             - run:
                 name: Cypress Install
                 command: |
@@ -60,7 +60,7 @@ jobs:
                 key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
             - run:
                 name: Install npm packages
-                command: npm install
+                command: npm ci
             - run:
                 name: Cypress Install
                 command: |
@@ -74,12 +74,15 @@ jobs:
 
             - run:
                 name: Run tests
-                command: npm run test.standalone
+                command: |
+                    rm -rf node_modules/cypress
+                    npm i cypress@3.4.1
+                    npm run test.standalone
 
 
     "unit-test":
         docker:
-            - image: circleci/python:3.6.7-node-browsers
+            - image: circleci/python:3.6-node-browsers
             - image: cypress/base:10
 
         steps:
@@ -88,7 +91,7 @@ jobs:
                 key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
             - run:
                 name: Install npm packages
-                command: npm install
+                command: npm ci
             - run:
                 name: Cypress Install
                 command: |
@@ -148,7 +151,7 @@ jobs:
 
     "node":
         docker:
-            - image: circleci/python:3.6.7-node
+            - image: circleci/python:3.6-node
 
         steps:
             - checkout
@@ -185,7 +188,7 @@ jobs:
 
     "python-3.6":
         docker:
-            - image: circleci/python:3.6.7-stretch-node-browsers
+            - image: circleci/python:3.6-stretch-node-browsers
 
         environment:
             PERCY_ENABLED: True
@@ -206,7 +209,7 @@ jobs:
                     python -m venv venv || virtualenv venv
                     . venv/bin/activate
                     pip install -r dev-requirements.txt --quiet
-                    npm install
+                    npm ci
 
             - run:
                 name: Install dependencies (dash)

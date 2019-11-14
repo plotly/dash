@@ -115,7 +115,6 @@ describe('select row', () => {
             expectCellSelection([1, 2, 3], [3001, 3002, 3003], [0, 1], [0, 1], [2, 1], [2, 1]);
 
             // shrink the selection
-            DOM.focused.type(Key.Shift, { release: false });
             DashTable.getCell(2, 1).click();
             expectCellSelection([2, 3], [3002, 3003], [1], [1], [1, 0], [1, 0]);
 

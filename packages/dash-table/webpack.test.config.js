@@ -1,4 +1,5 @@
 const options = {
+    entry: ['@babel/polyfill'],
     ts: {
         transpileOnly: true
     },

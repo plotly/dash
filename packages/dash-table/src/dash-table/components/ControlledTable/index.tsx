@@ -35,7 +35,6 @@ import TableTooltip from './fragments/TableTooltip';
 
 import queryLexicon from 'dash-table/syntax-tree/lexicon/query';
 
-import dataLoading from 'dash-table/derived/table/data_loading';
 import reconcile from 'dash-table/type/reconcile';
 
 import PageNavigation from 'dash-table/components/PageNavigation';
@@ -591,15 +590,15 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             data,
             editable,
             filter_query,
+            loading_state,
             setProps,
             sort_by,
             viewport,
             visibleColumns,
-            include_headers_on_copy_paste,
-            loading_state
+            include_headers_on_copy_paste
         } = this.props;
 
-        if (!editable || !active_cell || dataLoading(loading_state)) {
+        if (!editable || !active_cell || loading_state) {
             return;
         }
 
@@ -738,8 +737,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             visibleColumns
         } = this.props;
 
-        const isLoading = dataLoading(loading_state);
-
         const fragmentClasses = [
             [
                 fixed_rows && fixed_columns ? 'dash-fixed-row dash-fixed-column' : '',
@@ -771,7 +768,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             ...(virtualized.data.length ? [] : ['dash-no-data']),
             ...(filter_action !== TableAction.None ? [] : ['dash-no-filter']),
             ...(fill_width ? ['dash-fill-width'] : []),
-            ...(isLoading ? ['dash-loading'] : [])
+            ...(loading_state ? ['dash-loading'] : [])
         ];
 
         const containerClasses = ['dash-spreadsheet-container', ...classes];

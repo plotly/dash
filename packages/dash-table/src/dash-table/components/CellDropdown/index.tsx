@@ -12,6 +12,7 @@ import { IDropdownValue } from '../Table/props';
 
 interface IProps {
     active: boolean;
+    applyFocus: boolean;
     clearable?: boolean;
     dropdown?: IDropdownValue[];
     onChange: (e: ChangeEvent) => void;
@@ -64,14 +65,14 @@ export default class CellDropdown extends PureComponent<IProps> {
     }
 
     private setFocus() {
-        const { active } = this.props;
+        const { active, applyFocus } = this.props;
         if (!active) {
             return;
         }
 
         const dropdown = this.refs.dropdown as any;
 
-        if (dropdown && document.activeElement !== dropdown) {
+        if (applyFocus && dropdown && document.activeElement !== dropdown) {
             // Limitation. If React >= 16 --> Use React.createRef instead to pass parent ref to child
             const tdParent = DOM.getFirstParentOfType(dropdown.wrapper, 'td');
             if (tdParent) {
