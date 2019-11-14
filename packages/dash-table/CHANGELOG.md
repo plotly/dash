@@ -2,8 +2,8 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
-### Fixes
+## [4.5.1] - 2019-11-14
+### Fixed
 - [#637](https://github.com/plotly/dash-table/pull/637) Fix multiple issues
   - Fix IE11 compatibility issues and add ES5 compatibility and validation
   - Fix a bug with `loading_state` being handled incorrectly, causing the table to steal focus
