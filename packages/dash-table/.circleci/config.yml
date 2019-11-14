@@ -123,7 +123,7 @@ jobs:
 
     "visual-test":
         docker:
-            - image: circleci/node:8.11.3-browsers
+            - image: circleci/node:10-browsers
 
         steps:
             - checkout
@@ -133,7 +133,7 @@ jobs:
 
             - run:
                 name: Install package.json
-                command: npm i
+                command: npm ci
 
             - save_cache:
                 key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
@@ -165,7 +165,7 @@ jobs:
 
             - run:
                 name: Install package.json
-                command: npm i
+                command: npm ci
 
             - save_cache:
                 key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
