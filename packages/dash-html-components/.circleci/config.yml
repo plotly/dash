@@ -24,7 +24,7 @@ jobs:
               python -m venv venv || virtualenv venv
               . venv/bin/activate
               pip install -r dev-requirements.txt
-              npm install --ignore-scripts
+              npm ci
 
       - run:
           name: 🏗️ Install dependencies (dash)
@@ -34,9 +34,9 @@ jobs:
               git clone --depth 1 git@github.com:plotly/dash-table.git
               . venv/bin/activate
               pip install -e ./dash-main[testing,dev] --quiet
-              cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-core-components && npm ci && npm run build && pip install -e . && cd ..
               cd dash-main/dash-renderer && npm run build && pip install -e . && cd ../..
-              cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-table && npm ci && npm run build && pip install -e . && cd ..
 
       - run:
           name: 🧰 Build
