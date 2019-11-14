@@ -7,11 +7,13 @@ _js_dist_dependencies = [
     {
         "external_url": {
             "prod": [
+                "https://unpkg.com/@babel/polyfill@7.7.0/dist/polyfill.min.js",
                 "https://unpkg.com/react@16.8.6/umd/react.production.min.js",
                 "https://unpkg.com/react-dom@16.8.6/umd/react-dom.production.min.js",
                 "https://unpkg.com/prop-types@15.7.2/prop-types.min.js",
             ],
             "dev": [
+                "https://unpkg.com/@babel/polyfill@7.7.0/dist/polyfill.min.js",
                 "https://unpkg.com/react@16.8.6/umd/react.development.js",
                 "https://unpkg.com/react-dom@16.8.6/umd/react-dom.development.js",
                 "https://unpkg.com/prop-types@15.7.2/prop-types.js",
@@ -19,11 +21,13 @@ _js_dist_dependencies = [
         },
         "relative_package_path": {
             "prod": [
+                "polyfill@7.7.0.min.js",
                 "react@16.8.6.min.js",
                 "react-dom@16.8.6.min.js",
                 "prop-types@15.7.2.min.js",
             ],
             "dev": [
+                "polyfill@7.7.0.min.js",
                 "react@16.8.6.js",
                 "react-dom@16.8.6.js",
                 "prop-types@15.7.2.js",

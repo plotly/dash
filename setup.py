@@ -42,6 +42,7 @@ setup(
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
+        "Framework :: Dash",
         "Framework :: Flask",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
