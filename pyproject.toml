@@ -1,22 +1,110 @@
 [tool.poetry]
 name = "dash"
 version = "1.6.2"
-description = ""
+description = "A Python framework for building reactive web-apps. Developed by Plotly."
+license = "MIT"
 authors = ["Chris Parmer <chris@plot.ly>"]
+readme = "README.md"
+homepage = "https://plot.ly/dash"
+repository = "https://github.com/plotly/dash"
+documentation = "http://dash.plot.ly"
+keywords = ["analytics", "dashboard", "visualization", "data", "framework", "application"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Dash",
+    "Framework :: Flask",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Topic :: Database :: Front-Ends",
+    "Topic :: Office/Business :: Financial :: Spreadsheet",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Widget Sets",
+]
+
+[tool.poetry.scripts]
+dash-generate-components = "dash.development.component_generator:cli"
+renderer = "dash.development.build_process:renderer"
+
+[tool.poetry.plugins."pytest11"]
+dash = "dash.testing.plugin"
 
 [tool.poetry.dependencies]
-python = "^3.7"
-flask = "^1.1"
-plotly = "^4.2"
-future = "^0.18.2"
-flask-compress = "^1.4"
+python = "~2.7 || ^3.3"
+
+# install
 dash_renderer = "=1.2.0"
+dash-core-components = "=1.5.0"
+dash-html-components = "=1.0.1"
+dash-table = "=4.5.0"
+
+future = "^0.18.2"
+plotly = "^4.2"
+flask = [
+    { version = "^1.0.0", python="^3.5" },
+    { version = "<1.0", python = "<3.5" }
+]
+flask-compress = "^1.4"
+
+# testing
+pytest = [
+    { version = "^5.0.0", optional = true, python = "^3.5" },
+    { version = "^3.0.0", optional = true, python = "<3.5" }
+]
+pytest-sugar = { version = "^0.9.2", optional = true }
+pytest-mock = [
+    { version = "^1.11.0", optional = true, python = "^3.4" },
+    { version = "^1.6.0", optional = true, python = "<3.4" }
+]
+selenium = { version = "^3.141.0", optional = true }
+requests = [
+    {version = "^2.22", extras = ["security"], python="^3.5", optional=true},
+    {version = "^2.0", extras = ["security"], python="<3.5", optional=true}
+]
+percy = { version = "^2.0", optional = true }
+lxml = {version = "^4.4", optional = true}
+beautifulsoup4 = {version = "^4.8", optional = true}
+waitress = {version = "^1.3", optional = true}
 
 [tool.poetry.dev-dependencies]
+pylint = [
+    { version = "^1.0.0", python = "~2.7 || <3.5", optional = true },
+    { version = "^2.0.0", python = "^3.5", optional = true }
+]
+flake8 = [
+    { version = "^3.7", python = "^3.5", optional = true },
+    { version = "<3.7", python = "~2.7 || <3.5", optional = true }
+]
+astroid = { version = "^2.2.5", python = "^3.7", optional=true }
+coloredlogs = "^10.0"
+fire = "^0.2.1"
+mock = [
+    { version = "^2.0.0", python = "~2.7 || <3.5", optional = true },
+    { version = "^3.0.0", python = "^3.5", optional = true }
+]
+dash_flow_example = "=0.0.5"
+dash-dangerously-set-inner-html = "^0.0.2"
+pyyaml = "^5.1"
+virtualenv = { version="^16", python = "~2.7", optional = true}
 
-
-[tool.poetry.testing-dependencies]
-pytest = "^3.0"
+[tool.poetry.extras]
+testing = ["pytest", "pytest-sugar", "pytest-mock", "selenium", "percy", "lxml", "requests", "beautifulsoup4", "waitress"]
+dev = ["flake8", "mock", "coloredlogs", "fire", "dash_flow_example", "dash-dangerously-set-inner-html", "pyyaml", "astroid"]
 
 [build-system]
 requires = ["poetry>=0.12"]
