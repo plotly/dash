@@ -1,11 +1,8 @@
 # pylint: disable=missing-docstring,redefined-outer-name
-import warnings
+import pytest
 from .consts import SELENIUM_GRID_DEFAULT
 
-
 try:
-    import pytest
-
     from dash.testing.application_runners import (
         ThreadedRunner,
         ProcessRunner,
@@ -14,7 +11,7 @@ try:
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite
 except ImportError:
-    warnings.warn("run `pip install dash[testing]` if you need dash.testing")
+    pass
 
 WEBDRIVERS = {"Chrome", "Firefox"}
 
@@ -51,8 +48,8 @@ def pytest_addoption(parser):
     dash.addoption(
         "--percy-assets",
         action="store",
-        default='tests/assets',
-        help="configure how Percy will discover your app's assets"
+        default="tests/assets",
+        help="configure how Percy will discover your app's assets",
     )
 
     dash.addoption(
