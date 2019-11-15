@@ -4,7 +4,7 @@ import {SingleDatePicker} from 'react-dates';
 import moment from 'moment';
 import React, {Component} from 'react';
 
-import {propTypes, defaultProps} from '../components/DatePickerRange.react';
+import {propTypes, defaultProps} from '../components/DatePickerSingle.react';
 import convertToMoment from '../utils/convertToMoment';
 
 export default class DatePickerSingle extends Component {
