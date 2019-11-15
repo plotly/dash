@@ -260,13 +260,14 @@ class RRunner(ProcessRunner):
     def start(self, app, start_timeout=2, cwd=None):
         """Start the server with subprocess and Rscript."""
 
-        # app is a R string chunk
         if os.path.isfile(app) and os.path.exists(app):
             # app is already a file in a dir - use that as cwd
             if not cwd:
                 cwd = os.path.dirname(app)
                 logger.info("RRunner inferred cwd from app path: %s", cwd)
         else:
+            # app is a string chunk, we make a temporary folder to store app.R
+            # and its relevants assets
             self._tmp_app_path = os.path.join(
                 "/tmp" if not self.is_windows else os.getenv("TEMP"),
                 uuid.uuid4().hex,

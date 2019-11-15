@@ -54,7 +54,7 @@ jobs:
             flake8 dash setup.py && flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
             pylint dash setup.py --rcfile=$PYLINTRC
             pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
-            cd dash-renderer && npm install --ignore-scripts
+            cd dash-renderer && npm ci
             npm run lint:test && npm run format:test
       - run:
           name: 🐍 Python Unit Tests
@@ -110,9 +110,9 @@ jobs:
               . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
               cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
-              cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
+              cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              cd dash-renderer-test-components && npm ci && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
               ls -la packages
       - persist_to_workspace:
           root: ~/dash
@@ -160,9 +160,9 @@ jobs:
           command: |
               . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
               git clone --depth 1 https://github.com/plotly/dash-table.git
-              cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
-              cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              cd dash-html-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               ls -la packages
       - persist_to_workspace:
           root: ~/dash
@@ -189,6 +189,7 @@ jobs:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
           PERCY_PARALLEL_TOTAL: -1
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python37
     parallelism: 3
     steps:
@@ -218,6 +219,10 @@ jobs:
           path: test-reports
       - store_artifacts:
           path: /tmp/dash_artifacts
+      - run:
+          name: 🦔 percy finalize
+          command: npx percy finalize --all
+          when: on_fail
 
   test-36:
       <<: *test

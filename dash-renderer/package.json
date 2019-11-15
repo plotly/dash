@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "render dash components in react",
   "main": "dash_renderer/dash_renderer.min.js",
   "scripts": {
@@ -10,6 +10,7 @@
     "build:dev": "webpack --build local",
     "build:local": "renderer build local",
     "build": "renderer build",
+    "postbuild": "es-check es5 dash_renderer/*.js",
     "start": "webpack-serve ./webpack.serve.config.js",
     "format": "prettier --config .prettierrc --write \"src/**/*.js\"",
     "format:test": "prettier --config .prettierrc \"src/**/*.js\" --list-different",
@@ -37,14 +38,15 @@
   "devDependencies": {
     "@babel/core": "^7.6.0",
     "@babel/plugin-transform-modules-commonjs": "^7.6.0",
+    "@babel/polyfill": "7.7.0",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-react": "^7.0.0",
-    "@plotly/dash-component-plugins": "^1.0.1",
+    "@plotly/dash-component-plugins": "^1.0.2",
     "@svgr/webpack": "^4.1.0",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
-    "core-js": "3.2.1",
     "css-loader": "^3.2.0",
+    "es-check": "^5.0.0",
     "eslint": "^5.15.3",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^3.6.0",
