@@ -307,6 +307,9 @@ class Dash(object):
         # list of dependencies
         self.callback_map = {}
 
+        # list of inline scripts
+        self._inline_scripts = []
+
         # index_string has special setter so can't go in config
         self._index_string = ""
         self.index_string = index_string
@@ -636,6 +639,10 @@ class Dash(object):
                 if isinstance(src, dict)
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
+            ] +
+            [
+                '<script>{}</script>'.format(src)
+                for src in self._inline_scripts
             ]
         )
 
@@ -1194,13 +1201,14 @@ class Dash(object):
         (JavaScript) function instead of a Python function.
 
         Unlike `@app.calllback`, `clientside_callback` is not a decorator:
-        it takes a
+        it takes either a
         `dash.dependencies.ClientsideFunction(namespace, function_name)`
         argument that describes which JavaScript function to call
         (Dash will look for the JavaScript function at
-        `window[namespace][function_name]`).
+        `window.dash_clientside[namespace][function_name]`), or it may take
+        a string argument that contains the clientside function source.
 
-        For example:
+        For example, when using a `dash.dependencies.ClientsideFunction`:
         ```
         app.clientside_callback(
             ClientsideFunction('my_clientside_library', 'my_function'),
@@ -1211,16 +1219,17 @@ class Dash(object):
         ```
 
         With this signature, Dash's front-end will call
-        `window.my_clientside_library.my_function` with the current
-        values of the `value` properties of the components
-        `my-input` and `another-input` whenever those values change.
+        `window.dash_clientside.my_clientside_library.my_function` with the
+        current values of the `value` properties of the components `my-input`
+        and `another-input` whenever those values change.
 
-        Include a JavaScript file by including it your `assets/` folder.
-        The file can be named anything but you'll need to assign the
-        function's namespace to the `window`. For example, this file might
-        look like:
+        Include a JavaScript file by including it your `assets/` folder. The
+        file can be named anything but you'll need to assign the function's
+        namespace to the `window.dash_clientside` namespace. For example,
+        this file might look:
         ```
-        window.my_clientside_library = {
+        window.dash_clientside = window.dash_clientside || {};
+        window.dash_clientside.my_clientside_library = {
             my_function: function(input_value_1, input_value_2) {
                 return (
                     parseFloat(input_value_1, 10) +
@@ -1229,9 +1238,53 @@ class Dash(object):
             }
         }
         ```
+
+        Alternatively, you can pass the JavaScript source directly to
+        `clientside_callback`. In this case, the same example would look like:
+        ```
+        app.clientside_callback(
+            '''
+            function(input_value_1, input_value_2) {
+                return (
+                    parseFloat(input_value_1, 10) +
+                    parseFloat(input_value_2, 10)
+                );
+            }
+            ''',
+            Output('my-div' 'children'),
+            [Input('my-input', 'value'),
+             Input('another-input', 'value')]
+        )
+        ```
         """
         self._validate_callback(output, inputs, state)
         callback_id = _create_callback_id(output)
+
+        # If JS source is explicitly given, create a namespace and function
+        # name, then inject the code.
+        if isinstance(clientside_function, str):
+
+            out0 = output
+            if isinstance(output, (list, tuple)):
+                out0 = output[0]
+
+            namespace = '_dashprivate_{}'.format(out0.component_id)
+            function_name = '{}'.format(out0.component_property)
+
+            self._inline_scripts.append(
+                """
+                var clientside = window.dash_clientside = window.dash_clientside || {{}};
+                var ns = clientside["{0}"] = clientside["{0}"] || {{}};
+                ns["{1}"] = {2};
+                """.format(namespace.replace('"', '\\"'),
+                           function_name.replace('"', '\\"'),
+                           clientside_function)
+            )
+
+        # Callback is stored in an external asset.
+        else:
+            namespace = clientside_function.namespace
+            function_name = clientside_function.function_name
 
         self.callback_map[callback_id] = {
             "inputs": [
@@ -1243,8 +1296,8 @@ class Dash(object):
                 for c in state
             ],
             "clientside_function": {
-                "namespace": clientside_function.namespace,
-                "function_name": clientside_function.function_name,
+                "namespace": namespace,
+                "function_name": function_name,
             },
         }
 

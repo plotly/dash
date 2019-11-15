@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+- [#967](https://github.com/plotly/dash/pull/967) Adds support for defining
+clientside JavaScript callbacks via inline strings.
+
 ## [1.6.1] - 2019-11-14
 ### Fixed
 - [#1006](https://github.com/plotly/dash/pull/1006) Fix IE11 / ES5 compatibility and validation issues
