@@ -1,8 +1,9 @@
-Flask>=1.0.2
-flask-compress
-plotly
-dash_renderer>=1.2.0
-dash-core-components>=1.5.0
-dash-html-components>=1.0.1
-dash-table>=4.5.0
-future
+Flask>=1.1.1;python_version>=3.5
+flask=0.12.4;python_version<3.5
+flask-compress>=1.4,<2.0
+plotly==4.2
+dash_renderer==1.2.0
+dash-core-components==1.5.0
+dash-html-components==1.0.1
+dash-table==4.5.0
+future>=0.18.2,<0.19.0

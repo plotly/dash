@@ -15,7 +15,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
@@ -34,15 +34,16 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
+            curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
             sudo pip install --upgrade virtualenv --progress-bar off
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
           paths:
               - venv
       - run:
@@ -92,16 +93,18 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
+            curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
             sed -i '/dash-/d' requires-install.txt
             pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
           paths:
               - venv
       - run:
@@ -144,7 +147,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
@@ -152,7 +155,7 @@ jobs:
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
           paths:
               - venv
       - run:
@@ -196,7 +199,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
       - attach_workspace:
           at: ~/dash
       - run:
@@ -265,21 +268,21 @@ workflows:
             tags:
               only: /v*/
 
-  python3.6:
-    jobs:
-      - lint-unit-36
-      - build-core-36
-      - build-misc-36
-      - test-36:
-          requires:
-            - build-core-36
-            - build-misc-36
-  python2.7:
-    jobs:
-      - lint-unit-27
-      - build-core-27
-      - build-misc-27
-      - test-27:
-          requires:
-            - build-core-27
-            - build-misc-27
+  # python3.6:
+  #   jobs:
+  #     - lint-unit-36
+  #     - build-core-36
+  #     - build-misc-36
+  #     - test-36:
+  #         requires:
+  #           - build-core-36
+  #           - build-misc-36
+  # python2.7:
+  #   jobs:
+  #     - lint-unit-27
+  #     - build-core-27
+  #     - build-misc-27
+  #     - test-27:
+  #         requires:
+  #           - build-core-27
+  #           - build-misc-27

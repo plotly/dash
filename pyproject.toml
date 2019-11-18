@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dash"
-version = "1.6.2"
+version = "1.6.2pre"
 description = "A Python framework for building reactive web-apps. Developed by Plotly."
 license = "MIT"
 authors = ["Chris Parmer <chris@plot.ly>"]
@@ -81,30 +81,34 @@ lxml = {version = "^4.4", optional = true}
 beautifulsoup4 = {version = "^4.8", optional = true}
 waitress = {version = "^1.3", optional = true}
 
-[tool.poetry.dev-dependencies]
-pylint = [
-    { version = "^1.0.0", python = "~2.7 || <3.5", optional = true },
-    { version = "^2.0.0", python = "^3.5", optional = true }
-]
 flake8 = [
-    { version = "^3.7", python = "^3.5", optional = true },
-    { version = "<3.7", python = "~2.7 || <3.5", optional = true }
+    { version = "~3.5", python = "~2.7 || <3.4", optional = true },
+    { version = "~3.6", python = "~3.4", optional=true},
+    { version = "^3.7", python = "^3.5", optional = true }
+]
+pylint = [
+    { version = "~1.7.0", python = "~2.7 || <3.4", optional = true },
+    { version = "~1.9", python = "~3.4", optional=true},
+    { version = "^2.4.0", python = "^3.5", optional = true }
 ]
 astroid = { version = "^2.2.5", python = "^3.7", optional=true }
-coloredlogs = "^10.0"
-fire = "^0.2.1"
+coloredlogs = {version="^10.0", optional=true}
+fire = {version="^0.2.1", optional=true}
 mock = [
     { version = "^2.0.0", python = "~2.7 || <3.5", optional = true },
     { version = "^3.0.0", python = "^3.5", optional = true }
 ]
-dash_flow_example = "=0.0.5"
-dash-dangerously-set-inner-html = "^0.0.2"
-pyyaml = "^5.1"
+dash_flow_example = {version="=0.0.5", optional=true}
+dash-dangerously-set-inner-html = {version="^0.0.2", optional=true}
+pyyaml = [
+    {version="^5.1", python="^3.5", optional=true},
+    {version="<5.1", python="~2.7 || <3.5", optional=true},
+]
 virtualenv = { version="^16", python = "~2.7", optional = true}
 
 [tool.poetry.extras]
 testing = ["pytest", "pytest-sugar", "pytest-mock", "selenium", "percy", "lxml", "requests", "beautifulsoup4", "waitress"]
-dev = ["flake8", "mock", "coloredlogs", "fire", "dash_flow_example", "dash-dangerously-set-inner-html", "pyyaml", "astroid"]
+dev = ["flake8", "pylint", "mock", "coloredlogs", "fire", "dash_flow_example", "dash-dangerously-set-inner-html", "pyyaml", "astroid"]
 
 [build-system]
 requires = ["poetry>=0.12"]
