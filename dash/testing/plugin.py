@@ -13,15 +13,13 @@ try:
 except ImportError:
     pass
 
-WEBDRIVERS = {"Chrome", "Firefox"}
-
 
 def pytest_addoption(parser):
     dash = parser.getgroup("Dash", "Dash Integration Tests")
 
     dash.addoption(
         "--webdriver",
-        choices=tuple(WEBDRIVERS),
+        choices=("Chrome", "Firefox"),
         default="Chrome",
         help="Name of the selenium driver to use",
     )

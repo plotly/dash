@@ -1,5 +1,19 @@
 import io
+import pkgutil
 from setuptools import setup, find_packages
+
+ENTRY_POINTS = {
+    "console_scripts": [
+        "dash-generate-components = "
+        "dash.development.component_generator:cli",
+        "renderer = dash.development.build_process:renderer",
+    ]
+}
+
+# this is not a complete guess, but picking two typical dash dependencies in
+# require-testing.txt
+if pkgutil.find_loader("waitress") and pkgutil.find_loader("percy"):
+    ENTRY_POINTS["pytest11"] = ["dash = dash.testing.plugin"]
 
 main_ns = {}
 exec(open("dash/version.py").read(), main_ns)  # pylint: disable=exec-used
@@ -26,19 +40,12 @@ setup(
     long_description=io.open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     install_requires=read_req_file("install"),
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*",
     extras_require={
         "dev": read_req_file("dev"),
         "testing": read_req_file("testing"),
     },
-    entry_points={
-        "console_scripts": [
-            "dash-generate-components = "
-            "dash.development.component_generator:cli",
-            "renderer = dash.development.build_process:renderer",
-        ],
-        "pytest11": ["dash = dash.testing.plugin"],
-    },
+    entry_points=ENTRY_POINTS,
     url="https://plot.ly/dash",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
