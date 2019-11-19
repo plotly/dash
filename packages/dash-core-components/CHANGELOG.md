@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- [#695](https://github.com/plotly/dash-core-components/pull/695) Improvements to Slider and RangeSlider
+  - Marks outside of the range specified by `min` and `max` are now omitted when the slider renders.
+  - Padding is now dependent on the orientation (vertical or horizontal), and whether or not tooltips are always displayed.
+  - The whitespace is now preserved for `marks` labels.
+
+### Added
+- [#695](https://github.com/plotly/dash-core-components/pull/695) Added new property `verticalHeight` to Slider and RangeSlider, to allow the user to specify the height (in px) of vertical sliders. This defaults to `400`.
+
 ## [1.5.1] - 2019-11-14
 ### Fixed
 - [#696](https://github.com/plotly/dash-core-components/pull/696) Fix IE11 compatibility issues and ES5 compatibility and validation

@@ -147,11 +147,11 @@ def test_msps001_basic_persistence(dash_dcc):
     dash_dcc.find_element("#radioitems label:first-child input").click()  # red
 
     range_slider = dash_dcc.find_element("#rangeslider")
-    dash_dcc.click_at_coord_fractions(range_slider, 0.01, 0.5)  # 0
-    dash_dcc.click_at_coord_fractions(range_slider, 0.5, 0.5)  # 5
+    dash_dcc.click_at_coord_fractions(range_slider, 0.5, 0.25)  # 5
+    dash_dcc.click_at_coord_fractions(range_slider, 0.8, 0.25)  # 8
 
     slider = dash_dcc.find_element("#slider")
-    dash_dcc.click_at_coord_fractions(slider, 0.2, 0.5)  # 22
+    dash_dcc.click_at_coord_fractions(slider, 0.2, 0.25)  # 22
 
     dash_dcc.find_element("#tabs .tab:last-child").click()  # C
 
@@ -166,7 +166,7 @@ def test_msps001_basic_persistence(dash_dcc):
         [u"4️⃣", u"6️⃣"],
         "yes maybe",
         "r",
-        [0, 5],
+        [5, 8],
         22,
         "C",
         "knock knock\nwho's there?",

@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import ReactSlider, {createSliderWithTooltip} from 'rc-slider';
 import PropTypes from 'prop-types';
-import {assoc, omit} from 'ramda';
+import {assoc, omit, pickBy} from 'ramda';
 import './css/rc-slider@6.1.2.css';
+import computeSliderStyle from '../utils/computeSliderStyle';
 
 /**
  * A slider component with a single handle.
@@ -14,6 +15,7 @@ export default class Slider extends Component {
         this.DashSlider = props.tooltip
             ? createSliderWithTooltip(ReactSlider)
             : ReactSlider;
+        this._computeStyle = computeSliderStyle();
     }
 
     propsToState(newProps) {
@@ -42,6 +44,7 @@ export default class Slider extends Component {
             tooltip,
             updatemode,
             vertical,
+            verticalHeight,
         } = this.props;
         const value = this.state.value;
 
@@ -58,6 +61,13 @@ export default class Slider extends Component {
             tipProps = tooltip;
         }
 
+        const truncatedMarks = this.props.marks
+            ? pickBy(
+                  (k, mark) => mark >= this.props.min && mark <= this.props.max,
+                  this.props.marks
+              )
+            : this.props.marks;
+
         return (
             <div
                 id={id}
@@ -65,7 +75,7 @@ export default class Slider extends Component {
                     (loading_state && loading_state.is_loading) || undefined
                 }
                 className={className}
-                style={vertical ? {height: '100%'} : {}}
+                style={this._computeStyle(vertical, verticalHeight, tooltip)}
             >
                 <this.DashSlider
                     onChange={value => {
@@ -82,8 +92,16 @@ export default class Slider extends Component {
                     }}
                     tipProps={tipProps}
                     value={value}
+                    marks={truncatedMarks}
                     {...omit(
-                        ['className', 'setProps', 'updatemode', 'value'],
+                        [
+                            'className',
+                            'setProps',
+                            'updatemode',
+                            'value',
+                            'marks',
+                            'verticalHeight',
+                        ],
                         this.props
                     )}
                 />
@@ -195,6 +213,11 @@ Slider.propTypes = {
     vertical: PropTypes.bool,
 
     /**
+     * The height, in px, of the slider if it is vertical.
+     */
+    verticalHeight: PropTypes.number,
+
+    /**
      * Determines when the component should update
      * its value. If `mouseup`, then the slider
      * will only trigger its value when the user has
@@ -262,4 +285,5 @@ Slider.defaultProps = {
     updatemode: 'mouseup',
     persisted_props: ['value'],
     persistence_type: 'local',
+    verticalHeight: 400,
 };
