@@ -60,6 +60,7 @@ jobs:
           name: 🐍 Python Unit Tests
           command: |
             . venv/bin/activate
+            pip install -e .[testing,dev] --progress-bar off
             PYTHONPATH=~/dash/tests/assets pytest tests/unit
       - run:
           name: ☕ JS Unit Tests
