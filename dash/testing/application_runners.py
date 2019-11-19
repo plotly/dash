@@ -231,14 +231,17 @@ class ProcessRunner(BaseDashRunner):
     def stop(self):
         if self.proc:
             try:
+                logger.info("before proc.terminate pid %s", self.proc.pid)
                 self.proc.terminate()
+                logger.info("after proc.terminate")
                 if utils.PY3:
                     # pylint:disable=no-member
                     _except = subprocess.TimeoutExpired
                     # pylint: disable=unexpected-keyword-arg
                     self.proc.communicate(timeout=self.stop_timeout)
                 else:
-                    _except = OSError
+                    _except = Exception
+                    logger.info('communicate')
                     self.proc.communicate()
             except _except:
                 logger.exception(
