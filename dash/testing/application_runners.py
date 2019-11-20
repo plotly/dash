@@ -95,6 +95,7 @@ class BaseDashRunner(object):
                         self.stop_timeout
                     )
                 )
+        logger.info("__exit__ complete")
 
     @property
     def url(self):
@@ -250,6 +251,7 @@ class ProcessRunner(BaseDashRunner):
                 )
                 self.proc.kill()
                 self.proc.communicate()
+        logger.info('stop complete')
 
 
 class RRunner(ProcessRunner):
