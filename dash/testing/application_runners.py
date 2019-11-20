@@ -242,8 +242,8 @@ class ProcessRunner(BaseDashRunner):
                     self.proc.communicate(timeout=self.stop_timeout)
                 else:
                     _except = Exception
-                    logger.info('communicate')
-                    self.proc.communicate()
+                    logger.info('kill the proc')
+                    self.proc.kill()
             except _except:
                 logger.exception(
                     "subprocess terminate not success, trying to kill "
