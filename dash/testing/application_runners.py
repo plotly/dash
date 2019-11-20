@@ -232,9 +232,8 @@ class ProcessRunner(BaseDashRunner):
     def stop(self):
         if self.proc:
             try:
-                logger.info("before proc.terminate pid %s", self.proc.pid)
+                logger.info("proc.terminate with pid %s", self.proc.pid)
                 self.proc.terminate()
-                logger.info("after proc.terminate")
                 if utils.PY3:
                     # pylint:disable=no-member
                     _except = subprocess.TimeoutExpired
@@ -242,7 +241,7 @@ class ProcessRunner(BaseDashRunner):
                     self.proc.communicate(timeout=self.stop_timeout)
                 else:
                     _except = Exception
-                    logger.info('kill the proc')
+                    logger.info('ruthless kill the process to avoid zombie')
                     self.proc.kill()
             except _except:
                 logger.exception(
@@ -251,7 +250,7 @@ class ProcessRunner(BaseDashRunner):
                 )
                 self.proc.kill()
                 self.proc.communicate()
-        logger.info('stop complete')
+        logger.info('process stop completes!')
 
 
 class RRunner(ProcessRunner):
