@@ -12,6 +12,7 @@ import threading
 import re
 import logging
 import pprint
+import enum
 
 from functools import wraps
 from textwrap import dedent
@@ -76,13 +77,18 @@ _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 _re_renderer_scripts_id = re.compile(r'id="_dash-renderer')
 
 
-class _NoUpdate(object):
+class _NoUpdate(enum.Enum):
+    """Aliases of this class's attributes are true singletons and
+    remain so even after deserialization. This is required in order
+    for the singleton assumption to hold when an application is using
+    flask-caching (which itself uses pickle.dumps) to memoize the
+    return values of callbacks."""
     # pylint: disable=too-few-public-methods
-    pass
+    no_update = enum.auto()
 
 
 # Singleton signal to not update an output, alternative to PreventUpdate
-no_update = _NoUpdate()
+no_update = _NoUpdate.no_update
 
 
 # pylint: disable=too-many-instance-attributes
