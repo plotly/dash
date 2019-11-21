@@ -2,6 +2,15 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+- [#967](https://github.com/plotly/dash/pull/967) Add support for defining
+clientside JavaScript callbacks via inline strings.
+- [#1020](https://github.com/plotly/dash/pull/1020) Allow `visit_and_snapshot` API in `dash.testing.browser`  to stay on the page so you can run other checks.
+
+### Fixed
+- [#1018](https://github.com/plotly/dash/pull/1006) Fix the `dash.testing` **stop** API with process application runner in Python2. Use `kill()` instead of `communicate()` to avoid hanging.
+
 ## [1.6.1] - 2019-11-14
 ### Fixed
 - [#1006](https://github.com/plotly/dash/pull/1006) Fix IE11 / ES5 compatibility and validation issues
