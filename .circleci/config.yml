@@ -38,10 +38,12 @@ jobs:
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
-            curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
             sudo pip install --upgrade virtualenv --progress-bar off
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
+            curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+            source ~/.poetry/env
+            poetry install -E testing -E dev && pip list | grep dash
+            # pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
           paths:
@@ -97,12 +99,13 @@ jobs:
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
-            curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
-
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            sed -i '/dash-/d' requires-install.txt
-            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
+            curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+            source ~/.poetry/env
+            poetry install -E testing -E dev && pip list | grep dash
+            # sed -i '/dash-/d' requires-install.txt
+            # pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
           paths:
@@ -110,8 +113,10 @@ jobs:
       - run:
           name: ️️🏗️ build core
           command: |
-              . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-              cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              . venv/bin/activate
+              # pip install --no-cache-dir --upgrade -e . --progress-bar off
+              poetry install
+              mkdir packages && cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
@@ -153,7 +158,10 @@ jobs:
           command: |
             sudo pip install --upgrade virtualenv --quiet
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
+            curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+            source ~/.poetry/env
+            poetry install -E testing -E dev && pip list | grep dash
+            # pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "poetry.lock" }}
           paths:
@@ -161,7 +169,12 @@ jobs:
       - run:
           name: ️️🏗️ build misc
           command: |
-              . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
+              . venv/bin/activate
+              curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+              source ~/.poetry/env
+              poetry install
+              # pip install --no-cache-dir --upgrade -e . --progress-bar off
+              mkdir packages
               git clone --depth 1 https://github.com/plotly/dash-table.git
               cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
