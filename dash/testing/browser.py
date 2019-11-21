@@ -106,7 +106,12 @@ class Browser(DashPageMixin):
             logger.exception("percy runner failed to finalize properly")
 
     def visit_and_snapshot(
-        self, resource_path, hook_id, wait_for_callbacks=True, assert_check=True
+        self,
+        resource_path,
+        hook_id,
+        wait_for_callbacks=True,
+        assert_check=True,
+        stay_on_page=False
     ):
         try:
             path = resource_path.lstrip("/")
@@ -121,7 +126,8 @@ class Browser(DashPageMixin):
                 assert not self.driver.find_elements_by_css_selector(
                     "div.dash-debug-alert"
                 ), "devtools should not raise an error alert"
-            self.driver.back()
+            if not stay_on_page:
+                self.driver.back()
         except WebDriverException as e:
             logger.exception("snapshot at resource %s error", path)
             raise e
