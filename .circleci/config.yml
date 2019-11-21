@@ -53,8 +53,7 @@ jobs:
           command: |
             . venv/bin/activate
             set -eo pipefail
-            poetry install
-            # pip install -e . --progress-bar off && pip list | grep dash
+            pip install -e . --progress-bar off && pip list | grep dash
             flake8 dash setup.py && flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
             pylint dash setup.py --rcfile=$PYLINTRC
             pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
@@ -115,7 +114,7 @@ jobs:
           name: ️️🏗️ build core
           command: |
               . venv/bin/activate
-              pip install --no-cache-dir --upgrade -e . --progress-bar off
+              # pip install --no-cache-dir --upgrade -e . --progress-bar off
               poetry install
               mkdir packages && cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
