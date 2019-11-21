@@ -135,6 +135,10 @@ export default class DatePickerRange extends Component {
             ...style,
         };
 
+        // the height in px of the top part of the calendar (that holds
+        // the name of the month)
+        const baselineHeight = 145;
+
         return (
             <div
                 id={id}
@@ -184,6 +188,7 @@ export default class DatePickerRange extends Component {
                     withPortal={with_portal && verticalFlag}
                     startDateId={start_date_id || this.state.start_date_id}
                     endDateId={end_date_id || this.state.end_date_id}
+                    verticalHeight={baselineHeight + day_size * 6 + 'px'}
                 />
             </div>
         );

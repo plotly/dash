@@ -71,6 +71,10 @@ export default class DatePickerSingle extends Component {
             ...style,
         };
 
+        // the height in px of the top part of the calendar (that holds
+        // the name of the month)
+        const baselineHeight = 145;
+
         return (
             <div
                 id={id}
@@ -106,6 +110,7 @@ export default class DatePickerSingle extends Component {
                     isRTL={is_RTL}
                     orientation={calendar_orientation}
                     daySize={day_size}
+                    verticalHeight={baselineHeight + day_size * 6 + 'px'}
                 />
             </div>
         );
