@@ -1,9 +1,0 @@
-pytest
-pytest-sugar
-pytest-mock
-lxml
-selenium>=3.141.0
-percy
-requests[security]
-beautifulsoup4
-waitress

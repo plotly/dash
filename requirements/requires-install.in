@@ -1,0 +1,8 @@
+dash_renderer
+dash-core-components
+dash-html-components
+dash-table
+Flask
+flask-compress
+future
+plotly

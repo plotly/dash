@@ -6,7 +6,7 @@ exec(open("dash/version.py").read(), main_ns)  # pylint: disable=exec-used
 
 
 def read_req_file(req_type):
-    with open("requires-{}.txt".format(req_type)) as fp:
+    with open("requirements/requires-{}.in".format(req_type)) as fp:
         requires = (line.strip() for line in fp)
         return [req for req in requires if req and not req.startswith("#")]
 
@@ -27,7 +27,12 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=read_req_file("install"),
     extras_require={
-        "dev": read_req_file("dev"),
+        "dev": read_req_file("dev")
+        + [
+            'pylint==1.9.4;python_version<"3.7"',
+            'pylint==2.3.1;python_version=="3.7"',
+            'astroid>=2.2.5;python_version>="3.7"',
+        ],
         "testing": read_req_file("testing"),
     },
     entry_points={

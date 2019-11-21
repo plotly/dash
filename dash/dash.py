@@ -926,7 +926,7 @@ class Dash(object):
                     arg_id = arg.component_id
                     arg_prop = getattr(arg, "component_property", None)
                     if arg_id not in layout and arg_id != layout_id:
-                        all_ids = [k for k in layout]
+                        all_ids = list(layout)
                         if layout_id:
                             all_ids.append(layout_id)
                         raise exceptions.NonExistentIdException(

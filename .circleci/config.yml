@@ -13,9 +13,12 @@ jobs:
           PYVERSION: python37
     steps:
       - checkout
-      - run: echo $PYVERSION > ver.txt
+      - run:
+          name: 🔒 Lock dependency
+          command: |
+            echo $PYVERSION > ver.txt && make update-deps
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements.txt" }}
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
@@ -32,17 +35,20 @@ jobs:
 
     steps:
       - checkout
-      - run: echo $PYVERSION > ver.txt
+      - run:
+          name: 🔒 Lock dependency
+          command: |
+            echo $PYVERSION > ver.txt && make update-deps
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
-            sudo pip install --upgrade virtualenv --progress-bar off
+            sudo pip install --progress-bar off --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
+            make init
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements.txt" }}
           paths:
               - venv
       - run:
@@ -50,7 +56,7 @@ jobs:
           command: |
             . venv/bin/activate
             set -eo pipefail
-            pip install -e . --progress-bar off && pip list | grep dash
+            pip install --progress-bar off --editable .[dev] && pip list | grep dash
             flake8 dash setup.py && flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
             pylint dash setup.py --rcfile=$PYLINTRC
             pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
@@ -90,29 +96,28 @@ jobs:
           PYVERSION: python37
     steps:
       - checkout
-      - run: echo $PYVERSION > ver.txt
+      - run:
+          name: 🔒 Lock dependency
+          command: echo $PYVERSION > ver.txt && make update-deps
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
-            sudo pip install --upgrade virtualenv
+            sudo pip install --progress-bar off --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            sed -i '/dash-/d' requires-install.txt
-            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
+            sed -i '/dash-/d' requirements.txt
+            make init
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements.txt" }}
           paths:
               - venv
       - run:
           name: ️️🏗️ build core
           command: |
-              . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-              cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-core-components.git
-              cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              cd dash-renderer-test-components && npm ci && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              . venv/bin/activate
+              pip install --progress-bar off --no-cache-dir --editable .
+              make build_core
               ls -la packages
       - persist_to_workspace:
           root: ~/dash
@@ -142,27 +147,26 @@ jobs:
 
     steps:
       - checkout
-      - run: echo $PYVERSION > ver.txt
+      - run:
+          name: 🔒 Lock dependency
+          command: echo $PYVERSION > ver.txt && make update-deps
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
-            sudo pip install --upgrade virtualenv --quiet
+            sudo pip install --progress-bar off --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
+            make init
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements.txt" }}
           paths:
               - venv
       - run:
           name: ️️🏗️ build misc
           command: |
-              . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-              git clone --depth 1 https://github.com/plotly/dash-table.git
-              cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-html-components.git
-              cd dash-html-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off
+              make build_misc
               ls -la packages
       - persist_to_workspace:
           root: ~/dash
@@ -194,9 +198,11 @@ jobs:
     parallelism: 3
     steps:
       - checkout
-      - run: echo $PYVERSION > ver.txt
+      - run:
+          name: 🔒 Lock dependency
+          command: echo $PYVERSION > ver.txt && make update-deps
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements.txt" }}
       - attach_workspace:
           at: ~/dash
       - run:
@@ -204,7 +210,7 @@ jobs:
           command: |
             . venv/bin/activate && cd packages && ls -la
             find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && cd ..
-            sed -i '/dash/d' requires-install.txt
+            sed -i '/dash/d' requirements.txt
             pip install --no-cache-dir --ignore-installed .
             pip list | grep dash
       - run:
