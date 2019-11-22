@@ -36,23 +36,23 @@ def nested_tree():
     return c, c1, c2, c3, c4, c5
 
 
-def test_init():
+def test_debc001_init():
     Component(a=3)
 
 
-def test_get_item_with_children():
+def test_debc002_get_item_with_children():
     c1 = Component(id="1")
     c2 = Component(children=[c1])
     assert c2["1"] == c1
 
 
-def test_get_item_with_children_as_component_instead_of_list():
+def test_debc003_get_item_with_children_as_component_instead_of_list():
     c1 = Component(id="1")
     c2 = Component(id="2", children=c1)
     assert c2["1"] == c1
 
 
-def test_get_item_with_nested_children_one_branch():
+def test_debc004_get_item_with_nested_children_one_branch():
     c1 = Component(id="1")
     c2 = Component(id="2", children=[c1])
     c3 = Component(children=[c2])
@@ -61,7 +61,7 @@ def test_get_item_with_nested_children_one_branch():
     assert c3["1"] == c1
 
 
-def test_get_item_with_nested_children_two_branches():
+def test_debc005_get_item_with_nested_children_two_branches():
     c1 = Component(id="1")
     c2 = Component(id="2", children=[c1])
     c3 = Component(id="3")
@@ -75,7 +75,7 @@ def test_get_item_with_nested_children_two_branches():
     assert c5["3"] == c3
 
 
-def test_get_item_with_nested_children_with_mixed_strings_and_without_lists():
+def test_debc006_get_item_with_full_tree():
     c, c1, c2, c3, c4, c5 = nested_tree()
     keys = [k for k in c]
 
@@ -90,7 +90,7 @@ def test_get_item_with_nested_children_with_mixed_strings_and_without_lists():
         c["x"]
 
 
-def test_len_with_nested_children_with_mixed_strings_and_without_lists():
+def test_debc007_len_with_full_tree():
     c = nested_tree()[0]
     assert (
         len(c) == 5 + 5 + 1
@@ -98,7 +98,7 @@ def test_len_with_nested_children_with_mixed_strings_and_without_lists():
     components, 2 strings + 2 numbers + none in c2, and 1 string in c1"
 
 
-def test_set_item_with_nested_children_with_mixed_strings_and_without_lists():
+def test_debc008_set_item_anywhere_in_tree():
     keys = ["0.0", "0.1", "0.1.x", "0.1.x.x", "0.1.x.x.0"]
     c = nested_tree()[0]
 
@@ -110,7 +110,7 @@ def test_set_item_with_nested_children_with_mixed_strings_and_without_lists():
         assert c[new_id] == new_component
 
 
-def test_del_item_with_nested_children_with_mixed_strings_and_without_lists():
+def test_debc009_del_item_full_tree():
     c = nested_tree()[0]
     keys = reversed([k for k in c])
     for key in keys:
@@ -120,13 +120,13 @@ def test_del_item_with_nested_children_with_mixed_strings_and_without_lists():
             c[key]
 
 
-def test_traverse_with_nested_children_with_mixed_strings_and_without_lists():
+def test_debc010_traverse_full_tree():
     c, c1, c2, c3, c4, c5 = nested_tree()
     elements = [i for i in c._traverse()]
     assert elements == c.children + [c3] + [c2] + c2.children
 
 
-def test_traverse_with_tuples():
+def test_debc011_traverse_with_tuples():
     c, c1, c2, c3, c4, c5 = nested_tree()
     c2.children = tuple(c2.children)
     c.children = tuple(c.children)
@@ -134,7 +134,7 @@ def test_traverse_with_tuples():
     assert elements == list(c.children) + [c3] + [c2] + list(c2.children)
 
 
-def test_to_plotly_json_with_nested_children_with_mixed_strings_and_without_lists():
+def test_debc012_to_plotly_json_full_tree():
     c = nested_tree()[0]
     Component._namespace
     Component._type
@@ -194,7 +194,7 @@ def test_to_plotly_json_with_nested_children_with_mixed_strings_and_without_list
     assert res == expected
 
 
-def test_get_item_raises_key_if_id_doesnt_exist():
+def test_debc013_get_item_raises_key_if_id_doesnt_exist():
     c = Component()
     with pytest.raises(KeyError):
         c["1"]
@@ -212,7 +212,7 @@ def test_get_item_raises_key_if_id_doesnt_exist():
         c3["0"]
 
 
-def test_set_item():
+def test_debc014_set_item():
     c1a = Component(id="1", children="Hello world")
     c2 = Component(id="2", children=c1a)
     assert c2["1"] == c1a
@@ -222,7 +222,7 @@ def test_set_item():
     assert c2["1"] == c1b
 
 
-def test_set_item_with_children_as_list():
+def test_debc015_set_item_with_children_as_list():
     c1 = Component(id="1")
     c2 = Component(id="2", children=[c1])
     assert c2["1"] == c1
@@ -231,7 +231,7 @@ def test_set_item_with_children_as_list():
     assert c2["3"] == c3
 
 
-def test_set_item_with_nested_children():
+def test_debc016_set_item_with_nested_children():
     c1 = Component(id="1")
     c2 = Component(id="2", children=[c1])
     c3 = Component(id="3")
@@ -256,14 +256,14 @@ def test_set_item_with_nested_children():
         c5["1"]
 
 
-def test_set_item_raises_key_error():
+def test_debc017_set_item_raises_key_error():
     c1 = Component(id="1")
     c2 = Component(id="2", children=[c1])
     with pytest.raises(KeyError):
         c2["3"] = Component(id="3")
 
 
-def test_del_item_from_list():
+def test_debc018_del_item_from_list():
     c1 = Component(id="1")
     c2 = Component(id="2")
     c3 = Component(id="3", children=[c1, c2])
@@ -280,7 +280,7 @@ def test_del_item_from_list():
     assert c3.children == []
 
 
-def test_del_item_from_class():
+def test_debc019_del_item_from_class():
     c1 = Component(id="1")
     c2 = Component(id="2", children=c1)
     assert c2["1"] == c1
@@ -291,7 +291,7 @@ def test_del_item_from_class():
     assert c2.children is None
 
 
-def test_to_plotly_json_without_children():
+def test_debc020_to_plotly_json_without_children():
     c = Component(id="a")
     c._prop_names = ("id",)
     c._type = "MyComponent"
@@ -303,7 +303,7 @@ def test_to_plotly_json_without_children():
     }
 
 
-def test_to_plotly_json_with_null_arguments():
+def test_debc021_to_plotly_json_with_null_arguments():
     c = Component(id="a")
     c._prop_names = ("id", "style")
     c._type = "MyComponent"
@@ -325,7 +325,7 @@ def test_to_plotly_json_with_null_arguments():
     }
 
 
-def test_to_plotly_json_with_children():
+def test_debc022_to_plotly_json_with_children():
     c = Component(id="a", children="Hello World")
     c._prop_names = ("id", "children")
     c._type = "MyComponent"
@@ -341,7 +341,7 @@ def test_to_plotly_json_with_children():
     }
 
 
-def test_to_plotly_json_with_wildcards():
+def test_debc023_to_plotly_json_with_wildcards():
     c = Component(
         id="a", **{"aria-expanded": "true", "data-toggle": "toggled", "data-none": None}
     )
@@ -360,7 +360,7 @@ def test_to_plotly_json_with_wildcards():
     }
 
 
-def test_len():
+def test_debc024_len():
     assert len(Component()) == 0
     assert len(Component(children="Hello World")) == 1
     assert len(Component(children=Component())) == 1
@@ -368,7 +368,7 @@ def test_len():
     assert len(Component(children=[Component(children=Component()), Component()])) == 3
 
 
-def test_iter():
+def test_debc025_iter():
     # The mixin methods from MutableMapping were cute but probably never
     # used - at least not by us. Test that they're gone
 
