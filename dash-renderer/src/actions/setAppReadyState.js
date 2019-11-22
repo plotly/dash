@@ -42,7 +42,6 @@ const isAppReady = layout => {
     }
 
     return targets => {
-        console.log('isAppReady called with', targets);
         const promises = [];
 
         if (Array.isArray(targets)) {
