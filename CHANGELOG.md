@@ -4,8 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Added
-- [#967](https://github.com/plotly/dash/pull/967) Adds support for defining
+- [#967](https://github.com/plotly/dash/pull/967) Add support for defining
 clientside JavaScript callbacks via inline strings.
+- [#1020](https://github.com/plotly/dash/pull/1020) Allow `visit_and_snapshot` API in `dash.testing.browser`  to stay on the page so you can run other checks.
 
 ### Fixed
 - [#1018](https://github.com/plotly/dash/pull/1006) Fix the `dash.testing` **stop** API with process application runner in Python2. Use `kill()` instead of `communicate()` to avoid hanging.
