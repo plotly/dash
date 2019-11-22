@@ -23,6 +23,7 @@ import {
     slice,
     sort,
     type,
+    uniq,
     view,
 } from 'ramda';
 import {createAction} from 'redux-actions';
@@ -221,11 +222,12 @@ export function notifyObservers(payload) {
     return async function(dispatch, getState) {
         const {id, props, excludedOutputs} = payload;
 
-        const {graphs, isAppReady, requestQueue} = getState();
-
-        if (isAppReady !== true) {
-            await isAppReady;
-        }
+        const {
+            dependenciesRequest,
+            graphs,
+            isAppReady,
+            requestQueue,
+        } = getState();
 
         const {InputGraph} = graphs;
         /*
@@ -364,6 +366,30 @@ export function notifyObservers(payload) {
                 queuedObservers.push(outputIdAndProp);
             }
         });
+
+        /**
+         * Determine the id of all components used as input or state in the callbacks
+         * triggered by the props change.
+         *
+         * Wait for all components associated to these ids to be ready before initiating
+         * the callbacks.
+         */
+        const deps = queuedObservers.map(output =>
+            dependenciesRequest.content.find(
+                dependency => dependency.output === output
+            )
+        );
+
+        const ids = uniq(
+            flatten(
+                deps.map(dep => [
+                    dep.inputs.map(input => input.id),
+                    dep.state.map(state => state.id),
+                ])
+            )
+        );
+
+        await isAppReady(ids);
 
         /*
          * record the set of output IDs that will eventually need to be
