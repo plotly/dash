@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 clientside JavaScript callbacks via inline strings.
 - [#1020](https://github.com/plotly/dash/pull/1020) Allow `visit_and_snapshot` API in `dash.testing.browser`  to stay on the page so you can run other checks.
 
+### Changed
+- [#1026](https://github.com/plotly/dash/pull/1026) Better error message when you forget to wrap multiple `children` in an array, and they get passed to other props.
+
 ### Fixed
 - [#1018](https://github.com/plotly/dash/pull/1006) Fix the `dash.testing` **stop** API with process application runner in Python2. Use `kill()` instead of `communicate()` to avoid hanging.
 
