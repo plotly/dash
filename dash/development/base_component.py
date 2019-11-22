@@ -94,6 +94,14 @@ class Component(with_metaclass(ComponentMeta, object)):
                         ", ".join(sorted(self._prop_names))
                     )
                 )
+
+            if k != "children" and isinstance(v, Component):
+                raise TypeError(
+                    "Component detected as a prop other than `children`\n" +
+                    "Did you forget to wrap multiple `children` in an array?" +
+                    "prop {} has value {}\n".format(k, repr(v))
+                )
+
             setattr(self, k, v)
 
     def to_plotly_json(self):
