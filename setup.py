@@ -25,7 +25,13 @@ setup(
     ),
     long_description=io.open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    install_requires=read_req_file("install"),
+    install_requires=read_req_file("install")
+    + [
+        "dash_renderer==1.2.0",
+        "dash-core-components==1.5.0",
+        "dash-html-components==1.0.1",
+        "dash-table==4.5.0",
+    ],
     extras_require={
         "dev": read_req_file("dev")
         + [
