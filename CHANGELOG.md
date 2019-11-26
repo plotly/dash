@@ -13,6 +13,7 @@ clientside JavaScript callbacks via inline strings.
 
 ### Fixed
 - [#1018](https://github.com/plotly/dash/pull/1006) Fix the `dash.testing` **stop** API with process application runner in Python2. Use `kill()` instead of `communicate()` to avoid hanging.
+- [#1027](https://github.com/plotly/dash/pull/1027) Fix bug with renderer callback lock never resolving with non-rendered async component using the asyncDecorator
 
 ## [1.6.1] - 2019-11-14
 ### Fixed
