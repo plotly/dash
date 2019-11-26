@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Updated
+- Upgraded plotly.js to 1.51.2 [#708](https://github.com/plotly/dash-core-components/pull/708)
+  - Patch release [1.51.2](https://github.com/plotly/plotly.js/releases/tag/v1.51.2) containing several bug fixes.
 
 ### Changed
 - [#695](https://github.com/plotly/dash-core-components/pull/695) Improvements to Slider and RangeSlider

@@ -110,10 +110,10 @@ _js_dist.extend([
         'dynamic': True
     },
     {
-        'relative_package_path': 'plotly-1.51.1.min.js',
+        'relative_package_path': 'plotly-1.51.2.min.js',
         'external_url': (
             'https://unpkg.com/dash-core-components@{}'
-            '/dash_core_components/plotly-1.51.1.min.js'
+            '/dash_core_components/plotly-1.51.2.min.js'
         ).format(__version__),
         'namespace': 'dash_core_components',
         'async': 'eager'
