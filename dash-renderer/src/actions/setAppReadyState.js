@@ -1,9 +1,9 @@
-import { path } from 'ramda';
-import { createAction } from 'redux-actions';
+import {path} from 'ramda';
+import {createAction} from 'redux-actions';
 
 import Registry from './../registry';
-import { getAction } from './constants';
-import { isReady } from '@plotly/dash-component-plugins';
+import {getAction} from './constants';
+import {isReady} from '@plotly/dash-component-plugins';
 
 const isAppReady = (layout, paths) => targets => {
     if (!layout || !paths || !Array.isArray(targets)) {
@@ -36,7 +36,7 @@ const isAppReady = (layout, paths) => targets => {
 const setAction = createAction(getAction('SET_APP_READY'));
 
 export default () => async (dispatch, getState) => {
-    const { layout, paths } = getState();
+    const {layout, paths} = getState();
     const ready = isAppReady(layout, paths);
 
     dispatch(setAction(ready));
