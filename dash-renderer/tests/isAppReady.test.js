@@ -2,7 +2,7 @@ import isAppReady from "../src/actions/isAppReady";
 
 const WAIT = 1000;
 
-describe('notifyObservers', () => {
+describe('isAppReady', () => {
     let resolve;
     beforeEach(() => {
         const promise = new Promise(r => {
