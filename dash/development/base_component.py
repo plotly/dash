@@ -98,8 +98,8 @@ class Component(with_metaclass(ComponentMeta, object)):
             if k != "children" and isinstance(v, Component):
                 raise TypeError(
                     "Component detected as a prop other than `children`\n" +
-                    "Did you forget to wrap multiple `children` in an array?" +
-                    "prop {} has value {}\n".format(k, repr(v))
+                    "Did you forget to wrap multiple `children` in an array?\n" +
+                    "Prop {} has value {}\n".format(k, repr(v))
                 )
 
             setattr(self, k, v)
