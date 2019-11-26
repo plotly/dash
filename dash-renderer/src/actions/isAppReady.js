@@ -1,5 +1,5 @@
-import { path } from 'ramda';
-import { isReady } from '@plotly/dash-component-plugins';
+import {path} from 'ramda';
+import {isReady} from '@plotly/dash-component-plugins';
 
 import Registry from '../registry';
 
