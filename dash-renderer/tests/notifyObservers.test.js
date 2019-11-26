@@ -1,65 +1,43 @@
-import { notifyObservers } from "../src/actions";
+import isAppReady from "../src/actions/isAppReady";
 
 const WAIT = 1000;
 
 describe('notifyObservers', () => {
-    const thunk = notifyObservers({
-        id: 'id',
-        props: {
-            'prop1': true
-        },
-        undefined
+    let resolve;
+    beforeEach(() => {
+        const promise = new Promise(r => {
+            resolve = r;
+        });
+
+        window.__components = {
+            a: { _dashprivate_isLazyComponentReady: promise },
+            b: {}
+        };
     });
 
     it('executes if app is ready', async () => {
         let done = false;
-        thunk(
-            () => { },
-            () => ({
-                graphs: {
-                    InputGraph: {
-                        hasNode: () => true,
-                        dependenciesOf: () => [
-                            'id.prop2'
-                        ],
-                        dependantsOf: () => [],
-                        overallOrder: () => 0
-                    }
-                },
-                isAppReady: () => Promise.resolve(true),
-                paths: {},
-                requestQueue: []
-            })
-        ).then(() => { done = true; });
+        Promise.resolve(isAppReady(
+            [{ namespace: '__components', type: 'b', props: { id: 'comp1' } }],
+            { comp1: [0] },
+            ['comp1']
+        )).then(() => {
+            done = true
+        });
 
-        await new Promise(r => setTimeout(r, 0));
+        await new Promise(r => setTimeout(r, WAIT));
         expect(done).toEqual(true);
     });
 
     it('waits on app to be ready', async () => {
-        let resolve;
-        const isAppReady = () => new Promise(r => {
-            resolve = r;
-        });
         let done = false;
-        thunk(
-            () => { },
-            () => ({
-                graphs: {
-                    InputGraph: {
-                        hasNode: () => true,
-                        dependenciesOf: () => [
-                            'id.prop2'
-                        ],
-                        dependantsOf: () => [],
-                        overallOrder: () => 0
-                    }
-                },
-                isAppReady,
-                paths: {},
-                requestQueue: []
-            })
-        ).then(() => { done = true; });
+        Promise.resolve(isAppReady(
+            [{ namespace: '__components', type: 'a', props: { id: 'comp1' } }],
+            { comp1: [0] },
+            ['comp1']
+        )).then(() => {
+            done = true
+        });
 
         await new Promise(r => setTimeout(r, WAIT));
         expect(done).toEqual(false);
@@ -69,5 +47,4 @@ describe('notifyObservers', () => {
         await new Promise(r => setTimeout(r, WAIT));
         expect(done).toEqual(true);
     });
-
 });

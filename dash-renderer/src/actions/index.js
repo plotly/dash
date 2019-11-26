@@ -34,7 +34,8 @@ import cookie from 'cookie';
 import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
 import {applyPersistence, prunePersistence} from '../persistence';
-import setAppIsReady from './setAppReadyState';
+
+import isAppReady from './isAppReady';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
@@ -45,8 +46,6 @@ export const setConfig = createAction(getAction('SET_CONFIG'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const onError = createAction(getAction('ON_ERROR'));
-
-export {setAppIsReady};
 
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
@@ -225,7 +224,8 @@ export function notifyObservers(payload) {
         const {
             dependenciesRequest,
             graphs,
-            isAppReady,
+            layout,
+            paths,
             requestQueue,
         } = getState();
 
@@ -389,7 +389,7 @@ export function notifyObservers(payload) {
             )
         );
 
-        await isAppReady(ids);
+        await isAppReady(layout, paths, ids);
 
         /*
          * record the set of output IDs that will eventually need to be
@@ -976,8 +976,6 @@ function updateOutput(
                                 );
                             });
                         }
-
-                        dispatch(setAppIsReady());
                     }
                 };
                 if (multi) {
