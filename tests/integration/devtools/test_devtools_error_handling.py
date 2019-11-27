@@ -186,6 +186,8 @@ def test_dveh003_validation_errors_in_place(dash_duo):
         dev_tools_hot_reload=False,
     )
 
+    dash_duo.wait_for_element('.js-plotly-plot .main-svg')
+
     dash_duo.find_element("#button").click()
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
     dash_duo.percy_snapshot("devtools - validation exception - closed")
