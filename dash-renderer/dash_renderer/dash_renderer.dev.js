@@ -29629,7 +29629,6 @@ function (_Component) {
         if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(layout)) {
           var finalLayout = Object(_persistence__WEBPACK_IMPORTED_MODULE_7__["applyPersistence"])(layoutRequest.content, dispatch);
           dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["setLayout"])(finalLayout));
-          dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["setAppIsReady"])());
         } else if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isNil"])(paths)) {
           dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["computePaths"])({
             subTree: layout,
@@ -30391,8 +30390,7 @@ var actionList = {
   SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
   SET_CONFIG: 'SET_CONFIG',
   ON_ERROR: 'ON_ERROR',
-  SET_HOOKS: 'SET_HOOKS',
-  SET_APP_READY: 'SET_APP_READY'
+  SET_HOOKS: 'SET_HOOKS'
 };
 var getAction = function getAction(action) {
   if (actionList[action]) {
@@ -30408,7 +30406,7 @@ var getAction = function getAction(action) {
 /*!******************************!*\
   !*** ./src/actions/index.js ***!
   \******************************/
-/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setAppLifecycle, setConfig, setHooks, setLayout, onError, setAppIsReady, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
+/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setAppLifecycle, setConfig, setHooks, setLayout, onError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -30441,9 +30439,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
 /* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
 /* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../persistence */ "./src/persistence.js");
-/* harmony import */ var _setAppReadyState__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setAppReadyState */ "./src/actions/setAppReadyState.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "setAppIsReady", function() { return _setAppReadyState__WEBPACK_IMPORTED_MODULE_9__["default"]; });
-
+/* harmony import */ var _isAppReady__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./isAppReady */ "./src/actions/isAppReady.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -30482,7 +30478,6 @@ var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"
 var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_HOOKS'));
 var setLayout = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_LAYOUT'));
 var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('ON_ERROR'));
-
 function hydrateInitialOutputs() {
   return function (dispatch, getState) {
     triggerDefaultState(dispatch, getState);
@@ -30632,24 +30627,14 @@ function reduceInputIds(nodeIds, InputGraph) {
 
 function notifyObservers(payload) {
   return function _callee(dispatch, getState) {
-    var id, props, excludedOutputs, _getState2, graphs, isAppReady, requestQueue, InputGraph, outputObservers, changedProps, depOrder, queuedObservers, newRequestQueue, promises, i, outputIdAndProp, requestUid;
+    var id, props, excludedOutputs, _getState2, dependenciesRequest, graphs, layout, paths, requestQueue, InputGraph, outputObservers, changedProps, depOrder, queuedObservers, deps, ids, newRequestQueue, promises, i, outputIdAndProp, requestUid;
 
     return regeneratorRuntime.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             id = payload.id, props = payload.props, excludedOutputs = payload.excludedOutputs;
-            _getState2 = getState(), graphs = _getState2.graphs, isAppReady = _getState2.isAppReady, requestQueue = _getState2.requestQueue;
-
-            if (!(isAppReady !== true)) {
-              _context.next = 5;
-              break;
-            }
-
-            _context.next = 5;
-            return regeneratorRuntime.awrap(isAppReady);
-
-          case 5:
+            _getState2 = getState(), dependenciesRequest = _getState2.dependenciesRequest, graphs = _getState2.graphs, layout = _getState2.layout, paths = _getState2.paths, requestQueue = _getState2.requestQueue;
             InputGraph = graphs.InputGraph;
             /*
              * Figure out all of the output id's that depend on this input.
@@ -30687,13 +30672,13 @@ function notifyObservers(payload) {
             }
 
             if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(outputObservers)) {
-              _context.next = 12;
+              _context.next = 9;
               break;
             }
 
             return _context.abrupt("return");
 
-          case 12:
+          case 9:
             /*
              * There may be several components that depend on this input.
              * And some components may depend on other components before
@@ -30780,12 +30765,35 @@ function notifyObservers(payload) {
                 queuedObservers.push(outputIdAndProp);
               }
             });
+            /**
+             * Determine the id of all components used as input or state in the callbacks
+             * triggered by the props change.
+             *
+             * Wait for all components associated to these ids to be ready before initiating
+             * the callbacks.
+             */
+
+            deps = queuedObservers.map(function (output) {
+              return dependenciesRequest.content.find(function (dependency) {
+                return dependency.output === output;
+              });
+            });
+            ids = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["uniq"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(deps.map(function (dep) {
+              return [dep.inputs.map(function (input) {
+                return input.id;
+              }), dep.state.map(function (state) {
+                return state.id;
+              })];
+            })));
+            _context.next = 17;
+            return regeneratorRuntime.awrap(Object(_isAppReady__WEBPACK_IMPORTED_MODULE_9__["default"])(layout, paths, ids));
+
+          case 17:
             /*
              * record the set of output IDs that will eventually need to be
              * updated in a queue. not all of these requests will be fired in this
              * action
              */
-
             newRequestQueue = queuedObservers.map(function (i) {
               return {
                 controllerId: i,
@@ -30809,7 +30817,7 @@ function notifyObservers(payload) {
 
             return _context.abrupt("return", Promise.all(promises));
 
-          case 21:
+          case 22:
           case "end":
             return _context.stop();
         }
@@ -31277,8 +31285,6 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
               updateOutput(idAndProp, getState, requestUid, dispatch, changedPropIds);
             });
           }
-
-          dispatch(Object(_setAppReadyState__WEBPACK_IMPORTED_MODULE_9__["default"])());
         }
       };
 
@@ -31338,138 +31344,45 @@ function serialize(state) {
 
 /***/ }),
 
-/***/ "./src/actions/setAppReadyState.js":
-/*!*****************************************!*\
-  !*** ./src/actions/setAppReadyState.js ***!
-  \*****************************************/
+/***/ "./src/actions/isAppReady.js":
+/*!***********************************!*\
+  !*** ./src/actions/isAppReady.js ***!
+  \***********************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/lib/index.js");
-/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(redux_actions__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _isSimpleComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../isSimpleComponent */ "./src/isSimpleComponent.js");
-/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../registry */ "./src/registry.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/actions/constants.js");
-/* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @plotly/dash-component-plugins */ "./node_modules/@plotly/dash-component-plugins/dist/index.js");
-/* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_5__);
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+/* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @plotly/dash-component-plugins */ "./node_modules/@plotly/dash-component-plugins/dist/index.js");
+/* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../registry */ "./src/registry.js");
 
 
 
-
-
-
-
-
-var isAppReady = function isAppReady(layout) {
-  var queue = [layout];
-  var res = {};
-  /* Would be much simpler if the Registry was aware of what it contained... */
-
-  while (queue.length) {
-    var elementLayout = queue.shift();
-
-    if (!elementLayout) {
-      continue;
-    }
-
-    var children = elementLayout.props && elementLayout.props.children;
-    var namespace = elementLayout.namespace;
-    var type = elementLayout.type;
-    res[namespace] = res[namespace] || {};
-    res[namespace][type] = type;
-
-    if (children) {
-      var filteredChildren = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (child) {
-        return !Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_2__["default"])(child);
-      }, Array.isArray(children) ? children : [children]);
-      queue.push.apply(queue, _toConsumableArray(filteredChildren));
-    }
-  }
-
+/* harmony default export */ __webpack_exports__["default"] = (function (layout, paths, targets) {
   var promises = [];
-  Object.entries(res).forEach(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        namespace = _ref2[0],
-        item = _ref2[1];
+  targets.forEach(function (id) {
+    var pathOfId = paths[id];
 
-    Object.entries(item).forEach(function (_ref3) {
-      var _ref4 = _slicedToArray(_ref3, 1),
-          type = _ref4[0];
+    if (!pathOfId) {
+      return;
+    }
 
-      var component = _registry__WEBPACK_IMPORTED_MODULE_3__["default"].resolve({
-        namespace: namespace,
-        type: type
-      });
-      var ready = Object(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_5__["isReady"])(component);
+    var target = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(pathOfId, layout);
 
-      if (ready && typeof ready.then === 'function') {
-        promises.push(ready);
-      }
-    });
+    if (!target) {
+      return;
+    }
+
+    var component = _registry__WEBPACK_IMPORTED_MODULE_2__["default"].resolve(target);
+    var ready = Object(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1__["isReady"])(component);
+
+    if (ready && typeof ready.then === 'function') {
+      promises.push(ready);
+    }
   });
   return promises.length ? Promise.all(promises) : true;
-};
-
-var setAction = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_APP_READY'));
-/* harmony default export */ __webpack_exports__["default"] = (function () {
-  return function _callee(dispatch, getState) {
-    var ready;
-    return regeneratorRuntime.async(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            ready = isAppReady(getState().layout);
-
-            if (!(ready === true)) {
-              _context.next = 5;
-              break;
-            }
-
-            /* All async is ready */
-            dispatch(setAction(true));
-            _context.next = 9;
-            break;
-
-          case 5:
-            /* Waiting on async */
-            dispatch(setAction(ready));
-            _context.next = 8;
-            return regeneratorRuntime.awrap(ready);
-
-          case 8:
-            /**
-             * All known async is ready.
-             *
-             * Callbacks were blocked while waiting, we can safely
-             * assume that no update to layout happened to invalidate.
-             */
-            dispatch(setAction(true));
-
-          case 9:
-          case "end":
-            return _context.stop();
-        }
-      }
-    });
-  };
 });
 
 /***/ }),
@@ -34585,31 +34498,6 @@ var customHooks = function customHooks() {
 
 /***/ }),
 
-/***/ "./src/reducers/isAppReady.js":
-/*!************************************!*\
-  !*** ./src/reducers/isAppReady.js ***!
-  \************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return config; });
-/* harmony import */ var _actions_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions/constants */ "./src/actions/constants.js");
-
-function config() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-  var action = arguments.length > 1 ? arguments[1] : undefined;
-
-  if (action.type === Object(_actions_constants__WEBPACK_IMPORTED_MODULE_0__["getAction"])('SET_APP_READY')) {
-    return action.payload;
-  }
-
-  return state;
-}
-
-/***/ }),
-
 /***/ "./src/reducers/layout.js":
 /*!********************************!*\
   !*** ./src/reducers/layout.js ***!
@@ -34720,17 +34608,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createReducer", function() { return createReducer; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/index.js");
-/* harmony import */ var _isAppReady__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./isAppReady */ "./src/reducers/isAppReady.js");
-/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
-/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
-/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
-/* harmony import */ var _requestQueue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./requestQueue */ "./src/reducers/requestQueue.js");
-/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
-/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
-/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
-/* harmony import */ var _hooks__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
-/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
+/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
+/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
+/* harmony import */ var _requestQueue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./requestQueue */ "./src/reducers/requestQueue.js");
+/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
+/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
+/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
+/* harmony import */ var _hooks__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
+/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
 
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -34753,24 +34640,22 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 
-
 var apiRequests = ['dependenciesRequest', 'layoutRequest', 'reloadRequest', 'loginRequest'];
 
 function mainReducer() {
   var parts = {
-    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_7__["default"],
-    isAppReady: _isAppReady__WEBPACK_IMPORTED_MODULE_2__["default"],
-    layout: _layout__WEBPACK_IMPORTED_MODULE_3__["default"],
-    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_4__["default"],
-    paths: _paths__WEBPACK_IMPORTED_MODULE_5__["default"],
-    requestQueue: _requestQueue__WEBPACK_IMPORTED_MODULE_6__["default"],
-    config: _config__WEBPACK_IMPORTED_MODULE_12__["default"],
-    history: _history__WEBPACK_IMPORTED_MODULE_8__["default"],
-    error: _error__WEBPACK_IMPORTED_MODULE_9__["default"],
-    hooks: _hooks__WEBPACK_IMPORTED_MODULE_10__["default"]
+    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_6__["default"],
+    layout: _layout__WEBPACK_IMPORTED_MODULE_2__["default"],
+    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_3__["default"],
+    paths: _paths__WEBPACK_IMPORTED_MODULE_4__["default"],
+    requestQueue: _requestQueue__WEBPACK_IMPORTED_MODULE_5__["default"],
+    config: _config__WEBPACK_IMPORTED_MODULE_11__["default"],
+    history: _history__WEBPACK_IMPORTED_MODULE_7__["default"],
+    error: _error__WEBPACK_IMPORTED_MODULE_8__["default"],
+    hooks: _hooks__WEBPACK_IMPORTED_MODULE_9__["default"]
   };
   Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (r) {
-    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_11__["default"])(r);
+    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_10__["default"])(r);
   }, apiRequests);
   return Object(redux__WEBPACK_IMPORTED_MODULE_1__["combineReducers"])(parts);
 }

@@ -972,11 +972,11 @@ class Tests(IntegrationTests):
         )[0].click()
 
         graph_1_expected_clickdata = {
-            "points": [{"curveNumber": 0, "pointNumber": 1, "pointIndex": 1, "x": 2, "y": 10}]
+            "points": [{"curveNumber": 0, "pointNumber": 1, "pointIndex": 1, "x": 2, "y": 10, "label": 2, "value": 10}]
         }
 
         graph_2_expected_clickdata = {
-            "points": [{"curveNumber": 0, "pointNumber": 1, "pointIndex": 1, "x": 3, "y": 10}]
+            "points": [{"curveNumber": 0, "pointNumber": 1, "pointIndex": 1, "x": 3, "y": 10, "label": 3, "value": 10}]
         }
 
         self.wait_for_text_to_equal('#graph1_info', json.dumps(graph_1_expected_clickdata))

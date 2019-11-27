@@ -4,8 +4,10 @@ from bs4 import BeautifulSoup
 
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 
 
 def test_cbsc001_simple_callback(dash_duo):
@@ -140,3 +142,35 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
 
     dash_duo.percy_snapshot(name="callback-generating-function-2")
     assert dash_duo.get_logs() == [], "console is clean"
+
+
+def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
+    app = dash.Dash()
+    app.layout = html.Div(
+        children=[
+            dcc.Tabs(
+                children=[
+                    dcc.Tab(
+                        children=[
+                            html.Button(id="btn", children="Update Input"),
+                            html.Div(id="output", children=["Hello"]),
+                        ]
+                    ),
+                    dcc.Tab(children=dash_table.DataTable(id="other-table")),
+                ]
+            )
+        ]
+    )
+
+    @app.callback(Output("output", "children"), [Input("btn", "n_clicks")])
+    def update_graph(n_clicks):
+        if n_clicks is None:
+            raise PreventUpdate
+
+        return "Bye"
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element('#btn').click()
+    assert dash_duo.find_element('#output').text == "Bye"
+    assert dash_duo.get_logs() == []
