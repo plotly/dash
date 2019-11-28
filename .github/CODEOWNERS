@@ -1,5 +1,5 @@
 # These owners will be the default owners for everything in
 # the repo. Unless a later match takes precedence
-* @alexcjohnson @byronz @Marc-Andre-Rivet
+* @alexcjohnson @Marc-Andre-Rivet
 
-_r_*     @alexcjohnson @byronz @Marc-Andre-Rivet @rpkyle
+_r_*     @alexcjohnson @Marc-Andre-Rivet @rpkyle
