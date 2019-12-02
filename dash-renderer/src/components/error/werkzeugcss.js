@@ -1,3 +1,7 @@
+// Werkzeug css included as a string, because we want to inject
+// it into an iframe srcDoc
+
+export default `
 body {
     margin: 0px;
     margin-top: 10px;
@@ -102,3 +106,4 @@ div.debugger {
 .debugger .traceback .source pre.line img {
     display: none;
 }
+`;

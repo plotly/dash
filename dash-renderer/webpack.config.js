@@ -29,10 +29,6 @@ const defaults = {
             {
                 test: /\.svg$/,
                 use: ['@svgr/webpack'],
-            },
-            {
-                test: /\.txt$/i,
-                use: 'raw-loader',
             }
         ]
     }
