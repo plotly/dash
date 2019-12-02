@@ -52,7 +52,6 @@ const rendererOptions = {
     externals: {
         react: 'React',
         'react-dom': 'ReactDOM',
-        'plotly.js': 'Plotly',
         'prop-types': 'PropTypes'
     },
     ...defaults
