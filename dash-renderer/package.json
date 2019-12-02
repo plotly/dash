@@ -32,7 +32,6 @@
     "redux": "^3.4.0",
     "redux-actions": "^0.9.1",
     "redux-thunk": "^2.0.1",
-    "uniqid": "^5.0.3",
     "viz.js": "1.8.0"
   },
   "devDependencies": {
