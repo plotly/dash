@@ -25,7 +25,7 @@ import {notifyObservers, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
 import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
-import checkPropTypes from 'check-prop-types';
+import checkPropTypes from './checkPropTypes';
 
 function validateComponent(componentDefinition) {
     if (type(componentDefinition) === 'Array') {
