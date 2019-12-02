@@ -10,21 +10,14 @@ const defaults = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /node_modules\/(?!check-prop-types\/)/,
+                exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
                 },
             },
             {
                 test: /\.css$/,
-                use: [
-                    {
-                        loader: 'style-loader',
-                    },
-                    {
-                        loader: 'css-loader',
-                    },
-                ],
+                use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.svg$/,
