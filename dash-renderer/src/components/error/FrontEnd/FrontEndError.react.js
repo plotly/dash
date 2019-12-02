@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import '../Percy.css';
 import {urlBase} from '../../../utils';
 
-import werkzeugCss from '../werkzeug.css.txt';
+import werkzeugCss from '../werkzeugcss';
 
 class FrontEndError extends Component {
     constructor(props) {

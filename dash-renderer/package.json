@@ -59,7 +59,6 @@
     "prettier-eslint": "^8.8.2",
     "prettier-eslint-cli": "^4.7.1",
     "prettier-stylelint": "^0.4.2",
-    "raw-loader": "^3.1.0",
     "style-loader": "^1.0.0",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.8",
