@@ -1,14 +1,13 @@
 /*
- * Copied out of prop-types and modified - similar to check-prop-types, but
- * simplified and tweaked to our needs, also so we don't need a special
- * transpiling inclusion for this in node_modules - check-prop-types hasn't
- * been modified in years and yet includes
+ * Copied out of prop-types and modified - inspired by check-prop-types, but
+ * simplified and tweaked to our needs: we don't need the NODE_ENV check,
+ * we report all errors, not just the first one, and we don't need the throwing
+ * variant `assertPropTypes`.
  */
 import ReactPropTypesSecret from 'prop-types/lib/ReactPropTypesSecret';
 
 /**
  * Assert that the values match with the type specs.
- * Error messages are memorized and will only be shown once.
  *
  * @param {object} typeSpecs Map of name to a ReactPropType
  * @param {object} values Runtime values that need to be type-checked
