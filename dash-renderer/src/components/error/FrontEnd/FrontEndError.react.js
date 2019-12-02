@@ -167,7 +167,6 @@ const ErrorContent = connect(state => ({base: urlBase(state.config)}))(
 
 FrontEndError.propTypes = {
     e: PropTypes.shape({
-        myUID: PropTypes.string,
         timestamp: PropTypes.object,
         error: errorPropTypes,
     }),

@@ -66,7 +66,6 @@ import {
     type,
 } from 'ramda';
 import {createAction} from 'redux-actions';
-import uniqid from 'uniqid';
 
 import Registry from './registry';
 
@@ -81,7 +80,6 @@ function err(e) {
     /* eslint-disable no-console */
 
     return createAction('ON_ERROR')({
-        myUID: uniqid(),
         myID: storePrefix,
         type: 'frontEnd',
         error,
