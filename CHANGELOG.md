@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Changed
+- [#1035](https://github.com/plotly/dash/pull/1035) Simplify our build process.
+
 ## [1.7.0] - 2019-11-27
 ### Added
 - [#967](https://github.com/plotly/dash/pull/967) Add support for defining
