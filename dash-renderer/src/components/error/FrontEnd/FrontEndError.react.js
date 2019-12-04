@@ -144,11 +144,7 @@ function UnconnectedErrorContent({error, base}) {
                 </div>
             ) : (
                 <div className="dash-be-error__str">
-                    <div
-                        className="dash-backend-error"
-                    >
-                        {error.html}
-                    </div>
+                    <div className="dash-backend-error">{error.html}</div>
                 </div>
             )}
         </div>
