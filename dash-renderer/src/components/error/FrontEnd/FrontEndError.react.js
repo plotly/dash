@@ -146,11 +146,6 @@ function UnconnectedErrorContent({error, base}) {
                 <div className="dash-be-error__str">
                     <div
                         className="dash-backend-error"
-                        style={{
-                            width: 'calc(600px - 67px)',
-                            height: '75vh',
-                            border: 'none',
-                        }}
                     >
                         {error.html}
                     </div>
