@@ -3,7 +3,34 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+
+### Changed
+- [#1035](https://github.com/plotly/dash/pull/1035) Simplify our build process.
+
+## [1.7.0] - 2019-11-27
+### Added
+- [#967](https://github.com/plotly/dash/pull/967) Add support for defining
+clientside JavaScript callbacks via inline strings.
+- [#1020](https://github.com/plotly/dash/pull/1020) Allow `visit_and_snapshot` API in `dash.testing.browser`  to stay on the page so you can run other checks.
+
+### Changed
+- [#1026](https://github.com/plotly/dash/pull/1026) Better error message when you forget to wrap multiple `children` in an array, and they get passed to other props.
+
 ### Fixed
+- [#1018](https://github.com/plotly/dash/pull/1006) Fix the `dash.testing` **stop** API with process application runner in Python2. Use `kill()` instead of `communicate()` to avoid hanging.
+- [#1027](https://github.com/plotly/dash/pull/1027) Fix bug with renderer callback lock never resolving with non-rendered async component using the asyncDecorator
+
+## [1.6.1] - 2019-11-14
+### Fixed
+- [#1006](https://github.com/plotly/dash/pull/1006) Fix IE11 / ES5 compatibility and validation issues
+- [#1006](https://github.com/plotly/dash/pull/1006) Fix bug with renderer wrapper component TreeContainer to prevent useless re-renders
+- [#1001](https://github.com/plotly/dash/pull/1001)
+  - Fix and improve the `clear_input()` API in `dash.testing`, so it's more robust handling react `input`.
+  - make the `percy_snapshot()` API more robust, and the timeout of `wait_for_callbacks` (if set to True) will not fail the snapshot execution, but logged as potential error.
+
+## [1.6.0] - 2019-11-04
+### Fixed
+- [#999](https://github.com/plotly/dash/pull/999) Fix fingerprint for component suites with `metadata` in version.
 - [#983](https://github.com/plotly/dash/pull/983) Fix the assets loading issues when dashR application runner is handling with an app defined by string chunk.
 
 ## [1.5.1] - 2019-10-29

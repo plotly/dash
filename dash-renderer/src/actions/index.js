@@ -23,6 +23,7 @@ import {
     slice,
     sort,
     type,
+    uniq,
     view,
 } from 'ramda';
 import {createAction} from 'redux-actions';
@@ -33,7 +34,8 @@ import cookie from 'cookie';
 import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
 import {applyPersistence, prunePersistence} from '../persistence';
-import setAppIsReady from './setAppReadyState';
+
+import isAppReady from './isAppReady';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
@@ -44,8 +46,6 @@ export const setConfig = createAction(getAction('SET_CONFIG'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const onError = createAction(getAction('ON_ERROR'));
-
-export {setAppIsReady};
 
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
@@ -221,11 +221,13 @@ export function notifyObservers(payload) {
     return async function(dispatch, getState) {
         const {id, props, excludedOutputs} = payload;
 
-        const {graphs, isAppReady, requestQueue} = getState();
-
-        if (isAppReady !== true) {
-            await isAppReady;
-        }
+        const {
+            dependenciesRequest,
+            graphs,
+            layout,
+            paths,
+            requestQueue,
+        } = getState();
 
         const {InputGraph} = graphs;
         /*
@@ -364,6 +366,30 @@ export function notifyObservers(payload) {
                 queuedObservers.push(outputIdAndProp);
             }
         });
+
+        /**
+         * Determine the id of all components used as input or state in the callbacks
+         * triggered by the props change.
+         *
+         * Wait for all components associated to these ids to be ready before initiating
+         * the callbacks.
+         */
+        const deps = queuedObservers.map(output =>
+            dependenciesRequest.content.find(
+                dependency => dependency.output === output
+            )
+        );
+
+        const ids = uniq(
+            flatten(
+                deps.map(dep => [
+                    dep.inputs.map(input => input.id),
+                    dep.state.map(state => state.id),
+                ])
+            )
+        );
+
+        await isAppReady(layout, paths, ids);
 
         /*
          * record the set of output IDs that will eventually need to be
@@ -950,8 +976,6 @@ function updateOutput(
                                 );
                             });
                         }
-
-                        dispatch(setAppIsReady());
                     }
                 };
                 if (multi) {

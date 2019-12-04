@@ -95,6 +95,7 @@ class BaseDashRunner(object):
                         self.stop_timeout
                     )
                 )
+        logger.info("__exit__ complete")
 
     @property
     def url(self):
@@ -231,6 +232,7 @@ class ProcessRunner(BaseDashRunner):
     def stop(self):
         if self.proc:
             try:
+                logger.info("proc.terminate with pid %s", self.proc.pid)
                 self.proc.terminate()
                 if utils.PY3:
                     # pylint:disable=no-member
@@ -238,8 +240,9 @@ class ProcessRunner(BaseDashRunner):
                     # pylint: disable=unexpected-keyword-arg
                     self.proc.communicate(timeout=self.stop_timeout)
                 else:
-                    _except = OSError
-                    self.proc.communicate()
+                    _except = Exception
+                    logger.info('ruthless kill the process to avoid zombie')
+                    self.proc.kill()
             except _except:
                 logger.exception(
                     "subprocess terminate not success, trying to kill "
@@ -247,6 +250,7 @@ class ProcessRunner(BaseDashRunner):
                 )
                 self.proc.kill()
                 self.proc.communicate()
+        logger.info('process stop completes!')
 
 
 class RRunner(ProcessRunner):
@@ -260,13 +264,14 @@ class RRunner(ProcessRunner):
     def start(self, app, start_timeout=2, cwd=None):
         """Start the server with subprocess and Rscript."""
 
-        # app is a R string chunk
         if os.path.isfile(app) and os.path.exists(app):
             # app is already a file in a dir - use that as cwd
             if not cwd:
                 cwd = os.path.dirname(app)
                 logger.info("RRunner inferred cwd from app path: %s", cwd)
         else:
+            # app is a string chunk, we make a temporary folder to store app.R
+            # and its relevants assets
             self._tmp_app_path = os.path.join(
                 "/tmp" if not self.is_windows else os.getenv("TEMP"),
                 uuid.uuid4().hex,

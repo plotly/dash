@@ -2,7 +2,6 @@ import {connect} from 'react-redux';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
 import Radium from 'radium';
-import uniqid from 'uniqid';
 import {onError, revert} from '../../actions';
 
 class UnconnectedComponentErrorBoundary extends Component {
@@ -10,7 +9,6 @@ class UnconnectedComponentErrorBoundary extends Component {
         super(props);
         this.state = {
             myID: props.componentId,
-            myUID: uniqid(),
             oldChildren: null,
             hasError: false,
         };
@@ -24,7 +22,6 @@ class UnconnectedComponentErrorBoundary extends Component {
         const {dispatch} = this.props;
         dispatch(
             onError({
-                myUID: this.state.myUID,
                 myID: this.state.myID,
                 type: 'frontEnd',
                 error,
