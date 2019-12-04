@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 import os
 import sys
+import time
 import logging
 import warnings
 import percy
@@ -26,7 +27,11 @@ from dash.testing.wait import (
     until,
 )
 from dash.testing.dash_page import DashPageMixin
-from dash.testing.errors import DashAppLoadingError, BrowserError
+from dash.testing.errors import (
+    DashAppLoadingError,
+    BrowserError,
+    TestingTimeoutError,
+)
 from dash.testing.consts import SELENIUM_GRID_DEFAULT
 
 
@@ -100,6 +105,33 @@ class Browser(DashPageMixin):
         except percy.errors.Error:
             logger.exception("percy runner failed to finalize properly")
 
+    def visit_and_snapshot(
+        self,
+        resource_path,
+        hook_id,
+        wait_for_callbacks=True,
+        assert_check=True,
+        stay_on_page=False
+    ):
+        try:
+            path = resource_path.lstrip("/")
+            if path != resource_path:
+                logger.warning("we stripped the left '/' in resource_path")
+            self.driver.get("{}/{}".format(self.server_url.rstrip("/"), path))
+
+            # wait for the hook_id to present and all callbacks get fired
+            self.wait_for_element_by_id(hook_id)
+            self.percy_snapshot(path, wait_for_callbacks=wait_for_callbacks)
+            if assert_check:
+                assert not self.driver.find_elements_by_css_selector(
+                    "div.dash-debug-alert"
+                ), "devtools should not raise an error alert"
+            if not stay_on_page:
+                self.driver.back()
+        except WebDriverException as e:
+            logger.exception("snapshot at resource %s error", path)
+            raise e
+
     def percy_snapshot(self, name="", wait_for_callbacks=False):
         """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`.
         It also combines the snapshot `name` with the python version.
@@ -108,8 +140,24 @@ class Browser(DashPageMixin):
             name, sys.version_info.major, sys.version_info.minor
         )
         logger.info("taking snapshot name => %s", snapshot_name)
-        if wait_for_callbacks:
-            until(self._wait_for_callbacks, timeout=10)
+        try:
+            if wait_for_callbacks:
+                # the extra one second sleep adds safe margin in the context
+                # of wait_for_callbacks
+                time.sleep(1)
+                until(self._wait_for_callbacks, timeout=40, poll=0.3)
+        except TestingTimeoutError:
+            # API will log the error but this TimeoutError should not block
+            # the test execution to continue and it will still do a snapshot
+            # as diff reference for the build run.
+            logger.error(
+                "wait_for_callbacks failed => status of invalid rqs %s",
+                list(
+                    _ for _ in self.redux_state_rqs if not _.get("responseTime")
+                ),
+            )
+            logger.debug("full content of the rqs => %s", self.redux_state_rqs)
+
         self.percy_runner.snapshot(name=snapshot_name)
 
     def take_snapshot(self, name):
@@ -431,13 +479,15 @@ class Browser(DashPageMixin):
     def clear_input(self, elem_or_selector):
         """Simulate key press to clear the input."""
         elem = self._get_element(elem_or_selector)
-
+        logger.debug("clear input with %s => %s", elem_or_selector, elem)
         (
             ActionChains(self.driver)
+            .move_to_element(elem)
+            .pause(0.2)
             .click(elem)
-            .send_keys(Keys.HOME)
-            .key_down(Keys.SHIFT)
             .send_keys(Keys.END)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.HOME)
             .key_up(Keys.SHIFT)
             .send_keys(Keys.DELETE)
         ).perform()
@@ -499,27 +549,6 @@ class Browser(DashPageMixin):
             entries = self.driver.get_log("browser")
             if entries:
                 self._last_ts = entries[-1]["timestamp"]
-
-    def visit_and_snapshot(
-        self, resource_path, hook_id, wait_for_callbacks=True, assert_check=True
-    ):
-        try:
-            path = resource_path.lstrip("/")
-            if path != resource_path:
-                logger.warning("we stripped the left '/' in resource_path")
-            self.driver.get("{}/{}".format(self.server_url.rstrip("/"), path))
-
-            # wait for the hook_id to present and all callbacks get fired
-            self.wait_for_element_by_id(hook_id)
-            self.percy_snapshot(path, wait_for_callbacks=wait_for_callbacks)
-            if assert_check:
-                assert not self.driver.find_elements_by_css_selector(
-                    "div.dash-debug-alert"
-                ), "devtools should not raise an error alert"
-            self.driver.back()
-        except WebDriverException as e:
-            logger.exception("snapshot at resource %s error", path)
-            raise e
 
     @property
     def driver(self):

@@ -26,6 +26,7 @@ setup(
     long_description=io.open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     install_requires=read_req_file("install"),
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*",
     extras_require={
         "dev": read_req_file("dev"),
         "testing": read_req_file("testing"),
@@ -42,6 +43,7 @@ setup(
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
+        "Framework :: Dash",
         "Framework :: Flask",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",

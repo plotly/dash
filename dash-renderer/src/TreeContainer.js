@@ -25,7 +25,7 @@ import {notifyObservers, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
 import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
-import checkPropTypes from 'check-prop-types';
+import checkPropTypes from './checkPropTypes';
 
 function validateComponent(componentDefinition) {
     if (type(componentDefinition) === 'Array') {
@@ -94,6 +94,60 @@ CheckedComponent.propTypes = {
     id: PropTypes.string,
 };
 class TreeContainer extends Component {
+    constructor(props) {
+        super(props);
+
+        this.setProps = this.setProps.bind(this);
+    }
+
+    setProps(newProps) {
+        const {
+            _dashprivate_dependencies,
+            _dashprivate_dispatch,
+            _dashprivate_path,
+            _dashprivate_layout,
+        } = this.props;
+
+        const id = this.getLayoutProps().id;
+
+        // Identify the modified props that are required for callbacks
+        const watchedKeys = filter(
+            key =>
+                _dashprivate_dependencies &&
+                _dashprivate_dependencies.find(
+                    dependency =>
+                        dependency.inputs.find(
+                            input => input.id === id && input.property === key
+                        ) ||
+                        dependency.state.find(
+                            state => state.id === id && state.property === key
+                        )
+                )
+        )(keysIn(newProps));
+
+        // setProps here is triggered by the UI - record these changes
+        // for persistence
+        recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
+
+        // Always update this component's props
+        _dashprivate_dispatch(
+            updateProps({
+                props: newProps,
+                itempath: _dashprivate_path,
+            })
+        );
+
+        // Only dispatch changes to Dash if a watched prop changed
+        if (watchedKeys.length) {
+            _dashprivate_dispatch(
+                notifyObservers({
+                    id: id,
+                    props: pick(watchedKeys)(newProps),
+                })
+            );
+        }
+    }
+
     getChildren(components, path) {
         if (isNil(components)) {
             return null;
@@ -156,58 +210,6 @@ class TreeContainer extends Component {
         );
     }
 
-    getSetProps() {
-        return newProps => {
-            const {
-                _dashprivate_dependencies,
-                _dashprivate_dispatch,
-                _dashprivate_path,
-                _dashprivate_layout,
-            } = this.props;
-
-            const id = this.getLayoutProps().id;
-
-            // Identify the modified props that are required for callbacks
-            const watchedKeys = filter(
-                key =>
-                    _dashprivate_dependencies &&
-                    _dashprivate_dependencies.find(
-                        dependency =>
-                            dependency.inputs.find(
-                                input =>
-                                    input.id === id && input.property === key
-                            ) ||
-                            dependency.state.find(
-                                state =>
-                                    state.id === id && state.property === key
-                            )
-                    )
-            )(keysIn(newProps));
-
-            // setProps here is triggered by the UI - record these changes
-            // for persistence
-            recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
-
-            // Always update this component's props
-            _dashprivate_dispatch(
-                updateProps({
-                    props: newProps,
-                    itempath: _dashprivate_path,
-                })
-            );
-
-            // Only dispatch changes to Dash if a watched prop changed
-            if (watchedKeys.length) {
-                _dashprivate_dispatch(
-                    notifyObservers({
-                        id: id,
-                        props: pick(watchedKeys)(newProps),
-                    })
-                );
-            }
-        };
-    }
-
     shouldComponentUpdate(nextProps) {
         const {_dashprivate_layout, _dashprivate_loadingState} = nextProps;
         return (
@@ -223,7 +225,6 @@ class TreeContainer extends Component {
 
     render() {
         const {
-            _dashprivate_dispatch,
             _dashprivate_layout,
             _dashprivate_loadingState,
             _dashprivate_path,
@@ -235,13 +236,12 @@ class TreeContainer extends Component {
             layoutProps.children,
             _dashprivate_path
         );
-        const setProps = this.getSetProps(_dashprivate_dispatch);
 
         return this.getComponent(
             _dashprivate_layout,
             children,
             _dashprivate_loadingState,
-            setProps
+            this.setProps
         );
     }
 }
