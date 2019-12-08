@@ -46,14 +46,14 @@ version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
 stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")"""   # noqa:E501
+all_files = FALSE,{async_or_dynamic} class = "html_dependency")"""   # noqa:E501
 
 frame_body_template = """`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
 stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")"""  # noqa:E501
+all_files = FALSE,{async_or_dynamic} class = "html_dependency")"""  # noqa:E501
 
 frame_close_template = """)
 return(deps_metadata)
@@ -276,18 +276,25 @@ def generate_js_metadata(pkg_data, project_shortname):
     # pylint: disable=consider-using-enumerate
     if len(alldist) > 1:
         for dep in range(len(alldist)):
-            rpp = alldist[dep]["relative_package_path"]
+            curr_dep = alldist[dep]
+            rpp = curr_dep["relative_package_path"]
+
+            async_or_dynamic = check_async_type(curr_dep)
+
             if "dash_" in rpp:
                 dep_name = rpp.split(".")[0]
             else:
                 dep_name = "{}".format(project_shortname)
                 project_ver = str(dep)
+
             if "css" in rpp:
                 css_name = "'{}'".format(rpp)
+                # async_or_dynamic = ", dynamic = FALSE,"
                 script_name = 'NULL'
             else:
                 script_name = "'{}'".format(rpp)
                 css_name = 'NULL'
+
             function_frame += [
                 frame_element_template.format(
                     dep_name=dep_name,
@@ -296,23 +303,30 @@ def generate_js_metadata(pkg_data, project_shortname):
                     project_shortname=project_shortname,
                     script_name=script_name,
                     css_name=css_name,
+                    async_or_dynamic=async_or_dynamic,
                 )
             ]
             function_frame_body = ",\n".join(function_frame)
     elif len(alldist) == 1:
-        rpp = alldist[0]["relative_package_path"]
+        dep = alldist[0]
+        rpp = dep["relative_package_path"]
+
+        async_or_dynamic = check_async_type(dep)
+
         if "css" in rpp:
             css_name = "'{}'".format(rpp)
             script_name = "NULL"
         else:
             script_name = "'{}'".format(rpp)
             css_name = "NULL"
+
         function_frame_body = frame_body_template.format(
             project_shortname=project_shortname,
             project_ver=project_ver,
             rpkgname=rpkgname,
             script_name=script_name,
             css_name=css_name,
+            async_or_dynamic=async_or_dynamic,
         )
 
     function_string = "".join(
@@ -320,6 +334,19 @@ def generate_js_metadata(pkg_data, project_shortname):
     )
 
     return function_string
+
+
+# determine whether dependency uses async or dynamic flag
+# then return the properly formatted string if so, i.e.
+# " async = TRUE,". a dependency can have async or
+# dynamic elements, neither of these, but never both.
+def check_async_type(dep):
+    async_or_dynamic = ""
+    for key in dep.keys():
+        if (key in ['async', 'dynamic']):
+            async_or_dynamic = \
+                " {} = {},".format(key, str(dep[key]).upper())
+    return async_or_dynamic
 
 
 # This method wraps code within arbitrary LaTeX-like tags, which are used
