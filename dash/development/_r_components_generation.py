@@ -289,7 +289,6 @@ def generate_js_metadata(pkg_data, project_shortname):
 
             if "css" in rpp:
                 css_name = "'{}'".format(rpp)
-                # async_or_dynamic = ", dynamic = FALSE,"
                 script_name = 'NULL'
             else:
                 script_name = "'{}'".format(rpp)
