@@ -86,9 +86,12 @@ class Component(with_metaclass(ComponentMeta, object)):
             k_in_wildcards = any(
                 [k.startswith(w) for w in self._valid_wildcard_attributes]
             )
-            error_string_prefix = "The `{}` component{} '.format(
+            # e.g. "The dash_core_components.Dropdown component (version 1.6.0) with the ID "my-dropdown"
+            error_string_prefix = "The `{}.{}` component (version {}){}'.format(
+                self._namespace,
                 self._type,
-                'with the ID "{}"'.format(getattr(self, 'id') if hasattr(self, 'id') else ''
+                __import__(self._namespace).__version__,                
+                ' with the ID "{}"'.format(getattr(self, 'id') if hasattr(self, 'id') else ''
             )
             if not k_in_propnames and not k_in_wildcards:
                 raise TypeError(
