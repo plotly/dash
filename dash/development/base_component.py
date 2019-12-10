@@ -86,9 +86,13 @@ class Component(with_metaclass(ComponentMeta, object)):
             k_in_wildcards = any(
                 [k.startswith(w) for w in self._valid_wildcard_attributes]
             )
+            error_string_prefix = "The `{}` component{} '.format(
+                self._type,
+                'with the ID "{}"'.format(getattr(self, 'id') if hasattr(self, 'id') else ''
+            )
             if not k_in_propnames and not k_in_wildcards:
                 raise TypeError(
-                    "Unexpected keyword argument `{}`".format(k)
+                    "{} received an unexpected keyword argument: `{}`".format(error_string_prefix, k)
                     + "\nAllowed arguments: {}".format(
                         # pylint: disable=no-member
                         ", ".join(sorted(self._prop_names))
@@ -97,7 +101,8 @@ class Component(with_metaclass(ComponentMeta, object)):
 
             if k != "children" and isinstance(v, Component):
                 raise TypeError(
-                    "Component detected as a prop other than `children`\n" +
+                    error_string_prefix +
+                    " detected a Component for a prop other than `children`\n" +
                     "Did you forget to wrap multiple `children` in an array?\n" +
                     "Prop {} has value {}\n".format(k, repr(v))
                 )
