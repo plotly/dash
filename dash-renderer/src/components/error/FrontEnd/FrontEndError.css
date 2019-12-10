@@ -114,3 +114,12 @@
     overflow: hidden;
     display: inline-block;
 }
+
+.dash-be-error__str {
+    background-color: #fdf3f4;
+    min-width: 386px;
+    max-width: 650px;
+    overflow: auto;
+    display: inline-block;
+    white-space: pre-wrap;
+}
