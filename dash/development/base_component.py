@@ -90,7 +90,7 @@ class Component(with_metaclass(ComponentMeta, object)):
             error_string_prefix = "The `{}.{}` component (version {}){}'.format(
                 self._namespace,
                 self._type,
-                __import__(self._namespace).__version__,                
+                getattr(__import__(self._namespace), '__version__', 'unknown'),                
                 ' with the ID "{}"'.format(getattr(self, 'id') if hasattr(self, 'id') else ''
             )
             if not k_in_propnames and not k_in_wildcards:
