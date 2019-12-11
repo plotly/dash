@@ -46,14 +46,14 @@ version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
 stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE,{async_or_dynamic} class = "html_dependency")"""   # noqa:E501
+all_files = FALSE,{async_or_dynamic} class = "html_dependency"))"""   # noqa:E501
 
 frame_body_template = """`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
 stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE,{async_or_dynamic} class = "html_dependency")"""  # noqa:E501
+all_files = FALSE,{async_or_dynamic} class = "html_dependency"))"""  # noqa:E501
 
 frame_close_template = """)
 return(deps_metadata)
@@ -343,8 +343,13 @@ def check_async_type(dep):
     async_or_dynamic = ""
     for key in dep.keys():
         if (key in ['async', 'dynamic']):
+            keyval = dep[key]
+            if not (isinstance(keyval, bool)):
+                  keyval = "'{}'".format(keyval.lower())
+            else:
+                  keyval = str(keyval).upper()
             async_or_dynamic = \
-                " {} = {},".format(key, str(dep[key]).upper())
+                " {} = {},".format(key, keyval)
     return async_or_dynamic
 
 
