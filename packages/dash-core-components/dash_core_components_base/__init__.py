@@ -92,24 +92,6 @@ _js_dist.extend([
         'dynamic': True
     },
     {
-        'relative_package_path': 'async~graph.js',
-        'external_url': (
-            'https://unpkg.com/dash-core-components@{}'
-            '/dash_core_components/async~graph.js'
-        ).format(__version__),
-        'namespace': 'dash_core_components',
-        'async': True
-    },
-    {
-        'relative_package_path': 'async~graph.js.map',
-        'external_url': (
-            'https://unpkg.com/dash-core-components@{}'
-            '/dash_core_components/async~graph.js.map'
-        ).format(__version__),
-        'namespace': 'dash_core_components',
-        'dynamic': True
-    },
-    {
         'relative_package_path': 'plotly-1.51.2.min.js',
         'external_url': (
             'https://unpkg.com/dash-core-components@{}'
