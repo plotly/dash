@@ -2,6 +2,7 @@ from multiprocessing import Value
 import datetime
 import time
 import pytest
+from copy import copy
 
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.keys import Keys
@@ -527,7 +528,8 @@ def test_inin012_multi_output_no_update(dash_duo):
         return [
             no_update if n and n > 4 else n,
             no_update if n and n > 2 else n,
-            no_update,
+            # make a new instance, to mock up caching and restoring no_update
+            copy(no_update),
         ]
 
     dash_duo.start_server(app)
