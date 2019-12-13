@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - [#1035](https://github.com/plotly/dash/pull/1035) Simplify our build process.
 
+### Fixed
+- [#1037](https://github.com/plotly/dash/pull/1037) Fix no_update test to allow copies, such as those stored and retrieved from a cache.
+
 ## [1.7.0] - 2019-11-27
 ### Added
 - [#967](https://github.com/plotly/dash/pull/967) Add support for defining
