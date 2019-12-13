@@ -344,10 +344,10 @@ def check_async_type(dep):
     for key in dep.keys():
         if (key in ['async', 'dynamic']):
             keyval = dep[key]
-            if not (isinstance(keyval, bool)):
-                  keyval = "'{}'".format(keyval.lower())
+            if not isinstance(keyval, bool):
+                keyval = "'{}'".format(keyval.lower())
             else:
-                  keyval = str(keyval).upper()
+                keyval = str(keyval).upper()
             async_or_dynamic = \
                 ", {} = {}".format(key, keyval)
     return async_or_dynamic
