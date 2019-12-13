@@ -1,4 +1,6 @@
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
 const WebpackDashDynamicImport = require('@plotly/webpack-dash-dynamic-import');
 
 const packagejson = require('./package.json');
@@ -34,8 +36,6 @@ module.exports = (env, argv) => {
 
     const entry = overrides.entry || { main: './src/index.js' };
 
-    const devtool = overrides.devtool || 'source-map';
-
     const externals = ('externals' in overrides) ? overrides.externals : ({
         react: 'React',
         'react-dom': 'ReactDOM',
@@ -52,9 +52,9 @@ module.exports = (env, argv) => {
             library: dashLibraryName,
             libraryTarget: 'window',
         },
-        devtool,
         externals,
         module: {
+            noParse: /node_modules\/plotly.js/,
             rules: [
                 {
                     test: /\.jsx?$/,
@@ -85,6 +85,17 @@ module.exports = (env, argv) => {
             }
         },
         optimization: {
+            minimizer: [
+                new TerserPlugin({
+                    sourceMap: true,
+                    parallel: true,
+                    cache: './.build_cache/terser',
+                    terserOptions: {
+                        warnings: false,
+                        ie8: false
+                    }
+                })
+            ],
             splitChunks: {
                 name: true,
                 cacheGroups: {
@@ -99,7 +110,11 @@ module.exports = (env, argv) => {
             }
         },
         plugins: [
-            new WebpackDashDynamicImport()
+            new WebpackDashDynamicImport(),
+            new webpack.SourceMapDevToolPlugin({
+                filename: '[name].js.map',
+                exclude: ['async~plotlyjs']
+            })
         ]
     }
 };
