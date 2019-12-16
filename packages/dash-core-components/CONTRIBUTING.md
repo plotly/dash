@@ -34,9 +34,7 @@ Locally](README.md#testing-locally) section of README.md.
 ## Updating Plotly.js
 
 1. Update the version of `plotly.js` in package.json. Always use an exact version without "^" or "~"
-2. Run `npm install` followed by `npm run build`, this will ensure the latest version of Plotly.js is in `node_modules` and copy
-that version over with the other build artifacts
-3. Update `dash_core_components_base/__init__.py` plotly.js `relative_package_path` and `external_url`
+2. Run `npm install` followed by `npm run build`, the Plotly.js artifact will be copied and bundled over as required
 4. Update `CHANGELOG.md` with links to the releases and a description of the changes. The message should state (see the existing `CHANGELOG.md` for examples):
     * If you're only bumping the patch level, the heading is "Fixed" and the text starts "Patched plotly.js". Otherwise the heading is "Updated" and the text starts "Upgraded plotly.js"
     * The new plotly.js version number, and the PR in which this was done

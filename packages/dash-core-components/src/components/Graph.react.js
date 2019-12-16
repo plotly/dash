@@ -1,8 +1,12 @@
-import React, {Component, PureComponent, Suspense} from 'react';
+import React, {Component, memo, Suspense} from 'react';
 import PropTypes from 'prop-types';
 
 import {asyncDecorator} from '@plotly/dash-component-plugins';
 import LazyLoader from '../utils/LazyLoader';
+import {
+    privatePropTypes,
+    privateDefaultProps,
+} from '../fragments/Graph.privateprops';
 
 const EMPTY_EXTEND_DATA = [];
 
@@ -76,11 +80,9 @@ class PlotlyGraph extends Component {
     render() {
         return (
             <ControlledPlotlyGraph
-                {...{
-                    ...this.props,
-                    extendData: this.state.extendData,
-                    clearExtendData: this.clearExtendData,
-                }}
+                {...this.props}
+                extendData={this.state.extendData}
+                clearExtendData={this.clearExtendData}
             />
         );
     }
@@ -90,23 +92,57 @@ const RealPlotlyGraph = asyncDecorator(PlotlyGraph, () =>
     LazyLoader.plotly().then(LazyLoader.graph)
 );
 
-class ControlledPlotlyGraph extends PureComponent {
-    render() {
-        return (
-            <Suspense fallback={null}>
-                <RealPlotlyGraph {...this.props} />
-            </Suspense>
-        );
-    }
-}
+const ControlledPlotlyGraph = memo(props => {
+    const {className, id} = props;
+
+    const extendedClassName = className
+        ? 'dash-graph ' + className
+        : 'dash-graph';
+
+    return (
+        <Suspense
+            fallback={
+                <div
+                    id={id}
+                    key={id}
+                    className={`${extendedClassName} dash-graph--pending`}
+                />
+            }
+        >
+            <RealPlotlyGraph {...props} className={extendedClassName} />
+        </Suspense>
+    );
+});
+
+ControlledPlotlyGraph.propTypes = PropTypes.any;
 
 PlotlyGraph.propTypes = {
+    ...privatePropTypes,
+
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
      * components in an app.
      */
     id: PropTypes.string,
+
+    /**
+     * If True, the Plotly.js plot will be fully responsive to window resize
+     * and parent element resize event. This is achieved by overriding
+     * `config.responsive` to True, `figure.layout.autosize` to True and unsetting
+     * `figure.layout.height` and `figure.layout.width`.
+     * If False, the Plotly.js plot not be responsive to window resize and
+     * parent element resize event. This is achieved by overriding `config.responsive`
+     * to False and `figure.layout.autosize` to False.
+     * If 'auto' (default), the Graph will determine if the Plotly.js plot can be made fully
+     * responsive (True) or not (False) based on the values in `config.responsive`,
+     * `figure.layout.autosize`, `figure.layout.height`, `figure.layout.width`.
+     * This is the legacy behavior of the Graph component.
+     *
+     * Needs to be combined with appropriate dimension / styling through the `style` prop
+     * to fully take effect.
+     */
+    responsive: PropTypes.oneOf([true, false, 'auto']),
 
     /**
      * Data from latest click event. Read-only.
@@ -479,6 +515,8 @@ PlotlyGraph.propTypes = {
 };
 
 PlotlyGraph.defaultProps = {
+    ...privateDefaultProps,
+
     clickData: null,
     clickAnnotationData: null,
     hoverData: null,
@@ -491,6 +529,7 @@ PlotlyGraph.defaultProps = {
         layout: {},
         frames: [],
     },
+    responsive: 'auto',
     animate: false,
     animation_options: {
         frame: {

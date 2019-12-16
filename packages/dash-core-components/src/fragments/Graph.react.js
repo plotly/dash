@@ -1,8 +1,54 @@
 import React, {Component} from 'react';
-import {clone, equals, filter, has, includes, isNil, omit, type} from 'ramda';
+import ResizeDetector from 'react-resize-detector';
+import {
+    equals,
+    filter,
+    has,
+    includes,
+    isNil,
+    mergeDeepRight,
+    omit,
+    type,
+} from 'ramda';
 import PropTypes from 'prop-types';
 import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
 /* global Plotly:true */
+
+/**
+ * `autosize: true` causes Plotly.js to conform to the parent element size.
+ * This is necessary for `dcc.Graph` call to `Plotly.Plots.resize(target)` to do something.
+ *
+ * Users can override this value for specific use-cases by explicitly passing `autoresize: true`
+ * if `responsive` is not set to True.
+ */
+const RESPONSIVE_LAYOUT = {
+    autosize: true,
+    height: undefined,
+    width: undefined,
+};
+
+const AUTO_LAYOUT = {};
+
+const UNRESPONSIVE_LAYOUT = {
+    autosize: false,
+};
+
+/**
+ * `responsive: true` causes Plotly.js to resize the graph on `window.resize`.
+ * This is necessary for `dcc.Graph` call to `Plotly.Plots.resize(target)` to do something.
+ *
+ * Users can override this value for specific use-cases by explicitly passing `responsive: false`
+ * if `responsive` is not set to True.
+ */
+const RESPONSIVE_CONFIG = {
+    responsive: true,
+};
+
+const AUTO_CONFIG = {};
+
+const UNRESPONSIVE_CONFIG = {
+    responsive: false,
+};
 
 const filterEventData = (gd, eventData, event) => {
     let filteredEventData;
@@ -75,15 +121,26 @@ class PlotlyGraph extends Component {
     constructor(props) {
         super(props);
         this.gd = React.createRef();
-        this.bindEvents = this.bindEvents.bind(this);
         this._hasPlotted = false;
         this._prevGd = null;
+
+        this.bindEvents = this.bindEvents.bind(this);
+        this.getConfig = this.getConfig.bind(this);
+        this.getConfigOverride = this.getConfigOverride.bind(this);
+        this.getLayout = this.getLayout.bind(this);
+        this.getLayoutOverride = this.getLayoutOverride.bind(this);
         this.graphResize = this.graphResize.bind(this);
+        this.isResponsive = this.isResponsive.bind(this);
     }
 
     plot(props) {
-        const {figure, animate, animation_options, config} = props;
+        let {figure, config} = props;
+        const {animate, animation_options, responsive} = props;
+
         const gd = this.gd.current;
+
+        figure = props._dashprivate_transformFigure(figure, gd);
+        config = props._dashprivate_transformConfig(config, gd);
 
         if (
             animate &&
@@ -92,11 +149,17 @@ class PlotlyGraph extends Component {
         ) {
             return Plotly.animate(gd, figure, animation_options);
         }
+
+        const configClone = this.getConfig(config, responsive);
+        const layoutClone = this.getLayout(figure.layout, responsive);
+
+        gd.classList.add('dash-graph--pending');
+
         return Plotly.react(gd, {
             data: figure.data,
-            layout: clone(figure.layout),
+            layout: layoutClone,
             frames: figure.frames,
-            config: config,
+            config: configClone,
         }).then(() => {
             const gd = this.gd.current;
 
@@ -104,6 +167,8 @@ class PlotlyGraph extends Component {
             if (!gd) {
                 return;
             }
+
+            gd.classList.remove('dash-graph--pending');
 
             // in case we've made a new DOM element, transfer events
             if (this._hasPlotted && gd !== this._prevGd) {
@@ -116,7 +181,7 @@ class PlotlyGraph extends Component {
 
             if (!this._hasPlotted) {
                 this.bindEvents();
-                Plotly.Plots.resize(gd);
+                this.graphResize(true);
                 this._hasPlotted = true;
                 this._prevGd = gd;
             }
@@ -154,11 +219,72 @@ class PlotlyGraph extends Component {
         clearExtendData();
     }
 
-    graphResize() {
-        const gd = this.gd.current;
-        if (gd) {
-            Plotly.Plots.resize(gd);
+    getConfig(config, responsive) {
+        return mergeDeepRight(config, this.getConfigOverride(responsive));
+    }
+
+    getLayout(layout, responsive) {
+        if (!layout) {
+            return layout;
         }
+
+        return mergeDeepRight(layout, this.getLayoutOverride(responsive));
+    }
+
+    getConfigOverride(responsive) {
+        switch (responsive) {
+            case false:
+                return UNRESPONSIVE_CONFIG;
+            case true:
+                return RESPONSIVE_CONFIG;
+            default:
+                return AUTO_CONFIG;
+        }
+    }
+
+    getLayoutOverride(responsive) {
+        switch (responsive) {
+            case false:
+                return UNRESPONSIVE_LAYOUT;
+            case true:
+                return RESPONSIVE_LAYOUT;
+            default:
+                return AUTO_LAYOUT;
+        }
+    }
+
+    isResponsive(props) {
+        const {config, figure, responsive} = props;
+
+        if (type(responsive) === 'Boolean') {
+            return responsive;
+        }
+
+        return Boolean(
+            config.responsive &&
+                (!figure.layout ||
+                    ((figure.layout.autosize ||
+                        isNil(figure.layout.autosize)) &&
+                        (isNil(figure.layout.height) ||
+                            isNil(figure.layout.width))))
+        );
+    }
+
+    async graphResize(force = false) {
+        if (!force && !this.isResponsive(this.props)) {
+            return;
+        }
+
+        const gd = this.gd.current;
+        if (!gd) {
+            return;
+        }
+
+        gd.classList.add('dash-graph--pending');
+
+        Plotly.Plots.resize(gd)
+            .catch(() => {})
+            .finally(() => gd.classList.remove('dash-graph--pending'));
     }
 
     bindEvents() {
@@ -221,10 +347,7 @@ class PlotlyGraph extends Component {
     }
 
     componentDidMount() {
-        this.plot(this.props).then(() => {
-            window.addEventListener('resize', this.graphResize);
-        });
-
+        this.plot(this.props);
         if (this.props.extendData) {
             this.extend(this.props);
         }
@@ -238,7 +361,6 @@ class PlotlyGraph extends Component {
                 Plotly.purge(gd);
             }
         }
-        window.removeEventListener('resize', this.graphResize);
     }
 
     shouldComponentUpdate(nextProps) {
@@ -257,7 +379,13 @@ class PlotlyGraph extends Component {
              */
             return;
         }
-        if (this.props.figure !== nextProps.figure) {
+        if (
+            this.props.figure !== nextProps.figure ||
+            this.props._dashprivate_transformConfig !==
+                nextProps._dashprivate_transformConfig ||
+            this.props._dashprivate_transformFigure !==
+                nextProps._dashprivate_transformFigure
+        ) {
             this.plot(nextProps);
         }
 
@@ -277,15 +405,24 @@ class PlotlyGraph extends Component {
 
         return (
             <div
-                key={id}
                 id={id}
-                ref={this.gd}
+                key={id}
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
-                style={style}
                 className={className}
-            />
+                style={style}
+            >
+                <ResizeDetector
+                    handleHeight={true}
+                    handleWidth={true}
+                    refreshMode="debounce"
+                    refreshOptions={{trailing: true}}
+                    refreshRate={50}
+                    onResize={this.graphResize}
+                />
+                <div ref={this.gd} style={{height: '100%', width: '100%'}} />
+            </div>
         );
     }
 }
