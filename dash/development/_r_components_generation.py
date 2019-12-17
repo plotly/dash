@@ -81,7 +81,7 @@ help_string = """% Auto-generated: do not edit by hand
 """
 
 description_template = """Package: {package_name}
-Title: {package_description}
+Title: {package_title}
 Version: {package_version}
 Description: {package_description}
 Depends: R (>= 3.0.2){package_depends}
@@ -538,7 +538,17 @@ def generate_rpkg(
 
     package_name = snake_case_to_camel_case(project_shortname)
     lib_name = pkg_data.get("name")
-    package_description = pkg_data.get("description", "")
+
+    if rpkg_data is not None:
+        if rpkg_data.get("pkg_help_title"):
+            package_title = rpkg_data.get("pkg_help_title",
+                                          pkg_data.get("description",
+                                                       ""))
+        if rpkg_data.get("pkg_help_description"):
+            package_description = rpkg_data.get("pkg_help_description",
+                                                pkg_data.get("description",
+                                                             ""))
+
     package_version = pkg_data.get("version", "0.0.1")
 
     # remove leading and trailing commas
@@ -611,6 +621,7 @@ def generate_rpkg(
 
     description_string = description_template.format(
         package_name=package_name,
+        package_title=package_title,
         package_description=package_description,
         package_version=package_version,
         package_author=package_author,
