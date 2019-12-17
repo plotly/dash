@@ -83,7 +83,6 @@ help_string = """% Auto-generated: do not edit by hand
 description_template = """Package: {package_name}
 Title: {package_description}
 Version: {package_version}
-Authors @R: as.person(c({package_author}))
 Description: {package_description}
 Depends: R (>= 3.0.2){package_depends}
 Imports: {package_imports}
