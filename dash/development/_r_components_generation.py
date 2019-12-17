@@ -92,6 +92,7 @@ URL: {package_url}
 BugReports: {package_issues}
 Encoding: UTF-8
 LazyData: true
+{vignette_builder}
 Author: {package_author_no_email}
 Maintainer: {maintainer}
 """
@@ -604,6 +605,13 @@ def generate_rpkg(
         for rpackage in rpackage_list:
             packages_string += "\nimport({})\n".format(rpackage)
 
+    if os.path.exists("vignettes"):
+        vignette_builder = "VignetteBuilder: knitr"
+        if not "knitr" and "rmarkdown" in package_suggests:
+            package_suggests += ", knitr, rmarkdown".lstrip(", ")
+    else:
+        vignette_builder = ""
+
     pkghelp_stub_path = os.path.join("man", package_name + "-package.Rd")
 
     # generate the internal (not exported to the user) functions which
@@ -631,6 +639,7 @@ def generate_rpkg(
         package_license=package_license,
         package_url=package_url,
         package_issues=package_issues,
+        vignette_builder=vignette_builder,
         package_author_no_email=package_author_no_email,
         maintainer=maintainer,
     )
