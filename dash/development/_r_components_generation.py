@@ -284,7 +284,6 @@ def generate_js_metadata(pkg_data, project_shortname):
                 dep_name = rpp.split(".")[0]
             else:
                 dep_name = "{}".format(project_shortname)
-                project_ver = str(dep)
 
             if "css" in rpp:
                 css_name = "'{}'".format(rpp)
