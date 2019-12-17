@@ -9,6 +9,7 @@ import importlib
 import textwrap
 import re
 import warnings
+import pdb
 
 from ._all_keywords import r_keywords
 from ._py_components_generation import reorder_props
@@ -605,9 +606,12 @@ def generate_rpkg(
         for rpackage in rpackage_list:
             packages_string += "\nimport({})\n".format(rpackage)
 
+    pdb.set_trace()
+
     if os.path.exists("vignettes"):
         vignette_builder = "VignetteBuilder: knitr"
-        if not "knitr" and "rmarkdown" in package_suggests:
+        if "knitr" not in package_suggests and \
+           "rmarkdown" not in package_suggests:
             package_suggests += ", knitr, rmarkdown".lstrip(", ")
     else:
         vignette_builder = ""
