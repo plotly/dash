@@ -17,6 +17,7 @@ venv/
 
 /build
 /dash_core_components
+dash_core_components_base/plotly.min.js
 /inst
 /man
 /R
