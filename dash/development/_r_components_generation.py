@@ -91,8 +91,7 @@ License: {package_license}
 URL: {package_url}
 BugReports: {package_issues}
 Encoding: UTF-8
-LazyData: true
-{vignette_builder}
+LazyData: true{vignette_builder}
 Author: {package_author_no_email}
 Maintainer: {maintainer}
 """
@@ -279,7 +278,7 @@ def generate_js_metadata(pkg_data, project_shortname):
             curr_dep = alldist[dep]
             rpp = curr_dep["relative_package_path"]
 
-            async_or_dynamic = check_async_type(curr_dep)
+            async_or_dynamic = get_async_type(curr_dep)
 
             if "dash_" in rpp:
                 dep_name = rpp.split(".")[0]
@@ -309,7 +308,7 @@ def generate_js_metadata(pkg_data, project_shortname):
         dep = alldist[0]
         rpp = dep["relative_package_path"]
 
-        async_or_dynamic = check_async_type(dep)
+        async_or_dynamic = get_async_type(dep)
 
         if "css" in rpp:
             css_name = "'{}'".format(rpp)
@@ -338,7 +337,7 @@ def generate_js_metadata(pkg_data, project_shortname):
 # then return the properly formatted string if so, i.e.
 # " async = TRUE,". a dependency can have async or
 # dynamic elements, neither of these, but never both.
-def check_async_type(dep):
+def get_async_type(dep):
     async_or_dynamic = ""
     for key in dep.keys():
         if (key in ['async', 'dynamic']):
@@ -610,7 +609,7 @@ def generate_rpkg(
             packages_string += "\nimport({})\n".format(rpackage)
 
     if os.path.exists("vignettes"):
-        vignette_builder = "VignetteBuilder: knitr"
+        vignette_builder = "VignetteBuilder: knitr\n"
         if "knitr" not in package_suggests and \
            "rmarkdown" not in package_suggests:
             package_suggests += ", knitr, rmarkdown".lstrip(", ")
