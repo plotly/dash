@@ -590,6 +590,14 @@ def generate_rpkg(
 
     maintainer = pkg_data.get("maintainer", pkg_data.get("author"))
 
+    if "<" not in package_author or "<" not in maintainer:
+        print(
+            "Warning: R packages require a properly formatted author or "
+            "maintainer field or installation will fail. Please include "
+            "an address of the form <account_name@xxx.yyy> in package.json.",
+            file=sys.stderr,
+        )
+
     if not (os.path.isfile("LICENSE") or os.path.isfile("LICENSE.txt")):
         package_license = pkg_data.get("license", "")
     else:
