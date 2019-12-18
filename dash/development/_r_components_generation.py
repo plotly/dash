@@ -549,6 +549,10 @@ def generate_rpkg(
             package_description = rpkg_data.get("pkg_help_description",
                                                 pkg_data.get("description",
                                                              ""))
+    else:
+        # fall back to using description in package.json, if present
+        package_title = pkg_data.get("description", "")
+        package_description = pkg_data.get("description", "")
 
     package_version = pkg_data.get("version", "0.0.1")
 
