@@ -92,6 +92,7 @@ URL: {package_url}
 BugReports: {package_issues}
 Encoding: UTF-8
 LazyData: true{vignette_builder}
+KeepSource: true
 Author: {package_author_no_email}
 Maintainer: {maintainer}
 """
