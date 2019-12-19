@@ -398,6 +398,18 @@ def write_help_file(name, props, description, prefix, rpkg_data):
         for p in prop_keys
     )
 
+    if re.findall(r"(?<!\\)%", item_text):
+        print(
+            "Error, aborting R package generation: "
+            "percent signs cannot be used in docstrings "
+            "without escaping with a backslash, e.g; \\%.\n"
+            "Please omit or escape any percent signs in "
+            "your JavaScript source before rebuilding the "
+            "R package.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     if any(key.endswith("-*") for key in prop_keys):
         default_argtext += ', ...'
         item_text += wildcard_help_template.format(get_wildcards_r(prop_keys))
@@ -429,6 +441,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
                 fa.write(result + '\n')
 
 
+# pylint: disable=too-many-arguments
 def write_class_file(name,
                      props,
                      description,
@@ -592,11 +605,13 @@ def generate_rpkg(
 
     if "<" not in package_author or "<" not in maintainer:
         print(
-            "Warning: R packages require a properly formatted author or "
+            "Error, aborting R package generation: "
+            "R packages require a properly formatted author or "
             "maintainer field or installation will fail. Please include "
-            "an address of the form <account_name@xxx.yyy> in package.json.",
+            "an email address enclosed within < > brackets in package.json. ",
             file=sys.stderr,
         )
+        sys.exit(1)
 
     if not (os.path.isfile("LICENSE") or os.path.isfile("LICENSE.txt")):
         package_license = pkg_data.get("license", "")
