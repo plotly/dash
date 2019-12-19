@@ -89,7 +89,9 @@ class PlotlyGraph extends Component {
     }
 }
 
-const RealPlotlyGraph = asyncDecorator(PlotlyGraph, () => plotly().then(graph));
+const RealPlotlyGraph = asyncDecorator(PlotlyGraph, () =>
+    Promise.all([plotly(), graph()]).then(([, graph]) => graph)
+);
 
 const ControlledPlotlyGraph = memo(props => {
     const {className, id} = props;
