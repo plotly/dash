@@ -400,6 +400,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     )
 
     # auto-replace any unescaped backslashes for compatibility with R docs
+    description = re.sub(r"(?<!\\)%", "\\%", description)
     item_text = re.sub(r"(?<!\\)%", "\\%", item_text)
 
     if any(key.endswith("-*") for key in prop_keys):
