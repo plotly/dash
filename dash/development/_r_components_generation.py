@@ -399,17 +399,8 @@ def write_help_file(name, props, description, prefix, rpkg_data):
         for p in prop_keys
     )
 
-    if re.findall(r"(?<!\\)%", item_text):
-        print(
-            "Error, aborting R package generation: "
-            "percent signs cannot be used in docstrings "
-            "without escaping with a backslash, e.g; \\%.\n"
-            "Please omit or escape any percent signs in "
-            "your JavaScript source before rebuilding the "
-            "R package.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    # auto-replace any unescaped backslashes for compatibility with R docs
+    item_text = re.sub(r"(?<!\\)%", "\\%", item_text)
 
     if any(key.endswith("-*") for key in prop_keys):
         default_argtext += ', ...'
