@@ -12,6 +12,7 @@
   "homepage": "https://github.com/plotly/dash-core-components",
   "main": "dash_core_components/dash_core_components.min.js",
   "scripts": {
+    "prepublishOnly": "rm -rf lib && babel src --out-dir lib --copy-files",
     "start": "webpack-serve ./webpack.serve.config.js --open",
     "generator": "node generator/plotly.js",
     "lint": "eslint src tests",
@@ -48,9 +49,11 @@
     "react-markdown": "^4.0.6",
     "react-select-fast-filter-options": "^0.2.3",
     "react-virtualized-select": "^3.1.3",
+    "react-resize-detector": "^4.2.1",
     "uniqid": "^5.0.3"
   },
   "devDependencies": {
+    "@babel/cli": "^7.4.0",
     "@babel/core": "^7.4.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
@@ -79,7 +82,6 @@
     "prettier": "^1.14.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-resize-detector": "^4.2.1",
     "style-loader": "^0.23.1",
     "styled-jsx": "^3.1.1",
     "terser-webpack-plugin": "^2.3.0",
@@ -88,7 +90,8 @@
     "webpack-serve": "^2.0.3"
   },
   "files": [
-    "/dash_core_components/*{.js,.map}"
+    "/dash_core_components/*{.js,.map}",
+    "/lib/**"
   ],
   "peerDependencies": {
     "react": "^16.0.0",

@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, {Component, lazy, Suspense} from 'react';
-import LazyLoader from '../utils/LazyLoader';
+import upload from '../utils/LazyLoader/upload';
 
-const RealUpload = lazy(LazyLoader.upload);
+const RealUpload = lazy(upload);
 
 /**
  * Upload components allow your app to accept user-uploaded files via drag'n'drop

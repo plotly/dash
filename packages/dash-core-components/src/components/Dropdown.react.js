@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, {Component, lazy, Suspense} from 'react';
-import LazyLoader from '../utils/LazyLoader';
+import dropdown from '../utils/LazyLoader/dropdown';
 
-const RealDropdown = lazy(LazyLoader.dropdown);
+const RealDropdown = lazy(dropdown);
 
 /**
  * Dropdown is an interactive dropdown element for selecting one or more

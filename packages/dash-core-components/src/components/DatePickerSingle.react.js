@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, {Component, lazy, Suspense} from 'react';
-import LazyLoader from '../utils/LazyLoader';
+import datePickerSingle from '../utils/LazyLoader/datePickerSingle';
 
-const RealDateSingleRange = lazy(LazyLoader.datePickerSingle);
+const RealDateSingleRange = lazy(datePickerSingle);
 
 /**
  * DatePickerSingle is a tailor made component designed for selecting

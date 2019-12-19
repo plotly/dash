@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, {Component, lazy, Suspense} from 'react';
-import LazyLoader from '../utils/LazyLoader';
+import markdown from '../utils/LazyLoader/markdown';
 
-const RealDashMarkdown = lazy(LazyLoader.markdown);
+const RealDashMarkdown = lazy(markdown);
 
 // eslint-disable-next-line valid-jsdoc
 /**
