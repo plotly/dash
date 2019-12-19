@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Fixed
+- [#670](https://github.com/plotly/dash-table/pull/670) Fix a bug where `derived_filter_query_structure` was not getting updated properly
+
 ## [4.5.1] - 2019-11-14
 ### Fixed
 - [#637](https://github.com/plotly/dash-table/pull/637) Fix multiple issues

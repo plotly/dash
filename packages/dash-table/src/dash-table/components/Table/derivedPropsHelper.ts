@@ -61,7 +61,7 @@ export default () => {
         let newProps: Partial<SanitizedAndDerivedProps> = {};
 
         if (!derivedStructureCache.cached) {
-            newProps.derived_filter_structure = derivedStructureCache.result;
+            newProps.derived_filter_query_structure = derivedStructureCache.result;
         }
 
         if (!virtualCached) {

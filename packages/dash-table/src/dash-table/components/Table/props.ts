@@ -391,7 +391,7 @@ interface IDefaultProps {
 }
 
 interface IDerivedProps {
-    derived_filter_structure: object | null;
+    derived_filter_query_structure: object | null;
     derived_viewport_data: Data;
     derived_viewport_indices: Indices;
     derived_viewport_row_ids: RowId[];
