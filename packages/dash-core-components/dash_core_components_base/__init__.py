@@ -43,6 +43,7 @@ async_resources = [
     'datepicker',
     'dropdown',
     'graph',
+    'highlight',
     'markdown',
     'upload'
 ]
@@ -70,10 +71,6 @@ _js_dist.extend([{
     } for async_resource in async_resources])
 
 _js_dist.extend([
-    {
-        'relative_package_path': 'highlight.pack.js',
-        'namespace': 'dash_core_components'
-    },
     {
         'relative_package_path': '{}.min.js'.format(__name__),
         'external_url': (

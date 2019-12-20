@@ -17,6 +17,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [#706](https://github.com/plotly/dash-core-components/pull/706)
   - Upgraded plotly.js to [1.51.3](https://github.com/plotly/plotly.js/releases/tag/v1.51.3)
 
+### Changed
+- [#720](https://github.com/plotly/dash-core-components/pull/720)
+  - `highlight.js` is now bundled into the package, and no longer sets the `window.hljs` variable. Similarly to how `plotly.js` is handled, it is overridden by a user-provided version if one exists.
+
 ## [1.6.0] - 2019-11-27
 ### Updated
 - Upgraded plotly.js to 1.51.2 [#708](https://github.com/plotly/dash-core-components/pull/708)
