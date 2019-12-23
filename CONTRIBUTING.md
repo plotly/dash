@@ -69,6 +69,15 @@ Git command veterans might argue that a simple terminal and a cherry switch keyb
 
 1. https://www.gitkraken.com/git-client
 2. https://desktop.github.com/
+3. https://git-scm.com/downloads/guis/
+
+#### Powerline
+
+[Powerline](https://powerline.readthedocs.io/en/latest/index.html) is a statusline plugin for [Vim](https://www.vim.org/), and provides statuslines and prompts for several other applications, including zsh, bash, [tmux](https://github.com/tmux/tmux/wiki), IPython, Awesome, i3 and Qtile. There are many Powerline themes you can install and [Powerlevel9k](https://github.com/Powerlevel9k/powerlevel9k) is a theme for ZSH which uses [Powerline Fonts](https://github.com/powerline/fonts). It can be used with vanilla ZSH or ZSH frameworks such as [Oh-My-Zsh](https://ohmyz.sh/), Prezto, Antigen, and many others.
+
+Oh-My-Zsh is a delightful community-driven (with nearly 1,500 contributors) framework for managing your zsh configuration. Includes 200+ optional plugins (rails, git, OSX, hub, capistrano, brew, ant, php, python, etc), [over 140 themes](https://github.com/ohmyzsh/ohmyzsh/wiki/Themes) to spice up your morning, and an auto-update tool so that makes it easy to keep up with the latest updates.
+
+On MacOS you can install [tmux with Homebrew](https://formulae.brew.sh/formula/tmux) or with [MacPorts](https://www.macports.org/ports.php?by=library&substr=tmux).
 
 ### Emoji
 
@@ -96,7 +105,7 @@ Emojis make the commit messages :cherry_blossom:. If you have no idea about what
 
 ### Coding Style
 
-We use both `flake8` and `pylint` for basic linting check, please refer to the relevant steps in `.circleci/config.yml`.
+We use [`flake8`](http://flake8.pycqa.org/en/latest/) [`pylint`](https://www.pylint.org/) and [`yamllint`](https://yamllint.readthedocs.io/en/stable/index.html) for basic linting check, please refer to the relevant steps in `.circleci/config.yml`.
 
 Note that we also start using [`black`](https://black.readthedocs.io/en/stable/) as formatter during the test code migration.
 

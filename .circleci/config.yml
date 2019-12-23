@@ -45,15 +45,16 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
-              - venv
+            - venv
       - run:
-          name: 🌸 Python & JS Lint
+          name: 🌸 Python, JS and YAML Lint
           command: |
             . venv/bin/activate
             set -eo pipefail
             pip install -e . --progress-bar off && pip list | grep dash
             npm install --production && npm run initialize
             npm run lint
+            yamllint .circleci/config.yml .github/FUNDING.yml
       - run:
           name: 🐍 Python Unit Tests & ☕ JS Unit Tests
           command: |
@@ -61,20 +62,20 @@ jobs:
             npm run test.unit
 
   lint-unit-36:
-      <<: *lint-unit
-      docker:
-        - image: circleci/python:3.6-stretch-node-browsers
-          environment:
-            PYLINTRC: .pylintrc
-            PYVERSION: python36
+    <<: *lint-unit
+    docker:
+      - image: circleci/python:3.6-stretch-node-browsers
+        environment:
+          PYLINTRC: .pylintrc
+          PYVERSION: python36
 
   lint-unit-27:
-      <<: *lint-unit
-      docker:
-        - image: circleci/python:2.7-stretch-node-browsers
-          environment:
-            PYLINTRC: .pylintrc
-            PYVERSION: python27
+    <<: *lint-unit
+    docker:
+      - image: circleci/python:2.7-stretch-node-browsers
+        environment:
+          PYLINTRC: .pylintrc
+          PYVERSION: python27
 
   build-core-37: &build-core
     working_directory: ~/dash
@@ -98,7 +99,7 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
-              - venv
+            - venv
       - run:
           name: ️️🏗️ build core
           command: |
@@ -115,18 +116,18 @@ jobs:
             - packages/*.tar.gz
 
   build-core-36:
-      <<: *build-core
-      docker:
-        - image: circleci/python:3.6-stretch-node-browsers
-          environment:
-            PYVERSION: python36
+    <<: *build-core
+    docker:
+      - image: circleci/python:3.6-stretch-node-browsers
+        environment:
+          PYVERSION: python36
 
   build-core-27:
-      <<: *build-core
-      docker:
-        - image: circleci/python:2.7-stretch-node-browsers
-          environment:
-            PYVERSION: python27
+    <<: *build-core
+    docker:
+      - image: circleci/python:2.7-stretch-node-browsers
+        environment:
+          PYVERSION: python27
 
   build-misc-37: &build-misc
     working_directory: ~/dash
@@ -149,7 +150,7 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
-              - venv
+            - venv
       - run:
           name: ️️🏗️ build misc
           command: |
@@ -165,18 +166,18 @@ jobs:
             - packages/*.tar.gz
 
   build-misc-36:
-      <<: *build-misc
-      docker:
-        - image: circleci/python:3.6-stretch-node-browsers
-          environment:
-            PYVERSION: python36
+    <<: *build-misc
+    docker:
+      - image: circleci/python:3.6-stretch-node-browsers
+        environment:
+          PYVERSION: python36
 
   build-misc-27:
-      <<: *build-misc
-      docker:
-        - image: circleci/python:2.7-stretch-node-browsers
-          environment:
-            PYVERSION: python27
+    <<: *build-misc
+    docker:
+      - image: circleci/python:2.7-stretch-node-browsers
+        environment:
+          PYVERSION: python27
 
   build-windows-37: &build-windows
     working_directory: ~/dash
@@ -260,20 +261,20 @@ jobs:
           when: on_fail
 
   test-36:
-      <<: *test
-      docker:
-        - image: circleci/python:3.6-stretch-node-browsers
-          environment:
-            PERCY_ENABLE: 0
-            PYVERSION: python36
+    <<: *test
+    docker:
+      - image: circleci/python:3.6-stretch-node-browsers
+        environment:
+          PERCY_ENABLE: 0
+          PYVERSION: python36
 
   test-27:
-      <<: *test
-      docker:
-        - image: circleci/python:2.7-stretch-node-browsers
-          environment:
-            PERCY_ENABLE: 0
-            PYVERSION: python27
+    <<: *test
+    docker:
+      - image: circleci/python:2.7-stretch-node-browsers
+        environment:
+          PERCY_ENABLE: 0
+          PYVERSION: python27
 
 workflows:
   version: 2

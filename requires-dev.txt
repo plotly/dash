@@ -11,3 +11,4 @@ black==19.10b0;python_version>="3.0"
 virtualenv==20.0.10;python_version=="2.7"
 fire==0.2.1
 coloredlogs==14.0
+yamllint
