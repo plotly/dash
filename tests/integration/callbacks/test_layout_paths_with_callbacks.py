@@ -148,6 +148,10 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     dash_duo.start_server(app)
 
     def check_chapter(chapter):
+        dash_duo.wait_for_element(
+            '#{}-graph:not(.dash-graph--pending)'.format(chapter)
+        )
+
         for key in dash_duo.redux_state_paths:
             assert dash_duo.find_elements(
                 "#{}".format(key)
@@ -158,13 +162,17 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
             if chapter == "chapter3"
             else chapters[chapter]["{}-controls".format(chapter)].value
         )
+
         # check the actual values
         dash_duo.wait_for_text_to_equal("#{}-label".format(chapter), value)
+
         wait.until(
             lambda: (
                 dash_duo.driver.execute_script(
                     "return document."
-                    'getElementById("{}-graph").'.format(chapter)
+                    'querySelector("#{}-graph:not(.dash-graph--pending) .js-plotly-plot").'.format(
+                        chapter
+                    )
                     + "layout.title.text"
                 )
                 == value
