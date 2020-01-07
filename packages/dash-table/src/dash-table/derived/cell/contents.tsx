@@ -20,6 +20,7 @@ import CellDropdown from 'dash-table/components/CellDropdown';
 import { memoizeOne } from 'core/memoizer';
 import getFormatter from 'dash-table/type/formatter';
 import { shallowClone } from 'core/math/matrixZipMap';
+import CellMarkdown from 'dash-table/components/CellMarkdown';
 
 const mapData = R.addIndex<Datum, JSX.Element[]>(R.map);
 const mapRow = R.addIndex<IColumn, JSX.Element>(R.map);
@@ -28,7 +29,8 @@ enum CellType {
     Dropdown,
     DropdownLabel,
     Input,
-    Label
+    Label,
+    Markdown
 }
 
 function getCellType(
@@ -43,6 +45,8 @@ function getCellType(
             return (!active || !editable || is_loading) ? CellType.Label : CellType.Input;
         case Presentation.Dropdown:
             return (!dropdown || !editable) ? CellType.DropdownLabel : CellType.Dropdown;
+        case Presentation.Markdown:
+            return CellType.Markdown;
         default:
             return (!active || !editable || is_loading) ? CellType.Label : CellType.Input;
     }
@@ -159,6 +163,13 @@ class Contents {
                     onMouseUp={this.handlers(Handler.MouseUp, rowIndex, columnIndex)}
                     onPaste={this.handlers(Handler.Paste, rowIndex, columnIndex)}
                     type={column.type}
+                    value={datum[column.id]}
+                />);
+            case CellType.Markdown:
+                return (<CellMarkdown
+                    active={active}
+                    applyFocus={applyFocus}
+                    className={className}
                     value={datum[column.id]}
                 />);
             case CellType.DropdownLabel:

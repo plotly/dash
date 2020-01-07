@@ -28,8 +28,35 @@ _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
 _this_module = _sys.modules[__name__]
 
+async_resources = [
+    'export',
+    'table',
+    'highlight'
+]
 
-_js_dist = [
+_js_dist = []
+
+_js_dist.extend([{
+    'relative_package_path': 'async~{}.js'.format(async_resource),
+    'external_url': (
+        'https://unpkg.com/dash-table@{}'
+        '/dash_table/async~{}.js'
+    ).format(__version__, async_resource),
+    'namespace': package_name,
+    'async': True
+} for async_resource in async_resources])
+
+_js_dist.extend([{
+    'relative_package_path': 'async~{}.js.map'.format(async_resource),
+    'external_url': (
+        'https://unpkg.com/dash-table@{}'
+        '/dash_table/async~{}.js.map'
+    ).format(__version__, async_resource),
+    'namespace': package_name,
+    'dynamic': True
+} for async_resource in async_resources])
+
+_js_dist.extend([
     {
         'relative_package_path': 'bundle.js',
         'external_url': (
@@ -44,40 +71,8 @@ _js_dist = [
         ).format(__version__),
         'namespace': package_name,
         'dynamic': True
-    },
-    {
-        'relative_package_path': 'async~export.js',
-        'external_url': (
-            'https://unpkg.com/dash-table@{}/dash_table/async~export.js'
-        ).format(__version__),
-        'namespace': package_name,
-        'async': True
-    },
-    {
-        'relative_package_path': 'async~export.js.map',
-        'external_url': (
-            'https://unpkg.com/dash-table@{}/dash_table/async~export.js.map'
-        ).format(__version__),
-        'namespace': package_name,
-        'dynamic': True
-    },
-    {
-        'relative_package_path': 'async~table.js',
-        'external_url': (
-            'https://unpkg.com/dash-table@{}/dash_table/async~table.js'
-        ).format(__version__),
-        'namespace': package_name,
-        'async': True
-    },
-    {
-        'relative_package_path': 'async~table.js.map',
-        'external_url': (
-            'https://unpkg.com/dash-table@{}/dash_table/async~table.js.map'
-        ).format(__version__),
-        'namespace': package_name,
-        'dynamic': True
     }
-]
+])
 
 _css_dist = []
 

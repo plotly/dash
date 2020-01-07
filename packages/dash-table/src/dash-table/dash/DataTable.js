@@ -310,9 +310,9 @@ export const propTypes = {
 
         /**
          * The `presentation` to use to display the value.
-         * Defaults to 'input' for ['numeric', 'text', 'any'].
+         * Defaults to 'input' for ['datetime', 'numeric', 'text', 'any'].
          */
-        presentation: PropTypes.oneOf(['input', 'dropdown']),
+        presentation: PropTypes.oneOf(['input', 'dropdown', 'markdown']),
 
         /**
          * The `on_change` behavior of the column for user-initiated modifications.

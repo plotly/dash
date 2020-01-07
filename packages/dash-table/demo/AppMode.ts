@@ -2,7 +2,7 @@ import * as R from 'ramda';
 
 import Environment from 'core/environment';
 
-import { generateMockData, IDataMock, generateSpaceMockData } from './data';
+import { generateMockData, IDataMock, generateSpaceMockData, generateMarkdownMockData, generateMixedMarkdownMockData } from './data';
 import {
     PropsWithDefaults,
     ChangeAction,
@@ -19,6 +19,8 @@ export enum AppMode {
     Date = 'date',
     Default = 'default',
     Formatting = 'formatting',
+    Markdown = 'markdown',
+    MixedMarkdown = 'mixedmarkdown',
     ReadOnly = 'readonly',
     SomeReadOnly = 'someReadonly',
     ColumnsInSpace = 'columnsInSpace',
@@ -121,6 +123,22 @@ function getDefaultState(
             page_action: TableAction.Native
         }) as Partial<PropsWithDefaults>
     };
+}
+
+function getDefaultMarkdownState() {
+    const state = getDefaultState(generateMarkdownMockData);
+    state.tableProps.editable = false;
+    state.tableProps.style_cell = {};
+    state.tableProps.style_cell_conditional = [];
+    return state;
+}
+
+function getDefaultMixedMarkdownState() {
+    const state = getDefaultState(generateMixedMarkdownMockData);
+    state.tableProps.editable = false;
+    state.tableProps.style_cell = {};
+    state.tableProps.style_cell_conditional = [];
+    return state;
 }
 
 function getReadonlyState() {
@@ -347,6 +365,10 @@ function getModeState(mode: string | null) {
             return getDateState();
         case AppMode.Formatting:
             return getFormattingState();
+        case AppMode.Markdown:
+            return getDefaultMarkdownState();
+        case AppMode.MixedMarkdown:
+            return getDefaultMixedMarkdownState();
         case AppMode.ReadOnly:
             return getReadonlyState();
         case AppMode.SomeReadOnly:

@@ -218,3 +218,54 @@ describe('copy paste', () => {
         });
     });
 });
+
+describe('copy/paste behaviour with markdown', () => {
+    beforeEach(() => {
+        cy.visit('http://localhost:8087')
+    });
+
+    describe('single cell', () => {
+        it('copy markdown to non-markdown', () => {
+            DashTable.getCell(0, 3).click();
+            DOM.focused.type(`${Key.Meta}c`);
+            DashTable.getCell(0, 2).click();
+            DOM.focused.type(`${Key.Meta}v`);
+            DashTable.getCell(0, 2).within(() => {
+                cy.get('.dash-cell-value').should('have.attr', 'value', '![Communication tactics](https://dash.plot.ly/assets/images/logo.png)');
+            });
+        });
+
+        it('copy markdown to markdown', () => {
+            DashTable.getCell(0, 1).click();
+            DOM.focused.type(`${Key.Meta}c`);
+            DashTable.getCell(0, 0).click();
+            DOM.focused.type(`${Key.Meta}v`);
+            DashTable.getCell(0, 0).within(() => {
+                cy.get('.dash-cell-value > p > a').should('have.html', 'Debt collection');
+                cy.get('.dash-cell-value > p > a').should('have.attr', 'href', 'plot.ly');
+            });
+        });
+
+        describe('copy non-markdown to markdown', () => {
+            it('null/empty value', () => {
+                DashTable.getCell(0, 2).click();
+                DOM.focused.type(`${Key.Meta}c`);
+                DashTable.getCell(0, 1).click();
+                DOM.focused.type(`${Key.Meta}v`);
+                DashTable.getCell(0, 1).within(() => {
+                    cy.get('.dash-cell-value > p').should('have.html', 'null');
+                });
+            });
+
+            it('regular value', () => {
+                DashTable.getCell(1, 2).click();
+                DOM.focused.type(`${Key.Meta}c`);
+                DashTable.getCell(1, 1).click();
+                DOM.focused.type(`${Key.Meta}v`);
+                DashTable.getCell(1, 1).within(() => {
+                    cy.get('.dash-cell-value > p').should('have.html', 'Medical');
+                });
+            });
+        });
+    });
+});

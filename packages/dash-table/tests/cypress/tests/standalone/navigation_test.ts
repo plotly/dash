@@ -2,7 +2,9 @@ import DashTable from 'cypress/DashTable';
 import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
 
-import { BasicModes } from 'demo/AppMode';
+import { BasicModes, AppMode } from 'demo/AppMode';
+BasicModes.push(AppMode.Markdown);
+BasicModes.push(AppMode.MixedMarkdown);
 
 Object.values(BasicModes).forEach(mode => {
     describe(`navigate, mode=${mode}`, () => {
@@ -72,7 +74,7 @@ Object.values(BasicModes).forEach(mode => {
                 DashTable.getCell(3, 1).should('not.have.class', 'focused');
             });
 
-            it('can moved right', () => {
+            it('can move right', () => {
                 DOM.focused.type(Key.ArrowRight);
                 DashTable.getCell(3, 2).should('have.class', 'focused');
                 DashTable.getCell(3, 1).should('not.have.class', 'focused');
@@ -92,6 +94,16 @@ Object.values(BasicModes).forEach(mode => {
                 DOM.focused.type(Key.ArrowRight);
                 DashTable.getCellFromDataDash(28, 2).should('have.class', 'focused');
             });
+            if (mode === AppMode.MixedMarkdown) {
+                it('can navigate between md and non md cells', () => {
+                    DashTable.getCell(0, 0).click();
+                    DOM.focused.type(Key.ArrowRight);
+                    for (let i = 0; i < 5; i++) {
+                        DOM.focused.type(Key.ArrowDown);
+                    }
+                    DashTable.getCell(5, 1).should('have.class', 'focused');
+                });
+            }
         });
 
         describe('with mouse', () => {

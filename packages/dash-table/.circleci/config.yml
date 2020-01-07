@@ -147,7 +147,8 @@ jobs:
             - run:
                 name: Run visual tests
                 command: npm run test.visual
-
+            - store_artifacts:
+                path: storybook-static
 
     "node":
         docker:

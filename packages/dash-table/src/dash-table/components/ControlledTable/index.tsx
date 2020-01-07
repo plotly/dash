@@ -649,10 +649,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 `.dash-spreadsheet-inner td.dash-delete-cell`,
                 `width: 30px; max-width: 30px; min-width: 30px;`
             );
-            this.stylesheet.setRule(
-                `.dash-spreadsheet-inner th.dash-delete-header`,
-                `width: 30px; max-width: 30px; min-width: 30px;`
-            );
         }
 
         if (row_selectable) {
@@ -660,20 +656,17 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 `.dash-spreadsheet-inner td.dash-select-cell`,
                 `width: 30px; max-width: 30px; min-width: 30px;`
             );
-            this.stylesheet.setRule(
-                `.dash-spreadsheet-inner th.dash-select-header`,
-                `width: 30px; max-width: 30px; min-width: 30px;`
-            );
         }
 
         // Adjust the width of the fixed row header
         if (fixed_rows) {
-            Array.from(r1c1.querySelectorAll('tr:first-of-type td, tr:first-of-type th')).forEach((td, index) => {
+            Array.from(r1c1.querySelectorAll('tr:first-of-type td.dash-cell, tr:first-of-type th.dash-header')).forEach(td => {
+                const classname = td.className.split(' ')[1];
                 const style = getComputedStyle(td);
                 const width = style.width;
 
                 this.stylesheet.setRule(
-                    `.dash-fixed-row:not(.dash-fixed-column) th:nth-of-type(${index + 1})`,
+                    `.dash-fixed-row:not(.dash-fixed-column) th.${classname}`,
                     `width: ${width} !important; min-width: ${width} !important; max-width: ${width} !important;`
                 );
             });
@@ -681,12 +674,39 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         // Adjust the width of the fixed row / fixed columns header
         if (fixed_columns && fixed_rows) {
-            Array.from(r1c0.querySelectorAll('tr:first-of-type td, tr:first-of-type th')).forEach((td, index) => {
+            Array.from(r1c0.querySelectorAll('tr:first-of-type td.dash-cell, tr:first-of-type th.dash-header')).forEach(td => {
+                const classname = td.className.split(' ')[1];
                 const style = getComputedStyle(td);
                 const width = style.width;
 
                 this.stylesheet.setRule(
-                    `.dash-fixed-column.dash-fixed-row th:nth-of-type(${index + 1})`,
+                    `.dash-fixed-column.dash-fixed-row th.${classname}`,
+                    `width: ${width} !important; min-width: ${width} !important; max-width: ${width} !important;`
+                );
+            });
+        }
+
+        // Adjust widths of row deletable/row selectable headers
+        const subTable = fixed_rows && !fixed_columns ? r1c1 : r1c0;
+
+        if (row_deletable) {
+            Array.from(subTable.querySelectorAll('tr:first-of-type td.dash-delete-cell')).forEach(td => {
+                const style = getComputedStyle(td);
+                const width = style.width;
+
+                this.stylesheet.setRule(
+                    'th.dash-delete-header',
+                    `width: ${width} !important; min-width: ${width} !important; max-width: ${width} !important;`
+                );
+            });
+        }
+        if (row_selectable) {
+            Array.from(subTable.querySelectorAll('tr:first-of-type td.dash-select-cell')).forEach(td => {
+                const style = getComputedStyle(td);
+                const width = style.width;
+
+                this.stylesheet.setRule(
+                    'th.dash-select-header',
                     `width: ${width} !important; min-width: ${width} !important; max-width: ${width} !important;`
                 );
             });

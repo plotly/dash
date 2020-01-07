@@ -16,12 +16,12 @@ declare module 'fast-isnumeric' {
 }
 
 declare class Remarkable {
-    constructor();
+    constructor(options?: any);
     render(value: string): any;
 }
 
 declare interface RemarkableCtor {
-    new(): Remarkable;
+    new(options?: any): Remarkable;
 }
 
 declare module 'remarkable' {

@@ -107,7 +107,8 @@ export enum ChangeFailure {
 
 export enum Presentation {
     Dropdown = 'dropdown',
-    Input = 'input'
+    Input = 'input',
+    Markdown = 'markdown'
 }
 
 export interface IChangeOptions {
@@ -156,7 +157,7 @@ export interface INumberColumn extends ITypeColumn {
 }
 
 export interface ITextColumn extends ITypeColumn {
-    presentation?: Presentation.Input | Presentation.Dropdown;
+    presentation?: Presentation.Input | Presentation.Dropdown | Presentation.Markdown;
     type: ColumnType.Text;
 }
 
