@@ -35,6 +35,7 @@ from ._utils import generate_hash as _generate_hash
 from ._utils import patch_collections_abc as _patch_collections_abc
 from . import _watch
 from ._utils import get_asset_path as _get_asset_path
+from ._utils import get_relative_path as _get_relative_path
 from ._utils import create_callback_id as _create_callback_id
 from ._configs import get_combined_config, pathname_configs
 from .version import __version__
@@ -1561,6 +1562,33 @@ class Dash(object):
             self.config.requests_pathname_prefix,
             path,
             self.config.assets_url_path.lstrip("/"),
+        )
+
+        return asset
+
+    def get_relative_path(self, path):
+        """
+        Return a path with `requests_pathname_prefix` prefixed before it.
+
+        Use this function when specifying local URL paths that will work
+        in environments regardless of what `requests_pathname_prefix` is.
+
+        In some deployment environments, like Dash Enterprise,
+        `requests_pathname_prefix` is set to the application name,
+        e.g. `my-dash-app`.
+
+        When working locally, `requests_pathname_prefix` might be unset and
+        so a relative URL like `/page-2` can just be `/page-2`.
+
+        However, when the app is deployed to a URL like `/my-dash-app`, then
+        `app.get_relative_path('/page-2')` will return `/my-dash-app/page-2`.
+
+        This can be used as an alternative to `get_asset_url` as well with
+        `app.get_relative_path('/assets/logo.png')`
+        """
+        asset = _get_relative_path(
+            self.config.requests_pathname_prefix,
+            path,
         )
 
         return asset
