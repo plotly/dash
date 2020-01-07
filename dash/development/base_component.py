@@ -93,16 +93,16 @@ class Component(with_metaclass(ComponentMeta, object)):
                     self._namespace,
                     self._type,
                     getattr(__import__(self._namespace), '__version__', 'unknown'),
-                    ' with the ID "{}"'.format(getattr(self, 'id'))
-                    if hasattr(self, 'id') else ''
+                    ' with the ID "{}"'.format(kwargs['id'])
+                    if 'id' in kwargs else ''
                 )
             except ImportError:
                 # Our tests create mock components with libraries that
                 # aren't importable
                 error_string_prefix = 'The `{}` component{}'.format(
                     self._type,
-                    ' with the ID "{}"'.format(getattr(self, 'id'))
-                    if hasattr(self, 'id') else ''
+                    ' with the ID "{}"'.format(kwargs['id'])
+                    if 'id' in kwargs else ''
                 )
 
             if not k_in_propnames and not k_in_wildcards:
