@@ -965,10 +965,10 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        self.wait_for_element_by_css_selector('#graph1')
+        self.wait_for_element_by_css_selector('#graph1:not(.dash-graph--pending)')
 
         self.driver.find_elements_by_css_selector(
-            '#graph1'
+            '#graph1:not(.dash-graph--pending)'
         )[0].click()
 
         graph_1_expected_clickdata = {
@@ -985,10 +985,10 @@ class Tests(IntegrationTests):
             '#tab2'
         )[0].click()
 
-        self.wait_for_element_by_css_selector('#graph2')
+        self.wait_for_element_by_css_selector('#graph2:not(.dash-graph--pending)')
 
         self.driver.find_elements_by_css_selector(
-            '#graph2'
+            '#graph2:not(.dash-graph--pending)'
         )[0].click()
 
         self.wait_for_text_to_equal('#graph2_info', json.dumps(graph_2_expected_clickdata))
