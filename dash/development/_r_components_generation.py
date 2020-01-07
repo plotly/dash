@@ -403,6 +403,11 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     description = re.sub(r"(?<!\\)%", "\\%", description)
     item_text = re.sub(r"(?<!\\)%", "\\%", item_text)
 
+    # scrub examples which begin with **Example Usage**, as these should be
+    # provided as R code within dash-info.yaml
+    if "**Example Usage**" in description:
+        description = description.split("**Example Usage**")[0].rstrip()
+
     if any(key.endswith("-*") for key in prop_keys):
         default_argtext += ', ...'
         item_text += wildcard_help_template.format(get_wildcards_r(prop_keys))
