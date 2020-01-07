@@ -440,7 +440,6 @@ def test_debc026_component_not_children():
 def test_debc027_component_error_message():
     with pytest.raises(TypeError) as e:
         Component(asdf=True)
-
     assert str(e.value) == (
         "The `TestComponent` component received an unexpected " +
         "keyword argument: `asdf`\nAllowed arguments: a, children, " +
