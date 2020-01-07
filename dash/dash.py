@@ -1358,7 +1358,7 @@ class Dash(object):
                     has_update = False
                     for i, o in enumerate(output):
                         val = output_value[i]
-                        if val is not no_update:
+                        if not isinstance(val, _NoUpdate):
                             has_update = True
                             o_id, o_prop = o.component_id, o.component_property
                             component_ids[o_id][o_prop] = val
@@ -1368,7 +1368,7 @@ class Dash(object):
 
                     response = {"response": component_ids, "multi": True}
                 else:
-                    if output_value is no_update:
+                    if isinstance(output_value, _NoUpdate):
                         raise exceptions.PreventUpdate
 
                     response = {
