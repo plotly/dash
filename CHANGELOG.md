@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+- [#1045](https://github.com/plotly/dash/pull/1045) Error messages when providing an incorrect property to a component have been improved: they now specify the component type, library, version, and ID (if available).
+
 ## [1.7.0] - 2019-11-27
 ### Added
 - [#967](https://github.com/plotly/dash/pull/967) Add support for defining
