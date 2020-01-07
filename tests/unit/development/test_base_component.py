@@ -455,6 +455,17 @@ def test_debc027_component_error_message():
         "id, style"
     )
 
+    with pytest.raises(TypeError) as e:
+        html.Div(asdf=True)
+    assert str(e.value) == (
+        "The `dash_html_components.Div` component " +
+        "(version {}) ".format(html.__version__) +
+        "received an unexpected " +
+        "keyword argument: `asdf`\n" +
+        "Allowed arguments: {}".format(
+            ', '.join(sorted(html.Div()._prop_names))
+        )
+    )
 
     with pytest.raises(TypeError) as e:
         html.Div(asdf=True, id='my-component')
