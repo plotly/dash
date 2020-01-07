@@ -86,17 +86,20 @@ class Component(with_metaclass(ComponentMeta, object)):
             k_in_wildcards = any(
                 [k.startswith(w) for w in self._valid_wildcard_attributes]
             )
-            # e.g. "The dash_core_components.Dropdown component (version 1.6.0) with the ID "my-dropdown"
+            # e.g. "The dash_core_components.Dropdown component (version 1.6.0)
+            # with the ID "my-dropdown"
             error_string_prefix = "The `{}.{}` component (version {}){}'.format(
                 self._namespace,
                 self._type,
-                getattr(__import__(self._namespace), '__version__', 'unknown'),                
-                ' with the ID "{}"'.format(getattr(self, 'id') if hasattr(self, 'id') else ''
+                getattr(__import__(self._namespace), '__version__', 'unknown'),
+                ' with the ID "{}"'.format(getattr(self, 'id'))
+                if hasattr(self, 'id') else ''
             )
             if not k_in_propnames and not k_in_wildcards:
                 raise TypeError(
-                    "{} received an unexpected keyword argument: `{}`".format(error_string_prefix, k)
-                    + "\nAllowed arguments: {}".format(
+                    "{} received an unexpected keyword argument: `{}`".format(
+                        error_string_prefix, k
+                    ) + "\nAllowed arguments: {}".format(
                         # pylint: disable=no-member
                         ", ".join(sorted(self._prop_names))
                     )
