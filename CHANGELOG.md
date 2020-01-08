@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - [#1037](https://github.com/plotly/dash/pull/1037) Fix no_update test to allow copies, such as those stored and retrieved from a cache.
+- [#1074](https://github.com/plotly/dash/pull/1045) Error messages when providing an incorrect property to a component have been improved: they now specify the component type, library, version, and ID (if available).
 
 ## [1.7.0] - 2019-11-27
 ### Added
