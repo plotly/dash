@@ -55,12 +55,15 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 
 
 def get_relative_path(requests_pathname, path):
-
+    if requests_pathname == '/' and not path.startswith('/'):
+        return path
+    elif not path.startswith('/'):
+        return requests_pathname + path
     return "/".join(
         [
             # Only take the first part of the pathname
             requests_pathname.rstrip("/"),
-            path
+            path.lstrip("/")
         ]
     )
 
