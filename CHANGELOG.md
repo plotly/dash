@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+### Added
+- [#1073](https://github.com/plotly/dash/pull/1073) A few function `app.relative_path`. Provides support for providing relative paths that are aware of the config, notably `requests_pathmame_prefix`. This is particularly useful for apps deployed on Dash Enterprise where the apps served under a URL prefix (the app name) which is unlike apps served on localhost:8050. Use `app.relative_path` anywhere you would provide a relative pathname, like `dcc.Link(href=app.relative_path('/page-2'))` or even as an alternative to `app.get_asset_url` with e.g. `html.Img(src=app.relative_path('/assets/logo.png'))`.
+
 ### Changed
 - [#1035](https://github.com/plotly/dash/pull/1035) Simplify our build process.
 
