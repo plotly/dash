@@ -177,7 +177,7 @@ def test_app_name_server(empty_environ, name, server, expected):
         ("/my-dash-app", "/page-1/sub-page-1", "/my-dash-app/page-1/sub-page-1"),
 
         ("/", "relative-page-1", "relative-page-1"),
-        ("/my-dash-app", "/my-dash-apprelative-page-1", "/my-dash-apprelative-page-1"),
+        ("/my-dash-app", "relative-page-1", "/my-dash-apprelative-page-1"),
     ]
 )
 
