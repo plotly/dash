@@ -164,6 +164,9 @@ def test_app_name_server(empty_environ, name, server, expected):
 @pytest.mark.parametrize(
     "prefix, partial_path, expected",
     [
+        ("/", "", "/"),
+        ("/my-dash-app", "", "/my-dash-app"),
+
         ("/", "/", "/"),
         ("/my-dash-app", "/", "/my-dash-app/"),
 

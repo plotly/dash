@@ -55,6 +55,8 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 
 
 def get_relative_path(requests_pathname, path):
+    if requests_pathname == '/' and path == '':
+        return '/'
     if requests_pathname == '/' and not path.startswith('/'):
         return path
     elif not path.startswith('/'):
