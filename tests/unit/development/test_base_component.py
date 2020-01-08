@@ -435,3 +435,46 @@ def test_debc026_component_not_children():
         with pytest.raises(TypeError):
             # If you forget the `[]` around children you get this:
             html.Div(children[0], children[1], children[2], children[3])
+
+
+def test_debc027_component_error_message():
+    with pytest.raises(TypeError) as e:
+        Component(asdf=True)
+    assert str(e.value) == (
+        "The `TestComponent` component received an unexpected " +
+        "keyword argument: `asdf`\nAllowed arguments: a, children, " +
+        "id, style"
+    )
+
+    with pytest.raises(TypeError) as e:
+        Component(asdf=True, id='my-component')
+    assert str(e.value) == (
+        "The `TestComponent` component " +
+        "with the ID \"my-component\" received an unexpected " +
+        "keyword argument: `asdf`\nAllowed arguments: a, children, " +
+        "id, style"
+    )
+
+    with pytest.raises(TypeError) as e:
+        html.Div(asdf=True)
+    assert str(e.value) == (
+        "The `dash_html_components.Div` component " +
+        "(version {}) ".format(html.__version__) +
+        "received an unexpected " +
+        "keyword argument: `asdf`\n" +
+        "Allowed arguments: {}".format(
+            ', '.join(sorted(html.Div()._prop_names))
+        )
+    )
+
+    with pytest.raises(TypeError) as e:
+        html.Div(asdf=True, id='my-component')
+    assert str(e.value) == (
+        "The `dash_html_components.Div` component " +
+        "(version {}) ".format(html.__version__) +
+        "with the ID \"my-component\" received an unexpected " +
+        "keyword argument: `asdf`\n" +
+        "Allowed arguments: {}".format(
+            ', '.join(sorted(html.Div()._prop_names))
+        )
+    )
