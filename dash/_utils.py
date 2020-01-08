@@ -61,7 +61,6 @@ def get_relative_path(requests_pathname, path):
         return requests_pathname + path
     return "/".join(
         [
-            # Only take the first part of the pathname
             requests_pathname.rstrip("/"),
             path.lstrip("/")
         ]
