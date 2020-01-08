@@ -54,6 +54,18 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
     )
 
 
+def get_relative_path(requests_pathname, path):
+
+    return "/".join(
+        [
+            # Only take the first part of the pathname
+            requests_pathname.rstrip("/"),
+            path
+        ]
+    )
+
+
+
 # pylint: disable=no-member
 def patch_collections_abc(member):
     return getattr(collections if utils.PY2 else collections.abc, member)
