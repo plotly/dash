@@ -15,6 +15,7 @@ from dash._configs import (
 from dash._utils import (
     get_asset_path,
     get_relative_path,
+    strip_relative_path,
 )
 
 
@@ -194,3 +195,41 @@ def test_pathname_prefix_relative_url(prefix, partial_path, expected):
 def test_invalid_get_relative_path(prefix, partial_path):
     with pytest.raises(_exc.UnsupportedRelativePath):
         get_relative_path(prefix, partial_path)
+
+@pytest.mark.parametrize(
+    "prefix, partial_path, expected",
+    [
+        ("/", None, None),
+        ("/my-dash-app/", None, None),
+
+        ("/", "/", ""),
+        ("/my-dash-app/", "/", ""),
+
+        ("/", "/page-1", "page-1"),
+        ("/my-dash-app/", "/my-dash-app/page-1", "page-1"),
+
+        ("/", "/page-1/", "page-1"),
+        ("/my-dash-app/", "/my-dash-app/page-1/", "page-1"),
+
+        ("/", "/page-1/sub-page-1", "page-1/sub-page-1"),
+        ("/my-dash-app/", "/my-dash-app/page-1/sub-page-1", "page-1/sub-page-1"),
+
+        ("/", "/page-1/sub-page-1/", "page-1/sub-page-1"),
+        ("/my-dash-app/", "/my-dash-app/page-1/sub-page-1/", "page-1/sub-page-1"),
+    ]
+)
+def test_strip_relative_path(prefix, partial_path, expected):
+    path = strip_relative_path(prefix, partial_path)
+    assert path == expected
+
+
+@pytest.mark.parametrize(
+    "prefix, partial_path",
+    [
+        ("/", "relative-page-1"),
+        ("/my-dash-app", "relative-page-1"),
+    ]
+)
+def test_invalid_strip_relative_path(prefix, partial_path):
+    with pytest.raises(_exc.UnsupportedRelativePath):
+        strip_relative_path(prefix, partial_path)

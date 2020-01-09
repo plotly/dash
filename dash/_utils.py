@@ -72,6 +72,17 @@ def get_relative_path(requests_pathname, path):
         ]
     )
 
+def strip_relative_path(requests_pathname, path):
+    if path is None:
+        return None
+    elif not path.startswith('/'):
+        raise exceptions.UnsupportedRelativePath(
+            "Paths that aren't prefixed with a leading / are not supported.\n" +
+            "You supplied: {}".format(path)
+        )
+    if requests_pathname != '/':
+        path = path.replace(requests_pathname, '')
+    return path.lstrip('/').rstrip('/')
 
 
 # pylint: disable=no-member
