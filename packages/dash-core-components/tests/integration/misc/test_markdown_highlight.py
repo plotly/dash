@@ -17,6 +17,8 @@ def test_msmh001_no_window_variable(dash_dcc):
     app.layout = html.Div(dcc.Markdown(md_text))
     dash_dcc.start_server(app)
 
+    dash_dcc.wait_for_element('code')
+
     window_hljs = dash_dcc.driver.execute_script('return window.hljs')
     assert window_hljs is None
 

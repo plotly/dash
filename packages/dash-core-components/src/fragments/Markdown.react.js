@@ -1,9 +1,12 @@
 import React, {Component} from 'react';
-import {type} from 'ramda';
+import {mergeDeepRight, pick, type} from 'ramda';
+import JsxParser from 'react-jsx-parser';
 import Markdown from 'react-markdown';
 
 import MarkdownHighlighter from '../utils/MarkdownHighlighter';
 import {propTypes, defaultProps} from '../components/Markdown.react';
+
+import DccLink from './../components/Link.react';
 
 export default class DashMarkdown extends Component {
     constructor(props) {
@@ -91,6 +94,18 @@ export default class DashMarkdown extends Component {
         const displayText =
             dedent && textProp ? this.dedent(textProp) : textProp;
 
+        const componentTransforms = {
+            dccLink: props => <DccLink {...props} />,
+            dccMarkdown: props => (
+                <Markdown
+                    {...mergeDeepRight(
+                        pick(['dangerously_allow_html', 'dedent'], this.props),
+                        pick(['children'], props)
+                    )}
+                />
+            ),
+        };
+
         return (
             <div
                 id={id}
@@ -116,6 +131,18 @@ export default class DashMarkdown extends Component {
                 <Markdown
                     source={displayText}
                     escapeHtml={!dangerously_allow_html}
+                    renderers={{
+                        html: props =>
+                            props.escapeHtml ? (
+                                props.value
+                            ) : (
+                                <JsxParser
+                                    jsx={props.value}
+                                    components={componentTransforms}
+                                    renderInWrapper={false}
+                                />
+                            ),
+                    }}
                 />
             </div>
         );

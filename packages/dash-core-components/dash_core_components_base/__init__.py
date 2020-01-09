@@ -89,6 +89,23 @@ _js_dist.extend([
         'dynamic': True
     },
     {
+        'relative_package_path': '{}-shared.js'.format(__name__),
+        'external_url': (
+            'https://unpkg.com/dash-core-components@{}'
+            '/dash_core_components/dash_core_components-shared.js'
+        ).format(__version__),
+        'namespace': 'dash_core_components'
+    },
+    {
+        'relative_package_path': '{}-shared.js.map'.format(__name__),
+        'external_url': (
+            'https://unpkg.com/dash-core-components@{}'
+            '/dash_core_components/dash_core_components-shared.js.map'
+        ).format(__version__),
+        'namespace': 'dash_core_components',
+        'dynamic': True
+    },
+    {
         'relative_package_path': 'plotly.min.js',
         'external_url': (
             'https://unpkg.com/dash-core-components@{}'

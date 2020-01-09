@@ -270,7 +270,7 @@ class PlotlyGraph extends Component {
         );
     }
 
-    async graphResize(force = false) {
+    graphResize(force = false) {
         if (!force && !this.isResponsive(this.props)) {
             return;
         }

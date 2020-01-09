@@ -1,8 +1,9 @@
 include dash_core_components/dash_core_components.min.js
 include dash_core_components/dash_core_components.min.js.map
+include dash_core_components/dash_core_components-shared.js
+include dash_core_components/dash_core_components-shared.js.map
 include dash_core_components/async~*.js
 include dash_core_components/async~*.js.map
-include dash_core_components/highlight.pack.js
 include dash_core_components/metadata.json
 include dash_core_components/package-info.json
 include dash_core_components/plotly.min.js

@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- [#711](https://github.com/plotly/dash-core-components/pull/711) Added support for `dcc.Link` (dccLink) and nested `dcc.Markdown` (dccMarkdown) react components inside of `dcc.Markdown`
 - [#706](https://github.com/plotly/dash-core-components/pull/706)
   - Added new `responsive` property that overrides the underlying Plotly.js graph responsiveness from Dash-land
   - Added responsiveness on graph parent element resize (previously only worked on window.resize)
