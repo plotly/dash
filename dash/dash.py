@@ -709,7 +709,7 @@ class Dash(object):
         resource_path = os.path.dirname(sys.modules[package_name].__file__)
         full_path = os.path.join(resource_path, path_in_package_dist)
 
-        (mimetype, ) = mimetypes.guess_type(full_path)
+        (mimetype, _) = mimetypes.guess_type(full_path)
 
         package = sys.modules[package_name]
         self.logger.debug(
