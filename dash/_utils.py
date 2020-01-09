@@ -10,6 +10,7 @@ import logging
 from io import open  # pylint: disable=redefined-builtin
 from functools import wraps
 import future.utils as utils
+from . import exceptions
 
 logger = logging.getLogger()
 
@@ -57,10 +58,13 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 def get_relative_path(requests_pathname, path):
     if requests_pathname == '/' and path == '':
         return '/'
-    if requests_pathname == '/' and not path.startswith('/'):
-        return path
+    elif requests_pathname != '/' and path == '':
+        return requests_pathname
     elif not path.startswith('/'):
-        return requests_pathname + path
+        raise exceptions.UnsupportedRelativePath(
+            "Paths that aren't prefixed with a leading / are not supported.\n" +
+            "You supplied: {}".format(path)
+        )
     return "/".join(
         [
             requests_pathname.rstrip("/"),
