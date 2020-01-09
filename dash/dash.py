@@ -40,6 +40,7 @@ from ._utils import create_callback_id as _create_callback_id
 from ._configs import get_combined_config, pathname_configs
 from .version import __version__
 
+# Add explicit mapping for map files
 mimetypes.add_type('application/json', '.map', True)
 
 _default_index = """<!DOCTYPE html>
