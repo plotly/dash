@@ -12,6 +12,7 @@ import threading
 import re
 import logging
 import pprint
+import mimetypes
 
 from functools import wraps
 from textwrap import dedent
@@ -38,6 +39,8 @@ from ._utils import get_asset_path as _get_asset_path
 from ._utils import create_callback_id as _create_callback_id
 from ._configs import get_combined_config, pathname_configs
 from .version import __version__
+
+mimetypes.add_type('application/json', '.map', True)
 
 _default_index = """<!DOCTYPE html>
 <html>
@@ -703,13 +706,10 @@ class Dash(object):
                 )
             )
 
-        mimetype = (
-            {
-                "js": "application/javascript",
-                "css": "text/css",
-                "map": "application/json",
-            }
-        )[path_in_package_dist.split(".")[-1]]
+        resource_path = os.path.dirname(sys.modules[package_name].__file__)
+        full_path = os.path.join(resource_path, path_in_package_dist)
+
+        (mimetype, encoding) = mimetypes.guess_type(full_path)
 
         package = sys.modules[package_name]
         self.logger.debug(
