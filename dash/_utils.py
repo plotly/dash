@@ -75,14 +75,27 @@ def get_relative_path(requests_pathname, path):
 def strip_relative_path(requests_pathname, path):
     if path is None:
         return None
-    elif not path.startswith('/'):
+    elif ((requests_pathname != '/' and
+            not path.startswith(requests_pathname.rstrip('/')))
+            or (requests_pathname == '/' and not path.startswith('/'))):
         raise exceptions.UnsupportedRelativePath(
-            "Paths that aren't prefixed with a leading / are not supported.\n" +
-            "You supplied: {}".format(path)
+            "Paths that aren't prefixed with a leading " +
+            "requests_pathname_prefix are not supported.\n" +
+            "You supplied: {} and requests_pathname_prefix was {}".format(
+                path,
+                requests_pathname
+            )
         )
-    if requests_pathname != '/':
-        path = path.replace(requests_pathname, '')
-    return path.lstrip('/').rstrip('/')
+    if (requests_pathname != '/' and
+            path.startswith(requests_pathname.rstrip('/'))):
+        path = path.replace(
+            # handle the case where the path might be `/my-dash-app`
+            # but the requests_pathname_prefix is `/my-dash-app/`
+            requests_pathname.rstrip('/'),
+            '',
+            1
+        )
+    return path.strip('/')
 
 
 # pylint: disable=no-member
