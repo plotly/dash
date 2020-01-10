@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+### Added
+- [#1078](https://github.com/plotly/dash/pull/1078) Add support for arbitrary file extensions in component packages
+
 ### Changed
 - [#1035](https://github.com/plotly/dash/pull/1035) Simplify our build process.
 - [#1074](https://github.com/plotly/dash/pull/1074) Error messages when providing an incorrect property to a component have been improved: they now specify the component type, library, version, and ID (if available).
