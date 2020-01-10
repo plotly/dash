@@ -1581,6 +1581,28 @@ class Dash(object):
         `app.get_relative_path('/page-2')` will return `/my-dash-app/page-2`.
         This can be used as an alternative to `get_asset_url` as well with
         `app.get_relative_path('/assets/logo.png')`
+
+        Use this function with `app.strip_relative_path` in callbacks that
+        deal with `dcc.Location` `pathname` routing.
+        That is, your usage may look like:
+        ```
+        app.layout = html.Div([
+            dcc.Location(id='url'),
+            html.Div(id='content')
+        ])
+        @app.callback(Output('content', 'children'), [Input('url', 'pathname')])
+        def display_content(path):
+            page_name = app.strip_relative_path(path)
+            if not page_name:  # None or ''
+                return html.Div([
+                    dcc.Link(href=app.get_relative_path('/page-1')),
+                    dcc.Link(href=app.get_relative_path('/page-2')),
+                ])
+            elif page_name == 'page-1':
+                return chapters.page_1
+            if page_name == "page-2":
+                return chapters.page_2
+        ```
         """
         asset = _get_relative_path(
             self.config.requests_pathname_prefix,
@@ -1593,8 +1615,8 @@ class Dash(object):
         """
         Return a path with `requests_pathname_prefix` and leading and trailing
         slashes stripped from it. Also, if None is passed in, None is returned.
-        Use this function in callbacks that deal with `dcc.Location` `pathname`
-        routing.
+        Use this function with `get_relative_path` in callbacks that deal
+        with `dcc.Location` `pathname` routing.
         That is, your usage may look like:
         ```
         app.layout = html.Div([
