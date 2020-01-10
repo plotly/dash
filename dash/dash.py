@@ -707,9 +707,6 @@ class Dash(object):
                 )
             )
 
-        resource_path = os.path.dirname(sys.modules[package_name].__file__)
-        full_path = os.path.join(resource_path, path_in_package_dist)
-
         extension = '.' + path_in_package_dist.split(".")[-1]
         mimetype= mimetypes.types_map[extension] if hasattr(mimetypes.types_map, extension) else 'application/octet-stream'
 
