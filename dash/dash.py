@@ -643,8 +643,8 @@ class Dash(object):
                 if isinstance(src, dict)
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
-            ] +
-            [
+            ]
+            + [
                 '<script>{}</script>'.format(src)
                 for src in self._inline_scripts
             ]
@@ -708,7 +708,11 @@ class Dash(object):
             )
 
         extension = '.' + path_in_package_dist.split(".")[-1]
-        mimetype= mimetypes.types_map[extension] if hasattr(mimetypes.types_map, extension) else 'application/octet-stream'
+        mimetype = (
+            mimetypes.types_map[extension]
+            if hasattr(mimetypes.types_map, extension)
+            else 'application/octet-stream'
+        )
 
         package = sys.modules[package_name]
         self.logger.debug(
@@ -1275,9 +1279,11 @@ class Dash(object):
                 var clientside = window.dash_clientside = window.dash_clientside || {{}};
                 var ns = clientside["{0}"] = clientside["{0}"] || {{}};
                 ns["{1}"] = {2};
-                """.format(namespace.replace('"', '\\"'),
-                           function_name.replace('"', '\\"'),
-                           clientside_function)
+                """.format(
+                    namespace.replace('"', '\\"'),
+                    function_name.replace('"', '\\"'),
+                    clientside_function,
+                )
             )
 
         # Callback is stored in an external asset.
