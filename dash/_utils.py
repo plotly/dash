@@ -82,7 +82,7 @@ def strip_relative_path(requests_pathname, path):
         )
     if requests_pathname != '/':
         path = path.replace(requests_pathname, '')
-    return path.lstrip('/').rstrip('/')
+    return path.strip('/')
 
 
 # pylint: disable=no-member
