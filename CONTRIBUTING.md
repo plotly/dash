@@ -101,6 +101,18 @@ Emojis make the commit messages :cherry_blossom:. If you have no idea about what
 
 We use `flake8`, `pylint`, and [`black`](https://black.readthedocs.io/en/stable/) for linting. please refer to the relevant steps in `.circleci/config.yml`.
 
+### Spell Checking
+
+We use [GNU Aspell](http://aspell.net/) to check the spelling of the Markdown files. [GNU Aspell](https://en.wikipedia.org/wiki/GNU_Aspell) is a free and open source spell checker designed to eventually replace Ispell. It compiles for Unix-like operating systems and Windows. Refer to the relevant step in `.circleci/config.yml` to see the Aspell implementation. 
+
+[GNU Aspell](https://github.com/GNUAspell/aspell) can also be installed on MacOS via [Homebrew](https://formulae.brew.sh/formula/aspell) and with [MacPorts](https://www.macports.org/ports.php?by=library&substr=aspell) and includes a man page:
+
+```
+man aspell
+```
+
+We use a [shell script](https://en.wikipedia.org/wiki/Shell_script) to check the spelling of the Markdown files and print out a list of words not in our dictionary and fail the build if new words are found.
+
 ## Tests
 
 Our tests use Google Chrome via Selenium. You will need to install [ChromeDriver](http://chromedriver.chromium.org/getting-started) matching the version of Chrome installed on your system. Here are some helpful tips for [Mac](https://www.kenst.com/2015/03/installing-chromedriver-on-mac-osx/) and [Windows](http://jonathansoma.com/lede/foundations-2018/classes/selenium/selenium-windows-install/).

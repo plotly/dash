@@ -40,6 +40,8 @@ jobs:
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
+            sudo apt update
+            sudo apt install aspell
             sudo pip install --upgrade virtualenv --progress-bar off
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
@@ -48,13 +50,14 @@ jobs:
           paths:
               - venv
       - run:
-          name: 🌸 Python & JS Lint
+          name: 🌸 Python & JS Lint, Check Markdown Spelling
           command: |
             . venv/bin/activate
             set -eo pipefail
             pip install -e . --progress-bar off && pip list | grep dash
             npm install --production && npm run initialize
             npm run lint
+            sh ./check-spelling.sh || exit 1
       - run:
           name: 🐍 Python Unit Tests & ☕ JS Unit Tests
           command: |
