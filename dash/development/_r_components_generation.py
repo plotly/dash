@@ -341,7 +341,7 @@ def generate_js_metadata(pkg_data, project_shortname):
 def get_async_type(dep):
     async_or_dynamic = ""
     for key in dep.keys():
-        if (key in ['async', 'dynamic']):
+        if key in ['async', 'dynamic']:
             keyval = dep[key]
             if not isinstance(keyval, bool):
                 keyval = "'{}'".format(keyval.lower())

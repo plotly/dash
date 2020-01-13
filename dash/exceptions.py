@@ -98,3 +98,7 @@ class SameInputOutputException(CallbackException):
 
 class MissingCallbackContextException(CallbackException):
     pass
+
+
+class UnsupportedRelativePath(CallbackException):
+    pass
