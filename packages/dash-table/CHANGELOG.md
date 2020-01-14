@@ -2,8 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
-
+## [4.6.0] - 2020-01-14
 ### Added
 - [#606](https://github.com/plotly/dash-table/pull/606) Add markdown support for table cells. Cells will be rendered as markdown if the column `presentation` is specified as `markdown`.
     - Add highlight.js for syntax highlighting. If `window.hljs` is specified, that will be used for highlighting instead.
