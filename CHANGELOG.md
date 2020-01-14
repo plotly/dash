@@ -2,6 +2,42 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.8.0] - 2020-01-14
+### Added
+- [#1073](https://github.com/plotly/dash/pull/1073) Two new functions to simplify usage handling URLs and pathnames: `app.get_relative_path` & `app.trim_relative_path`.
+These functions are particularly useful for apps deployed on Dash Enterprise where the apps served under a URL prefix (the app name) which is unlike apps served on localhost:8050.
+    - `app.get_relative_path` returns a path with the config setting `requests_pathname_prefix` prefixed. Use `app.get_relative_path` anywhere you would provide a relative pathname, like `dcc.Link(href=app.relative_path('/page-2'))` or even as an alternative to `app.get_asset_url` with e.g. `html.Img(src=app.get_relative_path('/assets/logo.png'))`.
+    - `app.trim_relative_path` a path with `requests_pathname_prefix` and leading & trailing
+    slashes stripped from it. Use this function in callbacks that deal with `dcc.Location` `pathname`
+    routing.
+    Example usage:
+    ```python
+    app.layout = html.Div([
+        dcc.Location(id='url'),
+        html.Div(id='content')
+    ])
+    @app.callback(Output('content', 'children'), [Input('url', 'pathname')])
+    def display_content(path):
+        page_name = app.strip_relative_path(path)
+        if not page_name:  # None or ''
+            return html.Div([
+                html.Img(src=app.get_relative_path('/assets/logo.png')),
+                dcc.Link(href=app.get_relative_path('/page-1')),
+                dcc.Link(href=app.get_relative_path('/page-2')),
+            ])
+        elif page_name == 'page-1':
+            return chapters.page_1
+        if page_name == "page-2":
+            return chapters.page_2
+    ```
+
+### Changed
+- [#1035](https://github.com/plotly/dash/pull/1035) Simplify our build process.
+- [#1074](https://github.com/plotly/dash/pull/1045) Error messages when providing an incorrect property to a component have been improved: they now specify the component type, library, version, and ID (if available).
+
+### Fixed
+- [#1037](https://github.com/plotly/dash/pull/1037) Fix no_update test to allow copies, such as those stored and retrieved from a cache.
+
 ## [1.7.0] - 2019-11-27
 ### Added
 - [#967](https://github.com/plotly/dash/pull/967) Add support for defining

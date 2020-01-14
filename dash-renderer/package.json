@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "render dash components in react",
   "main": "dash_renderer/dash_renderer.min.js",
   "scripts": {
@@ -23,7 +23,6 @@
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "prop-types": "15.7.2",
-    "check-prop-types": "1.1.2",
     "cookie": "^0.3.1",
     "dependency-graph": "^0.5.0",
     "radium": "^0.22.1",
@@ -32,7 +31,6 @@
     "redux": "^3.4.0",
     "redux-actions": "^0.9.1",
     "redux-thunk": "^2.0.1",
-    "uniqid": "^5.0.3",
     "viz.js": "1.8.0"
   },
   "devDependencies": {
@@ -59,7 +57,6 @@
     "prettier-eslint": "^8.8.2",
     "prettier-eslint-cli": "^4.7.1",
     "prettier-stylelint": "^0.4.2",
-    "raw-loader": "^3.1.0",
     "style-loader": "^1.0.0",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.8",

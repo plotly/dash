@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import '../Percy.css';
 import {urlBase} from '../../../utils';
 
-import werkzeugCss from '../werkzeug.css.txt';
+import werkzeugCss from '../werkzeugcss';
 
 class FrontEndError extends Component {
     constructor(props) {
@@ -108,7 +108,9 @@ function UnconnectedErrorContent({error, base}) {
                 </div>
             )}
             {/* Backend Error */}
-            {typeof error.html !== 'string' ? null : (
+            {typeof error.html !== 'string' ? null : error.html.indexOf(
+                  '<!DOCTYPE HTML'
+              ) === 0 ? (
                 <div className="dash-be-error__st">
                     <div className="dash-backend-error">
                         {/* Embed werkzeug debugger in an iframe to prevent
@@ -140,6 +142,10 @@ function UnconnectedErrorContent({error, base}) {
                         />
                     </div>
                 </div>
+            ) : (
+                <div className="dash-be-error__str">
+                    <div className="dash-backend-error">{error.html}</div>
+                </div>
             )}
         </div>
     );
@@ -167,7 +173,6 @@ const ErrorContent = connect(state => ({base: urlBase(state.config)}))(
 
 FrontEndError.propTypes = {
     e: PropTypes.shape({
-        myUID: PropTypes.string,
         timestamp: PropTypes.object,
         error: errorPropTypes,
     }),

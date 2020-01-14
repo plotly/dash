@@ -10,29 +10,18 @@ const defaults = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /node_modules\/(?!uniqid\/|check-prop-types\/)/,
+                exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
                 },
             },
             {
                 test: /\.css$/,
-                use: [
-                    {
-                        loader: 'style-loader',
-                    },
-                    {
-                        loader: 'css-loader',
-                    },
-                ],
+                use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.svg$/,
                 use: ['@svgr/webpack'],
-            },
-            {
-                test: /\.txt$/i,
-                use: 'raw-loader',
             }
         ]
     }
@@ -52,7 +41,6 @@ const rendererOptions = {
     externals: {
         react: 'React',
         'react-dom': 'ReactDOM',
-        'plotly.js': 'Plotly',
         'prop-types': 'PropTypes'
     },
     ...defaults

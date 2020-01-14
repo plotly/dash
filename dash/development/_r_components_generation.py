@@ -46,14 +46,14 @@ version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
 stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")"""   # noqa:E501
+all_files = FALSE{async_or_dynamic}), class = "html_dependency")"""   # noqa:E501
 
 frame_body_template = """`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
 stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")"""  # noqa:E501
+all_files = FALSE{async_or_dynamic}), class = "html_dependency")"""  # noqa:E501
 
 frame_close_template = """)
 return(deps_metadata)
@@ -81,9 +81,8 @@ help_string = """% Auto-generated: do not edit by hand
 """
 
 description_template = """Package: {package_name}
-Title: {package_description}
+Title: {package_title}
 Version: {package_version}
-Authors @R: as.person(c({package_author}))
 Description: {package_description}
 Depends: R (>= 3.0.2){package_depends}
 Imports: {package_imports}
@@ -92,7 +91,8 @@ License: {package_license}
 URL: {package_url}
 BugReports: {package_issues}
 Encoding: UTF-8
-LazyData: true
+LazyData: true{vignette_builder}
+KeepSource: true
 Author: {package_author_no_email}
 Maintainer: {maintainer}
 """
@@ -276,18 +276,23 @@ def generate_js_metadata(pkg_data, project_shortname):
     # pylint: disable=consider-using-enumerate
     if len(alldist) > 1:
         for dep in range(len(alldist)):
-            rpp = alldist[dep]["relative_package_path"]
+            curr_dep = alldist[dep]
+            rpp = curr_dep["relative_package_path"]
+
+            async_or_dynamic = get_async_type(curr_dep)
+
             if "dash_" in rpp:
                 dep_name = rpp.split(".")[0]
             else:
                 dep_name = "{}".format(project_shortname)
-                project_ver = str(dep)
+
             if "css" in rpp:
                 css_name = "'{}'".format(rpp)
                 script_name = 'NULL'
             else:
                 script_name = "'{}'".format(rpp)
                 css_name = 'NULL'
+
             function_frame += [
                 frame_element_template.format(
                     dep_name=dep_name,
@@ -296,23 +301,30 @@ def generate_js_metadata(pkg_data, project_shortname):
                     project_shortname=project_shortname,
                     script_name=script_name,
                     css_name=css_name,
+                    async_or_dynamic=async_or_dynamic,
                 )
             ]
             function_frame_body = ",\n".join(function_frame)
     elif len(alldist) == 1:
-        rpp = alldist[0]["relative_package_path"]
+        dep = alldist[0]
+        rpp = dep["relative_package_path"]
+
+        async_or_dynamic = get_async_type(dep)
+
         if "css" in rpp:
             css_name = "'{}'".format(rpp)
             script_name = "NULL"
         else:
             script_name = "'{}'".format(rpp)
             css_name = "NULL"
+
         function_frame_body = frame_body_template.format(
             project_shortname=project_shortname,
             project_ver=project_ver,
             rpkgname=rpkgname,
             script_name=script_name,
             css_name=css_name,
+            async_or_dynamic=async_or_dynamic,
         )
 
     function_string = "".join(
@@ -320,6 +332,24 @@ def generate_js_metadata(pkg_data, project_shortname):
     )
 
     return function_string
+
+
+# determine whether dependency uses async or dynamic flag
+# then return the properly formatted string if so, i.e.
+# " async = TRUE,". a dependency can have async or
+# dynamic elements, neither of these, but never both.
+def get_async_type(dep):
+    async_or_dynamic = ""
+    for key in dep.keys():
+        if key in ['async', 'dynamic']:
+            keyval = dep[key]
+            if not isinstance(keyval, bool):
+                keyval = "'{}'".format(keyval.lower())
+            else:
+                keyval = str(keyval).upper()
+            async_or_dynamic = \
+                ", {} = {}".format(key, keyval)
+    return async_or_dynamic
 
 
 # This method wraps code within arbitrary LaTeX-like tags, which are used
@@ -369,6 +399,15 @@ def write_help_file(name, props, description, prefix, rpkg_data):
         for p in prop_keys
     )
 
+    # auto-replace any unescaped backslashes for compatibility with R docs
+    description = re.sub(r"(?<!\\)%", "\\%", description)
+    item_text = re.sub(r"(?<!\\)%", "\\%", item_text)
+
+    # scrub examples which begin with **Example Usage**, as these should be
+    # provided as R code within dash-info.yaml
+    if "**Example Usage**" in description:
+        description = description.split("**Example Usage**")[0].rstrip()
+
     if any(key.endswith("-*") for key in prop_keys):
         default_argtext += ', ...'
         item_text += wildcard_help_template.format(get_wildcards_r(prop_keys))
@@ -400,6 +439,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
                 fa.write(result + '\n')
 
 
+# pylint: disable=too-many-arguments
 def write_class_file(name,
                      props,
                      description,
@@ -509,7 +549,21 @@ def generate_rpkg(
 
     package_name = snake_case_to_camel_case(project_shortname)
     lib_name = pkg_data.get("name")
-    package_description = pkg_data.get("description", "")
+
+    if rpkg_data is not None:
+        if rpkg_data.get("pkg_help_title"):
+            package_title = rpkg_data.get("pkg_help_title",
+                                          pkg_data.get("description",
+                                                       ""))
+        if rpkg_data.get("pkg_help_description"):
+            package_description = rpkg_data.get("pkg_help_description",
+                                                pkg_data.get("description",
+                                                             ""))
+    else:
+        # fall back to using description in package.json, if present
+        package_title = pkg_data.get("description", "")
+        package_description = pkg_data.get("description", "")
+
     package_version = pkg_data.get("version", "0.0.1")
 
     # remove leading and trailing commas
@@ -547,6 +601,16 @@ def generate_rpkg(
 
     maintainer = pkg_data.get("maintainer", pkg_data.get("author"))
 
+    if "<" not in package_author or "<" not in maintainer:
+        print(
+            "Error, aborting R package generation: "
+            "R packages require a properly formatted author or "
+            "maintainer field or installation will fail. Please include "
+            "an email address enclosed within < > brackets in package.json. ",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     if not (os.path.isfile("LICENSE") or os.path.isfile("LICENSE.txt")):
         package_license = pkg_data.get("license", "")
     else:
@@ -565,6 +629,14 @@ def generate_rpkg(
         for rpackage in rpackage_list:
             packages_string += "\nimport({})\n".format(rpackage)
 
+    if os.path.exists("vignettes"):
+        vignette_builder = "\nVignetteBuilder: knitr"
+        if "knitr" not in package_suggests and \
+           "rmarkdown" not in package_suggests:
+            package_suggests += ", knitr, rmarkdown".lstrip(", ")
+    else:
+        vignette_builder = ""
+
     pkghelp_stub_path = os.path.join("man", package_name + "-package.Rd")
 
     # generate the internal (not exported to the user) functions which
@@ -582,6 +654,7 @@ def generate_rpkg(
 
     description_string = description_template.format(
         package_name=package_name,
+        package_title=package_title,
         package_description=package_description,
         package_version=package_version,
         package_author=package_author,
@@ -591,6 +664,7 @@ def generate_rpkg(
         package_license=package_license,
         package_url=package_url,
         package_issues=package_issues,
+        vignette_builder=vignette_builder,
         package_author_no_email=package_author_no_email,
         maintainer=maintainer,
     )
