@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - [#723](https://github.com/plotly/dash-core-components/pull/723) Changed npm package content to allow source code inclusion from other projects
 - [#725](https://github.com/plotly/dash-core-components/pull/725) Improve async graph performance by parallelizing resource fetching instead of fetching sequentially
+- [#720](https://github.com/plotly/dash-core-components/pull/720) `highlight.js` is now bundled into the package, and no longer sets the `window.hljs` variable. Similarly to how `plotly.js` is handled, it is overridden by a user-provided version if one exists.
 
 ### Updated
 - [#732](https://github.com/plotly/dash-core-components/pull/732)
@@ -23,10 +24,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Patch release [1.52.1](https://github.com/plotly/plotly.js/releases/tag/v1.52.1) containing several bug fixes.
 - [#706](https://github.com/plotly/dash-core-components/pull/706)
   - Upgraded plotly.js to [1.51.3](https://github.com/plotly/plotly.js/releases/tag/v1.51.3)
-
-### Changed
-- [#720](https://github.com/plotly/dash-core-components/pull/720)
-  - `highlight.js` is now bundled into the package, and no longer sets the `window.hljs` variable. Similarly to how `plotly.js` is handled, it is overridden by a user-provided version if one exists.
 
 ## [1.6.0] - 2019-11-27
 ### Updated
