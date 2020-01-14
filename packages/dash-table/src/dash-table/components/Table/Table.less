@@ -399,6 +399,18 @@
 		}
             }
 
+        /*
+         * fixes Firefox td height bug on td > dropdown children
+         * bug should only appear on FF but
+         * @supports = scoped to Firefox only
+         * to minimize side effects
+         */
+        @supports (-moz-appearance:none) {
+            td.dropdown .dash-cell-value-container {
+                height: auto;
+            }
+        }
+
             th.dash-filter {
 		position: relative;
 

@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - [#670](https://github.com/plotly/dash-table/pull/670) Fix a bug where `derived_filter_query_structure` was not getting updated properly
+- [#665](https://github.com/plotly/dash-table/pull/665) Fix a bug in Firefox where the dropdown cells height is incorrect
 
 ## [4.5.1] - 2019-11-14
 ### Fixed
