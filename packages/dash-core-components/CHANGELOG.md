@@ -15,6 +15,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [#725](https://github.com/plotly/dash-core-components/pull/725) Improve async graph performance by parallelizing resource fetching instead of fetching sequentially
 
 ### Updated
+- [#732](https://github.com/plotly/dash-core-components/pull/732)
+  - Upgraded plotly.js to [1.52.1](https://github.com/plotly/plotly.js/releases/tag/v1.52.1)
+  - [Feature release 1.52.0](https://github.com/plotly/plotly.js/releases/tag/v1.52.0) which contains:
+    - Enable loading locale bundles before plotly.js bundles [#4453](https://github.com/plotly/plotly.js/pull/4453)
+    - `ko` localization [#4315](https://github.com/plotly/plotly.js/pull/4315)
+  - Patch release [1.52.1](https://github.com/plotly/plotly.js/releases/tag/v1.52.1) containing several bug fixes.
 - [#706](https://github.com/plotly/dash-core-components/pull/706)
   - Upgraded plotly.js to [1.51.3](https://github.com/plotly/plotly.js/releases/tag/v1.51.3)
 

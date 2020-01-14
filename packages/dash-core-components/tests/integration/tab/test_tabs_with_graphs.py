@@ -230,6 +230,7 @@ def check_graph_config_shape(dash_dcc):
         'showSources',
         'logging',
         'globalTransforms',
+        'notifyOnLogging',
         'role',
     ]
 
