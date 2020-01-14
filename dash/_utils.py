@@ -72,6 +72,7 @@ def get_relative_path(requests_pathname, path):
         ]
     )
 
+
 def strip_relative_path(requests_pathname, path):
     if path is None:
         return None

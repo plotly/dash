@@ -5,6 +5,7 @@ import pytest
 
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 
 import dash_dangerously_set_inner_html
 import dash_flow_example
@@ -25,7 +26,6 @@ from dash.exceptions import (
     NonExistentIdException,
 )
 from dash.testing.wait import until
-from selenium.webdriver.common.by import By
 
 
 def findSyncPlotlyJs(scripts):
