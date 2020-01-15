@@ -112,9 +112,6 @@ class WebStore {
     }
 }
 
-const _localStore = new WebStore(window.localStorage);
-const _sessionStore = new WebStore(window.sessionStorage);
-
 /**
  * Easily keep data on the client side with this component.
  * The data is not inserted in the DOM.
@@ -126,9 +123,9 @@ export default class Store extends React.Component {
         super(props);
 
         if (props.storage_type === 'local') {
-            this._backstore = _localStore;
+            this._backstore = new WebStore(window.localStorage);
         } else if (props.storage_type === 'session') {
-            this._backstore = _sessionStore;
+            this._backstore = new WebStore(window.sessionStorage);
         } else if (props.storage_type === 'memory') {
             this._backstore = new MemStore();
         }
