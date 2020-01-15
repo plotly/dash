@@ -13,8 +13,13 @@ class CallbackGraphContainer extends Component {
         const {dependenciesRequest} = this.props;
         const elements = {};
         const callbacks = [];
-        const links = dependenciesRequest.content.map(({inputs, output}, i) => {
-            callbacks.push(`cb${i};`);
+        const clientside_callbacks = [];
+        const links = dependenciesRequest.content.map(({inputs, output, clientside_function}, i) => {
+            if (clientside_function) {
+                clientside_callbacks.push(`cb${i};`);
+            } else {
+                callbacks.push(`cb${i};`);
+            }
             function recordAndReturn([id, property]) {
                 elements[id] = elements[id] || {};
                 elements[id][property] = true;
@@ -40,6 +45,10 @@ class CallbackGraphContainer extends Component {
             subgraph callbacks {
                 node [shape=circle, width=0.3, label="", color="#00CC96"];
                 ${callbacks.join('\n')} }
+
+            subgraph clientside_callbacks {
+                node [shape=circle, width=0.3, label="", color="#EF553B"];
+                ${clientside_callbacks.join('\n')} }
 
             ${Object.entries(elements)
                 .map(
