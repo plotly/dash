@@ -2,8 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
-
+## [1.8.0] - 2020-01-14
 ### Added
 - [#1078](https://github.com/plotly/dash/pull/1078) Add support for arbitrary file extensions in component packages
 - [#1073](https://github.com/plotly/dash/pull/1073) Two new functions to simplify usage handling URLs and pathnames: `app.get_relative_path` & `app.trim_relative_path`.
