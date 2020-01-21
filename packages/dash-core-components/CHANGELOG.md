@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Added new `dash-graph--pending` class to dcc.Graph, present while resizing, (re-)rendering, loading
 
 ### Fixed
+- [#730](https://github.com/plotly/dash-core-components/pull/730) Fixed bug in which input components with type `number` did not correctly update their values.
 - [#731](https://github.com/plotly/dash-core-components/pull/731) Fixed bug where non-clearable dropdowns could still be cleared by typing backspace
 
 ### Changed

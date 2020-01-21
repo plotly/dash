@@ -31,7 +31,8 @@ export default class Input extends PureComponent {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {value, valueAsNumber} = this.input.current;
+        const {value} = this.input.current;
+        const valueAsNumber = convert(value);
         this.setInputValue(
             isNil(valueAsNumber) ? value : valueAsNumber,
             nextProps.value
@@ -42,7 +43,8 @@ export default class Input extends PureComponent {
     }
 
     componentDidMount() {
-        const {value, valueAsNumber} = this.input.current;
+        const {value} = this.input.current;
+        const valueAsNumber = convert(value);
         this.setInputValue(
             isNil(valueAsNumber) ? value : valueAsNumber,
             this.props.value
@@ -109,7 +111,8 @@ export default class Input extends PureComponent {
     }
 
     onEvent() {
-        const {value, valueAsNumber} = this.input.current;
+        const {value} = this.input.current;
+        const valueAsNumber = convert(value);
         if (this.props.type === 'number') {
             this.setPropValue(
                 this.props.value,
