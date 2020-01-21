@@ -1,8 +1,8 @@
-pkg_help_description: >
+pkg_help_description: >-
     Dash ships with supercharged components for
     interactive user interfaces. A core set of components,
     written and maintained by the Dash team, is available in
     the dashCoreComponents package. The source for this package
     is on GitHub: plotly/dash-core-components.
-pkg_help_title: >
+pkg_help_title: >-
     Core Interactive UI Components for Dash 
