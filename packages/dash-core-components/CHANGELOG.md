@@ -19,6 +19,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Added responsiveness on graph parent element resize (previously only worked on window.resize)
   - Added new `dash-graph--pending` class to dcc.Graph, present while resizing, (re-)rendering, loading
 
+### Fixed
+- [#731](https://github.com/plotly/dash-core-components/pull/731) Fixed bug where non-clearable dropdowns could still be cleared by typing backspace
+
 ### Changed
 - [#723](https://github.com/plotly/dash-core-components/pull/723) Changed npm package content to allow source code inclusion from other projects
 - [#725](https://github.com/plotly/dash-core-components/pull/725) Improve async graph performance by parallelizing resource fetching instead of fetching sequentially
