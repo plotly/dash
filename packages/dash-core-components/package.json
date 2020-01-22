@@ -41,15 +41,15 @@
     "plotly.js": "1.52.1",
     "prop-types": "^15.6.0",
     "ramda": "^0.26.1",
-    "rc-slider": "^8.6.11",
+    "rc-slider": "^9.1.0",
     "react-addons-shallow-compare": "^15.6.0",
     "react-dates": "^20.1.0",
     "react-docgen": "^3.0.0",
     "react-dropzone": "^4.1.2",
     "react-markdown": "^4.0.6",
+    "react-resize-detector": "^4.2.1",
     "react-select-fast-filter-options": "^0.2.3",
     "react-virtualized-select": "^3.1.3",
-    "react-resize-detector": "^4.2.1",
     "uniqid": "^5.0.3"
   },
   "devDependencies": {

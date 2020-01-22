@@ -1,111 +1,18 @@
-import React, {Component} from 'react';
-import ReactSlider, {createSliderWithTooltip} from 'rc-slider';
+import React, {Component, lazy, Suspense} from 'react';
 import PropTypes from 'prop-types';
-import {assoc, omit, pickBy} from 'ramda';
-import './css/rc-slider@6.1.2.css';
-import computeSliderStyle from '../utils/computeSliderStyle';
+import slider from '../utils/LazyLoader/slider';
+
+const RealSlider = lazy(slider);
 
 /**
  * A slider component with a single handle.
  */
 export default class Slider extends Component {
-    constructor(props) {
-        super(props);
-        this.propsToState = this.propsToState.bind(this);
-        this.DashSlider = props.tooltip
-            ? createSliderWithTooltip(ReactSlider)
-            : ReactSlider;
-        this._computeStyle = computeSliderStyle();
-    }
-
-    propsToState(newProps) {
-        this.setState({value: newProps.value});
-    }
-
-    componentWillReceiveProps(newProps) {
-        if (newProps.tooltip !== this.props.tooltip) {
-            this.DashSlider = newProps.tooltip
-                ? createSliderWithTooltip(ReactSlider)
-                : ReactSlider;
-        }
-        this.propsToState(newProps);
-    }
-
-    componentWillMount() {
-        this.propsToState(this.props);
-    }
-
     render() {
-        const {
-            className,
-            id,
-            loading_state,
-            setProps,
-            tooltip,
-            updatemode,
-            vertical,
-            verticalHeight,
-        } = this.props;
-        const value = this.state.value;
-
-        let tipProps;
-        if (tooltip && tooltip.always_visible) {
-            /**
-             * clone `tooltip` but with renamed key `always_visible` -> `visible`
-             * the rc-tooltip API uses `visible`, but `always_visible` is more semantic
-             * assigns the new (renamed) key to the old key and deletes the old key
-             */
-            tipProps = assoc('visible', tooltip.always_visible, tooltip);
-            delete tipProps.always_visible;
-        } else {
-            tipProps = tooltip;
-        }
-
-        const truncatedMarks = this.props.marks
-            ? pickBy(
-                  (k, mark) => mark >= this.props.min && mark <= this.props.max,
-                  this.props.marks
-              )
-            : this.props.marks;
-
         return (
-            <div
-                id={id}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-                className={className}
-                style={this._computeStyle(vertical, verticalHeight, tooltip)}
-            >
-                <this.DashSlider
-                    onChange={value => {
-                        if (updatemode === 'drag') {
-                            setProps({value});
-                        } else {
-                            this.setState({value});
-                        }
-                    }}
-                    onAfterChange={value => {
-                        if (updatemode === 'mouseup') {
-                            setProps({value});
-                        }
-                    }}
-                    tipProps={tipProps}
-                    value={value}
-                    marks={truncatedMarks}
-                    {...omit(
-                        [
-                            'className',
-                            'setProps',
-                            'updatemode',
-                            'value',
-                            'marks',
-                            'verticalHeight',
-                        ],
-                        this.props
-                    )}
-                />
-            </div>
+            <Suspense fallback={null}>
+                <RealSlider {...this.props} />
+            </Suspense>
         );
     }
 }
@@ -287,3 +194,6 @@ Slider.defaultProps = {
     persistence_type: 'local',
     verticalHeight: 400,
 };
+
+export const propTypes = Slider.propTypes;
+export const defaultProps = Slider.defaultProps;

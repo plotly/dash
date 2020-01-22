@@ -45,6 +45,7 @@ async_resources = [
     'graph',
     'highlight',
     'markdown',
+    'slider',
     'upload'
 ]
 
