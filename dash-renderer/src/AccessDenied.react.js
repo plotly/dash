@@ -28,9 +28,15 @@ function AccessDenied(props) {
             <a
                 style={styles.base.a}
                 onClick={() => {
-                    document.cookie =
-                        `${constants.OAUTH_COOKIE_NAME}=; ` +
-                        'expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                    /* eslint no-empty: ["error", { "allowEmptyCatch": true }] */
+                    try {
+                        document.cookie =
+                            `${constants.OAUTH_COOKIE_NAME}=; ` +
+                            'expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                    } catch (e) {
+                        /* eslint-disable-next-line no-console */
+                        console.warn(e);
+                    }
                     window.location.reload(true);
                 }}
             >

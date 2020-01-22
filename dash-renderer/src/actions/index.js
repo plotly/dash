@@ -55,9 +55,15 @@ export function hydrateInitialOutputs() {
 }
 
 export function getCSRFHeader() {
-    return {
-        'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
-    };
+    try {
+        return {
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
+        };
+    } catch (e) {
+        /* eslint-disable-next-line no-console */
+        console.warn(e);
+        return {};
+    }
 }
 
 function triggerDefaultState(dispatch, getState) {
