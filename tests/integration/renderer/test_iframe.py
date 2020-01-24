@@ -48,4 +48,4 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
 
     dash_duo.driver.get("data:text/html;charset=utf-8," + html_content)
 
-    assert not dash_duo.get_logs()
+    assert len(dash_duo.get_logs()) == 1
