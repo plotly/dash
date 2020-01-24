@@ -176,6 +176,15 @@ wildcard_help_template = """
 """
 
 
+def _get_package_name(project_shortname):
+    # this helper function enables building of projects that do not keep their
+    # package.json or generated .py files in the top level of the package
+    if "/" in project_shortname:
+        package_name, _ = project_shortname.split("/", 1)
+        return package_name
+    return project_shortname
+
+
 # pylint: disable=R0914
 def generate_class_string(name, props, project_shortname, prefix):
     # Here we convert from snake case to camel case
@@ -454,7 +463,7 @@ def write_class_file(name,
     # doxygen and an R plugin, but for now we'll just do it on our own
     # from within Python
     write_help_file(name, props, description, prefix, rpkg_data)
-
+    project_shortname = _get_package_name(project_shortname)
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string(
@@ -716,6 +725,7 @@ def generate_exports(
         package_suggests,
         **kwargs
 ):
+    project_shortname = _get_package_name(project_shortname)
     export_string = make_namespace_exports(components, prefix)
 
     # Look for wildcards in the metadata
