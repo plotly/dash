@@ -1,4 +1,4 @@
-const ON_CHANGE = '_dashprivate_onhistorychange';
+const ON_CHANGE = '_dashprivate_historychange';
 
 export default class History {
     static dispatchChangeEvent() {
