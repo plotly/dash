@@ -80,7 +80,7 @@ function triggerDefaultState(dispatch, getState) {
     } catch (err) {
         dispatch(
             onError({
-                logWarningOncetype: 'backEnd',
+                type: 'backEnd',
                 error: {
                     message: 'Circular Dependencies',
                     html: err.toString(),
