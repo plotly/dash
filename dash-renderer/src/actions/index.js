@@ -16,6 +16,7 @@ import {
     lensPath,
     mergeLeft,
     mergeDeepRight,
+    once,
     path,
     pluck,
     propEq,
@@ -54,14 +55,16 @@ export function hydrateInitialOutputs() {
     };
 }
 
+/* eslint-disable-next-line no-console */
+const logWarningOnce = once(console.warn);
+
 export function getCSRFHeader() {
     try {
         return {
             'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
         };
     } catch (e) {
-        /* eslint-disable-next-line no-console */
-        console.warn(e);
+        logWarningOnce(e);
         return {};
     }
 }
@@ -77,7 +80,7 @@ function triggerDefaultState(dispatch, getState) {
     } catch (err) {
         dispatch(
             onError({
-                type: 'backEnd',
+                logWarningOncetype: 'backEnd',
                 error: {
                     message: 'Circular Dependencies',
                     html: err.toString(),

@@ -1,9 +1,12 @@
 /* global window:true, document:true */
 import React from 'react';
-import {mergeRight} from 'ramda';
+import {mergeRight, once} from 'ramda';
 import PropTypes from 'prop-types';
 import * as styles from './styles/styles.js';
 import * as constants from './constants/constants.js';
+
+/* eslint-disable-next-line no-console */
+const logWarningOnce = once(console.warn);
 
 function AccessDenied(props) {
     const {config} = props;
@@ -34,8 +37,7 @@ function AccessDenied(props) {
                             `${constants.OAUTH_COOKIE_NAME}=; ` +
                             'expires=Thu, 01 Jan 1970 00:00:01 GMT;';
                     } catch (e) {
-                        /* eslint-disable-next-line no-console */
-                        console.warn(e);
+                        logWarningOnce(e);
                     }
                     window.location.reload(true);
                 }}
