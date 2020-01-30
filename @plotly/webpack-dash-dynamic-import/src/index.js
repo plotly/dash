@@ -20,7 +20,15 @@ var getCurrentScript = function() {
     if (!script) {
         /* Shim for IE11 and below */
         /* Do not take into account async scripts and inline scripts */
-        var scripts = Array.from(document.getElementsByTagName('script')).filter(function(s) { return !s.async && !s.text && !s.textContent; });
+
+        var doc_scripts = document.getElementsByTagName('script');
+        var scripts = [];
+
+        for (var i = 0; i < doc_scripts.length; i++) {
+            scripts.push(doc_scripts[i]);
+        }
+
+        scripts.filter(function(s) { return !s.async && !s.text && !s.textContent; });
         script = scripts.slice(-1)[0];
     }
 
