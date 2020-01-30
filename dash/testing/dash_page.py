@@ -34,7 +34,7 @@ class DashPageMixin(object):
     def redux_state_rqs(self):
         return self.driver.execute_script(
             """
-            return window.store.getState().requestQueue.map(function(cb) {
+            return window.store.getState().pendingCallbacks.map(function(cb) {
                 var out = {};
                 for (var key in cb) {
                     if (typeof cb[key] !== 'function') { out[key] = cb[key]; }
