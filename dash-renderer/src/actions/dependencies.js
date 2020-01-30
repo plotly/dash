@@ -1,6 +1,7 @@
 import {DepGraph} from 'dependency-graph';
 import isNumeric from 'fast-isnumeric';
 import {
+    all,
     any,
     ap,
     assoc,
@@ -170,10 +171,15 @@ export function computeGraphs(dependencies) {
     const wildcardPlaceholders = {};
 
     const fixIds = map(evolve({id: parseIfWildcard}));
-    const parsedDependencies = map(
-        evolve({inputs: fixIds, state: fixIds}),
-        dependencies
-    );
+    const parsedDependencies = map(dep => {
+        const {output} = dep;
+        const out = evolve({inputs: fixIds, state: fixIds}, dep);
+        out.outputs = map(
+            outi => assoc('out', true, splitIdAndProp(outi)),
+            isMultiOutputProp(output) ? parseMultipleOutputs(output) : [output]
+        );
+        return out;
+    }, dependencies);
 
     /*
      * For regular ids, outputMap and inputMap are:
@@ -203,15 +209,7 @@ export function computeGraphs(dependencies) {
     const inputPatterns = {};
 
     parsedDependencies.forEach(dependency => {
-        const {output, inputs} = dependency;
-        const outputStrs = isMultiOutputProp(output)
-            ? parseMultipleOutputs(output)
-            : [output];
-        const outputs = outputStrs.map(outputStr => {
-            const outputObj = splitIdAndProp(outputStr);
-            outputObj.out = true;
-            return outputObj;
-        });
+        const {outputs, inputs} = dependency;
 
         // TODO: what was this (and exactChange) about???
         // const depWildcardExact = {};
@@ -299,7 +297,7 @@ export function computeGraphs(dependencies) {
     }
 
     parsedDependencies.forEach(function registerDependency(dependency) {
-        const {output, inputs} = dependency;
+        const {output, outputs, inputs} = dependency;
 
         // multiGraph - just for testing circularity
 
@@ -326,12 +324,6 @@ export function computeGraphs(dependencies) {
             });
         }
 
-        const outStrs = isMultiOutputProp(output)
-            ? parseMultipleOutputs(output)
-            : [output];
-
-        const outputs = outStrs.map(splitIdAndProp);
-
         // We'll continue to use dep.output as its id, but add outputs as well
         // for convenience and symmetry with the structure of inputs and state.
         // Also collect ANY keys in the output (all outputs must share these)
@@ -352,7 +344,8 @@ export function computeGraphs(dependencies) {
             dependency
         );
 
-        outputs.forEach(({id: outId, property}) => {
+        outputs.forEach(outIdProp => {
+            const {id: outId, property} = outIdProp;
             if (typeof outId === 'object') {
                 const outIdList = makeAllIds(outId, {});
                 outIdList.forEach(id => {
@@ -361,7 +354,7 @@ export function computeGraphs(dependencies) {
 
                 addPattern(outputPatterns, outId, property, finalDependency);
             } else {
-                addOutputToMulti({}, outId);
+                addOutputToMulti({}, combineIdAndProp(outIdProp));
                 addMap(outputMap, outId, property, finalDependency);
             }
         });
@@ -800,7 +793,24 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
 
     // We still need to follow these forward in order to capture blocks and,
     // if based on a partial layout, any knock-on effects in the full layout.
-    return followForward(graphs, paths, callbacks);
+    const finalCallbacks = followForward(graphs, paths, callbacks);
+
+    // Exception to the `initialCall` case of callbacks found by output:
+    // if *every* input to this callback is itself an output of another
+    // callback earlier in the chain, we remove the `initialCall` flag
+    // so that if all of those prior callbacks abort all of their outputs,
+    // this later callback never runs.
+    // See test inin003 "callback2 is never triggered, even on initial load"
+    finalCallbacks.forEach(cb => {
+        if (cb.initialCall && !isEmpty(cb.blockedBy)) {
+            const inputs = flatten(cb.getInputs(paths));
+            if (all(i => cb.changedPropIds[combineIdAndProp(i)], inputs)) {
+                cb.initialCall = false;
+            }
+        }
+    });
+
+    return finalCallbacks;
 }
 
 export function removePendingCallback(
