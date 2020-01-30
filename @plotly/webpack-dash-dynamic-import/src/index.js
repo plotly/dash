@@ -28,7 +28,7 @@ var getCurrentScript = function() {
             scripts.push(doc_scripts[i]);
         }
 
-        scripts.filter(function(s) { return !s.async && !s.text && !s.textContent; });
+        scripts = scripts.filter(function(s) { return !s.async && !s.text && !s.textContent; });
         script = scripts.slice(-1)[0];
     }
 
