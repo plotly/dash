@@ -65,7 +65,7 @@ function parseWildcardId(idStr) {
  * "..output-1.value...output-2.value...output-3.value...output-4.value.."
  */
 function parseMultipleOutputs(outputIdAndProp) {
-    return outputIdAndProp.split('...').map(o => o.replace('..', ''));
+    return outputIdAndProp.substr(2, outputIdAndProp.length - 4).split('...');
 }
 
 export function splitIdAndProp(idAndProp) {
