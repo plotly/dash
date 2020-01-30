@@ -16,7 +16,8 @@ from . import exceptions
 logger = logging.getLogger()
 
 # py2/3 json.dumps-compatible strings - these are equivalent in py3, not in py2
-_strings = (type(u""), type(""))
+# note because we import unicode_literals u"" and "" are both unicode
+_strings = (type(u""), type(utils.bytes_to_native_str(b"")))
 
 
 def interpolate_str(template, **data):
