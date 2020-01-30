@@ -31,8 +31,7 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
         dash_duo.find_element("#output").text == "3"
     ), "clicked button 3 times"
 
-    rqs = dash_duo.redux_state_rqs
-    assert len(rqs) == 1 and not rqs[0]["rejected"]
+    assert dash_duo.redux_state_rqs == []
 
     dash_duo.percy_snapshot(
         name="test_callbacks_called_multiple_times_and_out_of_order"

@@ -152,11 +152,8 @@ class Browser(DashPageMixin):
             # as diff reference for the build run.
             logger.error(
                 "wait_for_callbacks failed => status of invalid rqs %s",
-                list(
-                    _ for _ in self.redux_state_rqs if not _.get("responseTime")
-                ),
+                self.redux_state_rqs,
             )
-            logger.debug("full content of the rqs => %s", self.redux_state_rqs)
 
         self.percy_runner.snapshot(name=snapshot_name)
 

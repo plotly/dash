@@ -33,7 +33,15 @@ class DashPageMixin(object):
     @property
     def redux_state_rqs(self):
         return self.driver.execute_script(
-            "return window.store.getState().requestQueue"
+            """
+            return window.store.getState().requestQueue.map(function(cb) {
+                var out = {};
+                for (var key in cb) {
+                    if (typeof cb[key] !== 'function') { out[key] = cb[key]; }
+                }
+                return out;
+            })
+            """
         )
 
     @property
@@ -41,19 +49,7 @@ class DashPageMixin(object):
         return self.driver.execute_script("return window.store")
 
     def _wait_for_callbacks(self):
-        if self.window_store:
-            # note that there is still a small chance of FP (False Positive)
-            # where we get two earlier requests in the queue, this returns
-            # True but there are still more requests to come
-            return self.redux_state_rqs and all(
-                (
-                    _.get("responseTime")
-                    for _ in self.redux_state_rqs
-                    if _.get("controllerId")
-                )
-            )
-
-        return True
+        return not self.window_store or self.redux_state_rqs == []
 
     def get_local_storage(self, store_id="local"):
         return self.driver.execute_script(

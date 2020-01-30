@@ -1,12 +1,10 @@
 from multiprocessing import Value
 
-from bs4 import BeautifulSoup
-
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 import dash
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 
@@ -42,8 +40,7 @@ def test_cbsc001_simple_callback(dash_duo):
         "hello world"
     ), "initial count + each key stroke"
 
-    rqs = dash_duo.redux_state_rqs
-    assert len(rqs) == 1
+    assert dash_duo.redux_state_rqs == []
 
     assert dash_duo.get_logs() == []
 
@@ -98,7 +95,9 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
 
     dash_duo.percy_snapshot(name="callback-generating-function-1")
 
-    assert dash_duo.redux_state_paths == {
+    paths = dash_duo.redux_state_paths
+    assert paths["objs"] == {}
+    assert paths["strs"] == {
         "input": ["props", "children", 0],
         "output": ["props", "children", 1],
         "sub-input-1": [
@@ -136,9 +135,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
         "#sub-output-1", pad_input.attrs["value"] + "deadbeef"
     )
 
-    rqs = dash_duo.redux_state_rqs
-    assert rqs, "request queue is not empty"
-    assert all((rq["status"] == 200 and not rq["rejected"] for rq in rqs))
+    assert dash_duo.redux_state_rqs == [], "pendingCallbacks is empty"
 
     dash_duo.percy_snapshot(name="callback-generating-function-2")
     assert dash_duo.get_logs() == [], "console is clean"
