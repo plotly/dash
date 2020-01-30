@@ -16,6 +16,7 @@ import {
     lensPath,
     mergeLeft,
     mergeDeepRight,
+    once,
     path,
     pluck,
     propEq,
@@ -54,10 +55,18 @@ export function hydrateInitialOutputs() {
     };
 }
 
+/* eslint-disable-next-line no-console */
+const logWarningOnce = once(console.warn);
+
 export function getCSRFHeader() {
-    return {
-        'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
-    };
+    try {
+        return {
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
+        };
+    } catch (e) {
+        logWarningOnce(e);
+        return {};
+    }
 }
 
 function triggerDefaultState(dispatch, getState) {
