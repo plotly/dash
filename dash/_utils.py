@@ -205,7 +205,8 @@ def stringify_id(id_):
 def inputs_to_dict(inputs):
     inputs = {}
     for i in inputs:
-        for ii in (i if isinstance(i, list) else [i]):
+        inputsi = i if isinstance(i, list) else [i]
+        for ii in inputsi:
             id_str = stringify_id(ii["id"])
             inputs["{}.{}".format(id_str, ii["property"])] = ii.get("value")
     return inputs

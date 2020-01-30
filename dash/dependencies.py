@@ -44,7 +44,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
             return "{}:{}".format(json.dumps(k), vstr)
 
         if isinstance(i, dict):
-            return ("{" + ",".join(_json(k, i[k]) for k in sorted(i)) + "}")
+            return "{" + ",".join(_json(k, i[k]) for k in sorted(i)) + "}"
 
         return i
 

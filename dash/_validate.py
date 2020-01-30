@@ -24,114 +24,25 @@ def validate_callback(app, layout, output, inputs, state):
             """
         )
 
+    if not inputs:
+        raise exceptions.MissingInputsException(
+            """
+            This callback has no `Input` elements.
+            Without `Input` elements, this callback will never get called.
+
+            Subscribing to Input components will cause the
+            callback to be called whenever their values change.
+            """
+        )
+
     outputs = output if is_multi else [output]
+
     for args, cls in [(outputs, Output), (inputs, Input), (state, State)]:
         validate_callback_args(args, cls, layout, validate_ids)
 
-    if state and not inputs:
-        raise exceptions.MissingInputsException(
-            """
-            This callback has {} `State` element{} but no `Input` elements.
-
-            Without `Input` elements, this callback will never get called.
-
-            (Subscribing to Input components will cause the
-            callback to be called whenever their values change.)
-            """.format(
-                len(state), "s" if len(state) > 1 else ""
-            )
-        )
-
-    for i in inputs:
-        bad = None
-        if is_multi:
-            for o in output:
-                if o == i:
-                    # Note: different but overlapping wildcards compare as equal
-                    bad = o
-        elif output == i:
-            bad = output
-        if bad:
-            raise exceptions.SameInputOutputException(
-                "Same output and input: {}".format(bad)
-            )
-
-    if is_multi and len(set(output)) != len(output):
-        raise exceptions.DuplicateCallbackOutput(
-            """
-            Same output was used more than once in a multi output callback!
-            Duplicates:
-            {}
-            """.format(
-                ",\n".join(str(x) for x in output if output.count(x) > 1)
-            )
-        )
-
-    any_keys = get_wildcard_keys(outputs[0], (ANY,))
-    for out in outputs[1:]:
-        if get_wildcard_keys(out, (ANY,)) != any_keys:
-            raise exceptions.InconsistentCallbackWildcards(
-                """
-                All `Output` items must have matching wildcard `ANY` values.
-                `ALL` wildcards need not match, only `ANY`.
-
-                Output {} does not match the first output {}.
-                """.format(
-                    out, outputs[0]
-                )
-            )
-
-    matched_wildcards = (ANY, ALLSMALLER)
-    for dep in list(inputs) + list(state):
-        wildcard_keys = get_wildcard_keys(dep, matched_wildcards)
-        if wildcard_keys - any_keys:
-            raise exceptions.InconsistentCallbackWildcards(
-                """
-                `Input` and `State` items can only have {}
-                wildcards on keys where the `Output`(s) have `ANY` wildcards.
-                `ALL` wildcards need not match, and you need not match every
-                `ANY` in the `Output`(s).
-
-                This callback has `ANY` on keys {}.
-                {} has these wildcards on keys {}.
-                """.format(
-                    matched_wildcards, any_keys, dep, wildcard_keys
-                )
-            )
-
-    dups = set()
-    for out in outputs:
-        for used_out in app.used_outputs:
-            if out == used_out:
-                dups.add(str(used_out))
-    if dups:
-        if is_multi or len(dups) > 1 or str(output) != list(dups)[0]:
-            raise exceptions.DuplicateCallbackOutput(
-                """
-                One or more `Output` is already set by a callback.
-                Note that two wildcard outputs can refer to the same component
-                even if they don't match exactly.
-
-                The new callback lists output(s):
-                {}
-                Already used:
-                {}
-                """.format(
-                    ", ".join([str(o) for o in outputs]),
-                    ", ".join(dups)
-                )
-            )
-        else:
-            raise exceptions.DuplicateCallbackOutput(
-                """
-                {} was already assigned to a callback.
-                Any given output can only have one callback that sets it.
-                Try combining your inputs and callback functions together
-                into one function.
-                """.format(
-                    repr(output)
-                )
-            )
+    prevent_duplicate_outputs(app, outputs)
+    prevent_input_output_overlap(inputs, outputs)
+    prevent_inconsistent_wildcards(outputs, inputs, state)
 
 
 def validate_callback_args(args, cls, layout, validate_ids):
@@ -189,6 +100,117 @@ def validate_callback_args(args, cls, layout, validate_ids):
             )
 
 
+def prevent_duplicate_outputs(app, outputs):
+    for i, out in enumerate(outputs):
+        for out2 in outputs[i + 1:]:
+            if out == out2:
+                # Note: different but overlapping wildcards compare as equal
+                if str(out) == str(out2):
+                    raise exceptions.DuplicateCallbackOutput(
+                        """
+                        Same output {} was used more than once in a callback!
+                        """.format(
+                            str(out)
+                        )
+                    )
+                raise exceptions.DuplicateCallbackOutput(
+                    """
+                    Two outputs in a callback can match the same ID!
+                    {} and {}
+                    """.format(
+                        str(out), str(out2)
+                    )
+                )
+
+    dups = set()
+    for out in outputs:
+        for used_out in app.used_outputs:
+            if out == used_out:
+                dups.add(str(used_out))
+    if dups:
+        dups = list(dups)
+        if len(outputs) > 1 or len(dups) > 1 or str(outputs[0]) != dups[0]:
+            raise exceptions.DuplicateCallbackOutput(
+                """
+                One or more `Output` is already set by a callback.
+                Note that two wildcard outputs can refer to the same component
+                even if they don't match exactly.
+
+                The new callback lists output(s):
+                {}
+                Already used:
+                {}
+                """.format(
+                    ", ".join([str(out) for out in outputs]),
+                    ", ".join(dups)
+                )
+            )
+        raise exceptions.DuplicateCallbackOutput(
+            """
+            {} was already assigned to a callback.
+            Any given output can only have one callback that sets it.
+            Try combining your inputs and callback functions together
+            into one function.
+            """.format(
+                repr(outputs[0])
+            )
+        )
+
+
+def prevent_input_output_overlap(inputs, outputs):
+    for in_ in inputs:
+        for out in outputs:
+            if out == in_:
+                # Note: different but overlapping wildcards compare as equal
+                if str(out) == str(in_):
+                    raise exceptions.SameInputOutputException(
+                        "Same `Output` and `Input`: {}".format(out)
+                    )
+                raise exceptions.SameInputOutputException(
+                    """
+                    An `Input` and an `Output` in one callback
+                    can match the same ID!
+                    {} and {}
+                    """.format(
+                        str(in_), str(out)
+                    )
+                )
+
+
+def prevent_inconsistent_wildcards(outputs, inputs, state):
+    any_keys = get_wildcard_keys(outputs[0], (ANY,))
+    for out in outputs[1:]:
+        if get_wildcard_keys(out, (ANY,)) != any_keys:
+            raise exceptions.InconsistentCallbackWildcards(
+                """
+                All `Output` items must have matching wildcard `ANY` values.
+                `ALL` wildcards need not match, only `ANY`.
+
+                Output {} does not match the first output {}.
+                """.format(
+                    out, outputs[0]
+                )
+            )
+
+    matched_wildcards = (ANY, ALLSMALLER)
+    for dep in list(inputs) + list(state):
+        wildcard_keys = get_wildcard_keys(dep, matched_wildcards)
+        if wildcard_keys - any_keys:
+            raise exceptions.InconsistentCallbackWildcards(
+                """
+                `Input` and `State` items can only have {}
+                wildcards on keys where the `Output`(s) have `ANY` wildcards.
+                `ALL` wildcards need not match, and you need not match every
+                `ANY` in the `Output`(s).
+
+                This callback has `ANY` on keys {}.
+                {} has these wildcards on keys {}.
+                """.format(
+                    matched_wildcards, any_keys, dep, wildcard_keys
+                )
+            )
+
+
 def validate_id_dict(arg, layout, validate_ids, wildcards):
     arg_id = arg.component_id
 
@@ -204,7 +226,7 @@ def validate_id_dict(arg, layout, validate_ids, wildcards):
         if id_match(layout):
             component = layout
         else:
-            for c in layout._traverse():
+            for c in layout._traverse():  # pylint: disable=protected-access
                 if id_match(c):
                     component = c
                     break
@@ -533,8 +555,7 @@ def validate_layout(layout, layout_value):
     layout_id = stringify_id(getattr(layout_value, "id", None))
 
     component_ids = {layout_id} if layout_id else set()
-    # pylint: disable=protected-access
-    for component in layout_value._traverse():
+    for component in layout_value._traverse():  # pylint: disable=protected-access
         component_id = stringify_id(getattr(component, "id", None))
         if component_id and component_id in component_ids:
             raise exceptions.DuplicateIdError(
