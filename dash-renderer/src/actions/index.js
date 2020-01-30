@@ -102,29 +102,30 @@ function triggerDefaultState(dispatch, getState) {
     dispatch(startCallbacks(initialCallbacks));
 }
 
-export const redo = move_history('REDO');
-export const undo = move_history('UNDO');
-export const revert = move_history('REVERT');
+export const redo = moveHistory('REDO');
+export const undo = moveHistory('UNDO');
+export const revert = moveHistory('REVERT');
 
-function move_history(changeType) {
+function moveHistory(changeType) {
     return function(dispatch, getState) {
         const {history, paths} = getState();
         dispatch(createAction(changeType)());
         const {id, props} =
-            changeType === 'REDO'
+            (changeType === 'REDO'
                 ? history.future[0]
-                : history.past[history.past.length - 1];
+                : history.past[history.past.length - 1]) || {};
+        if (id) {
+            // Update props
+            dispatch(
+                createAction('UNDO_PROP_CHANGE')({
+                    itempath: getPath(paths, id),
+                    props,
+                })
+            );
 
-        // Update props
-        dispatch(
-            createAction('UNDO_PROP_CHANGE')({
-                itempath: getPath(paths, id),
-                props,
-            })
-        );
-
-        // Notify observers
-        dispatch(notifyObservers({id, props}));
+            // Notify observers
+            dispatch(notifyObservers({id, props}));
+        }
     };
 }
 
