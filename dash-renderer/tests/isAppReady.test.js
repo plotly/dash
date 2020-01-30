@@ -19,7 +19,7 @@ describe('isAppReady', () => {
         let done = false;
         Promise.resolve(isAppReady(
             [{ namespace: '__components', type: 'b', props: { id: 'comp1' } }],
-            { comp1: [0] },
+            { strs: { comp1: [0] }, objs: {} },
             ['comp1']
         )).then(() => {
             done = true
@@ -33,7 +33,7 @@ describe('isAppReady', () => {
         let done = false;
         Promise.resolve(isAppReady(
             [{ namespace: '__components', type: 'a', props: { id: 'comp1' } }],
-            { comp1: [0] },
+            { strs: { comp1: [0] }, objs: {} },
             ['comp1']
         )).then(() => {
             done = true
