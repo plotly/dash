@@ -348,6 +348,10 @@ class Dash(object):
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
+        # outputs in the current callback - this is also in callback_context
+        # but it's used internally to validate outputs, so we keep a local copy
+        self._outputs_list = None
+
         if isinstance(plugins, patch_collections_abc("Iterable")):
             for plugin in plugins:
                 plugin.plug(self)
@@ -992,7 +996,7 @@ class Dash(object):
         args = inputs_to_vals(inputs) + inputs_to_vals(state)
 
         response.set_data(self.callback_map[output]["callback"](*args))
-        del self._outputs_list
+        self._outputs_list = None
         return response
 
     def _setup_server(self):
