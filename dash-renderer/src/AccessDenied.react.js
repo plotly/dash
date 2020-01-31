@@ -31,7 +31,6 @@ function AccessDenied(props) {
             <a
                 style={styles.base.a}
                 onClick={() => {
-                    /* eslint no-empty: ["error", { "allowEmptyCatch": true }] */
                     try {
                         document.cookie =
                             `${constants.OAUTH_COOKIE_NAME}=; ` +

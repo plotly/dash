@@ -4,6 +4,7 @@ import {
     concat,
     flatten,
     has,
+    isEmpty,
     keys,
     lensPath,
     map,
@@ -123,7 +124,6 @@ function moveHistory(changeType) {
                 })
             );
 
-            // Notify observers
             dispatch(notifyObservers({id, props}));
         }
     };
@@ -306,6 +306,24 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
                             pendingCallbacks,
                             parsedId,
                             appliedProps.children
+                        );
+                    }
+
+                    // persistence edge case: if you explicitly update the
+                    // persistence key, other props may change that require us
+                    // to fire additional callbacks
+                    const addedProps = pickBy(
+                        (v, k) => !(k in props),
+                        appliedProps
+                    );
+                    if (!isEmpty(addedProps)) {
+                        const {graphs, paths} = getState();
+                        pendingCallbacks = includeObservers(
+                            id,
+                            addedProps,
+                            graphs,
+                            paths,
+                            pendingCallbacks
                         );
                     }
                 }
@@ -553,21 +571,31 @@ function updateChildPaths(dispatch, getState, pendingCallbacks, id, children) {
 export function notifyObservers({id, props}) {
     return async function(dispatch, getState) {
         const {graphs, paths, pendingCallbacks} = getState();
-
-        const changedProps = keys(props);
-        let finalCallbacks = pendingCallbacks;
-
-        changedProps.forEach(propName => {
-            const newCBs = getCallbacksByInput(graphs, paths, id, propName);
-            if (newCBs.length) {
-                finalCallbacks = mergePendingCallbacks(
-                    finalCallbacks,
-                    followForward(graphs, paths, newCBs)
-                );
-            }
-        });
+        const finalCallbacks = includeObservers(
+            id,
+            props,
+            graphs,
+            paths,
+            pendingCallbacks
+        );
         dispatch(startCallbacks(finalCallbacks));
     };
+}
+
+function includeObservers(id, props, graphs, paths, pendingCallbacks) {
+    const changedProps = keys(props);
+    let finalCallbacks = pendingCallbacks;
+
+    changedProps.forEach(propName => {
+        const newCBs = getCallbacksByInput(graphs, paths, id, propName);
+        if (newCBs.length) {
+            finalCallbacks = mergePendingCallbacks(
+                finalCallbacks,
+                followForward(graphs, paths, newCBs)
+            );
+        }
+    });
+    return finalCallbacks;
 }
 
 export function handleAsyncError(err, message, dispatch) {
