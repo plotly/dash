@@ -339,9 +339,10 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
                 // that have other changed inputs will still fire.
                 updatePending(pendingCallbacks, allPropIds);
             }
-            let message = `Callback error updating ${
-                map(combineIdAndProp, flatten(payload.outputs)).join(', ')
-            }`;
+            let message = `Callback error updating ${map(
+                combineIdAndProp,
+                flatten(payload.outputs)
+            ).join(', ')}`;
             if (clientside_function) {
                 const {namespace: ns, function_name: fn} = clientside_function;
                 message += ` via clientside function ${ns}.${fn}`;
