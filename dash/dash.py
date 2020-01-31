@@ -925,7 +925,7 @@ class Dash(object):
                 if isinstance(output_value, _NoUpdate):
                     raise PreventUpdate
 
-                output_spec = flask.g.outputs_list
+                output_spec = self._outputs_list
                 # wrap single outputs so we can treat them all the same
                 # for validation and response creation
                 if not multi:
@@ -975,7 +975,8 @@ class Dash(object):
         flask.g.inputs_list = inputs = body.get("inputs", [])
         flask.g.states_list = state = body.get("state", [])
         output = body["output"]
-        flask.g.outputs_list = body.get("outputs") or split_callback_id(output)
+        outputs_list = body.get("outputs") or split_callback_id(output)
+        flask.g.outputs_list = self._outputs_list = outputs_list
 
         flask.g.input_values = input_values = inputs_to_dict(inputs)
         flask.g.state_values = inputs_to_dict(state)
@@ -991,6 +992,7 @@ class Dash(object):
         args = inputs_to_vals(inputs) + inputs_to_vals(state)
 
         response.set_data(self.callback_map[output]["callback"](*args))
+        del self._outputs_list
         return response
 
     def _setup_server(self):

@@ -203,9 +203,9 @@ def stringify_id(id_):
     return id_
 
 
-def inputs_to_dict(inputs):
+def inputs_to_dict(inputs_list):
     inputs = {}
-    for i in inputs:
+    for i in inputs_list:
         inputsi = i if isinstance(i, list) else [i]
         for ii in inputsi:
             id_str = stringify_id(ii["id"])
