@@ -47,29 +47,6 @@ class Tests(IntegrationTests):
             )
         )
 
-    def request_queue_assertions(
-            self, check_rejected=True, expected_length=None):
-        request_queue = self.driver.execute_script(
-            'return window.store.getState().requestQueue'
-        )
-        self.assertTrue(
-            all([
-                (r['status'] == 200)
-                for r in request_queue
-            ])
-        )
-
-        if check_rejected:
-            self.assertTrue(
-                all([
-                    (r['rejected'] is False)
-                    for r in request_queue
-                ])
-            )
-
-        if expected_length is not None:
-            self.assertEqual(len(request_queue), expected_length)
-
     def click_undo(self):
         undo_selector = '._dash-undo-redo span:first-child div:last-child'
         undo = self.wait_for_element_by_css_selector(undo_selector)
@@ -511,11 +488,10 @@ class Tests(IntegrationTests):
         self.assertEqual(call_count.value, 3)
         self.wait_for_text_to_equal('#output1', '2')
         self.wait_for_text_to_equal('#output2', '3')
-        request_queue = self.driver.execute_script(
-            'return window.store.getState().requestQueue'
+        pending_count = self.driver.execute_script(
+            'return window.store.getState().pendingCallbacks.length'
         )
-        self.assertFalse(request_queue[0]['rejected'])
-        self.assertEqual(len(request_queue), 1)
+        self.assertEqual(pending_count, 0)
 
     def test_callbacks_with_shared_grandparent(self):
         app = dash.Dash()
@@ -892,10 +868,25 @@ class Tests(IntegrationTests):
 
         self.wait_for_text_to_equal('#output-1', 'fire request hooks')
         self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
-        self.wait_for_text_to_equal('#output-pre-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
         self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
-        self.wait_for_text_to_equal('#output-post-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
-        self.wait_for_text_to_equal('#output-post-response', '{"props":{"children":"fire request hooks"}}')
+        pre_payload = self.wait_for_element_by_css_selector('#output-pre-payload').text
+        post_payload = self.wait_for_element_by_css_selector('#output-post-payload').text
+        post_response = self.wait_for_element_by_css_selector('#output-post-response').text
+        self.assertEqual(json.loads(pre_payload), {
+            "output": "output-1.children",
+            "outputs": {"id": "output-1", "property": "children"},
+            "changedPropIds": ["input.value"],
+            "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}]
+        })
+        self.assertEqual(json.loads(post_payload), {
+            "output": "output-1.children",
+            "outputs": {"id": "output-1", "property": "children"},
+            "changedPropIds": ["input.value"],
+            "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}]
+        })
+        self.assertEqual(json.loads(post_response), {
+            "output-1": {"children": "fire request hooks"}
+        })
         self.percy_snapshot(name='request-hooks render')
 
     def test_graphs_in_tabs_do_not_share_state(self):

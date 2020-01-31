@@ -486,8 +486,8 @@ def test_inin011_multi_output(dash_duo):
             "no part of an existing multi-output can be used in another"
         )
     assert (
-        "{'output1.children'}" in err.value.args[0]
-        or "set(['output1.children'])" in err.value.args[0]
+        "Already used:" in err.value.args[0] and
+        "output1.children" in err.value.args[0]
     )
 
     dash_duo.start_server(app)
@@ -824,7 +824,7 @@ def test_inin018_output_input_invalid_callback():
         def failure(children):
             pass
 
-    msg = "Same output and input: input-output.children"
+    msg = "Same `Output` and `Input`: input-output.children"
     assert err.value.args[0] == msg
 
     # Multi output version.
@@ -837,7 +837,7 @@ def test_inin018_output_input_invalid_callback():
         def failure2(children):
             pass
 
-    msg = "Same output and input: input-output.children"
+    msg = "Same `Output` and `Input`: input-output.children"
     assert err.value.args[0] == msg
 
 
@@ -907,6 +907,10 @@ def test_inin020_callback_return_validation():
         return set([1])
 
     with pytest.raises(InvalidCallbackReturnValue):
+        # _outputs_list (normally callback_context.outputs_list) is provided
+        # by the dispatcher from the request. Here we're calling locally so
+        # we need to mock it.
+        app._outputs_list = {"id": "b", "property": "children"}
         single("aaa")
         pytest.fail("not serializable")
 
@@ -918,6 +922,10 @@ def test_inin020_callback_return_validation():
         return [1, set([2])]
 
     with pytest.raises(InvalidCallbackReturnValue):
+        app._outputs_list = [
+            {"id": "c", "property": "children"},
+            {"id": "d", "property": "children"}
+        ]
         multi("aaa")
         pytest.fail("nested non-serializable")
 
@@ -929,6 +937,10 @@ def test_inin020_callback_return_validation():
         return ["abc"]
 
     with pytest.raises(InvalidCallbackReturnValue):
+        app._outputs_list = [
+            {"id": "e", "property": "children"},
+            {"id": "f", "property": "children"}
+        ]
         multi2("aaa")
         pytest.fail("wrong-length list")
 
