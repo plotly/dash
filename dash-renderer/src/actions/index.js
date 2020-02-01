@@ -341,7 +341,7 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
             }
             let message = `Callback error updating ${map(
                 combineIdAndProp,
-                flatten(payload.outputs)
+                flatten([payload.outputs])
             ).join(', ')}`;
             if (clientside_function) {
                 const {namespace: ns, function_name: fn} = clientside_function;
