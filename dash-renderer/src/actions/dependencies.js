@@ -37,9 +37,9 @@ import {crawlLayout} from './utils';
 export const isMultiOutputProp = idAndProp => idAndProp.startsWith('..');
 
 const ALL = {wild: 'ALL', multi: 1};
-const ANY = {wild: 'ANY'};
+const MATCH = {wild: 'MATCH'};
 const ALLSMALLER = {wild: 'ALLSMALLER', multi: 1, expand: 1};
-const wildcards = {ALL, ANY, ALLSMALLER};
+const wildcards = {ALL, MATCH, ALLSMALLER};
 
 /*
  * If this ID is a wildcard, it is a stringified JSON object
@@ -186,7 +186,7 @@ export function computeGraphs(dependencies) {
      *   {[id]: {[prop]: [callback, ...]}}
      * where callbacks are the matching specs from the original
      * dependenciesRequest, but with outputs parsed to look like inputs,
-     * and a list anyKeys added if the outputs have ANY wildcards.
+     * and a list anyKeys added if the outputs have MATCH wildcards.
      * For outputMap there should only ever be one callback per id/prop
      * but for inputMap there may be many.
      *
@@ -259,7 +259,7 @@ export function computeGraphs(dependencies) {
                 }
             }
         } else if (!exact.length) {
-            // only ANY/ALL - still need a value
+            // only MATCH/ALL - still need a value
             vals.push(0);
         }
         keyPlaceholders.vals = vals;
@@ -280,8 +280,8 @@ export function computeGraphs(dependencies) {
                         newVals = [];
                     }
                 } else {
-                    // ANY or ALL
-                    // ANY *is* ALL for outputs, ie we don't already have a
+                    // MATCH or ALL
+                    // MATCH *is* ALL for outputs, ie we don't already have a
                     // value specified in `outIdFinal`
                     newVals =
                         outValIndex === -1 || val === ALL
@@ -326,13 +326,13 @@ export function computeGraphs(dependencies) {
 
         // We'll continue to use dep.output as its id, but add outputs as well
         // for convenience and symmetry with the structure of inputs and state.
-        // Also collect ANY keys in the output (all outputs must share these)
+        // Also collect MATCH keys in the output (all outputs must share these)
         // and ALL keys in the first output (need not be shared but we'll use
         // the first output for calculations) for later convenience.
         const anyKeys = [];
         let hasAll = false;
         forEachObjIndexed((val, key) => {
-            if (val === ANY) {
+            if (val === MATCH) {
                 anyKeys.push(key);
             } else if (val === ALL) {
                 hasAll = true;
@@ -391,7 +391,7 @@ export function computeGraphs(dependencies) {
  * we're only looking at ids with the same keys as the pattern.
  *
  * Optionally, include another reference set of the same - to ensure the
- * correct matching of ANY or ALLSMALLER between input and output items.
+ * correct matching of MATCH or ALLSMALLER between input and output items.
  */
 function idMatch(keys, vals, patternVals, refKeys, refVals, refPatternVals) {
     for (let i = 0; i < keys.length; i++) {
@@ -441,7 +441,7 @@ function idMatch(keys, vals, patternVals, refKeys, refVals, refPatternVals) {
 function getAnyVals(patternVals, vals) {
     const matches = [];
     for (let i = 0; i < patternVals.length; i++) {
-        if (patternVals[i] === ANY) {
+        if (patternVals[i] === MATCH) {
             matches.push(vals[i]);
         }
     }
@@ -476,7 +476,7 @@ const resolveDeps = (refKeys, refVals, refPatternVals) => paths => ({
 
 /*
  * Create a pending callback object. Includes the original callback definition,
- * its resolved ID (including the value of all ANY wildcards),
+ * its resolved ID (including the value of all MATCH wildcards),
  * accessors to find all inputs, outputs, and state involved in this
  * callback (lazy as not all users will want all of these),
  * placeholders for which other callbacks this one is blockedBy or blocking,
@@ -521,8 +521,8 @@ export function isMultiValued({id}) {
  * If one is found, returns:
  * {
  *     callback: the callback spec {outputs, inputs, state etc}
- *     anyVals: stringified list of resolved ANY keys we matched
- *     resolvedId: the "outputs" id string plus ANY values we matched
+ *     anyVals: stringified list of resolved MATCH keys we matched
+ *     resolvedId: the "outputs" id string plus MATCH values we matched
  *     getOutputs: accessor function to give all resolved outputs of this
  *         callback. Takes `paths` as argument to apply when the callback is
  *         dispatched, in case a previous callback has altered the layout.
@@ -583,7 +583,7 @@ function getCallbackByOutput(graphs, paths, id, prop) {
 
 /*
  * If there are ALL keys we need to reduce a set of outputs resolved
- * from an input to one item per combination of ANY values.
+ * from an input to one item per combination of MATCH values.
  * That will give one result per callback invocation.
  */
 function reduceALLOuts(outs, anyKeys, hasAll) {
@@ -591,7 +591,7 @@ function reduceALLOuts(outs, anyKeys, hasAll) {
         return outs;
     }
     if (!anyKeys.length) {
-        // If there's ALL but no ANY, there's only one invocation
+        // If there's ALL but no MATCH, there's only one invocation
         // of the callback, so just base it off the first output.
         return [outs[0]];
     }
@@ -630,7 +630,7 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
  *
  * Note that if the original input contains an ALLSMALLER wildcard,
  * there may be many entries for the same callback, but any given output
- * (with an ANY corresponding to the input's ALLSMALLER) will only appear
+ * (with an MATCH corresponding to the input's ALLSMALLER) will only appear
  * in one entry.
  */
 export function getCallbacksByInput(graphs, paths, id, prop) {

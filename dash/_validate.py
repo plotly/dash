@@ -2,7 +2,7 @@ import collections
 import re
 
 from .development.base_component import Component
-from .dependencies import Input, Output, State, ANY, ALLSMALLER
+from .dependencies import Input, Output, State, MATCH, ALLSMALLER
 from . import exceptions
 from ._utils import patch_collections_abc, _strings, stringify_id
 
@@ -178,13 +178,13 @@ def prevent_input_output_overlap(inputs, outputs):
 
 
 def prevent_inconsistent_wildcards(outputs, inputs, state):
-    any_keys = get_wildcard_keys(outputs[0], (ANY,))
+    any_keys = get_wildcard_keys(outputs[0], (MATCH,))
     for out in outputs[1:]:
-        if get_wildcard_keys(out, (ANY,)) != any_keys:
+        if get_wildcard_keys(out, (MATCH,)) != any_keys:
             raise exceptions.InconsistentCallbackWildcards(
                 """
-                All `Output` items must have matching wildcard `ANY` values.
-                `ALL` wildcards need not match, only `ANY`.
+                All `Output` items must have matching wildcard `MATCH` values.
+                `ALL` wildcards need not match, only `MATCH`.
 
                 Output {} does not match the first output {}.
                 """.format(
@@ -192,18 +192,18 @@ def prevent_inconsistent_wildcards(outputs, inputs, state):
                 )
             )
 
-    matched_wildcards = (ANY, ALLSMALLER)
+    matched_wildcards = (MATCH, ALLSMALLER)
     for dep in list(inputs) + list(state):
         wildcard_keys = get_wildcard_keys(dep, matched_wildcards)
         if wildcard_keys - any_keys:
             raise exceptions.InconsistentCallbackWildcards(
                 """
                 `Input` and `State` items can only have {}
-                wildcards on keys where the `Output`(s) have `ANY` wildcards.
+                wildcards on keys where the `Output`(s) have `MATCH` wildcards.
                 `ALL` wildcards need not match, and you need not match every
-                `ANY` in the `Output`(s).
+                `MATCH` in the `Output`(s).
 
-                This callback has `ANY` on keys {}.
+                This callback has `MATCH` on keys {}.
                 {} has these wildcards on keys {}.
                 """.format(
                     matched_wildcards, any_keys, dep, wildcard_keys

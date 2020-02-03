@@ -156,7 +156,7 @@ function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
                     depType +
                     '` of a Dash callback. The id of this object is ' +
                     JSON.stringify(spec.id) +
-                    (anyVals ? ' with ANY values ' + anyVals : '') +
+                    (anyVals ? ' with MATCH values ' + anyVals : '') +
                     ' and the property is `' +
                     spec.property +
                     '`. The wildcard ids currently available are logged above.'
@@ -167,7 +167,7 @@ function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
                 depType +
                 '` of a callback that only takes one value. The id spec is ' +
                 JSON.stringify(spec.id) +
-                (anyVals ? ' with ANY values ' + anyVals : '') +
+                (anyVals ? ' with MATCH values ' + anyVals : '') +
                 ' and the property is `' +
                 spec.property +
                 '`. The objects we found are: ' +

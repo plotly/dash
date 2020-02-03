@@ -17,7 +17,7 @@ class _Wildcard:  # pylint: disable=too-few-public-methods
         return '["{}"]'.format(self._name)
 
 
-ANY = _Wildcard("ANY")
+MATCH = _Wildcard("MATCH")
 ALL = _Wildcard("ALL")
 ALLSMALLER = _Wildcard("ALLSMALLER")
 
@@ -89,8 +89,8 @@ class DashDependency:  # pylint: disable=too-few-public-methods
                         continue  # one wild, one not
                     if v is ALL or other_v is ALL:
                         continue  # either ALL
-                    if v is ANY or other_v is ANY:
-                        return False  # one ANY, one ALLSMALLER
+                    if v is MATCH or other_v is MATCH:
+                        return False  # one MATCH, one ALLSMALLER
                 else:
                     return False
             return True
@@ -105,19 +105,19 @@ class DashDependency:  # pylint: disable=too-few-public-methods
 class Output(DashDependency):  # pylint: disable=too-few-public-methods
     """Output of a callback."""
 
-    allowed_wildcards = (ANY, ALL)
+    allowed_wildcards = (MATCH, ALL)
 
 
 class Input(DashDependency):  # pylint: disable=too-few-public-methods
     """Input of callback: trigger an update when it is updated."""
 
-    allowed_wildcards = (ANY, ALL, ALLSMALLER)
+    allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
 
 class State(DashDependency):  # pylint: disable=too-few-public-methods
     """Use the value of a State in a callback but don't trigger updates."""
 
-    allowed_wildcards = (ANY, ALL, ALLSMALLER)
+    allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
 
 class ClientsideFunction:  # pylint: disable=too-few-public-methods
