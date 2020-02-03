@@ -12,6 +12,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [#730](https://github.com/plotly/dash-core-components/pull/730) Fixed bug in which input components with type `number` did not correctly update their values.
 - [#731](https://github.com/plotly/dash-core-components/pull/731) Fixed bug where non-clearable dropdowns could still be cleared by typing backspace
 
+### Updated
+- [#747](https://github.com/plotly/dash-core-components/pull/747)
+  - Upgrade plotly.js to [1.52.2](https://github.com/plotly/plotly.js/releases/tag/v1.52.2)
+
 ## [1.7.1] - 2020-01-15 (JS-only)
 ### Fixed
 - [#734](https://github.com/plotly/dash-core-components/pull/734) Fix JS-facing release bug where `Plotly.js` was listed in `devDependencies` instead of `dependencies`
