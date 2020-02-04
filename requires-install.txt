@@ -2,7 +2,7 @@ Flask>=1.0.2
 flask-compress
 plotly
 dash_renderer>=1.2.3
-dash-core-components>=1.7.1
+dash-core-components>=1.7.0
 dash-html-components==1.0.2
 dash-table>=4.6.0
 future
