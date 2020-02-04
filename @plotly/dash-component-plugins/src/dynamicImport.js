@@ -27,5 +27,11 @@ export const asyncDecorator = (target, promise) => {
     return state.get;
 };
 
+export const inheritAsyncDecorator = (target, source) => {
+    Object.defineProperty(target, '_dashprivate_isLazyComponentReady', {
+        get: () => isReady(source)
+    });
+}
+
 export const isReady = target => target &&
     target._dashprivate_isLazyComponentReady;
