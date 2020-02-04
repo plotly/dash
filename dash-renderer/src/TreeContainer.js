@@ -183,8 +183,8 @@ class TreeContainer extends Component {
         const props = dissoc('children', _dashprivate_layout.props);
 
         if (type(props.id) === 'Object') {
-            // Turn object ids (for wildcards) into hash strings.
-            // Because of the `dissoc` we're not mutating the layout,
+            // Turn object ids (for wildcards) into unique strings.
+            // Because of the `dissoc` above we're not mutating the layout,
             // just the id we pass on to the rendered component
             props.id = stringifyId(props.id);
         }
