@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.8.0] - 2020-02-04
 ### Changed
-- [#743](https://github.com/plotly/dash-core-components/pull/743) Location component now emits an event on link update
+- [#743](https://github.com/plotly/dash-core-components/pull/743) Location component now emits an event on URL path update from Link component
 - [#739](https://github.com/plotly/dash-core-components/pull/739) Async Slider and RangeSlider
 - [#729](https://github.com/plotly/dash-core-components/pull/729) Handle case where dcc fails to load when used inside an iframe with a sandbox attribute that only has allow-scripts
 
