@@ -30344,10 +30344,18 @@ function hydrateInitialOutputs() {
     dispatch(setAppLifecycle(Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_3__["getAppState"])('HYDRATED')));
   };
 }
+/* eslint-disable-next-line no-console */
+
+var logWarningOnce = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["once"])(console.warn);
 function getCSRFHeader() {
-  return {
-    'X-CSRFToken': cookie__WEBPACK_IMPORTED_MODULE_5___default.a.parse(document.cookie)._csrf_token
-  };
+  try {
+    return {
+      'X-CSRFToken': cookie__WEBPACK_IMPORTED_MODULE_5___default.a.parse(document.cookie)._csrf_token
+    };
+  } catch (e) {
+    logWarningOnce(e);
+    return {};
+  }
 }
 
 function triggerDefaultState(dispatch, getState) {
