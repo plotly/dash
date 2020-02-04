@@ -31,7 +31,9 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
     @app.server.after_request
     def apply_cors(response):
         response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        response.headers["Access-Control-Allow-Headers"] = (
+            "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        )
         return response
 
     dash_duo.start_server(app)

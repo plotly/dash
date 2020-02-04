@@ -117,12 +117,17 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
             return {
                 "data": [
                     {
-                        "x": ["Call Counter"],
+                        "x": ["Call Counter for: {}".format(counterId)],
                         "y": [call_counts[counterId].value],
                         "type": "bar",
                     }
                 ],
-                "layout": {"title": value},
+                "layout": {
+                    "title": value,
+                    "width": 500,
+                    "height": 400,
+                    "margin": {"autoexpand": False}
+                },
             }
 
         return callback

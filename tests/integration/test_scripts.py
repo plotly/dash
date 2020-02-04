@@ -1,31 +1,15 @@
-from multiprocessing import Value
-import datetime
 import time
 import pytest
 
-from bs4 import BeautifulSoup
-from selenium.webdriver.common.keys import Keys
-
-import dash_dangerously_set_inner_html
-import dash_flow_example
+from selenium.webdriver.common.by import By
 
 import dash_html_components as html
 import dash_core_components as dcc
 
-from dash import Dash, callback_context, no_update
+from dash import Dash
 
-from dash.dependencies import Input, Output, State
-from dash.exceptions import (
-    PreventUpdate,
-    DuplicateCallbackOutput,
-    CallbackException,
-    MissingCallbackContextException,
-    InvalidCallbackReturnValue,
-    IncorrectTypeException,
-    NonExistentIdException,
-)
-from dash.testing.wait import until
-from selenium.webdriver.common.by import By
+from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 
 
 def findSyncPlotlyJs(scripts):

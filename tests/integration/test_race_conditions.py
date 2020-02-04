@@ -42,7 +42,7 @@ def create_race_conditions_test(endpoints):
         def element_text(id):
             try:
                 return self.driver.find_element_by_id(id).text
-            except:
+            except Exception:
                 return ''
 
         app.server.before_request(delay)

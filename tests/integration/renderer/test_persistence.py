@@ -99,12 +99,18 @@ def test_rdps001_local_reload(dash_duo):
 
     rename_and_hide(dash_duo)
     # callback output
-    dash_duo.wait_for_text_to_equal('#out', 'names: [{}, b]; hidden: [c1]'.format(NEW_NAME))
+    dash_duo.wait_for_text_to_equal(
+        '#out',
+        'names: [{}, b]; hidden: [c1]'.format(NEW_NAME)
+    )
     check_table_names(dash_duo, [NEW_NAME])
 
     dash_duo.wait_for_page()
     # callback gets persisted values, not the values provided with the layout
-    dash_duo.wait_for_text_to_equal('#out', 'names: [{}, b]; hidden: [c1]'.format(NEW_NAME))
+    dash_duo.wait_for_text_to_equal(
+        '#out',
+        'names: [{}, b]; hidden: [c1]'.format(NEW_NAME)
+    )
     check_table_names(dash_duo, [NEW_NAME])
 
     # new persistence reverts
@@ -118,7 +124,10 @@ def test_rdps001_local_reload(dash_duo):
     # put back the old persistence, get the old values
     app.persistence.value = 1
     dash_duo.wait_for_page()
-    dash_duo.wait_for_text_to_equal('#out', 'names: [{}, b]; hidden: [c1]'.format(NEW_NAME))
+    dash_duo.wait_for_text_to_equal(
+        '#out',
+        'names: [{}, b]; hidden: [c1]'.format(NEW_NAME)
+    )
     check_table_names(dash_duo, [NEW_NAME])
 
     # falsy persistence disables it
@@ -146,7 +155,10 @@ def test_rdps002_session_reload(dash_duo):
 
     dash_duo.wait_for_page()
     # callback gets persisted values, not the values provided with the layout
-    dash_duo.wait_for_text_to_equal('#out', 'names: [{}, b]; hidden: [c1]'.format(NEW_NAME))
+    dash_duo.wait_for_text_to_equal(
+        '#out',
+        'names: [{}, b]; hidden: [c1]'.format(NEW_NAME)
+    )
     check_table_names(dash_duo, [NEW_NAME])
 
 
