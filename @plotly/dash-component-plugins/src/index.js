@@ -1,5 +1,5 @@
-import { asyncDecorator, isReady } from './dynamicImport';
+import { asyncDecorator, isReady, setDecorator } from './dynamicImport';
 import History from './History';
 
-export { asyncDecorator, isReady };
+export { asyncDecorator, isReady, setDecorator };
 export { History };

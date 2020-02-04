@@ -1,5 +1,7 @@
 import { lazy } from 'react';
 
+const isLazyProp = '_dashprivate_isLazyComponentReady';
+
 export const asyncDecorator = (target, promise) => {
     let resolve;
     const isReady = new Promise(r => {
@@ -20,12 +22,18 @@ export const asyncDecorator = (target, promise) => {
         }),
     };
 
-    Object.defineProperty(target, '_dashprivate_isLazyComponentReady', {
+    Object.defineProperty(target, isLazyProp, {
         get: () => state.isReady
     });
 
     return state.get;
 };
+
+export const setDecorator = (target, source) => {
+    Object.defineProperty(target, isLazyProp, {
+        get: () => isReady(source)
+    });
+}
 
 export const isReady = target => target &&
     target._dashprivate_isLazyComponentReady;
