@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.8.0] - 2020-02-04
 ### Changed
 - [#743](https://github.com/plotly/dash-core-components/pull/743) Location component now emits an event on link update
 - [#739](https://github.com/plotly/dash-core-components/pull/739) Async Slider and RangeSlider
