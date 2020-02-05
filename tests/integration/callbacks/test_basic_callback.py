@@ -168,6 +168,67 @@ def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
 
     dash_duo.start_server(app)
 
-    dash_duo.find_element('#btn').click()
-    assert dash_duo.find_element('#output').text == "Bye"
+    dash_duo.find_element("#btn").click()
+    assert dash_duo.find_element("#output").text == "Bye"
     assert dash_duo.get_logs() == []
+
+
+def test_cbsc004_children_types(dash_duo):
+    app = dash.Dash()
+    app.layout = html.Div([
+        html.Button(id="btn"),
+        html.Div("init", id="out")
+    ])
+
+    outputs = [
+        [None, ""],
+        ["a string", "a string"],
+        [123, "123"],
+        [123.45, "123.45"],
+        [[6, 7, 8], "678"],
+        [["a", "list", "of", "strings"], "alistofstrings"],
+        [["strings", 2, "numbers"], "strings2numbers"],
+        [["a string", html.Div("and a div")], "a string\nand a div"]
+    ]
+
+    @app.callback(Output("out", "children"), [Input("btn", "n_clicks")])
+    def set_children(n):
+        if n is None or n > len(outputs):
+            return dash.no_update
+        return outputs[n - 1][0]
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#out", "init")
+
+    for children, text in outputs:
+        dash_duo.find_element("#btn").click()
+        dash_duo.wait_for_text_to_equal("#out", text)
+
+
+def test_cbsc005_array_of_objects(dash_duo):
+    app = dash.Dash()
+    app.layout = html.Div([
+        html.Button(id="btn"),
+        dcc.Dropdown(id="dd"),
+        html.Div(id="out")
+    ])
+
+    @app.callback(Output("dd", "options"), [Input("btn", "n_clicks")])
+    def set_options(n):
+        return [
+            {"label": "opt{}".format(i), "value": i}
+            for i in range(n or 0)
+        ]
+
+    @app.callback(Output("out", "children"), [Input("dd", "options")])
+    def set_out(opts):
+        print(repr(opts))
+        return len(opts)
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#out", "0")
+    for i in range(5):
+        dash_duo.find_element("#btn").click()
+        dash_duo.wait_for_text_to_equal("#out", str(i + 1))
+        dash_duo.select_dcc_dropdown("#dd", "opt{}".format(i))

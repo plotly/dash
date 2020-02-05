@@ -350,18 +350,21 @@ def validate_multi_return(outputs_list, output_value, callback_id):
                     The callback {} ouput {} is a wildcard multi-output.
                     Expected the output type to be a list or tuple but got:
                     {}.
+                    output spec: {}
                     """.format(
-                        callback_id, i, repr(vi)
+                        callback_id, i, repr(vi), repr(outi)
                     )
                 )
 
             if len(vi) != len(outi):
                 raise exceptions.InvalidCallbackReturnValue(
                     """
-                    Invalid number of output values for {}.
+                    Invalid number of output values for {} item {}.
                     Expected {}, got {}
+                    output spec: {}
+                    output value: {}
                     """.format(
-                        callback_id, len(vi), len(outi)
+                        callback_id, i, len(vi), len(outi), repr(outi), repr(vi)
                     )
                 )
 

@@ -949,6 +949,15 @@ class Dash(object):
                         if isinstance(spec, list)
                         else [[val, spec]]
                     ):
+                        if not spec:
+                            raise ValueError(
+                                (
+                                    "missing output spec\n"
+                                    "callback_id: {!r}\n"
+                                    "output spec: {!r}\n"
+                                    "return value: {!r}"
+                                ).format(callback_id, output_spec, output_value)
+                            )
                         if not isinstance(vali, _NoUpdate):
                             has_update = True
                             id_str = stringify_id(speci["id"])
