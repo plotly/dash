@@ -348,10 +348,6 @@ class Dash(object):
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
-        # outputs in the current callback - this is also in callback_context
-        # but it's used internally to validate outputs, so we keep a local copy
-        self._outputs_list = None
-
         if isinstance(plugins, patch_collections_abc("Iterable")):
             for plugin in plugins:
                 plugin.plug(self)
@@ -923,13 +919,14 @@ class Dash(object):
         def wrap_func(func):
             @wraps(func)
             def add_context(*args, **kwargs):
+                output_spec = kwargs.pop("outputs_list")
+
                 # don't touch the comment on the next line - used by debugger
                 output_value = func(*args, **kwargs)  # %% callback invoked %%
 
                 if isinstance(output_value, _NoUpdate):
                     raise PreventUpdate
 
-                output_spec = self._outputs_list
                 # wrap single outputs so we can treat them all the same
                 # for validation and response creation
                 if not multi:
@@ -949,15 +946,6 @@ class Dash(object):
                         if isinstance(spec, list)
                         else [[val, spec]]
                     ):
-                        if not spec:
-                            raise ValueError(
-                                (
-                                    "missing output spec\n"
-                                    "callback_id: {!r}\n"
-                                    "output spec: {!r}\n"
-                                    "return value: {!r}"
-                                ).format(callback_id, output_spec, output_value)
-                            )
                         if not isinstance(vali, _NoUpdate):
                             has_update = True
                             id_str = stringify_id(speci["id"])
@@ -989,7 +977,7 @@ class Dash(object):
         flask.g.states_list = state = body.get("state", [])
         output = body["output"]
         outputs_list = body.get("outputs") or split_callback_id(output)
-        flask.g.outputs_list = self._outputs_list = outputs_list
+        flask.g.outputs_list = outputs_list
 
         flask.g.input_values = input_values = inputs_to_dict(inputs)
         flask.g.state_values = inputs_to_dict(state)
@@ -1004,8 +992,8 @@ class Dash(object):
 
         args = inputs_to_vals(inputs) + inputs_to_vals(state)
 
-        response.set_data(self.callback_map[output]["callback"](*args))
-        self._outputs_list = None
+        func = self.callback_map[output]["callback"]
+        response.set_data(func(*args, outputs_list=outputs_list))
         return response
 
     def _setup_server(self):

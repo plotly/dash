@@ -907,11 +907,9 @@ def test_inin020_callback_return_validation():
         return set([1])
 
     with pytest.raises(InvalidCallbackReturnValue):
-        # _outputs_list (normally callback_context.outputs_list) is provided
-        # by the dispatcher from the request. Here we're calling locally so
-        # we need to mock it.
-        app._outputs_list = {"id": "b", "property": "children"}
-        single("aaa")
+        # outputs_list (normally callback_context.outputs_list) is provided
+        # by the dispatcher from the request.
+        single("aaa", outputs_list={"id": "b", "property": "children"})
         pytest.fail("not serializable")
 
     @app.callback(
@@ -922,11 +920,11 @@ def test_inin020_callback_return_validation():
         return [1, set([2])]
 
     with pytest.raises(InvalidCallbackReturnValue):
-        app._outputs_list = [
+        outputs_list = [
             {"id": "c", "property": "children"},
             {"id": "d", "property": "children"}
         ]
-        multi("aaa")
+        multi("aaa", outputs_list=outputs_list)
         pytest.fail("nested non-serializable")
 
     @app.callback(
@@ -937,11 +935,11 @@ def test_inin020_callback_return_validation():
         return ["abc"]
 
     with pytest.raises(InvalidCallbackReturnValue):
-        app._outputs_list = [
+        outputs_list = [
             {"id": "e", "property": "children"},
             {"id": "f", "property": "children"}
         ]
-        multi2("aaa")
+        multi2("aaa", outputs_list=outputs_list)
         pytest.fail("wrong-length list")
 
 
