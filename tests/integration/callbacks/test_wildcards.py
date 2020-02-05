@@ -147,14 +147,14 @@ def test_cbwc001_todo_app(dash_duo):
         return dash_duo.find_element(selector)
 
     def assert_item(item, text, done, prefix="", suffix=""):
-        text_el = dash_duo.find_element(css_escape('#{"item":%d}' % item))
-        assert text_el.text == text, "item {} text".format(item)
-
-        note_el = dash_duo.find_element(
-            css_escape('#{"item":%d,"preceding":true}' % item)
+        dash_duo.wait_for_text_to_equal(
+            css_escape('#{"item":%d}' % item), text
         )
+
         expected_note = "" if done else (prefix + " preceding items are done" + suffix)
-        assert note_el.text == expected_note, "item {} note".format(item)
+        dash_duo.wait_for_text_to_equal(
+            css_escape('#{"item":%d,"preceding":true}' % item), expected_note
+        )
 
         assert bool(get_done_item(item).get_attribute('checked')) == done
 
