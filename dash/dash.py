@@ -1907,7 +1907,8 @@ class Dash(object):
 
     def run_server(
         self,
-        port=8050,
+        host=os.getenv('HOST', "127.0.0.1"),
+        port=os.getenv('PORT', 8050),
         debug=False,
         dev_tools_ui=None,
         dev_tools_props_check=None,
@@ -1925,6 +1926,9 @@ class Dash(object):
 
         If a parameter can be set by an environment variable, that is listed
         too. Values provided here take precedence over environment variables.
+
+        :param host: Host IP used to serve the application
+        :type host: string
 
         :param port: Port used to serve the application
         :type port: int
@@ -2001,7 +2005,6 @@ class Dash(object):
 
         if self._dev_tools.silence_routes_logging:
             # Since it's silenced, the address doesn't show anymore.
-            host = flask_run_options.get("host", "127.0.0.1")
             ssl_context = flask_run_options.get("ssl_context")
             self.logger.info(
                 "Running on %s://%s:%s%s",
@@ -2021,4 +2024,4 @@ class Dash(object):
 
             self.logger.info("Debugger PIN: %s", debugger_pin)
 
-        self.server.run(port=port, debug=debug, **flask_run_options)
+        self.server.run(host=host, port=port, debug=debug, **flask_run_options)
