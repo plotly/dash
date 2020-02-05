@@ -284,6 +284,8 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
             Object.entries(data).forEach(([id, props]) => {
                 const parsedId = parseIfWildcard(id);
 
+                const {layout: oldLayout, paths: oldPaths} = getState();
+
                 const appliedProps = doUpdateProps(
                     dispatch,
                     getState,
@@ -296,16 +298,25 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
                     });
 
                     if (has('children', appliedProps)) {
+                        const oldChildren = path(
+                            concat(getPath(oldPaths, parsedId), [
+                                'props',
+                                'children',
+                            ]),
+                            oldLayout
+                        );
                         // If components changed, need to update paths,
                         // check if all pending callbacks are still
                         // valid, and add all callbacks associated with
-                        // new components, either as inputs or outputs
+                        // new components, either as inputs or outputs,
+                        // or components removed from ALL/ALLSMALLER inputs
                         pendingCallbacks = updateChildPaths(
                             dispatch,
                             getState,
                             pendingCallbacks,
                             parsedId,
-                            appliedProps.children
+                            appliedProps.children,
+                            oldChildren
                         );
                     }
 
@@ -522,7 +533,14 @@ function doUpdateProps(dispatch, getState, id, updatedProps) {
     return props;
 }
 
-function updateChildPaths(dispatch, getState, pendingCallbacks, id, children) {
+function updateChildPaths(
+    dispatch,
+    getState,
+    pendingCallbacks,
+    id,
+    children,
+    oldChildren
+) {
     const {paths: oldPaths, graphs} = getState();
     const childrenPath = concat(getPath(oldPaths, id), ['props', 'children']);
     const paths = computePaths(children, childrenPath, oldPaths);
@@ -566,7 +584,21 @@ function updateChildPaths(dispatch, getState, pendingCallbacks, id, children) {
     });
 
     const newCallbacks = getCallbacksInLayout(graphs, paths, children);
-    return mergePendingCallbacks(cleanedCallbacks, newCallbacks);
+
+    // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
+    // even due to the deletion of components
+    const deletedComponentCallbacks = getCallbacksInLayout(
+        graphs,
+        oldPaths,
+        oldChildren,
+        {removedArrayInputsOnly: true, newPaths: paths}
+    );
+
+    const allNewCallbacks = mergePendingCallbacks(
+        newCallbacks,
+        deletedComponentCallbacks
+    );
+    return mergePendingCallbacks(cleanedCallbacks, allNewCallbacks);
 }
 
 export function notifyObservers({id, props}) {

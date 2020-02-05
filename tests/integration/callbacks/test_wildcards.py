@@ -213,6 +213,6 @@ def test_cbwc001_todo_app(dash_duo):
     assert_item(1, "dates", True)
 
     clear_done.click()
-    # TODO - totals currently broken
-    # dash_duo.wait_for_text_to_equal("#totals", "0 of 0 items completed")
-    # assert_count(0)
+    # This was a tricky one - trigger based on deleted components
+    dash_duo.wait_for_text_to_equal("#totals", "0 of 0 items completed")
+    assert_count(0)

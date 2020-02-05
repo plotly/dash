@@ -728,13 +728,18 @@ export function getWatchedKeys(id, newProps, graphs) {
  *
  * opts.outputsOnly: boolean, set true when crawling the *whole* layout,
  *   because outputs are enough to get everything.
+ * opts.removedArrayInputsOnly: boolean, set true to only look for inputs in
+ *   wildcard arrays (ALL or ALLSMALLER), no outputs. This gets used to tell
+ *   when the new *absence* of a given component should trigger a callback.
+ * opts.newPaths: paths object after the edit - to be used with
+ *   removedArrayInputsOnly to determine if the callback still has its outputs
  *
  * Returns an array of objects:
  *   {callback, resolvedId, getOutputs, getInputs, getState, ...etc}
  *   See getCallbackByOutput for details.
  */
 export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
-    const {outputsOnly} = opts || {};
+    const {outputsOnly, removedArrayInputsOnly, newPaths} = opts || {};
     const foundCbIds = {};
     const callbacks = [];
 
@@ -753,6 +758,26 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         }
     }
 
+    function addCallbackIfArray(idStr) {
+        return cb =>
+            cb.getInputs(paths).some(ini => {
+                if (
+                    Array.isArray(ini) &&
+                    ini.some(inij => stringifyId(inij.id) === idStr)
+                ) {
+                    // This callback should trigger even with no changedProps,
+                    // since the props that changed no longer exist.
+                    if (flatten(cb.getOutputs(newPaths)).length) {
+                        cb.initialCall = true;
+                        cb.changedPropIds = {};
+                        addCallback(cb);
+                    }
+                    return true;
+                }
+                return false;
+            });
+    }
+
     function handleOneId(id, outIdCallbacks, inIdCallbacks) {
         if (outIdCallbacks) {
             for (const property in outIdCallbacks) {
@@ -765,9 +790,12 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
             }
         }
         if (!outputsOnly && inIdCallbacks) {
+            const idStr = removedArrayInputsOnly && stringifyId(id);
             for (const property in inIdCallbacks) {
                 getCallbacksByInput(graphs, paths, id, property).forEach(
-                    addCallback
+                    removedArrayInputsOnly
+                        ? addCallbackIfArray(idStr)
+                        : addCallback
                 );
             }
         }
@@ -776,7 +804,7 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
     crawlLayout(layoutChunk, child => {
         const id = path(['props', 'id'], child);
         if (id) {
-            if (typeof id === 'string') {
+            if (typeof id === 'string' && !removedArrayInputsOnly) {
                 handleOneId(id, graphs.outputMap[id], graphs.inputMap[id]);
             } else {
                 const keyStr = Object.keys(id)
@@ -784,7 +812,7 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
                     .join(',');
                 handleOneId(
                     id,
-                    graphs.outputPatterns[keyStr],
+                    !removedArrayInputsOnly && graphs.outputPatterns[keyStr],
                     graphs.inputPatterns[keyStr]
                 );
             }
