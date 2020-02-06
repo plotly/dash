@@ -13,14 +13,13 @@ import dash_flow_example
 import dash_html_components as html
 import dash_core_components as dcc
 
-from dash import Dash, callback_context, no_update
+from dash import Dash, no_update
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import (
     PreventUpdate,
     DuplicateCallbackOutput,
     CallbackException,
-    MissingCallbackContextException,
     InvalidCallbackReturnValue,
     IncorrectTypeException,
     NonExistentIdException,
@@ -755,33 +754,6 @@ def test_inin015_with_custom_renderer_interpolated(dash_duo):
     dash_duo.percy_snapshot(name="request-hooks interpolated")
 
 
-def test_inin016_modified_response(dash_duo):
-    app = Dash(__name__)
-    app.layout = html.Div(
-        [dcc.Input(id="input", value="ab"), html.Div(id="output")]
-    )
-
-    @app.callback(Output("output", "children"), [Input("input", "value")])
-    def update_output(value):
-        callback_context.response.set_cookie(
-            "dash cookie", value + " - cookie"
-        )
-        return value + " - output"
-
-    dash_duo.start_server(app)
-    dash_duo.wait_for_text_to_equal("#output", "ab - output")
-    input1 = dash_duo.find_element("#input")
-
-    input1.send_keys("cd")
-
-    dash_duo.wait_for_text_to_equal("#output", "abcd - output")
-    cookie = dash_duo.driver.get_cookie("dash cookie")
-    # cookie gets json encoded
-    assert cookie["value"] == '"abcd - cookie"'
-
-    assert not dash_duo.get_logs()
-
-
 def test_inin017_late_component_register(dash_duo):
     app = Dash()
 
@@ -941,45 +913,6 @@ def test_inin020_callback_return_validation():
         ]
         multi2("aaa", outputs_list=outputs_list)
         pytest.fail("wrong-length list")
-
-
-def test_inin021_callback_context(dash_duo):
-    app = Dash(__name__)
-
-    btns = ["btn-{}".format(x) for x in range(1, 6)]
-
-    app.layout = html.Div(
-        [
-            html.Div([html.Button(btn, id=btn) for btn in btns]),
-            html.Div(id="output"),
-        ]
-    )
-
-    @app.callback(
-        Output("output", "children"), [Input(x, "n_clicks") for x in btns]
-    )
-    def on_click(*args):
-        if not callback_context.triggered:
-            raise PreventUpdate
-        trigger = callback_context.triggered[0]
-        return "Just clicked {} for the {} time!".format(
-            trigger["prop_id"].split(".")[0], trigger["value"]
-        )
-
-    dash_duo.start_server(app)
-
-    for i in range(1, 5):
-        for btn in btns:
-            dash_duo.find_element("#" + btn).click()
-            dash_duo.wait_for_text_to_equal(
-                "#output", "Just clicked {} for the {} time!".format(btn, i)
-            )
-
-
-def test_inin022_no_callback_context():
-    for attr in ["inputs", "states", "triggered", "response"]:
-        with pytest.raises(MissingCallbackContextException):
-            getattr(callback_context, attr)
 
 
 def test_inin023_wrong_callback_id():
