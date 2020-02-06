@@ -18,6 +18,14 @@ def has_context(func):
     return assert_context
 
 
+class FalsyList(list):
+    def __bool__(self):
+        return False
+
+
+falsy_triggered = FalsyList([{"prop_id": ".", "value": None}])
+
+
 # pylint: disable=no-init
 class CallbackContext:
     @property
@@ -33,7 +41,11 @@ class CallbackContext:
     @property
     @has_context
     def triggered(self):
-        return getattr(flask.g, "triggered_inputs", [])
+        # For backward compatibility: previously `triggered` always had a
+        # value - to avoid breaking existing apps, add a dummy item but
+        # make the list still look falsy. So `if ctx.triggered` will make it
+        # look empty, but you can still do `triggered[0]["prop_id"].split(".")`
+        return getattr(flask.g, "triggered_inputs", []) or falsy_triggered
 
     @property
     @has_context

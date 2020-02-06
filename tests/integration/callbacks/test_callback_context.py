@@ -73,3 +73,36 @@ def test_cbcx003_no_callback_context():
     for attr in ["inputs", "states", "triggered", "response"]:
         with pytest.raises(MissingCallbackContextException):
             getattr(callback_context, attr)
+
+
+def test_cbcx004_triggered_backward_compat(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div([
+        html.Button("click!", id="btn"),
+        html.Div(id="out")
+    ])
+
+    @app.callback(Output("out", "children"), [Input("btn", "n_clicks")])
+    def report_triggered(n):
+        triggered = callback_context.triggered
+        bool_val = "truthy" if triggered else "falsy"
+        split_propid = repr(triggered[0]["prop_id"].split("."))
+        full_val = repr(triggered)
+        return "triggered is {}, has prop/id {}, and full value {}".format(
+            bool_val, split_propid, full_val
+        )
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal(
+        "#out",
+        "triggered is falsy, has prop/id ['', ''], and full value "
+        "[{'prop_id': '.', 'value': None}]"
+    )
+
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal(
+        "#out",
+        "triggered is truthy, has prop/id ['btn', 'n_clicks'], and full value "
+        "[{'prop_id': 'btn.n_clicks', 'value': 1}]"
+    )
