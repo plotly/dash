@@ -20,6 +20,11 @@ def has_context(func):
 
 class FalsyList(list):
     def __bool__(self):
+        # for Python 3
+        return False
+
+    def __nonzero__(self):
+        # for Python 2
         return False
 
 
