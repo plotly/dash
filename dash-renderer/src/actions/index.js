@@ -229,6 +229,29 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
     await isAppReady(layout, paths, ids);
 
     const allCallbacks = concat(requestedCallbacks, blockedCallbacks);
+
+    // because of the async step above, make sure we haven't separately added
+    // more callbacks to the queue - this particular step should only be adding
+    // callbacks, not removing them.
+    const existingCallbacks = getState().pendingCallbacks;
+    if (existingCallbacks.length) {
+        const resolvedIds = {};
+        allCallbacks.forEach((cb, i) => {
+            resolvedIds[cb.resolvedId] = i;
+        });
+        existingCallbacks.forEach(existingCB => {
+            const iAll = resolvedIds[existingCB.resolvedId];
+            if (iAll === undefined) {
+                allCallbacks.push(existingCB);
+            } else if (existingCB.requestId && !allCallbacks[iAll].requestId) {
+                // already requested put the requested one in the queue
+                allCallbacks[iAll] = existingCB;
+            }
+            // otherwise either both are blocked, fine, either one will do...
+            // or both have been requested - either way keep the newer one
+        });
+    }
+
     dispatch(setPendingCallbacks(allCallbacks));
 
     function fireNext() {
