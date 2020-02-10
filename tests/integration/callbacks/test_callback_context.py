@@ -1,4 +1,6 @@
+import json
 import pytest
+
 import dash_html_components as html
 import dash_core_components as dcc
 
@@ -86,8 +88,8 @@ def test_cbcx004_triggered_backward_compat(dash_duo):
     def report_triggered(n):
         triggered = callback_context.triggered
         bool_val = "truthy" if triggered else "falsy"
-        split_propid = repr(triggered[0]["prop_id"].split("."))
-        full_val = repr(triggered)
+        split_propid = json.dumps(triggered[0]["prop_id"].split("."))
+        full_val = json.dumps(triggered)
         return "triggered is {}, has prop/id {}, and full value {}".format(
             bool_val, split_propid, full_val
         )
@@ -96,13 +98,13 @@ def test_cbcx004_triggered_backward_compat(dash_duo):
 
     dash_duo.wait_for_text_to_equal(
         "#out",
-        "triggered is falsy, has prop/id ['', ''], and full value "
-        "[{'prop_id': '.', 'value': None}]"
+        'triggered is falsy, has prop/id ["", ""], and full value '
+        '[{"prop_id": ".", "value": null}]'
     )
 
     dash_duo.find_element("#btn").click()
     dash_duo.wait_for_text_to_equal(
         "#out",
-        "triggered is truthy, has prop/id ['btn', 'n_clicks'], and full value "
-        "[{'prop_id': 'btn.n_clicks', 'value': 1}]"
+        'triggered is truthy, has prop/id ["btn", "n_clicks"], and full value '
+        '[{"prop_id": "btn.n_clicks", "value": 1}]'
     )
