@@ -115,8 +115,6 @@ const ControlledPlotlyGraph = memo(props => {
     );
 });
 
-ControlledPlotlyGraph.propTypes = PropTypes.any;
-
 PlotlyGraph.propTypes = {
     ...privatePropTypes,
 
@@ -514,6 +512,8 @@ PlotlyGraph.propTypes = {
         component_name: PropTypes.string,
     }),
 };
+
+ControlledPlotlyGraph.propTypes = PlotlyGraph.propTypes;
 
 PlotlyGraph.defaultProps = {
     ...privateDefaultProps,
