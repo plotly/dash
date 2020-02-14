@@ -785,18 +785,24 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
                 // callbacks found in the layout by output should always run,
                 // ie this is the initial call of this callback even if it's
                 // not the page initialization but just a new layout chunk
+                // (unless the user explicitly didn't want them run)
                 cb.initialCall = true;
-                addCallback(cb);
+                if(!cb.callback.prevent_initial_call) {
+                    addCallback(cb);
+                }
             }
         }
         if (!outputsOnly && inIdCallbacks) {
             const idStr = removedArrayInputsOnly && stringifyId(id);
-            for (const property in inIdCallbacks) {
-                getCallbacksByInput(graphs, paths, id, property).forEach(
-                    removedArrayInputsOnly
-                        ? addCallbackIfArray(idStr)
-                        : addCallback
-                );
+            for (let property in inIdCallbacks) {
+                getCallbacksByInput(graphs, paths, id, property).forEach(function(...args) {
+                    if(args[0].callback.prevent_initial_call) {
+                        return;
+                    }
+                    return removedArrayInputsOnly
+                        ? addCallbackIfArray(idStr)(...args)
+                        : addCallback(...args)
+                });
             }
         }
     }

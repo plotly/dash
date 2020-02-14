@@ -800,12 +800,13 @@ class Dash(object):
                     "inputs": v["inputs"],
                     "state": v["state"],
                     "clientside_function": v.get("clientside_function", None),
+                    "prevent_initial_call": v["prevent_initial_call"]
                 }
                 for k, v in self.callback_map.items()
             ]
         )
 
-    def _insert_callback(self, output, inputs, state):
+    def _insert_callback(self, output, inputs, state, prevent_initial_call):
         layout = self._cached_layout or self._layout_value()
         _validate.validate_callback(self, layout, output, inputs, state)
         callback_id = create_callback_id(output)
@@ -813,6 +814,7 @@ class Dash(object):
         self.callback_map[callback_id] = {
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
+            "prevent_initial_call": prevent_initial_call
         }
         self.used_outputs.extend(output if callback_id.startswith("..") else [output])
 
@@ -912,8 +914,8 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def callback(self, output, inputs, state=()):
-        callback_id = self._insert_callback(output, inputs, state)
+    def callback(self, output, inputs, state=(), prevent_initial_call=False):
+        callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
         multi = isinstance(output, (list, tuple))
 
         def wrap_func(func):
