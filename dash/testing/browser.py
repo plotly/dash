@@ -114,7 +114,7 @@ class Browser(DashPageMixin):
         hook_id,
         wait_for_callbacks=True,
         assert_check=True,
-        stay_on_page=False
+        stay_on_page=False,
     ):
         try:
             path = resource_path.lstrip("/")
@@ -156,7 +156,9 @@ class Browser(DashPageMixin):
             logger.error(
                 "wait_for_callbacks failed => status of invalid rqs %s",
                 list(
-                    _ for _ in self.redux_state_rqs if not _.get("responseTime")
+                    _
+                    for _ in self.redux_state_rqs
+                    if not _.get("responseTime")
                 ),
             )
             logger.debug("full content of the rqs => %s", self.redux_state_rqs)
