@@ -489,7 +489,8 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
     -------
     """
     function_string = generate_js_metadata(
-        pkg_data=pkg_data, project_shortname=project_shortname
+        pkg_data=pkg_data,
+        project_shortname=_get_package_name(project_shortname),
     )
     file_name = "internal.R"
 
@@ -553,7 +554,9 @@ def generate_rpkg(
     # to R package that we're generating here, use .get in case the key
     # does not exist in package.json
 
-    package_name = snake_case_to_camel_case(project_shortname)
+    package_name = snake_case_to_camel_case(
+        _get_package_name(project_shortname)
+    )
     lib_name = pkg_data.get("name")
 
     if rpkg_data is not None:
@@ -722,7 +725,6 @@ def generate_exports(
         package_suggests,
         **kwargs
 ):
-    project_shortname = _get_package_name(project_shortname)
     export_string = make_namespace_exports(components, prefix)
 
     # Look for wildcards in the metadata
