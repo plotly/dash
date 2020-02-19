@@ -71,7 +71,7 @@ class Resources:
                         '`app.scripts.append_script` '
                         'or `app.css.append_css`, use `external_scripts` '
                         'or `external_stylesheets` instead.\n'
-                        'See https://dash.plot.ly/external-resources'
+                        'See https://dash.plotly.com/external-resources'
                     ).format(s['external_url'])
                 )
                 continue
