@@ -179,10 +179,7 @@ wildcard_help_template = """
 def _get_package_name(project_shortname):
     # this helper function enables building of projects that do not keep their
     # package.json or generated .py files in the top level of the package
-    if "/" in project_shortname:
-        package_name, _ = project_shortname.split("/", 1)
-        return package_name
-    return project_shortname
+    return project_shortname.split("/", 1)[0]
 
 
 # pylint: disable=R0914
