@@ -35,7 +35,7 @@ def load_dash_env_vars():
     )
 
 
-DASH_ENV_VARS = load_dash_env_vars()
+DASH_ENV_VARS = load_dash_env_vars()  # used for testing
 
 
 def get_combined_config(name, val, default=None):
