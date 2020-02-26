@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- [#1132](github.com/plotly/dash/pull/1132) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE
+- [#1133](github.com/plotly/dash/pull/1133) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE
 
 ## [1.9.0] - 2020-02-04
 ### Fixed
