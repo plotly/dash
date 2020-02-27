@@ -54,7 +54,7 @@ module.exports = (env, argv) => {
         },
         externals,
         module: {
-            noParse: /node_modules\/plotly.js/,
+            noParse: /node_modules[\\\/]plotly.js/,
             rules: [
                 {
                     test: /\.jsx?$/,
@@ -65,7 +65,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.jsx?$/,
-                    include: /node_modules\/(react-jsx-parser\/)/,
+                    include: /node_modules[\\\/](react-jsx-parser[\\\/])/,
                     use: {
                         loader: 'babel-loader',
                         options: {
