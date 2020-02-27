@@ -214,7 +214,7 @@ jobs:
           command: |
               source venv/Scripts/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
               cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 --branch update-webpackconfig https://github.com/plotly/dash-core-components.git
+              git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
               cd dash-renderer-test-components && npm ci && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
