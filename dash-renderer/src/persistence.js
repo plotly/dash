@@ -4,7 +4,7 @@
  * When users input new prop values, they can be stored and reapplied later,
  * when the component is recreated (changing `Tab` for example) or when the
  * page is reloaded (depending on `persistence_type`). Storage is tied to
- * component ID, and the prop values will not be stored with components 
+ * component ID, and the prop values will not be stored with components
  * without an ID.
  *
  * Renderer handles the mechanics, but components must define a few props:
