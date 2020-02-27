@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Changed
+- [#762](https://github.com/plotly/dash-core-components/pull/762) Renamed async modules with hyphen `-` instead of tilde `~`
+
 ## [1.8.0] - 2020-02-04
 ### Changed
 - [#743](https://github.com/plotly/dash-core-components/pull/743) Location component now emits an event on URL path update from Link component
