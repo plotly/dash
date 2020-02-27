@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Changed
+- [#704](https://github.com/plotly/dash-table/pull/704) Renamed async modules with hyphen `-` instead of tilde `~`
+
 ## [4.6.0] - 2020-01-14
 ### Added
 - [#606](https://github.com/plotly/dash-table/pull/606) Add markdown support for table cells. Cells will be rendered as markdown if the column `presentation` is specified as `markdown`.

@@ -3,7 +3,7 @@ version: 2
 jobs:
     "server-test":
         docker:
-            - image: circleci/python:3.6-node-browsers
+            - image: circleci/python:3.6.9-node-browsers
             - image: cypress/base:10
 
         steps:
@@ -40,7 +40,9 @@ jobs:
                     . venv/bin/activate
                     npm run private::build:js-test
                     npm run private::build:py
-                    pip install -e .
+                    python setup.py sdist
+                    cd dist
+                    find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && cd ..
 
             - run:
                 name: Run tests
@@ -225,7 +227,9 @@ jobs:
                 command: |
                     . venv/bin/activate
                     npm run build
-                    pip install -e .
+                    python setup.py sdist
+                    cd dist
+                    find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && cd ..
 
             - run:
                 name: ⚙️ run integration test
