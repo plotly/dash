@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.8.1] -2020-02-27
 ### Changed
 - [#762](https://github.com/plotly/dash-core-components/pull/762) Renamed async modules with hyphen `-` instead of tilde `~`
 
