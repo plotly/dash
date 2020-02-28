@@ -100,8 +100,8 @@ function UnconnectedErrorContent({error, base}) {
                                 </i>
                             </summary>
 
-                            {error.stack.split('\n').map(line => (
-                                <p>{line}</p>
+                            {error.stack.split('\n').map((line, i) => (
+                                <p key={i}>{line}</p>
                             ))}
                         </details>
                     </div>
