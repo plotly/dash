@@ -47,6 +47,7 @@ class Browser(DashPageMixin):
         headless=False,
         options=None,
         download_path="",
+        percy_run=True,
         percy_finalize=True,
         percy_assets_root="",
         wait_timeout=10,
@@ -63,6 +64,7 @@ class Browser(DashPageMixin):
         self._download_path = download_path
         self._wait_timeout = wait_timeout
         self._percy_finalize = percy_finalize
+        self._percy_run = percy_run
 
         self._driver = until(self.get_webdriver, timeout=1)
         self._driver.implicitly_wait(2)
@@ -73,14 +75,15 @@ class Browser(DashPageMixin):
 
         self._window_idx = 0  # switch browser tabs
 
-        self.percy_runner = percy.Runner(
-            loader=percy.ResourceLoader(
-                webdriver=self.driver,
-                base_url="/assets",
-                root_dir=percy_assets_root,
+        if self._percy_run:
+            self.percy_runner = percy.Runner(
+                loader=percy.ResourceLoader(
+                    webdriver=self.driver,
+                    base_url="/assets",
+                    root_dir=percy_assets_root,
+                )
             )
-        )
-        self.percy_runner.initialize_build()
+            self.percy_runner.initialize_build()
 
         logger.info("initialize browser with arguments")
         logger.info("  headless => %s", self._headless)
@@ -95,7 +98,7 @@ class Browser(DashPageMixin):
     def __exit__(self, exc_type, exc_val, traceback):
         try:
             self.driver.quit()
-            if self._percy_finalize:
+            if self._percy_run and self._percy_finalize:
                 logger.info("percy runner finalize build now")
                 self.percy_runner.finalize_build()
             else:
@@ -111,7 +114,7 @@ class Browser(DashPageMixin):
         hook_id,
         wait_for_callbacks=True,
         assert_check=True,
-        stay_on_page=False
+        stay_on_page=False,
     ):
         try:
             path = resource_path.lstrip("/")
@@ -153,7 +156,9 @@ class Browser(DashPageMixin):
             logger.error(
                 "wait_for_callbacks failed => status of invalid rqs %s",
                 list(
-                    _ for _ in self.redux_state_rqs if not _.get("responseTime")
+                    _
+                    for _ in self.redux_state_rqs
+                    if not _.get("responseTime")
                 ),
             )
             logger.debug("full content of the rqs => %s", self.redux_state_rqs)
