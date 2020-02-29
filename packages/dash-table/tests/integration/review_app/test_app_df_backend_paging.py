@@ -29,11 +29,7 @@ def test_rapp001_df_backend_paging(dash_duo):
     df = pd.read_csv(
         os.path.realpath(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "assets",
-                "gapminder.csv",
+                os.path.dirname(__file__), "..", "..", "assets", "gapminder.csv",
             )
         )
     )
@@ -41,8 +37,7 @@ def test_rapp001_df_backend_paging(dash_duo):
     df["index"] = range(1, len(df) + 1)
 
     app = dash.Dash(
-        __name__,
-        external_stylesheets=["https://codepen.io/chriddyp/pen/dZVMbK.css"],
+        __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/dZVMbK.css"],
     )
     app.config.suppress_callback_exceptions = True
 
@@ -55,8 +50,7 @@ def test_rapp001_df_backend_paging(dash_duo):
             dash_table.DataTable(
                 id=IDS["table"],
                 columns=[
-                    {"name": i, "id": i, "deletable": True}
-                    for i in sorted(df.columns)
+                    {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
                 page_current=0,
                 page_size=PAGE_SIZE,
@@ -83,8 +77,7 @@ def test_rapp001_df_backend_paging(dash_duo):
             dash_table.DataTable(
                 id=IDS["table-sorting"],
                 columns=[
-                    {"name": i, "id": i, "deletable": True}
-                    for i in sorted(df.columns)
+                    {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
                 page_current=0,
                 page_size=PAGE_SIZE,
@@ -109,8 +102,7 @@ def test_rapp001_df_backend_paging(dash_duo):
             dash_table.DataTable(
                 id=IDS["table-multi-sorting"],
                 columns=[
-                    {"name": i, "id": i, "deletable": True}
-                    for i in sorted(df.columns)
+                    {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
                 page_current=0,
                 page_size=PAGE_SIZE,
@@ -146,8 +138,7 @@ def test_rapp001_df_backend_paging(dash_duo):
             dash_table.DataTable(
                 id=IDS["table-filtering"],
                 columns=[
-                    {"name": i, "id": i, "deletable": True}
-                    for i in sorted(df.columns)
+                    {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
                 page_current=0,
                 page_size=PAGE_SIZE,
@@ -155,14 +146,11 @@ def test_rapp001_df_backend_paging(dash_duo):
                 filter_action="custom",
                 filter_query="",
             ),
-            section_title(
-                "Backend Paging with Filtering and Multi-Column Sorting"
-            ),
+            section_title("Backend Paging with Filtering and Multi-Column Sorting"),
             dash_table.DataTable(
                 id=IDS["table-sorting-filtering"],
                 columns=[
-                    {"name": i, "id": i, "deletable": True}
-                    for i in sorted(df.columns)
+                    {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
                 page_current=0,
                 page_size=PAGE_SIZE,
@@ -216,10 +204,7 @@ def test_rapp001_df_backend_paging(dash_duo):
 
     @app.callback(
         Output(IDS["table"], "data"),
-        [
-            Input(IDS["table"], "page_current"),
-            Input(IDS["table"], "page_size"),
-        ],
+        [Input(IDS["table"], "page_current"), Input(IDS["table"], "page_size"),],
     )
     def update_graph(page_current, page_size):
         return df.iloc[

@@ -16,11 +16,7 @@ def test_rapp002_df_graph(dash_duo):
     df = pd.read_csv(
         os.path.realpath(
             os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "assets",
-                "gapminder.csv",
+                os.path.dirname(__file__), "..", "..", "assets", "gapminder.csv",
             )
         )
     )
@@ -28,8 +24,7 @@ def test_rapp002_df_graph(dash_duo):
     df = df[df["year"] == 2007]
 
     app = dash.Dash(
-        __name__,
-        external_stylesheets=["https://codepen.io/chriddyp/pen/dZVMbK.css"],
+        __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/dZVMbK.css"],
     )
     app.layout = html.Div(
         [
@@ -37,8 +32,7 @@ def test_rapp002_df_graph(dash_duo):
                 dash_table.DataTable(
                     id=IDS["table"],
                     columns=[
-                        {"name": i, "id": i, "deletable": True}
-                        for i in df.columns
+                        {"name": i, "id": i, "deletable": True} for i in df.columns
                     ],
                     data=df.to_dict("rows"),
                     editable=True,

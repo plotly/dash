@@ -1,3 +1,5 @@
+black
 flake8
 pandas
+preconditions
 xlrd
