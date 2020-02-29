@@ -20,7 +20,7 @@ def findSyncPlotlyJs(scripts):
 
 def findAsyncPlotlyJs(scripts):
     for script in scripts:
-        if "dash_core_components/async~plotlyjs" in script.get_attribute(
+        if "dash_core_components/async-plotlyjs" in script.get_attribute(
             'src'
         ):
             return script

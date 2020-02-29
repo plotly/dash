@@ -231,7 +231,7 @@ class Dash(object):
         requests_pathname_prefix=None,
         routes_pathname_prefix=None,
         serve_locally=True,
-        compress=True,
+        compress=None,
         meta_tags=None,
         index_string=_default_index,
         external_scripts=None,
@@ -277,7 +277,9 @@ class Dash(object):
             routes_pathname_prefix=routes_prefix,
             requests_pathname_prefix=requests_prefix,
             serve_locally=serve_locally,
-            compress=compress,
+            compress=get_combined_config(
+                "compress", compress, True
+            ),
             meta_tags=meta_tags or [],
             external_scripts=external_scripts or [],
             external_stylesheets=external_stylesheets or [],
