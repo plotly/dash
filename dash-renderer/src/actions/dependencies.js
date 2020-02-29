@@ -11,13 +11,16 @@ import {
     evolve,
     flatten,
     forEachObjIndexed,
+    includes,
     isEmpty,
     map,
     mergeDeepRight,
     mergeRight,
-    omit,
+    mergeWith,
     partition,
     path,
+    pickBy,
+    propEq,
     props,
     unnest,
     values,
@@ -69,7 +72,7 @@ function parseMultipleOutputs(outputIdAndProp) {
     return outputIdAndProp.substr(2, outputIdAndProp.length - 4).split('...');
 }
 
-export function splitIdAndProp(idAndProp) {
+function splitIdAndProp(idAndProp) {
     // since wildcard ids can have . in them but props can't,
     // look for the last . in the string and split there
     const dotPos = idAndProp.lastIndexOf('.');
@@ -497,6 +500,9 @@ const makeResolvedCallback = (callback, resolve, anyVals) => ({
     requestedOutputs: {},
 });
 
+const DIRECT = 2;
+const INDIRECT = 1;
+
 let nextRequestId = 0;
 
 /*
@@ -531,7 +537,11 @@ export function isMultiValued({id}) {
  *     getState: same for state
  *     blockedBy: an object of {[resolvedId]: 1} blocking this callback
  *     blocking: an object of {[resolvedId]: 1} this callback is blocking
- *     changedPropIds: an object of {[idAndProp]: 1} triggering this callback
+ *     changedPropIds: an object of {[idAndProp]: v} triggering this callback
+ *         v = DIRECT (2): the prop was changed in the front end, so dependent
+ *             callbacks *MUST* be executed.
+ *         v = INDIRECT (1): the prop is expected to be changed by a callback,
+ *             but if this is prevented, dependent callbacks may be pruned.
  *     initialCall: boolean, if true we don't require any changedPropIds
  *         to keep this callback around, as it's the initial call to populate
  *         this value on page load or changing part of the layout.
@@ -633,7 +643,7 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
  * (with an MATCH corresponding to the input's ALLSMALLER) will only appear
  * in one entry.
  */
-export function getCallbacksByInput(graphs, paths, id, prop) {
+export function getCallbacksByInput(graphs, paths, id, prop, changeType) {
     const matches = [];
     const idAndProp = combineIdAndProp({id, property: prop});
 
@@ -691,7 +701,7 @@ export function getCallbacksByInput(graphs, paths, id, prop) {
         });
     }
     matches.forEach(match => {
-        match.changedPropIds[idAndProp] = 1;
+        match.changedPropIds[idAndProp] = changeType || DIRECT;
     });
     return matches;
 }
@@ -747,7 +757,8 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         if (callback) {
             const foundIndex = foundCbIds[callback.resolvedId];
             if (foundIndex !== undefined) {
-                callbacks[foundIndex].changedPropIds = mergeRight(
+                callbacks[foundIndex].changedPropIds = mergeWith(
+                    Math.max,
                     callbacks[foundIndex].changedPropIds,
                     callback.changedPropIds
                 );
@@ -855,7 +866,10 @@ export function removePendingCallback(
                 mergeRight(pending, {
                     blockedBy: dissoc(removeResolvedId, blockedBy),
                     blocking: dissoc(removeResolvedId, blocking),
-                    changedPropIds: omit(skippedProps, changedPropIds),
+                    changedPropIds: pickBy(
+                        (v, k) => v === DIRECT || includes(k, skippedProps),
+                        changedPropIds
+                    ),
                 })
             );
         }
@@ -927,7 +941,7 @@ export function followForward(graphs, paths, callbacks_) {
     let callback;
 
     const followOutput = ({id, property}) => {
-        const nextCBs = getCallbacksByInput(graphs, paths, id, property);
+        const nextCBs = getCallbacksByInput(graphs, paths, id, property, INDIRECT);
         nextCBs.forEach(nextCB => {
             let existingIndex = allResolvedIds[nextCB.resolvedId];
             if (existingIndex === undefined) {
@@ -936,7 +950,8 @@ export function followForward(graphs, paths, callbacks_) {
                 allResolvedIds[nextCB.resolvedId] = existingIndex;
             } else {
                 const existingCB = callbacks[existingIndex];
-                existingCB.changedPropIds = mergeRight(
+                existingCB.changedPropIds = mergeWith(
+                    Math.max,
                     existingCB.changedPropIds,
                     nextCB.changedPropIds
                 );
@@ -1002,4 +1017,46 @@ export function mergePendingCallbacks(cb1, cb2) {
     });
 
     return finalCallbacks;
+}
+
+/*
+ * Remove callbacks whose outputs or changed inputs have been removed
+ * from the layout
+ */
+export function pruneRemovedCallbacks(pendingCallbacks, paths) {
+    const removeIds = [];
+    let cleanedCallbacks = pendingCallbacks.map(callback => {
+        const {changedPropIds, getOutputs, resolvedId} = callback;
+        if (!flatten(getOutputs(paths)).length) {
+            removeIds.push(resolvedId);
+            return callback;
+        }
+
+        let omittedProps = false;
+        const newChangedProps = pickBy((_, propId) => {
+            if (getPath(paths, splitIdAndProp(propId).id)) {
+                return true;
+            }
+            omittedProps = true;
+            return false;
+        }, changedPropIds);
+
+        return omittedProps
+            ? assoc('changedPropIds', newChangedProps, callback)
+            : callback;
+    });
+
+    removeIds.forEach(resolvedId => {
+        const cb = cleanedCallbacks.find(propEq('resolvedId', resolvedId));
+        if (cb) {
+            cleanedCallbacks = removePendingCallback(
+                pendingCallbacks,
+                paths,
+                resolvedId,
+                flatten(cb.getOutputs(paths)).map(combineIdAndProp)
+            );
+        }
+    });
+
+    return cleanedCallbacks;
 }

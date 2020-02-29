@@ -1,6 +1,5 @@
 /* global fetch:true, Promise:true, document:true */
 import {
-    assoc,
     concat,
     flatten,
     has,
@@ -37,8 +36,8 @@ import {
     mergePendingCallbacks,
     removePendingCallback,
     parseIfWildcard,
+    pruneRemovedCallbacks,
     setNewRequestId,
-    splitIdAndProp,
     stringifyId,
 } from './dependencies';
 import {computePaths, getPath} from './paths';
@@ -539,42 +538,7 @@ function updateChildPaths(
     const paths = computePaths(children, childrenPath, oldPaths);
     dispatch(setPaths(paths));
 
-    // Prune now-nonexistent changedPropIds and mark callbacks with
-    // now-nonexistent outputs
-    const removeIds = [];
-    let cleanedCallbacks = pendingCallbacks.map(callback => {
-        const {changedPropIds, getOutputs, resolvedId} = callback;
-        if (!flatten(getOutputs(paths)).length) {
-            removeIds.push(resolvedId);
-            return callback;
-        }
-
-        let omittedProps = false;
-        const newChangedProps = pickBy((_, propId) => {
-            if (getPath(paths, splitIdAndProp(propId).id)) {
-                return true;
-            }
-            omittedProps = true;
-            return false;
-        }, changedPropIds);
-
-        return omittedProps
-            ? assoc('changedPropIds', newChangedProps, callback)
-            : callback;
-    });
-
-    // Remove the callbacks we marked above
-    removeIds.forEach(resolvedId => {
-        const cb = cleanedCallbacks.find(propEq('resolvedId', resolvedId));
-        if (cb) {
-            cleanedCallbacks = removePendingCallback(
-                pendingCallbacks,
-                paths,
-                resolvedId,
-                flatten(cb.getOutputs(paths)).map(combineIdAndProp)
-            );
-        }
-    });
+    const cleanedCallbacks = pruneRemovedCallbacks(pendingCallbacks, paths);
 
     const newCallbacks = getCallbacksInLayout(graphs, paths, children);
 
