@@ -7,7 +7,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 
@@ -163,7 +163,7 @@ def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
     )
 
     @app.callback(Output("output", "children"), [Input("btn", "n_clicks")])
-    def update_graph(n_clicks):
+    def update_out(n_clicks):
         if n_clicks is None:
             raise PreventUpdate
 
@@ -171,12 +171,57 @@ def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
 
     dash_duo.start_server(app)
 
+    dash_duo.wait_for_text_to_equal("#output", "Hello")
     dash_duo.find_element("#btn").click()
-    assert dash_duo.find_element("#output").text == "Bye"
+    dash_duo.wait_for_text_to_equal("#output", "Bye")
     assert dash_duo.get_logs() == []
 
 
-def test_cbsc004_children_types(dash_duo):
+@pytest.mark.skip(reason="https://github.com/plotly/dash/issues/1105")
+def test_cbsc004_callback_using_unloaded_async_component(dash_duo):
+    app = dash.Dash()
+    app.layout = html.Div(
+        children=[
+            dcc.Tabs(
+                children=[
+                    dcc.Tab(
+                        children=[
+                            html.Button(id="btn", children="Update Input"),
+                            html.Div(id="output", children=["Hello"]),
+                        ]
+                    ),
+                    dcc.Tab(
+                        children=dash_table.DataTable(
+                            id="other-table",
+                            columns=[{"id": "a", "name": "A"}],
+                            data=[{"a": "b"}]
+                        )
+                    ),
+                ]
+            )
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        [Input("btn", "n_clicks")],
+        [State("other-table", "data")]
+    )
+    def update_out(n_clicks, data):
+        if n_clicks is None:
+            return len(data)
+
+        return json.dumps(data) + ' - ' + str(n_clicks)
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#output", '[{"a": "b"}] - None')
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#output", '[{"a": "b"}] - 1')
+    assert dash_duo.get_logs() == []
+
+
+def test_cbsc005_children_types(dash_duo):
     app = dash.Dash()
     app.layout = html.Div([
         html.Button(id="btn"),
@@ -208,7 +253,7 @@ def test_cbsc004_children_types(dash_duo):
         dash_duo.wait_for_text_to_equal("#out", text)
 
 
-def test_cbsc005_array_of_objects(dash_duo):
+def test_cbsc006_array_of_objects(dash_duo):
     app = dash.Dash()
     app.layout = html.Div([
         html.Button(id="btn"),
@@ -238,7 +283,7 @@ def test_cbsc005_array_of_objects(dash_duo):
 
 
 @pytest.mark.parametrize("refresh", [False, True])
-def test_cbsc006_parallel_updates(refresh, dash_duo):
+def test_cbsc007_parallel_updates(refresh, dash_duo):
     # This is a funny case, that seems to mostly happen with dcc.Location
     # but in principle could happen in other cases too:
     # A callback chain (in this case the initial hydration) is set to update a

@@ -1,7 +1,6 @@
 import {DepGraph} from 'dependency-graph';
 import isNumeric from 'fast-isnumeric';
 import {
-    all,
     any,
     ap,
     assoc,
@@ -803,7 +802,13 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         if (!outputsOnly && inIdCallbacks) {
             const idStr = removedArrayInputsOnly && stringifyId(id);
             for (const property in inIdCallbacks) {
-                getCallbacksByInput(graphs, paths, id, property).forEach(
+                getCallbacksByInput(
+                    graphs,
+                    paths,
+                    id,
+                    property,
+                    INDIRECT
+                ).forEach(
                     removedArrayInputsOnly
                         ? addCallbackIfArray(idStr)
                         : addCallback
@@ -843,9 +848,15 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
     finalCallbacks.forEach(cb => {
         if (cb.initialCall && !isEmpty(cb.blockedBy)) {
             const inputs = flatten(cb.getInputs(paths));
-            if (all(i => cb.changedPropIds[combineIdAndProp(i)], inputs)) {
-                cb.initialCall = false;
-            }
+            cb.initialCall = false;
+            inputs.forEach(i => {
+                const propId = combineIdAndProp(i);
+                if (cb.changedPropIds[propId]) {
+                    cb.changedPropIds[propId] = INDIRECT;
+                } else {
+                    cb.initialCall = true;
+                }
+            });
         }
     });
 
@@ -867,7 +878,7 @@ export function removePendingCallback(
                     blockedBy: dissoc(removeResolvedId, blockedBy),
                     blocking: dissoc(removeResolvedId, blocking),
                     changedPropIds: pickBy(
-                        (v, k) => v === DIRECT || includes(k, skippedProps),
+                        (v, k) => v === DIRECT || !includes(k, skippedProps),
                         changedPropIds
                     ),
                 })
@@ -941,7 +952,13 @@ export function followForward(graphs, paths, callbacks_) {
     let callback;
 
     const followOutput = ({id, property}) => {
-        const nextCBs = getCallbacksByInput(graphs, paths, id, property, INDIRECT);
+        const nextCBs = getCallbacksByInput(
+            graphs,
+            paths,
+            id,
+            property,
+            INDIRECT
+        );
         nextCBs.forEach(nextCB => {
             let existingIndex = allResolvedIds[nextCB.resolvedId];
             if (existingIndex === undefined) {
