@@ -21,7 +21,7 @@ class UnconnectedAppContainer extends React.Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const {dispatch} = this.props;
         const config = JSON.parse(
             document.getElementById('_dash-config').textContent

@@ -13,7 +13,7 @@ class DocumentTitle extends Component {
         };
     }
 
-    componentWillReceiveProps(props) {
+    UNSAFE_componentWillReceiveProps(props) {
         if (any(r => r.status === 'loading', props.requestQueue)) {
             document.title = 'Updating...';
         } else {

@@ -30,7 +30,7 @@ class UnconnectedContainer extends Component {
         this.initialization(this.props);
     }
 
-    componentWillReceiveProps(props) {
+    UNSAFE_componentWillReceiveProps(props) {
         this.initialization(props);
     }
 
