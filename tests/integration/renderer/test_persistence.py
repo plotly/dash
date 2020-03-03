@@ -2,6 +2,8 @@ from multiprocessing import Value
 import pytest
 import time
 
+from selenium.webdriver.common.keys import Keys
+
 import dash
 from dash.dependencies import Input, Output
 
@@ -384,8 +386,8 @@ def test_rdps010_toggle_persistence(dash_duo):
 
     dash_duo.find_element("#persistence-val").send_keys("2")
     dash_duo.wait_for_text_to_equal("#out", "a")
-    dash_duo.find_element("#persisted").send_keys("ardvark")
-    dash_duo.wait_for_text_to_equal("#out", "aardvark")
+    dash_duo.find_element("#persisted").send_keys(Keys.BACK_SPACE)  # persist falsy value
+    dash_duo.wait_for_text_to_equal("#out", "")
 
     # alpaca not saved with falsy persistence
     dash_duo.clear_input("#persistence-val")
@@ -395,7 +397,7 @@ def test_rdps010_toggle_persistence(dash_duo):
     dash_duo.find_element("#persistence-val").send_keys("s")
     dash_duo.wait_for_text_to_equal("#out", "anchovies")
     dash_duo.find_element("#persistence-val").send_keys("2")
-    dash_duo.wait_for_text_to_equal("#out", "aardvark")
+    dash_duo.wait_for_text_to_equal('#out', "")
 
 
 def test_rdps011_toggle_persistence2(dash_duo):
