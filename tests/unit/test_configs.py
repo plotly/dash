@@ -231,3 +231,30 @@ def test_strip_relative_path(prefix, partial_path, expected):
 def test_invalid_strip_relative_path(prefix, partial_path):
     with pytest.raises(_exc.UnsupportedRelativePath):
         strip_relative_path(prefix, partial_path)
+
+
+def test_port_env_fail_str(empty_environ):
+    app = Dash()
+    with pytest.raises(Exception) as excinfo:
+        app.run_server(port="garbage")
+    assert (
+        excinfo.exconly()
+        == "ValueError: Expecting an integer from 1 to 65535, found port='garbage'"
+    )
+
+
+def test_port_env_fail_range(empty_environ):
+    app = Dash()
+    with pytest.raises(Exception) as excinfo:
+        app.run_server(port="0")
+    assert (
+        excinfo.exconly()
+        == "AssertionError: Expecting an integer from 1 to 65535, found port=0"
+    )
+
+    with pytest.raises(Exception) as excinfo:
+        app.run_server(port="65536")
+    assert (
+        excinfo.exconly()
+        == "AssertionError: Expecting an integer from 1 to 65535, found port=65536"
+    )

@@ -30,6 +30,8 @@ def load_dash_env_vars():
                 "DASH_SILENCE_ROUTES_LOGGING",
                 "DASH_PRUNE_ERRORS",
                 "DASH_COMPRESS",
+                "HOST",
+                "PORT",
             )
         }
     )
