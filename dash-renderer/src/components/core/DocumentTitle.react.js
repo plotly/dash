@@ -1,5 +1,3 @@
-/* global document:true */
-
 import {connect} from 'react-redux';
 import {any} from 'ramda';
 import {Component} from 'react';

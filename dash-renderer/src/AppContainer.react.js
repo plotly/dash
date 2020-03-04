@@ -1,4 +1,3 @@
-/* global document:true */
 import {connect} from 'react-redux';
 import React from 'react';
 import PropTypes from 'prop-types';
