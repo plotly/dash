@@ -21,7 +21,10 @@ import {STATUS} from './constants/constants';
 class UnconnectedContainer extends Component {
     constructor(props) {
         super(props);
-        this.initialization = this.initialization.bind(this);
+
+        const __initialization = this.initialization.bind(this);
+        this.initialization = () => setTimeout(() => __initialization(this.props), 0);
+
         this.state = {
             errorLoading: false,
         };
@@ -83,7 +86,7 @@ class UnconnectedContainer extends Component {
         ) {
             let errorLoading = false;
             try {
-                dispatch(hydrateInitialOutputs());
+                setTimeout(() => dispatch(hydrateInitialOutputs()), 0);
             } catch (err) {
                 errorLoading = true;
             } finally {
