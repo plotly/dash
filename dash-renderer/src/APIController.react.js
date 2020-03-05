@@ -49,16 +49,8 @@ const UnconnectedContainer = props => {
         }
 
         if (isEmpty(dependenciesRequest)) {
-            setTimeout(
-                () =>
-                    dispatch(
-                        apiThunk(
-                            '_dash-dependencies',
-                            'GET',
-                            'dependenciesRequest'
-                        )
-                    ),
-                0
+            dispatch(
+                apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
             );
         } else if (
             dependenciesRequest.status === STATUS.OK &&
