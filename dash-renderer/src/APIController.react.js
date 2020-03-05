@@ -23,7 +23,8 @@ class UnconnectedContainer extends Component {
         super(props);
 
         const __initialization = this.initialization.bind(this);
-        this.initialization = () => setTimeout(() => __initialization(this.props), 0);
+        this.initialization = () =>
+            setTimeout(() => __initialization(this.props), 0);
 
         this.state = {
             errorLoading: false,
