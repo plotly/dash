@@ -17,6 +17,8 @@ import {STATUS} from './constants/constants';
 
 /**
  * Fire off API calls for initialization
+ * @param {*} props props
+ * @returns {*} component
  */
 const UnconnectedContainer = props => {
     const [errorLoading, setErrorLoading] = useState(false);
@@ -134,6 +136,7 @@ UnconnectedContainer.propTypes = {
     ]),
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
+    graphs: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,
