@@ -21,11 +21,7 @@ import {STATUS} from './constants/constants';
 class UnconnectedContainer extends Component {
     constructor(props) {
         super(props);
-
-        const __initialization = this.initialization.bind(this);
-        this.initialization = () =>
-            setTimeout(() => __initialization(this.props), 0);
-
+        this.initialization = this.initialization.bind(this);
         this.state = {
             errorLoading: false,
         };
@@ -50,28 +46,28 @@ class UnconnectedContainer extends Component {
         } = props;
 
         if (isEmpty(layoutRequest)) {
-            dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
+            setTimeout(() => dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest')), 0);
         } else if (layoutRequest.status === STATUS.OK) {
             if (isEmpty(layout)) {
                 const finalLayout = applyPersistence(
                     layoutRequest.content,
                     dispatch
                 );
-                dispatch(setLayout(finalLayout));
+                setTimeout(() => dispatch(setLayout(finalLayout)), 0);
             } else if (isNil(paths)) {
-                dispatch(computePaths({subTree: layout, startingPath: []}));
+                setTimeout(() => dispatch(computePaths({ subTree: layout, startingPath: [] })), 0);
             }
         }
 
         if (isEmpty(dependenciesRequest)) {
-            dispatch(
+            setTimeout(() => dispatch(
                 apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
-            );
+            ), 0);
         } else if (
             dependenciesRequest.status === STATUS.OK &&
             isEmpty(graphs)
         ) {
-            dispatch(computeGraphs(dependenciesRequest.content));
+            setTimeout(() => dispatch(computeGraphs(dependenciesRequest.content)), 0);
         }
 
         if (
