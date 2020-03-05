@@ -3,8 +3,8 @@ dash-dangerously-set-inner-html
 mock
 flake8
 PyYAML>=5.1.1
-pylint==1.9.4;python_version<"3.7"
-pylint==2.3.1;python_version=="3.7"
+pylint==1.9.5;python_version<"3.6"
+pylint==2.4.4;python_version>="3.6"
 astroid==2.2.5;python_version=="3.7"
 virtualenv;python_version=="2.7"
 fire
