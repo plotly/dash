@@ -46,7 +46,11 @@ class UnconnectedContainer extends Component {
         } = props;
 
         if (isEmpty(layoutRequest)) {
-            setTimeout(() => dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest')), 0);
+            setTimeout(
+                () =>
+                    dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest')),
+                0
+            );
         } else if (layoutRequest.status === STATUS.OK) {
             if (isEmpty(layout)) {
                 const finalLayout = applyPersistence(
@@ -55,19 +59,36 @@ class UnconnectedContainer extends Component {
                 );
                 setTimeout(() => dispatch(setLayout(finalLayout)), 0);
             } else if (isNil(paths)) {
-                setTimeout(() => dispatch(computePaths({ subTree: layout, startingPath: [] })), 0);
+                setTimeout(
+                    () =>
+                        dispatch(
+                            computePaths({subTree: layout, startingPath: []})
+                        ),
+                    0
+                );
             }
         }
 
         if (isEmpty(dependenciesRequest)) {
-            setTimeout(() => dispatch(
-                apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
-            ), 0);
+            setTimeout(
+                () =>
+                    dispatch(
+                        apiThunk(
+                            '_dash-dependencies',
+                            'GET',
+                            'dependenciesRequest'
+                        )
+                    ),
+                0
+            );
         } else if (
             dependenciesRequest.status === STATUS.OK &&
             isEmpty(graphs)
         ) {
-            setTimeout(() => dispatch(computeGraphs(dependenciesRequest.content)), 0);
+            setTimeout(
+                () => dispatch(computeGraphs(dependenciesRequest.content)),
+                0
+            );
         }
 
         if (
