@@ -1,6 +1,8 @@
 import time
 from multiprocessing import Value
 
+import pytest
+
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_table
@@ -45,10 +47,10 @@ def test_cbmt002_canceled_intermediate_callback(dash_duo):
     # see https://github.com/plotly/dash/issues/1053
     app = dash.Dash(__name__)
     app.layout = html.Div([
-        dcc.Input(id='a', value="x"),
-        html.Div('b', id='b'),
-        html.Div('c', id='c'),
-        html.Div(id='out')
+        dcc.Input(id="a", value="x"),
+        html.Div("b", id="b"),
+        html.Div("c", id="c"),
+        html.Div(id="out")
     ])
 
     @app.callback(
@@ -124,3 +126,63 @@ def test_cbmt003_chain_with_table(dash_duo):
     dash_duo.wait_for_text_to_equal("#a2", "a2: 2")
     dash_duo.wait_for_text_to_equal("#b1", "b1: 'a1: 2'")
     dash_duo.wait_for_text_to_equal("#b2", "b2: 'a2: 2', None")
+
+
+@pytest.mark.parametrize("MULTI", [False, True])
+def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div([
+        html.Button("Button", id="button"),
+        html.Div([
+            html.Label(id="label1"),
+            dcc.Slider(id="slider1", min=0, max=10, value=0),
+
+        ]),
+        html.Div([
+            html.Label(id="label2"),
+            dcc.Slider(id="slider2", min=0, max=10, value=0),
+        ])
+    ])
+
+    if MULTI:
+        @app.callback(
+            [Output("slider1", "value"), Output("slider2", "value")],
+            [Input("button", "n_clicks")]
+        )
+        def update_slider_vals(n):
+            if not n:
+                raise PreventUpdate
+            return n, n
+    else:
+        @app.callback(Output("slider1", "value"), [Input("button", "n_clicks")])
+        def update_slider1_val(n):
+            if not n:
+                raise PreventUpdate
+            return n
+
+        @app.callback(Output("slider2", "value"), [Input("button", "n_clicks")])
+        def update_slider2_val(n):
+            if not n:
+                raise PreventUpdate
+            return n
+
+    @app.callback(Output("label1", "children"), [Input("slider1", "value")])
+    def update_slider1_label(val):
+        return "Slider1 value {}".format(val)
+
+    @app.callback(Output("label2", "children"), [Input("slider2", "value")])
+    def update_slider2_label(val):
+        return "Slider2 value {}".format(val)
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#label1", "")
+    dash_duo.wait_for_text_to_equal("#label2", "")
+
+    dash_duo.find_element("#button").click()
+    dash_duo.wait_for_text_to_equal("#label1", "Slider1 value 1")
+    dash_duo.wait_for_text_to_equal("#label2", "Slider2 value 1")
+
+    dash_duo.find_element("#button").click()
+    dash_duo.wait_for_text_to_equal("#label1", "Slider1 value 2")
+    dash_duo.wait_for_text_to_equal("#label2", "Slider2 value 2")
