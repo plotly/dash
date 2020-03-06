@@ -3,6 +3,7 @@ from multiprocessing import Value
 
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_table
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -72,3 +73,54 @@ def test_cbmt002_canceled_intermediate_callback(dash_duo):
         dash_duo.find_element("#a").send_keys(str(i))
         chars += str(i)
         dash_duo.wait_for_text_to_equal("#out", "{0}/b/{0}".format(chars))
+
+
+def test_cbmt003_chain_with_table(dash_duo):
+    # see https://github.com/plotly/dash/issues/1071
+    app = dash.Dash(__name__)
+    app.layout = html.Div([
+        html.Div(id="a1"),
+        html.Div(id="a2"),
+        html.Div(id="b1"),
+        html.H1(id="b2"),
+        html.Button("Update", id="button"),
+        dash_table.DataTable(id="table"),
+    ])
+
+    @app.callback(
+        # Changing the order of outputs here fixes the issue
+        [Output("a2", "children"), Output("a1", "children")],
+        [Input("button", "n_clicks")],
+    )
+    def a12(n):
+        return "a2: {!s}".format(n), "a1: {!s}".format(n)
+
+    @app.callback(Output("b1", "children"), [Input("a1", "children")])
+    def b1(a1):
+        return "b1: '{!s}'".format(a1)
+
+    @app.callback(
+        Output("b2", "children"),
+        [Input("a2", "children"), Input("table", "selected_cells")],
+    )
+    def b2(a2, selected_cells):
+        return "b2: '{!s}', {!s}".format(a2, selected_cells)
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#a1", "a1: None")
+    dash_duo.wait_for_text_to_equal("#a2", "a2: None")
+    dash_duo.wait_for_text_to_equal("#b1", "b1: 'a1: None'")
+    dash_duo.wait_for_text_to_equal("#b2", "b2: 'a2: None', None")
+
+    dash_duo.find_element("#button").click()
+    dash_duo.wait_for_text_to_equal("#a1", "a1: 1")
+    dash_duo.wait_for_text_to_equal("#a2", "a2: 1")
+    dash_duo.wait_for_text_to_equal("#b1", "b1: 'a1: 1'")
+    dash_duo.wait_for_text_to_equal("#b2", "b2: 'a2: 1', None")
+
+    dash_duo.find_element("#button").click()
+    dash_duo.wait_for_text_to_equal("#a1", "a1: 2")
+    dash_duo.wait_for_text_to_equal("#a2", "a2: 2")
+    dash_duo.wait_for_text_to_equal("#b1", "b1: 'a1: 2'")
+    dash_duo.wait_for_text_to_equal("#b2", "b2: 'a2: 2', None")
