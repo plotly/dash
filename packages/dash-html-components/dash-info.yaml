@@ -71,7 +71,7 @@ r_examples:
 
             app$layout(
               htmlDiv(list(
-                htmlAddress(children='5555 Avenue de Gasp\U{00E9}, Montr\U{00E9}al QC H2T 2A3')
+                htmlAddress(children='5555 Avenue de Gaspe, Montreal QC H2T 2A3')
                 )
               )
             )
@@ -133,7 +133,7 @@ r_examples:
                   htmlP('Dash is a user interface library for creating analytical web applications.\n
                          Those who use R for data analysis, data exploration, visualization,\n
                          modelling, instrument control, and reporting will find immediate use for Dash for R.'),
-                  htmlAside('Plotly is a technical computing company with offices in Montr\U{00E9}al, Canada and Cambridge, Massachusetts.')
+                  htmlAside('Plotly is a technical computing company with offices in Montreal, Canada and Cambridge, Massachusetts.')
                   )
                 )
                )
@@ -156,7 +156,7 @@ r_examples:
                   htmlP('Dash is a user interface library for creating analytical web applications.\n
                          Those who use R for data analysis, data exploration, visualization,\n
                          modelling, instrument control, and reporting will find immediate use for Dash for R.'),
-                  htmlAside('Plotly is a technical computing company with offices in Montr\U{00E9}al, Canada and Cambridge, Massachusetts.')
+                  htmlAside('Plotly is a technical computing company with offices in Montreal, Canada and Cambridge, Massachusetts.')
                   )
                 )
                )
@@ -215,7 +215,7 @@ r_examples:
                )
             )
 
-            app$run_server()      
+            app$run_server()
     - name: htmlBasefont
       dontrun: TRUE
       code: |
@@ -562,12 +562,12 @@ r_examples:
     - name: htmlCommand
       dontrun: TRUE
       code: |
-            # This component is deprecated and its use is no longer recommended. 
+            # This component is deprecated and its use is no longer recommended.
     - name: htmlContent
       dontrun: TRUE
       code: |
-            # This feature is obsolete and no longer supported. It is recommended 
-            # that you use the htmlSlot component instead. 
+            # This feature is obsolete and no longer supported. It is recommended
+            # that you use the htmlSlot component instead.
     - name: htmlData
       dontrun: TRUE
       code: |
@@ -586,10 +586,10 @@ r_examples:
                 )
               )
             )
-            
+
             # Include the following in a seperate CSS file in an
             # `assets` directory in the root of your app.
-            # 
+            #
             # data:hover::after {
             #   content: ' (ID ' attr(value) ')';
             #   font-size: .7em;
@@ -941,7 +941,7 @@ r_examples:
              )
             )
 
-            app$run_server()      
+            app$run_server()
     - name: htmlH1
       dontrun: TRUE
       code: |
@@ -1172,7 +1172,7 @@ r_examples:
     - name: htmlIsindex
       dontrun: TRUE
       code: |
-            # This component is deprecated and its use is no longer recommended. 
+            # This component is deprecated and its use is no longer recommended.
     - name: htmlKbd
       dontrun: TRUE
       code: |
@@ -1392,7 +1392,7 @@ r_examples:
               htmlDiv(list(
                 htmlP(list(
                   htmlMark("Plotly"),
-                  'develops online data analytics and visualization tools."
+                  " develops online data analytics and visualization tools."
                 ))
               ))
             )
@@ -1490,7 +1490,7 @@ r_examples:
     - name: htmlNextid
       dontrun: TRUE
       code: |
-            # This component is deprecated and its use is no longer recommended. 
+            # This component is deprecated and its use is no longer recommended.
             # The <nextid> tag has been obsolete since HTML Version 3.2.
     - name: htmlNobr
       dontrun: TRUE
@@ -1527,7 +1527,7 @@ r_examples:
       code: |
             # Note that htmlObjectEl generates the <object> HTML element;
             # for more information, please visit the link in this
-            # component's description.      
+            # component's description.
             library(dash)
             library(dashHtmlComponents)
 
@@ -1639,7 +1639,7 @@ r_examples:
               htmlDiv(list(
                 htmlP("The <param> element is used to specify the parameters that apply to
                 plugin-powered content embedded with an <object> element.
-                Read more: https://html.com/tags/param/#ixzz5vBNn4V00"),
+                Read more: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/param"),
                 htmlObjectEl(
                   #data = "link-to-data-file"
                   htmlParam(name = "controller", value = TRUE)
@@ -1756,11 +1756,18 @@ r_examples:
 
             app$layout(
               htmlDiv(list(
-                htmlRuby(
-                  htmlRb(
-                    "\U{65e5}"
-                  )
-                )
+                htmlRuby(list(
+                  "\U{6f22}",
+                  htmlRp("("),
+                  htmlRt("kan"),
+                  htmlRp(")")
+                )),
+                htmlRuby(list(
+                  "\U{5b57}",
+                  htmlRp("("),
+                  htmlRt("ji"),
+                  htmlRp(")")
+                ))
               ))
             )
 
@@ -1770,22 +1777,27 @@ r_examples:
       code: |
             library(dash)
             library(dashHtmlComponents)
-            library(dashCoreComponents)
 
             app <- Dash$new()
 
             app$layout(
               htmlDiv(list(
                 htmlRuby(list(
-                    "\U{6f22}",
-                    htmlRp("("),
-                    htmlRt("kan"),
-                    htmlRp(")")
-                ))
-              ))
-            )
+                  "\U{6f22}",
+                  htmlRp("("),
+                  htmlRt("kan"),
+                  htmlRp(")")
+                )),  
+                htmlRuby(list(
+                  "\U{5b57}",
+                  htmlRp("("),
+                  htmlRt("ji"),
+                  htmlRp(")")
+                ))   
+              ))   
+            )    
 
-            app$run_server()
+            app$run_server()    
     - name: htmlRt
       dontrun: TRUE
       code: |
@@ -1797,11 +1809,19 @@ r_examples:
             app$layout(
               htmlDiv(list(
                 htmlRuby(list(
+                  "\U{6f22}",
+                  htmlRp("("),
+                  htmlRt("kan"),
+                  htmlRp(")")
+                )),  
+                htmlRuby(list(
                   "\U{5b57}",
-                  htmlRt("ji")
-                ))
-              ))
-            )
+                  htmlRp("("),
+                  htmlRt("ji"),
+                  htmlRp(")")
+                ))   
+              ))   
+            )    
 
             app$run_server()
     - name: htmlRtc
@@ -1848,7 +1868,8 @@ r_examples:
             app$layout(
               htmlDiv(list(
                 htmlS("htmlS  generates strikethrough text"),
-                htmlP("htmlB  generates bold text")
+                htmlP(),
+                htmlB("htmlB  generates bold text")
               ))
             )
 
@@ -1925,7 +1946,7 @@ r_examples:
             # with caution; it is now considered an obsolete element
             # within the Web Components suite. It is retained here
             # solely for backwards compatibility reasons.
-            # 
+            #
             # For more information, please see the MDN link above.
     - name: htmlSlot
       dontrun: TRUE
@@ -2108,7 +2129,7 @@ r_examples:
 
             app$layout(
               htmlDiv(list(
-                "You can create an Table with HtmlTable",
+                "You can create a table with htmlTable:",
                 htmlBr(),
                 htmlTable(
                   list(
@@ -2366,7 +2387,7 @@ r_examples:
                   list(
                     "It might be useful to wrap dates like ",
                     htmlTime(dateTime = "2019-07-29", children = "July 29th"),
-                    'in an htmlTime to make your datetimes machine readable"
+                    " in an htmlTime to make your datetime strings machine-readable."
                   )
                 )
                 )
@@ -2380,8 +2401,8 @@ r_examples:
             # This component's effects will be overridden by the index
             # template in Dash for R. We suggest using Dash's API to
             # set the page title instead:
-            # 
-            # app <- Dash$new(name = 'My page title')
+            #
+            # app$title('My page title')
     - name: htmlTr
       dontrun: TRUE
       code: |

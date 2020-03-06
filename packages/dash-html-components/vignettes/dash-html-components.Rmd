@@ -1,6 +1,8 @@
 ---
 title: "Dash HTML Components"
-output: rmarkdown::html_vignette
+output:
+  html_document: 
+    highlight: tango
 vignette: >
   %\VignetteIndexEntry{Dash HTML Components}
   %\VignetteEngine{knitr::knitr}
@@ -30,12 +32,12 @@ htmlDiv(list(
 
 which gets converted (behind the scenes) into the following HTML in your web application:
 
-```html
+```
 <div>
     <h1>Hello Dash</h1>
     <div>
         <p>Dash converts Python classes into HTML</p>
-        <p>This conversion happens behind the scenes by Dash's JavaScript front-end</p>
+        <p>This conversion happens behind the scenes by the JavaScript front-end</p>
     </div>
 </div>
 ```
@@ -44,10 +46,12 @@ If you're not comfortable with HTML, don't worry! You can get 95% of the way the
 
 ```r
 library(dashHtmlComponents)
+library(dashCoreComponents)
 library(dash)
 dccMarkdown('''
 #### Dash and Markdown
 Dash supports [Markdown](https://daringfireball.net/projects/markdown/).
+
 Markdown is a simple way to write and format text.
 It includes a syntax for things like **bold text** and *italics*,
 [links](https://daringfireball.net/projects/markdown/), inline `code` snippets, lists,
@@ -82,7 +86,7 @@ htmlDiv(list(
 
 That Dash code will render this HTML markup:
 
-```html
+```
 <div style="margin-bottom: 50px; margin-top: 25px;">
 
    <div style="color: blue; font-size: 14px">
