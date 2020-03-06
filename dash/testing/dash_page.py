@@ -27,7 +27,10 @@ class DashPageMixin(object):
     @property
     def redux_state_paths(self):
         return self.driver.execute_script(
-            "return window.store.getState().paths"
+            """
+            var p = window.store.getState().paths;
+            return {strs: p.strs, objs: p.objs}
+            """
         )
 
     @property

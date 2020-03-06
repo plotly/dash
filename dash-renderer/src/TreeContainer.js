@@ -80,11 +80,7 @@ function CheckedComponent(p) {
         propTypeErrorHandler(errorMessage, props, type);
     }
 
-    return React.createElement(
-        element,
-        mergeRight(props, extraProps),
-        ...(Array.isArray(children) ? children : [children])
-    );
+    return createElement(element, props, extraProps, children);
 }
 
 CheckedComponent.propTypes = {
@@ -95,6 +91,15 @@ CheckedComponent.propTypes = {
     extraProps: PropTypes.any,
     id: PropTypes.string,
 };
+
+function createElement(element, props, extraProps, children) {
+    const allProps = mergeRight(props, extraProps);
+    if (Array.isArray(children)) {
+        return React.createElement(element, allProps, ...children);
+    }
+    return React.createElement(element, allProps, children);
+}
+
 class TreeContainer extends Component {
     constructor(props) {
         super(props);
@@ -188,6 +193,7 @@ class TreeContainer extends Component {
             // just the id we pass on to the rendered component
             props.id = stringifyId(props.id);
         }
+        const extraProps = {loading_state, setProps};
 
         return (
             <ComponentErrorBoundary
@@ -200,15 +206,11 @@ class TreeContainer extends Component {
                         children={children}
                         element={element}
                         props={props}
-                        extraProps={{loading_state, setProps}}
+                        extraProps={extraProps}
                         type={_dashprivate_layout.type}
                     />
                 ) : (
-                    React.createElement(
-                        element,
-                        mergeRight(props, {loading_state, setProps}),
-                        ...(Array.isArray(children) ? children : [children])
-                    )
+                    createElement(element, props, extraProps, children)
                 )}
             </ComponentErrorBoundary>
         );

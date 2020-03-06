@@ -43,3 +43,37 @@ export const crawlLayout = (object, func, currentPath = []) => {
         }
     }
 };
+
+// There are packages for this but it's simple enough, I just
+// adapted it from https://gist.github.com/mudge/5830382
+export class EventEmitter {
+    constructor() {
+        this._ev = {};
+    }
+    on(event, listener) {
+        const events = (this._ev[event] = this._ev[event] || []);
+        events.push(listener);
+        return () => this.removeListener(event, listener);
+    }
+    removeListener(event, listener) {
+        const events = this._ev[event];
+        if (events) {
+            const idx = events.indexOf(listener);
+            if (idx > -1) {
+                events.splice(idx, 1);
+            }
+        }
+    }
+    emit(event, ...args) {
+        const events = this._ev[event];
+        if (events) {
+            events.forEach(listener => listener.apply(this, args));
+        }
+    }
+    once(event, listener) {
+        const remove = this.on(event, (...args) => {
+            remove();
+            listener.apply(this, args);
+        });
+    }
+}

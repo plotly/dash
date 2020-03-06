@@ -8,6 +8,7 @@ import {hydrateInitialOutputs, setGraphs, setPaths, setLayout} from './actions';
 import {computePaths} from './actions/paths';
 import {computeGraphs} from './actions/dependencies';
 import apiThunk from './actions/api';
+import {EventEmitter} from './actions/utils';
 import {applyPersistence} from './persistence';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
@@ -19,16 +20,27 @@ class UnconnectedContainer extends Component {
     constructor(props) {
         super(props);
         this.initialization = this.initialization.bind(this);
+        this.emitReady = this.emitReady.bind(this);
         this.state = {
             errorLoading: false,
         };
+
+        // Event emitter to communicate when the DOM is ready
+        this.events = new EventEmitter();
+        // Flag to determine if we've really updated the dash components
+        this.renderedTree = false;
     }
     componentDidMount() {
         this.initialization(this.props);
+        this.emitReady();
     }
 
     componentWillReceiveProps(props) {
         this.initialization(props);
+    }
+
+    componentDidUpdate() {
+        this.emitReady();
     }
 
     initialization(props) {
@@ -49,7 +61,9 @@ class UnconnectedContainer extends Component {
                     layoutRequest.content,
                     dispatch
                 );
-                dispatch(setPaths(computePaths(finalLayout, [])));
+                dispatch(
+                    setPaths(computePaths(finalLayout, [], null, this.events))
+                );
                 dispatch(setLayout(finalLayout));
             }
         }
@@ -88,6 +102,13 @@ class UnconnectedContainer extends Component {
         }
     }
 
+    emitReady() {
+        if (this.renderedTree) {
+            this.renderedTree = false;
+            this.events.emit('rendered');
+        }
+    }
+
     render() {
         const {
             appLifecycle,
@@ -113,18 +134,18 @@ class UnconnectedContainer extends Component {
                 <div className="_dash-error">Error loading dependencies</div>
             );
         } else if (appLifecycle === getAppState('HYDRATED')) {
-            return config.ui === true ? (
-                <GlobalErrorContainer>
-                    <TreeContainer
-                        _dashprivate_layout={layout}
-                        _dashprivate_path={[]}
-                    />
-                </GlobalErrorContainer>
-            ) : (
+            this.renderedTree = true;
+
+            const tree = (
                 <TreeContainer
                     _dashprivate_layout={layout}
                     _dashprivate_path={[]}
                 />
+            );
+            return config.ui === true ? (
+                <GlobalErrorContainer>{tree}</GlobalErrorContainer>
+            ) : (
+                tree
             );
         }
 

@@ -1,4 +1,5 @@
 import isAppReady from "../src/actions/isAppReady";
+import {EventEmitter} from "../src/actions/utils";
 
 const WAIT = 1000;
 
@@ -15,11 +16,13 @@ describe('isAppReady', () => {
         };
     });
 
+    const emitter = new EventEmitter();
+
     it('executes if app is ready', async () => {
         let done = false;
         Promise.resolve(isAppReady(
             [{ namespace: '__components', type: 'b', props: { id: 'comp1' } }],
-            { strs: { comp1: [0] }, objs: {} },
+            { strs: { comp1: [0] }, objs: {}, events: emitter },
             ['comp1']
         )).then(() => {
             done = true
@@ -33,7 +36,7 @@ describe('isAppReady', () => {
         let done = false;
         Promise.resolve(isAppReady(
             [{ namespace: '__components', type: 'a', props: { id: 'comp1' } }],
-            { strs: { comp1: [0] }, objs: {} },
+            { strs: { comp1: [0] }, objs: {}, events: emitter },
             ['comp1']
         )).then(() => {
             done = true

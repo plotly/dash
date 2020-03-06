@@ -177,47 +177,63 @@ def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-@pytest.mark.skip(reason="https://github.com/plotly/dash/issues/1105")
 def test_cbsc004_callback_using_unloaded_async_component(dash_duo):
     app = dash.Dash()
-    app.layout = html.Div(
-        children=[
-            dcc.Tabs(
-                children=[
-                    dcc.Tab(
-                        children=[
-                            html.Button(id="btn", children="Update Input"),
-                            html.Div(id="output", children=["Hello"]),
-                        ]
-                    ),
-                    dcc.Tab(
-                        children=dash_table.DataTable(
-                            id="other-table",
-                            columns=[{"id": "a", "name": "A"}],
-                            data=[{"a": "b"}]
-                        )
-                    ),
-                ]
-            )
-        ]
-    )
+    app.layout = html.Div([
+        dcc.Tabs([
+            dcc.Tab("boo!"),
+            dcc.Tab(
+                dash_table.DataTable(
+                    id="table",
+                    columns=[{"id": "a", "name": "A"}],
+                    data=[{"a": "b"}]
+                )
+            ),
+        ]),
+        html.Button("Update Input", id="btn"),
+        html.Div("Hello", id="output"),
+        html.Div(id="output2")
+    ])
 
     @app.callback(
         Output("output", "children"),
         [Input("btn", "n_clicks")],
-        [State("other-table", "data")]
+        [State("table", "data")]
     )
     def update_out(n_clicks, data):
-        if n_clicks is None:
-            return len(data)
+        return json.dumps(data) + ' - ' + str(n_clicks)
 
+    @app.callback(
+        Output("output2", "children"),
+        [Input("btn", "n_clicks")],
+        [State("table", "derived_viewport_data")]
+    )
+    def update_out2(n_clicks, data):
         return json.dumps(data) + ' - ' + str(n_clicks)
 
     dash_duo.start_server(app)
 
     dash_duo.wait_for_text_to_equal("#output", '[{"a": "b"}] - None')
+    dash_duo.wait_for_text_to_equal("#output2", 'null - None')
+
     dash_duo.find_element("#btn").click()
     dash_duo.wait_for_text_to_equal("#output", '[{"a": "b"}] - 1')
+    dash_duo.wait_for_text_to_equal("#output2", 'null - 1')
+
+    dash_duo.find_element(".tab:not(.tab--selected)").click()
+    dash_duo.wait_for_text_to_equal("#table th", "A")
+    # table props are in state so no change yet
+    dash_duo.wait_for_text_to_equal("#output2", 'null - 1')
+
+    # repeat a few times, since one of the failure modes I saw during dev was
+    # intermittent - but predictably so?
+    for i in range(2, 10):
+        expected = '[{"a": "b"}] - ' + str(i)
+        dash_duo.find_element("#btn").click()
+        dash_duo.wait_for_text_to_equal("#output", expected)
+        # now derived props are available
+        dash_duo.wait_for_text_to_equal("#output2", expected)
+
     assert dash_duo.get_logs() == []
 
 
