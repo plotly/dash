@@ -186,3 +186,43 @@ def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
     dash_duo.find_element("#button").click()
     dash_duo.wait_for_text_to_equal("#label1", "Slider1 value 2")
     dash_duo.wait_for_text_to_equal("#label2", "Slider2 value 2")
+
+
+def test_cbmt005_multi_converging_chain(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div([
+        html.Button("Button 1", id="b1"),
+        html.Button("Button 2", id="b2"),
+        dcc.Slider(id="slider1", min=-5, max=5),
+        dcc.Slider(id="slider2", min=-5, max=5),
+        html.Div(id="out")
+    ])
+
+    @app.callback(
+        [Output("slider1", "value"), Output("slider2", "value")],
+        [Input("b1", "n_clicks"), Input("b2", "n_clicks")]
+    )
+    def update_sliders(button1, button2):
+        if not dash.callback_context.triggered:
+            raise PreventUpdate
+
+        if dash.callback_context.triggered[0]["prop_id"] == "b1.n_clicks":
+            return -1, -1
+        else:
+            return 1, 1
+
+    @app.callback(
+        Output("out", "children"),
+        [Input("slider1", "value"), Input("slider2", "value")]
+    )
+    def update_graph(s1, s2):
+        return "x={}, y={}".format(s1, s2)
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#out", "")
+
+    dash_duo.find_element("#b1").click()
+    dash_duo.wait_for_text_to_equal("#out", "x=-1, y=-1")
+
+    dash_duo.find_element("#b2").click()
+    dash_duo.wait_for_text_to_equal("#out", "x=1, y=1")
