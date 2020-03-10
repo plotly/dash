@@ -13,16 +13,10 @@ jobs:
             - run:
                 name: Install npm packages
                 command: npm ci
-            - run:
-                name: Cypress Install
-                command: |
-                    $(npm bin)/cypress install
-
             - save_cache:
                 key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
                 paths:
                     - node_modules
-                    - /home/circleci/.cache/Cypress
 
             - run:
                 name: Install requirements
