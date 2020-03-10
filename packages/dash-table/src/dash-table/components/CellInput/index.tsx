@@ -97,7 +97,7 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
         this.propagateChange();
     }
 
-    componentWillReceiveProps(nextProps: ICellProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: ICellProps) {
         const { value: nextValue } = nextProps;
 
         if (this.state.value !== nextValue) {

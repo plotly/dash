@@ -41,7 +41,7 @@ export default class Tooltip extends PureComponent<ITooltipProps, ITooltipState>
         };
     }
 
-    componentWillReceiveProps(nextProps: ITooltipProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: ITooltipProps) {
         const { delay, duration } = nextProps.tooltip;
 
         if (isEqual(

@@ -1,14 +1,11 @@
 import dash
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
-import dash_core_components as dcc
-import dash_html_components as html
 from dash_table import DataTable
 
 import pytest
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 
 import math
 import pandas as pd
@@ -148,8 +145,6 @@ def test_tpag006_ops_input_invalid_with_enter(test, value, expected_value):
 
     target = test.table("table")
 
-    text00 = target.cell(0, 0).get_text()
-
     assert target.paging.current.get_value() == "1"
 
     target.paging.current.click()
@@ -165,8 +160,6 @@ def test_tpag007_ops_input_invalid_with_unfocus(test, value, expected_value):
     test.start_server(get_app("native"))
 
     target = test.table("table")
-
-    text00 = target.cell(0, 0).get_text()
 
     assert target.paging.current.get_value() == "1"
 

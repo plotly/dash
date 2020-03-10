@@ -204,9 +204,9 @@ def test_rapp001_df_backend_paging(dash_duo):
 
     @app.callback(
         Output(IDS["table"], "data"),
-        [Input(IDS["table"], "page_current"), Input(IDS["table"], "page_size"),],
+        [Input(IDS["table"], "page_current"), Input(IDS["table"], "page_size")],
     )
-    def update_graph(page_current, page_size):
+    def update_data(page_current, page_size):
         return df.iloc[
             page_current * page_size : (page_current + 1) * page_size
         ].to_dict("rows")
@@ -243,7 +243,7 @@ def test_rapp001_df_backend_paging(dash_duo):
             Input(IDS["table-multi-sorting"], "sort_by"),
         ],
     )
-    def update_graph(page_current, page_size, sort_by):
+    def update_multi_data(page_current, page_size, sort_by):
         # print(sort_by)
         if len(sort_by):
             dff = df.sort_values(
@@ -267,7 +267,7 @@ def test_rapp001_df_backend_paging(dash_duo):
             Input(IDS["table-filtering"], "filter_query"),
         ],
     )
-    def update_graph(page_current, page_size, filter_query):
+    def updat_filtering_data(page_current, page_size, filter_query):
         # print(filter_query)
         filtering_expressions = filter_query.split(" && ")
         dff = df
@@ -298,7 +298,7 @@ def test_rapp001_df_backend_paging(dash_duo):
             Input(IDS["table-sorting-filtering"], "filter_query"),
         ],
     )
-    def update_graph(page_current, page_size, sort_by, filter_query):
+    def update_sorting_filtering_data(page_current, page_size, sort_by, filter_query):
         filtering_expressions = filter_query.split(" && ")
         dff = df
         for filter_query in filtering_expressions:
@@ -367,7 +367,7 @@ def test_rapp001_df_backend_paging(dash_duo):
         Output(IDS["table-paging-with-graph-container"], "children"),
         [Input(IDS["table-paging-with-graph"], "data")],
     )
-    def update_graph(rows):
+    def update_children(rows):
         dff = pd.DataFrame(rows)
         return html.Div(
             [

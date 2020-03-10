@@ -10,6 +10,7 @@ import dash_table
 
 ID_PREFIX = "app_data_updating_graph"
 IDS = {"table": ID_PREFIX, "container": "{}-container".format(ID_PREFIX)}
+_TIMEOUT = 10
 
 
 def test_rapp002_df_graph(dash_duo):
@@ -149,4 +150,7 @@ def test_rapp002_df_graph(dash_duo):
 
     dash_duo.start_server(app)
     dash_duo.wait_for_element("#waitfor")
+
+    dash_duo.wait_for_element("#{}".format(IDS["table"]))
+
     dash_duo.percy_snapshot("rapp002 - loaded")

@@ -49,7 +49,7 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
         };
     }
 
-    componentWillReceiveProps(nextProps: SanitizedAndDerivedProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: SanitizedAndDerivedProps) {
         this.setState(state => {
             const { applyFocus: currentApplyFocus, workFilter: { map: currentMap, value } } = state;
 

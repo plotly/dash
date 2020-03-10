@@ -22,7 +22,7 @@ def get_app():
         id="table",
         data=df[0:250],
         columns=[
-            {"id": "Complaint ID", "name": "Complaint ID", "presentation": "markdown",},
+            {"id": "Complaint ID", "name": "Complaint ID", "presentation": "markdown"},
             {"id": "Product", "name": "Product", "presentation": "markdown"},
             {"id": "Sub-product", "name": "Sub-product"},
             {"id": "Issue", "name": "Issue", "presentation": "markdown"},

@@ -223,16 +223,16 @@ class FormatTest(unittest.TestCase):
     def test_valid_decimal_delimiter(self):
         Format().decimal_delimiter("x")
 
-    def test_valid_decimal_delimiter(self):
+    def test_valid_decimal_delimiter_multi_char(self):
         self.assertRaises(ValueError, Format().decimal_delimiter, "xyz")
 
     def test_invalid_decimal_delimiter(self):
         self.assertRaises(TypeError, Format().decimal_delimiter, 7)
 
-    def test_valid_group_delimiator(self):
+    def test_valid_group_delimitator(self):
         Format().group_delimiter("y")
 
-    def test_valid_group_delimiator(self):
+    def test_valid_group_delimitator_multi_char(self):
         self.assertRaises(ValueError, Format().group_delimiter, "xyz")
 
     def test_invalid_group_delimiter(self):

@@ -115,6 +115,12 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     }
 
     componentDidMount() {
+        // Fallback method for paste handling in Chrome
+        // when no input element has focused inside the table
+        window.addEventListener('resize', this.forceHandleResize);
+        document.addEventListener('mousedown', this.handleClick);
+        document.addEventListener('paste', this.handlePaste);
+
         const {
             active_cell,
             selected_cells,
@@ -132,25 +138,14 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         this.handleResize();
     }
 
-    componentWillMount() {
-        // Fallback method for paste handling in Chrome
-        // when no input element has focused inside the table
-        window.addEventListener('resize', this.forceHandleResize);
-        document.addEventListener('mousedown', this.handleClick);
-        document.addEventListener('paste', this.handlePaste);
-    }
-
     componentWillUnmount() {
         window.removeEventListener('resize', this.forceHandleResize);
         document.removeEventListener('mousedown', this.handleClick);
         document.removeEventListener('paste', this.handlePaste);
     }
 
-    componentWillUpdate() {
-        this.updateStylesheet();
-    }
-
     componentDidUpdate() {
+        this.updateStylesheet();
         this.applyStyle();
         this.handleResize();
         this.handleDropdown();

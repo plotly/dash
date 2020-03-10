@@ -40,7 +40,7 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
         return this.props as PropsWithDefaults;
     }
 
-    componentWillReceiveProps(nextProps: IProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: IProps) {
         const { value } = this.props;
         const { value: nextValue } = nextProps;
 
