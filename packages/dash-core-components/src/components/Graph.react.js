@@ -42,7 +42,7 @@ class PlotlyGraph extends Component {
         });
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         let extendData = this.state.extendData.slice(0);
 
         if (this.props.figure !== nextProps.figure) {

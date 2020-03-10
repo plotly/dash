@@ -35,11 +35,11 @@ export default class DatePickerRange extends Component {
         }
     }
 
-    componentWillReceiveProps(newProps) {
+    UNSAFE_componentWillReceiveProps(newProps) {
         this.propsToState(newProps);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.propsToState(this.props, true);
     }
 

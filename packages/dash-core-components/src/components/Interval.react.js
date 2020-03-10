@@ -62,7 +62,7 @@ export default class Interval extends Component {
         this.handleTimer(this.props);
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.interval !== this.props.interval) {
             this.resetTimer(nextProps);
         } else {

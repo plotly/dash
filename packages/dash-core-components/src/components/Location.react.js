@@ -106,7 +106,7 @@ export default class Location extends Component {
         this.updateLocation(this.props);
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         this.updateLocation(nextProps);
     }
 

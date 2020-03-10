@@ -32,7 +32,7 @@ export default class Dropdown extends Component {
         };
     }
 
-    componentWillReceiveProps(newProps) {
+    UNSAFE_componentWillReceiveProps(newProps) {
         if (newProps.options !== this.props.options) {
             this.setState({
                 filterOptions: createFilterOptions({

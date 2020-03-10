@@ -26,7 +26,7 @@ export default class RangeSlider extends Component {
         }
     }
 
-    componentWillReceiveProps(newProps) {
+    UNSAFE_componentWillReceiveProps(newProps) {
         if (newProps.tooltip !== this.props.tooltip) {
             this.DashSlider = newProps.tooltip
                 ? createSliderWithTooltip(Range)
@@ -35,7 +35,7 @@ export default class RangeSlider extends Component {
         this.propsToState(newProps);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.propsToState(this.props);
     }
 

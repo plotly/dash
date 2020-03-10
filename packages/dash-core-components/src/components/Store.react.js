@@ -143,7 +143,7 @@ export default class Store extends React.Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const {setProps, id, data, storage_type} = this.props;
         if (storage_type !== 'memory') {
             window.addEventListener('storage', this.onStorageChange);

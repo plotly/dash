@@ -30,7 +30,7 @@ export default class Input extends PureComponent {
         this.setPropValue = this.setPropValue.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         const {value} = this.input.current;
         const valueAsNumber = convert(value);
         this.setInputValue(
@@ -51,7 +51,7 @@ export default class Input extends PureComponent {
         );
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         if (this.props.type !== 'number') {
             this.setState({value: this.props.value});
         }

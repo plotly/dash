@@ -29,7 +29,7 @@ export default class Slider extends Component {
         }
     }
 
-    componentWillReceiveProps(newProps) {
+    UNSAFE_componentWillReceiveProps(newProps) {
         if (newProps.tooltip !== this.props.tooltip) {
             this.DashSlider = newProps.tooltip
                 ? createSliderWithTooltip(ReactSlider)
@@ -38,7 +38,7 @@ export default class Slider extends Component {
         this.propsToState(newProps);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.propsToState(this.props);
     }
 
