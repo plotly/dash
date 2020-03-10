@@ -75,10 +75,9 @@ export const storePrefix = '_dash_persistence.';
 function err(e) {
     const error = typeof e === 'string' ? new Error(e) : e;
 
-    /* eslint-disable no-console */
     // Send this to the console too, so it's still available with debug off
+    /* eslint-disable-next-line no-console */
     console.error(e);
-    /* eslint-disable no-console */
 
     return createAction('ON_ERROR')({
         myID: storePrefix,

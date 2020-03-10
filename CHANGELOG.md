@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Changed
+- [#1145](https://github.com/plotly/dash/pull/1145) Update from React 16.8.6 to 16.13.0
+
 ## [1.9.1] - 2020-02-27
 ### Added
 - [#1133](github.com/plotly/dash/pull/1133) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE

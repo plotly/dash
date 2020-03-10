@@ -1,5 +1,3 @@
-/* global module, require */
-
 import {createStore, applyMiddleware} from 'redux';
 import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
@@ -34,7 +32,7 @@ const initializeStore = reset => {
 
     if (!reset) {
         // TODO - Protect this under a debug mode?
-        window.store = store; /* global window:true */
+        window.store = store;
     }
 
     if (module.hot) {
