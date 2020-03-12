@@ -5,7 +5,7 @@
     "private::format.black": "black dash tests",
     "private::format.renderer": "cd dash-renderer && npm run format",
     "private::initialize.renderer": "cd dash-renderer && npm ci",
-    "private::lint.black": "black dash tests --check",
+    "private::lint.black": "if [[ $PYLINTRC != '.pylintrc' ]]; then black dash tests --check; fi",
     "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
     "private::lint.renderer": "cd dash-renderer && npm run lint",
     "format": "run-s private::format.*",
