@@ -8,7 +8,7 @@
     "private::lint.black": "if [[ $PYLINTRC != '.pylintrc' ]]; then black dash tests --exclude metadata_test.py --check; fi",
     "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests --exclude metadata_test.py",
     "private::lint.pylint-dash": "PYLINTRC=${PYLINTRC:=.pylintrc37} && pylint dash setup.py --rcfile=$PYLINTRC",
-    "private::lint.pylint-tests": "PYLINTRC=${PYLINTRC:=.pylintrc37} && pylint tests/unit tests/integration -d all --rcfile=$PYLINTRC -e C0410,C0411,C0412,C0413,W0109",
+    "private::lint.pylint-tests": "pylint tests/unit tests/integration -d all -e C0410,C0411,C0412,C0413,W0109",
     "private::lint.renderer": "cd dash-renderer && npm run lint",
     "format": "run-s private::format.*",
     "initialize": "run-s private::initialize.*",
