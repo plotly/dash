@@ -1,7 +1,20 @@
 {
   "private": true,
   "license": "UNLICENSED",
+  "scripts": {
+    "private::format.renderer": "cd dash-renderer && npm run format",
+    "private::initialize.renderer": "cd dash-renderer && npm ci",
+    "private::lint.flake8-dash": "echo 'Skipping: flake8 dash setup.py'",
+    "private::lint.flake8-tests": "echo 'Skipping: flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests'",
+    "private::lint.pylint-dash": "PYLINTRC=${PYLINTRC:=.pylintrc37} echo $PYLINTRC pylint dash setup.py --rcfile=$PYLINTRC",
+    "private::lint.pylint-tests": "pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109",
+    "private::lint.renderer": "cd dash-renderer && npm run lint",
+    "format": "run-s private::format.*",
+    "initialize": "run-s private::initialize.*",
+    "lint": "run-s private::lint.*"
+  },
   "devDependencies": {
-    "husky": "^4.2.3"
+    "husky": "^4.2.3",
+    "npm-run-all": "^4.1.5"
   }
 }

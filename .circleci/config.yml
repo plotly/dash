@@ -53,11 +53,8 @@ jobs:
             . venv/bin/activate
             set -eo pipefail
             pip install -e . --progress-bar off && pip list | grep dash
-            flake8 dash setup.py && flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
-            pylint dash setup.py --rcfile=$PYLINTRC
-            pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
-            cd dash-renderer && npm ci
-            npm run lint:test && npm run format:test
+            npm ci && npm run initialize
+            npm run lint
       - run:
           name: 🐍 Python Unit Tests
           command: |
