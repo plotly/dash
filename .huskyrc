@@ -1,6 +1,5 @@
 {
   "hooks": {
-    "pre-commit": "cd dash-renderer && npm run lint:test && npm run format:test && cd .. && pylint dash setup.py --rcfile=.pylintrc37 && pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109",
-    "post-checkout": "npm ci"
+    "pre-commit": "cd dash-renderer && npm run lint:test && npm run format:test && cd .. && pylint dash setup.py --rcfile=.pylintrc37 && pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109"
   }
 }
