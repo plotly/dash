@@ -8,9 +8,7 @@ from dash.dependencies import Input, Output
 
 def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
     app = dash.Dash(__name__)
-    app.layout = html.Div(
-        [html.Button(id="input", n_clicks=0), html.Div(id="output")]
-    )
+    app.layout = html.Div([html.Button(id="input", n_clicks=0), html.Div(id="output")])
 
     call_count = Value("i", 0)
 
@@ -27,9 +25,7 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
     time.sleep(3)
 
     assert call_count.value == 4, "get called 4 times"
-    assert (
-        dash_duo.find_element("#output").text == "3"
-    ), "clicked button 3 times"
+    assert dash_duo.find_element("#output").text == "3", "clicked button 3 times"
 
     rqs = dash_duo.redux_state_rqs
     assert len(rqs) == 1 and not rqs[0]["rejected"]

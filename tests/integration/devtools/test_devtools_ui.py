@@ -23,17 +23,13 @@ def test_dvui001_disable_props_check_config(dash_duo):
     )
 
     dash_duo.wait_for_text_to_equal("#tcid", "Hello Props Check")
-    assert dash_duo.find_elements(
-        "#broken svg.main-svg"
-    ), "graph should be rendered"
+    assert dash_duo.find_elements("#broken svg.main-svg"), "graph should be rendered"
 
     assert dash_duo.find_elements(
         ".dash-debug-menu"
     ), "the debug menu icon should show up"
 
-    dash_duo.percy_snapshot(
-        "devtools - disable props check - Graph should render"
-    )
+    dash_duo.percy_snapshot("devtools - disable props check - Graph should render")
 
 
 def test_dvui002_disable_ui_config(dash_duo):
