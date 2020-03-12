@@ -213,9 +213,6 @@ export function computeGraphs(dependencies) {
     parsedDependencies.forEach(dependency => {
         const {outputs, inputs} = dependency;
 
-        // TODO: what was this (and exactChange) about???
-        // const depWildcardExact = {};
-
         outputs.concat(inputs).forEach(item => {
             const {id} = item;
             if (typeof id === 'object') {
@@ -223,7 +220,6 @@ export function computeGraphs(dependencies) {
                     if (!wildcardPlaceholders[key]) {
                         wildcardPlaceholders[key] = {
                             exact: [],
-                            // exactChange: false,
                             expand: 0,
                         };
                     }
@@ -234,14 +230,6 @@ export function computeGraphs(dependencies) {
                         }
                     } else if (keyPlaceholders.exact.indexOf(val) === -1) {
                         keyPlaceholders.exact.push(val);
-                        // if (depWildcardExact[key]) {
-                        //     if (depWildcardExact[key] !== val) {
-                        //         keyPlaceholders.exactChange = true;
-                        //     }
-                        // }
-                        // else {
-                        //     depWildcardExact[key] = val;
-                        // }
                     }
                 }, id);
             }
