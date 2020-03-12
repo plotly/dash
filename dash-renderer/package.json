@@ -14,8 +14,7 @@
     "build": "renderer build",
     "postbuild": "es-check es5 dash_renderer/*.js",
     "start": "webpack-serve ./webpack.serve.config.js",
-    "test": "npm run lint",
-    "test:js": "jest",
+    "test": "jest",
     "format": "run-s private::format.*",
     "lint": "run-s private::lint.*"
   },
