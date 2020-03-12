@@ -52,7 +52,7 @@ jobs:
             . venv/bin/activate
             set -eo pipefail
             pip install -e . --progress-bar off && pip list | grep dash
-            npm ci && npm run initialize
+            npm install --production && npm run initialize
             npm run lint
       - run:
           name: 🐍 Python Unit Tests
