@@ -44,90 +44,22 @@ Those keys have the following types:
 - aria-* (string; optional)
 - in (string; optional)
 - id (string; optional)"""
-
     @_explicitize_args
-    def __init__(
-        self,
-        children=None,
-        optionalArray=Component.UNDEFINED,
-        optionalBool=Component.UNDEFINED,
-        optionalFunc=Component.UNDEFINED,
-        optionalNumber=Component.UNDEFINED,
-        optionalObject=Component.UNDEFINED,
-        optionalString=Component.UNDEFINED,
-        optionalSymbol=Component.UNDEFINED,
-        optionalNode=Component.UNDEFINED,
-        optionalElement=Component.UNDEFINED,
-        optionalMessage=Component.UNDEFINED,
-        optionalEnum=Component.UNDEFINED,
-        optionalUnion=Component.UNDEFINED,
-        optionalArrayOf=Component.UNDEFINED,
-        optionalObjectOf=Component.UNDEFINED,
-        optionalObjectWithExactAndNestedDescription=Component.UNDEFINED,
-        optionalObjectWithShapeAndNestedDescription=Component.UNDEFINED,
-        optionalAny=Component.UNDEFINED,
-        customProp=Component.UNDEFINED,
-        customArrayProp=Component.UNDEFINED,
-        id=Component.UNDEFINED,
-        **kwargs
-    ):
-        self._prop_names = [
-            "children",
-            "optionalArray",
-            "optionalBool",
-            "optionalNumber",
-            "optionalObject",
-            "optionalString",
-            "optionalNode",
-            "optionalElement",
-            "optionalEnum",
-            "optionalUnion",
-            "optionalArrayOf",
-            "optionalObjectOf",
-            "optionalObjectWithExactAndNestedDescription",
-            "optionalObjectWithShapeAndNestedDescription",
-            "optionalAny",
-            "customProp",
-            "customArrayProp",
-            "data-*",
-            "aria-*",
-            "in",
-            "id",
-        ]
-        self._type = "Table"
-        self._namespace = "TableComponents"
-        self._valid_wildcard_attributes = ["data-", "aria-"]
-        self.available_properties = [
-            "children",
-            "optionalArray",
-            "optionalBool",
-            "optionalNumber",
-            "optionalObject",
-            "optionalString",
-            "optionalNode",
-            "optionalElement",
-            "optionalEnum",
-            "optionalUnion",
-            "optionalArrayOf",
-            "optionalObjectOf",
-            "optionalObjectWithExactAndNestedDescription",
-            "optionalObjectWithShapeAndNestedDescription",
-            "optionalAny",
-            "customProp",
-            "customArrayProp",
-            "data-*",
-            "aria-*",
-            "in",
-            "id",
-        ]
-        self.available_wildcard_properties = ["data-", "aria-"]
+    def __init__(self, children=None, optionalArray=Component.UNDEFINED, optionalBool=Component.UNDEFINED, optionalFunc=Component.UNDEFINED, optionalNumber=Component.UNDEFINED, optionalObject=Component.UNDEFINED, optionalString=Component.UNDEFINED, optionalSymbol=Component.UNDEFINED, optionalNode=Component.UNDEFINED, optionalElement=Component.UNDEFINED, optionalMessage=Component.UNDEFINED, optionalEnum=Component.UNDEFINED, optionalUnion=Component.UNDEFINED, optionalArrayOf=Component.UNDEFINED, optionalObjectOf=Component.UNDEFINED, optionalObjectWithExactAndNestedDescription=Component.UNDEFINED, optionalObjectWithShapeAndNestedDescription=Component.UNDEFINED, optionalAny=Component.UNDEFINED, customProp=Component.UNDEFINED, customArrayProp=Component.UNDEFINED, id=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithExactAndNestedDescription', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
+        self._type = 'Table'
+        self._namespace = 'TableComponents'
+        self._valid_wildcard_attributes =            ['data-', 'aria-']
+        self.available_properties = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithExactAndNestedDescription', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
+        self.available_wildcard_properties =            ['data-', 'aria-']
 
-        _explicit_args = kwargs.pop("_explicit_args")
+        _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != "children"}
+        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
 
         for k in []:
             if k not in args:
-                raise TypeError("Required argument `" + k + "` was not specified.")
+                raise TypeError(
+                    'Required argument `' + k + '` was not specified.')
         super(Table, self).__init__(children=children, **args)
