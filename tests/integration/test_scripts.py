@@ -1,6 +1,8 @@
 import time
 import pytest
 
+from selenium.webdriver.common.by import By
+
 import dash_html_components as html
 import dash_core_components as dcc
 
@@ -8,7 +10,6 @@ from dash import Dash
 
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-from selenium.webdriver.common.by import By
 
 
 def findSyncPlotlyJs(scripts):
