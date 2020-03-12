@@ -8,11 +8,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+import dash_html_components as html
+import dash_core_components as dcc
 from dash import Dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-import dash_html_components as html
-import dash_core_components as dcc
 
 from .IntegrationTests import IntegrationTests
 from .utils import wait_for
