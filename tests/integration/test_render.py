@@ -8,7 +8,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-import dash
 from dash import Dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -510,7 +509,7 @@ class Tests(IntegrationTests):
         self.assertEqual(len(request_queue), 1)
 
     def test_callbacks_with_shared_grandparent(self):
-        app = dash.Dash()
+        app = Dash()
 
         app.layout = html.Div(
             [
@@ -550,7 +549,7 @@ class Tests(IntegrationTests):
         self.assertTrue(self.is_console_clean())
 
     def test_callbacks_triggered_on_generated_output(self):
-        app = dash.Dash()
+        app = Dash()
         app.config["suppress_callback_exceptions"] = True
 
         call_counts = {"tab1": Value("i", 0), "tab2": Value("i", 0)}
@@ -612,7 +611,7 @@ class Tests(IntegrationTests):
         self.assertTrue(self.is_console_clean())
 
     def test_initialization_with_overlapping_outputs(self):
-        app = dash.Dash()
+        app = Dash()
         app.layout = html.Div(
             [
                 html.Div(id="input-1", children="input-1"),
@@ -663,7 +662,7 @@ class Tests(IntegrationTests):
             )
 
     def test_generate_overlapping_outputs(self):
-        app = dash.Dash()
+        app = Dash()
         app.config["suppress_callback_exceptions"] = True
         block = html.Div(
             [
@@ -729,7 +728,7 @@ class Tests(IntegrationTests):
         timestamp_1 = Value("d", -5)
         timestamp_2 = Value("d", -5)
 
-        app = dash.Dash()
+        app = Dash()
         app.layout = html.Div(
             [
                 html.Div(id="container"),
@@ -890,7 +889,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name="request-hooks render")
 
     def test_graphs_in_tabs_do_not_share_state(self):
-        app = dash.Dash()
+        app = Dash()
 
         app.config.suppress_callback_exceptions = True
 
