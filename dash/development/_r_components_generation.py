@@ -824,9 +824,9 @@ def get_r_prop_types(type_object):
         number=lambda: "numeric",
         string=lambda: "character",
         object=lambda: "named list",
-        any=lambda: "logical | numeric | character | " "named list | unnamed list",
+        any=lambda: "logical | numeric | character | named list | unnamed list",
         element=lambda: "dash component",
-        node=lambda: "a list of or a singular dash " "component, string or number",
+        node=lambda: "a list of or a singular dash component, string or number",
         # React's PropTypes.oneOf
         enum=lambda: "a value equal to: {}".format(
             ", ".join("{}".format(str(t["value"])) for t in type_object["value"])
@@ -937,7 +937,7 @@ def create_prop_docstring_r(
                 is_required="required" if required else "optional",
             )
         )
-    return "{indent_spacing}- {name} ({type}" "{is_required}){description}".format(
+    return "{indent_spacing}- {name} ({type}{is_required}){description}".format(
         indent_spacing=indent_spacing,
         name=prop_name,
         type="{}; ".format(r_type_name) if r_type_name else "",
