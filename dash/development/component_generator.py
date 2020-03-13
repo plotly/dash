@@ -150,7 +150,7 @@ def cli():
         "-p",
         "--package-info-filename",
         default="package.json",
-        help="The filename of the copied `package.json` " "to `project_shortname`",
+        help="The filename of the copied `package.json` to `project_shortname`",
     )
     parser.add_argument(
         "-i",
