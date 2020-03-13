@@ -3,8 +3,8 @@ import json
 import plotly
 import pytest
 
-from dash.development.base_component import Component
 import dash_html_components as html
+from dash.development.base_component import Component
 
 Component._prop_names = ("id", "a", "children", "style")
 Component._type = "TestComponent"
@@ -422,7 +422,7 @@ def test_debc025_iter():
 
 
 def test_debc026_component_not_children():
-    children = [Component(id='a'), html.Div(id='b'), 'c', 1]
+    children = [Component(id="a"), html.Div(id="b"), "c", 1]
     for i in range(len(children)):
         # cycle through each component in each position
         children = children[1:] + [children[0]]
@@ -430,7 +430,7 @@ def test_debc026_component_not_children():
         # use html.Div because only real components accept positional args
         html.Div(children)
         # the first arg is children, and a single component works there
-        html.Div(children[0], id='x')
+        html.Div(children[0], id="x")
 
         with pytest.raises(TypeError):
             # If you forget the `[]` around children you get this:
@@ -441,40 +441,36 @@ def test_debc027_component_error_message():
     with pytest.raises(TypeError) as e:
         Component(asdf=True)
     assert str(e.value) == (
-        "The `TestComponent` component received an unexpected " +
-        "keyword argument: `asdf`\nAllowed arguments: a, children, " +
-        "id, style"
+        "The `TestComponent` component received an unexpected "
+        + "keyword argument: `asdf`\nAllowed arguments: a, children, "
+        + "id, style"
     )
 
     with pytest.raises(TypeError) as e:
-        Component(asdf=True, id='my-component')
+        Component(asdf=True, id="my-component")
     assert str(e.value) == (
-        "The `TestComponent` component " +
-        "with the ID \"my-component\" received an unexpected " +
-        "keyword argument: `asdf`\nAllowed arguments: a, children, " +
-        "id, style"
+        "The `TestComponent` component "
+        + 'with the ID "my-component" received an unexpected '
+        + "keyword argument: `asdf`\nAllowed arguments: a, children, "
+        + "id, style"
     )
 
     with pytest.raises(TypeError) as e:
         html.Div(asdf=True)
     assert str(e.value) == (
-        "The `dash_html_components.Div` component " +
-        "(version {}) ".format(html.__version__) +
-        "received an unexpected " +
-        "keyword argument: `asdf`\n" +
-        "Allowed arguments: {}".format(
-            ', '.join(sorted(html.Div()._prop_names))
-        )
+        "The `dash_html_components.Div` component "
+        + "(version {}) ".format(html.__version__)
+        + "received an unexpected "
+        + "keyword argument: `asdf`\n"
+        + "Allowed arguments: {}".format(", ".join(sorted(html.Div()._prop_names)))
     )
 
     with pytest.raises(TypeError) as e:
-        html.Div(asdf=True, id='my-component')
+        html.Div(asdf=True, id="my-component")
     assert str(e.value) == (
-        "The `dash_html_components.Div` component " +
-        "(version {}) ".format(html.__version__) +
-        "with the ID \"my-component\" received an unexpected " +
-        "keyword argument: `asdf`\n" +
-        "Allowed arguments: {}".format(
-            ', '.join(sorted(html.Div()._prop_names))
-        )
+        "The `dash_html_components.Div` component "
+        + "(version {}) ".format(html.__version__)
+        + 'with the ID "my-component" received an unexpected '
+        + "keyword argument: `asdf`\n"
+        + "Allowed arguments: {}".format(", ".join(sorted(html.Div()._prop_names)))
     )

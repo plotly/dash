@@ -148,7 +148,8 @@ disable=invalid-name,
         possibly-unused-variable,
         too-many-lines,
         too-many-statements,
-        bad-continuation
+        bad-continuation,
+        line-too-long
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -317,9 +318,6 @@ indent-after-paren=4
 # String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1
 # tab).
 indent-string='    '
-
-# Maximum number of characters on a single line.
-max-line-length=100
 
 # Maximum number of lines in a module.
 max-module-lines=1000
