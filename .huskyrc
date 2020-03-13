@@ -1,6 +1,5 @@
 {
   "hooks": {
-    "pre-commit": "npm run lint",
-    "post-checkout": "npm ci"
+    "pre-commit": "npm run lint"
   }
 }
