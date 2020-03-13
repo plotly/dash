@@ -1,5 +1,5 @@
 [flake8]
-ignore = C901, E203, E266, E501, E722, E731, W503
-max-line-length = 88
-max-complexity = 18
+ignore = C901, E203, E266, E501, E731, W503
 select = B,C,E,F,W,T4
+per-file-ignores =
+    tests/*: E722, F811
