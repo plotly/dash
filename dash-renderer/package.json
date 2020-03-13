@@ -6,7 +6,7 @@
   "scripts": {
     "private::format.js-eslint": "eslint --quiet --fix .",
     "private::format.js-prettier": "prettier --config .prettierrc --write \"src/**/*.js\"",
-    "private::lint.js-eslint": "./node_modules/.bin/eslint .",
+    "private::lint.js-eslint": "eslint .",
     "private::lint.js-prettier": "prettier --config .prettierrc \"src/**/*.js\" --list-different",
     "build:js": "webpack --build release",
     "build:dev": "webpack --build local",
