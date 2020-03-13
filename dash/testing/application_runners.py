@@ -190,7 +190,7 @@ class ProcessRunner(BaseDashRunner):
         """Start the server with waitress-serve in process flavor."""
         if not (app_module or raw_command):  # need to set a least one
             logging.error(
-                "the process runner needs to start with" " at least one valid command"
+                "the process runner needs to start with at least one valid command"
             )
             return
         self.port = port

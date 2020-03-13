@@ -70,7 +70,7 @@ def test_rddd001_initial_state(dash_duo):
     assert dash_duo.get_logs() == [], "Check that no errors or warnings were displayed"
 
     assert dash_duo.driver.execute_script(
-        "return JSON.parse(JSON.stringify(" "window.store.getState().layout" "))"
+        "return JSON.parse(JSON.stringify(window.store.getState().layout))"
     ) == json.loads(
         json.dumps(app.layout, cls=plotly.utils.PlotlyJSONEncoder)
     ), "the state layout is identical to app.layout"

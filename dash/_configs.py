@@ -81,14 +81,14 @@ def pathname_configs(
     if url_base_pathname is not None and requests_pathname_prefix is not None:
         raise exceptions.InvalidConfig(
             _pathname_config_error_message.format(
-                "You supplied `url_base_pathname` and " "`requests_pathname_prefix`."
+                "You supplied `url_base_pathname` and `requests_pathname_prefix`."
             )
         )
 
     if url_base_pathname is not None and routes_pathname_prefix is not None:
         raise exceptions.InvalidConfig(
             _pathname_config_error_message.format(
-                "You supplied `url_base_pathname` and " "`routes_pathname_prefix`."
+                "You supplied `url_base_pathname` and `routes_pathname_prefix`."
             )
         )
 
@@ -117,7 +117,7 @@ def pathname_configs(
         )
     if not requests_pathname_prefix.endswith(routes_pathname_prefix):
         raise exceptions.InvalidConfig(
-            "`requests_pathname_prefix` needs to ends with " "`routes_pathname_prefix`."
+            "`requests_pathname_prefix` needs to ends with `routes_pathname_prefix`."
         )
 
     return url_base_pathname, routes_pathname_prefix, requests_pathname_prefix

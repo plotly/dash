@@ -10,7 +10,7 @@ def has_context(func):
         if not flask.has_request_context():
             raise exceptions.MissingCallbackContextException(
                 (
-                    "dash.callback_context.{} " "is only available from a callback!"
+                    "dash.callback_context.{} is only available from a callback!"
                 ).format(getattr(func, "__name__"))
             )
         return func(*args, **kwargs)

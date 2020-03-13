@@ -82,8 +82,8 @@ def test_internal(mocker):
     assert resource == [
         "/_dash-component-suites/"
         "dash_core_components/external_javascript.v1_0_0m1.js",
-        "/_dash-component-suites/" "dash_core_components/external_css.v1_0_0m1.css",
-        "/_dash-component-suites/" "dash_core_components/fake_dcc.v1_0_0m1.js",
+        "/_dash-component-suites/dash_core_components/external_css.v1_0_0m1.css",
+        "/_dash-component-suites/dash_core_components/fake_dcc.v1_0_0m1.js",
     ]
 
     assert (

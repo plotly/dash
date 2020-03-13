@@ -451,7 +451,7 @@ def create_prop_docstring(
                 is_required=is_required,
             )
         )
-    return "{indent_spacing}- {name} ({type}" "{is_required}){description}".format(
+    return "{indent_spacing}- {name} ({type}{is_required}){description}".format(
         indent_spacing=indent_spacing,
         name=prop_name,
         type="{}; ".format(py_type_name) if py_type_name else "",
@@ -489,7 +489,7 @@ def map_js_to_py_types_prop_types(type_object):
         object=lambda: "dict",
         any=lambda: "boolean | number | string | dict | list",
         element=lambda: "dash component",
-        node=lambda: "a list of or a singular dash " "component, string or number",
+        node=lambda: "a list of or a singular dash component, string or number",
         # React's PropTypes.oneOf
         enum=lambda: "a value equal to: {}".format(
             ", ".join("{}".format(str(t["value"])) for t in type_object["value"])
@@ -537,7 +537,7 @@ def map_js_to_py_types_flow_types(type_object):
         Object=lambda: "dict",
         any=lambda: "bool | number | str | dict | list",
         Element=lambda: "dash component",
-        Node=lambda: "a list of or a singular dash " "component, string or number",
+        Node=lambda: "a list of or a singular dash component, string or number",
         # React's PropTypes.oneOfType
         union=lambda: "{}".format(
             " | ".join(
