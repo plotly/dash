@@ -6,8 +6,7 @@ import json
 
 import dash as _dash
 
-# noinspection PyUnresolvedReferences
-from ._imports_ import *
+from ._imports_ import *  # noqa: F401, F403
 from ._imports_ import __all__
 
 if not hasattr(_dash, "development"):
