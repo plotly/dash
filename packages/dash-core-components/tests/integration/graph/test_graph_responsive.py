@@ -1,8 +1,4 @@
 import pytest
-import pandas as pd
-from multiprocessing import Value
-import numpy as np
-from time import sleep
 
 import dash
 import dash_html_components as html

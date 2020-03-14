@@ -2,23 +2,14 @@
 import os
 import sys
 from multiprocessing import Lock
-import pytest
 import time
-import json
-import re
 import dash
 from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
-from dash.exceptions import PreventUpdate
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
 
 from IntegrationTests import IntegrationTests
 
@@ -699,14 +690,14 @@ class Test1(IntegrationTests):
             output=Output(component_id='test-pathname',
                           component_property='children'),
             inputs=[Input(component_id='test-location', component_property='pathname')])
-        def update_location_on_page(pathname):
+        def update_test_pathname(pathname):
             return pathname
 
         @app.callback(
             output=Output(component_id='test-hash',
                           component_property='children'),
             inputs=[Input(component_id='test-location', component_property='hash')])
-        def update_location_on_page(hash_val):
+        def update_test_hash(hash_val):
             if hash_val is None:
                 return ''
 
@@ -716,7 +707,7 @@ class Test1(IntegrationTests):
             output=Output(component_id='test-search',
                           component_property='children'),
             inputs=[Input(component_id='test-location', component_property='search')])
-        def update_location_on_page(search):
+        def update_test_search(search):
             if search is None:
                 return ''
 

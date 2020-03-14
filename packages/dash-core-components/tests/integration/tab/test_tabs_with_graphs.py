@@ -1,14 +1,10 @@
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-import dash.testing.wait as wait
 import dash_core_components as dcc
 import dash_html_components as html
 import json
-from multiprocessing import Value
-import numpy as np
 import os
-import pandas as pd
 import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -136,8 +132,6 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
 def test_tabs_render_without_selected(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
 
-    data = [{'id': 'one', 'value': 1}, {'id': 'two', 'value': 2}]
-
     menu = html.Div([html.Div('one', id='one'), html.Div('two', id='two')])
 
     tabs_one = html.Div(
@@ -159,7 +153,7 @@ def test_tabs_render_without_selected(dash_dcc, is_eager):
         @app.callback(
             Output('tabs-{}'.format(i), 'style'), [Input(i, 'n_clicks')]
         )
-        def on_click(n_clicks):
+        def on_click_update_tabs(n_clicks):
             if n_clicks is None:
                 raise PreventUpdate
 
@@ -170,7 +164,7 @@ def test_tabs_render_without_selected(dash_dcc, is_eager):
         @app.callback(
             Output('graph-{}'.format(i), 'figure'), [Input(i, 'n_clicks')]
         )
-        def on_click(n_clicks):
+        def on_click_update_graph(n_clicks):
             if n_clicks is None:
                 raise PreventUpdate
 

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-import pytest
 import time
-import json
 import flask
 import dash
 from multiprocessing import Value
@@ -16,10 +14,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
 from IntegrationTests import IntegrationTests
 
 TIMEOUT = 10
@@ -158,7 +152,6 @@ class Test2(IntegrationTests):
 
         self.startServer(app=app)
 
-        start_button = self.wait_for_element_by_css_selector("#start")
         stop_button = self.wait_for_element_by_css_selector("#stop")
 
         # interval will start itself, we wait a second before pressing 'stop'

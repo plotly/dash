@@ -1,5 +1,3 @@
-"""This package provides the core React component suite for Dash."""
-
 from __future__ import print_function as _
 
 import json
@@ -29,10 +27,8 @@ if not hasattr(_dash.development.base_component, '_explicitize_args'):
           file=_sys.stderr)
     _sys.exit(1)
 
-
-from ._imports_ import *
-from ._imports_ import __all__
-
+from ._imports_ import *  # noqa: F401, F403
+from ._imports_ import __all__  # noqa: E402
 
 _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
@@ -52,24 +48,24 @@ async_resources = [
 _js_dist = []
 
 _js_dist.extend([{
-        'relative_package_path': 'async-{}.js'.format(async_resource),
-        'external_url': (
-            'https://unpkg.com/dash-core-components@{}'
-            '/dash_core_components/async-{}.js'
-        ).format(__version__, async_resource),
-        'namespace': 'dash_core_components',
-        'async': True
-    } for async_resource in async_resources])
+    'relative_package_path': 'async-{}.js'.format(async_resource),
+    'external_url': (
+        'https://unpkg.com/dash-core-components@{}'
+        '/dash_core_components/async-{}.js'
+    ).format(__version__, async_resource),
+    'namespace': 'dash_core_components',
+    'async': True
+} for async_resource in async_resources])
 
 _js_dist.extend([{
-        'relative_package_path': 'async-{}.js.map'.format(async_resource),
-        'external_url': (
-            'https://unpkg.com/dash-core-components@{}'
-            '/dash_core_components/async-{}.js.map'
-        ).format(__version__, async_resource),
-        'namespace': 'dash_core_components',
-        'dynamic': True
-    } for async_resource in async_resources])
+    'relative_package_path': 'async-{}.js.map'.format(async_resource),
+    'external_url': (
+        'https://unpkg.com/dash-core-components@{}'
+        '/dash_core_components/async-{}.js.map'
+    ).format(__version__, async_resource),
+    'namespace': 'dash_core_components',
+    'dynamic': True
+} for async_resource in async_resources])
 
 _js_dist.extend([
     {

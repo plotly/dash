@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
 import pytest
 import time
 import json
-import flask
 import dash
-from multiprocessing import Value
 from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.exceptions import PreventUpdate
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC

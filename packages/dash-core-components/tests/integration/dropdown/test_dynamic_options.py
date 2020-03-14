@@ -1,7 +1,6 @@
 import dash
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-import dash.testing.wait as wait
 import dash_core_components as dcc
 
 
@@ -16,8 +15,8 @@ def test_dddo001_dynamic_options(dash_duo):
     app.layout = dcc.Dropdown(id="my-dynamic-dropdown", options=[])
 
     @app.callback(
-        dash.dependencies.Output("my-dynamic-dropdown", "options"),
-        [dash.dependencies.Input("my-dynamic-dropdown", "search_value")],
+        Output("my-dynamic-dropdown", "options"),
+        [Input("my-dynamic-dropdown", "search_value")],
     )
     def update_options(search_value):
         if not search_value:
