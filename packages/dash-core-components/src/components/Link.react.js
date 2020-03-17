@@ -54,7 +54,7 @@ export default class Link extends Component {
     }
 
     render() {
-        const {className, style, id, href, loading_state} = this.props;
+        const {className, style, id, href, title, loading_state} = this.props;
         /*
          * ideally, we would use cloneElement however
          * that doesn't work with dash's recursive
@@ -70,6 +70,7 @@ export default class Link extends Component {
                 style={style}
                 href={href}
                 onClick={e => this.updateLocation(e)}
+                title={title}
             >
                 {this.props.children}
             </a>
@@ -100,6 +101,11 @@ Link.propTypes = {
      * Defines CSS styles which will override styles previously set.
      */
     style: PropTypes.object,
+    /**
+     * Adds the title attribute to your link, which can contain supplementary
+     * information.
+     */
+    title: PropTypes.string,
     /**
      * The children of this component
      */

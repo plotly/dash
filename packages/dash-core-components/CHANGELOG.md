@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Changed
 - [#766](https://github.com/plotly/dash-core-components/pull/766) Update from React 16.8.6 to 16.13.0
+- [#768](https://github.com/plotly/dash-core-components/pull/768) Added title property to dcc.Link
 
 
 ## [1.8.1] -2020-02-27
