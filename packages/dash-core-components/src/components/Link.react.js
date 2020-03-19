@@ -42,9 +42,17 @@ export default class Link extends Component {
     }
 
     updateLocation(e) {
+        const hasModifiers = e.metaKey || e.shiftKey || e.altKey || e.ctrlKey;
+        const {href, refresh, target} = this.props;
+
+        if (hasModifiers) {
+            return;
+        }
+        if (target !== '_self' && !isNil(target)) {
+            return;
+        }
         // prevent anchor from updating location
         e.preventDefault();
-        const {href, refresh} = this.props;
         if (refresh) {
             window.location.pathname = href;
         } else {
@@ -64,6 +72,7 @@ export default class Link extends Component {
             loading_state,
             children,
             title,
+            target,
         } = this.props;
         /*
          * ideally, we would use cloneElement however
@@ -81,6 +90,7 @@ export default class Link extends Component {
                 href={href}
                 onClick={e => this.updateLocation(e)}
                 title={title}
+                target={target}
             >
                 {isNil(children) ? href : children}
             </a>
@@ -116,6 +126,10 @@ Link.propTypes = {
      * information.
      */
     title: PropTypes.string,
+    /**
+     * Specifies where to open the link reference.
+     */
+    target: PropTypes.string,
     /**
      * The children of this component
      */
