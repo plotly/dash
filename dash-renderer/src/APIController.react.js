@@ -4,7 +4,13 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
-import {hydrateInitialOutputs, setGraphs, setPaths, setLayout} from './actions';
+import {
+    hydrateInitialOutputs,
+    setGraphs,
+    setPaths,
+    setLayout,
+    onError,
+} from './actions';
 import {computePaths} from './actions/paths';
 import {computeGraphs} from './actions/dependencies';
 import apiThunk from './actions/api';
@@ -48,6 +54,7 @@ class UnconnectedContainer extends Component {
             appLifecycle,
             dependenciesRequest,
             dispatch,
+            error,
             graphs,
             layout,
             layoutRequest,
@@ -76,7 +83,18 @@ class UnconnectedContainer extends Component {
             dependenciesRequest.status === STATUS.OK &&
             isEmpty(graphs)
         ) {
-            dispatch(setGraphs(computeGraphs(dependenciesRequest.content)));
+            const dispatchError = (message, lines) =>
+                dispatch(
+                    onError({
+                        type: 'backEnd',
+                        error: {message, html: lines.join('\n')},
+                    })
+                );
+            dispatch(
+                setGraphs(
+                    computeGraphs(dependenciesRequest.content, dispatchError)
+                )
+            );
         }
 
         if (
@@ -93,6 +111,11 @@ class UnconnectedContainer extends Component {
             try {
                 dispatch(hydrateInitialOutputs());
             } catch (err) {
+                // Display this error in devtools, unless we have errors
+                // already, in which case we assume this new one is moot
+                if (!error.frontEnd.length && !error.backEnd.length) {
+                    dispatch(onError({type: 'backEnd', error: err}));
+                }
                 errorLoading = true;
             } finally {
                 this.setState(state =>
@@ -120,36 +143,38 @@ class UnconnectedContainer extends Component {
 
         const {errorLoading} = this.state;
 
+        let content;
         if (
             layoutRequest.status &&
             !includes(layoutRequest.status, [STATUS.OK, 'loading'])
         ) {
-            return <div className="_dash-error">Error loading layout</div>;
+            content = <div className="_dash-error">Error loading layout</div>;
         } else if (
             errorLoading ||
             (dependenciesRequest.status &&
                 !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
         ) {
-            return (
+            content = (
                 <div className="_dash-error">Error loading dependencies</div>
             );
         } else if (appLifecycle === getAppState('HYDRATED')) {
             this.renderedTree = true;
 
-            const tree = (
+            content = (
                 <TreeContainer
                     _dashprivate_layout={layout}
                     _dashprivate_path={[]}
                 />
             );
-            return config.ui === true ? (
-                <GlobalErrorContainer>{tree}</GlobalErrorContainer>
-            ) : (
-                tree
-            );
+        } else {
+            content = <div className="_dash-loading">Loading...</div>;
         }
 
-        return <div className="_dash-loading">Loading...</div>;
+        return config && config.ui === true ? (
+            <GlobalErrorContainer>{content}</GlobalErrorContainer>
+        ) : (
+            content
+        );
     }
 }
 UnconnectedContainer.propTypes = {
