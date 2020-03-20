@@ -236,6 +236,18 @@ class Browser(DashPageMixin):
             ),
         )
 
+    def wait_for_no_elements(self, selector, timeout=None):
+        """Explicit wait until an element is NOT found. timeout defaults to
+        the fixture's `wait_timeout`."""
+        until(
+            # if we use get_elements it waits a long time to see if they appear
+            # so this one calls out directly to execute_script
+            lambda: self.driver.execute_script(
+                "return document.querySelectorAll('{}').length".format(selector)
+            ) == 0,
+            timeout if timeout else self._wait_timeout
+        )
+
     def wait_for_element_by_id(self, element_id, timeout=None):
         """Explicit wait until the element is present, timeout if not set,
         equals to the fixture's `wait_timeout` shortcut to `WebDriverWait` with
