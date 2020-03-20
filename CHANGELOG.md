@@ -3,6 +3,9 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- [#1134](https://github.com/plotly/dash/pull/1134) Allow `dash.run_server()` host and port parameters to be set with environment variables HOST & PORT, respectively
+
 ### Changed
 - [#1145](https://github.com/plotly/dash/pull/1145) Update from React 16.8.6 to 16.13.0
 

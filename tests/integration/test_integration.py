@@ -974,3 +974,11 @@ def test_inin023_wrong_callback_id():
     @app.callback(Output("inner-div", "children"), [Input("inner-input", "value")])
     def h(a):
         return a
+
+
+def test_inin_024_port_env_success(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div("hi", "out")
+    dash_duo.start_server(app, port="12345")
+    assert dash_duo.server_url == "http://localhost:12345"
+    dash_duo.wait_for_text_to_equal("#out", "hi")
