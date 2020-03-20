@@ -16,18 +16,12 @@ const hasProps = allPass([is(Object), has('props')]);
 
 export const hasPropsId = allPass([
     hasProps,
-    compose(
-        has('id'),
-        prop('props')
-    ),
+    compose(has('id'), prop('props')),
 ]);
 
 export const hasPropsChildren = allPass([
     hasProps,
-    compose(
-        has('children'),
-        prop('props')
-    ),
+    compose(has('children'), prop('props')),
 ]);
 
 // crawl a layout object, apply a function on every object

@@ -1,4 +1,3 @@
-/* eslint-disable no-undef,react/no-did-update-set-state,no-magic-numbers */
 import {
     comparator,
     equals,

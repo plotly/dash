@@ -25,7 +25,7 @@ def test_threaded_server_smoke(dash_thread_server):
     sys.version_info < (3,), reason="requires python3 for process testing"
 )
 def test_process_server_smoke(dash_process_server):
-    dash_process_server('simple_app')
+    dash_process_server("simple_app")
     r = requests.get(dash_process_server.url)
     assert r.status_code == 200, "the server is reachable"
     assert 'id="react-entry-point"' in r.text, "the entrypoint is present"

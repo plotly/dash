@@ -3,8 +3,9 @@
  *
  * When users input new prop values, they can be stored and reapplied later,
  * when the component is recreated (changing `Tab` for example) or when the
- * page is reloaded (depending on `persistence_type`) Storage is tied to
- * component ID and will not on with components without an ID.
+ * page is reloaded (depending on `persistence_type`). Storage is tied to
+ * component ID, and the prop values will not be stored with components
+ * without an ID.
  *
  * Renderer handles the mechanics, but components must define a few props:
  *
@@ -74,10 +75,9 @@ export const storePrefix = '_dash_persistence.';
 function err(e) {
     const error = typeof e === 'string' ? new Error(e) : e;
 
-    /* eslint-disable no-console */
     // Send this to the console too, so it's still available with debug off
+    /* eslint-disable-next-line no-console */
     console.error(e);
-    /* eslint-disable no-console */
 
     return createAction('ON_ERROR')({
         myID: storePrefix,

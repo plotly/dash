@@ -61,6 +61,7 @@ disable=fixme,
         old-style-class,
         superfluous-parens,
         bad-continuation,
+        line-too-long
 
 
 # Enable the message, report, category or checker with the given id(s). You can
@@ -222,9 +223,6 @@ indent-after-paren=4
 # String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1
 # tab).
 indent-string='    '
-
-# Maximum number of characters on a single line.
-max-line-length=100
 
 # Maximum number of lines in a module
 max-module-lines=1000
@@ -398,7 +396,7 @@ valid-metaclass-classmethod-first-arg=mcs
 [DESIGN]
 
 # Maximum number of arguments for function / method
-max-args=10
+max-args=11
 
 # Maximum number of attributes for a class (see R0902).
 max-attributes=20

@@ -48,9 +48,7 @@ def import_app(app_file, application_name="app"):
         app = app_module[application_name]
     except KeyError:
         logger.exception("the app name cannot be found")
-        raise NoAppFoundError(
-            "No dash `app` instance was found in {}".format(app_file)
-        )
+        raise NoAppFoundError("No dash `app` instance was found in {}".format(app_file))
     return app
 
 
@@ -91,9 +89,7 @@ class BaseDashRunner(object):
                 self.stop()
             except TestingTimeoutError:
                 raise ServerCloseError(
-                    "Cannot stop server within {}s timeout".format(
-                        self.stop_timeout
-                    )
+                    "Cannot stop server within {}s timeout".format(self.stop_timeout)
                 )
         logger.info("__exit__ complete")
 
@@ -136,9 +132,7 @@ class ThreadedRunner(BaseDashRunner):
     # pylint: disable=arguments-differ,C0330
     def start(self, app, **kwargs):
         """Start the app server in threading flavor."""
-        app.server.add_url_rule(
-            self.stop_route, self.stop_route, self._stop_server
-        )
+        app.server.add_url_rule(self.stop_route, self.stop_route, self._stop_server)
 
         def _handle_error():
             self._stop_server()
@@ -196,8 +190,7 @@ class ProcessRunner(BaseDashRunner):
         """Start the server with waitress-serve in process flavor."""
         if not (app_module or raw_command):  # need to set a least one
             logging.error(
-                "the process runner needs to start with"
-                " at least one valid command"
+                "the process runner needs to start with at least one valid command"
             )
             return
         self.port = port
@@ -217,9 +210,7 @@ class ProcessRunner(BaseDashRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(
-                lambda: self.accessible(self.url), timeout=start_timeout
-            )
+            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
@@ -241,7 +232,7 @@ class ProcessRunner(BaseDashRunner):
                     self.proc.communicate(timeout=self.stop_timeout)
                 else:
                     _except = Exception
-                    logger.info('ruthless kill the process to avoid zombie')
+                    logger.info("ruthless kill the process to avoid zombie")
                     self.proc.kill()
             except _except:
                 logger.exception(
@@ -250,14 +241,12 @@ class ProcessRunner(BaseDashRunner):
                 )
                 self.proc.kill()
                 self.proc.communicate()
-        logger.info('process stop completes!')
+        logger.info("process stop completes!")
 
 
 class RRunner(ProcessRunner):
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(RRunner, self).__init__(
-            keep_open=keep_open, stop_timeout=stop_timeout
-        )
+        super(RRunner, self).__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.proc = None
 
     # pylint: disable=arguments-differ
@@ -273,15 +262,12 @@ class RRunner(ProcessRunner):
             # app is a string chunk, we make a temporary folder to store app.R
             # and its relevants assets
             self._tmp_app_path = os.path.join(
-                "/tmp" if not self.is_windows else os.getenv("TEMP"),
-                uuid.uuid4().hex,
+                "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex,
             )
             try:
                 os.mkdir(self.tmp_app_path)
             except OSError:
-                logger.exception(
-                    "cannot make temporary folder %s", self.tmp_app_path
-                )
+                logger.exception("cannot make temporary folder %s", self.tmp_app_path)
             path = os.path.join(self.tmp_app_path, "app.R")
 
             logger.info("RRunner start => app is R code chunk")
@@ -302,9 +288,7 @@ class RRunner(ProcessRunner):
                         logger.warning("get cwd from inspect => %s", cwd)
                         break
             if cwd:
-                logger.info(
-                    "RRunner inferred cwd from the Python call stack: %s", cwd
-                )
+                logger.info("RRunner inferred cwd from the Python call stack: %s", cwd)
             else:
                 logger.warning(
                     "RRunner found no cwd in the Python call stack. "
@@ -318,14 +302,11 @@ class RRunner(ProcessRunner):
             assets = [
                 os.path.join(cwd, _)
                 for _ in os.listdir(cwd)
-                if not _.startswith("__")
-                and os.path.isdir(os.path.join(cwd, _))
+                if not _.startswith("__") and os.path.isdir(os.path.join(cwd, _))
             ]
 
             for asset in assets:
-                target = os.path.join(
-                    self.tmp_app_path, os.path.basename(asset)
-                )
+                target = os.path.join(self.tmp_app_path, os.path.basename(asset))
                 if os.path.exists(target):
                     logger.debug("delete existing target %s", target)
                     shutil.rmtree(target)
@@ -349,9 +330,7 @@ class RRunner(ProcessRunner):
                 cwd=self.tmp_app_path if self.tmp_app_path else cwd,
             )
             # wait until server is able to answer http request
-            wait.until(
-                lambda: self.accessible(self.url), timeout=start_timeout
-            )
+            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")

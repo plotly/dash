@@ -1,4 +1,3 @@
-/* global fetch:true, Promise:true, document:true */
 import {
     adjust,
     any,
@@ -16,6 +15,7 @@ import {
     lensPath,
     mergeLeft,
     mergeDeepRight,
+    once,
     path,
     pluck,
     propEq,
@@ -54,10 +54,18 @@ export function hydrateInitialOutputs() {
     };
 }
 
+/* eslint-disable-next-line no-console */
+const logWarningOnce = once(console.warn);
+
 export function getCSRFHeader() {
-    return {
-        'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
-    };
+    try {
+        return {
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
+        };
+    } catch (e) {
+        logWarningOnce(e);
+        return {};
+    }
 }
 
 function triggerDefaultState(dispatch, getState) {
@@ -420,9 +428,8 @@ export function notifyObservers(payload) {
             );
         }
 
-        /* eslint-disable consistent-return */
+        /* eslint-disable-next-line consistent-return */
         return Promise.all(promises);
-        /* eslint-enable consistent-return */
     };
 }
 
@@ -636,13 +643,13 @@ function updateOutput(
                 return;
             }
 
-            /* eslint-disable no-console */
+            /* eslint-disable-next-line no-console */
             console.error(
                 `The following error occurred while executing ${clientside_function.namespace}.${clientside_function.function_name} ` +
                     `in order to update component "${payload.output}" ⋁⋁⋁`
             );
+            /* eslint-disable-next-line no-console */
             console.error(e);
-            /* eslint-enable no-console */
 
             /*
              * Update the request queue by treating an unsuccessful clientside
@@ -656,7 +663,7 @@ function updateOutput(
 
         // Returning promises isn't support atm
         if (type(returnValue) === 'Promise') {
-            /* eslint-disable no-console */
+            /* eslint-disable-next-line no-console */
             console.error(
                 'The clientside function ' +
                     `${clientside_function.namespace}.${clientside_function.function_name} ` +
@@ -664,7 +671,6 @@ function updateOutput(
                     'supported in Dash clientside right now, but may be in the ' +
                     'future.'
             );
-            /* eslint-enable no-console */
             updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
             return;
         }
@@ -727,12 +733,10 @@ function updateOutput(
         hooks.request_pre(payload);
     }
 
-    /* eslint-disable consistent-return */
+    /* eslint-disable-next-line consistent-return */
     return fetch(
         `${urlBase(config)}_dash-update-component`,
         mergeDeepRight(config.fetch, {
-            /* eslint-enable consistent-return */
-
             method: 'POST',
             headers: getCSRFHeader(),
             body: JSON.stringify(payload),

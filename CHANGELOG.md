@@ -2,8 +2,22 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [Unreleased]
+### Added
+- [#1134](https://github.com/plotly/dash/pull/1134) Allow `dash.run_server()` host and port parameters to be set with environment variables HOST & PORT, respectively
 
+### Changed
+- [#1145](https://github.com/plotly/dash/pull/1145) Update from React 16.8.6 to 16.13.0
+
+## [1.9.1] - 2020-02-27
+### Added
+- [#1133](github.com/plotly/dash/pull/1133) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE
+
+## [1.9.0] - 2020-02-04
+### Fixed
+- [#1080](https://github.com/plotly/dash/pull/1080) Handle case where dash fails to load when used inside an iframe with a sandbox attribute that only has allow-scripts
+
+## [1.8.0] - 2020-01-14
 ### Added
 - [#1073](https://github.com/plotly/dash/pull/1073) Two new functions to simplify usage handling URLs and pathnames: `app.get_relative_path` & `app.trim_relative_path`.
 These functions are particularly useful for apps deployed on Dash Enterprise where the apps served under a URL prefix (the app name) which is unlike apps served on localhost:8050.
