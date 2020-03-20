@@ -1,10 +1,12 @@
 import {DepGraph} from 'dependency-graph';
 import isNumeric from 'fast-isnumeric';
 import {
+    all,
     any,
     ap,
     assoc,
     clone,
+    difference,
     dissoc,
     equals,
     evolve,
@@ -12,6 +14,7 @@ import {
     forEachObjIndexed,
     includes,
     isEmpty,
+    keys,
     map,
     mergeDeepRight,
     mergeRight,
@@ -23,6 +26,7 @@ import {
     props,
     unnest,
     values,
+    zip,
     zipObj,
 } from 'ramda';
 
@@ -42,6 +46,14 @@ const ALL = {wild: 'ALL', multi: 1};
 const MATCH = {wild: 'MATCH'};
 const ALLSMALLER = {wild: 'ALLSMALLER', multi: 1, expand: 1};
 const wildcards = {ALL, MATCH, ALLSMALLER};
+const allowedWildcards = {
+    Output: {ALL, MATCH},
+    Input: wildcards,
+    State: wildcards,
+};
+const wildcardValTypes = ['string', 'number', 'boolean'];
+
+const idInvalidChars = ['.', '{'];
 
 /*
  * If this ID is a wildcard, it is a stringified JSON object
@@ -56,7 +68,7 @@ const isWildcardId = idStr => idStr.startsWith('{');
  */
 function parseWildcardId(idStr) {
     return map(
-        val => (Array.isArray(val) ? wildcards[val[0]] : val),
+        val => (Array.isArray(val) && wildcards[val[0]]) || val,
         JSON.parse(idStr)
     );
 }
@@ -99,9 +111,10 @@ export function stringifyId(id) {
     if (typeof id !== 'object') {
         return id;
     }
+    const stringifyVal = v => (v && v.wild) || JSON.stringify(v);
     const parts = Object.keys(id)
         .sort()
-        .map(k => JSON.stringify(k) + ':' + JSON.stringify(id[k]));
+        .map(k => JSON.stringify(k) + ':' + stringifyVal(id[k]));
     return '{' + parts.join(',') + '}';
 }
 
@@ -165,7 +178,267 @@ function addPattern(depMap, idSpec, prop, dependency) {
     valMatch.callbacks.push(dependency);
 }
 
-export function computeGraphs(dependencies) {
+function validateDependencies(parsedDependencies, dispatchError) {
+    const outStrs = {};
+    const outObjs = [];
+
+    parsedDependencies.forEach(dep => {
+        const {inputs, outputs, state} = dep;
+        let hasOutputs = true;
+        if (outputs.length === 1 && !outputs[0].id && !outputs[0].property) {
+            hasOutputs = false;
+            dispatchError('A callback is missing Outputs', [
+                'Please provide an output for this callback:',
+                JSON.stringify(dep, null, 2),
+            ]);
+        }
+
+        const head =
+            'In the callback for output(s):\n  ' +
+            outputs.map(combineIdAndProp).join('\n  ');
+
+        if (!inputs.length) {
+            dispatchError('A callback is missing Inputs', [
+                head,
+                'there are no `Input` elements.',
+                'Without `Input` elements, it will never get called.',
+                '',
+                'Subscribing to `Input` components will cause the',
+                'callback to be called whenever their values change.',
+            ]);
+        }
+
+        const spec = [[outputs, 'Output'], [inputs, 'Input'], [state, 'State']];
+        spec.forEach(([args, cls]) => {
+            if (cls === 'Output' && !hasOutputs) {
+                // just a quirk of how we pass & parse outputs - if you don't
+                // provide one, it looks like a single blank output. This is
+                // actually useful for graceful failure, so we work around it.
+                return;
+            }
+
+            if (!Array.isArray(args)) {
+                dispatchError(`Callback ${cls}(s) must be an Array`, [
+                    head,
+                    `For ${cls}(s) we found:`,
+                    JSON.stringify(args),
+                    'but we expected an Array.',
+                ]);
+            }
+            args.forEach((idProp, i) => {
+                validateArg(idProp, head, cls, i, dispatchError);
+            });
+        });
+
+        findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs);
+        findInOutOverlap(outputs, inputs, head, dispatchError);
+        findMismatchedWildcards(outputs, inputs, state, head, dispatchError);
+    });
+}
+
+function validateArg({id, property}, head, cls, i, dispatchError) {
+    if (typeof property !== 'string' || !property) {
+        dispatchError('Callback property error', [
+            head,
+            `${cls}[${i}].property = ${JSON.stringify(property)}`,
+            'but we expected `property` to be a non-empty string.',
+        ]);
+    }
+
+    if (typeof id === 'object') {
+        if (isEmpty(id)) {
+            dispatchError('Callback item missing ID', [
+                head,
+                `${cls}[${i}].id = {}`,
+                'Every item linked to a callback needs an ID',
+            ]);
+        }
+
+        forEachObjIndexed((v, k) => {
+            if (!k) {
+                dispatchError('Callback wildcard ID error', [
+                    head,
+                    `${cls}[${i}].id has key "${k}"`,
+                    'Keys must be non-empty strings.',
+                ]);
+            }
+
+            if (typeof v === 'object' && v.wild) {
+                if (allowedWildcards[cls][v.wild] !== v) {
+                    dispatchError('Callback wildcard ID error', [
+                        head,
+                        `${cls}[${i}].id["${k}"] = ${v.wild}`,
+                        `Allowed wildcards for ${cls}s are:`,
+                        keys(allowedWildcards[cls]).join(', '),
+                    ]);
+                }
+            } else if (!includes(typeof v, wildcardValTypes)) {
+                dispatchError('Callback wildcard ID error', [
+                    head,
+                    `${cls}[${i}].id["${k}"] = ${JSON.stringify(v)}`,
+                    'Wildcard callback ID values must be either wildcards',
+                    'or constants of one of these types:',
+                    wildcardValTypes.join(', '),
+                ]);
+            }
+        }, id);
+    } else if (typeof id === 'string') {
+        if (!id) {
+            dispatchError('Callback item missing ID', [
+                head,
+                `${cls}[${i}].id = "${id}"`,
+                'Every item linked to a callback needs an ID',
+            ]);
+        }
+        const invalidChars = idInvalidChars.filter(c => includes(c, id));
+        if (invalidChars.length) {
+            dispatchError('Callback invalid ID string', [
+                head,
+                `${cls}[${i}].id = '${id}'`,
+                `characters '${invalidChars.join("', '")}' are not allowed.`,
+            ]);
+        }
+    } else {
+        dispatchError('Callback ID type error', [
+            head,
+            `${cls}[${i}].id = ${JSON.stringify(id)}`,
+            'IDs must be strings or wildcard-compatible objects.',
+        ]);
+    }
+}
+
+function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
+    const newOutputStrs = {};
+    const newOutputObjs = [];
+    outputs.forEach(({id, property}, i) => {
+        if (typeof id === 'string') {
+            const idProp = combineIdAndProp({id, property});
+            if (newOutputStrs[idProp]) {
+                dispatchError('Duplicate callback Outputs', [
+                    head,
+                    `Output ${i} (${idProp}) is already used by this callback.`,
+                ]);
+            } else if (outStrs[idProp]) {
+                dispatchError('Duplicate callback outputs', [
+                    head,
+                    `Output ${i} (${idProp}) is already in use.`,
+                    'Any given output can only have one callback that sets it.',
+                    'To resolve this situation, try combining these into',
+                    'one callback function, distinguishing the trigger',
+                    'by using `dash.callback_context` if necessary.',
+                ]);
+            } else {
+                newOutputStrs[idProp] = 1;
+            }
+        } else {
+            const idObj = {id, property};
+            const selfOverlap = wildcardOverlap(idObj, newOutputObjs);
+            const otherOverlap = selfOverlap || wildcardOverlap(idObj, outObjs);
+            if (selfOverlap || otherOverlap) {
+                const idProp = combineIdAndProp(idObj);
+                const idProp2 = combineIdAndProp(selfOverlap || otherOverlap);
+                dispatchError('Overlapping wildcard callback outputs', [
+                    head,
+                    `Output ${i} (${idProp})`,
+                    `overlaps another output (${idProp2})`,
+                    `used in ${selfOverlap ? 'this' : 'a different'} callback.`,
+                ]);
+            } else {
+                newOutputObjs.push(idObj);
+            }
+        }
+    });
+    keys(newOutputStrs).forEach(k => {
+        outStrs[k] = 1;
+    });
+    newOutputObjs.forEach(idObj => {
+        outObjs.push(idObj);
+    });
+}
+
+function findInOutOverlap(outputs, inputs, head, dispatchError) {
+    outputs.forEach((out, outi) => {
+        const {id: outId, property: outProp} = out;
+        inputs.forEach((in_, ini) => {
+            const {id: inId, property: inProp} = in_;
+            if (outProp !== inProp || typeof outId !== typeof inId) {
+                return;
+            }
+            if (typeof outId === 'string') {
+                if (outId === inId) {
+                    dispatchError('Same `Input` and `Output`', [
+                        head,
+                        `Input ${ini} (${combineIdAndProp(in_)})`,
+                        `matches Output ${outi} (${combineIdAndProp(out)})`,
+                    ]);
+                }
+            } else if (wildcardOverlap(in_, [out])) {
+                dispatchError('Same `Input` and `Output`', [
+                    head,
+                    `Input ${ini} (${combineIdAndProp(in_)})`,
+                    'can match the same component(s) as',
+                    `Output ${outi} (${combineIdAndProp(out)})`,
+                ]);
+            }
+        });
+    });
+}
+
+function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
+    const {anyKeys: out0AnyKeys} = findWildcardKeys(outputs[0].id);
+    outputs.forEach((out, outi) => {
+        if (outi && !equals(findWildcardKeys(out.id).anyKeys, out0AnyKeys)) {
+            dispatchError('Mismatched `MATCH` wildcards across `Output`s', [
+                head,
+                `Output ${outi} (${combineIdAndProp(out)})`,
+                'does not have MATCH wildcards on the same keys as',
+                `Output 0 (${combineIdAndProp(outputs[0])}).`,
+                'MATCH wildcards must be on the same keys for all Outputs.',
+                'ALL wildcards need not match, only MATCH.',
+            ]);
+        }
+    });
+    [[inputs, 'Input'], [state, 'State']].forEach(([args, cls]) => {
+        args.forEach((arg, i) => {
+            const {anyKeys, allsmallerKeys} = findWildcardKeys(arg.id);
+            const allWildcardKeys = anyKeys.concat(allsmallerKeys);
+            const diff = difference(allWildcardKeys, out0AnyKeys);
+            if (diff.length) {
+                diff.sort();
+                dispatchError('`Input` / `State` wildcards not in `Output`s', [
+                    head,
+                    `${cls} ${i} (${combineIdAndProp(arg)})`,
+                    `has MATCH or ALLSMALLER on key(s) ${diff.join(', ')}`,
+                    `where Output 0 (${combineIdAndProp(outputs[0])})`,
+                    'does not have a MATCH wildcard. Inputs and State do not',
+                    'need every MATCH from the Output(s), but they cannot have',
+                    'extras beyond the Output(s).',
+                ]);
+            }
+        });
+    });
+}
+
+const matchWildKeys = ([a, b]) => a === b || (a && a.wild) || (b && b.wild);
+
+function wildcardOverlap({id, property}, objs) {
+    const idKeys = keys(id).sort();
+    const idVals = props(idKeys, id);
+    for (const obj of objs) {
+        const {id: id2, property: property2} = obj;
+        if (
+            property2 === property &&
+            typeof id2 !== 'string' &&
+            equals(keys(id2).sort(), idKeys) &&
+            all(matchWildKeys, zip(idVals, props(idKeys, id2)))
+        ) {
+            return obj;
+        }
+    }
+    return false;
+}
+
+export function computeGraphs(dependencies, dispatchError) {
     const inputGraph = new DepGraph();
     // multiGraph is just for finding circular deps
     const multiGraph = new DepGraph();
@@ -182,6 +455,8 @@ export function computeGraphs(dependencies) {
         );
         return out;
     }, dependencies);
+
+    validateDependencies(parsedDependencies, dispatchError);
 
     /*
      * For regular ids, outputMap and inputMap are:
@@ -319,18 +594,9 @@ export function computeGraphs(dependencies) {
         // Also collect MATCH keys in the output (all outputs must share these)
         // and ALL keys in the first output (need not be shared but we'll use
         // the first output for calculations) for later convenience.
-        const anyKeys = [];
-        let hasAll = false;
-        forEachObjIndexed((val, key) => {
-            if (val === MATCH) {
-                anyKeys.push(key);
-            } else if (val === ALL) {
-                hasAll = true;
-            }
-        }, outputs[0].id);
-        anyKeys.sort();
+        const {anyKeys, hasALL} = findWildcardKeys(outputs[0].id);
         const finalDependency = mergeRight(
-            {hasAll, anyKeys, outputs},
+            {hasALL, anyKeys, outputs},
             dependency
         );
 
@@ -373,6 +639,26 @@ export function computeGraphs(dependencies) {
         outputPatterns,
         inputPatterns,
     };
+}
+
+function findWildcardKeys(id) {
+    const anyKeys = [];
+    const allsmallerKeys = [];
+    let hasALL = false;
+    if (typeof id === 'object') {
+        forEachObjIndexed((val, key) => {
+            if (val === MATCH) {
+                anyKeys.push(key);
+            } else if (val === ALLSMALLER) {
+                allsmallerKeys.push(key);
+            } else if (val === ALL) {
+                hasALL = true;
+            }
+        }, id);
+        anyKeys.sort();
+        allsmallerKeys.sort();
+    }
+    return {anyKeys, allsmallerKeys, hasALL};
 }
 
 /*
@@ -583,8 +869,8 @@ function getCallbackByOutput(graphs, paths, id, prop) {
  * from an input to one item per combination of MATCH values.
  * That will give one result per callback invocation.
  */
-function reduceALLOuts(outs, anyKeys, hasAll) {
-    if (!hasAll) {
+function reduceALLOuts(outs, anyKeys, hasALL) {
+    if (!hasALL) {
         return outs;
     }
     if (!anyKeys.length) {

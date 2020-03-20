@@ -2,7 +2,7 @@ import collections
 import re
 
 from .development.base_component import Component
-from .dependencies import Input, Output, State, MATCH, ALLSMALLER
+from .dependencies import Input, Output, State
 from . import exceptions
 from ._utils import patch_collections_abc, _strings, stringify_id
 
@@ -24,25 +24,10 @@ def validate_callback(app, layout, output, inputs, state):
             """
         )
 
-    if not inputs:
-        raise exceptions.MissingInputsException(
-            """
-            This callback has no `Input` elements.
-            Without `Input` elements, this callback will never get called.
-
-            Subscribing to Input components will cause the
-            callback to be called whenever their values change.
-            """
-        )
-
     outputs = output if is_multi else [output]
 
     for args, cls in [(outputs, Output), (inputs, Input), (state, State)]:
         validate_callback_args(args, cls, layout, validate_ids)
-
-    prevent_duplicate_outputs(app, outputs)
-    prevent_input_output_overlap(inputs, outputs)
-    prevent_inconsistent_wildcards(outputs, inputs, state)
 
 
 def validate_callback_args(args, cls, layout, validate_ids):
@@ -100,117 +85,6 @@ def validate_callback_args(args, cls, layout, validate_ids):
             )
 
 
-def prevent_duplicate_outputs(app, outputs):
-    for i, out in enumerate(outputs):
-        for out2 in outputs[i + 1:]:
-            if out == out2:
-                # Note: different but overlapping wildcards compare as equal
-                if str(out) == str(out2):
-                    raise exceptions.DuplicateCallbackOutput(
-                        """
-                        Same output {} was used more than once in a callback!
-                        """.format(
-                            str(out)
-                        )
-                    )
-                raise exceptions.DuplicateCallbackOutput(
-                    """
-                    Two outputs in a callback can match the same ID!
-                    {} and {}
-                    """.format(
-                        str(out), str(out2)
-                    )
-                )
-
-    dups = set()
-    for out in outputs:
-        for used_out in app.used_outputs:
-            if out == used_out:
-                dups.add(str(used_out))
-    if dups:
-        dups = list(dups)
-        if len(outputs) > 1 or len(dups) > 1 or str(outputs[0]) != dups[0]:
-            raise exceptions.DuplicateCallbackOutput(
-                """
-                One or more `Output` is already set by a callback.
-                Note that two wildcard outputs can refer to the same component
-                even if they don't match exactly.
-
-                The new callback lists output(s):
-                {}
-                Already used:
-                {}
-                """.format(
-                    ", ".join([str(out) for out in outputs]),
-                    ", ".join(dups)
-                )
-            )
-        raise exceptions.DuplicateCallbackOutput(
-            """
-            {} was already assigned to a callback.
-            Any given output can only have one callback that sets it.
-            Try combining your inputs and callback functions together
-            into one function.
-            """.format(
-                repr(outputs[0])
-            )
-        )
-
-
-def prevent_input_output_overlap(inputs, outputs):
-    for in_ in inputs:
-        for out in outputs:
-            if out == in_:
-                # Note: different but overlapping wildcards compare as equal
-                if str(out) == str(in_):
-                    raise exceptions.SameInputOutputException(
-                        "Same `Output` and `Input`: {}".format(out)
-                    )
-                raise exceptions.SameInputOutputException(
-                    """
-                    An `Input` and an `Output` in one callback
-                    can match the same ID!
-                    {} and {}
-                    """.format(
-                        str(in_), str(out)
-                    )
-                )
-
-
-def prevent_inconsistent_wildcards(outputs, inputs, state):
-    any_keys = get_wildcard_keys(outputs[0], (MATCH,))
-    for out in outputs[1:]:
-        if get_wildcard_keys(out, (MATCH,)) != any_keys:
-            raise exceptions.InconsistentCallbackWildcards(
-                """
-                All `Output` items must have matching wildcard `MATCH` values.
-                `ALL` wildcards need not match, only `MATCH`.
-
-                Output {} does not match the first output {}.
-                """.format(
-                    out, outputs[0]
-                )
-            )
-
-    matched_wildcards = (MATCH, ALLSMALLER)
-    for dep in list(inputs) + list(state):
-        wildcard_keys = get_wildcard_keys(dep, matched_wildcards)
-        if wildcard_keys - any_keys:
-            raise exceptions.InconsistentCallbackWildcards(
-                """
-                `Input` and `State` items can only have {}
-                wildcards on keys where the `Output`(s) have `MATCH` wildcards.
-                `ALL` wildcards need not match, and you need not match every
-                `MATCH` in the `Output`(s).
-
-                This callback has `MATCH` on keys {}.
-                {} has these wildcards on keys {}.
-                """.format(
-                    matched_wildcards, any_keys, dep, wildcard_keys
-                )
-            )
-
-
 def validate_id_dict(arg, layout, validate_ids, wildcards):
     arg_id = arg.component_id
 
@@ -238,26 +112,16 @@ def validate_id_dict(arg, layout, validate_ids, wildcards):
             validate_prop_for_component(arg, component)
 
     for k, v in arg_id.items():
-        if not (k and isinstance(k, _strings)):
+        # Need to keep key type validation on the Python side, since
+        # non-string keys will be converted to strings in json.dumps and may
+        # cause unwanted collisions
+        if not (isinstance(k, _strings)):
             raise exceptions.IncorrectTypeException(
                 """
                 Wildcard ID keys must be non-empty strings,
                 found {!r} in id {!r}
                 """.format(
                     k, arg_id
-                )
-            )
-        if not (v in wildcards or isinstance(v, _strings + (int, float, bool))):
-            wildcard_msg = (
-                ",\n                or wildcards: {}".format(wildcards)
-                if wildcards else ""
-            )
-            raise exceptions.IncorrectTypeException(
-                """
-                Wildcard {} ID values must be strings, numbers, bools{}
-                found {!r} in id {!r}
-                """.format(
-                    arg.__class__.__name__, wildcard_msg, k, arg_id
                 )
             )
 
@@ -478,13 +342,6 @@ def fail_callback_output(output_value, output):
             property=output.component_property, id=output.component_id
         )
     )
-
-
-def get_wildcard_keys(dep, wildcards):
-    _id = dep.component_id
-    if not isinstance(_id, dict):
-        return set()
-    return {k for k, v in _id.items() if v in wildcards}
 
 
 def check_obsolete(kwargs):

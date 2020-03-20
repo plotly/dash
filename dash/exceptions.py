@@ -30,15 +30,7 @@ class NonExistentEventException(CallbackException):
     pass
 
 
-class UndefinedLayoutException(CallbackException):
-    pass
-
-
 class IncorrectTypeException(CallbackException):
-    pass
-
-
-class MissingInputsException(CallbackException):
     pass
 
 
@@ -52,19 +44,6 @@ class IDsCantContainPeriods(CallbackException):
 
 # Better error name now that more than periods are not permitted.
 class InvalidComponentIdError(IDsCantContainPeriods):
-    pass
-
-
-class CantHaveMultipleOutputs(CallbackException):
-    pass
-
-
-# Renamed for less confusion with multi output.
-class DuplicateCallbackOutput(CantHaveMultipleOutputs):
-    pass
-
-
-class InconsistentCallbackWildcards(CallbackException):
     pass
 
 
@@ -97,10 +76,6 @@ class DependencyException(DashException):
 
 
 class ResourceException(DashException):
-    pass
-
-
-class SameInputOutputException(CallbackException):
     pass
 
 

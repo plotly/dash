@@ -1,6 +1,5 @@
 from multiprocessing import Value
 import datetime
-import time
 import pytest
 from copy import copy
 
@@ -18,8 +17,6 @@ from dash import Dash, no_update
 from dash.dependencies import Input, Output, State
 from dash.exceptions import (
     PreventUpdate,
-    DuplicateCallbackOutput,
-    CallbackException,
     InvalidCallbackReturnValue,
     IncorrectTypeException,
     NonExistentIdException,
@@ -383,125 +380,6 @@ def test_inin010_func_layout_accepted(dash_duo):
     assert dash_duo.find_element("#a").text == "Hello World"
 
 
-def test_inin011_multi_output(dash_duo):
-    app = Dash(__name__)
-
-    app.layout = html.Div(
-        [
-            html.Button("OUTPUT", id="output-btn"),
-            html.Table(
-                [
-                    html.Thead(
-                        [html.Tr([html.Th("Output 1"), html.Th("Output 2")])]
-                    ),
-                    html.Tbody(
-                        [
-                            html.Tr(
-                                [html.Td(id="output1"), html.Td(id="output2")]
-                            )
-                        ]
-                    ),
-                ]
-            ),
-            html.Div(id="output3"),
-            html.Div(id="output4"),
-            html.Div(id="output5"),
-        ]
-    )
-
-    @app.callback(
-        [Output("output1", "children"), Output("output2", "children")],
-        [Input("output-btn", "n_clicks")],
-        [State("output-btn", "n_clicks_timestamp")],
-    )
-    def on_click(n_clicks, n_clicks_timestamp):
-        if n_clicks is None:
-            raise PreventUpdate
-
-        return n_clicks, n_clicks_timestamp
-
-    # Dummy callback for DuplicateCallbackOutput test.
-    @app.callback(
-        Output("output3", "children"), [Input("output-btn", "n_clicks")]
-    )
-    def dummy_callback(n_clicks):
-        if n_clicks is None:
-            raise PreventUpdate
-
-        return "Output 3: {}".format(n_clicks)
-
-    with pytest.raises(DuplicateCallbackOutput) as err:
-
-        @app.callback(
-            Output("output1", "children"), [Input("output-btn", "n_clicks")]
-        )
-        def on_click_duplicate(n_clicks):
-            if n_clicks is None:
-                raise PreventUpdate
-            return "something else"
-
-        pytest.fail("multi output can't be included in a single output")
-
-    assert "output1" in err.value.args[0]
-
-    with pytest.raises(DuplicateCallbackOutput) as err:
-
-        @app.callback(
-            [Output("output3", "children"), Output("output4", "children")],
-            [Input("output-btn", "n_clicks")],
-        )
-        def on_click_duplicate_multi(n_clicks):
-            if n_clicks is None:
-                raise PreventUpdate
-            return "something else"
-
-        pytest.fail("multi output cannot contain a used single output")
-
-    assert "output3" in err.value.args[0]
-
-    with pytest.raises(DuplicateCallbackOutput) as err:
-
-        @app.callback(
-            [Output("output5", "children"), Output("output5", "children")],
-            [Input("output-btn", "n_clicks")],
-        )
-        def on_click_same_output(n_clicks):
-            return n_clicks
-
-        pytest.fail("same output cannot be used twice in one callback")
-
-    assert "output5" in err.value.args[0]
-
-    with pytest.raises(DuplicateCallbackOutput) as err:
-
-        @app.callback(
-            [Output("output1", "children"), Output("output5", "children")],
-            [Input("output-btn", "n_clicks")],
-        )
-        def overlapping_multi_output(n_clicks):
-            return n_clicks
-
-        pytest.fail(
-            "no part of an existing multi-output can be used in another"
-        )
-    assert (
-        "Already used:" in err.value.args[0] and
-        "output1.children" in err.value.args[0]
-    )
-
-    dash_duo.start_server(app)
-
-    t = time.time()
-
-    btn = dash_duo.find_element("#output-btn")
-    btn.click()
-    time.sleep(1)
-
-    dash_duo.wait_for_text_to_equal("#output1", "1")
-
-    assert int(dash_duo.find_element("#output2").text) > t
-
-
 def test_inin012_multi_output_no_update(dash_duo):
     app = Dash(__name__)
 
@@ -779,38 +657,6 @@ def test_inin017_late_component_register(dash_duo):
     btn.click()
 
     dash_duo.find_element("#inserted-input")
-
-
-def test_inin018_output_input_invalid_callback():
-    app = Dash(__name__)
-    app.layout = html.Div(
-        [html.Div("child", id="input-output"), html.Div(id="out")]
-    )
-
-    with pytest.raises(CallbackException) as err:
-
-        @app.callback(
-            Output("input-output", "children"),
-            [Input("input-output", "children")],
-        )
-        def failure(children):
-            pass
-
-    msg = "Same `Output` and `Input`: input-output.children"
-    assert err.value.args[0] == msg
-
-    # Multi output version.
-    with pytest.raises(CallbackException) as err:
-
-        @app.callback(
-            [Output("out", "children"), Output("input-output", "children")],
-            [Input("input-output", "children")],
-        )
-        def failure2(children):
-            pass
-
-    msg = "Same `Output` and `Input`: input-output.children"
-    assert err.value.args[0] == msg
 
 
 def test_inin019_callback_dep_types():
