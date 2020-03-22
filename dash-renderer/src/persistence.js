@@ -318,7 +318,7 @@ export function recordUiEdit(layout, newProps, dispatch) {
 
     forEach(persistedProp => {
         const [propName, propPart] = persistedProp.split('.');
-        if (newProps[propName]) {
+        if (newProps[propName] !== undefined) {
             const storage = getStore(persistence_type, dispatch);
             const {extract} = getTransform(element, propName, propPart);
 

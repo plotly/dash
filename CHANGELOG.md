@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - [#1145](https://github.com/plotly/dash/pull/1145) Update from React 16.8.6 to 16.13.0
 
+### Fixed
+- [#1142](https://github.com/plotly/dash/pull/1142) [Persistence](https://dash.plot.ly/persistence): Also persist 0, empty string etc
+
 ## [1.9.1] - 2020-02-27
 ### Added
 - [#1133](github.com/plotly/dash/pull/1133) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE
