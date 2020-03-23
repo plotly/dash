@@ -86,12 +86,22 @@ export default class Location extends Component {
 
     onLocationChange() {
         const {setProps} = this.props;
-        setProps({
-            pathname: window.location.pathname,
-            href: window.location.href,
-            hash: window.location.hash,
-            search: window.location.search,
-        });
+        const propsToChange = {};
+
+        if (this.props.pathname !== window.location.pathname) {
+            propsToChange.pathname = window.location.pathname;
+        }
+        if (this.props.href !== window.location.href) {
+            propsToChange.href = window.location.href;
+        }
+        if (this.props.hash !== window.location.hash) {
+            propsToChange.hash = window.location.hash;
+        }
+        if (this.props.search !== window.location.search) {
+            propsToChange.search = window.location.search;
+        }
+
+        setProps(propsToChange);
 
         History.dispatchChangeEvent();
     }
