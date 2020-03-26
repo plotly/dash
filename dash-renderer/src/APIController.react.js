@@ -5,11 +5,12 @@ import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
 import {
+    dispatchError,
     hydrateInitialOutputs,
+    onError,
     setGraphs,
     setPaths,
     setLayout,
-    onError,
 } from './actions';
 import {computePaths} from './actions/paths';
 import {computeGraphs} from './actions/dependencies';
@@ -83,16 +84,12 @@ class UnconnectedContainer extends Component {
             dependenciesRequest.status === STATUS.OK &&
             isEmpty(graphs)
         ) {
-            const dispatchError = (message, lines) =>
-                dispatch(
-                    onError({
-                        type: 'backEnd',
-                        error: {message, html: lines.join('\n')},
-                    })
-                );
             dispatch(
                 setGraphs(
-                    computeGraphs(dependenciesRequest.content, dispatchError)
+                    computeGraphs(
+                        dependenciesRequest.content,
+                        dispatchError(dispatch)
+                    )
                 )
             );
         }
@@ -109,7 +106,7 @@ class UnconnectedContainer extends Component {
         ) {
             let errorLoading = false;
             try {
-                dispatch(hydrateInitialOutputs());
+                dispatch(hydrateInitialOutputs(dispatchError(dispatch)));
             } catch (err) {
                 // Display this error in devtools, unless we have errors
                 // already, in which case we assume this new one is moot

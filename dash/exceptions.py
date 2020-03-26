@@ -18,23 +18,11 @@ class CallbackException(DashException):
     pass
 
 
-class NonExistentIdException(CallbackException):
-    pass
-
-
-class NonExistentPropException(CallbackException):
-    pass
-
-
 class NonExistentEventException(CallbackException):
     pass
 
 
 class IncorrectTypeException(CallbackException):
-    pass
-
-
-class LayoutIsNotDefined(CallbackException):
     pass
 
 

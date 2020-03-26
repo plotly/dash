@@ -39,6 +39,7 @@ import {
     pruneRemovedCallbacks,
     setNewRequestId,
     stringifyId,
+    validateCallbacksToLayout,
 } from './dependencies';
 import {computePaths, getPath} from './paths';
 import {STATUS} from '../constants/constants';
@@ -57,8 +58,17 @@ export const setHooks = createAction(getAction('SET_HOOKS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const onError = createAction(getAction('ON_ERROR'));
 
+export const dispatchError = dispatch => (message, lines) =>
+    dispatch(
+        onError({
+            type: 'backEnd',
+            error: {message, html: lines.join('\n')},
+        })
+    );
+
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
+        validateCallbacksToLayout(getState(), dispatchError(dispatch));
         triggerDefaultState(dispatch, getState);
         dispatch(setAppLifecycle(getAppState('HYDRATED')));
     };

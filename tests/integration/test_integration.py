@@ -19,7 +19,6 @@ from dash.exceptions import (
     PreventUpdate,
     InvalidCallbackReturnValue,
     IncorrectTypeException,
-    NonExistentIdException,
 )
 from dash.testing.wait import until
 
@@ -759,52 +758,3 @@ def test_inin020_callback_return_validation():
         ]
         multi2("aaa", outputs_list=outputs_list)
         pytest.fail("wrong-length list")
-
-
-def test_inin023_wrong_callback_id():
-    app = Dash(__name__)
-    app.layout = html.Div(
-        [
-            html.Div(
-                [html.Div(id="inner-div"), dcc.Input(id="inner-input")], id="outer-div"
-            ),
-            dcc.Input(id="outer-input"),
-        ],
-        id="main",
-    )
-
-    ids = ["main", "inner-div", "inner-input", "outer-div", "outer-input"]
-
-    with pytest.raises(NonExistentIdException) as err:
-
-        @app.callback(Output("nuh-uh", "children"), [Input("inner-input", "value")])
-        def f(a):
-            return a
-
-    assert '"nuh-uh"' in err.value.args[0]
-    for component_id in ids:
-        assert component_id in err.value.args[0]
-
-    with pytest.raises(NonExistentIdException) as err:
-
-        @app.callback(Output("inner-div", "children"), [Input("yeah-no", "value")])
-        def g(a):
-            return a
-
-    assert '"yeah-no"' in err.value.args[0]
-    for component_id in ids:
-        assert component_id in err.value.args[0]
-
-    with pytest.raises(NonExistentIdException) as err:
-
-        @app.callback(
-            [Output("inner-div", "children"), Output("nope", "children")],
-            [Input("inner-input", "value")],
-        )
-        def g2(a):
-            return [a, a]
-
-    # the right way
-    @app.callback(Output("inner-div", "children"), [Input("inner-input", "value")])
-    def h(a):
-        return a
