@@ -40,7 +40,7 @@ from ._utils import (
     patch_collections_abc,
     split_callback_id,
     stringify_id,
-    strip_relative_path
+    strip_relative_path,
 )
 from . import _validate
 from . import _watch
@@ -282,7 +282,7 @@ class Dash(object):
             external_scripts=external_scripts or [],
             external_stylesheets=external_stylesheets or [],
             suppress_callback_exceptions=get_combined_config(
-                "suppress_callback_exceptions", suppress_callback_exceptions, False,
+                "suppress_callback_exceptions", suppress_callback_exceptions, False
             ),
             show_undo_redo=show_undo_redo,
         )
@@ -388,9 +388,7 @@ class Dash(object):
         self.server.before_first_request(self._setup_server)
 
         # add a handler for components suites errors to return 404
-        self.server.errorhandler(InvalidResourceError)(
-            self._invalid_resources_handler
-        )
+        self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
 
         self._add_url(
             "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
@@ -497,7 +495,7 @@ class Dash(object):
         def _relative_url_path(relative_package_path="", namespace=""):
 
             module_path = os.path.join(
-                os.path.dirname(sys.modules[namespace].__file__), relative_package_path,
+                os.path.dirname(sys.modules[namespace].__file__), relative_package_path
             )
 
             modified = int(os.stat(module_path).st_mtime)
@@ -602,9 +600,9 @@ class Dash(object):
         )
 
     def _generate_config_html(self):
-        return (
-            '<script id="_dash-config" type="application/json">{}</script>'
-        ).format(json.dumps(self._config()))
+        return ('<script id="_dash-config" type="application/json">{}</script>').format(
+            json.dumps(self._config())
+        )
 
     def _generate_renderer(self):
         return (
@@ -654,7 +652,7 @@ class Dash(object):
         )
 
         response = flask.Response(
-            pkgutil.get_data(package_name, path_in_pkg), mimetype=mimetype,
+            pkgutil.get_data(package_name, path_in_pkg), mimetype=mimetype
         )
 
         if has_fingerprint:
@@ -792,8 +790,7 @@ class Dash(object):
         )
 
     def _insert_callback(self, output, inputs, state):
-        layout = self._cached_layout or self._layout_value()
-        _validate.validate_callback(self, layout, output, inputs, state)
+        _validate.validate_callback(output, inputs, state)
         callback_id = create_callback_id(output)
 
         self.callback_map[callback_id] = {
@@ -882,7 +879,7 @@ class Dash(object):
                 _inline_clientside_template.format(
                     namespace=namespace.replace('"', '\\"'),
                     function_name=function_name.replace('"', '\\"'),
-                    clientside_function=clientside_function
+                    clientside_function=clientside_function,
                 )
             )
 
@@ -916,9 +913,7 @@ class Dash(object):
                 if not multi:
                     output_value, output_spec = [output_value], [output_spec]
 
-                _validate.validate_multi_return(
-                    output_spec, output_value, callback_id
-                )
+                _validate.validate_multi_return(output_spec, output_value, callback_id)
 
                 component_ids = collections.defaultdict(dict)
                 has_update = False
@@ -926,9 +921,7 @@ class Dash(object):
                     if isinstance(val, _NoUpdate):
                         continue
                     for vali, speci in (
-                        zip(val, spec)
-                        if isinstance(spec, list)
-                        else [[val, spec]]
+                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]
                     ):
                         if not isinstance(vali, _NoUpdate):
                             has_update = True
@@ -1047,7 +1040,7 @@ class Dash(object):
     @staticmethod
     def _serve_default_favicon():
         return flask.Response(
-            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon",
+            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
 
     def get_asset_url(self, path):

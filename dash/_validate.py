@@ -7,17 +7,16 @@ from . import exceptions
 from ._utils import patch_collections_abc, _strings, stringify_id
 
 
-def validate_callback(app, layout, output, inputs, state):
+def validate_callback(output, inputs, state):
     is_multi = isinstance(output, (list, tuple))
-    validate_ids = not app.config.suppress_callback_exceptions
 
     outputs = output if is_multi else [output]
 
     for args, cls in [(outputs, Output), (inputs, Input), (state, State)]:
-        validate_callback_args(args, cls, layout, validate_ids)
+        validate_callback_args(args, cls)
 
 
-def validate_callback_args(args, cls, layout, validate_ids):
+def validate_callback_args(args, cls):
     name = cls.__name__
     if not isinstance(args, (list, tuple)):
         raise exceptions.IncorrectTypeException(
@@ -57,10 +56,10 @@ def validate_callback_args(args, cls, layout, validate_ids):
             )
 
         if isinstance(arg.component_id, dict):
-            validate_id_dict(arg, layout, validate_ids, cls.allowed_wildcards)
+            validate_id_dict(arg)
 
         elif isinstance(arg.component_id, _strings):
-            validate_id_string(arg, layout, validate_ids)
+            validate_id_string(arg)
 
         else:
             raise exceptions.IncorrectTypeException(
@@ -72,14 +71,14 @@ def validate_callback_args(args, cls, layout, validate_ids):
             )
 
 
-def validate_id_dict(arg, layout, validate_ids, wildcards):
+def validate_id_dict(arg):
     arg_id = arg.component_id
 
-    for k, v in arg_id.items():
+    for k in arg_id:
         # Need to keep key type validation on the Python side, since
         # non-string keys will be converted to strings in json.dumps and may
         # cause unwanted collisions
-        if not (isinstance(k, _strings)):
+        if not isinstance(k, _strings):
             raise exceptions.IncorrectTypeException(
                 """
                 Wildcard ID keys must be non-empty strings,
@@ -90,7 +89,7 @@ def validate_id_dict(arg, layout, validate_ids, wildcards):
             )
 
 
-def validate_id_string(arg, layout, validate_ids):
+def validate_id_string(arg):
     arg_id = arg.component_id
 
     invalid_chars = ".{"

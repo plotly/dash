@@ -17,7 +17,7 @@ logger = logging.getLogger()
 
 # py2/3 json.dumps-compatible strings - these are equivalent in py3, not in py2
 # note because we import unicode_literals u"" and "" are both unicode
-_strings = (type(u""), type(utils.bytes_to_native_str(b"")))
+_strings = (type(""), type(utils.bytes_to_native_str(b"")))
 
 
 def interpolate_str(template, **data):
@@ -165,15 +165,14 @@ def create_callback_id(output):
                     # but in case of multiple dots together escape each dot
                     # with `\` so we don't mistake it for multi-outputs
                     x.component_id_str().replace(".", "\\."),
-                    x.component_property
+                    x.component_property,
                 )
                 for x in output
             )
         )
 
     return "{}.{}".format(
-        output.component_id_str().replace(".", "\\."),
-        output.component_property
+        output.component_id_str().replace(".", "\\."), output.component_property
     )
 
 

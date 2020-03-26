@@ -234,7 +234,7 @@ def test_inin006_flow_component(dash_duo):
     )
 
     @app.callback(
-        Output("output", "children"), [Input("react", "value"), Input("flow", "value")],
+        Output("output", "children"), [Input("react", "value"), Input("flow", "value")]
     )
     def display_output(react_value, flow_value):
         return html.Div(
@@ -711,7 +711,7 @@ def test_inin020_callback_return_validation():
         pytest.fail("not serializable")
 
     @app.callback(
-        [Output("c", "children"), Output("d", "children")], [Input("a", "children")],
+        [Output("c", "children"), Output("d", "children")], [Input("a", "children")]
     )
     def multi(a):
         return [1, set([2])]
@@ -719,13 +719,13 @@ def test_inin020_callback_return_validation():
     with pytest.raises(InvalidCallbackReturnValue):
         outputs_list = [
             {"id": "c", "property": "children"},
-            {"id": "d", "property": "children"}
+            {"id": "d", "property": "children"},
         ]
         multi("aaa", outputs_list=outputs_list)
         pytest.fail("nested non-serializable")
 
     @app.callback(
-        [Output("e", "children"), Output("f", "children")], [Input("a", "children")],
+        [Output("e", "children"), Output("f", "children")], [Input("a", "children")]
     )
     def multi2(a):
         return ["abc"]
@@ -733,7 +733,7 @@ def test_inin020_callback_return_validation():
     with pytest.raises(InvalidCallbackReturnValue):
         outputs_list = [
             {"id": "e", "property": "children"},
-            {"id": "f", "property": "children"}
+            {"id": "f", "property": "children"},
         ]
         multi2("aaa", outputs_list=outputs_list)
         pytest.fail("wrong-length list")

@@ -8,7 +8,7 @@ from dash.dependencies import Input, Output, State, ALL, ALLSMALLER, MATCH
 
 
 def css_escape(s):
-    sel = re.sub('[\\{\\}\\"\\\'.:,]', lambda m: '\\' + m.group(0), s)
+    sel = re.sub("[\\{\\}\\\"\\'.:,]", lambda m: "\\" + m.group(0), s)
     print(sel)
     return sel
 
@@ -16,40 +16,39 @@ def css_escape(s):
 def todo_app():
     app = dash.Dash(__name__)
 
-    app.layout = html.Div([
-        html.Div('Dash To-Do list'),
-        dcc.Input(id="new-item"),
-        html.Button("Add", id="add"),
-        html.Button("Clear Done", id="clear-done"),
-        html.Div(id="list-container"),
-        html.Hr(),
-        html.Div(id="totals")
-    ])
+    app.layout = html.Div(
+        [
+            html.Div("Dash To-Do list"),
+            dcc.Input(id="new-item"),
+            html.Button("Add", id="add"),
+            html.Button("Clear Done", id="clear-done"),
+            html.Div(id="list-container"),
+            html.Hr(),
+            html.Div(id="totals"),
+        ]
+    )
 
     style_todo = {"display": "inline", "margin": "10px"}
     style_done = {"textDecoration": "line-through", "color": "#888"}
     style_done.update(style_todo)
 
-    app.list_calls = Value('i', 0)
-    app.style_calls = Value('i', 0)
-    app.preceding_calls = Value('i', 0)
-    app.total_calls = Value('i', 0)
+    app.list_calls = Value("i", 0)
+    app.style_calls = Value("i", 0)
+    app.preceding_calls = Value("i", 0)
+    app.total_calls = Value("i", 0)
 
     @app.callback(
-        [
-            Output("list-container", "children"),
-            Output("new-item", "value")
-        ],
+        [Output("list-container", "children"), Output("new-item", "value")],
         [
             Input("add", "n_clicks"),
             Input("new-item", "n_submit"),
-            Input("clear-done", "n_clicks")
+            Input("clear-done", "n_clicks"),
         ],
         [
             State("new-item", "value"),
             State({"item": ALL}, "children"),
-            State({"item": ALL, "action": "done"}, "value")
-        ]
+            State({"item": ALL, "action": "done"}, "value"),
+        ],
     )
     def edit_list(add, add2, clear, new_item, items, items_done):
         app.list_calls.value += 1
@@ -59,33 +58,35 @@ def todo_app():
         )
         clearing = len([1 for i in triggered if i == "clear-done.n_clicks"])
         new_spec = [
-            (text, done) for text, done in zip(items, items_done)
+            (text, done)
+            for text, done in zip(items, items_done)
             if not (clearing and done)
         ]
         if adding:
             new_spec.append((new_item, []))
         new_list = [
-            html.Div([
-                dcc.Checklist(
-                    id={"item": i, "action": "done"},
-                    options=[{"label": "", "value": "done"}],
-                    value=done,
-                    style={"display": "inline"}
-                ),
-                html.Div(
-                    text,
-                    id={"item": i},
-                    style=style_done if done else style_todo
-                ),
-                html.Div(id={"item": i, "preceding": True}, style=style_todo)
-            ], style={"clear": "both"})
+            html.Div(
+                [
+                    dcc.Checklist(
+                        id={"item": i, "action": "done"},
+                        options=[{"label": "", "value": "done"}],
+                        value=done,
+                        style={"display": "inline"},
+                    ),
+                    html.Div(
+                        text, id={"item": i}, style=style_done if done else style_todo
+                    ),
+                    html.Div(id={"item": i, "preceding": True}, style=style_todo),
+                ],
+                style={"clear": "both"},
+            )
             for i, (text, done) in enumerate(new_spec)
         ]
         return [new_list, "" if adding else new_item]
 
     @app.callback(
         Output({"item": MATCH}, "style"),
-        [Input({"item": MATCH, "action": "done"}, "value")]
+        [Input({"item": MATCH, "action": "done"}, "value")],
     )
     def mark_done(done):
         app.style_calls.value += 1
@@ -95,8 +96,8 @@ def todo_app():
         Output({"item": MATCH, "preceding": True}, "children"),
         [
             Input({"item": ALLSMALLER, "action": "done"}, "value"),
-            Input({"item": MATCH, "action": "done"}, "value")
-        ]
+            Input({"item": MATCH, "action": "done"}, "value"),
+        ],
     )
     def show_preceding(done_before, this_done):
         app.preceding_calls.value += 1
@@ -110,8 +111,7 @@ def todo_app():
         return out
 
     @app.callback(
-        Output("totals", "children"),
-        [Input({"item": ALL, "action": "done"}, "value")]
+        Output("totals", "children"), [Input({"item": ALL, "action": "done"}, "value")]
     )
     def show_totals(done):
         app.total_calls.value += 1
@@ -147,16 +147,14 @@ def test_cbwc001_todo_app(dash_duo):
         return dash_duo.find_element(selector)
 
     def assert_item(item, text, done, prefix="", suffix=""):
-        dash_duo.wait_for_text_to_equal(
-            css_escape('#{"item":%d}' % item), text
-        )
+        dash_duo.wait_for_text_to_equal(css_escape('#{"item":%d}' % item), text)
 
         expected_note = "" if done else (prefix + " preceding items are done" + suffix)
         dash_duo.wait_for_text_to_equal(
             css_escape('#{"item":%d,"preceding":true}' % item), expected_note
         )
 
-        assert bool(get_done_item(item).get_attribute('checked')) == done
+        assert bool(get_done_item(item).get_attribute("checked")) == done
 
     new_item.send_keys("apples")
     add_item.click()

@@ -20,18 +20,9 @@ from selenium.common.exceptions import (
     MoveTargetOutOfBoundsException,
 )
 
-from dash.testing.wait import (
-    text_to_equal,
-    style_to_equal,
-    contains_text,
-    until,
-)
+from dash.testing.wait import text_to_equal, style_to_equal, contains_text, until
 from dash.testing.dash_page import DashPageMixin
-from dash.testing.errors import (
-    DashAppLoadingError,
-    BrowserError,
-    TestingTimeoutError,
-)
+from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
 from dash.testing.consts import SELENIUM_GRID_DEFAULT
 
 
@@ -234,8 +225,9 @@ class Browser(DashPageMixin):
             # so this one calls out directly to execute_script
             lambda: self.driver.execute_script(
                 "return document.querySelectorAll('{}').length".format(selector)
-            ) == 0,
-            timeout if timeout else self._wait_timeout
+            )
+            == 0,
+            timeout if timeout else self._wait_timeout,
         )
 
     def wait_for_element_by_id(self, element_id, timeout=None):
@@ -339,7 +331,7 @@ class Browser(DashPageMixin):
                     return
 
         logger.error(
-            "cannot find matching option using value=%s or index=%s", value, index,
+            "cannot find matching option using value=%s or index=%s", value, index
         )
 
     def toggle_window(self):
@@ -482,7 +474,7 @@ class Browser(DashPageMixin):
         ).perform()
 
     def zoom_in_graph_by_ratio(
-        self, elem_or_selector, start_fraction=0.5, zoom_box_fraction=0.2, compare=True,
+        self, elem_or_selector, start_fraction=0.5, zoom_box_fraction=0.2, compare=True
     ):
         """Zoom out a graph with a zoom box fraction of component dimension
         default start at middle with a rectangle of 1/5 of the dimension use

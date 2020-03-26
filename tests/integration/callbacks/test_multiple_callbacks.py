@@ -42,16 +42,18 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
 def test_cbmt002_canceled_intermediate_callback(dash_duo):
     # see https://github.com/plotly/dash/issues/1053
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        dcc.Input(id="a", value="x"),
-        html.Div("b", id="b"),
-        html.Div("c", id="c"),
-        html.Div(id="out")
-    ])
+    app.layout = html.Div(
+        [
+            dcc.Input(id="a", value="x"),
+            html.Div("b", id="b"),
+            html.Div("c", id="c"),
+            html.Div(id="out"),
+        ]
+    )
 
     @app.callback(
         Output("out", "children"),
-        [Input("a", "value"), Input("b", "children"), Input("c", "children")]
+        [Input("a", "value"), Input("b", "children"), Input("c", "children")],
     )
     def set_out(a, b, c):
         return "{}/{}/{}".format(a, b, c)
@@ -76,14 +78,16 @@ def test_cbmt002_canceled_intermediate_callback(dash_duo):
 def test_cbmt003_chain_with_table(dash_duo):
     # see https://github.com/plotly/dash/issues/1071
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        html.Div(id="a1"),
-        html.Div(id="a2"),
-        html.Div(id="b1"),
-        html.H1(id="b2"),
-        html.Button("Update", id="button"),
-        dash_table.DataTable(id="table"),
-    ])
+    app.layout = html.Div(
+        [
+            html.Div(id="a1"),
+            html.Div(id="a2"),
+            html.Div(id="b1"),
+            html.H1(id="b2"),
+            html.Button("Update", id="button"),
+            dash_table.DataTable(id="table"),
+        ]
+    )
 
     @app.callback(
         # Changing the order of outputs here fixes the issue
@@ -127,29 +131,37 @@ def test_cbmt003_chain_with_table(dash_duo):
 @pytest.mark.parametrize("MULTI", [False, True])
 def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        html.Button("Button", id="button"),
-        html.Div([
-            html.Label(id="label1"),
-            dcc.Slider(id="slider1", min=0, max=10, value=0),
-
-        ]),
-        html.Div([
-            html.Label(id="label2"),
-            dcc.Slider(id="slider2", min=0, max=10, value=0),
-        ])
-    ])
+    app.layout = html.Div(
+        [
+            html.Button("Button", id="button"),
+            html.Div(
+                [
+                    html.Label(id="label1"),
+                    dcc.Slider(id="slider1", min=0, max=10, value=0),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Label(id="label2"),
+                    dcc.Slider(id="slider2", min=0, max=10, value=0),
+                ]
+            ),
+        ]
+    )
 
     if MULTI:
+
         @app.callback(
             [Output("slider1", "value"), Output("slider2", "value")],
-            [Input("button", "n_clicks")]
+            [Input("button", "n_clicks")],
         )
         def update_slider_vals(n):
             if not n:
                 raise PreventUpdate
             return n, n
+
     else:
+
         @app.callback(Output("slider1", "value"), [Input("button", "n_clicks")])
         def update_slider1_val(n):
             if not n:
@@ -186,17 +198,19 @@ def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
 
 def test_cbmt005_multi_converging_chain(dash_duo):
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        html.Button("Button 1", id="b1"),
-        html.Button("Button 2", id="b2"),
-        dcc.Slider(id="slider1", min=-5, max=5),
-        dcc.Slider(id="slider2", min=-5, max=5),
-        html.Div(id="out")
-    ])
+    app.layout = html.Div(
+        [
+            html.Button("Button 1", id="b1"),
+            html.Button("Button 2", id="b2"),
+            dcc.Slider(id="slider1", min=-5, max=5),
+            dcc.Slider(id="slider2", min=-5, max=5),
+            html.Div(id="out"),
+        ]
+    )
 
     @app.callback(
         [Output("slider1", "value"), Output("slider2", "value")],
-        [Input("b1", "n_clicks"), Input("b2", "n_clicks")]
+        [Input("b1", "n_clicks"), Input("b2", "n_clicks")],
     )
     def update_sliders(button1, button2):
         if not dash.callback_context.triggered:
@@ -209,7 +223,7 @@ def test_cbmt005_multi_converging_chain(dash_duo):
 
     @app.callback(
         Output("out", "children"),
-        [Input("slider1", "value"), Input("slider2", "value")]
+        [Input("slider1", "value"), Input("slider2", "value")],
     )
     def update_graph(s1, s2):
         return "x={}, y={}".format(s1, s2)

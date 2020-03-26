@@ -174,51 +174,55 @@ def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
 
 def test_cbsc004_callback_using_unloaded_async_component(dash_duo):
     app = dash.Dash()
-    app.layout = html.Div([
-        dcc.Tabs([
-            dcc.Tab("boo!"),
-            dcc.Tab(
-                dash_table.DataTable(
-                    id="table",
-                    columns=[{"id": "a", "name": "A"}],
-                    data=[{"a": "b"}]
-                )
+    app.layout = html.Div(
+        [
+            dcc.Tabs(
+                [
+                    dcc.Tab("boo!"),
+                    dcc.Tab(
+                        dash_table.DataTable(
+                            id="table",
+                            columns=[{"id": "a", "name": "A"}],
+                            data=[{"a": "b"}],
+                        )
+                    ),
+                ]
             ),
-        ]),
-        html.Button("Update Input", id="btn"),
-        html.Div("Hello", id="output"),
-        html.Div(id="output2")
-    ])
+            html.Button("Update Input", id="btn"),
+            html.Div("Hello", id="output"),
+            html.Div(id="output2"),
+        ]
+    )
 
     @app.callback(
         Output("output", "children"),
         [Input("btn", "n_clicks")],
-        [State("table", "data")]
+        [State("table", "data")],
     )
     def update_out(n_clicks, data):
-        return json.dumps(data) + ' - ' + str(n_clicks)
+        return json.dumps(data) + " - " + str(n_clicks)
 
     @app.callback(
         Output("output2", "children"),
         [Input("btn", "n_clicks")],
-        [State("table", "derived_viewport_data")]
+        [State("table", "derived_viewport_data")],
     )
     def update_out2(n_clicks, data):
-        return json.dumps(data) + ' - ' + str(n_clicks)
+        return json.dumps(data) + " - " + str(n_clicks)
 
     dash_duo.start_server(app)
 
     dash_duo.wait_for_text_to_equal("#output", '[{"a": "b"}] - None')
-    dash_duo.wait_for_text_to_equal("#output2", 'null - None')
+    dash_duo.wait_for_text_to_equal("#output2", "null - None")
 
     dash_duo.find_element("#btn").click()
     dash_duo.wait_for_text_to_equal("#output", '[{"a": "b"}] - 1')
-    dash_duo.wait_for_text_to_equal("#output2", 'null - 1')
+    dash_duo.wait_for_text_to_equal("#output2", "null - 1")
 
     dash_duo.find_element(".tab:not(.tab--selected)").click()
     dash_duo.wait_for_text_to_equal("#table th", "A")
     # table props are in state so no change yet
-    dash_duo.wait_for_text_to_equal("#output2", 'null - 1')
+    dash_duo.wait_for_text_to_equal("#output2", "null - 1")
 
     # repeat a few times, since one of the failure modes I saw during dev was
     # intermittent - but predictably so?
@@ -234,10 +238,7 @@ def test_cbsc004_callback_using_unloaded_async_component(dash_duo):
 
 def test_cbsc005_children_types(dash_duo):
     app = dash.Dash()
-    app.layout = html.Div([
-        html.Button(id="btn"),
-        html.Div("init", id="out")
-    ])
+    app.layout = html.Div([html.Button(id="btn"), html.Div("init", id="out")])
 
     outputs = [
         [None, ""],
@@ -247,7 +248,7 @@ def test_cbsc005_children_types(dash_duo):
         [[6, 7, 8], "678"],
         [["a", "list", "of", "strings"], "alistofstrings"],
         [["strings", 2, "numbers"], "strings2numbers"],
-        [["a string", html.Div("and a div")], "a string\nand a div"]
+        [["a string", html.Div("and a div")], "a string\nand a div"],
     ]
 
     @app.callback(Output("out", "children"), [Input("btn", "n_clicks")])
@@ -266,18 +267,13 @@ def test_cbsc005_children_types(dash_duo):
 
 def test_cbsc006_array_of_objects(dash_duo):
     app = dash.Dash()
-    app.layout = html.Div([
-        html.Button(id="btn"),
-        dcc.Dropdown(id="dd"),
-        html.Div(id="out")
-    ])
+    app.layout = html.Div(
+        [html.Button(id="btn"), dcc.Dropdown(id="dd"), html.Div(id="out")]
+    )
 
     @app.callback(Output("dd", "options"), [Input("btn", "n_clicks")])
     def set_options(n):
-        return [
-            {"label": "opt{}".format(i), "value": i}
-            for i in range(n or 0)
-        ]
+        return [{"label": "opt{}".format(i), "value": i} for i in range(n or 0)]
 
     @app.callback(Output("out", "children"), [Input("dd", "options")])
     def set_out(opts):
@@ -310,34 +306,35 @@ def test_cbsc007_parallel_updates(refresh, dash_duo):
 
     app = dash.Dash()
 
-    app.layout = html.Div([
-        dcc.Location(id='loc', refresh=refresh),
-        html.Button('Update path', id='btn'),
-        dash_table.DataTable(id='t', columns=[{'name': 'a', 'id': 'a'}]),
-        html.Div(id='out')
-    ])
+    app.layout = html.Div(
+        [
+            dcc.Location(id="loc", refresh=refresh),
+            html.Button("Update path", id="btn"),
+            dash_table.DataTable(id="t", columns=[{"name": "a", "id": "a"}]),
+            html.Div(id="out"),
+        ]
+    )
 
-    @app.callback(Output('t', 'data'), [Input('loc', 'pathname')])
+    @app.callback(Output("t", "data"), [Input("loc", "pathname")])
     def set_data(path):
-        return [{'a': (path or repr(path)) + ':a'}]
+        return [{"a": (path or repr(path)) + ":a"}]
 
     @app.callback(
-        Output('out', 'children'),
-        [Input('loc', 'pathname'), Input('t', 'data')]
+        Output("out", "children"), [Input("loc", "pathname"), Input("t", "data")]
     )
     def set_out(path, data):
-        return json.dumps(data) + ' - ' + (path or repr(path))
+        return json.dumps(data) + " - " + (path or repr(path))
 
-    @app.callback(Output('loc', 'pathname'), [Input('btn', 'n_clicks')])
+    @app.callback(Output("loc", "pathname"), [Input("btn", "n_clicks")])
     def set_path(n):
         if not n:
             raise PreventUpdate
 
-        return '/{0}'.format(n)
+        return "/{0}".format(n)
 
     dash_duo.start_server(app)
 
-    dash_duo.wait_for_text_to_equal('#out', '[{"a": "/:a"}] - /')
+    dash_duo.wait_for_text_to_equal("#out", '[{"a": "/:a"}] - /')
     dash_duo.find_element("#btn").click()
     # the refresh=True case here is testing that we really do get the right
     # pathname, not the prevented default value from the layout.

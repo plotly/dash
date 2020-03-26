@@ -119,7 +119,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
                     "title": value,
                     "width": 500,
                     "height": 400,
-                    "margin": {"autoexpand": False}
+                    "margin": {"autoexpand": False},
                 },
             }
 
@@ -165,8 +165,8 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
         wait.until(
             lambda: (
                 dash_duo.driver.execute_script(
-                    'return document.querySelector("' +
-                    "#{}-graph:not(.dash-graph--pending) .js-plotly-plot".format(
+                    'return document.querySelector("'
+                    + "#{}-graph:not(.dash-graph--pending) .js-plotly-plot".format(
                         chapter
                     )
                     + '").layout.title.text'
@@ -234,7 +234,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     dash_duo.find_elements('input[type="radio"]')[0].click()
 
     wait.until(
-        lambda: dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"], TIMEOUT,
+        lambda: dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"], TIMEOUT
     )
     check_chapter("chapter1")
     dash_duo.percy_snapshot(name="chapter-1-again")

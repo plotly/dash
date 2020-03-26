@@ -13,15 +13,11 @@ from dash.exceptions import PreventUpdate, MissingCallbackContextException
 
 def test_cbcx001_modified_response(dash_duo):
     app = Dash(__name__)
-    app.layout = html.Div(
-        [dcc.Input(id="input", value="ab"), html.Div(id="output")]
-    )
+    app.layout = html.Div([dcc.Input(id="input", value="ab"), html.Div(id="output")])
 
     @app.callback(Output("output", "children"), [Input("input", "value")])
     def update_output(value):
-        callback_context.response.set_cookie(
-            "dash cookie", value + " - cookie"
-        )
+        callback_context.response.set_cookie("dash cookie", value + " - cookie")
         return value + " - output"
 
     dash_duo.start_server(app)
@@ -44,15 +40,10 @@ def test_cbcx002_triggered(dash_duo):
     btns = ["btn-{}".format(x) for x in range(1, 6)]
 
     app.layout = html.Div(
-        [
-            html.Div([html.Button(btn, id=btn) for btn in btns]),
-            html.Div(id="output"),
-        ]
+        [html.Div([html.Button(btn, id=btn) for btn in btns]), html.Div(id="output")]
     )
 
-    @app.callback(
-        Output("output", "children"), [Input(x, "n_clicks") for x in btns]
-    )
+    @app.callback(Output("output", "children"), [Input(x, "n_clicks") for x in btns])
     def on_click(*args):
         if not callback_context.triggered:
             raise PreventUpdate
@@ -79,10 +70,7 @@ def test_cbcx003_no_callback_context():
 
 def test_cbcx004_triggered_backward_compat(dash_duo):
     app = Dash(__name__)
-    app.layout = html.Div([
-        html.Button("click!", id="btn"),
-        html.Div(id="out")
-    ])
+    app.layout = html.Div([html.Button("click!", id="btn"), html.Div(id="out")])
 
     @app.callback(Output("out", "children"), [Input("btn", "n_clicks")])
     def report_triggered(n):
@@ -99,12 +87,12 @@ def test_cbcx004_triggered_backward_compat(dash_duo):
     dash_duo.wait_for_text_to_equal(
         "#out",
         'triggered is falsy, has prop/id ["", ""], and full value '
-        '[{"prop_id": ".", "value": null}]'
+        '[{"prop_id": ".", "value": null}]',
     )
 
     dash_duo.find_element("#btn").click()
     dash_duo.wait_for_text_to_equal(
         "#out",
         'triggered is truthy, has prop/id ["btn", "n_clicks"], and full value '
-        '[{"prop_id": "btn.n_clicks", "value": 1}]'
+        '[{"prop_id": "btn.n_clicks", "value": 1}]',
     )

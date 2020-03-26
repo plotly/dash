@@ -54,7 +54,9 @@ const UnconnectedContainer = props => {
                     dispatch
                 );
                 dispatch(
-                    setPaths(computePaths(finalLayout, [], null, events.current))
+                    setPaths(
+                        computePaths(finalLayout, [], null, events.current)
+                    )
                 );
                 dispatch(setLayout(finalLayout));
             }

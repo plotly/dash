@@ -863,23 +863,37 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal("#output-pre", "request_pre changed this text!")
         self.wait_for_text_to_equal("#output-post", "request_post changed this text!")
         pre_payload = self.wait_for_element_by_css_selector("#output-pre-payload").text
-        post_payload = self.wait_for_element_by_css_selector("#output-post-payload").text
-        post_response = self.wait_for_element_by_css_selector("#output-post-response").text
-        self.assertEqual(json.loads(pre_payload), {
-            "output": "output-1.children",
-            "outputs": {"id": "output-1", "property": "children"},
-            "changedPropIds": ["input.value"],
-            "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}]
-        })
-        self.assertEqual(json.loads(post_payload), {
-            "output": "output-1.children",
-            "outputs": {"id": "output-1", "property": "children"},
-            "changedPropIds": ["input.value"],
-            "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}]
-        })
-        self.assertEqual(json.loads(post_response), {
-            "output-1": {"children": "fire request hooks"}
-        })
+        post_payload = self.wait_for_element_by_css_selector(
+            "#output-post-payload"
+        ).text
+        post_response = self.wait_for_element_by_css_selector(
+            "#output-post-response"
+        ).text
+        self.assertEqual(
+            json.loads(pre_payload),
+            {
+                "output": "output-1.children",
+                "outputs": {"id": "output-1", "property": "children"},
+                "changedPropIds": ["input.value"],
+                "inputs": [
+                    {"id": "input", "property": "value", "value": "fire request hooks"}
+                ],
+            },
+        )
+        self.assertEqual(
+            json.loads(post_payload),
+            {
+                "output": "output-1.children",
+                "outputs": {"id": "output-1", "property": "children"},
+                "changedPropIds": ["input.value"],
+                "inputs": [
+                    {"id": "input", "property": "value", "value": "fire request hooks"}
+                ],
+            },
+        )
+        self.assertEqual(
+            json.loads(post_response), {"output-1": {"children": "fire request hooks"}}
+        )
         self.percy_snapshot(name="request-hooks render")
 
     def test_graphs_in_tabs_do_not_share_state(self):

@@ -4,11 +4,7 @@ from .consts import SELENIUM_GRID_DEFAULT
 
 
 try:
-    from dash.testing.application_runners import (
-        ThreadedRunner,
-        ProcessRunner,
-        RRunner,
-    )
+    from dash.testing.application_runners import ThreadedRunner, ProcessRunner, RRunner
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite
 except ImportError:
@@ -26,7 +22,7 @@ def pytest_addoption(parser):
     )
 
     dash.addoption(
-        "--remote", action="store_true", help="instruct pytest to use selenium grid",
+        "--remote", action="store_true", help="instruct pytest to use selenium grid"
     )
 
     dash.addoption(
@@ -37,7 +33,7 @@ def pytest_addoption(parser):
     )
 
     dash.addoption(
-        "--headless", action="store_true", help="set this flag to run in headless mode",
+        "--headless", action="store_true", help="set this flag to run in headless mode"
     )
 
     dash.addoption(

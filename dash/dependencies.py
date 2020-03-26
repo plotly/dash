@@ -49,10 +49,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         return i
 
     def to_dict(self):
-        return {
-            "id": self.component_id_str(),
-            "property": self.component_property
-        }
+        return {"id": self.component_id_str(), "property": self.component_property}
 
     def __eq__(self, other):
         """

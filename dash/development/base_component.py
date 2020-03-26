@@ -284,9 +284,7 @@ class Component(with_metaclass(ComponentMeta, object)):
         elif isinstance(children, (tuple, MutableSequence)):
             for idx, i in enumerate(children):
                 list_path = "[{:d}] {:s}{}".format(
-                    idx,
-                    type(i).__name__,
-                    self._id_str(i),
+                    idx, type(i).__name__, self._id_str(i)
                 )
                 yield list_path, i
 
