@@ -1,4 +1,3 @@
-/* global window:true, document:true */
 import React from 'react';
 import {mergeRight, once} from 'ramda';
 import PropTypes from 'prop-types';
@@ -31,7 +30,6 @@ function AccessDenied(props) {
             <a
                 style={styles.base.a}
                 onClick={() => {
-                    /* eslint no-empty: ["error", { "allowEmptyCatch": true }] */
                     try {
                         document.cookie =
                             `${constants.OAUTH_COOKIE_NAME}=; ` +

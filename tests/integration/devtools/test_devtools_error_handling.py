@@ -68,19 +68,19 @@ def test_dveh001_python_errors(dash_duo):
     # the top (first) error is the most recent one - ie from the second click
     error0 = get_error_html(dash_duo, 0)
     # user part of the traceback shown by default
-    assert 'in update_output' in error0
-    assert 'Special 2 clicks exception' in error0
-    assert 'in bad_sub' not in error0
+    assert "in update_output" in error0
+    assert "Special 2 clicks exception" in error0
+    assert "in bad_sub" not in error0
     # dash and flask part of the traceback not included
-    assert '%% callback invoked %%' not in error0
-    assert 'self.wsgi_app' not in error0
+    assert "%% callback invoked %%" not in error0
+    assert "self.wsgi_app" not in error0
 
     error1 = get_error_html(dash_duo, 1)
-    assert 'in update_output' in error1
-    assert 'in bad_sub' in error1
-    assert 'ZeroDivisionError' in error1
-    assert '%% callback invoked %%' not in error1
-    assert 'self.wsgi_app' not in error1
+    assert "in update_output" in error1
+    assert "in bad_sub" in error1
+    assert "ZeroDivisionError" in error1
+    assert "%% callback invoked %%" not in error1
+    assert "self.wsgi_app" not in error1
 
 
 def test_dveh006_long_python_errors(dash_duo):
@@ -103,20 +103,20 @@ def test_dveh006_long_python_errors(dash_duo):
     dash_duo.find_element(".test-devtools-error-toggle").click()
 
     error0 = get_error_html(dash_duo, 0)
-    assert 'in update_output' in error0
-    assert 'Special 2 clicks exception' in error0
-    assert 'in bad_sub' not in error0
+    assert "in update_output" in error0
+    assert "Special 2 clicks exception" in error0
+    assert "in bad_sub" not in error0
     # dash and flask part of the traceback ARE included
     # since we set dev_tools_prune_errors=False
-    assert '%% callback invoked %%' in error0
-    assert 'self.wsgi_app' in error0
+    assert "%% callback invoked %%" in error0
+    assert "self.wsgi_app" in error0
 
     error1 = get_error_html(dash_duo, 1)
-    assert 'in update_output' in error1
-    assert 'in bad_sub' in error1
-    assert 'ZeroDivisionError' in error1
-    assert '%% callback invoked %%' in error1
-    assert 'self.wsgi_app' in error1
+    assert "in update_output" in error1
+    assert "in bad_sub" in error1
+    assert "ZeroDivisionError" in error1
+    assert "%% callback invoked %%" in error1
+    assert "self.wsgi_app" in error1
 
 
 def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
@@ -157,9 +157,7 @@ def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
     # two exceptions fired, but only a single exception appeared in the UI:
     # the prevent default was not displayed
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
-    dash_duo.percy_snapshot(
-        "devtools - prevent update - only a single exception"
-    )
+    dash_duo.percy_snapshot("devtools - prevent update - only a single exception")
 
 
 def test_dveh003_validation_errors_in_place(dash_duo):
@@ -186,7 +184,7 @@ def test_dveh003_validation_errors_in_place(dash_duo):
         dev_tools_hot_reload=False,
     )
 
-    dash_duo.wait_for_element('.js-plotly-plot .main-svg')
+    dash_duo.wait_for_element(".js-plotly-plot .main-svg")
 
     dash_duo.find_element("#button").click()
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
@@ -235,9 +233,7 @@ def test_dveh005_multiple_outputs(dash_duo):
     app.layout = html.Div(
         [
             html.Button(
-                id="multi-output",
-                children="trigger multi output update",
-                n_clicks=0,
+                id="multi-output", children="trigger multi output update", n_clicks=0,
             ),
             html.Div(id="multi-1"),
             html.Div(id="multi-2"),

@@ -10,6 +10,7 @@ def invincible(func):
             return func()
         except:
             pass
+
     return wrap
 
 
@@ -17,7 +18,7 @@ class WaitForTimeout(Exception):
     """This should only be raised inside the `wait_for` function."""
 
 
-def wait_for(condition_function, get_message=lambda: '', *args, **kwargs):
+def wait_for(condition_function, get_message=lambda: "", *args, **kwargs):
     """Waits for condition_function to return True or raises WaitForTimeout.
 
     :param (function) condition_function: Should return True on success.
@@ -36,6 +37,7 @@ def wait_for(condition_function, get_message=lambda: '', *args, **kwargs):
             self.fail('element never appeared...')
         plot = get_element(selector)  # we know it exists.
     """
+
     def wrapped_condition_function():
         """We wrap this to alter the call base on the closure."""
         if args and kwargs:
@@ -46,9 +48,9 @@ def wait_for(condition_function, get_message=lambda: '', *args, **kwargs):
             return condition_function(**kwargs)
         return condition_function()
 
-    if 'timeout' in kwargs:
-        timeout = kwargs['timeout']
-        del kwargs['timeout']
+    if "timeout" in kwargs:
+        timeout = kwargs["timeout"]
+        del kwargs["timeout"]
     else:
         timeout = TIMEOUT
 

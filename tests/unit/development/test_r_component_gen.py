@@ -5,9 +5,7 @@ from textwrap import dedent
 
 import pytest
 
-from dash.development._r_components_generation import (
-    make_namespace_exports
-)
+from dash.development._r_components_generation import make_namespace_exports
 
 
 @pytest.fixture
@@ -20,7 +18,8 @@ def make_r_dir():
 
 
 def test_r_exports(make_r_dir):
-    extra_file = dedent("""
+    extra_file = dedent(
+        """
         # normal function syntax
         my_func <- function(a, b) {
             c <- a + b
@@ -55,22 +54,25 @@ def test_r_exports(make_r_dir):
 
         # . in the middle is OK though
         not.secret <- function() { 42 }
-    """)
+    """
+    )
 
     components = ["Component1", "Component2"]
-    prefix = 'pre'
+    prefix = "pre"
 
     expected_exports = [prefix + c for c in components] + [
         "my_func",
         "my_func2",
         "df_to_list",
         "util",
-        "not.secret"
+        "not.secret",
     ]
 
-    mock_component_file = dedent("""
+    mock_component_file = dedent(
+        """
         nope <- function() { stop("we don't look in component files") }
-    """)
+    """
+    )
 
     with open(os.path.join("R", "preComponent1.R"), "w") as f:
         f.write(mock_component_file)
@@ -80,6 +82,6 @@ def test_r_exports(make_r_dir):
 
     exports = make_namespace_exports(components, prefix)
     print(exports)
-    matches = re.findall(r"export\(([^()]+)\)", exports.replace('\n', ' '))
+    matches = re.findall(r"export\(([^()]+)\)", exports.replace("\n", " "))
 
     assert matches == expected_exports

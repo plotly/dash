@@ -13,13 +13,14 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
 
     N_OUTPUTS = 50
 
-    app.layout = html.Div([
-        html.Button("click me", id="btn"),
-    ] + [html.Div(id="output-{}".format(i)) for i in range(N_OUTPUTS)])
+    app.layout = html.Div(
+        [html.Button("click me", id="btn")]
+        + [html.Div(id="output-{}".format(i)) for i in range(N_OUTPUTS)]
+    )
 
     @app.callback(
         [Output("output-{}".format(i), "children") for i in range(N_OUTPUTS)],
-        [Input("btn", "n_clicks")]
+        [Input("btn", "n_clicks")],
     )
     def update_output(n_clicks):
         if n_clicks is None:
@@ -31,7 +32,9 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
     @app.server.after_request
     def apply_cors(response):
         response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        response.headers[
+            "Access-Control-Allow-Headers"
+        ] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
         return response
 
     dash_duo.start_server(app)
@@ -50,8 +53,8 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
 
     dash_duo.driver.switch_to.frame(0)
 
-    dash_duo.wait_for_element('#output-0')
-    dash_duo.wait_for_element_by_id('btn').click()
-    dash_duo.wait_for_element('#output-0').text == '0=1'
+    dash_duo.wait_for_element("#output-0")
+    dash_duo.wait_for_element_by_id("btn").click()
+    dash_duo.wait_for_element("#output-0").text == "0=1"
 
     assert len(dash_duo.get_logs()) != 0
