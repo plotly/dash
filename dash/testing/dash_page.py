@@ -4,8 +4,7 @@ from bs4 import BeautifulSoup
 class DashPageMixin(object):
     def _get_dash_dom_by_attribute(self, attr):
         return BeautifulSoup(
-            self.find_element(self.dash_entry_locator).get_attribute(attr),
-            "lxml",
+            self.find_element(self.dash_entry_locator).get_attribute(attr), "lxml",
         )
 
     @property
@@ -56,16 +55,12 @@ class DashPageMixin(object):
 
     def get_local_storage(self, store_id="local"):
         return self.driver.execute_script(
-            "return JSON.parse(window.localStorage.getItem('{}'));".format(
-                store_id
-            )
+            "return JSON.parse(window.localStorage.getItem('{}'));".format(store_id)
         )
 
     def get_session_storage(self, session_id="session"):
         return self.driver.execute_script(
-            "return JSON.parse(window.sessionStorage.getItem('{}'));".format(
-                session_id
-            )
+            "return JSON.parse(window.sessionStorage.getItem('{}'));".format(session_id)
         )
 
     def clear_local_storage(self):

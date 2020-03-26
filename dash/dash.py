@@ -277,16 +277,12 @@ class Dash(object):
             routes_pathname_prefix=routes_prefix,
             requests_pathname_prefix=requests_prefix,
             serve_locally=serve_locally,
-            compress=get_combined_config(
-                "compress", compress, True
-            ),
+            compress=get_combined_config("compress", compress, True),
             meta_tags=meta_tags or [],
             external_scripts=external_scripts or [],
             external_stylesheets=external_stylesheets or [],
             suppress_callback_exceptions=get_combined_config(
-                "suppress_callback_exceptions",
-                suppress_callback_exceptions,
-                False,
+                "suppress_callback_exceptions", suppress_callback_exceptions, False,
             ),
             show_undo_redo=show_undo_redo,
         )
@@ -501,8 +497,7 @@ class Dash(object):
         def _relative_url_path(relative_package_path="", namespace=""):
 
             module_path = os.path.join(
-                os.path.dirname(sys.modules[namespace].__file__),
-                relative_package_path,
+                os.path.dirname(sys.modules[namespace].__file__), relative_package_path,
             )
 
             modified = int(os.stat(module_path).st_mtime)
@@ -542,9 +537,7 @@ class Dash(object):
                     else:
                         srcs += resource["external_url"]
             elif "absolute_path" in resource:
-                raise Exception(
-                    "Serving files from absolute_path isn't supported yet"
-                )
+                raise Exception("Serving files from absolute_path isn't supported yet")
             elif "asset_path" in resource:
                 static_url = self.get_asset_url(resource["asset_path"])
                 # Add a cache-busting query param
@@ -587,9 +580,7 @@ class Dash(object):
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
-                self.scripts._resources._filter_resources(
-                    deps, dev_bundles=dev
-                )
+                self.scripts._resources._filter_resources(deps, dev_bundles=dev)
             )
             + self.config.external_scripts
             + self._collect_and_register_resources(
@@ -606,18 +597,13 @@ class Dash(object):
                 if isinstance(src, dict)
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
-            ] +
-            [
-                '<script>{}</script>'.format(src)
-                for src in self._inline_scripts
             ]
+            + ["<script>{}</script>".format(src) for src in self._inline_scripts]
         )
 
     def _generate_config_html(self):
         return (
-            '<script id="_dash-config" type="application/json">'
-            "{}"
-            "</script>"
+            '<script id="_dash-config" type="application/json">{}</script>'
         ).format(json.dumps(self._config()))
 
     def _generate_renderer(self):
@@ -636,9 +622,7 @@ class Dash(object):
 
         tags = []
         if not has_ie_compat:
-            tags.append(
-                '<meta http-equiv="X-UA-Compatible" content="IE=edge">'
-            )
+            tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
 
@@ -670,8 +654,7 @@ class Dash(object):
         )
 
         response = flask.Response(
-            pkgutil.get_data(package_name, path_in_pkg),
-            mimetype=mimetype,
+            pkgutil.get_data(package_name, path_in_pkg), mimetype=mimetype,
         )
 
         if has_fingerprint:
@@ -684,7 +667,7 @@ class Dash(object):
             response.add_etag()
             tag = response.get_etag()[0]
 
-            request_etag = flask.request.headers.get('If-None-Match')
+            request_etag = flask.request.headers.get("If-None-Match")
 
             if '"{}"'.format(tag) == request_etag:
                 response = flask.Response(None, status=304)
@@ -821,9 +804,7 @@ class Dash(object):
 
         return callback_id
 
-    def clientside_callback(
-        self, clientside_function, output, inputs, state=()
-    ):
+    def clientside_callback(self, clientside_function, output, inputs, state=()):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
 
@@ -894,8 +875,8 @@ class Dash(object):
             if isinstance(output, (list, tuple)):
                 out0 = output[0]
 
-            namespace = '_dashprivate_{}'.format(out0.component_id)
-            function_name = '{}'.format(out0.component_property)
+            namespace = "_dashprivate_{}".format(out0.component_id)
+            function_name = "{}".format(out0.component_property)
 
             self._inline_scripts.append(
                 _inline_clientside_template.format(
@@ -989,9 +970,7 @@ class Dash(object):
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
         ]
 
-        response = flask.g.dash_response = flask.Response(
-            mimetype="application/json"
-        )
+        response = flask.g.dash_response = flask.Response(mimetype="application/json")
 
         args = inputs_to_vals(inputs) + inputs_to_vals(state)
 
@@ -1004,7 +983,7 @@ class Dash(object):
         eager_loading = self.config.eager_loading
         for module_name in ComponentRegistry.registry:
             module = sys.modules[module_name]
-            eager = getattr(module, '_force_eager_loading', False)
+            eager = getattr(module, "_force_eager_loading", False)
             eager_loading = eager_loading or eager
 
         # Update eager_loading settings
@@ -1055,9 +1034,7 @@ class Dash(object):
                 full = os.path.join(current, f)
 
                 if f.endswith("js"):
-                    self.scripts.append_script(
-                        self._add_assets_resource(path, full)
-                    )
+                    self.scripts.append_script(self._add_assets_resource(path, full))
                 elif f.endswith("css"):
                     self.css.append_css(self._add_assets_resource(path, full))
                 elif f == "favicon.ico":
@@ -1070,8 +1047,7 @@ class Dash(object):
     @staticmethod
     def _serve_default_favicon():
         return flask.Response(
-            pkgutil.get_data("dash", "favicon.ico"),
-            content_type="image/x-icon",
+            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon",
         )
 
     def get_asset_url(self, path):
@@ -1120,10 +1096,7 @@ class Dash(object):
                 return chapters.page_2
         ```
         """
-        asset = get_relative_path(
-            self.config.requests_pathname_prefix,
-            path,
-        )
+        asset = get_relative_path(self.config.requests_pathname_prefix, path)
 
         return asset
 
@@ -1174,10 +1147,7 @@ class Dash(object):
         `page-1/sub-page-1`
         ```
         """
-        return strip_relative_path(
-            self.config.requests_pathname_prefix,
-            path,
-        )
+        return strip_relative_path(self.config.requests_pathname_prefix, path)
 
     def _setup_dev_tools(self, **kwargs):
         debug = kwargs.get("debug", False)
@@ -1201,9 +1171,7 @@ class Dash(object):
             ("hot_reload_max_retry", int, 8),
         ):
             dev_tools[attr] = _type(
-                get_combined_config(
-                    attr, kwargs.get(attr, None), default=default
-                )
+                get_combined_config(attr, kwargs.get(attr, None), default=default)
             )
 
         return dev_tools
@@ -1322,8 +1290,7 @@ class Dash(object):
                 else package.filename
                 for package in (
                     pkgutil.find_loader(x)
-                    for x in list(ComponentRegistry.registry)
-                    + ["dash_renderer"]
+                    for x in list(ComponentRegistry.registry) + ["dash_renderer"]
                 )
             ]
 
@@ -1378,9 +1345,7 @@ class Dash(object):
                 asset_path = (
                     os.path.relpath(
                         filename,
-                        os.path.commonprefix(
-                            [self.config.assets_folder, filename]
-                        ),
+                        os.path.commonprefix([self.config.assets_folder, filename]),
                     )
                     .replace("\\", "/")
                     .lstrip("/")
@@ -1423,7 +1388,8 @@ class Dash(object):
 
     def run_server(
         self,
-        port=8050,
+        host=os.getenv("HOST", "127.0.0.1"),
+        port=os.getenv("PORT", "8050"),
         debug=False,
         dev_tools_ui=None,
         dev_tools_props_check=None,
@@ -1442,7 +1408,12 @@ class Dash(object):
         If a parameter can be set by an environment variable, that is listed
         too. Values provided here take precedence over environment variables.
 
+        :param host: Host IP used to serve the application
+            env: ``HOST``
+        :type host: string
+
         :param port: Port used to serve the application
+            env: ``PORT``
         :type port: int
 
         :param debug: Set Flask debug mode and enable dev tools.
@@ -1515,9 +1486,18 @@ class Dash(object):
             dev_tools_prune_errors,
         )
 
+        # Verify port value
+        try:
+            port = int(port)
+            assert port in range(1, 65536)
+        except Exception as e:
+            e.args = [
+                "Expecting an integer from 1 to 65535, found port={}".format(repr(port))
+            ]
+            raise
+
         if self._dev_tools.silence_routes_logging:
             # Since it's silenced, the address doesn't show anymore.
-            host = flask_run_options.get("host", "127.0.0.1")
             ssl_context = flask_run_options.get("ssl_context")
             self.logger.info(
                 "Running on %s://%s:%s%s",
@@ -1537,4 +1517,4 @@ class Dash(object):
 
             self.logger.info("Debugger PIN: %s", debugger_pin)
 
-        self.server.run(port=port, debug=debug, **flask_run_options)
+        self.server.run(host=host, port=port, debug=debug, **flask_run_options)

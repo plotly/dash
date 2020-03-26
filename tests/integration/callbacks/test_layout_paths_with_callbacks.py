@@ -10,9 +10,7 @@ import dash.testing.wait as wait
 
 def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     TIMEOUT = 2
-    with open(
-        os.path.join(os.path.dirname(__file__), "state_path.json")
-    ) as fp:
+    with open(os.path.join(os.path.dirname(__file__), "state_path.json")) as fp:
         EXPECTED_PATHS = json.load(fp)
 
     app = Dash(__name__)
@@ -40,9 +38,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
             [
                 html.H1("Chapter 1", id="chapter1-header"),
                 dcc.Dropdown(
-                    options=[
-                        {"label": i, "value": i} for i in ["NYC", "MTL", "SF"]
-                    ],
+                    options=[{"label": i, "value": i} for i in ["NYC", "MTL", "SF"]],
                     value="NYC",
                     id="chapter1-controls",
                 ),
@@ -59,9 +55,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
             [
                 html.H1("Chapter 2", id="chapter2-header"),
                 dcc.RadioItems(
-                    options=[
-                        {"label": i, "value": i} for i in ["USA", "Canada"]
-                    ],
+                    options=[{"label": i, "value": i} for i in ["USA", "Canada"]],
                     value="USA",
                     id="chapter2-controls",
                 ),
@@ -80,8 +74,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
                         dcc.Graph(id="chapter3-graph"),
                         dcc.RadioItems(
                             options=[
-                                {"label": i, "value": i}
-                                for i in ["Summer", "Winter"]
+                                {"label": i, "value": i} for i in ["Summer", "Winter"]
                             ],
                             value="Winter",
                             id="chapter3-controls",
@@ -153,9 +146,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     dash_duo.start_server(app)
 
     def check_chapter(chapter):
-        dash_duo.wait_for_element(
-            '#{}-graph:not(.dash-graph--pending)'.format(chapter)
-        )
+        dash_duo.wait_for_element("#{}-graph:not(.dash-graph--pending)".format(chapter))
 
         for key in dash_duo.redux_state_paths["strs"]:
             assert dash_duo.find_elements(
@@ -243,8 +234,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     dash_duo.find_elements('input[type="radio"]')[0].click()
 
     wait.until(
-        lambda: dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"],
-        TIMEOUT,
+        lambda: dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"], TIMEOUT,
     )
     check_chapter("chapter1")
     dash_duo.percy_snapshot(name="chapter-1-again")

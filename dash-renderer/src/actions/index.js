@@ -1,4 +1,3 @@
-/* global fetch:true, Promise:true, document:true */
 import {
     concat,
     flatten,

@@ -16,13 +16,14 @@ def test_rdmo001_single_input_multi_outputs_on_multiple_components(dash_duo):
 
     N_OUTPUTS = 50
 
-    app.layout = html.Div([
-        html.Button("click me", id="btn"),
-    ] + [html.Div(id="output-{}".format(i)) for i in range(N_OUTPUTS)])
+    app.layout = html.Div(
+        [html.Button("click me", id="btn")]
+        + [html.Div(id="output-{}".format(i)) for i in range(N_OUTPUTS)]
+    )
 
     @app.callback(
         [Output("output-{}".format(i), "children") for i in range(N_OUTPUTS)],
-        [Input("btn", "n_clicks")]
+        [Input("btn", "n_clicks")],
     )
     def update_output(n_clicks):
         if n_clicks is None:
@@ -40,8 +41,7 @@ def test_rdmo001_single_input_multi_outputs_on_multiple_components(dash_duo):
 
         for i in range(N_OUTPUTS):
             dash_duo.wait_for_text_to_equal(
-                "#output-{}".format(i),
-                "{}={}".format(i, i + click)
+                "#output-{}".format(i), "{}={}".format(i, i + click)
             )
 
         assert call_count.value == click
@@ -51,24 +51,24 @@ def test_rdmo002_multi_outputs_on_single_component(dash_duo):
     call_count = Value("i")
     app = dash.Dash(__name__)
 
-    app.layout = html.Div([
-        dcc.Input(id="input", value="dash"),
-        html.Div(html.Div(id="output"), id="output-container"),
-    ])
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value="dash"),
+            html.Div(html.Div(id="output"), id="output-container"),
+        ]
+    )
 
     @app.callback(
-        [Output("output", "children"),
-         Output("output", "style"),
-         Output("output", "className")],
-        [Input("input", "value")]
+        [
+            Output("output", "children"),
+            Output("output", "style"),
+            Output("output", "className"),
+        ],
+        [Input("input", "value")],
     )
     def update_output(value):
         call_count.value += 1
-        return [
-            value,
-            {"fontFamily": value},
-            value
-        ]
+        return [value, {"fontFamily": value}, value]
 
     dash_duo.start_server(app)
 
@@ -95,14 +95,14 @@ def test_rdmo002_multi_outputs_on_single_component(dash_duo):
 def test_rdmo003_single_output_as_multi(dash_duo):
     app = dash.Dash(__name__)
 
-    app.layout = html.Div([
-        dcc.Input(id="input", value=""),
-        html.Div(html.Div(id="output"), id="output-container"),
-    ])
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value=""),
+            html.Div(html.Div(id="output"), id="output-container"),
+        ]
+    )
 
-    @app.callback(
-        [Output("output", "children")],
-        [Input("input", "value")])
+    @app.callback([Output("output", "children")], [Input("input", "value")])
     def update_output(value):
         return ["out" + value]
 
@@ -114,19 +114,15 @@ def test_rdmo003_single_output_as_multi(dash_duo):
 
 def test_rdmo004_multi_output_circular_dependencies(dash_duo):
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        dcc.Input(id="a"),
-        dcc.Input(id="b"),
-        html.P(id="c")
-    ])
+    app.layout = html.Div([dcc.Input(id="a"), dcc.Input(id="b"), html.P(id="c")])
 
     @app.callback(Output("a", "value"), [Input("b", "value")])
     def set_a(b):
         return ((b or "") + "X")[:100]
 
     @app.callback(
-        [Output("b", "value"), Output("c", "children")],
-        [Input("a", "value")])
+        [Output("b", "value"), Output("c", "children")], [Input("a", "value")]
+    )
     def set_bc(a):
         return [a, a]
 
@@ -135,7 +131,7 @@ def test_rdmo004_multi_output_circular_dependencies(dash_duo):
         debug=True,
         use_debugger=True,
         use_reloader=False,
-        dev_tools_hot_reload=False
+        dev_tools_hot_reload=False,
     )
 
     # the UI still renders the output triggered by callback.
@@ -149,18 +145,15 @@ def test_rdmo004_multi_output_circular_dependencies(dash_duo):
 
 def test_rdmo005_set_props_behavior(dash_duo):
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        dash_renderer_test_components.UncontrolledInput(
-            id="id",
-            value=""
-        ),
-        html.Div(
-            id="container",
-            children=dash_renderer_test_components.UncontrolledInput(
-                value=""
+    app.layout = html.Div(
+        [
+            dash_renderer_test_components.UncontrolledInput(id="id", value=""),
+            html.Div(
+                id="container",
+                children=dash_renderer_test_components.UncontrolledInput(value=""),
             ),
-        )
-    ])
+        ]
+    )
 
     dash_duo.start_server(
         app,

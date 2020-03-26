@@ -57,9 +57,7 @@ def test_rddd001_initial_state(dash_duo):
 
     # Note: this .html file shows there's no undo/redo button by default
     with open(
-        os.path.join(
-            os.path.dirname(__file__), "initial_state_dash_app_content.html"
-        )
+        os.path.join(os.path.dirname(__file__), "initial_state_dash_app_content.html")
     ) as fp:
         expected_dom = BeautifulSoup(fp.read().strip(), "lxml")
 
@@ -69,23 +67,17 @@ def test_rddd001_initial_state(dash_duo):
         fetched_dom.decode() == expected_dom.decode()
     ), "the fetching rendered dom is expected"
 
-    assert (
-        dash_duo.get_logs() == []
-    ), "Check that no errors or warnings were displayed"
+    assert dash_duo.get_logs() == [], "Check that no errors or warnings were displayed"
 
     assert dash_duo.driver.execute_script(
-        "return JSON.parse(JSON.stringify("
-        "window.store.getState().layout"
-        "))"
+        "return JSON.parse(JSON.stringify(window.store.getState().layout))"
     ) == json.loads(
         json.dumps(app.layout, cls=plotly.utils.PlotlyJSONEncoder)
     ), "the state layout is identical to app.layout"
 
     r = requests.get("{}/_dash-dependencies".format(dash_duo.server_url))
     assert r.status_code == 200
-    assert (
-        r.json() == []
-    ), "no dependencies present in app as no callbacks are defined"
+    assert r.json() == [], "no dependencies present in app as no callbacks are defined"
 
     paths = dash_duo.redux_state_paths
     assert paths["objs"] == {}
@@ -98,9 +90,7 @@ def test_rddd001_initial_state(dash_duo):
         ]
         for abbr in (
             child.get("id")
-            for child in fetched_dom.find(id="react-entry-point").findChildren(
-                id=True
-            )
+            for child in fetched_dom.find(id="react-entry-point").findChildren(id=True)
         )
     }, "paths should reflect to the component hierarchy"
 

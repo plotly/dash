@@ -31,7 +31,6 @@ class UnconnectedComponentErrorBoundary extends Component {
         dispatch(revert);
     }
 
-    /* eslint-disable react/no-did-update-set-state */
     componentDidUpdate(prevProps, prevState) {
         const prevChildren = prevProps.children;
         if (
@@ -39,12 +38,12 @@ class UnconnectedComponentErrorBoundary extends Component {
             prevChildren !== prevState.oldChildren &&
             prevChildren !== this.props.children
         ) {
+            /* eslint-disable-next-line react/no-did-update-set-state */
             this.setState({
                 oldChildren: prevChildren,
             });
         }
     }
-    /* eslint-enable react/no-did-update-set-state */
 
     render() {
         const {hasError, oldChildren} = this.state;

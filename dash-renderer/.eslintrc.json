@@ -102,6 +102,7 @@
       "no-new-wrappers": ["error"],
       "no-param-reassign": ["error"],
       "no-process-env": ["warn"],
+      "no-prototype-builtins": ["off"],
       "no-proto": ["error"],
       "no-redeclare": ["error"],
       "no-return-assign": ["error"],
@@ -141,7 +142,7 @@
       }],
       "no-magic-numbers": ["error", {
         "ignoreArrayIndexes": true,
-        "ignore": [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 10, 16, 0.5, 25]
+        "ignore": [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 10, 16, 0.5, 25, 200, 500]
       }],
       "no-underscore-dangle": ["off"],
       "no-useless-escape": ["off"]

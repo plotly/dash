@@ -14,24 +14,20 @@ from dash.exceptions import PreventUpdate
 
 def findSyncPlotlyJs(scripts):
     for script in scripts:
-        if "dash_core_components/plotly" in script.get_attribute('src'):
+        if "dash_core_components/plotly" in script.get_attribute("src"):
             return script
 
 
 def findAsyncPlotlyJs(scripts):
     for script in scripts:
-        if "dash_core_components/async-plotlyjs" in script.get_attribute(
-            'src'
-        ):
+        if "dash_core_components/async-plotlyjs" in script.get_attribute("src"):
             return script
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_scripts(dash_duo, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
-    app.layout = html.Div(
-        [dcc.Graph(id="output", figure={"data": [{"y": [3, 1, 2]}]})]
-    )
+    app.layout = html.Div([dcc.Graph(id="output", figure={"data": [{"y": [3, 1, 2]}]})])
 
     dash_duo.start_server(
         app,

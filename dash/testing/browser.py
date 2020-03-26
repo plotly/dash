@@ -55,9 +55,7 @@ class Browser(DashPageMixin):
         self._browser = browser.lower()
         self._remote_url = remote_url
         self._remote = (
-            True
-            if remote_url and remote_url != SELENIUM_GRID_DEFAULT
-            else remote
+            True if remote_url and remote_url != SELENIUM_GRID_DEFAULT else remote
         )
         self._headless = headless
         self._options = options
@@ -88,9 +86,7 @@ class Browser(DashPageMixin):
         logger.info("initialize browser with arguments")
         logger.info("  headless => %s", self._headless)
         logger.info("  download_path => %s", self._download_path)
-        logger.info(
-            "  percy asset root => %s", os.path.abspath(percy_assets_root)
-        )
+        logger.info("  percy asset root => %s", os.path.abspath(percy_assets_root))
 
     def __enter__(self):
         return self
@@ -169,11 +165,7 @@ class Browser(DashPageMixin):
         with a filename combining test case name and the
         running selenium session id
         """
-        target = (
-            "/tmp/dash_artifacts"
-            if not self._is_windows()
-            else os.getenv("TEMP")
-        )
+        target = "/tmp/dash_artifacts" if not self._is_windows() else os.getenv("TEMP")
         if not os.path.exists(target):
             try:
                 os.mkdir(target)
@@ -205,9 +197,7 @@ class Browser(DashPageMixin):
     def _wait_for(self, method, args, timeout, msg):
         """Abstract generic pattern for explicit WebDriverWait."""
         _wait = (
-            self._wd_wait
-            if timeout is None
-            else WebDriverWait(self.driver, timeout)
+            self._wd_wait if timeout is None else WebDriverWait(self.driver, timeout)
         )
         logger.debug(
             "method, timeout, poll => %s %s %s",
@@ -318,9 +308,7 @@ class Browser(DashPageMixin):
                 self.dash_entry_locator, timeout=timeout
             )
         except TimeoutException:
-            logger.exception(
-                "dash server is not loaded within %s seconds", timeout
-            )
+            logger.exception("dash server is not loaded within %s seconds", timeout)
             logger.debug(self.get_logs())
             raise DashAppLoadingError(
                 "the expected Dash react entry point cannot be loaded"
@@ -337,13 +325,9 @@ class Browser(DashPageMixin):
         dropdown.click()
 
         menu = dropdown.find_element_by_css_selector("div.Select-menu-outer")
-        logger.debug(
-            "the available options are %s", "|".join(menu.text.split("\n"))
-        )
+        logger.debug("the available options are %s", "|".join(menu.text.split("\n")))
 
-        options = menu.find_elements_by_css_selector(
-            "div.VirtualizedSelectOption"
-        )
+        options = menu.find_elements_by_css_selector("div.VirtualizedSelectOption")
         if options:
             if isinstance(index, int):
                 options[index].click()
@@ -355,9 +339,7 @@ class Browser(DashPageMixin):
                     return
 
         logger.error(
-            "cannot find matching option using value=%s or index=%s",
-            value,
-            index,
+            "cannot find matching option using value=%s or index=%s", value, index,
         )
 
     def toggle_window(self):
@@ -427,9 +409,7 @@ class Browser(DashPageMixin):
                 desired_capabilities=capabilities,
             )
             if self._remote
-            else webdriver.Chrome(
-                options=options, desired_capabilities=capabilities
-            )
+            else webdriver.Chrome(options=options, desired_capabilities=capabilities)
         )
 
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
@@ -441,10 +421,7 @@ class Browser(DashPageMixin):
             )
             params = {
                 "cmd": "Page.setDownloadBehavior",
-                "params": {
-                    "behavior": "allow",
-                    "downloadPath": self.download_path,
-                },
+                "params": {"behavior": "allow", "downloadPath": self.download_path},
             }
             res = chrome.execute("send_command", params)
             logger.debug("enabled headless download returns %s", res)
@@ -505,11 +482,7 @@ class Browser(DashPageMixin):
         ).perform()
 
     def zoom_in_graph_by_ratio(
-        self,
-        elem_or_selector,
-        start_fraction=0.5,
-        zoom_box_fraction=0.2,
-        compare=True,
+        self, elem_or_selector, start_fraction=0.5, zoom_box_fraction=0.2, compare=True,
     ):
         """Zoom out a graph with a zoom box fraction of component dimension
         default start at middle with a rectangle of 1/5 of the dimension use
@@ -550,9 +523,7 @@ class Browser(DashPageMixin):
                 for entry in self.driver.get_log("browser")
                 if entry["timestamp"] > self._last_ts
             ]
-        warnings.warn(
-            "get_logs always return None with webdrivers other than Chrome"
-        )
+        warnings.warn("get_logs always return None with webdrivers other than Chrome")
         return None
 
     def reset_log_timestamp(self):

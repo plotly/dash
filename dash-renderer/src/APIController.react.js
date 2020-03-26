@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 import {includes, isEmpty} from 'ramda';
-import React, {Component} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
@@ -22,35 +22,19 @@ import {STATUS} from './constants/constants';
 
 /**
  * Fire off API calls for initialization
+ * @param {*} props props
+ * @returns {*} component
  */
-class UnconnectedContainer extends Component {
-    constructor(props) {
-        super(props);
-        this.initialization = this.initialization.bind(this);
-        this.emitReady = this.emitReady.bind(this);
-        this.state = {
-            errorLoading: false,
-        };
+const UnconnectedContainer = props => {
+    const [errorLoading, setErrorLoading] = useState(false);
 
-        // Event emitter to communicate when the DOM is ready
-        this.events = new EventEmitter();
-        // Flag to determine if we've really updated the dash components
-        this.renderedTree = false;
+    const events = useRef(null);
+    if (!events.current) {
+        events.current = new EventEmitter();
     }
-    componentDidMount() {
-        this.initialization(this.props);
-        this.emitReady();
-    }
+    const renderedTree = useRef(false);
 
-    componentWillReceiveProps(props) {
-        this.initialization(props);
-    }
-
-    componentDidUpdate() {
-        this.emitReady();
-    }
-
-    initialization(props) {
+    useEffect(() => {
         const {
             appLifecycle,
             dependenciesRequest,
@@ -70,7 +54,7 @@ class UnconnectedContainer extends Component {
                     dispatch
                 );
                 dispatch(
-                    setPaths(computePaths(finalLayout, [], null, this.events))
+                    setPaths(computePaths(finalLayout, [], null, events.current))
                 );
                 dispatch(setLayout(finalLayout));
             }
@@ -104,7 +88,7 @@ class UnconnectedContainer extends Component {
             // Hasn't already hydrated
             appLifecycle === getAppState('STARTED')
         ) {
-            let errorLoading = false;
+            let hasError = false;
             try {
                 dispatch(hydrateInitialOutputs(dispatchError(dispatch)));
             } catch (err) {
@@ -113,67 +97,59 @@ class UnconnectedContainer extends Component {
                 if (!error.frontEnd.length && !error.backEnd.length) {
                     dispatch(onError({type: 'backEnd', error: err}));
                 }
-                errorLoading = true;
+                hasError = true;
             } finally {
-                this.setState(state =>
-                    state.errorLoading !== errorLoading ? {errorLoading} : null
-                );
+                setErrorLoading(hasError);
             }
         }
-    }
+    });
 
-    emitReady() {
-        if (this.renderedTree) {
-            this.renderedTree = false;
-            this.events.emit('rendered');
+    useEffect(() => {
+        if (renderedTree.current) {
+            renderedTree.current = false;
+            events.current.emit('rendered');
         }
-    }
+    });
 
-    render() {
-        const {
-            appLifecycle,
-            dependenciesRequest,
-            layoutRequest,
-            layout,
-            config,
-        } = this.props;
+    const {
+        appLifecycle,
+        dependenciesRequest,
+        layoutRequest,
+        layout,
+        config,
+    } = props;
 
-        const {errorLoading} = this.state;
-
-        let content;
-        if (
-            layoutRequest.status &&
-            !includes(layoutRequest.status, [STATUS.OK, 'loading'])
-        ) {
-            content = <div className="_dash-error">Error loading layout</div>;
-        } else if (
-            errorLoading ||
-            (dependenciesRequest.status &&
-                !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
-        ) {
-            content = (
-                <div className="_dash-error">Error loading dependencies</div>
-            );
-        } else if (appLifecycle === getAppState('HYDRATED')) {
-            this.renderedTree = true;
-
-            content = (
-                <TreeContainer
-                    _dashprivate_layout={layout}
-                    _dashprivate_path={[]}
-                />
-            );
-        } else {
-            content = <div className="_dash-loading">Loading...</div>;
-        }
-
-        return config && config.ui === true ? (
-            <GlobalErrorContainer>{content}</GlobalErrorContainer>
-        ) : (
-            content
+    let content;
+    if (
+        layoutRequest.status &&
+        !includes(layoutRequest.status, [STATUS.OK, 'loading'])
+    ) {
+        content = <div className="_dash-error">Error loading layout</div>;
+    } else if (
+        errorLoading ||
+        (dependenciesRequest.status &&
+            !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
+    ) {
+        content = <div className="_dash-error">Error loading dependencies</div>;
+    } else if (appLifecycle === getAppState('HYDRATED')) {
+        renderedTree.current = true;
+        content = (
+            <TreeContainer
+                _dashprivate_layout={layout}
+                _dashprivate_path={[]}
+            />
         );
+    } else {
+        content = <div className="_dash-loading">Loading...</div>;
     }
-}
+
+    return config && config.ui === true ? (
+        <GlobalErrorContainer>{content}</GlobalErrorContainer>
+    ) : (
+        content
+    );
+};
+
 UnconnectedContainer.propTypes = {
     appLifecycle: PropTypes.oneOf([
         getAppState('STARTED'),
@@ -181,6 +157,7 @@ UnconnectedContainer.propTypes = {
     ]),
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
+    graphs: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     history: PropTypes.any,

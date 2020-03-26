@@ -1,10 +1,12 @@
-from multiprocessing import Value
 import datetime
-import pytest
+
 from copy import copy
+from multiprocessing import Value
+from selenium.webdriver.common.keys import Keys
+
+import pytest
 
 from bs4 import BeautifulSoup
-from selenium.webdriver.common.keys import Keys
 
 import dash_dangerously_set_inner_html
 import dash_flow_example
@@ -71,10 +73,7 @@ def test_inin002_wildcard_callback(dash_duo):
                         "string",
                         html.Div(
                             id="output-1",
-                            **{
-                                "data-cb": "initial value",
-                                "aria-cb": "initial value",
-                            }
+                            **{"data-cb": "initial value", "aria-cb": "initial value"}
                         ),
                     ]
                 )
@@ -89,9 +88,7 @@ def test_inin002_wildcard_callback(dash_duo):
         input_call_count.value += 1
         return value
 
-    @app.callback(
-        Output("output-1", "children"), [Input("output-1", "data-cb")]
-    )
+    @app.callback(Output("output-1", "children"), [Input("output-1", "data-cb")])
     def update_text(data):
         return data
 
@@ -140,9 +137,7 @@ def test_inin003_aborted_callback(dash_duo):
         raise PreventUpdate("testing callback does not update")
         return value
 
-    @app.callback(
-        Output("output2", "children"), [Input("output1", "children")]
-    )
+    @app.callback(Output("output2", "children"), [Input("output1", "children")])
     def callback2(value):
         callback2_count.value += 1
         return value
@@ -194,9 +189,7 @@ def test_inin004_wildcard_data_attributes(dash_duo):
     actual = BeautifulSoup(div.get_attribute("innerHTML"), "lxml").decode()
     expected = BeautifulSoup(
         "<div "
-        + " ".join(
-            '{}="{!s}"'.format(k, v) for k, v in attrs.items() if v is not None
-        )
+        + " ".join('{}="{!s}"'.format(k, v) for k, v in attrs.items() if v is not None)
         + "></div>",
         "lxml",
     ).decode()
@@ -241,8 +234,7 @@ def test_inin006_flow_component(dash_duo):
     )
 
     @app.callback(
-        Output("output", "children"),
-        [Input("react", "value"), Input("flow", "value")],
+        Output("output", "children"), [Input("react", "value"), Input("flow", "value")],
     )
     def display_output(react_value, flow_value):
         return html.Div(
@@ -392,11 +384,7 @@ def test_inin012_multi_output_no_update(dash_duo):
     )
 
     @app.callback(
-        [
-            Output("n1", "children"),
-            Output("n2", "children"),
-            Output("n3", "children"),
-        ],
+        [Output("n1", "children"), Output("n2", "children"), Output("n3", "children")],
         [Input("btn", "n_clicks")],
     )
     def show_clicks(n):
@@ -591,10 +579,12 @@ def test_inin015_with_custom_renderer_interpolated(dash_duo):
                     {renderer}
                     <div id="custom-footer">My custom footer</div>
                 </body>
-            </html>""".format(app_entry=kwargs["app_entry"],
-                              config=kwargs["config"],
-                              scripts=kwargs["scripts"],
-                              renderer=renderer)
+            </html>""".format(
+                app_entry=kwargs["app_entry"],
+                config=kwargs["config"],
+                scripts=kwargs["scripts"],
+                renderer=renderer,
+            )
 
     app = CustomDash()
 
@@ -635,15 +625,10 @@ def test_inin017_late_component_register(dash_duo):
     app = Dash()
 
     app.layout = html.Div(
-        [
-            html.Button("Click me to put a dcc ", id="btn-insert"),
-            html.Div(id="output"),
-        ]
+        [html.Button("Click me to put a dcc ", id="btn-insert"), html.Div(id="output")]
     )
 
-    @app.callback(
-        Output("output", "children"), [Input("btn-insert", "n_clicks")]
-    )
+    @app.callback(Output("output", "children"), [Input("btn-insert", "n_clicks")])
     def update_output(value):
         if value is None:
             raise PreventUpdate
@@ -661,11 +646,7 @@ def test_inin017_late_component_register(dash_duo):
 def test_inin019_callback_dep_types():
     app = Dash(__name__)
     app.layout = html.Div(
-        [
-            html.Div("child", id="in"),
-            html.Div("state", id="state"),
-            html.Div(id="out"),
-        ]
+        [html.Div("child", id="in"), html.Div("state", id="state"), html.Div(id="out")]
     )
 
     with pytest.raises(IncorrectTypeException):
@@ -730,8 +711,7 @@ def test_inin020_callback_return_validation():
         pytest.fail("not serializable")
 
     @app.callback(
-        [Output("c", "children"), Output("d", "children")],
-        [Input("a", "children")],
+        [Output("c", "children"), Output("d", "children")], [Input("a", "children")],
     )
     def multi(a):
         return [1, set([2])]
@@ -745,8 +725,7 @@ def test_inin020_callback_return_validation():
         pytest.fail("nested non-serializable")
 
     @app.callback(
-        [Output("e", "children"), Output("f", "children")],
-        [Input("a", "children")],
+        [Output("e", "children"), Output("f", "children")], [Input("a", "children")],
     )
     def multi2(a):
         return ["abc"]
@@ -758,3 +737,11 @@ def test_inin020_callback_return_validation():
         ]
         multi2("aaa", outputs_list=outputs_list)
         pytest.fail("wrong-length list")
+
+
+def test_inin_024_port_env_success(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div("hi", "out")
+    dash_duo.start_server(app, port="12345")
+    assert dash_duo.server_url == "http://localhost:12345"
+    dash_duo.wait_for_text_to_equal("#out", "hi")

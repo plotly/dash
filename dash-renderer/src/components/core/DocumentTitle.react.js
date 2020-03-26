@@ -1,5 +1,3 @@
-/* global document:true */
-
 import {connect} from 'react-redux';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
@@ -12,7 +10,7 @@ class DocumentTitle extends Component {
         };
     }
 
-    componentWillReceiveProps(props) {
+    UNSAFE_componentWillReceiveProps(props) {
         if (props.pendingCallbacks.length) {
             document.title = 'Updating...';
         } else {

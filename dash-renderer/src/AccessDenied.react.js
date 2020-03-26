@@ -1,4 +1,3 @@
-/* global window:true, document:true */
 import React from 'react';
 import {mergeRight, once} from 'ramda';
 import PropTypes from 'prop-types';

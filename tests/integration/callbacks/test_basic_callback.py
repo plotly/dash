@@ -39,9 +39,7 @@ def test_cbsc001_simple_callback(dash_duo):
     assert dash_duo.find_element("#output-1").text == "hello world"
     dash_duo.percy_snapshot(name="simple-callback-hello-world")
 
-    assert call_count.value == 2 + len(
-        "hello world"
-    ), "initial count + each key stroke"
+    assert call_count.value == 2 + len("hello world"), "initial count + each key stroke"
 
     assert dash_duo.redux_state_rqs == []
 
@@ -68,9 +66,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
 
     call_count = Value("i", 0)
 
-    @app.callback(
-        Output("sub-output-1", "children"), [Input("sub-input-1", "value")]
-    )
+    @app.callback(Output("sub-output-1", "children"), [Input("sub-input-1", "value")])
     def update_input(value):
         call_count.value = call_count.value + 1
         return value
@@ -92,8 +88,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
     assert pad_input.name == "input"
 
     assert (
-        pad_div.text == pad_input.attrs["value"]
-        and pad_div.get("id") == "sub-output-1"
+        pad_div.text == pad_input.attrs["value"] and pad_div.get("id") == "sub-output-1"
     ), "the sub-output-1 content reflects to sub-input-1 value"
 
     dash_duo.percy_snapshot(name="callback-generating-function-1")
