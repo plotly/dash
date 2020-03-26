@@ -54,7 +54,7 @@ export default class Link extends Component {
         // prevent anchor from updating location
         e.preventDefault();
         if (refresh) {
-            window.location.pathname = href;
+            window.location = href;
         } else {
             window.history.pushState({}, '', href);
             window.dispatchEvent(new CustomEvent('_dashprivate_pushstate'));
