@@ -186,7 +186,7 @@ class Dash(object):
     :param index_string: Override the standard Dash index page.
         Must contain the correct insertion markers to interpolate various
         content into it depending on the app config and components used.
-        See https://dash.plot.ly/external-resources for details.
+        See https://dash.plotly.com/external-resources for details.
     :type index_string: string
 
     :param external_scripts: Additional JS files to load with the page.

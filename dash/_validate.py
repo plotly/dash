@@ -272,7 +272,7 @@ def check_obsolete(kwargs):
             raise exceptions.ObsoleteKwargException(
                 """
                 {} is no longer a valid keyword argument in Dash since v1.0.
-                See https://dash.plot.ly for details.
+                See https://dash.plotly.com for details.
                 """.format(
                     key
                 )
