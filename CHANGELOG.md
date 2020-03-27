@@ -4,12 +4,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- [#1103](https://github.com/plotly/dash/pull/1103) Wildcard IDs and callbacks. Component IDs can be dictionaries, and callbacks can reference patterns of components, using three different wildcards: `All`, `MATCH`, and `ALLSMALLER`, available from `dash.dependencies`. This lets you create components on demand, and have callbacks respond to any and all of them. To help with this, `dash.callback_context` gets three new entries: `outputs_list`, `inputs_list`, and `states_list`, which contain all the ids, properties, and except for the outputs, the property values from all matched components.
+
 - [#1134](https://github.com/plotly/dash/pull/1134) Allow `dash.run_server()` host and port parameters to be set with environment variables HOST & PORT, respectively
 
 ### Changed
+- [#1103](https://github.com/plotly/dash/pull/1103) Multiple changes to the callback pipeline:
+  - `dash.callback_context.triggered` now does NOT reflect any initial values, and DOES reflect EVERY value which has been changed either by activity in the app or as a result of a previous callback. That means that the initial call of a callback with no prerequisite callbacks will list nothing as triggering. For backward compatibility, we continue to provide a length-1 list for `triggered`, but its `id` and `property` are blank strings, and `bool(triggered)` is `False`.
+  - A callback which returns the same property value as was previously present will not trigger the component to re-render, nor trigger other callbacks using that property as an input.
+  - Callback validation is now mostly done in the browser, rather than in Python. A few things - mostly type validation, like ensuring IDs are strings or dicts and properties are strings - are still done in Python, but most others, like ensuring outputs are unique, inputs and outputs don't overlap, and (if desired) that IDs are present in the layout, are done in the browser. This means you can define callbacks BEFORE the layout and still validate IDs to the layout; and while developing an app, most errors in callback definitions will not halt the app.
+
 - [#1145](https://github.com/plotly/dash/pull/1145) Update from React 16.8.6 to 16.13.0
 
 ### Fixed
+- [#1103](https://github.com/plotly/dash/pull/1103) Fixed multiple bugs with chained callbacks either not triggering, inconsistently triggering, or triggering multiple times. This includes: [#635](https://github.com/plotly/dash/issues/635), [#832](https://github.com/plotly/dash/issues/832), [#1053](https://github.com/plotly/dash/issues/1053), [#1071](https://github.com/plotly/dash/issues/1071), and [#1084](https://github.com/plotly/dash/issues/1084). Also fixed [#1105](https://github.com/plotly/dash/issues/1105): async components that aren't rendered by the page (for example in a background Tab) would block the app from executing callbacks.
+
 - [#1142](https://github.com/plotly/dash/pull/1142) [Persistence](https://dash.plot.ly/persistence): Also persist 0, empty string etc
 
 ## [1.9.1] - 2020-02-27
