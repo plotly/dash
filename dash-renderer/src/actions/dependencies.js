@@ -479,7 +479,9 @@ export function validateCallbacksToLayout(state_, dispatchError) {
     function validateProp(id, idPath, prop, cls, callbacks) {
         const component = path(idPath, layout);
         const element = Registry.resolve(component);
-        if (element && !element.propTypes[prop]) {
+
+        // note: Flow components do not have propTypes, so we can't validate.
+        if (element && element.propTypes && !element.propTypes[prop]) {
             // look for wildcard props (ie data-* etc)
             for (const propName in element.propTypes) {
                 const last = propName.length - 1;
@@ -607,7 +609,7 @@ export function computeGraphs(dependencies, dispatchError) {
     const wrappedDE = (message, lines) => {
         hasError = true;
         dispatchError(message, lines);
-    }
+    };
     validateDependencies(parsedDependencies, wrappedDE);
 
     /*
