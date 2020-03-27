@@ -195,24 +195,33 @@ def test_dvcv004_duplicate_outputs_across_callbacks(dash_duo):
         [
             "Overlapping wildcard callback outputs",
             [
-                'Output 0 ({"a":MATCH}.children)',
-                'overlaps another output ({"a":1}.children)',
+                # depending on the order callbacks get reported to the
+                # front end, either of these could have been registered first.
+                # originally this said
+                # 'Output 0 ({"a":MATCH}.children)'
+                # 'overlaps another output ({"a":1}.children)'
+                # but this form is order-independent
+                '({"a":MATCH}.children)',
+                "overlaps another output",
+                '({"a":1}.children)',
                 "used in a different callback.",
             ],
         ],
         [
             "Overlapping wildcard callback outputs",
             [
-                'Output 1 ({"b":1,"c":ALL}.children)',
-                'overlaps another output ({"b":ALL,"c":1}.children)',
+                '({"b":1,"c":ALL}.children)',
+                "overlaps another output",
+                '({"b":ALL,"c":1}.children)',
                 "used in a different callback.",
             ],
         ],
         [
             "Overlapping wildcard callback outputs",
             [
-                'Output 0 ({"a":ALL}.children)',
-                'overlaps another output ({"a":1}.children)',
+                '({"a":ALL}.children)',
+                "overlaps another output",
+                '({"a":1}.children)',
                 "used in a different callback.",
             ],
         ],
