@@ -176,7 +176,7 @@ class Dash(object):
     :param index_string: Override the standard Dash index page.
         Must contain the correct insertion markers to interpolate various
         content into it depending on the app config and components used.
-        See https://dash.plot.ly/external-resources for details.
+        See https://dash.plotly.com/external-resources for details.
     :type index_string: string
 
     :param external_scripts: Additional JS files to load with the page.
@@ -235,7 +235,7 @@ class Dash(object):
             if key in ["components_cache_max_age", "static_folder"]:
                 raise exceptions.ObsoleteKwargException(
                     key + " is no longer a valid keyword argument in Dash "
-                    "since v1.0. See https://dash.plot.ly for details."
+                    "since v1.0. See https://dash.plotly.com for details."
                 )
             # any other kwarg mimic the built-in exception
             raise TypeError("Dash() got an unexpected keyword argument '" + key + "'")
