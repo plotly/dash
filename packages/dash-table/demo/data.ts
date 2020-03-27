@@ -159,7 +159,7 @@ export const generateMarkdownMockData = (rows: number) => unpackIntoColumnsAndDa
         id: 'markdown-images',
         name: ['', 'Images'],
         presentation: 'markdown',
-        data: gendata(i => '![image ' + i + ' alt text](https://dash.plot.ly/assets/images/logo.png)', rows)
+        data: gendata(i => '![image ' + i + ' alt text](https://dash.plotly.com/assets/images/logo.png)', rows)
     }
 
 ]);

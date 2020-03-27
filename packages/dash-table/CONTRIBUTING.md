@@ -74,7 +74,7 @@ Dash, and many of Plotly's open source products, have been funded through direct
 
 [GitHub flow]: https://guides.github.com/introduction/flow/
 [semantic versioning]: https://semver.org/
-[Dash Community Forum]: https://community.plot.ly/c/dash
-[Get in touch]: https://plot.ly/products/consulting-and-oem
+[Dash Community Forum]: https://community.plotly.com/c/dash
+[Get in touch]: https://plotly.com/products/consulting-and-oem
 [Documentation]: https://github.com/orgs/plotly/projects/8
 [Dash Docs]: https://github.com/plotly/dash-docs

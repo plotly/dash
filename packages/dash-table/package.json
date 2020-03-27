@@ -45,8 +45,8 @@
     "test.visual-local": "build-storybook",
     "test.watch": "run-p --race \"private::build:js-test-watch\" --race private::host* private::opentests"
   },
-  "author": "Chris Parmer <chris@plot.ly>",
-  "maintainer": "Ryan Patrick Kyle <ryan@plot.ly>",
+  "author": "Chris Parmer <chris@plotly.com>",
+  "maintainer": "Ryan Patrick Kyle <ryan@plotly.com>",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.8.4",

@@ -54,7 +54,7 @@ storiesOf('DashTable/Markdown', module)
             setProps={setProps}
             id='table'
             data={[
-                { a: '[Greatest website ever](http://plot.ly "Plotly site")', b: 'normal link with title' },
+                { a: '[Greatest website ever](http://plotly.com "Plotly site")', b: 'normal link with title' },
                 { a: '![the github logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png)', b: 'logo with alt text' }
             ]}
             columns={columnFormats}
