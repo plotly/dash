@@ -184,7 +184,8 @@ def test_dvcv004_duplicate_outputs_across_callbacks(dash_duo):
         return b, b
 
     @app.callback(
-        Output({"a": MATCH}, "children"), [Input({"a": MATCH, "b": 1}, "children")]
+        Output({"b": 2, "c": MATCH}, "children"),
+        [Input({"b": 3, "c": MATCH}, "children")],
     )
     def z3(ab):
         return ab
@@ -197,13 +198,11 @@ def test_dvcv004_duplicate_outputs_across_callbacks(dash_duo):
             [
                 # depending on the order callbacks get reported to the
                 # front end, either of these could have been registered first.
-                # originally this said
-                # 'Output 0 ({"a":MATCH}.children)'
-                # 'overlaps another output ({"a":1}.children)'
-                # but this form is order-independent
-                '({"a":MATCH}.children)',
+                # so we use this oder-independent form that just checks for
+                # both prop_id's and the string "overlaps another output"
+                '({"b":2,"c":MATCH}.children)',
                 "overlaps another output",
-                '({"a":1}.children)',
+                '({"b":ALL,"c":1}.children)',
                 "used in a different callback.",
             ],
         ],
