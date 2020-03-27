@@ -1,6 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
-import dash
+from dash import Dash
 from dash.dependencies import Input, Output, State, MATCH, ALL, ALLSMALLER
 
 debugging = dict(
@@ -31,7 +31,7 @@ def check_error(dash_duo, index, message, snippets):
 
 
 def test_dvcv001_blank(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div()
 
     @app.callback([], [])
@@ -55,7 +55,7 @@ def test_dvcv001_blank(dash_duo):
 
 def test_dvcv002_blank_id_prop(dash_duo):
     # TODO: remove suppress_callback_exceptions after we move that part to FE
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div([html.Div(id="a")])
 
     @app.callback([Output("a", "children"), Output("", "")], [Input("", "")])
@@ -97,7 +97,7 @@ def test_dvcv002_blank_id_prop(dash_duo):
 
 
 def test_dvcv003_duplicate_outputs_same_callback(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([html.Div(id="a"), html.Div(id="b")])
 
     @app.callback(
@@ -136,7 +136,7 @@ def test_dvcv003_duplicate_outputs_same_callback(dash_duo):
 
 
 def test_dvcv004_duplicate_outputs_across_callbacks(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([html.Div(id="a"), html.Div(id="b"), html.Div(id="c")])
 
     @app.callback(
@@ -232,7 +232,7 @@ def test_dvcv004_duplicate_outputs_across_callbacks(dash_duo):
 
 
 def test_dvcv005_input_output_overlap(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([html.Div(id="a"), html.Div(id="b"), html.Div(id="c")])
 
     @app.callback(Output("a", "children"), [Input("a", "children")])
@@ -301,7 +301,7 @@ def test_dvcv005_input_output_overlap(dash_duo):
 
 
 def test_dvcv006_inconsistent_wildcards(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div()
 
     @app.callback(
@@ -369,7 +369,7 @@ def test_dvcv006_inconsistent_wildcards(dash_duo):
 
 
 def test_dvcv007_disallowed_ids(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div()
 
     @app.callback(
@@ -427,7 +427,7 @@ def test_dvcv007_disallowed_ids(dash_duo):
 
 
 def bad_id_app(**kwargs):
-    app = dash.Dash(__name__, **kwargs)
+    app = Dash(__name__, **kwargs)
     app.layout = html.Div(
         [
             html.Div(
@@ -532,7 +532,7 @@ def test_dvcv009_suppress_callback_exceptions(dash_duo):
 
 
 def test_dvcv010_bad_props(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(
