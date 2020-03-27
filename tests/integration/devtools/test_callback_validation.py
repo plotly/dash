@@ -64,33 +64,32 @@ def test_dvcv002_blank_id_prop(dash_duo):
 
     dash_duo.start_server(app, **debugging)
 
-    dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "6")
+    dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "5")
 
-    # the first 2 are just artifacts... the other 4 we care about
-    check_error(dash_duo, 0, "Circular Dependencies", [])
-    check_error(dash_duo, 1, "Same `Input` and `Output`", [])
+    # the first one is just an artifact... the other 4 we care about
+    check_error(dash_duo, 0, "Same `Input` and `Output`", [])
 
     check_error(
         dash_duo,
-        2,
+        1,
         "Callback item missing ID",
         ['Input[0].id = ""', "Every item linked to a callback needs an ID"],
     )
     check_error(
         dash_duo,
-        3,
+        2,
         "Callback property error",
         ['Input[0].property = ""', "expected `property` to be a non-empty string."],
     )
     check_error(
         dash_duo,
-        4,
+        3,
         "Callback item missing ID",
         ['Output[1].id = ""', "Every item linked to a callback needs an ID"],
     )
     check_error(
         dash_duo,
-        5,
+        4,
         "Callback property error",
         ['Output[1].property = ""', "expected `property` to be a non-empty string."],
     )
@@ -258,14 +257,11 @@ def test_dvcv005_input_output_overlap(dash_duo):
 
     dash_duo.start_server(app, **debugging)
 
-    dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "6")
-
-    check_error(dash_duo, 0, "Dependency Cycle Found: a.children -> a.children", [])
-    check_error(dash_duo, 1, "Circular Dependencies", [])
+    dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "4")
 
     check_error(
         dash_duo,
-        2,
+        0,
         "Same `Input` and `Output`",
         [
             'Input 0 ({"b":MATCH,"c":1}.children)',
@@ -276,7 +272,7 @@ def test_dvcv005_input_output_overlap(dash_duo):
 
     check_error(
         dash_duo,
-        3,
+        1,
         "Same `Input` and `Output`",
         [
             'Input 0 ({"a":1}.children)',
@@ -287,14 +283,14 @@ def test_dvcv005_input_output_overlap(dash_duo):
 
     check_error(
         dash_duo,
-        4,
+        2,
         "Same `Input` and `Output`",
         ["Input 0 (c.children)", "matches Output 1 (c.children)"],
     )
 
     check_error(
         dash_duo,
-        5,
+        3,
         "Same `Input` and `Output`",
         ["Input 0 (a.children)", "matches Output 0 (a.children)"],
     )

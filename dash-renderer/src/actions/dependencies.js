@@ -603,7 +603,12 @@ export function computeGraphs(dependencies, dispatchError) {
         return out;
     }, dependencies);
 
-    validateDependencies(parsedDependencies, dispatchError);
+    let hasError = false;
+    const wrappedDE = (message, lines) => {
+        hasError = true;
+        dispatchError(message, lines);
+    }
+    validateDependencies(parsedDependencies, wrappedDE);
 
     /*
      * For regular ids, outputMap and inputMap are:
@@ -631,6 +636,21 @@ export function computeGraphs(dependencies, dispatchError) {
     const inputMap = {};
     const outputPatterns = {};
     const inputPatterns = {};
+
+    const finalGraphs = {
+        InputGraph: inputGraph,
+        MultiGraph: multiGraph,
+        outputMap,
+        inputMap,
+        outputPatterns,
+        inputPatterns,
+    };
+
+    if (hasError) {
+        // leave the graphs empty if we found an error, so we don't try to
+        // execute the broken callbacks.
+        return finalGraphs;
+    }
 
     parsedDependencies.forEach(dependency => {
         const {outputs, inputs} = dependency;
@@ -778,14 +798,7 @@ export function computeGraphs(dependencies, dispatchError) {
         });
     });
 
-    return {
-        InputGraph: inputGraph,
-        MultiGraph: multiGraph,
-        outputMap,
-        inputMap,
-        outputPatterns,
-        inputPatterns,
-    };
+    return finalGraphs;
 }
 
 function findWildcardKeys(id) {
