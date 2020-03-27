@@ -26,14 +26,14 @@ class TestDashHtmlComponents(unittest.TestCase):
 
         layout = Div(
             Div(
-                Img(src='https://plot.ly/~chris/1638.png')
+                Img(src='https://plotly.com/~chris/1638.png')
             ), style={'color': 'red'}
         )
 
         self.assertEqual(
             repr(layout),
             ''.join([
-                "Div(children=Div(Img(src='https://plot.ly/~chris/1638.png')), "
+                "Div(children=Div(Img(src='https://plotly.com/~chris/1638.png')), "
                 "style={'color': 'red'})"
             ])
         )

@@ -11,7 +11,7 @@ vignette: >
 
 Dash is a web application framework that provides pure R and Python abstraction around HTML, CSS, and JavaScript. Instead of writing HTML or using an HTML templating engine, you compose your layout using R functions within the `dashHtmlComponents` package. The source is on GitHub at [plotly/dash-html-components](https://github.com/plotly/dash-html-components).
 
-Please visit our online documentation, which is interactive and frequently updated:  https://dashr.plot.ly.
+Please visit our online documentation, which is interactive and frequently updated:  https://dashr.plotly.com.
 
 The components in this package are all simple wrappers for HTML5 elements. Extensive documentation for these elements is available online: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/
 

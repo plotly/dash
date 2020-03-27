@@ -20,7 +20,7 @@ r_examples:
             app$layout(
               htmlDiv(list(
                 htmlA(children='Link to external site',
-                      href='https://plot.ly',
+                      href='https://plotly.com',
                       target='_blank')
                 )
               )
@@ -843,7 +843,7 @@ r_examples:
 
             app$layout(htmlDiv(list(
               htmlFigure(children = list(
-                htmlImg(src = 'https://brand.plot.ly/static/images/plotly-logo-01-stripe@2x.png'),
+                htmlImg(src = 'https://brand.plotly.com/static/images/plotly-logo-01-stripe@2x.png'),
                 htmlFigcaption(children = 'Plotly Logo')))
                 )
               )
@@ -860,7 +860,7 @@ r_examples:
 
             app$layout(htmlDiv(list(
               htmlFigure(children = list(
-                htmlImg(src = 'https://brand.plot.ly/static/images/plotly-logo-01-stripe@2x.png',
+                htmlImg(src = 'https://brand.plotly.com/static/images/plotly-logo-01-stripe@2x.png',
                         width = '400',
                         height = '150')
                     )
@@ -1130,7 +1130,7 @@ r_examples:
 
             app$layout(htmlDiv(list(
               htmlIframe(width = "600px", height = "600px",
-                        src = "https://dashr.plot.ly/")
+                        src = "https://dashr.plotly.com/")
                 )
               )
             )
@@ -1145,7 +1145,7 @@ r_examples:
             app <- Dash$new()
 
             app$layout(htmlDiv(list(
-                htmlImg(src ='https://brand.plot.ly/static/images/plotly-logo-01-stripe@2x.png',
+                htmlImg(src ='https://brand.plotly.com/static/images/plotly-logo-01-stripe@2x.png',
                         height='200', width='400')
                 )
               )
@@ -1476,11 +1476,11 @@ r_examples:
               htmlDiv(list(
                 htmlNav(
                   list(
-                    htmlA("Plotly", href = "https://plot.ly/"),
+                    htmlA("Plotly", href = "https://plotly.com/"),
                     '> ",
-                    htmlA("Dash", href = "https://plot.ly/dash"),
+                    htmlA("Dash", href = "https://plotly.com/dash"),
                     '> ",
-                    htmlA("Request Trial", href = "https://go.plot.ly/dash-enterprise-trial")
+                    htmlA("Request Trial", href = "https://go.plotly.com/dash-enterprise-trial")
                   )
                 )
               ))

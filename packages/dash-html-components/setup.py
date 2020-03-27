@@ -11,7 +11,7 @@ setup(
     name='dash_html_components',
     version=package["version"],
     author=package['author'],
-    author_email='chris@plot.ly',
+    author_email='chris@plotly.com',
     packages=[package_name],
     url='https://github.com/plotly/dash-html-components',
     include_package_data=True,

@@ -27,12 +27,12 @@ Use the [GitHub flow][] when proposing contributions to this repository (i.e. cr
 
 If your company wishes to sponsor development of open source dash components, please [get in touch][].
 
-[Dash HTML Components]: https://dash.plot.ly/dash-html-components
+[Dash HTML Components]: https://dash.plotly.com/dash-html-components
 [MDN spec]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 [W3 index of elements]: https://dev.w3.org/html5/html-author/#index-of-elements
 [Dash Core Components]: https://github.com/plotly/dash-core-components
 [issues]: https://github.com/plotly/dash-html-components/issues
 [GitHub flow]: https://guides.github.com/introduction/flow/
 [eslintrc-react.json]: https://github.com/plotly/dash-components-archetype/blob/master/config/eslint/eslintrc-react.json
-[get in touch]: https://plot.ly/products/consulting-and-oem
+[get in touch]: https://plotly.com/products/consulting-and-oem
 
