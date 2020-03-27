@@ -646,6 +646,7 @@ export function computeGraphs(dependencies, dispatchError) {
         inputMap,
         outputPatterns,
         inputPatterns,
+        callbacks: parsedDependencies,
     };
 
     if (hasError) {

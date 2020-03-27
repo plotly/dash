@@ -1,34 +1,43 @@
-import React, {Component} from 'react';
-import './CallbackGraphContainer.css';
-
-import viz from 'viz.js';
-
+import React, {useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
 
-class CallbackGraphContainer extends Component {
-    constructor(props) {
-        super(props);
+import './CallbackGraphContainer.css';
+
+import Viz from 'viz.js';
+import {Module, render} from 'viz.js/full.render';
+
+import {stringifyId} from '../../../actions/dependencies';
+
+const CallbackGraphContainer = ({graphs}) => {
+    const el = useRef(null);
+
+    const viz = useRef(null);
+
+    const makeViz = () => {
+        viz.current = new Viz({Module, render});
+    };
+
+    if (!viz.current) {
+        makeViz();
     }
-    render() {
-        const {dependenciesRequest} = this.props;
+
+    useEffect(() => {
+        const {callbacks} = graphs;
         const elements = {};
-        const callbacks = [];
-        const links = dependenciesRequest.content.map(({inputs, output}, i) => {
-            callbacks.push(`cb${i};`);
-            function recordAndReturn([id, property]) {
-                elements[id] = elements[id] || {};
-                elements[id][property] = true;
-                return `"${id}.${property}"`;
+        const callbacksOut = [];
+        const links = callbacks.map(({inputs, outputs}, i) => {
+            callbacksOut.push(`cb${i};`);
+            function recordAndReturn({id, property}) {
+                const idClean = stringifyId(id)
+                    .replace(/[\{\}".;\[\]()]/g, '')
+                    .replace(/:/g, '-')
+                    .replace(/,/g, '_');
+                elements[idClean] = elements[idClean] || {};
+                elements[idClean][property] = true;
+                return `"${idClean}.${property}"`;
             }
-            const out_nodes = output
-                .replace(/^\.\./, '')
-                .replace(/\.\.$/, '')
-                .split('...')
-                .map(o => recordAndReturn(o.split('.')))
-                .join(', ');
-            const in_nodes = inputs
-                .map(({id, property}) => recordAndReturn([id, property]))
-                .join(', ');
+            const out_nodes = outputs.map(recordAndReturn).join(', ');
+            const in_nodes = inputs.map(recordAndReturn).join(', ');
             return `{${in_nodes}} -> cb${i} -> {${out_nodes}};`;
         });
 
@@ -39,7 +48,7 @@ class CallbackGraphContainer extends Component {
             graph [penwidth=0];
             subgraph callbacks {
                 node [shape=circle, width=0.3, label="", color="#00CC96"];
-                ${callbacks.join('\n')} }
+                ${callbacksOut.join('\n')} }
 
             ${Object.entries(elements)
                 .map(
@@ -55,19 +64,29 @@ class CallbackGraphContainer extends Component {
 
             ${links.join('\n')} }`;
 
-        return (
-            <div
-                className="dash-callback-dag--container"
-                dangerouslySetInnerHTML={{
-                    __html: viz(dot, {format: 'svg'}),
-                }}
-            />
-        );
-    }
-}
+        // eslint-disable-next-line no-console
+        console.log(dot);
+
+        viz.current
+            .renderSVGElement(dot)
+            .then(vizEl => {
+                el.current.innerHTML = '';
+                el.current.appendChild(vizEl);
+            })
+            .catch(e => {
+                // https://github.com/mdaines/viz.js/wiki/Caveats
+                makeViz();
+                // eslint-disable-next-line no-console
+                console.error(e);
+                el.current.innerHTML = 'Error creating callback graph';
+            });
+    });
+
+    return <div className="dash-callback-dag--container" ref={el} />;
+};
 
 CallbackGraphContainer.propTypes = {
-    dependenciesRequest: PropTypes.object,
+    graphs: PropTypes.object,
 };
 
 export {CallbackGraphContainer};
