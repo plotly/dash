@@ -36,7 +36,7 @@
     "format": "run-s private::format.*",
     "lint": "run-s private::lint.*"
   },
-  "author": "Chris Parmer <chris@plot.ly>",
+  "author": "Chris Parmer <chris@plotly.com>",
   "license": "MIT",
   "dependencies": {
     "color": "^3.1.0",

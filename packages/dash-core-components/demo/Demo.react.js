@@ -28,7 +28,7 @@ const markdown = \`
 
 Learn more in our [Dash user guide](https://dash-docs.herokuapp.com).
 
-![Image Alt Text](https://plot.ly/~chris/1638.png)
+![Image Alt Text](https://plotly.com/~chris/1638.png)
 
 ***
 

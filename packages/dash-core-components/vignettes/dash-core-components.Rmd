@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 Dash ships with supercharged components for interactive user interfaces. A core set of components, written and maintained by the Dash team, is available in the `dashCoreComponents` package. The source is on GitHub at [plotly/dash-core-components](https://github.com/plotly/dash-core-components).
 
-Please visit our online documentation, which is interactive and frequently updated:  https://dashr.plot.ly.
+Please visit our online documentation, which is interactive and frequently updated:  https://dashr.plotly.com.
 
 ### Dropdown Component
 
@@ -1043,7 +1043,7 @@ __*Links*__
 ```r
 library(dashCoreComponents)
 dccMarkdown('
-[Dash User Guide](https://dash.plot.ly/)')
+[Dash User Guide](https://dash.plotly.com/)')
 ```
 
 __*Inline Code*__
@@ -1565,7 +1565,7 @@ app$run_server()
 
 ### Graph Component
 
-Customize the [Plotly.js config options](https://plot.ly/javascript/configuration-options/) of your graph using the `config` property. The example below uses the `showSendToCloud` and `plotlyServerURL` options include a save button in the modebar of the graph which exports the figure to URL specified by `plotlyServerURL`.
+Customize the [Plotly.js config options](https://plotly.com/javascript/configuration-options/) of your graph using the `config` property. The example below uses the `showSendToCloud` and `plotlyServerURL` options include a save button in the modebar of the graph which exports the figure to URL specified by `plotlyServerURL`.
 
 ```r
 app$layout(htmlDiv(list(
@@ -1582,7 +1582,7 @@ app$layout(htmlDiv(list(
     id='graph1',
     config=list(
       'showSendToCloud'= TRUE,
-      'plotlyServerURL'= 'https=//plot.ly'
+      'plotlyServerURL'= 'https=//plotly.com'
     )
   )
 )))

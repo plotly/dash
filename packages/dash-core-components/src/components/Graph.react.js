@@ -187,7 +187,7 @@ PlotlyGraph.propTypes = {
      * either an integer defining the maximum number of points allowed or an
      * object with key:value pairs matching `updateData`
      * Reference the Plotly.extendTraces API for full usage:
-     * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
+     * https://plotly.com/javascript/plotlyjs-function-reference/#plotlyextendtraces
      */
     extendData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
 
@@ -204,7 +204,7 @@ PlotlyGraph.propTypes = {
 
     /**
      * Plotly `figure` object. See schema:
-     * https://plot.ly/javascript/reference
+     * https://plotly.com/javascript/reference
      *
      * `config` is set separately by the `config` property
      */
@@ -238,7 +238,7 @@ PlotlyGraph.propTypes = {
 
     /**
      * Plotly.js config options.
-     * See https://plot.ly/javascript/configuration-options/
+     * See https://plotly.com/javascript/configuration-options/
      * for more info.
      */
     config: PropTypes.exact({

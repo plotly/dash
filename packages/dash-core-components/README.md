@@ -81,7 +81,7 @@ See the [Publishing New Components/Features](CONTRIBUTING.md#publishing-new-comp
 
 See the [dash-component-boilerplate](https://github.com/plotly/dash-component-boilerplate) repo for more information.
 
-[Dash]: https://plot.ly/dash
+[Dash]: https://plotly.com/dash
 [Dash Component Boilerplate]: (https://github.com/plotly/dash-component-boilerplate)
 [NPM package authors]: https://www.npmjs.com/package/dash-core-components/access
 [PyPi]: https://pypi.python.org/pypi

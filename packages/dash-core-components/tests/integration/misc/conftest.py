@@ -198,7 +198,7 @@ def platter_app():
             [links](https://rexxars.github.io/react-markdown/), inline `code` snippets, lists,
             quotes, and more.
 
-            1. Links are auto-rendered: https://dash.plot.ly.
+            1. Links are auto-rendered: https://dash.plotly.com.
             2. This uses ~commonmark~ GitHub flavored markdown.
 
             Tables are also supported:

@@ -96,7 +96,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 <p>Dash ships with supercharged components for interactive user interfaces. A core set of components, written and maintained by the Dash team, is available in the <code>dashCoreComponents</code> package. The source is on GitHub at <a href="https://github.com/plotly/dash-core-components">plotly/dash-core-components</a>.</p>
-<p>Please visit our online documentation, which is interactive and frequently updated: <a href="https://dashr.plot.ly" class="uri">https://dashr.plot.ly</a>.</p>
+<p>Please visit our online documentation, which is interactive and frequently updated: <a href="https://dashr.plotly.com" class="uri">https://dashr.plotly.com</a>.</p>
 <div id="dropdown-component" class="section level3">
 <h3>Dropdown Component</h3>
 <p><strong><em>Default Dropdown</em></strong></p>
@@ -991,7 +991,7 @@ app<span class="op">$</span><span class="kw">run_server</span>()</code></pre></d
 <p><strong><em>Links</em></strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dashCoreComponents)
 <span class="kw">dccMarkdown</span>(<span class="st">'</span>
-<span class="st">[Dash User Guide](https://dash.plot.ly/)'</span>)</code></pre></div>
+<span class="st">[Dash User Guide](https://dash.plotly.com/)'</span>)</code></pre></div>
 <p><strong><em>Inline Code</em></strong></p>
 <p>Any block of text surrounded by ` ` will rendered as inline-code.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dashCoreComponents)
@@ -1468,7 +1468,7 @@ app<span class="op">$</span><span class="kw">run_server</span>()</code></pre></d
 </div>
 <div id="graph-component" class="section level3">
 <h3>Graph Component</h3>
-<p>Customize the <a href="https://plot.ly/javascript/configuration-options/">Plotly.js config options</a> of your graph using the <code>config</code> property. The example below uses the <code>showSendToCloud</code> and <code>plotlyServerURL</code> options include a save button in the modebar of the graph which exports the figure to URL specified by <code>plotlyServerURL</code>.</p>
+<p>Customize the <a href="https://plotly.com/javascript/configuration-options/">Plotly.js config options</a> of your graph using the <code>config</code> property. The example below uses the <code>showSendToCloud</code> and <code>plotlyServerURL</code> options include a save button in the modebar of the graph which exports the figure to URL specified by <code>plotlyServerURL</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">app<span class="op">$</span><span class="kw">layout</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(
   <span class="kw">dccDropdown</span>(
     <span class="dt">id=</span><span class="st">'my-dropdown1'</span>,
@@ -1483,7 +1483,7 @@ app<span class="op">$</span><span class="kw">run_server</span>()</code></pre></d
     <span class="dt">id=</span><span class="st">'graph1'</span>,
     <span class="dt">config=</span><span class="kw">list</span>(
       <span class="st">'showSendToCloud'</span>=<span class="st"> </span><span class="ot">TRUE</span>,
-      <span class="st">'plotlyServerURL'</span>=<span class="st"> 'https=//plot.ly'</span>
+      <span class="st">'plotlyServerURL'</span>=<span class="st"> 'https=//plotly.com'</span>
     )
   )
 )))

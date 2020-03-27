@@ -23,7 +23,7 @@ import './css/logout.css';
  * - Create a logout button component and assign it the logout_url
  * `dcc.LogoutButton(logout_url='/logout')`
  *
- * See https://dash.plot.ly/dash-core-components/logout_button
+ * See https://dash.plotly.com/dash-core-components/logout_button
  * for more documentation and examples.
  */
 export default class LogoutButton extends React.Component {
@@ -42,7 +42,7 @@ export default class LogoutButton extends React.Component {
         if (!logout_url) {
             url =
                 logout_url ||
-                'https://dash.plot.ly/dash-core-components/logout_button';
+                'https://dash.plotly.com/dash-core-components/logout_button';
             submitMethod = 'get';
         } else {
             url = logout_url;

@@ -10,7 +10,7 @@ setup(
     name='dash_core_components',
     version=package["version"],
     author=package['author'],
-    author_email='chris@plot.ly',
+    author_email='chris@plotly.com',
     packages=[package_name],
     include_package_data=True,
     license=package['license'],

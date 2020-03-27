@@ -46,16 +46,16 @@ Locally](README.md#testing-locally) section of README.md.
 
 If your company wishes to sponsor development of open source dash components, please [get in touch][].
 
-[Dash Core Components]: https://dash.plot.ly/dash-core-components
+[Dash Core Components]: https://dash.plotly.com/dash-core-components
 [Dash HTML Components]: https://github.com/plotly/dash-html-components
-[write your own components]: https://dash.plot.ly/plugins
+[write your own components]: https://dash.plotly.com/plugins
 [Dash Components Archetype]: https://github.com/plotly/dash-components-archetype
 [issues]: https://github.com/plotly/dash-core-components/issues
 [GitHub flow]: https://guides.github.com/introduction/flow/
 [eslintrc-react.json]: https://github.com/plotly/dash-components-archetype/blob/master/config/eslint/eslintrc-react.json
 [contributors]: https://github.com/plotly/dash-core-components/graphs/contributors
 [semantic versioning]: https://semver.org/
-[Dash Community Forum]: https://community.plot.ly/c/dash
+[Dash Community Forum]: https://community.plotly.com/c/dash
 [Confirmation Modal component]: https://github.com/plotly/dash-core-components/pull/211#issue-195280462
-[Confirmation Modal announcement]: https://community.plot.ly/t/announcing-dash-confirmation-modal-feedback-welcome/11627
-[get in touch]: https://plot.ly/products/consulting-and-oem
+[Confirmation Modal announcement]: https://community.plotly.com/t/announcing-dash-confirmation-modal-feedback-welcome/11627
+[get in touch]: https://plotly.com/products/consulting-and-oem
