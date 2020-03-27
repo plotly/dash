@@ -183,13 +183,6 @@ def test_dvcv004_duplicate_outputs_across_callbacks(dash_duo):
     def z2(b):
         return b, b
 
-    @app.callback(
-        Output({"b": 2, "c": MATCH}, "children"),
-        [Input({"b": 3, "c": MATCH}, "children")],
-    )
-    def z3(ab):
-        return ab
-
     dash_duo.start_server(app, **debugging)
 
     specs = [
@@ -200,15 +193,6 @@ def test_dvcv004_duplicate_outputs_across_callbacks(dash_duo):
                 # front end, either of these could have been registered first.
                 # so we use this oder-independent form that just checks for
                 # both prop_id's and the string "overlaps another output"
-                '({"b":2,"c":MATCH}.children)',
-                "overlaps another output",
-                '({"b":ALL,"c":1}.children)',
-                "used in a different callback.",
-            ],
-        ],
-        [
-            "Overlapping wildcard callback outputs",
-            [
                 '({"b":1,"c":ALL}.children)',
                 "overlaps another output",
                 '({"b":ALL,"c":1}.children)',
