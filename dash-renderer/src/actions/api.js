@@ -2,6 +2,9 @@ import {mergeDeepRight} from 'ramda';
 import {handleAsyncError, getCSRFHeader} from '../actions';
 import {urlBase} from '../utils';
 
+/* eslint-disable-next-line no-console */
+const logWarningOnce = once(console.warn);
+
 function GET(path, fetchConfig) {
     return fetch(
         path,
@@ -53,6 +56,7 @@ export default function apiThunk(endpoint, method, store, id, body) {
                         return json;
                     });
                 }
+                logWarningOnce("Response miss content-type application/json")
                 return dispatch({
                     type: store,
                     payload: {
