@@ -1247,11 +1247,13 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         if (outIdCallbacks) {
             for (const property in outIdCallbacks) {
                 const cb = getCallbackByOutput(graphs, paths, id, property);
-                // callbacks found in the layout by output should always run,
-                // ie this is the initial call of this callback even if it's
-                // not the page initialization but just a new layout chunk
-                cb.initialCall = true;
-                addCallback(cb);
+                if (cb) {
+                    // callbacks found in the layout by output should always run
+                    // ie this is the initial call of this callback even if it's
+                    // not the page initialization but just a new layout chunk
+                    cb.initialCall = true;
+                    addCallback(cb);
+                }
             }
         }
         if (!outputsOnly && inIdCallbacks) {

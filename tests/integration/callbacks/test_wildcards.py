@@ -312,3 +312,61 @@ def test_cbwc002_fibonacci_app(clientside, dash_duo):
     dash_duo.wait_for_text_to_equal("#sum", "1 elements, sum: 0")
     dash_duo.find_element("#n").send_keys(Keys.DOWN)
     dash_duo.wait_for_text_to_equal("#sum", "0 elements, sum: 0")
+
+
+def test_cbwc003_same_keys(dash_duo):
+    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+
+    app.layout = html.Div(
+        [
+            html.Button("Add Filter", id="add-filter", n_clicks=0),
+            html.Div(id="container", children=[]),
+        ]
+    )
+
+    @app.callback(
+        Output("container", "children"),
+        [Input("add-filter", "n_clicks")],
+        [State("container", "children")],
+    )
+    def display_dropdowns(n_clicks, children):
+        new_element = html.Div(
+            [
+                dcc.Dropdown(
+                    id={"type": "dropdown", "index": n_clicks},
+                    options=[
+                        {"label": i, "value": i} for i in ["NYC", "MTL", "LA", "TOKYO"]
+                    ],
+                ),
+                html.Div(id={"type": "output", "index": n_clicks}),
+            ]
+        )
+        return children + [new_element]
+
+    @app.callback(
+        Output({"type": "output", "index": MATCH}, "children"),
+        [Input({"type": "dropdown", "index": MATCH}, "value")],
+        [State({"type": "dropdown", "index": MATCH}, "id")],
+    )
+    def display_output(value, id):
+        return html.Div("Dropdown {} = {}".format(id["index"], value))
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#add-filter", "Add Filter")
+    dash_duo.select_dcc_dropdown(
+        '#\\{\\"index\\"\\:0\\,\\"type\\"\\:\\"dropdown\\"\\}', "LA"
+    )
+    dash_duo.wait_for_text_to_equal(
+        '#\\{\\"index\\"\\:0\\,\\"type\\"\\:\\"output\\"\\}', "Dropdown 0 = LA"
+    )
+    dash_duo.find_element("#add-filter").click()
+    dash_duo.select_dcc_dropdown(
+        '#\\{\\"index\\"\\:1\\,\\"type\\"\\:\\"dropdown\\"\\}', "MTL"
+    )
+    dash_duo.wait_for_text_to_equal(
+        '#\\{\\"index\\"\\:1\\,\\"type\\"\\:\\"output\\"\\}', "Dropdown 1 = MTL"
+    )
+    dash_duo.wait_for_text_to_equal(
+        '#\\{\\"index\\"\\:0\\,\\"type\\"\\:\\"output\\"\\}', "Dropdown 0 = LA"
+    )
+    dash_duo.wait_for_no_elements(dash_duo.devtools_error_count_locator)
