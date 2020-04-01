@@ -49,7 +49,6 @@ function mainReducer() {
 function getInputHistoryState(itempath, props, state) {
     const {graphs, layout, paths} = state;
     const {InputGraph} = graphs;
-    // TODO: wildcards?
     const keyObj = filter(equals(itempath), paths.strs);
     let historyEntry;
     if (!isEmpty(keyObj)) {
@@ -58,7 +57,6 @@ function getInputHistoryState(itempath, props, state) {
         keys(props).forEach(propKey => {
             const inputKey = `${id}.${propKey}`;
             if (
-                // TODO: wildcards?
                 InputGraph.hasNode(inputKey) &&
                 InputGraph.dependenciesOf(inputKey).length > 0
             ) {
