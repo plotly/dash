@@ -121,12 +121,11 @@ class TreeContainer extends Component {
             (val, key) => !equals(val, oldProps[key]),
             newProps
         );
-        const changedKeys = keys(changedProps);
-        if (changedKeys.length) {
+        if (!isEmpty(changedProps)) {
             // Identify the modified props that are required for callbacks
             const watchedKeys = getWatchedKeys(
                 id,
-                changedKeys,
+                keys(changedProps),
                 _dashprivate_graphs
             );
 
@@ -146,7 +145,7 @@ class TreeContainer extends Component {
             if (watchedKeys.length) {
                 _dashprivate_dispatch(
                     notifyObservers({
-                        id: id,
+                        id,
                         props: pick(watchedKeys, changedProps),
                     })
                 );
