@@ -408,7 +408,7 @@ class Dash(object):
         full_name = self.config.routes_pathname_prefix + name
 
         self.server.add_url_rule(
-            full_name, view_func=view_func, endpoint=name, methods=list(methods)
+            full_name, view_func=view_func, endpoint=full_name, methods=list(methods)
         )
 
         # record the url in Dash.routes so that it can be accessed later

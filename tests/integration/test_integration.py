@@ -3,6 +3,7 @@ import datetime
 from copy import copy
 from multiprocessing import Value
 from selenium.webdriver.common.keys import Keys
+import flask
 
 import pytest
 
@@ -745,3 +746,28 @@ def test_inin_024_port_env_success(dash_duo):
     dash_duo.start_server(app, port="12345")
     assert dash_duo.server_url == "http://localhost:12345"
     dash_duo.wait_for_text_to_equal("#out", "hi")
+
+
+def nested_app(server, path, text):
+    app = Dash(__name__, server=server, url_base_pathname=path)
+    app.layout = html.Div(id="out")
+
+    @app.callback(Output("out", "children"), [Input("out", "n_clicks")])
+    def out(n):
+        return text
+
+    return app
+
+
+def test_inin025_url_base_pathname(dash_br, dash_thread_server):
+    server = flask.Flask(__name__)
+    app = nested_app(server, "/app1/", "The first")
+    nested_app(server, "/app2/", "The second")
+
+    dash_thread_server(app)
+
+    dash_br.server_url = "http://localhost:8050/app1/"
+    dash_br.wait_for_text_to_equal("#out", "The first")
+
+    dash_br.server_url = "http://localhost:8050/app2/"
+    dash_br.wait_for_text_to_equal("#out", "The second")
