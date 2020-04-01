@@ -1,12 +1,12 @@
 {
-    "MD5 (dash_renderer.dev.js)":"cf7796e1ced87563812cea38d16ea281",
-    "MD5 (dash_renderer.min.js)":"c6e5cda1b2572fee63e19b344258b512",
-    "MD5 (polyfill@7.7.0.min.js)":"ed6472b73ae010eee88282933a04c2a1",
+    "MD5 (dash_renderer.dev.js)":"ce92a68860c00cabcfd6a84270b1c3e5",
+    "MD5 (dash_renderer.min.js)":"dabe65b8acbd6cf956c4f0b4595deccb",
+    "MD5 (polyfill@7.8.7.min.js)":"5090bae2c114802440412e301bdf5174",
     "MD5 (prop-types@15.7.2.js)":"85947944e396a28895fad5f553eee36f",
     "MD5 (prop-types@15.7.2.min.js)":"e3053393609bd2744010498629a43597",
-    "MD5 (react-dom@16.8.6.js)":"d7f8afaf3370a228c8d5c802c9d9a102",
-    "MD5 (react-dom@16.8.6.min.js)":"fad5842bd019c3878795ec52059f47fc",
-    "MD5 (react@16.8.6.js)":"bb95f4cd851114c374c3858e9c51da10",
-    "MD5 (react@16.8.6.min.js)":"f808b8e8ab51b0d9525795db3768cd86",
-    "dash-renderer":"1.2.3"
+    "MD5 (react-dom@16.13.0.js)":"b6ce9c17ff84a6d80ff79dd47c7adb9a",
+    "MD5 (react-dom@16.13.0.min.js)":"a5a4de9578054f7fb44dd553574d0931",
+    "MD5 (react@16.13.0.js)":"c0f26206f3dc7a9ec41f1608da1245cc",
+    "MD5 (react@16.13.0.min.js)":"0a82f766cc2d7330a971407e82c4e4a1",
+    "dash-renderer":"1.3.0"
 }

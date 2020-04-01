@@ -1,15 +1,34 @@
 import React, {Component} from 'react';
 import './CallbackGraphContainer.css';
 
-import viz from 'viz.js';
+import Viz from 'viz.js';
+import {Module, render} from 'viz.js/full.render';
 
 import PropTypes from 'prop-types';
 
 class CallbackGraphContainer extends Component {
     constructor(props) {
         super(props);
+
+        this.viz = null;
+        this.updateViz = this.updateViz.bind(this);
     }
+
+    componentDidMount() {
+        this.updateViz();
+    }
+
+    componentDidUpdate() {
+        this.updateViz();
+    }
+
     render() {
+        return <div className="dash-callback-dag--container" ref="el" />;
+    }
+
+    updateViz() {
+        this.viz = this.viz || new Viz({Module, render});
+
         const {dependenciesRequest} = this.props;
         const elements = {};
         const callbacks = [];
@@ -55,14 +74,21 @@ class CallbackGraphContainer extends Component {
 
             ${links.join('\n')} }`;
 
-        return (
-            <div
-                className="dash-callback-dag--container"
-                dangerouslySetInnerHTML={{
-                    __html: viz(dot, {format: 'svg'}),
-                }}
-            />
-        );
+        const el = this.refs.el;
+
+        this.viz
+            .renderSVGElement(dot)
+            .then(vizEl => {
+                el.innerHTML = '';
+                el.appendChild(vizEl);
+            })
+            .catch(e => {
+                // https://github.com/mdaines/viz.js/wiki/Caveats
+                this.viz = new Viz({Module, render});
+                // eslint-disable-next-line no-console
+                console.error(e);
+                el.innerHTML = 'Error creating callback graph';
+            });
     }
 }
 

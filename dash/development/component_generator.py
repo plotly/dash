@@ -31,8 +31,7 @@ reserved_words = [
 
 
 class _CombinedFormatter(
-    argparse.ArgumentDefaultsHelpFormatter,
-    argparse.RawDescriptionHelpFormatter,
+    argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter,
 ):
     pass
 
@@ -105,14 +104,10 @@ def generate_components(
         with open("package.json", "r") as f:
             pkg_data = safe_json_loads(f.read())
         generator_methods.append(
-            functools.partial(
-                write_class_file, prefix=rprefix, rpkg_data=rpkg_data
-            )
+            functools.partial(write_class_file, prefix=rprefix, rpkg_data=rpkg_data)
         )
 
-    components = generate_classes_files(
-        project_shortname, metadata, *generator_methods
-    )
+    components = generate_classes_files(project_shortname, metadata, *generator_methods)
 
     with open(os.path.join(project_shortname, "metadata.json"), "w") as f:
         json.dump(metadata, f, indent=2)
@@ -147,19 +142,15 @@ def cli():
         description="Generate dash components by extracting the metadata "
         "using react-docgen. Then map the metadata to python classes.",
     )
+    parser.add_argument("components_source", help="React components source directory.")
     parser.add_argument(
-        "components_source", help="React components source directory."
-    )
-    parser.add_argument(
-        "project_shortname",
-        help="Name of the project to export the classes files.",
+        "project_shortname", help="Name of the project to export the classes files.",
     )
     parser.add_argument(
         "-p",
         "--package-info-filename",
         default="package.json",
-        help="The filename of the copied `package.json` "
-        "to `project_shortname`",
+        help="The filename of the copied `package.json` to `project_shortname`",
     )
     parser.add_argument(
         "-i",
@@ -208,10 +199,7 @@ def cli():
 def byteify(input_object):
     if isinstance(input_object, dict):
         return OrderedDict(
-            [
-                (byteify(key), byteify(value))
-                for key, value in input_object.iteritems()
-            ]
+            [(byteify(key), byteify(value)) for key, value in input_object.iteritems()]
         )
     elif isinstance(input_object, list):
         return [byteify(element) for element in input_object]

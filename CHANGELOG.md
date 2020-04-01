@@ -2,6 +2,16 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.10.0] - 2020-04-01
+### Added
+- [#1134](https://github.com/plotly/dash/pull/1134) Allow `dash.run_server()` host and port parameters to be set with environment variables HOST & PORT, respectively
+
+### Changed
+- [#1145](https://github.com/plotly/dash/pull/1145) Update from React 16.8.6 to 16.13.0
+
+### Fixed
+- [#1142](https://github.com/plotly/dash/pull/1142) [Persistence](https://dash.plot.ly/persistence): Also persist 0, empty string etc
+
 ## [1.9.1] - 2020-02-27
 ### Added
 - [#1133](github.com/plotly/dash/pull/1133) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE
@@ -176,7 +186,7 @@ clientside JavaScript callbacks via inline strings.
   - Change `hot_reload_interval` from msec to seconds, for consistency with `hot_reload_watch_interval`
   - When called from `enable_dev_tools`, `debug=True` by default. It's still `False` by default from `run_server`.
 
-- ✨ [#744](https://github.com/plotly/dash/pull/744) Introducing Dash Testing (`dash.testing`) - read the full tutorial at http://dash.plot.ly/testing.
+- ✨ [#744](https://github.com/plotly/dash/pull/744) Introducing Dash Testing (`dash.testing`) - read the full tutorial at http://dash.plotly.com/testing.
 
 - [#753](https://github.com/plotly/dash/pull/753) `Component` no longer inherits `MutableMapping`, so `values`, `keys`, and more are no longer methods. Fixes an issue reported in [dcc#440](https://github.com/plotly/dash-core-components/issues/440) where components with certain prop names defined but not provided would cause a failure to render. During component generation we now disallow all props with leading underscores or matching a few remaining reserved words: `UNDEFINED`, `REQUIRED`, `to_plotly_json`, `available_properties`, and `available_wildcard_properties`.
 
@@ -504,7 +514,7 @@ app = dash.Dash(...)
 
 ## 0.20.0 - 2018-01-19
 ### Added
-- [#190](https://github.com/plotly/dash/pull/190) `exceptions.PreventUpdate` can be raised inside a callback to prevent the callback from updating the app. See https://community.plot.ly/t/improving-handling-of-aborted-callbacks/7536/2.
+- [#190](https://github.com/plotly/dash/pull/190) `exceptions.PreventUpdate` can be raised inside a callback to prevent the callback from updating the app. See https://community.plotly.com/t/improving-handling-of-aborted-callbacks/7536/2.
 
 ### Removed
 - Removes logging from redux middleware from production build based on process.env.NODE_ENV.
@@ -528,9 +538,9 @@ app = dash.Dash(...)
 
 ### Fixed
 - Fix a bug from 0.18.2 that removed the ability for dash to serve the app on any route besides `/`.
-- Fix a bug from 0.18.0 with the new config variables when used in a multi-app setting, causing config to be shared across apps. Originally reported in https://community.plot.ly/t/flask-endpoint-error/5691/7
+- Fix a bug from 0.18.0 with the new config variables when used in a multi-app setting, causing config to be shared across apps. Originally reported in https://community.plotly.com/t/flask-endpoint-error/5691/7
 - Rename config setting `supress_callback_exceptions` to `suppress_callback_exceptions`. The original spelling is kept for backward compatibility.
-- 🐞 (renderer) Fix a bug where Dash would fire updates for each parent of a grandchild node that shared the same grandparent. Originally reported in https://community.plot.ly/t/specifying-dependency-tree-traversal/5080/5
+- 🐞 (renderer) Fix a bug where Dash would fire updates for each parent of a grandchild node that shared the same grandparent. Originally reported in https://community.plotly.com/t/specifying-dependency-tree-traversal/5080/5
 - 🐞 (renderer) Fix a bug where the document title that displays "Updating..." wouldn't change if the callback raised an Exception. Now it will be removed on any response, even a failure.
 
 ## 0.18.2 - 2017-09-07
@@ -544,7 +554,7 @@ app = dash.Dash(...)
 ## 0.18.0 - 2017-09-07
 ### Changed
 - 🔒  Remove the `/static/` folder and endpoint that is implicitly initialized by flask. This is too implicit for my comfort level: I worry that users will not be aware that their files in their `static` folder are accessible
-- ⚡️  Remove all API calls to the Plotly API (https://api.plot.ly/), the authentication endpoints and decorators, and the associated `filename`, `sharing` and `app_url` arguments. This was never documented or officially supported. Authentication has been moved to the [`dash-auth` package](https://github.com/plotly/dash-auth).
+- ⚡️  Remove all API calls to the Plotly API (https://api.plotly.com/), the authentication endpoints and decorators, and the associated `filename`, `sharing` and `app_url` arguments. This was never documented or officially supported. Authentication has been moved to the [`dash-auth` package](https://github.com/plotly/dash-auth).
 - [#107](https://github.com/plotly/dash/pull/107) ✏️ Sort prop names in exception messages.
 
 ### Added

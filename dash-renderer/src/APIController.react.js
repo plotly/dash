@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 import {includes, isEmpty, isNil} from 'ramda';
-import React, {Component} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
@@ -17,24 +17,13 @@ import {STATUS} from './constants/constants';
 
 /**
  * Fire off API calls for initialization
+ * @param {*} props props
+ * @returns {*} component
  */
-class UnconnectedContainer extends Component {
-    constructor(props) {
-        super(props);
-        this.initialization = this.initialization.bind(this);
-        this.state = {
-            errorLoading: false,
-        };
-    }
-    componentDidMount() {
-        this.initialization(this.props);
-    }
+const UnconnectedContainer = props => {
+    const [errorLoading, setErrorLoading] = useState(false);
 
-    componentWillReceiveProps(props) {
-        this.initialization(props);
-    }
-
-    initialization(props) {
+    useEffect(() => {
         const {
             appLifecycle,
             dependenciesRequest,
@@ -81,67 +70,57 @@ class UnconnectedContainer extends Component {
             // Hasn't already hydrated
             appLifecycle === getAppState('STARTED')
         ) {
-            let errorLoading = false;
+            let error = false;
             try {
                 dispatch(hydrateInitialOutputs());
             } catch (err) {
-                errorLoading = true;
+                error = true;
             } finally {
-                this.setState(state =>
-                    state.errorLoading !== errorLoading ? {errorLoading} : null
-                );
+                setErrorLoading(error);
             }
         }
-    }
+    });
 
-    render() {
-        const {
-            appLifecycle,
-            dependenciesRequest,
-            layoutRequest,
-            layout,
-            config,
-        } = this.props;
+    const {
+        appLifecycle,
+        dependenciesRequest,
+        layoutRequest,
+        layout,
+        config,
+    } = props;
 
-        const {errorLoading} = this.state;
-
-        if (
-            layoutRequest.status &&
-            !includes(layoutRequest.status, [STATUS.OK, 'loading'])
-        ) {
-            return <div className="_dash-error">Error loading layout</div>;
-        } else if (
-            errorLoading ||
-            (dependenciesRequest.status &&
-                !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
-        ) {
-            return (
-                <div className="_dash-error">Error loading dependencies</div>
-            );
-        } else if (
-            appLifecycle === getAppState('HYDRATED') &&
-            config.ui === true
-        ) {
-            return (
-                <GlobalErrorContainer>
-                    <TreeContainer
-                        _dashprivate_layout={layout}
-                        _dashprivate_path={[]}
-                    />
-                </GlobalErrorContainer>
-            );
-        } else if (appLifecycle === getAppState('HYDRATED')) {
-            return (
+    if (
+        layoutRequest.status &&
+        !includes(layoutRequest.status, [STATUS.OK, 'loading'])
+    ) {
+        return <div className="_dash-error">Error loading layout</div>;
+    } else if (
+        errorLoading ||
+        (dependenciesRequest.status &&
+            !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
+    ) {
+        return <div className="_dash-error">Error loading dependencies</div>;
+    } else if (appLifecycle === getAppState('HYDRATED') && config.ui === true) {
+        return (
+            <GlobalErrorContainer>
                 <TreeContainer
                     _dashprivate_layout={layout}
                     _dashprivate_path={[]}
                 />
-            );
-        }
-
-        return <div className="_dash-loading">Loading...</div>;
+            </GlobalErrorContainer>
+        );
+    } else if (appLifecycle === getAppState('HYDRATED')) {
+        return (
+            <TreeContainer
+                _dashprivate_layout={layout}
+                _dashprivate_path={[]}
+            />
+        );
     }
-}
+
+    return <div className="_dash-loading">Loading...</div>;
+};
+
 UnconnectedContainer.propTypes = {
     appLifecycle: PropTypes.oneOf([
         getAppState('STARTED'),
@@ -149,6 +128,7 @@ UnconnectedContainer.propTypes = {
     ]),
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
+    graphs: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,

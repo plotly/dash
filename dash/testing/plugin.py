@@ -26,9 +26,7 @@ def pytest_addoption(parser):
     )
 
     dash.addoption(
-        "--remote",
-        action="store_true",
-        help="instruct pytest to use selenium grid",
+        "--remote", action="store_true", help="instruct pytest to use selenium grid",
     )
 
     dash.addoption(
@@ -39,9 +37,7 @@ def pytest_addoption(parser):
     )
 
     dash.addoption(
-        "--headless",
-        action="store_true",
-        help="set this flag to run in headless mode",
+        "--headless", action="store_true", help="set this flag to run in headless mode",
     )
 
     dash.addoption(

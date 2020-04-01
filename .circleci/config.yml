@@ -27,7 +27,6 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
-          PYLINTRC: .pylintrc37
           PYVERSION: python37
 
     steps:
@@ -51,20 +50,13 @@ jobs:
             . venv/bin/activate
             set -eo pipefail
             pip install -e . --progress-bar off && pip list | grep dash
-            flake8 dash setup.py && flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
-            pylint dash setup.py --rcfile=$PYLINTRC
-            pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
-            cd dash-renderer && npm ci
-            npm run lint:test && npm run format:test
+            npm install --production && npm run initialize
+            npm run lint
       - run:
-          name: 🐍 Python Unit Tests
+          name: 🐍 Python Unit Tests & ☕ JS Unit Tests
           command: |
             . venv/bin/activate
-            PYTHONPATH=~/dash/tests/assets pytest tests/unit
-      - run:
-          name: ☕ JS Unit Tests
-          command: |
-            cd dash-renderer && npm run test:js
+            npm run test.unit
 
   lint-unit-36:
       <<: *lint-unit
@@ -87,6 +79,7 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
+          PYLINTRC: .pylintrc37
           PYVERSION: python37
     steps:
       - checkout
@@ -202,7 +195,9 @@ jobs:
       - run:
           name: ️️🏗️  Install packages
           command: |
-            . venv/bin/activate && cd packages && ls -la
+            . venv/bin/activate
+            npm install --production
+            cd packages && ls -la
             find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && cd ..
             sed -i '/dash/d' requires-install.txt
             pip install --no-cache-dir --ignore-installed .
@@ -211,8 +206,7 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate
-            TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+            npm run test.integration
       - store_artifacts:
           path: test-reports
       - store_test_results:

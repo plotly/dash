@@ -1,5 +1,4 @@
 import json
-import time
 import itertools
 
 import dash_html_components as html
@@ -39,8 +38,7 @@ def test_dada001_assets(dash_duo):
     ), "margin is overloaded by assets css resource"
 
     assert (
-        dash_duo.find_element("#content").value_of_css_property("padding")
-        == "8px"
+        dash_duo.find_element("#content").value_of_css_property("padding") == "8px"
     ), "padding is overloaded by assets"
 
     tested = json.loads(dash_duo.wait_for_element("#tested").text)
@@ -86,9 +84,7 @@ def test_dada002_external_files_init(dash_duo):
         },
     ]
 
-    app = Dash(
-        __name__, external_scripts=js_files, external_stylesheets=css_files
-    )
+    app = Dash(__name__, external_scripts=js_files, external_stylesheets=css_files)
 
     app.index_string = """<!DOCTYPE html>
     <html>
