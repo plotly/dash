@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.10.0] - 2020-04-01
 ### Added
 - [#1134](https://github.com/plotly/dash/pull/1134) Allow `dash.run_server()` host and port parameters to be set with environment variables HOST & PORT, respectively
 
