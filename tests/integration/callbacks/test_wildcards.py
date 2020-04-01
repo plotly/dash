@@ -223,15 +223,15 @@ def fibonacci_app(clientside):
     # - clientside callbacks work the same as server-side
     # - callbacks using ALLSMALLER as an input to MATCH of the exact same id/prop
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        dcc.Input(id="n", type="number", min=0, max=10, value=4),
-        html.Div(id="series"),
-        html.Div(id="sum")
-    ])
-
-    @app.callback(
-        Output("series", "children"), [Input("n", "value")]
+    app.layout = html.Div(
+        [
+            dcc.Input(id="n", type="number", min=0, max=10, value=4),
+            html.Div(id="series"),
+            html.Div(id="sum"),
+        ]
     )
+
+    @app.callback(Output("series", "children"), [Input("n", "value")])
     def items(n):
         return [html.Div(id={"i": i}) for i in range(n)]
 
@@ -244,7 +244,7 @@ def fibonacci_app(clientside):
             }
             """,
             Output({"i": MATCH}, "children"),
-            [Input({"i": ALLSMALLER}, "children")]
+            [Input({"i": ALLSMALLER}, "children")],
         )
 
         app.clientside_callback(
@@ -255,22 +255,24 @@ def fibonacci_app(clientside):
             }
             """,
             Output("sum", "children"),
-            [Input({"i": ALL}, "children")]
+            [Input({"i": ALL}, "children")],
         )
 
     else:
+
         @app.callback(
-            Output({"i": MATCH}, "children"),
-            [Input({"i": ALLSMALLER}, "children")]
+            Output({"i": MATCH}, "children"), [Input({"i": ALLSMALLER}, "children")]
         )
         def sequence(prev):
-            if (len(prev) < 2):
+            if len(prev) < 2:
                 return len(prev)
             return int(prev[-1] or 0) + int(prev[-2] or 0)
 
         @app.callback(Output("sum", "children"), [Input({"i": ALL}, "children")])
         def show_sum(seq):
-            return "{} elements, sum: {}".format(len(seq), sum(int(v or 0) for v in seq))
+            return "{} elements, sum: {}".format(
+                len(seq), sum(int(v or 0) for v in seq)
+            )
 
     return app
 
