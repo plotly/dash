@@ -8,8 +8,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [#768](https://github.com/plotly/dash-core-components/pull/768) Added title property to dcc.Link
 - [#776](https://github.com/plotly/dash-core-components/pull/776) Update dcc.Link to set href as children if children not defined. Makes href a required prop as well.
 - [#767](https://github.com/plotly/dash-core-components/pull/767) Updated dcc.Link to respond to click modifiers, and added a target prop.
-- [#774](https://github.com/plotly/dash-core-components/pull/774) Fixed dcc.Location firing callbacks for wrong property. 
-- [772](https://github.com/plotly/dash-core-components/pull/772) Modified dcc.Link to work with absolute paths if refresh=True. 
+- [#774](https://github.com/plotly/dash-core-components/pull/774) Fixed dcc.Location firing callbacks for wrong property.
+- [772](https://github.com/plotly/dash-core-components/pull/772) Modified dcc.Link to work with absolute paths if refresh=True.
+
+### Updated
+- [#784](https://github.com/plotly/dash-core-components/pull/784)
+  - [Feature release of Plotly.js 1.53.0](https://github.com/plotly/plotly.js/releases/tag/v1.53.0) which contains:
+    - `rangebreaks` on date axes [#4614](https://github.com/plotly/plotly.js/pull/4614)
+    - (x|y) unified `hovermode` [#4620](https://github.com/plotly/plotly.js/pull/4620)
+    - "hovered data" mode to `spikesnap` [#4665](https://github.com/plotly/plotly.js/pull/4665)
+    - "full-json" export format to `Plotly.toImage` and `Plotly.dowloadImage` [#4593](https://github.com/plotly/plotly.js/pull/4593)
+    - node.customdata and link.customdata in `sankey` traces [#4621](https://github.com/plotly/plotly.js/pull/4621)
+    - `opacityscale` for `surface` traces [#4480](https://github.com/plotly/plotly.js/pull/4480)
 
 ## [1.8.1] -2020-02-27
 ### Added
