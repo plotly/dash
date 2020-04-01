@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.10.0] - 2020-04-01
 ### Added
 - [#1103](https://github.com/plotly/dash/pull/1103) Wildcard IDs and callbacks. Component IDs can be dictionaries, and callbacks can reference patterns of components, using three different wildcards: `ALL`, `MATCH`, and `ALLSMALLER`, available from `dash.dependencies`. This lets you create components on demand, and have callbacks respond to any and all of them. To help with this, `dash.callback_context` gets three new entries: `outputs_list`, `inputs_list`, and `states_list`, which contain all the ids, properties, and except for the outputs, the property values from all matched components.
 
