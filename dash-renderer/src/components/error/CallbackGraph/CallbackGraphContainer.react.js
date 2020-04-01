@@ -64,9 +64,6 @@ const CallbackGraphContainer = ({graphs}) => {
 
             ${links.join('\n')} }`;
 
-        // eslint-disable-next-line no-console
-        console.log(dot);
-
         viz.current
             .renderSVGElement(dot)
             .then(vizEl => {
