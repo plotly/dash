@@ -65,8 +65,6 @@ const layoutA = storeType => ({
 describe('storage fallbacks and equivalence', () => {
     const propVal = 42;
     const propStr = String(propVal);
-    let originalConsoleErr;
-    let consoleCalls;
     let dispatchCalls;
 
     const _dispatch = evt => {
@@ -87,11 +85,6 @@ describe('storage fallbacks and equivalence', () => {
         };
 
         dispatchCalls = [];
-        consoleCalls = [];
-        originalConsoleErr = console.error;
-        console.error = msg => {
-            consoleCalls.push(msg);
-        };
 
         clearStores();
     });
@@ -99,7 +92,6 @@ describe('storage fallbacks and equivalence', () => {
     afterEach(() => {
         delete window.my_components;
         clearStores();
-        console.error = originalConsoleErr;
     });
 
     ['local', 'session'].forEach(storeType => {
@@ -111,7 +103,6 @@ describe('storage fallbacks and equivalence', () => {
         test(`empty ${storeName} works`, () => {
             recordUiEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).toEqual([]);
-            expect(consoleCalls).toEqual([]);
             expect(store.getItem(`${storePrefix}a.p1.true`)).toBe(`[${propStr}]`);
         });
 
@@ -123,7 +114,6 @@ describe('storage fallbacks and equivalence', () => {
                 `${storeName} init first try failed; clearing and retrying`,
                 `${storeName} init set/get succeeded after clearing!`
             ]);
-            expect(consoleCalls).toEqual(dispatchCalls);
             expect(store.getItem(`${storePrefix}a.p1.true`)).toBe(`[${propStr}]`);
             // Boolean so we don't see the very long value if test fails
             const x = Boolean(store.getItem(`${storePrefix}x.x`));
@@ -138,7 +128,6 @@ describe('storage fallbacks and equivalence', () => {
                 `${storeName} init first try failed; clearing and retrying`,
                 `${storeName} init still failed, falling back to memory`
             ]);
-            expect(consoleCalls).toEqual(dispatchCalls);
             expect(stores.memory.getItem('a.p1.true')).toEqual([propVal]);
             const x = Boolean(store.getItem('not_ours'));
             expect(x).toBe(true);
@@ -150,14 +139,12 @@ describe('storage fallbacks and equivalence', () => {
             // initialize and ensure the store is happy
             recordUiEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).toEqual([]);
-            expect(consoleCalls).toEqual([]);
 
             // now flood it.
             recordUiEdit(layout, {p1: longString(26)}, _dispatch);
             expect(dispatchCalls).toEqual([
                 `a.p1.true failed to save in ${storeName}. Persisted props may be lost.`
             ]);
-            expect(consoleCalls).toEqual(dispatchCalls);
         });
     });
 
