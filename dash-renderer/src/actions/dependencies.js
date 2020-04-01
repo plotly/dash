@@ -31,6 +31,8 @@ import {
     zipObj,
 } from 'ramda';
 
+const mergeMax = mergeWith(Math.max);
+
 import {getPath} from './paths';
 
 import {crawlLayout} from './utils';
@@ -429,7 +431,18 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
     });
 }
 
-const matchWildKeys = ([a, b]) => a === b || (a && a.wild) || (b && b.wild);
+const matchWildKeys = ([a, b]) => {
+    const aWild = a && a.wild;
+    const bWild = b && b.wild;
+    if (aWild && bWild) {
+        // Every wildcard combination overlaps except MATCH<->ALLSMALLER
+        return !(
+            (a === MATCH && b === ALLSMALLER) ||
+            (a === ALLSMALLER && b === MATCH)
+        );
+    }
+    return a === b || aWild || bWild;
+};
 
 function wildcardOverlap({id, property}, objs) {
     const idKeys = keys(id).sort();
@@ -1199,8 +1212,7 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         if (callback) {
             const foundIndex = foundCbIds[callback.resolvedId];
             if (foundIndex !== undefined) {
-                callbacks[foundIndex].changedPropIds = mergeWith(
-                    Math.max,
+                callbacks[foundIndex].changedPropIds = mergeMax(
                     callbacks[foundIndex].changedPropIds,
                     callback.changedPropIds
                 );
@@ -1410,8 +1422,7 @@ export function followForward(graphs, paths, callbacks_) {
                 allResolvedIds[nextCB.resolvedId] = existingIndex;
             } else {
                 const existingCB = callbacks[existingIndex];
-                existingCB.changedPropIds = mergeWith(
-                    Math.max,
+                existingCB.changedPropIds = mergeMax(
                     existingCB.changedPropIds,
                     nextCB.changedPropIds
                 );
@@ -1433,8 +1444,9 @@ export function followForward(graphs, paths, callbacks_) {
 function mergeAllBlockers(cb1, cb2) {
     function mergeBlockers(a, b) {
         if (cb1[a][cb2.resolvedId] && !cb2[b][cb1.resolvedId]) {
-            cb2[b] = mergeRight({[cb1.resolvedId]: 1}, cb1[b], cb2[b]);
-            cb1[a] = mergeRight({[cb2.resolvedId]: 1}, cb2[a], cb1[b]);
+            cb2[b][cb1.resolvedId] = cb1[a][cb2.resolvedId];
+            cb2[b] = mergeMax(cb1[b], cb2[b]);
+            cb1[a] = mergeMax(cb2[a], cb1[a]);
         }
     }
     mergeBlockers('blockedBy', 'blocking');

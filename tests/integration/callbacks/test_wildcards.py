@@ -1,5 +1,7 @@
 from multiprocessing import Value
+import pytest
 import re
+from selenium.webdriver.common.keys import Keys
 
 import dash_html_components as html
 import dash_core_components as dcc
@@ -214,3 +216,97 @@ def test_cbwc001_todo_app(dash_duo):
     # This was a tricky one - trigger based on deleted components
     dash_duo.wait_for_text_to_equal("#totals", "0 of 0 items completed")
     assert_count(0)
+
+
+def fibonacci_app(clientside):
+    # This app tests 2 things in particular:
+    # - clientside callbacks work the same as server-side
+    # - callbacks using ALLSMALLER as an input to MATCH of the exact same id/prop
+    app = dash.Dash(__name__)
+    app.layout = html.Div([
+        dcc.Input(id="n", type="number", min=0, max=10, value=4),
+        html.Div(id="series"),
+        html.Div(id="sum")
+    ])
+
+    @app.callback(
+        Output("series", "children"), [Input("n", "value")]
+    )
+    def items(n):
+        return [html.Div(id={"i": i}) for i in range(n)]
+
+    if clientside:
+        app.clientside_callback(
+            """
+            function(vals) {
+                var len = vals.length;
+                return len < 2 ? len : +(vals[len - 1] || 0) + +(vals[len - 2] || 0);
+            }
+            """,
+            Output({"i": MATCH}, "children"),
+            [Input({"i": ALLSMALLER}, "children")]
+        )
+
+        app.clientside_callback(
+            """
+            function(vals) {
+                var sum = vals.reduce(function(a, b) { return +a + +b; }, 0);
+                return vals.length + ' elements, sum: ' + sum;
+            }
+            """,
+            Output("sum", "children"),
+            [Input({"i": ALL}, "children")]
+        )
+
+    else:
+        @app.callback(
+            Output({"i": MATCH}, "children"),
+            [Input({"i": ALLSMALLER}, "children")]
+        )
+        def sequence(prev):
+            if (len(prev) < 2):
+                return len(prev)
+            return int(prev[-1] or 0) + int(prev[-2] or 0)
+
+        @app.callback(Output("sum", "children"), [Input({"i": ALL}, "children")])
+        def show_sum(seq):
+            return "{} elements, sum: {}".format(len(seq), sum(int(v or 0) for v in seq))
+
+    return app
+
+
+@pytest.mark.parametrize("clientside", (False, True))
+def test_cbwc002_fibonacci_app(clientside, dash_duo):
+    app = fibonacci_app(clientside)
+    dash_duo.start_server(app)
+
+    # app starts with 4 elements: 0, 1, 1, 2
+    dash_duo.wait_for_text_to_equal("#sum", "4 elements, sum: 4")
+
+    # add 5th item, "3"
+    dash_duo.find_element("#n").send_keys(Keys.UP)
+    dash_duo.wait_for_text_to_equal("#sum", "5 elements, sum: 7")
+
+    # add 6th item, "5"
+    dash_duo.find_element("#n").send_keys(Keys.UP)
+    dash_duo.wait_for_text_to_equal("#sum", "6 elements, sum: 12")
+
+    # add 7th item, "8"
+    dash_duo.find_element("#n").send_keys(Keys.UP)
+    dash_duo.wait_for_text_to_equal("#sum", "7 elements, sum: 20")
+
+    # back down all the way to no elements
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)
+    dash_duo.wait_for_text_to_equal("#sum", "6 elements, sum: 12")
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)
+    dash_duo.wait_for_text_to_equal("#sum", "5 elements, sum: 7")
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)
+    dash_duo.wait_for_text_to_equal("#sum", "4 elements, sum: 4")
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)
+    dash_duo.wait_for_text_to_equal("#sum", "3 elements, sum: 2")
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)
+    dash_duo.wait_for_text_to_equal("#sum", "2 elements, sum: 1")
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)
+    dash_duo.wait_for_text_to_equal("#sum", "1 elements, sum: 0")
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)
+    dash_duo.wait_for_text_to_equal("#sum", "0 elements, sum: 0")

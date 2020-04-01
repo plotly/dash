@@ -67,7 +67,8 @@ export function getPath(paths, id) {
             return false;
         }
         const values = props(keys, id);
-        return find(propEq('values', values), keyPaths).path;
+        const pathObj = find(propEq('values', values), keyPaths);
+        return pathObj && pathObj.path;
     }
     return paths.strs[id];
 }
