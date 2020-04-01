@@ -11,7 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - [#1103](https://github.com/plotly/dash/pull/1103) Multiple changes to the callback pipeline:
   - `dash.callback_context.triggered` now does NOT reflect any initial values, and DOES reflect EVERY value which has been changed either by activity in the app or as a result of a previous callback. That means that the initial call of a callback with no prerequisite callbacks will list nothing as triggering. For backward compatibility, we continue to provide a length-1 list for `triggered`, but its `id` and `property` are blank strings, and `bool(triggered)` is `False`.
-  - A callback which returns the same property value as was previously present will not trigger the component to re-render, nor trigger other callbacks using that property as an input.
+  - A user interaction which returns the same property value as was previously present will not trigger the component to re-render, nor trigger callbacks using that property as an input.
   - Callback validation is now mostly done in the browser, rather than in Python. A few things - mostly type validation, like ensuring IDs are strings or dicts and properties are strings - are still done in Python, but most others, like ensuring outputs are unique, inputs and outputs don't overlap, and (if desired) that IDs are present in the layout, are done in the browser. This means you can define callbacks BEFORE the layout and still validate IDs to the layout; and while developing an app, most errors in callback definitions will not halt the app.
 
 - [#1145](https://github.com/plotly/dash/pull/1145) Update from React 16.8.6 to 16.13.0
