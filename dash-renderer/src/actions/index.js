@@ -4,7 +4,6 @@ import {
     has,
     isEmpty,
     keys,
-    lensPath,
     map,
     mergeDeepRight,
     once,
@@ -15,7 +14,6 @@ import {
     propEq,
     type,
     uniq,
-    view,
     without,
     zip,
 } from 'ramda';
@@ -608,32 +606,4 @@ export function handleAsyncError(err, message, dispatch) {
         const error = err instanceof Error ? err : {message, html: err};
         dispatch(onError({type: 'backEnd', error}));
     }
-}
-
-export function serialize(state) {
-    // Record minimal input state in the url
-    const {graphs, paths, layout} = state;
-    const {InputGraph} = graphs;
-    const allNodes = InputGraph.nodes;
-    const savedState = {};
-    keys(allNodes).forEach(nodeId => {
-        const [componentId, componentProp] = nodeId.split('.');
-        /*
-         * Filter out the outputs,
-         * and the invisible inputs
-         */
-        if (
-            InputGraph.dependenciesOf(nodeId).length > 0 &&
-            has(componentId, paths)
-        ) {
-            // Get the property
-            const propLens = lensPath(
-                concat(paths[componentId], ['props', componentProp])
-            );
-            const propValue = view(propLens, layout);
-            savedState[nodeId] = propValue;
-        }
-    });
-
-    return savedState;
 }

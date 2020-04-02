@@ -601,7 +601,6 @@ export function validateCallbacksToLayout(state_, dispatchError) {
 }
 
 export function computeGraphs(dependencies, dispatchError) {
-    const inputGraph = new DepGraph();
     // multiGraph is just for finding circular deps
     const multiGraph = new DepGraph();
 
@@ -653,7 +652,6 @@ export function computeGraphs(dependencies, dispatchError) {
     const inputPatterns = {};
 
     const finalGraphs = {
-        InputGraph: inputGraph,
         MultiGraph: multiGraph,
         outputMap,
         inputMap,
@@ -745,7 +743,7 @@ export function computeGraphs(dependencies, dispatchError) {
     }
 
     parsedDependencies.forEach(function registerDependency(dependency) {
-        const {output, outputs, inputs} = dependency;
+        const {outputs, inputs} = dependency;
 
         // multiGraph - just for testing circularity
 
@@ -804,12 +802,6 @@ export function computeGraphs(dependencies, dispatchError) {
                 addPattern(inputPatterns, inId, inProp, finalDependency);
             } else {
                 addMap(inputMap, inId, inProp, finalDependency);
-                // inputGraph - this is the one we'll use for dispatching updates
-                // TODO: get rid of this, use the precalculated mappings
-                const inputId = combineIdAndProp(inputObject);
-                inputGraph.addNode(output);
-                inputGraph.addNode(inputId);
-                inputGraph.addDependency(inputId, output);
             }
         });
     });
