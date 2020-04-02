@@ -568,3 +568,39 @@ def test_dvcv010_bad_props(dash_duo):
         ],
     ]
     check_errors(dash_duo, specs)
+
+
+def test_dvcv011_duplicate_outputs_simple(dash_duo):
+    app = Dash(__name__)
+
+    @app.callback(Output("a", "children"), [Input("c", "children")])
+    def c(children):
+        return children
+
+    @app.callback(Output("a", "children"), [Input("b", "children")])
+    def c2(children):
+        return children
+
+    @app.callback([Output("a", "style")], [Input("c", "style")])
+    def s(children):
+        return (children,)
+
+    @app.callback([Output("a", "style")], [Input("b", "style")])
+    def s2(children):
+        return (children,)
+
+    app.layout = html.Div(
+        [
+            html.Div([], id="a"),
+            html.Div(["Bye"], id="b", style={"color": "red"}),
+            html.Div(["Hello"], id="c", style={"color": "green"}),
+        ]
+    )
+
+    dash_duo.start_server(app, **debugging)
+
+    specs = [
+        ["Duplicate callback outputs", ["Output 0 (a.children) is already in use."]],
+        ["Duplicate callback outputs", ["Output 0 (a.style) is already in use."]],
+    ]
+    check_errors(dash_duo, specs)

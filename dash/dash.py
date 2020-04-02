@@ -305,9 +305,10 @@ class Dash(object):
             "via the Dash constructor"
         )
 
-        # list of dependencies
+        # list of dependencies - this one is used by the back end for dispatching
         self.callback_map = {}
-        self.used_outputs = []
+        # same deps as a list to catch duplicate outputs, and to send to the front end
+        self._callback_list = []
 
         # list of inline scripts
         self._inline_scripts = []
@@ -777,27 +778,22 @@ class Dash(object):
         )
 
     def dependencies(self):
-        return flask.jsonify(
-            [
-                {
-                    "output": k,
-                    "inputs": v["inputs"],
-                    "state": v["state"],
-                    "clientside_function": v.get("clientside_function", None),
-                }
-                for k, v in self.callback_map.items()
-            ]
-        )
+        return flask.jsonify(self._callback_list)
 
     def _insert_callback(self, output, inputs, state):
         _validate.validate_callback(output, inputs, state)
         callback_id = create_callback_id(output)
-
-        self.callback_map[callback_id] = {
+        callback_spec = {
+            "output": callback_id,
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
+            "clientside_function": None
         }
-        self.used_outputs.extend(output if callback_id.startswith("..") else [output])
+        self.callback_map[callback_id] = {
+            "inputs": callback_spec["inputs"],
+            "state": callback_spec["state"],
+        }
+        self._callback_list.append(callback_spec)
 
         return callback_id
 
@@ -862,7 +858,7 @@ class Dash(object):
         )
         ```
         """
-        callback_id = self._insert_callback(output, inputs, state)
+        self._insert_callback(output, inputs, state)
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -888,7 +884,7 @@ class Dash(object):
             namespace = clientside_function.namespace
             function_name = clientside_function.function_name
 
-        self.callback_map[callback_id]["clientside_function"] = {
+        self._callback_list[-1]["clientside_function"] = {
             "namespace": namespace,
             "function_name": function_name,
         }
