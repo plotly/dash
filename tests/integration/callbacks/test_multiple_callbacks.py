@@ -241,11 +241,7 @@ def test_cbmt005_multi_converging_chain(dash_duo):
 def test_cbmt006_derived_props(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
-        [
-            html.Div(id="output"),
-            html.Button("click", id="btn"),
-            dcc.Store(id="store"),
-        ]
+        [html.Div(id="output"), html.Button("click", id="btn"), dcc.Store(id="store"),]
     )
 
     @app.callback(

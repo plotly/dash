@@ -42,6 +42,7 @@ class Browser(DashPageMixin):
         percy_finalize=True,
         percy_assets_root="",
         wait_timeout=10,
+        pause=False,
     ):
         self._browser = browser.lower()
         self._remote_url = remote_url
@@ -54,6 +55,7 @@ class Browser(DashPageMixin):
         self._wait_timeout = wait_timeout
         self._percy_finalize = percy_finalize
         self._percy_run = percy_run
+        self._pause = pause
 
         self._driver = until(self.get_webdriver, timeout=1)
         self._driver.implicitly_wait(2)
@@ -311,6 +313,14 @@ class Browser(DashPageMixin):
                     "\n".join((str(log) for log in self.get_logs())),
                 )
             )
+
+        if self._pause:
+            try:
+                import pdb as pdb_
+            except ImportError:
+                import ipdb as pdb_
+
+            pdb_.set_trace()
 
     def select_dcc_dropdown(self, elem_or_selector, value=None, index=None):
         dropdown = self._get_element(elem_or_selector)

@@ -49,6 +49,12 @@ def pytest_addoption(parser):
         help="set this flag to control percy finalize at CI level",
     )
 
+    dash.addoption(
+        "--pause",
+        action="store_true",
+        help="pause using pdb after opening the test app, so you can interact with it",
+    )
+
 
 @pytest.mark.tryfirst
 def pytest_addhooks(pluginmanager):
@@ -114,6 +120,7 @@ def dash_br(request, tmpdir):
         download_path=tmpdir.mkdir("download").strpath,
         percy_assets_root=request.config.getoption("percy_assets"),
         percy_finalize=request.config.getoption("nopercyfinalize"),
+        pause=request.config.getoption("pause"),
     ) as browser:
         yield browser
 
@@ -130,6 +137,7 @@ def dash_duo(request, dash_thread_server, tmpdir):
         download_path=tmpdir.mkdir("download").strpath,
         percy_assets_root=request.config.getoption("percy_assets"),
         percy_finalize=request.config.getoption("nopercyfinalize"),
+        pause=request.config.getoption("pause"),
     ) as dc:
         yield dc
 
@@ -146,5 +154,6 @@ def dashr(request, dashr_server, tmpdir):
         download_path=tmpdir.mkdir("download").strpath,
         percy_assets_root=request.config.getoption("percy_assets"),
         percy_finalize=request.config.getoption("nopercyfinalize"),
+        pause=request.config.getoption("pause"),
     ) as dc:
         yield dc

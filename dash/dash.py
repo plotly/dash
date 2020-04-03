@@ -787,7 +787,7 @@ class Dash(object):
             "output": callback_id,
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
-            "clientside_function": None
+            "clientside_function": None,
         }
         self.callback_map[callback_id] = {
             "inputs": callback_spec["inputs"],
