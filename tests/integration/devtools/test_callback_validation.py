@@ -604,3 +604,68 @@ def test_dvcv011_duplicate_outputs_simple(dash_duo):
         ["Duplicate callback outputs", ["Output 0 (a.style) is already in use."]],
     ]
     check_errors(dash_duo, specs)
+
+
+def test_dvcv012_circular_2_step(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [html.Div([], id="a"), html.Div(["Bye"], id="b"), html.Div(["Hello"], id="c")]
+    )
+
+    @app.callback(Output("a", "children"), [Input("b", "children")])
+    def callback(children):
+        return children
+
+    @app.callback(Output("b", "children"), [Input("a", "children")])
+    def c2(children):
+        return children
+
+    dash_duo.start_server(app, **debugging)
+
+    specs = [
+        [
+            "Circular Dependencies",
+            [
+                "Dependency Cycle Found:",
+                "a.children -> b.children",
+                "b.children -> a.children",
+            ],
+        ]
+    ]
+    check_errors(dash_duo, specs)
+
+
+def test_dvcv013_circular_3_step(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [html.Div([], id="a"), html.Div(["Bye"], id="b"), html.Div(["Hello"], id="c")]
+    )
+
+    @app.callback(Output("b", "children"), [Input("a", "children")])
+    def callback(children):
+        return children
+
+    @app.callback(Output("c", "children"), [Input("b", "children")])
+    def c2(children):
+        return children
+
+    @app.callback([Output("a", "children")], [Input("c", "children")])
+    def c3(children):
+        return children
+
+    dash_duo.start_server(app, **debugging)
+
+    specs = [
+        [
+            "Circular Dependencies",
+            [
+                "Dependency Cycle Found:",
+                "a.children -> b.children",
+                "b.children -> c.children",
+                "c.children -> a.children",
+            ],
+        ]
+    ]
+    check_errors(dash_duo, specs)
