@@ -7,7 +7,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_table
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 
@@ -236,3 +236,33 @@ def test_cbmt005_multi_converging_chain(dash_duo):
 
     dash_duo.find_element("#b2").click()
     dash_duo.wait_for_text_to_equal("#out", "x=1, y=1")
+
+
+def test_cbmt006_derived_props(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(id="output"),
+            html.Button("click", id="btn"),
+            dcc.Store(id="store"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        [Input("store", "modified_timestamp")],
+        [State("store", "data")],
+    )
+    def on_data(ts, data):
+        return data
+
+    @app.callback(Output("store", "data"), [Input("btn", "n_clicks")])
+    def on_click(n_clicks):
+        return n_clicks or 0
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#output", "0")
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#output", "1")
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#output", "2")

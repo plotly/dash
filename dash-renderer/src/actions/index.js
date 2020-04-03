@@ -292,6 +292,10 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
                     props
                 );
                 if (appliedProps) {
+                    // doUpdateProps can cause new callbacks to be added
+                    // via derived props - update pendingCallbacks
+                    pendingCallbacks = getState().pendingCallbacks;
+
                     Object.keys(appliedProps).forEach(property => {
                         updated.push(combineIdAndProp({id, property}));
                     });
