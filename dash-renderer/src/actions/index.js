@@ -294,7 +294,15 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
                 if (appliedProps) {
                     // doUpdateProps can cause new callbacks to be added
                     // via derived props - update pendingCallbacks
-                    pendingCallbacks = getState().pendingCallbacks;
+                    // But we may also need to merge in other callbacks that
+                    // we found in an earlier interation of the data loop.
+                    const statePendingCallbacks = getState().pendingCallbacks;
+                    if (statePendingCallbacks !== pendingCallbacks) {
+                        pendingCallbacks = mergePendingCallbacks(
+                            pendingCallbacks,
+                            statePendingCallbacks
+                        );
+                    }
 
                     Object.keys(appliedProps).forEach(property => {
                         updated.push(combineIdAndProp({id, property}));
