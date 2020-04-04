@@ -18,7 +18,8 @@ const stylesheet = [
       'target-arrow-shape': 'triangle',
       'target-arrow-fill': 'filled',
       'arrow-scale': 1,
-      'curve-style': 'bezier'
+      "curve-style": "bezier",
+      "control-point-step-size": 40
     }
   },
 

@@ -5,12 +5,21 @@ import stylesheet from './CallbackGraphContainerStylesheet';
 import ReactJson from 'react-json-view'
 
 import Cytoscape from 'cytoscape';
-import Dagre from 'cytoscape-dagre';
 import CytoscapeComponent from 'react-cytoscapejs';
-Cytoscape.use(Dagre);
 
 import PropTypes from 'prop-types';
 
+
+// Set the layout method.
+// NOTE: dagre should be nicer for DAG, but even with manual
+//       cycle pruning, it gives terrible results with State.
+const cyLayout = {
+  name: 'breadthfirst',
+  directed: true,
+  padding: 20,
+  grid: true,
+  spacingFactor: 0.5
+};
 
 /**
  * Generates all the elements (nodes, edeges) for the dependency graph.
@@ -121,11 +130,6 @@ function CallbackGraphContainer(props) {
     [dependenciesRequest]
   );
 
-  // Set the layout method.
-  const cyLayout = {
-    name: 'dagre'
-  };
-
   // Generate the element introspection data.
   let elementName = '';
   let elementInfo = {};
@@ -161,9 +165,13 @@ function CallbackGraphContainer(props) {
         elementName = data.id;
         elementInfo.language = data.lang;
 
-        elementInfo.inputs = cytoscape.filter(`[target = "${data.id}"]`)
+        elementInfo.inputs = cytoscape.filter(`[target = "${data.id}"][type = "input"]`)
                                      .sources()
                                      .reduce(reducer, {});
+
+        elementInfo.states = cytoscape.filter(`[target = "${data.id}"][type = "state"]`)
+                                      .sources()
+                                      .reduce(reducer, {});
 
         elementInfo.outputs = cytoscape.filter(`[source = "${data.id}"]`)
                                       .targets()
