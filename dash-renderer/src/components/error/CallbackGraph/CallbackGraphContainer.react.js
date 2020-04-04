@@ -1,5 +1,8 @@
-import React, {Component} from 'react';
+import React, {useState, useMemo, useEffect} from 'react';
 import './CallbackGraphContainer.css';
+import stylesheet from './CallbackGraphContainerStylesheet';
+
+import ReactJson from 'react-json-view'
 
 import Cytoscape from 'cytoscape';
 import Dagre from 'cytoscape-dagre';
@@ -8,173 +11,184 @@ Cytoscape.use(Dagre);
 
 import PropTypes from 'prop-types';
 
-const stylesheet = [
 
-  {
-    selector: '*',
-    style: {
-      'font-size': 12,
-      'font-family': '"Arial", sans-serif',
-    }
-  },
+/**
+ * Generates all the elements (nodes, edeges) for the dependency graph.
+ */
+function generateElements(dependenciesRequest) {
 
-  {
-    selector: 'edge',
-    style: {
-      'width': 1,
-      'label': 'data(label)',
-      'line-color': '#888888',
-      'target-arrow-color': '#888888',
-      'target-arrow-shape': 'triangle',
-      'target-arrow-fill': 'filled',
-      'arrow-scale': 1,
-      'curve-style': 'bezier'
-    }
-  },
+  const consumed = [];
+  const elements = [];
 
-  {
-    selector: 'node',
-    style: {
-      'color': '#333333',
-      'padding': 6,
-      'text-valign': 'center',
-      'text-halign': 'center',
-    }
-  },
+  function recordNode([id, property]) {
+    const parent = `${id}`;
+    const child = `${id}.${property}`;
 
-  {
-    selector: 'node[type="clientside-callback"], node[type="serverside-callback"]',
-    style: {
-      'width': 20,
-      'height': 20,
-      'shape': 'ellipse',
+    if (!consumed.includes(parent)) {
+      consumed.push(parent);
+      elements.push({data: {id: parent, label: parent, type: 'component'}});
     }
-  },
 
-  {
-    selector: 'node[type="clientside-callback"]',
-    style: {
-      'content': 'PY',
-      'color': '#00CC96',
-      'background-color': '#F0DB4F'
+    if (!consumed.includes(child)) {
+      consumed.push(child);
+      elements.push({data: {id: child, label: `${property}`, parent: parent, type: 'property'}});
     }
-  },
 
-  {
-    selector: 'node[type="serverside-callback"]',
-    style: {
-      'content': 'JS',
-      'color': '#323330',
-      'background-color': '#F0DB4F'
-    }
-  },
-
-  {
-    selector: 'node[type="component"]',
-    style: {
-      'width': 'label',
-      'height': 'label',
-      'shape': 'rectangle',
-      'content': 'data(label)',
-      'text-valign': 'top',
-      'background-color': '#B9C2CE'
-    }
-  },
-
-  {
-    selector: 'node[type="property"]',
-    style: {
-      'width': 'label',
-      'height': 20,
-      'shape': 'rectangle',
-      'content': 'data(label)',
-      'color': 'white',
-      'background-color': '#109DFF'
-    }
   }
 
-];
+  function recordEdge([sourceId, sourceProperty], [targetId, targetProperty], label) {
+    const source = `${sourceId}.${sourceProperty}`;
+    const target = `${targetId}.${targetProperty}`;
+    elements.push({data: {source: source, target: target, label: label || ''}});
+  }
 
-class CallbackGraphContainer extends Component {
+  dependenciesRequest.content.map((callback, i) => {
 
-    render() {
+      const cb = ['callback', i];
+      const cbLabel = `callback.${i}`;
+      elements.push({data: {
+        id: cbLabel,
+        label: cbLabel,
+        type: 'callback',
+        lang: callback.clientside_function ? 'javascript' : 'python'
+      }});
 
-      const {dependenciesRequest} = this.props;
+      callback.output.replace(/^\.\./, '')
+                     .replace(/\.\.$/, '')
+                     .split('...')
+                     .forEach(o => {
+                       const node = o.split('.');
+                       recordNode(node);
+                       recordEdge(cb, node);
+                     });
 
-      // Generate all the elements.
-      const consumed = [];
-      const elements = [];
-
-      function recordNode([id, property]) {
-        const parent = `${id}`;
-        const child = `${id}.${property}`;
-
-        if (!consumed.includes(parent)) {
-          consumed.push(parent);
-          elements.push({data: {id: parent, label: parent, type: 'component'}});
-        }
-
-        if (!consumed.includes(child)) {
-          consumed.push(child);
-          elements.push({data: {id: child, label: child, parent: parent, type: 'property'}});
-        }
-
-      }
-
-      function recordEdge([sourceId, sourceProperty], [targetId, targetProperty], label) {
-        const source = `${sourceId}.${sourceProperty}`;
-        const target = `${targetId}.${targetProperty}`;
-        elements.push({data: {source: source, target: target, label: label || ''}});
-      }
-
-      dependenciesRequest.content.map((callback, i) => {
-
-          const cb = ['callback', i];
-          const cbLabel = `callback.${i}`;
-          elements.push({data: {
-            id: cbLabel,
-            label: cbLabel,
-            type: callback.clientside_function ? 'serverside-callback' : 'clientside-callback'
-          }});
-
-          callback.output.replace(/^\.\./, '')
-                         .replace(/\.\.$/, '')
-                         .split('...')
-                         .forEach(o => {
-                           const node = o.split('.');
-                           recordNode(node);
-                           recordEdge(cb, node);
-                         });
-
-          callback.inputs.map(({id, property}) => {
-            const node = [id, property];
-            recordNode(node);
-            recordEdge(node, cb);
-          });
-
+      callback.inputs.map(({id, property}) => {
+        const node = [id, property];
+        recordNode(node);
+        recordEdge(node, cb);
       });
 
-      // Create the layout.
-      const layout = {
-        name: 'dagre'
-      };
-      console.log(dependenciesRequest.content);
+  });
 
-      // We now have all the elements. Render.
-      return (
-          <CytoscapeComponent
-            className="dash-callback-dag--container"
-            elements={elements}
-            layout={layout}
-            stylesheet={stylesheet}
-          />
-      );
+  return elements;
+
+}
+
+
+function CallbackGraphContainer(props) {
+
+  const {paths, layout, dependenciesRequest} = props;
+  const [selected, setSelected] = useState(null);
+  const [cytoscape, setCytoscape] = useState(null);
+
+  // Adds callbacks once cyctoscape is intialized.
+  useEffect(() => {
+    if (cytoscape) {
+
+      // Select / deselect nodes.
+      cytoscape.on('tap', 'node', e => setSelected(e.target));
+      cytoscape.on('tap', e => {
+        if (e.target === cytoscape)
+          setSelected(null);
+      })
 
     }
+  }, [cytoscape]);
+
+  // Set node classes on selected.
+  useEffect(() => {
+    if (cytoscape && selected) {
+      cytoscape.center(selected);
+      selected.addClass("selectedNode");
+      return () => selected.removeClass("selectedNode");
+    }
+  }, [selected]);
+
+  // Generate and memoize the elements.
+  const elements = useMemo(
+    () => generateElements(dependenciesRequest),
+    [dependenciesRequest]
+  );
+
+  // Set the layout method.
+  const cyLayout = {
+    name: 'dagre'
+  };
+
+  // Generate the element introspection data.
+  let elementInfo = {};
+  if (selected) {
+
+    function getComponent(id) {
+      return paths[id].reduce((o, key) => o[key], layout)
+    }
+
+    function getPropValue(data) {
+      const parent = getComponent(data.parent);
+      return parent ? parent.props[data.label] : undefined;
+    }
+
+    const reducer = (o, e) => ({ ...o, [e.data().id]: getPropValue(e.data())});
+    const data = selected.data();
+
+    switch(data.type) {
+
+      case 'component':
+        const {id, ...rest} = getComponent(data.id).props;
+        elementInfo = rest;
+        break;
+
+      case 'property':
+        elementInfo.value = getPropValue(data);
+        break;
+
+      case 'callback':
+        elementInfo.language = data.lang;
+
+        elementInfo.inputs = cytoscape.filter(`[target = "${data.id}"]`)
+                                     .sources()
+                                     .reduce(reducer, {});
+
+        elementInfo.outputs = cytoscape.filter(`[source = "${data.id}"]`)
+                                      .targets()
+                                      .reduce(reducer, {});
+        break;
+
+    }
+
+  }
+
+  // We now have all the elements. Render.
+  return (
+      <div className="dash-callback-dag--container">
+        <CytoscapeComponent
+          style={{width: '100%', height: '100%'}}
+          cy={setCytoscape}
+          elements={elements}
+          layout={cyLayout}
+          stylesheet={stylesheet}
+        />
+      { selected ?
+        <div className="dash-callback-dag--info">
+          <ReactJson
+            name={selected.data().id}
+            iconStyle="triangle"
+            displayDataTypes={false}
+            displayObjectSize={false}
+            src={elementInfo}
+          />
+        </div>
+        : null
+      }
+      </div>
+
+  );
 
 }
 
 CallbackGraphContainer.propTypes = {
+    paths: PropTypes.object,
+    layout: PropTypes.object,
     dependenciesRequest: PropTypes.object,
 };
 

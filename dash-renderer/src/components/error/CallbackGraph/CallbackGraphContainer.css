@@ -14,3 +14,18 @@
         0px 2px 6px rgba(80, 103, 132, 0.12),
         0px 0px 1px rgba(80, 103, 132, 0.32);
 }
+
+.dash-callback-dag--info {
+    border-radius: 4px;
+    position: absolute;
+    padding: 8px;
+    bottom: 16px;
+    left: 16px;
+    max-width: calc(100% - 32px);
+    max-height: 25%;
+    overflow: auto;
+    box-sizing: border-box;
+    background: rgba(255,255,255,0.9);
+    border: 2px solid #ccc;
+    font-size: 1.2rem;
+}
