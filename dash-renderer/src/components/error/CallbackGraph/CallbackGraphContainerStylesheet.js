@@ -23,6 +23,13 @@ const stylesheet = [
   },
 
   {
+    selector: 'edge[type="state"]',
+    style: {
+      'line-style': 'dashed'
+    }
+  },
+
+  {
     selector: 'node',
     style: {
       'color': '#333333',

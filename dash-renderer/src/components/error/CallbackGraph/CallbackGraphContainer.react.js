@@ -36,10 +36,15 @@ function generateElements(dependenciesRequest) {
 
   }
 
-  function recordEdge([sourceId, sourceProperty], [targetId, targetProperty], label) {
+  function recordEdge([sourceId, sourceProperty], [targetId, targetProperty], type, label) {
     const source = `${sourceId}.${sourceProperty}`;
     const target = `${targetId}.${targetProperty}`;
-    elements.push({data: {source: source, target: target, label: label || ''}});
+    elements.push({data: {
+      source: source,
+      target: target,
+      type: type,
+      label: label || ''
+    }});
   }
 
   dependenciesRequest.content.map((callback, i) => {
@@ -59,13 +64,19 @@ function generateElements(dependenciesRequest) {
                      .forEach(o => {
                        const node = o.split('.');
                        recordNode(node);
-                       recordEdge(cb, node);
+                       recordEdge(cb, node, 'output');
                      });
 
       callback.inputs.map(({id, property}) => {
         const node = [id, property];
         recordNode(node);
-        recordEdge(node, cb);
+        recordEdge(node, cb, 'input');
+      });
+
+      callback.state.map(({id, property}) => {
+        const node = [id, property];
+        recordNode(node);
+        recordEdge(node, cb, 'state');
       });
 
   });
