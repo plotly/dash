@@ -127,7 +127,9 @@ function CallbackGraphContainer(props) {
   };
 
   // Generate the element introspection data.
+  let elementName = '';
   let elementInfo = {};
+
   if (selected) {
 
     function getComponent(id) {
@@ -147,13 +149,16 @@ function CallbackGraphContainer(props) {
       case 'component':
         const {id, ...rest} = getComponent(data.id).props;
         elementInfo = rest;
+        elementName = data.id;
         break;
 
       case 'property':
-        elementInfo.value = getPropValue(data);
+        elementName = data.parent;
+        elementInfo[data.label] = getPropValue(data);
         break;
 
       case 'callback':
+        elementName = data.id;
         elementInfo.language = data.lang;
 
         elementInfo.inputs = cytoscape.filter(`[target = "${data.id}"]`)
@@ -182,11 +187,11 @@ function CallbackGraphContainer(props) {
       { selected ?
         <div className="dash-callback-dag--info">
           <ReactJson
-            name={selected.data().id}
+            src={elementInfo}
+            name={elementName}
             iconStyle="triangle"
             displayDataTypes={false}
             displayObjectSize={false}
-            src={elementInfo}
           />
         </div>
         : null
