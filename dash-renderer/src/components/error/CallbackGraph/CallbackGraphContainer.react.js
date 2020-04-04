@@ -1,95 +1,177 @@
 import React, {Component} from 'react';
 import './CallbackGraphContainer.css';
 
-import Viz from 'viz.js';
-import {Module, render} from 'viz.js/full.render';
+import Cytoscape from 'cytoscape';
+import Dagre from 'cytoscape-dagre';
+import CytoscapeComponent from 'react-cytoscapejs';
+Cytoscape.use(Dagre);
 
 import PropTypes from 'prop-types';
 
+const stylesheet = [
+
+  {
+    selector: '*',
+    style: {
+      'font-size': 12,
+      'font-family': '"Arial", sans-serif',
+    }
+  },
+
+  {
+    selector: 'edge',
+    style: {
+      'width': 1,
+      'label': 'data(label)',
+      'line-color': '#888888',
+      'target-arrow-color': '#888888',
+      'target-arrow-shape': 'triangle',
+      'target-arrow-fill': 'filled',
+      'arrow-scale': 1,
+      'curve-style': 'bezier'
+    }
+  },
+
+  {
+    selector: 'node',
+    style: {
+      'color': '#333333',
+      'padding': 6,
+      'text-valign': 'center',
+      'text-halign': 'center',
+    }
+  },
+
+  {
+    selector: 'node[type="clientside-callback"], node[type="serverside-callback"]',
+    style: {
+      'width': 20,
+      'height': 20,
+      'shape': 'ellipse',
+    }
+  },
+
+  {
+    selector: 'node[type="clientside-callback"]',
+    style: {
+      'content': 'PY',
+      'color': '#00CC96',
+      'background-color': '#F0DB4F'
+    }
+  },
+
+  {
+    selector: 'node[type="serverside-callback"]',
+    style: {
+      'content': 'JS',
+      'color': '#323330',
+      'background-color': '#F0DB4F'
+    }
+  },
+
+  {
+    selector: 'node[type="component"]',
+    style: {
+      'width': 'label',
+      'height': 'label',
+      'shape': 'rectangle',
+      'content': 'data(label)',
+      'text-valign': 'top',
+      'background-color': '#B9C2CE'
+    }
+  },
+
+  {
+    selector: 'node[type="property"]',
+    style: {
+      'width': 'label',
+      'height': 20,
+      'shape': 'rectangle',
+      'content': 'data(label)',
+      'color': 'white',
+      'background-color': '#109DFF'
+    }
+  }
+
+];
+
 class CallbackGraphContainer extends Component {
-    constructor(props) {
-        super(props);
-
-        this.viz = null;
-        this.updateViz = this.updateViz.bind(this);
-    }
-
-    componentDidMount() {
-        this.updateViz();
-    }
-
-    componentDidUpdate() {
-        this.updateViz();
-    }
 
     render() {
-        return <div className="dash-callback-dag--container" ref="el" />;
+
+      const {dependenciesRequest} = this.props;
+
+      // Generate all the elements.
+      const consumed = [];
+      const elements = [];
+
+      function recordNode([id, property]) {
+        const parent = `${id}`;
+        const child = `${id}.${property}`;
+
+        if (!consumed.includes(parent)) {
+          consumed.push(parent);
+          elements.push({data: {id: parent, label: parent, type: 'component'}});
+        }
+
+        if (!consumed.includes(child)) {
+          consumed.push(child);
+          elements.push({data: {id: child, label: child, parent: parent, type: 'property'}});
+        }
+
+      }
+
+      function recordEdge([sourceId, sourceProperty], [targetId, targetProperty], label) {
+        const source = `${sourceId}.${sourceProperty}`;
+        const target = `${targetId}.${targetProperty}`;
+        elements.push({data: {source: source, target: target, label: label || ''}});
+      }
+
+      dependenciesRequest.content.map((callback, i) => {
+
+          const cb = ['callback', i];
+          const cbLabel = `callback.${i}`;
+          elements.push({data: {
+            id: cbLabel,
+            label: cbLabel,
+            type: callback.clientside_function ? 'serverside-callback' : 'clientside-callback'
+          }});
+
+          callback.output.replace(/^\.\./, '')
+                         .replace(/\.\.$/, '')
+                         .split('...')
+                         .forEach(o => {
+                           const node = o.split('.');
+                           recordNode(node);
+                           recordEdge(cb, node);
+                         });
+
+          callback.inputs.map(({id, property}) => {
+            const node = [id, property];
+            recordNode(node);
+            recordEdge(node, cb);
+          });
+
+      });
+
+      // Create the layout.
+      const layout = {
+        name: 'dagre'
+      };
+      console.log(dependenciesRequest.content);
+
+      // We now have all the elements. Render.
+      return (
+          <CytoscapeComponent
+            className="dash-callback-dag--container"
+            elements={elements}
+            layout={layout}
+            stylesheet={stylesheet}
+          />
+      );
+
     }
 
-    updateViz() {
-        this.viz = this.viz || new Viz({Module, render});
-
-        const {dependenciesRequest} = this.props;
-        const elements = {};
-        const callbacks = [];
-        const links = dependenciesRequest.content.map(({inputs, output}, i) => {
-            callbacks.push(`cb${i};`);
-            function recordAndReturn([id, property]) {
-                elements[id] = elements[id] || {};
-                elements[id][property] = true;
-                return `"${id}.${property}"`;
-            }
-            const out_nodes = output
-                .replace(/^\.\./, '')
-                .replace(/\.\.$/, '')
-                .split('...')
-                .map(o => recordAndReturn(o.split('.')))
-                .join(', ');
-            const in_nodes = inputs
-                .map(({id, property}) => recordAndReturn([id, property]))
-                .join(', ');
-            return `{${in_nodes}} -> cb${i} -> {${out_nodes}};`;
-        });
-
-        const dot = `digraph G {
-            overlap = false; fontname="Arial"; fontcolor="#333333";
-            edge [color="#888888"];
-            node [shape=box, fontname="Arial", style=filled, color="#109DFF", fontcolor=white];
-            graph [penwidth=0];
-            subgraph callbacks {
-                node [shape=circle, width=0.3, label="", color="#00CC96"];
-                ${callbacks.join('\n')} }
-
-            ${Object.entries(elements)
-                .map(
-                    ([id, props], i) => `
-                subgraph cluster_${i} {
-                    bgcolor="#B9C2CE";
-                    ${Object.keys(props)
-                        .map(p => `"${id}.${p}" [label="${p}"];`)
-                        .join('\n')}
-                    label = "${id}"; }`
-                )
-                .join('\n')}
-
-            ${links.join('\n')} }`;
-
-        const el = this.refs.el;
-
-        this.viz
-            .renderSVGElement(dot)
-            .then(vizEl => {
-                el.innerHTML = '';
-                el.appendChild(vizEl);
-            })
-            .catch(e => {
-                // https://github.com/mdaines/viz.js/wiki/Caveats
-                this.viz = new Viz({Module, render});
-                // eslint-disable-next-line no-console
-                console.error(e);
-                el.innerHTML = 'Error creating callback graph';
-            });
-    }
 }
 
 CallbackGraphContainer.propTypes = {

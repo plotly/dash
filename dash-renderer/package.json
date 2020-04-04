@@ -23,17 +23,19 @@
   "dependencies": {
     "@babel/polyfill": "7.8.7",
     "cookie": "^0.4.0",
+    "cytoscape": "^3.14.1",
+    "cytoscape-dagre": "^2.2.2",
     "dependency-graph": "^0.9.0",
     "prop-types": "15.7.2",
     "radium": "^0.26.0",
     "ramda": "^0.27.0",
     "react": "16.13.0",
+    "react-cytoscapejs": "^1.2.1",
     "react-dom": "16.13.0",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
     "redux-actions": "^2.6.5",
-    "redux-thunk": "^2.3.0",
-    "viz.js": "2.1.2"
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.7",

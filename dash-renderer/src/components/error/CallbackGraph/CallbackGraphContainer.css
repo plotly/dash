@@ -3,8 +3,8 @@
     position: fixed;
     bottom: 165px;
     right: 16px;
-    max-width: 80vw;
-    max-height: calc(100vh - 180px);
+    width: 80vw;
+    height: calc(100vh - 180px);
     overflow: auto;
     box-sizing: border-box;
     background: #ffffff;
