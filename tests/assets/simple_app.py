@@ -18,7 +18,7 @@ app.layout = html.Div(
 )
 
 
-@app.callback(Output("out", "children"), [Input("value", "value")])
+@app.callback(Output("out", "children"), Input("value", "value"))
 def on_value(value):
     if value is None:
         raise PreventUpdate
