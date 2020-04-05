@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [UNRELEASED]
+### Changed
+- [#1180](https://github.com/plotly/dash/pull/1180) Single `Input` in callbacks doesn't need to be in a list
+
 ## [1.12.0] - 2020-05-05
 ### Added
 - [#1228](https://github.com/plotly/dash/pull/1228) Adds control over firing callbacks on page (or layout chunk) load. Individual callbacks can have their initial calls disabled in their definition `@app.callback(..., prevent_initial_call=True)` and similar for `app.clientside_callback`. The app-wide default can also be changed with `app=Dash(prevent_initial_callbacks=True)`, then individual callbacks may disable this behavior.
