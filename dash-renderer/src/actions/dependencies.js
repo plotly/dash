@@ -23,8 +23,10 @@ import {
     partition,
     path,
     pickBy,
+    pluck,
     propEq,
     props,
+    startsWith,
     unnest,
     values,
     zip,
@@ -1190,13 +1192,16 @@ export function getWatchedKeys(id, newProps, graphs) {
  *   when the new *absence* of a given component should trigger a callback.
  * opts.newPaths: paths object after the edit - to be used with
  *   removedArrayInputsOnly to determine if the callback still has its outputs
+ * opts.chunkPath: path to the new chunk - used to determine if any outputs are
+ *   outside of this chunk, because this determines whether inputs inside the
+ *   chunk count as having changed
  *
  * Returns an array of objects:
  *   {callback, resolvedId, getOutputs, getInputs, getState, ...etc}
  *   See getCallbackByOutput for details.
  */
 export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
-    const {outputsOnly, removedArrayInputsOnly, newPaths} = opts || {};
+    const {outputsOnly, removedArrayInputsOnly, newPaths, chunkPath} = opts;
     const foundCbIds = {};
     const callbacks = [];
 
@@ -1249,7 +1254,23 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
             }
         }
         if (!outputsOnly && inIdCallbacks) {
-            const idStr = removedArrayInputsOnly && stringifyId(id);
+            const maybeAddCallback = removedArrayInputsOnly
+                ? addCallbackIfArray(stringifyId(id))
+                : addCallback;
+            let handleThisCallback = maybeAddCallback;
+            if (chunkPath) {
+                handleThisCallback = cb => {
+                    if (
+                        all(
+                            startsWith(chunkPath),
+                            pluck('path', flatten(cb.getOutputs(paths)))
+                        )
+                    ) {
+                        cb.changedPropIds = {};
+                    }
+                    maybeAddCallback(cb);
+                };
+            }
             for (const property in inIdCallbacks) {
                 getCallbacksByInput(
                     graphs,
@@ -1257,11 +1278,7 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
                     id,
                     property,
                     INDIRECT
-                ).forEach(
-                    removedArrayInputsOnly
-                        ? addCallbackIfArray(idStr)
-                        : addCallback
-                );
+                ).forEach(handleThisCallback);
             }
         }
     }

@@ -15,10 +15,10 @@ def css_escape(s):
     return sel
 
 
-def todo_app():
+def todo_app(content_callback):
     app = dash.Dash(__name__)
 
-    app.layout = html.Div(
+    content = html.Div(
         [
             html.Div("Dash To-Do list"),
             dcc.Input(id="new-item"),
@@ -29,6 +29,16 @@ def todo_app():
             html.Div(id="totals"),
         ]
     )
+
+    if content_callback:
+        app.layout = html.Div([html.Div(id="content"), dcc.Location(id="url")])
+
+        @app.callback(Output("content", "children"), [Input("url", "pathname")])
+        def display_content(_):
+            return content
+
+    else:
+        app.layout = content
 
     style_todo = {"display": "inline", "margin": "10px"}
     style_done = {"textDecoration": "line-through", "color": "#888"}
@@ -127,8 +137,9 @@ def todo_app():
     return app
 
 
-def test_cbwc001_todo_app(dash_duo):
-    app = todo_app()
+@pytest.mark.parametrize("content_callback", (False, True))
+def test_cbwc001_todo_app(content_callback, dash_duo):
+    app = todo_app(content_callback)
     dash_duo.start_server(app)
 
     dash_duo.wait_for_text_to_equal("#totals", "0 of 0 items completed")
@@ -370,3 +381,76 @@ def test_cbwc003_same_keys(dash_duo):
         '#\\{\\"index\\"\\:0\\,\\"type\\"\\:\\"output\\"\\}', "Dropdown 0 = LA"
     )
     dash_duo.wait_for_no_elements(dash_duo.devtools_error_count_locator)
+
+
+def test_cbwc004_layout_chunk_changed_props(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(id={"type": "input", "index": 1}, value="input-1"),
+            html.Div(id="container"),
+            html.Div(id="output-outer"),
+            html.Button("Show content", id="btn"),
+        ]
+    )
+
+    @app.callback(Output("container", "children"), [Input("btn", "n_clicks")])
+    def display_output(n):
+        if n:
+            return html.Div(
+                [
+                    dcc.Input(id={"type": "input", "index": 2}, value="input-2"),
+                    html.Div(id="output-inner"),
+                ]
+            )
+        else:
+            return "No content initially"
+
+    def trigger_info():
+        triggered = dash.callback_context.triggered
+        return "triggered is {} with prop_ids {}".format(
+            "Truthy" if triggered else "Falsy",
+            ", ".join(t["prop_id"] for t in triggered),
+        )
+
+    @app.callback(
+        Output("output-inner", "children"),
+        [Input({"type": "input", "index": ALL}, "value")],
+    )
+    def update_dynamic_output_pattern(wc_inputs):
+        return trigger_info()
+        # When this is triggered because output-2 was rendered,
+        # nothing has changed
+
+    @app.callback(
+        Output("output-outer", "children"),
+        [Input({"type": "input", "index": ALL}, "value")],
+    )
+    def update_output_on_page_pattern(value):
+        return trigger_info()
+        # When this triggered on page load,
+        # nothing has changed
+        # When dcc.Input(id={'type': 'input', 'index': 2})
+        # is rendered (from display_output)
+        # then `{'type': 'input', 'index': 2}` has changed
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#container", "No content initially")
+    dash_duo.wait_for_text_to_equal(
+        "#output-outer", "triggered is Falsy with prop_ids ."
+    )
+
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal(
+        "#output-outer",
+        'triggered is Truthy with prop_ids {"index":2,"type":"input"}.value',
+    )
+    dash_duo.wait_for_text_to_equal(
+        "#output-inner", "triggered is Falsy with prop_ids ."
+    )
+
+    dash_duo.find_elements("input")[0].send_keys("X")
+    trigger_text = 'triggered is Truthy with prop_ids {"index":1,"type":"input"}.value'
+    dash_duo.wait_for_text_to_equal("#output-outer", trigger_text)
+    dash_duo.wait_for_text_to_equal("#output-inner", trigger_text)

@@ -559,7 +559,9 @@ function updateChildPaths(
 
     const cleanedCallbacks = pruneRemovedCallbacks(pendingCallbacks, paths);
 
-    const newCallbacks = getCallbacksInLayout(graphs, paths, children);
+    const newCallbacks = getCallbacksInLayout(graphs, paths, children, {
+        chunkPath: childrenPath,
+    });
 
     // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
     // even due to the deletion of components
@@ -567,7 +569,7 @@ function updateChildPaths(
         graphs,
         oldPaths,
         oldChildren,
-        {removedArrayInputsOnly: true, newPaths: paths}
+        {removedArrayInputsOnly: true, newPaths: paths, chunkPath: childrenPath}
     );
 
     const allNewCallbacks = mergePendingCallbacks(
