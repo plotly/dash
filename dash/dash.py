@@ -846,7 +846,7 @@ class Dash(object):
         return callback_id
 
     def clientside_callback(
-        self, clientside_function, output, inputs, state=(), prevent_initial_call=None
+        self, clientside_function, output, input, state=(), prevent_initial_call=None
     ):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
@@ -912,6 +912,9 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
+        is_multi_input = isinstance(input, (list, tuple))
+        inputs = input if is_multi_input else [input]
+
         self._insert_callback(output, inputs, state, prevent_initial_call)
 
         # If JS source is explicitly given, create a namespace and function
@@ -943,7 +946,7 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def callback(self, output, inputs, state=(), prevent_initial_call=None):
+    def callback(self, output, input, state=(), prevent_initial_call=None):
         """
         Normally used as a decorator, `@app.callback` provides a server-side
         callback relating the values of one or more `output` items to one or
@@ -955,6 +958,8 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
+        is_multi_input = isinstance(input, (list, tuple))
+        inputs = input if is_multi_input else [input]
         callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
         multi = isinstance(output, (list, tuple))
 
