@@ -19,6 +19,8 @@ import error from './error';
 import hooks from './hooks';
 import createApiReducer from './api';
 import config from './config';
+import profile from './profile';
+import changed from './changed';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -38,6 +40,8 @@ function mainReducer() {
         history,
         error,
         hooks,
+        profile,
+        changed,
     };
     forEach(r => {
         parts[r] = createApiReducer(r);
@@ -46,27 +50,22 @@ function mainReducer() {
     return combineReducers(parts);
 }
 
-function getInputHistoryState(itempath, props, state) {
+function getInputHistoryState(id, props, state) {
     const {graphs, layout, paths} = state;
     const {InputGraph} = graphs;
-    const keyObj = filter(equals(itempath), paths);
-    let historyEntry;
-    if (!isEmpty(keyObj)) {
-        const id = keys(keyObj)[0];
-        historyEntry = {id, props: {}};
-        keys(props).forEach(propKey => {
-            const inputKey = `${id}.${propKey}`;
-            if (
-                InputGraph.hasNode(inputKey) &&
-                InputGraph.dependenciesOf(inputKey).length > 0
-            ) {
-                historyEntry.props[propKey] = view(
-                    lensPath(concat(paths[id], ['props', propKey])),
-                    layout
-                );
-            }
-        });
-    }
+    const historyEntry = {id, props: {}};
+    keys(props).forEach(propKey => {
+        const inputKey = `${id}.${propKey}`;
+        if (
+            InputGraph.hasNode(inputKey) &&
+            InputGraph.dependenciesOf(inputKey).length > 0
+        ) {
+            historyEntry.props[propKey] = view(
+                lensPath(concat(paths[id], ['props', propKey])),
+                layout
+            );
+        }
+    });
     return historyEntry;
 }
 
@@ -75,9 +74,14 @@ function recordHistory(reducer) {
         // Record initial state
         if (action.type === 'ON_PROP_CHANGE') {
             const {itempath, props} = action.payload;
-            const historyEntry = getInputHistoryState(itempath, props, state);
-            if (historyEntry && !isEmpty(historyEntry.props)) {
-                state.history.present = historyEntry;
+            const keyObj = filter(equals(itempath), state.paths);
+            if (!isEmpty(keyObj)) {
+                const id = keys(keyObj)[0];
+                const historyEntry = getInputHistoryState(id, props, state);
+                state.changed = {id, props};
+                if (!isEmpty(historyEntry.props)) {
+                    state.history.present = historyEntry;
+                }
             }
         }
 
