@@ -19,7 +19,10 @@ const stylesheet = [
       'target-arrow-fill': 'filled',
       'arrow-scale': 1,
       "curve-style": "bezier",
-      "control-point-step-size": 40
+      "control-point-step-size": 40,
+      'transition-property': 'line-color, target-arrow-color',
+      'transition-duration': '0.25s',
+      'transition-timing-function': 'ease-in-out-sine'
     }
   },
 
@@ -37,6 +40,13 @@ const stylesheet = [
       'padding': 6,
       'text-valign': 'center',
       'text-halign': 'center',
+      'border-width': 2,
+      'border-opacity': 0,
+      'border-style': 'solid',
+      'border-color': '#888888',
+      'transition-property': 'border-opacity',
+      'transition-duration': '0.25s',
+      'transition-timing-function': 'ease-in-out-sine'
     }
   },
 
@@ -46,13 +56,17 @@ const stylesheet = [
       'width': 20,
       'height': 20,
       'shape': 'ellipse',
+      'label': e => `${e.data().count}\n${e.data().time} ms`,
+      'font-size': 8,
+      'text-wrap': 'wrap',
+      'text-justification': 'center',
     }
   },
 
   {
     selector: 'node[type="callback"][lang="javascript"]',
     style: {
-      'content': 'JS',
+      // 'content': 'JS',
       'color': '#323330',
       'background-color': '#F0DB4F'
     }
@@ -61,7 +75,7 @@ const stylesheet = [
   {
     selector: 'node[type="callback"][lang="python"]',
     style: {
-      'content': 'PY',
+      // 'content': 'PY',
       'color': '#323330',
       'background-color': '#00CC96'
     }
@@ -98,11 +112,36 @@ const stylesheet = [
       'ghost-offset-x': 2,
       'ghost-offset-y': 2,
       'ghost-opacity': 0.25,
-      'border-width': 2,
-      'border-style': 'solid',
-      'border-color': '#888888'
+      'border-opacity': 1,
     }
   },
+
+  {
+    selector: '.prop-changed, .callback-loading',
+    style: {
+      'border-color': '#CC43B7',
+      'border-width': 2,
+      'border-opacity': 1,
+    }
+  },
+
+  {
+    selector: '.callback-error',
+    style: {
+      'border-color': '#E1332E',
+      'border-width': 2,
+      'border-opacity': 1,
+    }
+  },
+
+  {
+    selector: '.triggered',
+    style: {
+      'line-color': '#CC43B7',
+      'target-arrow-color': '#CC43B7'
+    }
+  }
+
 
 ];
 
