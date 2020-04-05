@@ -10,13 +10,15 @@ class UnconnectedGlobalErrorContainer extends Component {
     }
 
     render() {
-        const {error, paths, layout, dependenciesRequest} = this.props;
+        const {error, paths, layout, changed, profile, dependenciesRequest} = this.props;
         return (
             <div id="_dash-global-error-container">
                 <DebugMenu
                     error={error}
                     paths={paths}
                     layout={layout}
+                    changed={changed}
+                    profile={profile}
                     dependenciesRequest={dependenciesRequest}
                 >
                     <div id="_dash-app-content">{this.props.children}</div>
@@ -31,6 +33,8 @@ UnconnectedGlobalErrorContainer.propTypes = {
     error: PropTypes.object,
     paths: PropTypes.object,
     layout: PropTypes.object,
+    history: PropTypes.object,
+    profile: PropTypes.object,
     dependenciesRequest: PropTypes.object,
 };
 
@@ -38,6 +42,8 @@ const GlobalErrorContainer = connect(state => ({
     error: state.error,
     paths: state.paths,
     layout: state.layout,
+    changed: state.changed,
+    profile: state.profile,
     dependenciesRequest: state.dependenciesRequest,
 }))(Radium(UnconnectedGlobalErrorContainer));
 
