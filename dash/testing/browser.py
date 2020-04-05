@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class Browser(DashPageMixin):
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         browser,
