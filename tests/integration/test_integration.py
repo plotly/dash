@@ -660,14 +660,6 @@ def test_inin019_callback_dep_types():
 
     with pytest.raises(IncorrectTypeException):
 
-        @app.callback(Output("out", "children"), Input("in", "children"))
-        def f2(i):
-            return i
-
-        pytest.fail("un-nested input")
-
-    with pytest.raises(IncorrectTypeException):
-
         @app.callback(
             Output("out", "children"),
             [Input("in", "children")],
