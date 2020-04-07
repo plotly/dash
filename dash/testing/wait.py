@@ -64,7 +64,6 @@ class contains_text(object):
                 elem.get_attribute("value")
             )
         except WebDriverException:
-            logger.exception("contains_text encountered an exception")
             return False
 
 
@@ -82,7 +81,6 @@ class text_to_equal(object):
                 or str(elem.get_attribute("value")) == self.text
             )
         except WebDriverException:
-            logger.exception("text_to_equal encountered an exception")
             return False
 
 
@@ -99,5 +97,4 @@ class style_to_equal(object):
             logger.debug("style to equal {%s} => expected %s", val, self.val)
             return val == self.val
         except WebDriverException:
-            logger.exception("style_to_equal encountered an exception")
             return False
