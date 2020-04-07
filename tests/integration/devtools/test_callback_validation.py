@@ -19,7 +19,7 @@ def check_errors(dash_duo, specs):
     for i in range(cnt):
         msg = dash_duo.find_elements(".dash-fe-error__title")[i].text
         dash_duo.find_elements(".test-devtools-error-toggle")[i].click()
-        txt = dash_duo.wait_for_element(".dash-backend-error").text
+        txt = dash_duo.wait_for_element(".dash-backend-error,.dash-fe-error__info").text
         dash_duo.find_elements(".test-devtools-error-toggle")[i].click()
         dash_duo.wait_for_no_elements(".dash-backend-error")
         found.append((msg, txt))
@@ -46,6 +46,9 @@ def check_errors(dash_duo, specs):
                     ),
                 )
             )
+
+    # ensure the errors didn't leave items in the pendingCallbacks queue
+    assert dash_duo.driver.execute_script('return document.title') == 'Dash'
 
 
 def test_dvcv001_blank(dash_duo):
@@ -412,6 +415,24 @@ def bad_id_app(**kwargs):
     return app
 
 
+# These ones are raised by bad_id_app whether suppressing callback exceptions or not
+dispatch_specs = [
+    [
+        "A nonexistent object was used in an `Input` of a Dash callback. "
+        "The id of this object is `yeah-no` and the property is `value`. "
+        "The string ids in the current layout are: "
+        "[main, outer-div, inner-div, inner-input, outer-input]", []
+    ],
+    [
+        "A nonexistent object was used in an `Output` of a Dash callback. "
+        "The id of this object is `nope` and the property is `children`. "
+        "The string ids in the current layout are: "
+        "[main, outer-div, inner-div, inner-input, outer-input]", []
+    ]
+]
+
+
+
 def test_dvcv008_wrong_callback_id(dash_duo):
     dash_duo.start_server(bad_id_app(), **debugging)
 
@@ -461,14 +482,13 @@ def test_dvcv008_wrong_callback_id(dash_duo):
             ],
         ],
     ]
-    check_errors(dash_duo, specs)
+    check_errors(dash_duo, dispatch_specs + specs)
 
 
 def test_dvcv009_suppress_callback_exceptions(dash_duo):
     dash_duo.start_server(bad_id_app(suppress_callback_exceptions=True), **debugging)
 
-    dash_duo.find_element(".dash-debug-menu")
-    dash_duo.wait_for_no_elements(".test-devtools-error-count")
+    check_errors(dash_duo, dispatch_specs)
 
 
 def test_dvcv010_bad_props(dash_duo):

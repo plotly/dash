@@ -244,24 +244,31 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
         const {output, inputs, state, clientside_function} = cb.callback;
         const {requestId, resolvedId} = cb;
         const {allOutputs, allPropIds} = outputStash[requestId];
-        const outputs = allOutputs.map((out, i) =>
-            unwrapIfNotMulti(
-                paths,
-                map(pick(['id', 'property']), out),
-                cb.callback.outputs[i],
-                cb.anyVals,
-                'Output'
-            )
-        );
 
-        const payload = {
-            output,
-            outputs: isMultiOutputProp(output) ? outputs : outputs[0],
-            inputs: fillVals(paths, layout, cb, inputs, 'Input'),
-            changedPropIds: keys(cb.changedPropIds),
-        };
-        if (cb.callback.state.length) {
-            payload.state = fillVals(paths, layout, cb, state, 'State');
+        let payload;
+        try {
+            const outputs = allOutputs.map((out, i) =>
+                unwrapIfNotMulti(
+                    paths,
+                    map(pick(['id', 'property']), out),
+                    cb.callback.outputs[i],
+                    cb.anyVals,
+                    'Output'
+                )
+            );
+
+            payload = {
+                output,
+                outputs: isMultiOutputProp(output) ? outputs : outputs[0],
+                inputs: fillVals(paths, layout, cb, inputs, 'Input'),
+                changedPropIds: keys(cb.changedPropIds),
+            };
+            if (cb.callback.state.length) {
+                payload.state = fillVals(paths, layout, cb, state, 'State');
+            }
+        } catch (e) {
+            handleError(e);
+            return fireNext();
         }
 
         function updatePending(pendingCallbacks, skippedProps) {
@@ -361,10 +368,10 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
                 // that have other changed inputs will still fire.
                 updatePending(pendingCallbacks, allPropIds);
             }
-            let message = `Callback error updating ${map(
-                combineIdAndProp,
-                flatten([payload.outputs])
-            ).join(', ')}`;
+            const outputs = payload
+                ? map(combineIdAndProp, flatten([payload.outputs])).join(', ')
+                : output;
+            let message = `Callback error updating ${outputs}`;
             if (clientside_function) {
                 const {namespace: ns, function_name: fn} = clientside_function;
                 message += ` via clientside function ${ns}.${fn}`;
