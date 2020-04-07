@@ -19,7 +19,12 @@ def check_errors(dash_duo, specs):
     for i in range(cnt):
         msg = dash_duo.find_elements(".dash-fe-error__title")[i].text
         dash_duo.find_elements(".test-devtools-error-toggle")[i].click()
-        txt = dash_duo.wait_for_element(".dash-backend-error,.dash-fe-error__info").text
+        dash_duo.wait_for_element(".dash-backend-error,.dash-fe-error__info")
+        has_BE = dash_duo.driver.execute_script(
+            "return document.querySelectorAll('.dash-backend-error').length"
+        )
+        txt_selector = ".dash-backend-error" if has_BE else ".dash-fe-error__info"
+        txt = dash_duo.wait_for_element(txt_selector).text
         dash_duo.find_elements(".test-devtools-error-toggle")[i].click()
         dash_duo.wait_for_no_elements(".dash-backend-error")
         found.append((msg, txt))
