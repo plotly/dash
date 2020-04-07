@@ -4,7 +4,7 @@ import {Component} from 'react';
 import CollapseIcon from '../icons/CollapseIcon.svg';
 import PropTypes from 'prop-types';
 import '../Percy.css';
-import {urlBase} from '../../../utils';
+import {urlBase} from '../../../actions/utils';
 
 import werkzeugCss from '../werkzeugcss';
 
@@ -101,8 +101,8 @@ function UnconnectedErrorContent({error, base}) {
                                 </i>
                             </summary>
 
-                            {error.stack.split('\n').map(line => (
-                                <p>{line}</p>
+                            {error.stack.split('\n').map((line, i) => (
+                                <p key={i}>{line}</p>
                             ))}
                         </details>
                     </div>

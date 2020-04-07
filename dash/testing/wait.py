@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def until(
-    wait_cond, timeout, poll=0.1, msg="expected condition not met within timeout",
+    wait_cond, timeout, poll=0.1, msg="expected condition not met within timeout"
 ):  # noqa: C0330
     res = wait_cond()
     logger.debug(
@@ -31,7 +31,7 @@ def until(
 
 
 def until_not(
-    wait_cond, timeout, poll=0.1, msg="expected condition met within timeout",
+    wait_cond, timeout, poll=0.1, msg="expected condition met within timeout"
 ):  # noqa: C0330
     res = wait_cond()
     logger.debug(

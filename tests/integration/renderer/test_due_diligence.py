@@ -79,7 +79,9 @@ def test_rddd001_initial_state(dash_duo):
     assert r.status_code == 200
     assert r.json() == [], "no dependencies present in app as no callbacks are defined"
 
-    assert dash_duo.redux_state_paths == {
+    paths = dash_duo.redux_state_paths
+    assert paths["objs"] == {}
+    assert paths["strs"] == {
         abbr: [
             int(token)
             if token in string.digits
@@ -92,8 +94,7 @@ def test_rddd001_initial_state(dash_duo):
         )
     }, "paths should reflect to the component hierarchy"
 
-    rqs = dash_duo.redux_state_rqs
-    assert not rqs, "no callback => no requestQueue"
+    assert dash_duo.redux_state_rqs == [], "no callback => no pendingCallbacks"
 
     dash_duo.percy_snapshot(name="layout")
     assert dash_duo.get_logs() == [], "console has no errors"
