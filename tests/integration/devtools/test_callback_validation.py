@@ -48,7 +48,7 @@ def check_errors(dash_duo, specs):
             )
 
     # ensure the errors didn't leave items in the pendingCallbacks queue
-    assert dash_duo.driver.execute_script('return document.title') == 'Dash'
+    assert dash_duo.driver.execute_script("return document.title") == "Dash"
 
 
 def test_dvcv001_blank(dash_duo):
@@ -421,16 +421,17 @@ dispatch_specs = [
         "A nonexistent object was used in an `Input` of a Dash callback. "
         "The id of this object is `yeah-no` and the property is `value`. "
         "The string ids in the current layout are: "
-        "[main, outer-div, inner-div, inner-input, outer-input]", []
+        "[main, outer-div, inner-div, inner-input, outer-input]",
+        [],
     ],
     [
         "A nonexistent object was used in an `Output` of a Dash callback. "
         "The id of this object is `nope` and the property is `children`. "
         "The string ids in the current layout are: "
-        "[main, outer-div, inner-div, inner-input, outer-input]", []
-    ]
+        "[main, outer-div, inner-div, inner-input, outer-input]",
+        [],
+    ],
 ]
-
 
 
 def test_dvcv008_wrong_callback_id(dash_duo):
