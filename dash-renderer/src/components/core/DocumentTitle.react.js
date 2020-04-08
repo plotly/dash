@@ -1,7 +1,4 @@
-/* global document:true */
-
 import {connect} from 'react-redux';
-import {any} from 'ramda';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
 
@@ -13,8 +10,8 @@ class DocumentTitle extends Component {
         };
     }
 
-    componentWillReceiveProps(props) {
-        if (any(r => r.status === 'loading', props.requestQueue)) {
+    UNSAFE_componentWillReceiveProps(props) {
+        if (props.pendingCallbacks.length) {
             document.title = 'Updating...';
         } else {
             document.title = this.state.initialTitle;
@@ -31,9 +28,9 @@ class DocumentTitle extends Component {
 }
 
 DocumentTitle.propTypes = {
-    requestQueue: PropTypes.array.isRequired,
+    pendingCallbacks: PropTypes.array.isRequired,
 };
 
 export default connect(state => ({
-    requestQueue: state.requestQueue,
+    pendingCallbacks: state.pendingCallbacks,
 }))(DocumentTitle);

@@ -1,5 +1,9 @@
+from textwrap import dedent
+
+
 class DashException(Exception):
-    pass
+    def __init__(self, msg=""):
+        super(DashException, self).__init__(dedent(msg).strip())
 
 
 class ObsoleteKwargException(DashException):
@@ -14,31 +18,11 @@ class CallbackException(DashException):
     pass
 
 
-class NonExistentIdException(CallbackException):
-    pass
-
-
-class NonExistentPropException(CallbackException):
-    pass
-
-
 class NonExistentEventException(CallbackException):
     pass
 
 
-class UndefinedLayoutException(CallbackException):
-    pass
-
-
 class IncorrectTypeException(CallbackException):
-    pass
-
-
-class MissingInputsException(CallbackException):
-    pass
-
-
-class LayoutIsNotDefined(CallbackException):
     pass
 
 
@@ -48,15 +32,6 @@ class IDsCantContainPeriods(CallbackException):
 
 # Better error name now that more than periods are not permitted.
 class InvalidComponentIdError(IDsCantContainPeriods):
-    pass
-
-
-class CantHaveMultipleOutputs(CallbackException):
-    pass
-
-
-# Renamed for less confusion with multi output.
-class DuplicateCallbackOutput(CantHaveMultipleOutputs):
     pass
 
 
@@ -89,10 +64,6 @@ class DependencyException(DashException):
 
 
 class ResourceException(DashException):
-    pass
-
-
-class SameInputOutputException(CallbackException):
     pass
 
 

@@ -1,19 +1,18 @@
 import {connect} from 'react-redux';
-import {any} from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
 
 function Loading(props) {
-    if (any(r => r.status === 'loading', props.requestQueue)) {
+    if (props.pendingCallbacks.length) {
         return <div className="_dash-loading-callback" />;
     }
     return null;
 }
 
 Loading.propTypes = {
-    requestQueue: PropTypes.array.isRequired,
+    pendingCallbacks: PropTypes.array.isRequired,
 };
 
 export default connect(state => ({
-    requestQueue: state.requestQueue,
+    pendingCallbacks: state.pendingCallbacks,
 }))(Loading);

@@ -1,147 +1,152 @@
 import {connect} from 'react-redux';
-import {includes, isEmpty, isNil} from 'ramda';
-import React, {Component} from 'react';
+import {includes, isEmpty} from 'ramda';
+import React, {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
 import {
-    computeGraphs,
-    computePaths,
+    dispatchError,
     hydrateInitialOutputs,
+    onError,
+    setGraphs,
+    setPaths,
     setLayout,
-} from './actions/index';
-import {applyPersistence} from './persistence';
+} from './actions';
+import {computePaths} from './actions/paths';
+import {computeGraphs} from './actions/dependencies';
 import apiThunk from './actions/api';
+import {EventEmitter} from './actions/utils';
+import {applyPersistence} from './persistence';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 
 /**
  * Fire off API calls for initialization
+ * @param {*} props props
+ * @returns {*} component
  */
-class UnconnectedContainer extends Component {
-    constructor(props) {
-        super(props);
-        this.initialization = this.initialization.bind(this);
-        this.state = {
-            errorLoading: false,
-        };
-    }
-    componentDidMount() {
-        this.initialization(this.props);
-    }
+const UnconnectedContainer = props => {
+    const [errorLoading, setErrorLoading] = useState(false);
 
-    componentWillReceiveProps(props) {
-        this.initialization(props);
+    const events = useRef(null);
+    if (!events.current) {
+        events.current = new EventEmitter();
     }
+    const renderedTree = useRef(false);
 
-    initialization(props) {
-        const {
-            appLifecycle,
-            dependenciesRequest,
-            dispatch,
-            graphs,
-            layout,
-            layoutRequest,
-            paths,
-        } = props;
+    useEffect(storeEffect.bind(null, props, events, setErrorLoading));
 
-        if (isEmpty(layoutRequest)) {
-            dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
-        } else if (layoutRequest.status === STATUS.OK) {
-            if (isEmpty(layout)) {
-                const finalLayout = applyPersistence(
-                    layoutRequest.content,
-                    dispatch
-                );
-                dispatch(setLayout(finalLayout));
-            } else if (isNil(paths)) {
-                dispatch(computePaths({subTree: layout, startingPath: []}));
-            }
+    useEffect(() => {
+        if (renderedTree.current) {
+            renderedTree.current = false;
+            events.current.emit('rendered');
         }
+    });
 
-        if (isEmpty(dependenciesRequest)) {
+    const {
+        appLifecycle,
+        dependenciesRequest,
+        layoutRequest,
+        layout,
+        config,
+    } = props;
+
+    let content;
+    if (
+        layoutRequest.status &&
+        !includes(layoutRequest.status, [STATUS.OK, 'loading'])
+    ) {
+        content = <div className="_dash-error">Error loading layout</div>;
+    } else if (
+        errorLoading ||
+        (dependenciesRequest.status &&
+            !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
+    ) {
+        content = <div className="_dash-error">Error loading dependencies</div>;
+    } else if (appLifecycle === getAppState('HYDRATED')) {
+        renderedTree.current = true;
+        content = (
+            <TreeContainer
+                _dashprivate_layout={layout}
+                _dashprivate_path={[]}
+            />
+        );
+    } else {
+        content = <div className="_dash-loading">Loading...</div>;
+    }
+
+    return config && config.ui === true ? (
+        <GlobalErrorContainer>{content}</GlobalErrorContainer>
+    ) : (
+        content
+    );
+};
+
+function storeEffect(props, events, setErrorLoading) {
+    const {
+        appLifecycle,
+        dependenciesRequest,
+        dispatch,
+        error,
+        graphs,
+        layout,
+        layoutRequest,
+    } = props;
+
+    if (isEmpty(layoutRequest)) {
+        dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
+    } else if (layoutRequest.status === STATUS.OK) {
+        if (isEmpty(layout)) {
+            const finalLayout = applyPersistence(
+                layoutRequest.content,
+                dispatch
+            );
             dispatch(
-                apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
+                setPaths(computePaths(finalLayout, [], null, events.current))
             );
-        } else if (
-            dependenciesRequest.status === STATUS.OK &&
-            isEmpty(graphs)
-        ) {
-            dispatch(computeGraphs(dependenciesRequest.content));
-        }
-
-        if (
-            // dependenciesRequest and its computed stores
-            dependenciesRequest.status === STATUS.OK &&
-            !isEmpty(graphs) &&
-            // LayoutRequest and its computed stores
-            layoutRequest.status === STATUS.OK &&
-            !isEmpty(layout) &&
-            !isNil(paths) &&
-            // Hasn't already hydrated
-            appLifecycle === getAppState('STARTED')
-        ) {
-            let errorLoading = false;
-            try {
-                dispatch(hydrateInitialOutputs());
-            } catch (err) {
-                errorLoading = true;
-            } finally {
-                this.setState(state =>
-                    state.errorLoading !== errorLoading ? {errorLoading} : null
-                );
-            }
+            dispatch(setLayout(finalLayout));
         }
     }
 
-    render() {
-        const {
-            appLifecycle,
-            dependenciesRequest,
-            layoutRequest,
-            layout,
-            config,
-        } = this.props;
+    if (isEmpty(dependenciesRequest)) {
+        dispatch(apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest'));
+    } else if (dependenciesRequest.status === STATUS.OK && isEmpty(graphs)) {
+        dispatch(
+            setGraphs(
+                computeGraphs(
+                    dependenciesRequest.content,
+                    dispatchError(dispatch)
+                )
+            )
+        );
+    }
 
-        const {errorLoading} = this.state;
-
-        if (
-            layoutRequest.status &&
-            !includes(layoutRequest.status, [STATUS.OK, 'loading'])
-        ) {
-            return <div className="_dash-error">Error loading layout</div>;
-        } else if (
-            errorLoading ||
-            (dependenciesRequest.status &&
-                !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
-        ) {
-            return (
-                <div className="_dash-error">Error loading dependencies</div>
-            );
-        } else if (
-            appLifecycle === getAppState('HYDRATED') &&
-            config.ui === true
-        ) {
-            return (
-                <GlobalErrorContainer>
-                    <TreeContainer
-                        _dashprivate_layout={layout}
-                        _dashprivate_path={[]}
-                    />
-                </GlobalErrorContainer>
-            );
-        } else if (appLifecycle === getAppState('HYDRATED')) {
-            return (
-                <TreeContainer
-                    _dashprivate_layout={layout}
-                    _dashprivate_path={[]}
-                />
-            );
+    if (
+        // dependenciesRequest and its computed stores
+        dependenciesRequest.status === STATUS.OK &&
+        !isEmpty(graphs) &&
+        // LayoutRequest and its computed stores
+        layoutRequest.status === STATUS.OK &&
+        !isEmpty(layout) &&
+        // Hasn't already hydrated
+        appLifecycle === getAppState('STARTED')
+    ) {
+        let hasError = false;
+        try {
+            dispatch(hydrateInitialOutputs(dispatchError(dispatch)));
+        } catch (err) {
+            // Display this error in devtools, unless we have errors
+            // already, in which case we assume this new one is moot
+            if (!error.frontEnd.length && !error.backEnd.length) {
+                dispatch(onError({type: 'backEnd', error: err}));
+            }
+            hasError = true;
+        } finally {
+            setErrorLoading(hasError);
         }
-
-        return <div className="_dash-loading">Loading...</div>;
     }
 }
+
 UnconnectedContainer.propTypes = {
     appLifecycle: PropTypes.oneOf([
         getAppState('STARTED'),
@@ -149,9 +154,9 @@ UnconnectedContainer.propTypes = {
     ]),
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
+    graphs: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
-    paths: PropTypes.object,
     history: PropTypes.any,
     error: PropTypes.object,
     config: PropTypes.object,
@@ -165,7 +170,6 @@ const Container = connect(
         layoutRequest: state.layoutRequest,
         layout: state.layout,
         graphs: state.graphs,
-        paths: state.paths,
         history: state.history,
         error: state.error,
         config: state.config,

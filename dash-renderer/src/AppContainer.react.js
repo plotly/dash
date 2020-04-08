@@ -1,4 +1,3 @@
-/* global document:true */
 import {connect} from 'react-redux';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -21,7 +20,7 @@ class UnconnectedAppContainer extends React.Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const {dispatch} = this.props;
         const config = JSON.parse(
             document.getElementById('_dash-config').textContent

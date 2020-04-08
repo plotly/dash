@@ -33,12 +33,12 @@ valid_resources = [
         # kind of pathological, but we have what looks like a version string
         # in a different place - still works
         "path": "nested.v2m2/folder/file.js",
-        "fingerprint": "nested.v2m2/folder/file.v1m1.js"
+        "fingerprint": "nested.v2m2/folder/file.v1m1.js",
     },
     {
         # even works if it gets doubled up in the right place
         "path": "nested/folder/file.v2m2.js",
-        "fingerprint": "nested/folder/file.v1m1.v2m2.js"
+        "fingerprint": "nested/folder/file.v1m1.v2m2.js",
     },
     {
         "path": "nested.dotted/folder.structure/file.name.css",

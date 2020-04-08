@@ -8,7 +8,7 @@ setup(
     name="dash_renderer",
     version=package["version"],
     author="Chris Parmer",
-    author_email="chris@plot.ly",
+    author_email="chris@plotly.com",
     packages=["dash_renderer"],
     include_package_data=True,
     license="MIT",
