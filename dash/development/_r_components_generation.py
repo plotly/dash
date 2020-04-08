@@ -171,7 +171,6 @@ wildcard_template = """
 
 wildcard_help_template = """
 
-
 \\item{{...}}{{wildcards allowed have the form: `{}`}}
 """
 
@@ -380,8 +379,9 @@ def write_help_file(name, props, description, prefix, rpkg_data):
 
     default_argtext = ""
     item_text = ""
-
+    
     prop_keys = list(props.keys())
+    prop_keys_wc = list(props.keys())
 
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
@@ -408,9 +408,9 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     if "**Example Usage**" in description:
         description = description.split("**Example Usage**")[0].rstrip()
 
-    if any(key.endswith("-*") for key in prop_keys):
+    if any(key.endswith("-*") for key in prop_keys_wc):
         default_argtext += ', ...'
-        item_text += wildcard_help_template.format(get_wildcards_r(prop_keys))
+        item_text += wildcard_help_template.format(get_wildcards_r(prop_keys_wc))
 
     # in R, the online help viewer does not properly wrap lines for
     # the usage string -- we will hard wrap at 70 characters using
