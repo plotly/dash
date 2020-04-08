@@ -129,7 +129,7 @@ jobs:
   build-core-27:
       <<: *build-core
       docker:
-        - image: circleci/python:2.7-stretch-node-browsers
+        - image: circleci/python:2.7.16-stretch-node-browsers
           environment:
             PYVERSION: python27
 

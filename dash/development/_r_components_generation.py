@@ -413,7 +413,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
         item_text += wildcard_help_template.format(get_wildcards_r(prop_keys))
 
     # in R, the online help viewer does not properly wrap lines for
-    # the usage string -- we will hard wrap at 80 characters using
+    # the usage string -- we will hard wrap at 70 characters using
     # textwrap.fill, starting from the beginning of the usage string
 
     file_path = os.path.join('man', file_name)
@@ -422,7 +422,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
             funcname=funcname,
             name=name,
             default_argtext=textwrap.fill(default_argtext,
-                                          width=80,
+                                          width=60,
                                           break_long_words=False),
             item_text=item_text,
             description=description.replace('\n', ' ')
