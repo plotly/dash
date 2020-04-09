@@ -47,7 +47,7 @@ from . import _validate
 from . import _watch
 
 # Add explicit mapping for map files
-mimetypes.add_type('application/json', '.map', True)
+mimetypes.add_type("application/json", ".map", True)
 
 _default_index = """<!DOCTYPE html>
 <html>
@@ -639,11 +639,11 @@ class Dash(object):
 
         _validate.validate_js_path(self.registered_paths, package_name, path_in_pkg)
 
-        extension = '.' + path_in_package_dist.split(".")[-1]
+        extension = "." + path_in_pkg.split(".")[-1]
         mimetype = (
             mimetypes.types_map[extension]
             if hasattr(mimetypes.types_map, extension)
-            else 'application/octet-stream'
+            else "application/octet-stream"
         )
 
         package = sys.modules[package_name]
