@@ -1001,7 +1001,7 @@ class Dash(object):
         ignore_str = self.config.assets_ignore
         ignore_filter = re.compile(ignore_str) if ignore_str else None
 
-        for current, _, files in os.walk(walk_dir):
+        for current, _, files in sorted(os.walk(walk_dir)):
             if current == walk_dir:
                 base = ""
             else:
