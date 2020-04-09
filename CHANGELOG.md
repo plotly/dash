@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - [#1103](https://github.com/plotly/dash/pull/1103) Wildcard IDs and callbacks. Component IDs can be dictionaries, and callbacks can reference patterns of components, using three different wildcards: `ALL`, `MATCH`, and `ALLSMALLER`, available from `dash.dependencies`. This lets you create components on demand, and have callbacks respond to any and all of them. To help with this, `dash.callback_context` gets three new entries: `outputs_list`, `inputs_list`, and `states_list`, which contain all the ids, properties, and except for the outputs, the property values from all matched components.
 - [#1103](https://github.com/plotly/dash/pull/1103) `dash.testing` option `--pause`: after opening the dash app in a test, will invoke `pdb` for live debugging of both Javascript and Python. Use with a single test case like `pytest -k cbwc001 --pause`.
+- [#1078](https://github.com/plotly/dash/pull/1078) Permit usage of arbitrary file extensions for assets within component libraries
 
 ### Changed
 - [#1103](https://github.com/plotly/dash/pull/1103) Multiple changes to the callback pipeline:
@@ -36,7 +37,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.8.0] - 2020-01-14
 ### Added
-- [#1078](https://github.com/plotly/dash/pull/1078) Permit usage of arbitrary file extensions for assets within component libraries
 - [#1073](https://github.com/plotly/dash/pull/1073) Two new functions to simplify usage handling URLs and pathnames: `app.get_relative_path` & `app.trim_relative_path`.
 These functions are particularly useful for apps deployed on Dash Enterprise where the apps served under a URL prefix (the app name) which is unlike apps served on localhost:8050.
     - `app.get_relative_path` returns a path with the config setting `requests_pathname_prefix` prefixed. Use `app.get_relative_path` anywhere you would provide a relative pathname, like `dcc.Link(href=app.relative_path('/page-2'))` or even as an alternative to `app.get_asset_url` with e.g. `html.Img(src=app.get_relative_path('/assets/logo.png'))`.
