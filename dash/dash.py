@@ -640,11 +640,7 @@ class Dash(object):
         _validate.validate_js_path(self.registered_paths, package_name, path_in_pkg)
 
         extension = "." + path_in_pkg.split(".")[-1]
-        mimetype = (
-            mimetypes.types_map[extension]
-            if hasattr(mimetypes.types_map, extension)
-            else "application/octet-stream"
-        )
+        mimetype = mimetypes.types_map.get(extension, "application/octet-stream")
 
         package = sys.modules[package_name]
         self.logger.debug(
