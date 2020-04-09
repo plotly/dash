@@ -5,7 +5,6 @@ import DefaultSpinner from '../fragments/Loading/spinners/DefaultSpinner.jsx';
 import CubeSpinner from '../fragments/Loading/spinners/CubeSpinner.jsx';
 import CircleSpinner from '../fragments/Loading/spinners/CircleSpinner.jsx';
 import DotSpinner from '../fragments/Loading/spinners/DotSpinner.jsx';
-import {type} from 'ramda';
 
 function getSpinner(spinnerType) {
     switch (spinnerType) {
@@ -22,6 +21,19 @@ function getSpinner(spinnerType) {
     }
 }
 
+const hiddenContainer = {visibility: 'hidden', position: 'relative'};
+
+const coveringSpinner = {
+    visibility: 'visible',
+    position: 'absolute',
+    top: '0',
+    height: '100%',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+};
+
 /**
  * A Loading component that wraps any other component and displays a spinner until the wrapped component has rendered.
  */
@@ -37,27 +49,26 @@ export default class Loading extends Component {
             type: spinnerType,
         } = this.props;
 
-        if (loading_state && loading_state.is_loading) {
-            const Spinner = getSpinner(spinnerType);
-            return (
-                <Spinner
-                    className={className}
-                    style={style}
-                    status={loading_state}
-                    color={color}
-                    debug={debug}
-                    fullscreen={fullscreen}
-                />
-            );
-        }
+        const isLoading = loading_state && loading_state.is_loading;
+        const Spinner = isLoading && getSpinner(spinnerType);
 
-        if (
-            type(this.props.children) !== 'Object' ||
-            type(this.props.children) !== 'Function'
-        ) {
-            return <div className={className}>{this.props.children}</div>;
-        }
-        return this.props.children;
+        return (
+            <div style={isLoading ? hiddenContainer : {}}>
+                {this.props.children}
+                <div style={isLoading ? coveringSpinner : {}}>
+                    {isLoading && (
+                        <Spinner
+                            className={className}
+                            style={style}
+                            status={loading_state}
+                            color={color}
+                            debug={debug}
+                            fullscreen={fullscreen}
+                        />
+                    )}
+                </div>
+            </div>
+        );
     }
 }
 
@@ -85,27 +96,29 @@ Loading.propTypes = {
     ]),
 
     /**
-     * Property that determines which spinner to show - one of 'graph', 'cube', 'circle', 'dot', or 'default'.
+     * Property that determines which spinner to show
+     * one of 'graph', 'cube', 'circle', 'dot', or 'default'.
      */
     type: PropTypes.oneOf(['graph', 'cube', 'circle', 'dot', 'default']),
 
     /**
-     * Boolean that determines if the loading spinner will be displayed full-screen or not
+     * Boolean that makes the spinner display full-screen
      */
     fullscreen: PropTypes.bool,
 
     /**
-     * Boolean that determines if the loading spinner will display the status.prop_name and component_name
+     * If true, the spinner will display the component_name and prop_name
+     * while loading
      */
     debug: PropTypes.bool,
 
     /**
-     * Additional CSS class for the root DOM node
+     * Additional CSS class for the spinner root DOM node
      */
     className: PropTypes.string,
 
     /**
-     * Additional CSS styling for the root DOM node
+     * Additional CSS styling for the spinner root DOM node
      */
     style: PropTypes.object,
 

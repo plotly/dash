@@ -30,5 +30,6 @@ def dash_dcc(request, dash_thread_server, tmpdir):
         download_path=tmpdir.mkdir("download").strpath,
         percy_assets_root=request.config.getoption("percy_assets"),
         percy_finalize=request.config.getoption("nopercyfinalize"),
+        pause=request.config.getoption("pause"),
     ) as dc:
         yield dc

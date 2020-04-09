@@ -93,7 +93,7 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc, is_eager):
 
 
 @pytest.mark.DCC672
-def test_grbs002_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
+def test_grbs003_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
     app = dash.Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div([
         html.H1('subplot issue'),
@@ -101,7 +101,7 @@ def test_grbs002_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
         dcc.Loading(id="page-content")
     ])
 
-    @app.callback(Output('page-content', 'children'), [Input('url', 'value')])
+    @app.callback(Output('page-content', 'children'), [Input('url', 'pathname')])
     def render_page(url):
         return [
             dcc.Dropdown(

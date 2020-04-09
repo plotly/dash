@@ -14,7 +14,12 @@ test('Loading renders', () => {
         </Loading>
     );
 
-    expect(loading.html()).toMatchSnapshot('Loading with is_loading=true');
+    expect(
+        loading
+            .find('.dash-spinner')
+            .parent()
+            .html()
+    ).toMatchSnapshot('Loading with is_loading=true');
 });
 test('Loading renders without loading_state', () => {
     const loading = render(
@@ -23,7 +28,7 @@ test('Loading renders without loading_state', () => {
         </Loading>
     );
 
-    expect(loading.html()).toEqual('<div>Loading is done!</div>');
+    expect(loading.html()).toEqual('<div>Loading is done!</div><div></div>');
 });
 test('Loading renders without loading_state.is_loading', () => {
     const statusMock = {
@@ -36,7 +41,7 @@ test('Loading renders without loading_state.is_loading', () => {
         </Loading>
     );
 
-    expect(loading.html()).toEqual('<div>Loading is done!</div>');
+    expect(loading.html()).toEqual('<div>Loading is done!</div><div></div>');
 });
 test('Loading renders without prop_name', () => {
     const statusMock = {
@@ -49,7 +54,12 @@ test('Loading renders without prop_name', () => {
         </Loading>
     );
 
-    expect(loading.html()).toMatchSnapshot('Loading with is_loading=true');
+    expect(
+        loading
+            .find('.dash-spinner')
+            .parent()
+            .html()
+    ).toMatchSnapshot('Loading with is_loading=true');
 });
 test('Loading renders without loading_state.component_name', () => {
     const statusMock = {
@@ -62,7 +72,12 @@ test('Loading renders without loading_state.component_name', () => {
         </Loading>
     );
 
-    expect(loading.html()).toMatchSnapshot('Loading with is_loading=true');
+    expect(
+        loading
+            .find('.dash-spinner')
+            .parent()
+            .html()
+    ).toMatchSnapshot('Loading with is_loading=true');
 });
 test('Loading renders with multiple children', () => {
     const statusMock = {
@@ -78,7 +93,12 @@ test('Loading renders with multiple children', () => {
         </Loading>
     );
 
-    expect(loading.html()).toMatchSnapshot('Loading with is_loading=true');
+    expect(
+        loading
+            .find('.dash-spinner')
+            .parent()
+            .html()
+    ).toMatchSnapshot('Loading with is_loading=true');
 });
 
 test("Loading checks all it's children for a loading_state", () => {

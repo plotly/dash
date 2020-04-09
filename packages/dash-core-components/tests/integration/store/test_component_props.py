@@ -4,17 +4,18 @@ from pytest import approx
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+import dash.testing.wait as wait
 import dash_core_components as dcc
 import dash_html_components as html
 
 
-def test_stcp100_clear_data_on_all_types(store_app, dash_dcc):
+def test_stcp001_clear_data_on_all_types(store_app, dash_dcc):
     dash_dcc.start_server(store_app)
 
     assert dash_dcc.wait_for_contains_text("#output", store_app.uuid)
 
     dash_dcc.multiple_click("#btn", 3)
-    assert dash_dcc.get_local_storage() == {"n_clicks": 3}
+    wait.until(lambda: dash_dcc.get_local_storage() == {"n_clicks": 3}, timeout=1)
 
     # button click sets clear_data=True on all type of stores
     dash_dcc.find_element("#clear-btn").click()
@@ -28,7 +29,7 @@ def test_stcp100_clear_data_on_all_types(store_app, dash_dcc):
     ), "set clear_data=True should clear all data in three storage types"
 
 
-def test_stcp200_modified_ts(store_app, dash_dcc):
+def test_stcp002_modified_ts(store_app, dash_dcc):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [

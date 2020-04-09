@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Loading checks all it's children for a loading_state: Loading spinner for children 1`] = `"<div>Child 1</div><div>Child 2</div><div loading_state=\\"[object Object]\\">Child 3</div>"`;
+exports[`Loading checks all it's children for a loading_state: Loading spinner for children 1`] = `"<div>Child 1</div><div>Child 2</div><div loading_state=\\"[object Object]\\">Child 3</div><div></div>"`;
 
 exports[`Loading renders with multiple children: Loading with is_loading=true 1`] = `
 "<div class=\\"dash-spinner dash-default-spinner\\"><div class=\\"dash-default-spinner-rect1\\"></div><div class=\\"dash-default-spinner-rect2\\"></div><div class=\\"dash-default-spinner-rect3\\"></div><div class=\\"dash-default-spinner-rect4\\"></div><div class=\\"dash-default-spinner-rect5\\"></div></div><style>

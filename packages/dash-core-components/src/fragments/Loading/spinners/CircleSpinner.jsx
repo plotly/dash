@@ -191,7 +191,7 @@ CircleSpinner.propTypes = {
     color: PropTypes.string,
     className: PropTypes.string,
     fullscreen: PropTypes.bool,
-    style: PropTypes.bool,
+    style: PropTypes.object,
     debug: PropTypes.bool,
 };
 
