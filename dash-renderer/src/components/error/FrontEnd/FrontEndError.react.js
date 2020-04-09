@@ -4,7 +4,7 @@ import {Component} from 'react';
 import CollapseIcon from '../icons/CollapseIcon.svg';
 import PropTypes from 'prop-types';
 import '../Percy.css';
-import {urlBase} from '../../../utils';
+import {urlBase} from '../../../actions/utils';
 
 import werkzeugCss from '../werkzeugcss';
 
@@ -69,7 +69,8 @@ class FrontEndError extends Component {
     }
 }
 
-/* eslint-disable no-inline-comments, no-magic-numbers */
+const MAX_MESSAGE_LENGTH = 40;
+/* eslint-disable no-inline-comments */
 function UnconnectedErrorContent({error, base}) {
     return (
         <div className="error-container">
@@ -79,7 +80,7 @@ function UnconnectedErrorContent({error, base}) {
              * will need to be displayed in full in this error body
              */}
             {typeof error.message !== 'string' ||
-            error.message.length < 40 ? null : (
+            error.message.length < MAX_MESSAGE_LENGTH ? null : (
                 <div className="dash-fe-error__st">
                     <div className="dash-fe-error__info dash-fe-error__curved">
                         {error.message}
@@ -100,8 +101,8 @@ function UnconnectedErrorContent({error, base}) {
                                 </i>
                             </summary>
 
-                            {error.stack.split('\n').map(line => (
-                                <p>{line}</p>
+                            {error.stack.split('\n').map((line, i) => (
+                                <p key={i}>{line}</p>
                             ))}
                         </details>
                     </div>
@@ -150,7 +151,7 @@ function UnconnectedErrorContent({error, base}) {
         </div>
     );
 }
-/* eslint-enable no-inline-comments, no-magic-numbers */
+/* eslint-enable no-inline-comments */
 
 const errorPropTypes = PropTypes.shape({
     message: PropTypes.string,

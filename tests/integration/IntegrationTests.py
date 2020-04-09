@@ -28,23 +28,25 @@ class IntegrationTests(unittest.TestCase):
         super(IntegrationTests, cls).setUpClass()
 
         options = Options()
-        options.add_argument('--no-sandbox')
+        options.add_argument("--no-sandbox")
 
         capabilities = DesiredCapabilities.CHROME
-        capabilities['loggingPrefs'] = {'browser': 'SEVERE'}
+        capabilities["loggingPrefs"] = {"browser": "SEVERE"}
 
-        if 'DASH_TEST_CHROMEPATH' in os.environ:
-            options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
+        if "DASH_TEST_CHROMEPATH" in os.environ:
+            options.binary_location = os.environ["DASH_TEST_CHROMEPATH"]
 
         cls.driver = webdriver.Chrome(
-            options=options, desired_capabilities=capabilities,
-            service_args=["--verbose", "--log-path=chrome.log"]
-            )
+            options=options,
+            desired_capabilities=capabilities,
+            service_args=["--verbose", "--log-path=chrome.log"],
+        )
 
         cls.percy_runner = percy.Runner(
             loader=percy.ResourceLoader(
-                webdriver=cls.driver,
-                base_url='/assets', root_dir='tests/assets'))
+                webdriver=cls.driver, base_url="/assets", root_dir="tests/assets"
+            )
+        )
 
         cls.percy_runner.initialize_build()
 
@@ -72,12 +74,7 @@ class IntegrationTests(unittest.TestCase):
         def run():
             dash.scripts.config.serve_locally = True
             dash.css.config.serve_locally = True
-            kws = dict(
-                port=8050,
-                debug=False,
-                processes=4,
-                threaded=False
-            )
+            kws = dict(port=8050, debug=False, processes=4, threaded=False)
             kws.update(kwargs)
             dash.run_server(**kws)
 
@@ -88,33 +85,31 @@ class IntegrationTests(unittest.TestCase):
 
         # Visit the dash page
         self.driver.implicitly_wait(2)
-        self.driver.get('http://localhost:8050')
+        self.driver.get("http://localhost:8050")
 
-    def percy_snapshot(self, name=''):
-        snapshot_name = '{} - py{}.{}'.format(
-            name, sys.version_info.major, sys.version_info.minor)
-        print(snapshot_name)
-        self.percy_runner.snapshot(
-            name=snapshot_name
+    def percy_snapshot(self, name=""):
+        snapshot_name = "{} - py{}.{}".format(
+            name, sys.version_info.major, sys.version_info.minor
         )
+        print(snapshot_name)
+        self.percy_runner.snapshot(name=snapshot_name)
 
     def wait_for_element_by_css_selector(self, selector, timeout=TIMEOUT):
         return WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, selector)),
-            'Could not find element with selector "{}"'.format(selector)
+            'Could not find element with selector "{}"'.format(selector),
         )
 
     def wait_for_text_to_equal(self, selector, assertion_text, timeout=TIMEOUT):
         el = self.wait_for_element_by_css_selector(selector)
         WebDriverWait(self.driver, timeout).until(
             lambda *args: (
-                (str(el.text) == assertion_text) or
-                (str(el.get_attribute('value')) == assertion_text)
+                (str(el.text) == assertion_text)
+                or (str(el.get_attribute("value")) == assertion_text)
             ),
             "Element '{}' text was supposed to equal '{}' but it didn't".format(
-                selector,
-                assertion_text
-            )
+                selector, assertion_text
+            ),
         )
 
     def clear_log(self):
@@ -124,11 +119,7 @@ class IntegrationTests(unittest.TestCase):
 
     def get_log(self):
         entries = self.driver.get_log("browser")
-        return [
-            entry
-            for entry in entries
-            if entry["timestamp"] > self.last_timestamp
-        ]
+        return [entry for entry in entries if entry["timestamp"] > self.last_timestamp]
 
     def wait_until_get_log(self, timeout=10):
 
@@ -139,8 +130,7 @@ class IntegrationTests(unittest.TestCase):
             time.sleep(poll)
             cnt += 1
             if cnt * poll >= timeout * 1000:
-                raise SeleniumDriverTimeout(
-                    'cannot get log in {}'.format(timeout))
+                raise SeleniumDriverTimeout("cannot get log in {}".format(timeout))
 
         return logs
 

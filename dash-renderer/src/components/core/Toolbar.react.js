@@ -33,7 +33,7 @@ function UnconnectedToolbar(props) {
                 },
                 styles.parentSpanStyle
             )}
-            onClick={() => dispatch(undo())}
+            onClick={() => dispatch(undo)}
         >
             <div
                 style={mergeRight(
@@ -58,7 +58,7 @@ function UnconnectedToolbar(props) {
                 },
                 styles.parentSpanStyle
             )}
-            onClick={() => dispatch(redo())}
+            onClick={() => dispatch(redo)}
         >
             <div
                 style={mergeRight(

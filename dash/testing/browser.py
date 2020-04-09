@@ -20,18 +20,9 @@ from selenium.common.exceptions import (
     MoveTargetOutOfBoundsException,
 )
 
-from dash.testing.wait import (
-    text_to_equal,
-    style_to_equal,
-    contains_text,
-    until,
-)
+from dash.testing.wait import text_to_equal, style_to_equal, contains_text, until
 from dash.testing.dash_page import DashPageMixin
-from dash.testing.errors import (
-    DashAppLoadingError,
-    BrowserError,
-    TestingTimeoutError,
-)
+from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
 from dash.testing.consts import SELENIUM_GRID_DEFAULT
 
 
@@ -39,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class Browser(DashPageMixin):
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         browser,
@@ -47,22 +39,24 @@ class Browser(DashPageMixin):
         headless=False,
         options=None,
         download_path="",
+        percy_run=True,
         percy_finalize=True,
         percy_assets_root="",
         wait_timeout=10,
+        pause=False,
     ):
         self._browser = browser.lower()
         self._remote_url = remote_url
         self._remote = (
-            True
-            if remote_url and remote_url != SELENIUM_GRID_DEFAULT
-            else remote
+            True if remote_url and remote_url != SELENIUM_GRID_DEFAULT else remote
         )
         self._headless = headless
         self._options = options
         self._download_path = download_path
         self._wait_timeout = wait_timeout
         self._percy_finalize = percy_finalize
+        self._percy_run = percy_run
+        self._pause = pause
 
         self._driver = until(self.get_webdriver, timeout=1)
         self._driver.implicitly_wait(2)
@@ -73,21 +67,20 @@ class Browser(DashPageMixin):
 
         self._window_idx = 0  # switch browser tabs
 
-        self.percy_runner = percy.Runner(
-            loader=percy.ResourceLoader(
-                webdriver=self.driver,
-                base_url="/assets",
-                root_dir=percy_assets_root,
+        if self._percy_run:
+            self.percy_runner = percy.Runner(
+                loader=percy.ResourceLoader(
+                    webdriver=self.driver,
+                    base_url="/assets",
+                    root_dir=percy_assets_root,
+                )
             )
-        )
-        self.percy_runner.initialize_build()
+            self.percy_runner.initialize_build()
 
         logger.info("initialize browser with arguments")
         logger.info("  headless => %s", self._headless)
         logger.info("  download_path => %s", self._download_path)
-        logger.info(
-            "  percy asset root => %s", os.path.abspath(percy_assets_root)
-        )
+        logger.info("  percy asset root => %s", os.path.abspath(percy_assets_root))
 
     def __enter__(self):
         return self
@@ -95,7 +88,7 @@ class Browser(DashPageMixin):
     def __exit__(self, exc_type, exc_val, traceback):
         try:
             self.driver.quit()
-            if self._percy_finalize:
+            if self._percy_run and self._percy_finalize:
                 logger.info("percy runner finalize build now")
                 self.percy_runner.finalize_build()
             else:
@@ -111,7 +104,7 @@ class Browser(DashPageMixin):
         hook_id,
         wait_for_callbacks=True,
         assert_check=True,
-        stay_on_page=False
+        stay_on_page=False,
     ):
         try:
             path = resource_path.lstrip("/")
@@ -152,11 +145,8 @@ class Browser(DashPageMixin):
             # as diff reference for the build run.
             logger.error(
                 "wait_for_callbacks failed => status of invalid rqs %s",
-                list(
-                    _ for _ in self.redux_state_rqs if not _.get("responseTime")
-                ),
+                self.redux_state_rqs,
             )
-            logger.debug("full content of the rqs => %s", self.redux_state_rqs)
 
         self.percy_runner.snapshot(name=snapshot_name)
 
@@ -169,11 +159,7 @@ class Browser(DashPageMixin):
         with a filename combining test case name and the
         running selenium session id
         """
-        target = (
-            "/tmp/dash_artifacts"
-            if not self._is_windows()
-            else os.getenv("TEMP")
-        )
+        target = "/tmp/dash_artifacts" if not self._is_windows() else os.getenv("TEMP")
         if not os.path.exists(target):
             try:
                 os.mkdir(target)
@@ -205,9 +191,7 @@ class Browser(DashPageMixin):
     def _wait_for(self, method, args, timeout, msg):
         """Abstract generic pattern for explicit WebDriverWait."""
         _wait = (
-            self._wd_wait
-            if timeout is None
-            else WebDriverWait(self.driver, timeout)
+            self._wd_wait if timeout is None else WebDriverWait(self.driver, timeout)
         )
         logger.debug(
             "method, timeout, poll => %s %s %s",
@@ -234,6 +218,19 @@ class Browser(DashPageMixin):
             "timeout {}s => waiting for selector {}".format(
                 timeout if timeout else self._wait_timeout, selector
             ),
+        )
+
+    def wait_for_no_elements(self, selector, timeout=None):
+        """Explicit wait until an element is NOT found. timeout defaults to
+        the fixture's `wait_timeout`."""
+        until(
+            # if we use get_elements it waits a long time to see if they appear
+            # so this one calls out directly to execute_script
+            lambda: self.driver.execute_script(
+                "return document.querySelectorAll('{}').length".format(selector)
+            )
+            == 0,
+            timeout if timeout else self._wait_timeout,
         )
 
     def wait_for_element_by_id(self, element_id, timeout=None):
@@ -306,9 +303,7 @@ class Browser(DashPageMixin):
                 self.dash_entry_locator, timeout=timeout
             )
         except TimeoutException:
-            logger.exception(
-                "dash server is not loaded within %s seconds", timeout
-            )
+            logger.exception("dash server is not loaded within %s seconds", timeout)
             logger.debug(self.get_logs())
             raise DashAppLoadingError(
                 "the expected Dash react entry point cannot be loaded"
@@ -320,18 +315,22 @@ class Browser(DashPageMixin):
                 )
             )
 
+        if self._pause:
+            try:
+                import pdb as pdb_
+            except ImportError:
+                import ipdb as pdb_
+
+            pdb_.set_trace()
+
     def select_dcc_dropdown(self, elem_or_selector, value=None, index=None):
         dropdown = self._get_element(elem_or_selector)
         dropdown.click()
 
         menu = dropdown.find_element_by_css_selector("div.Select-menu-outer")
-        logger.debug(
-            "the available options are %s", "|".join(menu.text.split("\n"))
-        )
+        logger.debug("the available options are %s", "|".join(menu.text.split("\n")))
 
-        options = menu.find_elements_by_css_selector(
-            "div.VirtualizedSelectOption"
-        )
+        options = menu.find_elements_by_css_selector("div.VirtualizedSelectOption")
         if options:
             if isinstance(index, int):
                 options[index].click()
@@ -343,9 +342,7 @@ class Browser(DashPageMixin):
                     return
 
         logger.error(
-            "cannot find matching option using value=%s or index=%s",
-            value,
-            index,
+            "cannot find matching option using value=%s or index=%s", value, index
         )
 
     def toggle_window(self):
@@ -415,9 +412,7 @@ class Browser(DashPageMixin):
                 desired_capabilities=capabilities,
             )
             if self._remote
-            else webdriver.Chrome(
-                options=options, desired_capabilities=capabilities
-            )
+            else webdriver.Chrome(options=options, desired_capabilities=capabilities)
         )
 
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
@@ -429,10 +424,7 @@ class Browser(DashPageMixin):
             )
             params = {
                 "cmd": "Page.setDownloadBehavior",
-                "params": {
-                    "behavior": "allow",
-                    "downloadPath": self.download_path,
-                },
+                "params": {"behavior": "allow", "downloadPath": self.download_path},
             }
             res = chrome.execute("send_command", params)
             logger.debug("enabled headless download returns %s", res)
@@ -493,11 +485,7 @@ class Browser(DashPageMixin):
         ).perform()
 
     def zoom_in_graph_by_ratio(
-        self,
-        elem_or_selector,
-        start_fraction=0.5,
-        zoom_box_fraction=0.2,
-        compare=True,
+        self, elem_or_selector, start_fraction=0.5, zoom_box_fraction=0.2, compare=True
     ):
         """Zoom out a graph with a zoom box fraction of component dimension
         default start at middle with a rectangle of 1/5 of the dimension use
@@ -538,9 +526,7 @@ class Browser(DashPageMixin):
                 for entry in self.driver.get_log("browser")
                 if entry["timestamp"] > self._last_ts
             ]
-        warnings.warn(
-            "get_logs always return None with webdrivers other than Chrome"
-        )
+        warnings.warn("get_logs always return None with webdrivers other than Chrome")
         return None
 
     def reset_log_timestamp(self):

@@ -13,11 +13,11 @@
 
 Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical Python code. Read our tutorial proudly crafted ❤️ by Dash itself.
 
-- [User Guide](https://dash.plot.ly/getting-started)
+- [User Guide](https://dash.plotly.com/getting-started)
 
 - [Offline (PDF) Documentation](https://github.com/plotly/dash-docs/blob/master/pdf-docs/Dash_User_Guide_and_Documentation.pdf)
 
-- [Dash Docs on Heroku](http://dash-docs.herokuapp.com/) (for corporate network that cannot access plot.ly)
+- [Dash Docs on Heroku](http://dash-docs.herokuapp.com/) (for corporate network that cannot access plotly.com)
 
 
 ### App Samples
@@ -29,17 +29,17 @@ Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dr
 |  ![Dash App with Mapbox map showing walmart store openings](https://user-images.githubusercontent.com/1280389/30086299-768509d0-9268-11e7-8e6b-626ac9ca512c.gif)| Dash uses [Plotly.js](https://github.com/plotly/plotly.js) for charting. Over 35 chart types are supported, including maps. |
 |![Financial report](https://github.com/plotly/dash-docs/blob/516f80c417051406210b94ea23a6d3b6cd84d146/assets/images/gallery/dash-financial-report.gif)| Dash isn't just for dashboards. You have full control over the look and feel of your applications. Here's a Dash App that's styled to look like a PDF report. |
 
-To learn more about Dash, read the [extensive announcement letter](https://medium.com/@plotlygraphs/introducing-dash-5ecf7191b503) or [jump in with the user guide](https://plot.ly/dash).
+To learn more about Dash, read the [extensive announcement letter](https://medium.com/@plotlygraphs/introducing-dash-5ecf7191b503) or [jump in with the user guide](https://plotly.com/dash).
 
 ### Contact and Support
 
 For companies with software budgets, Plotly offers
 
-- [**Dash Deployment Server**](https://plot.ly/products/dash/) speeds your time-to-delivery while providing the right resources, security, and scalability you need to deliver production-quality apps
-- [**Dash Design Kit**](https://plot.ly/products/dash/) makes your internal dashboard awesome without expertise in JavaScript & CSS.
-- [**Snapshot Engine**](https://plot.ly/products/dash/) seamlessly links your analytics and reporting workflows together, giving you a fast way to generate interactive reports of just the data you need
+- [**Dash Deployment Server**](https://plotly.com/products/dash/) speeds your time-to-delivery while providing the right resources, security, and scalability you need to deliver production-quality apps
+- [**Dash Design Kit**](https://plotly.com/products/dash/) makes your internal dashboard awesome without expertise in JavaScript & CSS.
+- [**Snapshot Engine**](https://plotly.com/products/dash/) seamlessly links your analytics and reporting workflows together, giving you a fast way to generate interactive reports of just the data you need
 
-See [https://plot.ly/dash/support](https://plot.ly/dash/support) for ways to get in touch.
+See [https://plotly.com/dash/support](https://plotly.com/dash/support) for ways to get in touch.
 
 ![image](https://user-images.githubusercontent.com/1280389/30084008-9fbc68fc-925e-11e7-891c-18a9b8f6ac6b.png)
 

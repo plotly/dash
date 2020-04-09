@@ -1,5 +1,3 @@
-/* global module, require */
-
 import {createStore, applyMiddleware} from 'redux';
 import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
@@ -21,20 +19,22 @@ const initializeStore = reset => {
 
     const reducer = createReducer();
 
-    // only attach logger to middleware in non-production mode
-    store =
-        process.env.NODE_ENV === 'production' // eslint-disable-line no-process-env
-            ? createStore(reducer, applyMiddleware(thunk))
-            : createStore(
-                  reducer,
-                  window.__REDUX_DEVTOOLS_EXTENSION__ &&
-                      window.__REDUX_DEVTOOLS_EXTENSION__(),
-                  applyMiddleware(thunk)
-              );
+    // eslint-disable-next-line no-process-env
+    if (process.env.NODE_ENV === 'production') {
+        store = createStore(reducer, applyMiddleware(thunk));
+    } else {
+        // only attach logger to middleware in non-production mode
+        const reduxDTEC = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+        if (reduxDTEC) {
+            store = createStore(reducer, reduxDTEC(applyMiddleware(thunk)));
+        } else {
+            store = createStore(reducer, applyMiddleware(thunk));
+        }
+    }
 
     if (!reset) {
         // TODO - Protect this under a debug mode?
-        window.store = store; /* global window:true */
+        window.store = store;
     }
 
     if (module.hot) {

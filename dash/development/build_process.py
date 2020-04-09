@@ -13,8 +13,7 @@ from .._utils import run_command_with_process, compute_md5, job
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(
-    fmt="%(asctime)s,%(msecs)03d %(levelname)s - %(message)s",
-    datefmt="%H:%M:%S",
+    fmt="%(asctime)s,%(msecs)03d %(levelname)s - %(message)s", datefmt="%H:%M:%S"
 )
 
 
@@ -34,16 +33,12 @@ class BuildProcess(object):
             package = json.load(fp)
             self.version = package["version"]
             self.name = package["name"]
-            self.build_folder = self._concat(
-                self.main, self.name.replace("-", "_")
-            )
+            self.build_folder = self._concat(self.main, self.name.replace("-", "_"))
             self.deps = package["dependencies"]
 
     @staticmethod
     def _concat(*paths):
-        return os.path.realpath(
-            os.path.sep.join((path for path in paths if path))
-        )
+        return os.path.realpath(os.path.sep.join((path for path in paths if path)))
 
     @staticmethod
     def _clean_path(path):
@@ -98,9 +93,7 @@ class BuildProcess(object):
             )
 
         with open(self._concat(self.main, "digest.json"), "w") as fp:
-            json.dump(
-                payload, fp, sort_keys=True, indent=4, separators=(",", ":")
-            )
+            json.dump(payload, fp, sort_keys=True, indent=4, separators=(",", ":"))
         logger.info(
             "bundle digest in digest.json:\n%s",
             json.dumps(payload, sort_keys=True, indent=4),
@@ -112,9 +105,7 @@ class BuildProcess(object):
             try:
                 os.makedirs(self.build_folder)
             except OSError:
-                logger.exception(
-                    "🚨 having issues manipulating %s", self.build_folder
-                )
+                logger.exception("🚨 having issues manipulating %s", self.build_folder)
                 sys.exit(1)
 
         self._parse_package(self.package_lock)
@@ -141,7 +132,7 @@ class BuildProcess(object):
                 self._concat(self.build_folder, target),
             )
 
-        _script = 'build:dev' if build == 'local' else 'build:js'
+        _script = "build:dev" if build == "local" else "build:js"
         logger.info("run `npm run %s`", _script)
         os.chdir(self.main)
         run_command_with_process("npm run {}".format(_script))
@@ -159,10 +150,7 @@ class Renderer(BuildProcess):
         """dash-renderer's path is binding with the dash folder hierarchy."""
         super(Renderer, self).__init__(
             self._concat(
-                os.path.dirname(__file__),
-                os.pardir,
-                os.pardir,
-                "dash-renderer",
+                os.path.dirname(__file__), os.pardir, os.pardir, "dash-renderer"
             ),
             (
                 ("@babel", "polyfill", "dist", "polyfill.min.js", None),
