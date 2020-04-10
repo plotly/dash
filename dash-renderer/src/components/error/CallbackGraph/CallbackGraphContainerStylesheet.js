@@ -106,7 +106,7 @@ const stylesheet = [
   },
 
   {
-    selector: '.selectedNode',
+    selector: '.selected-node',
     style: {
       'ghost': 'yes',
       'ghost-offset-x': 2,
@@ -128,9 +128,7 @@ const stylesheet = [
   {
     selector: '.callback-error',
     style: {
-      'border-color': '#E1332E',
-      'border-width': 2,
-      'border-opacity': 1,
+      'background-color': '#E1332E',
     }
   },
 
@@ -139,6 +137,13 @@ const stylesheet = [
     style: {
       'line-color': '#CC43B7',
       'target-arrow-color': '#CC43B7'
+    }
+  },
+
+  {
+    selector: '.inactive',
+    style: {
+      'opacity': 0.5
     }
   }
 

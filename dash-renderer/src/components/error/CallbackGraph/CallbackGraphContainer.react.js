@@ -1,15 +1,17 @@
 import React, {useState, useMemo, useEffect} from 'react';
 import PropTypes from 'prop-types';
+import Cytoscape from 'cytoscape';
+import CytoscapeComponent from 'react-cytoscapejs';
+import ReactJson from 'react-json-view'
 
 import './CallbackGraphContainer.css';
 import stylesheet from './CallbackGraphContainerStylesheet';
-
-import ReactJson from 'react-json-view'
-
-import Cytoscape from 'cytoscape';
-import CytoscapeComponent from 'react-cytoscapejs';
-
-import {STATUS} from '../../../constants/constants';
+import {
+  getEdgeTypes,
+  updateSelectedNode,
+  updateChangedProps,
+  updateCallback
+} from './CallbackGraphEffects';
 
 // Set the layout method.
 // NOTE: dagre should be nicer for DAG, but even with manual
@@ -108,88 +110,39 @@ function CallbackGraphContainer(props) {
   const [selected, setSelected] = useState(null);
   const [cytoscape, setCytoscape] = useState(null);
 
-  // Custom hook to make sure cytoscape is loaded.
-  const useCytoscapeEffect = (effect, condition) => {
-    useEffect(() => {if (cytoscape) return effect()}, condition)
-  };
-
-  // Adds callbacks once cyctoscape is intialized.
-  useCytoscapeEffect(() => {
-    cytoscape.on('tap', 'node', e => setSelected(e.target));
-    cytoscape.on('tap', e => {
-      if (e.target === cytoscape)
-        setSelected(null);
-    });
-  }, [cytoscape]);
-
-  // Set node classes on selected.
-  useCytoscapeEffect(() => {
-    if (selected) {
-      cytoscape.center(selected);
-      selected.addClass("selectedNode");
-      return () => selected.removeClass("selectedNode");
-    }
-  }, [selected]);
-
-  // Flash classes when props change. Uses changed as a trigger. Also
-  // flash all input edges originating from this node.
-  useCytoscapeEffect(() => {
-    Object.keys(changed.props)
-          .forEach(prop => {
-            const node = cytoscape.getElementById(`${changed.id}.${prop}`);
-            node.flashClass('prop-changed', 500);
-            node.edgesTo('*')
-                .filter('[type = "input"]')
-                .flashClass('triggered', 500);
-          });
-  }, [changed])
-
-  // Update callbacks from profiling information.
-  useCytoscapeEffect(() => profile.updated.forEach(cb => {
-
-    const {callCount, totalTime, status} = profile.callbacks[cb];
-    const node = cytoscape.getElementById(`__dash_callback__.${cb}`);
-
-    // Update data.
-    const avgTime = callCount > 0 ? totalTime/callCount : 0;
-    node.data('count', callCount);
-    node.data('time', Math.round(avgTime));
-
-    // Either flash the classes OR maintain it for long callbacks.
-    if (status.current === 'loading') {
-      node.data('loadingSet', Date.now());
-      node.addClass('callback-loading');
-    } else if (node.hasClass('callback-loading')) {
-      const timeLeft = (node.data('loadingSet') + 500) - Date.now();
-      setTimeout(() => node.removeClass('callback-loading'), Math.max(timeLeft, 0));
-    }
-
-    if (
-      status.current !== 'loading' &&
-      status.current !== STATUS.OK &&
-      status.current !== STATUS.PREVENT_UPDATE
-    ) {
-      node.data('errorSet', Date.now());
-      node.addClass('callback-error');
-    } else if (node.hasClass('callback-error')) {
-      const timeLeft = (node.data('errorSet') + 500) - Date.now();
-      setTimeout(() => node.removeClass('callback-error'), Math.max(timeLeft, 0));
-    }
-
-    // FIXME: This will flash branches that return no_update!!
-    // If the callback resolved properly, flash the outputs.
-    if (status.current === STATUS.OK) {
-      node.edgesTo('*').flashClass('triggered', 500);
-    }
-
-  }), [profile.updated]);
-
-
   // Generate and memoize the elements.
   const elements = useMemo(
     () => generateElements(dependenciesRequest, profile),
     [dependenciesRequest]
   );
+
+  // Custom hook to make sure cytoscape is loaded.
+  const useCytoscapeEffect = (effect, condition) => {
+    useEffect(() => {if (cytoscape) return effect(cytoscape)}, condition)
+  };
+
+  // Adds callbacks once cyctoscape is intialized.
+  useCytoscapeEffect((cy) => {
+    cytoscape.on('tap', 'node', e => setSelected(e.target));
+    cytoscape.on('tap', e => { if (e.target === cy) setSelected(null); });
+  }, [cytoscape]);
+
+  // Set node classes on selected.
+  useCytoscapeEffect((cy) => {
+    if (selected) return updateSelectedNode(cy, selected.data().id);
+  }, [selected]);
+
+  // Flash classes when props change. Uses changed as a trigger. Also
+  // flash all input edges originating from this node and highlight
+  // the subtree that contains the selected node.
+  useCytoscapeEffect((cy) => {
+    if (changed) return updateChangedProps(cy, changed.id, changed.props)
+  }, [changed]);
+
+  // Update callbacks from profiling information.
+  useCytoscapeEffect((cy) => profile.updated.forEach(cb => (
+    updateCallback(cy, cb, profile.callbacks[cb])
+  )), [profile.updated]);
 
   // FIXME: Move to a new component?
   // Generate the element introspection data.
@@ -212,34 +165,34 @@ function CallbackGraphContainer(props) {
 
     switch(data.type) {
 
-      case 'component':
+      case 'component': {
         const {id, ...rest} = getComponent(data.id).props;
         elementInfo = rest;
         elementName = data.id;
         break;
+      }
 
-      case 'property':
+      case 'property': {
         elementName = data.parent;
         elementInfo[data.label] = getPropValue(data);
         break;
+      }
 
-      case 'callback':
+      case 'callback': {
         elementName = data.label;
         elementInfo.language = data.lang;
-        elementInfo.profile = profile.callbacks[data.id.slice(18)]; // len('__dash_callback__.') = 18
 
-        elementInfo.inputs = cytoscape.filter(`[target = "${data.id}"][type = "input"]`)
-                                     .sources()
-                                     .reduce(reducer, {});
+        // Remove uid and set profile. Note: len('__dash_callback__.') = 18
+        const {uid, ...rest} = profile.callbacks[data.id.slice(18)];
+        const edges = getEdgeTypes(selected);
 
-        elementInfo.states = cytoscape.filter(`[target = "${data.id}"][type = "state"]`)
-                                      .sources()
-                                      .reduce(reducer, {});
+        elementInfo.profile = rest;
+        elementInfo.inputs = edges.input.sources().reduce(reducer, {});
+        elementInfo.states = edges.state.sources().reduce(reducer, {});
+        elementInfo.outputs = edges.output.targets().reduce(reducer, {});
 
-        elementInfo.outputs = cytoscape.filter(`[source = "${data.id}"]`)
-                                      .targets()
-                                      .reduce(reducer, {});
         break;
+      }
 
     }
 
