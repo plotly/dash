@@ -30,7 +30,7 @@
     "prebuild:js": "cp node_modules/plotly.js/dist/plotly.min.js dash_core_components_base/plotly.min.js",
     "build:js": "webpack --mode production",
     "build:py_and_r": "dash-generate-components ./src/components dash_core_components -p package-info.json && cp dash_core_components_base/** dash_core_components/ && dash-generate-components ./src/components dash_core_components -p package-info.json --r-prefix 'dcc'",
-    "build": "run-s build:js build:py_and_r",
+    "build": "run-s prepublishOnly build:js build:py_and_r",
     "postbuild": "es-check es5 dash_core_components/*.js",
     "build:watch": "watch 'npm run build' src",
     "format": "run-s private::format.*",
