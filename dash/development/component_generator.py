@@ -31,7 +31,7 @@ reserved_words = [
 
 
 class _CombinedFormatter(
-    argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter,
+    argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter
 ):
     pass
 
@@ -144,7 +144,7 @@ def cli():
     )
     parser.add_argument("components_source", help="React components source directory.")
     parser.add_argument(
-        "project_shortname", help="Name of the project to export the classes files.",
+        "project_shortname", help="Name of the project to export the classes files."
     )
     parser.add_argument(
         "-p",

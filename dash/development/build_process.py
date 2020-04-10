@@ -13,7 +13,7 @@ from .._utils import run_command_with_process, compute_md5, job
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(
-    fmt="%(asctime)s,%(msecs)03d %(levelname)s - %(message)s", datefmt="%H:%M:%S",
+    fmt="%(asctime)s,%(msecs)03d %(levelname)s - %(message)s", datefmt="%H:%M:%S"
 )
 
 
@@ -150,7 +150,7 @@ class Renderer(BuildProcess):
         """dash-renderer's path is binding with the dash folder hierarchy."""
         super(Renderer, self).__init__(
             self._concat(
-                os.path.dirname(__file__), os.pardir, os.pardir, "dash-renderer",
+                os.path.dirname(__file__), os.pardir, os.pardir, "dash-renderer"
             ),
             (
                 ("@babel", "polyfill", "dist", "polyfill.min.js", None),

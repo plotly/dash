@@ -233,7 +233,7 @@ def test_dveh005_multiple_outputs(dash_duo):
     app.layout = html.Div(
         [
             html.Button(
-                id="multi-output", children="trigger multi output update", n_clicks=0,
+                id="multi-output", children="trigger multi output update", n_clicks=0
             ),
             html.Div(id="multi-1"),
             html.Div(id="multi-2"),

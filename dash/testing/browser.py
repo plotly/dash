@@ -20,18 +20,9 @@ from selenium.common.exceptions import (
     MoveTargetOutOfBoundsException,
 )
 
-from dash.testing.wait import (
-    text_to_equal,
-    style_to_equal,
-    contains_text,
-    until,
-)
+from dash.testing.wait import text_to_equal, style_to_equal, contains_text, until
 from dash.testing.dash_page import DashPageMixin
-from dash.testing.errors import (
-    DashAppLoadingError,
-    BrowserError,
-    TestingTimeoutError,
-)
+from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
 from dash.testing.consts import SELENIUM_GRID_DEFAULT
 
 
@@ -39,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class Browser(DashPageMixin):
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         browser,
@@ -51,6 +43,7 @@ class Browser(DashPageMixin):
         percy_finalize=True,
         percy_assets_root="",
         wait_timeout=10,
+        pause=False,
     ):
         self._browser = browser.lower()
         self._remote_url = remote_url
@@ -63,6 +56,7 @@ class Browser(DashPageMixin):
         self._wait_timeout = wait_timeout
         self._percy_finalize = percy_finalize
         self._percy_run = percy_run
+        self._pause = pause
 
         self._driver = until(self.get_webdriver, timeout=1)
         self._driver.implicitly_wait(2)
@@ -151,9 +145,8 @@ class Browser(DashPageMixin):
             # as diff reference for the build run.
             logger.error(
                 "wait_for_callbacks failed => status of invalid rqs %s",
-                list(_ for _ in self.redux_state_rqs if not _.get("responseTime")),
+                self.redux_state_rqs,
             )
-            logger.debug("full content of the rqs => %s", self.redux_state_rqs)
 
         self.percy_runner.snapshot(name=snapshot_name)
 
@@ -225,6 +218,19 @@ class Browser(DashPageMixin):
             "timeout {}s => waiting for selector {}".format(
                 timeout if timeout else self._wait_timeout, selector
             ),
+        )
+
+    def wait_for_no_elements(self, selector, timeout=None):
+        """Explicit wait until an element is NOT found. timeout defaults to
+        the fixture's `wait_timeout`."""
+        until(
+            # if we use get_elements it waits a long time to see if they appear
+            # so this one calls out directly to execute_script
+            lambda: self.driver.execute_script(
+                "return document.querySelectorAll('{}').length".format(selector)
+            )
+            == 0,
+            timeout if timeout else self._wait_timeout,
         )
 
     def wait_for_element_by_id(self, element_id, timeout=None):
@@ -309,6 +315,14 @@ class Browser(DashPageMixin):
                 )
             )
 
+        if self._pause:
+            try:
+                import pdb as pdb_
+            except ImportError:
+                import ipdb as pdb_
+
+            pdb_.set_trace()
+
     def select_dcc_dropdown(self, elem_or_selector, value=None, index=None):
         dropdown = self._get_element(elem_or_selector)
         dropdown.click()
@@ -328,7 +342,7 @@ class Browser(DashPageMixin):
                     return
 
         logger.error(
-            "cannot find matching option using value=%s or index=%s", value, index,
+            "cannot find matching option using value=%s or index=%s", value, index
         )
 
     def toggle_window(self):
@@ -471,7 +485,7 @@ class Browser(DashPageMixin):
         ).perform()
 
     def zoom_in_graph_by_ratio(
-        self, elem_or_selector, start_fraction=0.5, zoom_box_fraction=0.2, compare=True,
+        self, elem_or_selector, start_fraction=0.5, zoom_box_fraction=0.2, compare=True
     ):
         """Zoom out a graph with a zoom box fraction of component dimension
         default start at middle with a rectangle of 1/5 of the dimension use

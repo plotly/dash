@@ -1,9 +1,9 @@
 import datetime
-import time
 
 from copy import copy
 from multiprocessing import Value
 from selenium.webdriver.common.keys import Keys
+import flask
 
 import pytest
 
@@ -15,17 +15,13 @@ import dash_flow_example
 import dash_html_components as html
 import dash_core_components as dcc
 
-from dash import Dash, callback_context, no_update
+from dash import Dash, no_update
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import (
     PreventUpdate,
-    DuplicateCallbackOutput,
-    CallbackException,
-    MissingCallbackContextException,
     InvalidCallbackReturnValue,
     IncorrectTypeException,
-    NonExistentIdException,
 )
 from dash.testing.wait import until
 
@@ -239,7 +235,7 @@ def test_inin006_flow_component(dash_duo):
     )
 
     @app.callback(
-        Output("output", "children"), [Input("react", "value"), Input("flow", "value")],
+        Output("output", "children"), [Input("react", "value"), Input("flow", "value")]
     )
     def display_output(react_value, flow_value):
         return html.Div(
@@ -374,113 +370,6 @@ def test_inin010_func_layout_accepted(dash_duo):
 
     dash_duo.start_server(app)
     assert dash_duo.find_element("#a").text == "Hello World"
-
-
-def test_inin011_multi_output(dash_duo):
-    app = Dash(__name__)
-
-    app.layout = html.Div(
-        [
-            html.Button("OUTPUT", id="output-btn"),
-            html.Table(
-                [
-                    html.Thead([html.Tr([html.Th("Output 1"), html.Th("Output 2")])]),
-                    html.Tbody(
-                        [html.Tr([html.Td(id="output1"), html.Td(id="output2")])]
-                    ),
-                ]
-            ),
-            html.Div(id="output3"),
-            html.Div(id="output4"),
-            html.Div(id="output5"),
-        ]
-    )
-
-    @app.callback(
-        [Output("output1", "children"), Output("output2", "children")],
-        [Input("output-btn", "n_clicks")],
-        [State("output-btn", "n_clicks_timestamp")],
-    )
-    def on_click(n_clicks, n_clicks_timestamp):
-        if n_clicks is None:
-            raise PreventUpdate
-
-        return n_clicks, n_clicks_timestamp
-
-    # Dummy callback for DuplicateCallbackOutput test.
-    @app.callback(Output("output3", "children"), [Input("output-btn", "n_clicks")])
-    def dummy_callback(n_clicks):
-        if n_clicks is None:
-            raise PreventUpdate
-
-        return "Output 3: {}".format(n_clicks)
-
-    with pytest.raises(DuplicateCallbackOutput) as err:
-
-        @app.callback(Output("output1", "children"), [Input("output-btn", "n_clicks")])
-        def on_click_duplicate(n_clicks):
-            if n_clicks is None:
-                raise PreventUpdate
-            return "something else"
-
-        pytest.fail("multi output can't be included in a single output")
-
-    assert "output1" in err.value.args[0]
-
-    with pytest.raises(DuplicateCallbackOutput) as err:
-
-        @app.callback(
-            [Output("output3", "children"), Output("output4", "children")],
-            [Input("output-btn", "n_clicks")],
-        )
-        def on_click_duplicate_multi(n_clicks):
-            if n_clicks is None:
-                raise PreventUpdate
-            return "something else"
-
-        pytest.fail("multi output cannot contain a used single output")
-
-    assert "output3" in err.value.args[0]
-
-    with pytest.raises(DuplicateCallbackOutput) as err:
-
-        @app.callback(
-            [Output("output5", "children"), Output("output5", "children")],
-            [Input("output-btn", "n_clicks")],
-        )
-        def on_click_same_output(n_clicks):
-            return n_clicks
-
-        pytest.fail("same output cannot be used twice in one callback")
-
-    assert "output5" in err.value.args[0]
-
-    with pytest.raises(DuplicateCallbackOutput) as err:
-
-        @app.callback(
-            [Output("output1", "children"), Output("output5", "children")],
-            [Input("output-btn", "n_clicks")],
-        )
-        def overlapping_multi_output(n_clicks):
-            return n_clicks
-
-        pytest.fail("no part of an existing multi-output can be used in another")
-    assert (
-        "{'output1.children'}" in err.value.args[0]
-        or "set(['output1.children'])" in err.value.args[0]
-    )
-
-    dash_duo.start_server(app)
-
-    t = time.time()
-
-    btn = dash_duo.find_element("#output-btn")
-    btn.click()
-    time.sleep(1)
-
-    dash_duo.wait_for_text_to_equal("#output1", "1")
-
-    assert int(dash_duo.find_element("#output2").text) > t
 
 
 def test_inin012_multi_output_no_update(dash_duo):
@@ -733,29 +622,6 @@ def test_inin015_with_custom_renderer_interpolated(dash_duo):
     dash_duo.percy_snapshot(name="request-hooks interpolated")
 
 
-def test_inin016_modified_response(dash_duo):
-    app = Dash(__name__)
-    app.layout = html.Div([dcc.Input(id="input", value="ab"), html.Div(id="output")])
-
-    @app.callback(Output("output", "children"), [Input("input", "value")])
-    def update_output(value):
-        callback_context.response.set_cookie("dash cookie", value + " - cookie")
-        return value + " - output"
-
-    dash_duo.start_server(app)
-    dash_duo.wait_for_text_to_equal("#output", "ab - output")
-    input1 = dash_duo.find_element("#input")
-
-    input1.send_keys("cd")
-
-    dash_duo.wait_for_text_to_equal("#output", "abcd - output")
-    cookie = dash_duo.driver.get_cookie("dash cookie")
-    # cookie gets json encoded
-    assert cookie["value"] == '"abcd - cookie"'
-
-    assert not dash_duo.get_logs()
-
-
 def test_inin017_late_component_register(dash_duo):
     app = Dash()
 
@@ -776,35 +642,6 @@ def test_inin017_late_component_register(dash_duo):
     btn.click()
 
     dash_duo.find_element("#inserted-input")
-
-
-def test_inin018_output_input_invalid_callback():
-    app = Dash(__name__)
-    app.layout = html.Div([html.Div("child", id="input-output"), html.Div(id="out")])
-
-    with pytest.raises(CallbackException) as err:
-
-        @app.callback(
-            Output("input-output", "children"), [Input("input-output", "children")],
-        )
-        def failure(children):
-            pass
-
-    msg = "Same output and input: input-output.children"
-    assert err.value.args[0] == msg
-
-    # Multi output version.
-    with pytest.raises(CallbackException) as err:
-
-        @app.callback(
-            [Output("out", "children"), Output("input-output", "children")],
-            [Input("input-output", "children")],
-        )
-        def failure2(children):
-            pass
-
-    msg = "Same output and input: input-output.children"
-    assert err.value.args[0] == msg
 
 
 def test_inin019_callback_dep_types():
@@ -869,111 +706,38 @@ def test_inin020_callback_return_validation():
         return set([1])
 
     with pytest.raises(InvalidCallbackReturnValue):
-        single("aaa")
+        # outputs_list (normally callback_context.outputs_list) is provided
+        # by the dispatcher from the request.
+        single("aaa", outputs_list={"id": "b", "property": "children"})
         pytest.fail("not serializable")
 
     @app.callback(
-        [Output("c", "children"), Output("d", "children")], [Input("a", "children")],
+        [Output("c", "children"), Output("d", "children")], [Input("a", "children")]
     )
     def multi(a):
         return [1, set([2])]
 
     with pytest.raises(InvalidCallbackReturnValue):
-        multi("aaa")
+        outputs_list = [
+            {"id": "c", "property": "children"},
+            {"id": "d", "property": "children"},
+        ]
+        multi("aaa", outputs_list=outputs_list)
         pytest.fail("nested non-serializable")
 
     @app.callback(
-        [Output("e", "children"), Output("f", "children")], [Input("a", "children")],
+        [Output("e", "children"), Output("f", "children")], [Input("a", "children")]
     )
     def multi2(a):
         return ["abc"]
 
     with pytest.raises(InvalidCallbackReturnValue):
-        multi2("aaa")
+        outputs_list = [
+            {"id": "e", "property": "children"},
+            {"id": "f", "property": "children"},
+        ]
+        multi2("aaa", outputs_list=outputs_list)
         pytest.fail("wrong-length list")
-
-
-def test_inin021_callback_context(dash_duo):
-    app = Dash(__name__)
-
-    btns = ["btn-{}".format(x) for x in range(1, 6)]
-
-    app.layout = html.Div(
-        [html.Div([html.Button(btn, id=btn) for btn in btns]), html.Div(id="output")]
-    )
-
-    @app.callback(Output("output", "children"), [Input(x, "n_clicks") for x in btns])
-    def on_click(*args):
-        if not callback_context.triggered:
-            raise PreventUpdate
-        trigger = callback_context.triggered[0]
-        return "Just clicked {} for the {} time!".format(
-            trigger["prop_id"].split(".")[0], trigger["value"]
-        )
-
-    dash_duo.start_server(app)
-
-    for i in range(1, 5):
-        for btn in btns:
-            dash_duo.find_element("#" + btn).click()
-            dash_duo.wait_for_text_to_equal(
-                "#output", "Just clicked {} for the {} time!".format(btn, i)
-            )
-
-
-def test_inin022_no_callback_context():
-    for attr in ["inputs", "states", "triggered", "response"]:
-        with pytest.raises(MissingCallbackContextException):
-            getattr(callback_context, attr)
-
-
-def test_inin023_wrong_callback_id():
-    app = Dash(__name__)
-    app.layout = html.Div(
-        [
-            html.Div(
-                [html.Div(id="inner-div"), dcc.Input(id="inner-input")], id="outer-div"
-            ),
-            dcc.Input(id="outer-input"),
-        ],
-        id="main",
-    )
-
-    ids = ["main", "inner-div", "inner-input", "outer-div", "outer-input"]
-
-    with pytest.raises(NonExistentIdException) as err:
-
-        @app.callback(Output("nuh-uh", "children"), [Input("inner-input", "value")])
-        def f(a):
-            return a
-
-    assert '"nuh-uh"' in err.value.args[0]
-    for component_id in ids:
-        assert component_id in err.value.args[0]
-
-    with pytest.raises(NonExistentIdException) as err:
-
-        @app.callback(Output("inner-div", "children"), [Input("yeah-no", "value")])
-        def g(a):
-            return a
-
-    assert '"yeah-no"' in err.value.args[0]
-    for component_id in ids:
-        assert component_id in err.value.args[0]
-
-    with pytest.raises(NonExistentIdException) as err:
-
-        @app.callback(
-            [Output("inner-div", "children"), Output("nope", "children")],
-            [Input("inner-input", "value")],
-        )
-        def g2(a):
-            return [a, a]
-
-    # the right way
-    @app.callback(Output("inner-div", "children"), [Input("inner-input", "value")])
-    def h(a):
-        return a
 
 
 def test_inin_024_port_env_success(dash_duo):
@@ -982,3 +746,28 @@ def test_inin_024_port_env_success(dash_duo):
     dash_duo.start_server(app, port="12345")
     assert dash_duo.server_url == "http://localhost:12345"
     dash_duo.wait_for_text_to_equal("#out", "hi")
+
+
+def nested_app(server, path, text):
+    app = Dash(__name__, server=server, url_base_pathname=path)
+    app.layout = html.Div(id="out")
+
+    @app.callback(Output("out", "children"), [Input("out", "n_clicks")])
+    def out(n):
+        return text
+
+    return app
+
+
+def test_inin025_url_base_pathname(dash_br, dash_thread_server):
+    server = flask.Flask(__name__)
+    app = nested_app(server, "/app1/", "The first")
+    nested_app(server, "/app2/", "The second")
+
+    dash_thread_server(app)
+
+    dash_br.server_url = "http://localhost:8050/app1/"
+    dash_br.wait_for_text_to_equal("#out", "The first")
+
+    dash_br.server_url = "http://localhost:8050/app2/"
+    dash_br.wait_for_text_to_equal("#out", "The second")

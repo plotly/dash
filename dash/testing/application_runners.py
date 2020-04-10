@@ -15,11 +15,7 @@ import future.utils as utils
 import flask
 import requests
 
-from dash.testing.errors import (
-    NoAppFoundError,
-    TestingTimeoutError,
-    ServerCloseError,
-)
+from dash.testing.errors import NoAppFoundError, TestingTimeoutError, ServerCloseError
 import dash.testing.wait as wait
 
 
@@ -262,7 +258,7 @@ class RRunner(ProcessRunner):
             # app is a string chunk, we make a temporary folder to store app.R
             # and its relevants assets
             self._tmp_app_path = os.path.join(
-                "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex,
+                "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex
             )
             try:
                 os.mkdir(self.tmp_app_path)

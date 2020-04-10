@@ -1,7 +1,7 @@
 import sys
 
 __file__
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 
 _js_dist_dependencies = [
     {
@@ -42,7 +42,7 @@ _js_dist = [
     {
         "relative_package_path": "{}.min.js".format(__name__),
         "dev_package_path": "{}.dev.js".format(__name__),
-        "external_url": "https://unpkg.com/dash-renderer@1.3.0"
+        "external_url": "https://unpkg.com/dash-renderer@1.4.0"
         "/dash_renderer/dash_renderer.min.js",
         "namespace": "dash_renderer",
     },

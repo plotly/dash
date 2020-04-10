@@ -3636,6 +3636,42 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 /***/ }),
 
+/***/ "./node_modules/fast-isnumeric/index.js":
+/*!**********************************************!*\
+  !*** ./node_modules/fast-isnumeric/index.js ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * inspired by is-number <https://github.com/jonschlinkert/is-number>
+ * but significantly simplified and sped up by ignoring number and string constructors
+ * ie these return false:
+ *   new Number(1)
+ *   new String('1')
+ */
+
+
+
+var allBlankCharCodes = __webpack_require__(/*! is-string-blank */ "./node_modules/is-string-blank/index.js");
+
+module.exports = function(n) {
+    var type = typeof n;
+    if(type === 'string') {
+        var original = n;
+        n = +n;
+        // whitespace strings cast to zero - filter them out
+        if(n===0 && allBlankCharCodes(original)) return false;
+    }
+    else if(type !== 'number') return false;
+
+    return n - n < 1;
+};
+
+
+/***/ }),
+
 /***/ "./node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js":
 /*!**********************************************************************************!*\
   !*** ./node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js ***!
@@ -5606,6 +5642,53 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 };
 
 module.exports = invariant;
+
+
+/***/ }),
+
+/***/ "./node_modules/is-string-blank/index.js":
+/*!***********************************************!*\
+  !*** ./node_modules/is-string-blank/index.js ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Is this string all whitespace?
+ * This solution kind of makes my brain hurt, but it's significantly faster
+ * than !str.trim() or any other solution I could find.
+ *
+ * whitespace codes from: http://en.wikipedia.org/wiki/Whitespace_character
+ * and verified with:
+ *
+ *  for(var i = 0; i < 65536; i++) {
+ *      var s = String.fromCharCode(i);
+ *      if(+s===0 && !s.trim()) console.log(i, s);
+ *  }
+ *
+ * which counts a couple of these as *not* whitespace, but finds nothing else
+ * that *is* whitespace. Note that charCodeAt stops at 16 bits, but it appears
+ * that there are no whitespace characters above this, and code points above
+ * this do not map onto white space characters.
+ */
+
+module.exports = function(str){
+    var l = str.length,
+        a;
+    for(var i = 0; i < l; i++) {
+        a = str.charCodeAt(i);
+        if((a < 9 || a > 13) && (a !== 32) && (a !== 133) && (a !== 160) &&
+            (a !== 5760) && (a !== 6158) && (a < 8192 || a > 8205) &&
+            (a !== 8232) && (a !== 8233) && (a !== 8239) && (a !== 8287) &&
+            (a !== 8288) && (a !== 12288) && (a !== 65279)) {
+                return false;
+        }
+    }
+    return true;
+}
 
 
 /***/ }),
@@ -31943,11 +32026,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _TreeContainer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./TreeContainer */ "./src/TreeContainer.js");
 /* harmony import */ var _components_error_GlobalErrorContainer_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/error/GlobalErrorContainer.react */ "./src/components/error/GlobalErrorContainer.react.js");
-/* harmony import */ var _actions_index__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./actions/index */ "./src/actions/index.js");
-/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./persistence */ "./src/persistence.js");
-/* harmony import */ var _actions_api__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./actions/api */ "./src/actions/api.js");
-/* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./reducers/constants */ "./src/reducers/constants.js");
-/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./constants/constants */ "./src/constants/constants.js");
+/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./actions */ "./src/actions/index.js");
+/* harmony import */ var _actions_paths__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./actions/paths */ "./src/actions/paths.js");
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./actions/dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _actions_api__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./actions/api */ "./src/actions/api.js");
+/* harmony import */ var _actions_utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./actions/utils */ "./src/actions/utils.js");
+/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./persistence */ "./src/persistence.js");
+/* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./reducers/constants */ "./src/reducers/constants.js");
+/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./constants/constants */ "./src/constants/constants.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -31955,6 +32041,9 @@ function _nonIterableRest() { throw new TypeError("Invalid attempt to destructur
 function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+
+
 
 
 
@@ -31979,48 +32068,18 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
       errorLoading = _useState2[0],
       setErrorLoading = _useState2[1];
 
+  var events = Object(react__WEBPACK_IMPORTED_MODULE_2__["useRef"])(null);
+
+  if (!events.current) {
+    events.current = new _actions_utils__WEBPACK_IMPORTED_MODULE_10__["EventEmitter"]();
+  }
+
+  var renderedTree = Object(react__WEBPACK_IMPORTED_MODULE_2__["useRef"])(false);
+  Object(react__WEBPACK_IMPORTED_MODULE_2__["useEffect"])(storeEffect.bind(null, props, events, setErrorLoading));
   Object(react__WEBPACK_IMPORTED_MODULE_2__["useEffect"])(function () {
-    var appLifecycle = props.appLifecycle,
-        dependenciesRequest = props.dependenciesRequest,
-        dispatch = props.dispatch,
-        graphs = props.graphs,
-        layout = props.layout,
-        layoutRequest = props.layoutRequest,
-        paths = props.paths;
-
-    if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(layoutRequest)) {
-      dispatch(Object(_actions_api__WEBPACK_IMPORTED_MODULE_8__["default"])('_dash-layout', 'GET', 'layoutRequest'));
-    } else if (layoutRequest.status === _constants_constants__WEBPACK_IMPORTED_MODULE_10__["STATUS"].OK) {
-      if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(layout)) {
-        var finalLayout = Object(_persistence__WEBPACK_IMPORTED_MODULE_7__["applyPersistence"])(layoutRequest.content, dispatch);
-        dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["setLayout"])(finalLayout));
-      } else if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isNil"])(paths)) {
-        dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["computePaths"])({
-          subTree: layout,
-          startingPath: []
-        }));
-      }
-    }
-
-    if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(dependenciesRequest)) {
-      dispatch(Object(_actions_api__WEBPACK_IMPORTED_MODULE_8__["default"])('_dash-dependencies', 'GET', 'dependenciesRequest'));
-    } else if (dependenciesRequest.status === _constants_constants__WEBPACK_IMPORTED_MODULE_10__["STATUS"].OK && Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(graphs)) {
-      dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["computeGraphs"])(dependenciesRequest.content));
-    }
-
-    if ( // dependenciesRequest and its computed stores
-    dependenciesRequest.status === _constants_constants__WEBPACK_IMPORTED_MODULE_10__["STATUS"].OK && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(graphs) && // LayoutRequest and its computed stores
-    layoutRequest.status === _constants_constants__WEBPACK_IMPORTED_MODULE_10__["STATUS"].OK && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(layout) && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isNil"])(paths) && // Hasn't already hydrated
-    appLifecycle === Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_9__["getAppState"])('STARTED')) {
-      var error = false;
-
-      try {
-        dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["hydrateInitialOutputs"])());
-      } catch (err) {
-        error = true;
-      } finally {
-        setErrorLoading(error);
-      }
+    if (renderedTree.current) {
+      renderedTree.current = false;
+      events.current.emit('rendered');
     }
   });
   var appLifecycle = props.appLifecycle,
@@ -32028,40 +32087,88 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
       layoutRequest = props.layoutRequest,
       layout = props.layout,
       config = props.config;
+  var content;
 
-  if (layoutRequest.status && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["includes"])(layoutRequest.status, [_constants_constants__WEBPACK_IMPORTED_MODULE_10__["STATUS"].OK, 'loading'])) {
-    return react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+  if (layoutRequest.status && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["includes"])(layoutRequest.status, [_constants_constants__WEBPACK_IMPORTED_MODULE_13__["STATUS"].OK, 'loading'])) {
+    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
       className: "_dash-error"
     }, "Error loading layout");
-  } else if (errorLoading || dependenciesRequest.status && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["includes"])(dependenciesRequest.status, [_constants_constants__WEBPACK_IMPORTED_MODULE_10__["STATUS"].OK, 'loading'])) {
-    return react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+  } else if (errorLoading || dependenciesRequest.status && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["includes"])(dependenciesRequest.status, [_constants_constants__WEBPACK_IMPORTED_MODULE_13__["STATUS"].OK, 'loading'])) {
+    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
       className: "_dash-error"
     }, "Error loading dependencies");
-  } else if (appLifecycle === Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_9__["getAppState"])('HYDRATED') && config.ui === true) {
-    return react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_components_error_GlobalErrorContainer_react__WEBPACK_IMPORTED_MODULE_5__["default"], null, react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_TreeContainer__WEBPACK_IMPORTED_MODULE_4__["default"], {
-      _dashprivate_layout: layout,
-      _dashprivate_path: []
-    }));
-  } else if (appLifecycle === Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_9__["getAppState"])('HYDRATED')) {
-    return react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_TreeContainer__WEBPACK_IMPORTED_MODULE_4__["default"], {
+  } else if (appLifecycle === Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_12__["getAppState"])('HYDRATED')) {
+    renderedTree.current = true;
+    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_TreeContainer__WEBPACK_IMPORTED_MODULE_4__["default"], {
       _dashprivate_layout: layout,
       _dashprivate_path: []
     });
+  } else {
+    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+      className: "_dash-loading"
+    }, "Loading...");
   }
 
-  return react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
-    className: "_dash-loading"
-  }, "Loading...");
+  return config && config.ui === true ? react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_components_error_GlobalErrorContainer_react__WEBPACK_IMPORTED_MODULE_5__["default"], null, content) : content;
 };
 
+function storeEffect(props, events, setErrorLoading) {
+  var appLifecycle = props.appLifecycle,
+      dependenciesRequest = props.dependenciesRequest,
+      dispatch = props.dispatch,
+      error = props.error,
+      graphs = props.graphs,
+      layout = props.layout,
+      layoutRequest = props.layoutRequest;
+
+  if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(layoutRequest)) {
+    dispatch(Object(_actions_api__WEBPACK_IMPORTED_MODULE_9__["default"])('_dash-layout', 'GET', 'layoutRequest'));
+  } else if (layoutRequest.status === _constants_constants__WEBPACK_IMPORTED_MODULE_13__["STATUS"].OK) {
+    if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(layout)) {
+      var finalLayout = Object(_persistence__WEBPACK_IMPORTED_MODULE_11__["applyPersistence"])(layoutRequest.content, dispatch);
+      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["setPaths"])(Object(_actions_paths__WEBPACK_IMPORTED_MODULE_7__["computePaths"])(finalLayout, [], null, events.current)));
+      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["setLayout"])(finalLayout));
+    }
+  }
+
+  if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(dependenciesRequest)) {
+    dispatch(Object(_actions_api__WEBPACK_IMPORTED_MODULE_9__["default"])('_dash-dependencies', 'GET', 'dependenciesRequest'));
+  } else if (dependenciesRequest.status === _constants_constants__WEBPACK_IMPORTED_MODULE_13__["STATUS"].OK && Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(graphs)) {
+    dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["setGraphs"])(Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_8__["computeGraphs"])(dependenciesRequest.content, Object(_actions__WEBPACK_IMPORTED_MODULE_6__["dispatchError"])(dispatch))));
+  }
+
+  if ( // dependenciesRequest and its computed stores
+  dependenciesRequest.status === _constants_constants__WEBPACK_IMPORTED_MODULE_13__["STATUS"].OK && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(graphs) && // LayoutRequest and its computed stores
+  layoutRequest.status === _constants_constants__WEBPACK_IMPORTED_MODULE_13__["STATUS"].OK && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(layout) && // Hasn't already hydrated
+  appLifecycle === Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_12__["getAppState"])('STARTED')) {
+    var hasError = false;
+
+    try {
+      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["hydrateInitialOutputs"])(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["dispatchError"])(dispatch)));
+    } catch (err) {
+      // Display this error in devtools, unless we have errors
+      // already, in which case we assume this new one is moot
+      if (!error.frontEnd.length && !error.backEnd.length) {
+        dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["onError"])({
+          type: 'backEnd',
+          error: err
+        }));
+      }
+
+      hasError = true;
+    } finally {
+      setErrorLoading(hasError);
+    }
+  }
+}
+
 UnconnectedContainer.propTypes = {
-  appLifecycle: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.oneOf([Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_9__["getAppState"])('STARTED'), Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_9__["getAppState"])('HYDRATED')]),
+  appLifecycle: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.oneOf([Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_12__["getAppState"])('STARTED'), Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_12__["getAppState"])('HYDRATED')]),
   dispatch: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.func,
   dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
   graphs: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
   layoutRequest: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
   layout: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
-  paths: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
   history: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.any,
   error: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
   config: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object
@@ -32074,7 +32181,6 @@ function (state) {
     layoutRequest: state.layoutRequest,
     layout: state.layout,
     graphs: state.graphs,
-    paths: state.paths,
     history: state.history,
     error: state.error,
     config: state.config
@@ -32313,14 +32419,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./persistence */ "./src/persistence.js");
 /* harmony import */ var _components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/error/ComponentErrorBoundary.react */ "./src/components/error/ComponentErrorBoundary.react.js");
 /* harmony import */ var _checkPropTypes__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./checkPropTypes */ "./src/checkPropTypes.js");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./actions/dependencies */ "./src/actions/dependencies.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32359,9 +32458,10 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 
+
 function validateComponent(componentDefinition) {
   if (Object(ramda__WEBPACK_IMPORTED_MODULE_5__["type"])(componentDefinition) === 'Array') {
-    throw new Error('The children property of a component is a list of lists, instead ' + 'of just a list. ' + 'Check the component that has the following contents, ' + 'and remove of the levels of nesting: \n' + JSON.stringify(componentDefinition, null, 2));
+    throw new Error('The children property of a component is a list of lists, instead ' + 'of just a list. ' + 'Check the component that has the following contents, ' + 'and remove one of the levels of nesting: \n' + JSON.stringify(componentDefinition, null, 2));
   }
 
   if (Object(ramda__WEBPACK_IMPORTED_MODULE_5__["type"])(componentDefinition) === 'Object' && !(Object(ramda__WEBPACK_IMPORTED_MODULE_5__["has"])('namespace', componentDefinition) && Object(ramda__WEBPACK_IMPORTED_MODULE_5__["has"])('type', componentDefinition) && Object(ramda__WEBPACK_IMPORTED_MODULE_5__["has"])('props', componentDefinition))) {
@@ -32371,7 +32471,7 @@ function validateComponent(componentDefinition) {
 
 var createContainer = function createContainer(component, path) {
   return Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_7__["default"])(component) ? component : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(AugmentedTreeContainer, {
-    key: component && component.props && component.props.id,
+    key: component && component.props && Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_11__["stringifyId"])(component.props.id),
     _dashprivate_layout: component,
     _dashprivate_path: path
   });
@@ -32389,7 +32489,7 @@ function CheckedComponent(p) {
     Object(_exceptions__WEBPACK_IMPORTED_MODULE_3__["propTypeErrorHandler"])(errorMessage, props, type);
   }
 
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement.apply(react__WEBPACK_IMPORTED_MODULE_0___default.a, [element, Object(ramda__WEBPACK_IMPORTED_MODULE_5__["mergeRight"])(props, extraProps)].concat(_toConsumableArray(Array.isArray(children) ? children : [children])));
+  return createElement(element, props, extraProps, children);
 }
 
 CheckedComponent.propTypes = {
@@ -32400,6 +32500,16 @@ CheckedComponent.propTypes = {
   extraProps: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
   id: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string
 };
+
+function createElement(element, props, extraProps, children) {
+  var allProps = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["mergeRight"])(props, extraProps);
+
+  if (Array.isArray(children)) {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement.apply(react__WEBPACK_IMPORTED_MODULE_0___default.a, [element, allProps].concat(_toConsumableArray(children)));
+  }
+
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(element, allProps, children);
+}
 
 var TreeContainer = /*#__PURE__*/function (_Component) {
   _inherits(TreeContainer, _Component);
@@ -32418,36 +32528,35 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
     key: "setProps",
     value: function setProps(newProps) {
       var _this$props = this.props,
-          _dashprivate_dependencies = _this$props._dashprivate_dependencies,
+          _dashprivate_graphs = _this$props._dashprivate_graphs,
           _dashprivate_dispatch = _this$props._dashprivate_dispatch,
           _dashprivate_path = _this$props._dashprivate_path,
           _dashprivate_layout = _this$props._dashprivate_layout;
-      var id = this.getLayoutProps().id; // Identify the modified props that are required for callbacks
+      var oldProps = this.getLayoutProps();
+      var id = oldProps.id;
+      var changedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["pickBy"])(function (val, key) {
+        return !Object(ramda__WEBPACK_IMPORTED_MODULE_5__["equals"])(val, oldProps[key]);
+      }, newProps);
 
-      var watchedKeys = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["filter"])(function (key) {
-        return _dashprivate_dependencies && _dashprivate_dependencies.find(function (dependency) {
-          return dependency.inputs.find(function (input) {
-            return input.id === id && input.property === key;
-          }) || dependency.state.find(function (state) {
-            return state.id === id && state.property === key;
-          });
-        });
-      })(Object(ramda__WEBPACK_IMPORTED_MODULE_5__["keysIn"])(newProps)); // setProps here is triggered by the UI - record these changes
-      // for persistence
+      if (!Object(ramda__WEBPACK_IMPORTED_MODULE_5__["isEmpty"])(changedProps)) {
+        // Identify the modified props that are required for callbacks
+        var watchedKeys = Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_11__["getWatchedKeys"])(id, Object(ramda__WEBPACK_IMPORTED_MODULE_5__["keys"])(changedProps), _dashprivate_graphs); // setProps here is triggered by the UI - record these changes
+        // for persistence
 
-      Object(_persistence__WEBPACK_IMPORTED_MODULE_8__["recordUiEdit"])(_dashprivate_layout, newProps, _dashprivate_dispatch); // Always update this component's props
+        Object(_persistence__WEBPACK_IMPORTED_MODULE_8__["recordUiEdit"])(_dashprivate_layout, newProps, _dashprivate_dispatch); // Always update this component's props
 
-      _dashprivate_dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["updateProps"])({
-        props: newProps,
-        itempath: _dashprivate_path
-      })); // Only dispatch changes to Dash if a watched prop changed
+        _dashprivate_dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["updateProps"])({
+          props: changedProps,
+          itempath: _dashprivate_path
+        })); // Only dispatch changes to Dash if a watched prop changed
 
 
-      if (watchedKeys.length) {
-        _dashprivate_dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["notifyObservers"])({
-          id: id,
-          props: Object(ramda__WEBPACK_IMPORTED_MODULE_5__["pick"])(watchedKeys)(newProps)
-        }));
+        if (watchedKeys.length) {
+          _dashprivate_dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["notifyObservers"])({
+            id: id,
+            props: Object(ramda__WEBPACK_IMPORTED_MODULE_5__["pick"])(watchedKeys, changedProps)
+          }));
+        }
       }
     }
   }, {
@@ -32476,28 +32585,30 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
 
       validateComponent(_dashprivate_layout);
       var element = _registry__WEBPACK_IMPORTED_MODULE_2__["default"].resolve(_dashprivate_layout);
-      var props = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["omit"])(['children'], _dashprivate_layout.props);
-      return _dashprivate_config.props_check ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_9__["default"], {
+      var props = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["dissoc"])('children', _dashprivate_layout.props);
+
+      if (Object(ramda__WEBPACK_IMPORTED_MODULE_5__["type"])(props.id) === 'Object') {
+        // Turn object ids (for wildcards) into unique strings.
+        // Because of the `dissoc` above we're not mutating the layout,
+        // just the id we pass on to the rendered component
+        props.id = Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_11__["stringifyId"])(props.id);
+      }
+
+      var extraProps = {
+        loading_state: loading_state,
+        setProps: setProps
+      };
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_9__["default"], {
         componentType: _dashprivate_layout.type,
-        componentId: _dashprivate_layout.props.id,
-        key: element && element.props && element.props.id
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(CheckedComponent, {
+        componentId: props.id,
+        key: props.id
+      }, _dashprivate_config.props_check ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(CheckedComponent, {
         children: children,
         element: element,
         props: props,
-        extraProps: {
-          loading_state: loading_state,
-          setProps: setProps
-        },
+        extraProps: extraProps,
         type: _dashprivate_layout.type
-      })) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_9__["default"], {
-        componentType: _dashprivate_layout.type,
-        componentId: _dashprivate_layout.props.id,
-        key: element && element.props && element.props.id
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement.apply(react__WEBPACK_IMPORTED_MODULE_0___default.a, [element, Object(ramda__WEBPACK_IMPORTED_MODULE_5__["mergeRight"])(props, {
-        loading_state: loading_state,
-        setProps: setProps
-      })].concat(_toConsumableArray(Array.isArray(children) ? children : [children]))));
+      }) : createElement(element, props, extraProps, children));
     }
   }, {
     key: "shouldComponentUpdate",
@@ -32528,11 +32639,10 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 
 TreeContainer.propTypes = {
-  _dashprivate_dependencies: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
+  _dashprivate_graphs: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
   _dashprivate_dispatch: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func,
   _dashprivate_layout: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
   _dashprivate_loadingState: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
-  _dashprivate_requestQueue: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
   _dashprivate_config: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
   _dashprivate_path: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.array
 };
@@ -32572,29 +32682,33 @@ function getNestedIds(layout) {
   return ids;
 }
 
-function getLoadingState(layout, requestQueue) {
-  var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id ? [layout.props.id] : [];
+function getLoadingState(layout, pendingCallbacks) {
+  var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id && [layout.props.id];
   var isLoading = false;
   var loadingProp;
   var loadingComponent;
 
-  if (requestQueue) {
-    Object(ramda__WEBPACK_IMPORTED_MODULE_5__["forEach"])(function (r) {
-      var controllerId = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["isNil"])(r.controllerId) ? '' : r.controllerId;
+  if (pendingCallbacks && pendingCallbacks.length && ids && ids.length) {
+    var idStrs = ids.map(_actions_dependencies__WEBPACK_IMPORTED_MODULE_11__["stringifyId"]);
+    pendingCallbacks.forEach(function (cb) {
+      var requestId = cb.requestId,
+          requestedOutputs = cb.requestedOutputs;
 
-      if (r.status === 'loading' && Object(ramda__WEBPACK_IMPORTED_MODULE_5__["any"])(function (id) {
-        return Object(ramda__WEBPACK_IMPORTED_MODULE_5__["includes"])(id, controllerId);
-      }, ids)) {
-        isLoading = true;
-
-        var _r$controllerId$split = r.controllerId.split('.');
-
-        var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
-
-        loadingComponent = _r$controllerId$split2[0];
-        loadingProp = _r$controllerId$split2[1];
+      if (requestId === undefined) {
+        return;
       }
-    }, requestQueue);
+
+      idStrs.forEach(function (idStr) {
+        var props = requestedOutputs[idStr];
+
+        if (props) {
+          isLoading = true; // TODO: what about multiple loading components / props?
+
+          loadingComponent = idStr;
+          loadingProp = props[0];
+        }
+      });
+    });
   } // Set loading state
 
 
@@ -32607,8 +32721,8 @@ function getLoadingState(layout, requestQueue) {
 
 var AugmentedTreeContainer = Object(react_redux__WEBPACK_IMPORTED_MODULE_4__["connect"])(function (state) {
   return {
-    dependencies: state.dependenciesRequest.content,
-    requestQueue: state.requestQueue,
+    graphs: state.graphs,
+    pendingCallbacks: state.pendingCallbacks,
     config: state.config
   };
 }, function (dispatch) {
@@ -32617,12 +32731,11 @@ var AugmentedTreeContainer = Object(react_redux__WEBPACK_IMPORTED_MODULE_4__["co
   };
 }, function (stateProps, dispatchProps, ownProps) {
   return {
-    _dashprivate_dependencies: stateProps.dependencies,
+    _dashprivate_graphs: stateProps.graphs,
     _dashprivate_dispatch: dispatchProps.dispatch,
     _dashprivate_layout: ownProps._dashprivate_layout,
     _dashprivate_path: ownProps._dashprivate_path,
-    _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.requestQueue),
-    _dashprivate_requestQueue: stateProps.requestQueue,
+    _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.pendingCallbacks),
     _dashprivate_config: stateProps.config
   };
 })(TreeContainer);
@@ -32642,7 +32755,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return apiThunk; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions */ "./src/actions/index.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils */ "./src/actions/utils.js");
 
 
 
@@ -32722,19 +32835,19 @@ function apiThunk(endpoint, method, store, id, body) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getAction", function() { return getAction; });
 var actionList = {
-  ON_PROP_CHANGE: 'ON_PROP_CHANGE',
-  SET_REQUEST_QUEUE: 'SET_REQUEST_QUEUE',
-  COMPUTE_GRAPHS: 'COMPUTE_GRAPHS',
-  COMPUTE_PATHS: 'COMPUTE_PATHS',
-  SET_LAYOUT: 'SET_LAYOUT',
-  SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
-  SET_CONFIG: 'SET_CONFIG',
-  ON_ERROR: 'ON_ERROR',
-  SET_HOOKS: 'SET_HOOKS'
+  ON_PROP_CHANGE: 1,
+  SET_REQUEST_QUEUE: 1,
+  SET_GRAPHS: 1,
+  SET_PATHS: 1,
+  SET_LAYOUT: 1,
+  SET_APP_LIFECYCLE: 1,
+  SET_CONFIG: 1,
+  ON_ERROR: 1,
+  SET_HOOKS: 1
 };
 var getAction = function getAction(action) {
   if (actionList[action]) {
-    return actionList[action];
+    return action;
   }
 
   throw new Error("".concat(action, " is not defined."));
@@ -32742,57 +32855,39 @@ var getAction = function getAction(action) {
 
 /***/ }),
 
-/***/ "./src/actions/index.js":
-/*!******************************!*\
-  !*** ./src/actions/index.js ***!
-  \******************************/
-/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setAppLifecycle, setConfig, setHooks, setLayout, onError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
+/***/ "./src/actions/dependencies.js":
+/*!*************************************!*\
+  !*** ./src/actions/dependencies.js ***!
+  \*************************************/
+/*! exports provided: isMultiOutputProp, parseIfWildcard, combineIdAndProp, stringifyId, validateCallbacksToLayout, computeGraphs, setNewRequestId, isMultiValued, getCallbacksByInput, getWatchedKeys, getCallbacksInLayout, removePendingCallback, findReadyCallbacks, followForward, mergePendingCallbacks, pruneRemovedCallbacks */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateProps", function() { return updateProps; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRequestQueue", function() { return setRequestQueue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isMultiOutputProp", function() { return isMultiOutputProp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseIfWildcard", function() { return parseIfWildcard; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "combineIdAndProp", function() { return combineIdAndProp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "stringifyId", function() { return stringifyId; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "validateCallbacksToLayout", function() { return validateCallbacksToLayout; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "computeGraphs", function() { return computeGraphs; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "computePaths", function() { return computePaths; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setAppLifecycle", function() { return setAppLifecycle; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setConfig", function() { return setConfig; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setHooks", function() { return setHooks; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLayout", function() { return setLayout; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onError", function() { return onError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hydrateInitialOutputs", function() { return hydrateInitialOutputs; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCSRFHeader", function() { return getCSRFHeader; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "redo", function() { return redo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "undo", function() { return undo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "revert", function() { return revert; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "notifyObservers", function() { return notifyObservers; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleAsyncError", function() { return handleAsyncError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "serialize", function() { return serialize; });
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/es/index.js");
-/* harmony import */ var _reducers_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../reducers/utils */ "./src/reducers/utils.js");
-/* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../reducers/constants */ "./src/reducers/constants.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/actions/constants.js");
-/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! cookie */ "./node_modules/cookie/index.js");
-/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(cookie__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
-/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
-/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../persistence */ "./src/persistence.js");
-/* harmony import */ var _isAppReady__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./isAppReady */ "./src/actions/isAppReady.js");
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setNewRequestId", function() { return setNewRequestId; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isMultiValued", function() { return isMultiValued; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCallbacksByInput", function() { return getCallbacksByInput; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getWatchedKeys", function() { return getWatchedKeys; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCallbacksInLayout", function() { return getCallbacksInLayout; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removePendingCallback", function() { return removePendingCallback; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findReadyCallbacks", function() { return findReadyCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "followForward", function() { return followForward; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mergePendingCallbacks", function() { return mergePendingCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "pruneRemovedCallbacks", function() { return pruneRemovedCallbacks; });
+/* harmony import */ var dependency_graph__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! dependency-graph */ "./node_modules/dependency-graph/lib/dep_graph.js");
+/* harmony import */ var dependency_graph__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dependency_graph__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var fast_isnumeric__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! fast-isnumeric */ "./node_modules/fast-isnumeric/index.js");
+/* harmony import */ var fast_isnumeric__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fast_isnumeric__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./paths */ "./src/actions/paths.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils */ "./src/actions/utils.js");
+/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../registry */ "./src/registry.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -32801,6 +32896,1622 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+
+
+
+var mergeMax = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["mergeWith"])(Math.max);
+
+
+
+/*
+ * If this update is for multiple outputs, then it has
+ * starting & trailing `..` and each propId pair is separated
+ * by `...`, e.g.
+ * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+ */
+
+var isMultiOutputProp = function isMultiOutputProp(idAndProp) {
+  return idAndProp.startsWith('..');
+};
+var ALL = {
+  wild: 'ALL',
+  multi: 1
+};
+var MATCH = {
+  wild: 'MATCH'
+};
+var ALLSMALLER = {
+  wild: 'ALLSMALLER',
+  multi: 1,
+  expand: 1
+};
+var wildcards = {
+  ALL: ALL,
+  MATCH: MATCH,
+  ALLSMALLER: ALLSMALLER
+};
+var allowedWildcards = {
+  Output: {
+    ALL: ALL,
+    MATCH: MATCH
+  },
+  Input: wildcards,
+  State: wildcards
+};
+var wildcardValTypes = ['string', 'number', 'boolean'];
+var idInvalidChars = ['.', '{'];
+/*
+ * If this ID is a wildcard, it is a stringified JSON object
+ * the "{" character is disallowed from regular string IDs
+ */
+
+var isWildcardId = function isWildcardId(idStr) {
+  return idStr.startsWith('{');
+};
+/*
+ * Turn stringified wildcard IDs into objects.
+ * Wildcards are encoded as single-item arrays containing the wildcard name
+ * as a string.
+ */
+
+
+function parseWildcardId(idStr) {
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_2__["map"])(function (val) {
+    return Array.isArray(val) && wildcards[val[0]] || val;
+  }, JSON.parse(idStr));
+}
+/*
+ * If this update is for multiple outputs, then it has
+ * starting & trailing `..` and each propId pair is separated
+ * by `...`, e.g.
+ * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+ */
+
+
+function parseMultipleOutputs(outputIdAndProp) {
+  return outputIdAndProp.substr(2, outputIdAndProp.length - 4).split('...');
+}
+
+function splitIdAndProp(idAndProp) {
+  // since wildcard ids can have . in them but props can't,
+  // look for the last . in the string and split there
+  var dotPos = idAndProp.lastIndexOf('.');
+  var idStr = idAndProp.substr(0, dotPos);
+  return {
+    id: parseIfWildcard(idStr),
+    property: idAndProp.substr(dotPos + 1)
+  };
+}
+/*
+ * Check if this ID is a stringified object, and if so parse it to that object
+ */
+
+
+function parseIfWildcard(idStr) {
+  return isWildcardId(idStr) ? parseWildcardId(idStr) : idStr;
+}
+var combineIdAndProp = function combineIdAndProp(_ref) {
+  var id = _ref.id,
+      property = _ref.property;
+  return "".concat(stringifyId(id), ".").concat(property);
+};
+/*
+ * JSON.stringify - for the object form - but ensuring keys are sorted
+ */
+
+function stringifyId(id) {
+  if (_typeof(id) !== 'object') {
+    return id;
+  }
+
+  var stringifyVal = function stringifyVal(v) {
+    return v && v.wild || JSON.stringify(v);
+  };
+
+  var parts = Object.keys(id).sort().map(function (k) {
+    return JSON.stringify(k) + ':' + stringifyVal(id[k]);
+  });
+  return '{' + parts.join(',') + '}';
+}
+/*
+ * id dict values can be numbers, strings, and booleans.
+ * We need a definite ordering that will work across types,
+ * even if sane users would not mix types.
+ * - numeric strings are treated as numbers
+ * - booleans come after numbers, before strings. false, then true.
+ * - non-numeric strings come last
+ */
+
+function idValSort(a, b) {
+  var bIsNumeric = fast_isnumeric__WEBPACK_IMPORTED_MODULE_1___default()(b);
+
+  if (fast_isnumeric__WEBPACK_IMPORTED_MODULE_1___default()(a)) {
+    if (bIsNumeric) {
+      var aN = Number(a);
+      var bN = Number(b);
+      return aN > bN ? 1 : aN < bN ? -1 : 0;
+    }
+
+    return -1;
+  }
+
+  if (bIsNumeric) {
+    return 1;
+  }
+
+  var aIsBool = typeof a === 'boolean';
+
+  if (aIsBool !== (typeof b === 'boolean')) {
+    return aIsBool ? -1 : 1;
+  }
+
+  return a > b ? 1 : a < b ? -1 : 0;
+}
+/*
+ * Provide a value known to be before or after v, according to idValSort
+ */
+
+
+var valBefore = function valBefore(v) {
+  return fast_isnumeric__WEBPACK_IMPORTED_MODULE_1___default()(v) ? v - 1 : 0;
+};
+
+var valAfter = function valAfter(v) {
+  return typeof v === 'string' ? v + 'z' : 'z';
+};
+
+function addMap(depMap, id, prop, dependency) {
+  var idMap = depMap[id] = depMap[id] || {};
+  var callbacks = idMap[prop] = idMap[prop] || [];
+  callbacks.push(dependency);
+}
+
+function addPattern(depMap, idSpec, prop, dependency) {
+  var keys = Object.keys(idSpec).sort();
+  var keyStr = keys.join(',');
+  var values = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(keys, idSpec);
+  var keyCallbacks = depMap[keyStr] = depMap[keyStr] || {};
+  var propCallbacks = keyCallbacks[prop] = keyCallbacks[prop] || [];
+  var valMatch = false;
+
+  for (var i = 0; i < propCallbacks.length; i++) {
+    if (Object(ramda__WEBPACK_IMPORTED_MODULE_2__["equals"])(values, propCallbacks[i].values)) {
+      valMatch = propCallbacks[i];
+      break;
+    }
+  }
+
+  if (!valMatch) {
+    valMatch = {
+      keys: keys,
+      values: values,
+      callbacks: []
+    };
+    propCallbacks.push(valMatch);
+  }
+
+  valMatch.callbacks.push(dependency);
+}
+
+function validateDependencies(parsedDependencies, dispatchError) {
+  var outStrs = {};
+  var outObjs = [];
+  parsedDependencies.forEach(function (dep) {
+    var inputs = dep.inputs,
+        outputs = dep.outputs,
+        state = dep.state;
+    var hasOutputs = true;
+
+    if (outputs.length === 1 && !outputs[0].id && !outputs[0].property) {
+      hasOutputs = false;
+      dispatchError('A callback is missing Outputs', ['Please provide an output for this callback:', JSON.stringify(dep, null, 2)]);
+    }
+
+    var head = 'In the callback for output(s):\n  ' + outputs.map(combineIdAndProp).join('\n  ');
+
+    if (!inputs.length) {
+      dispatchError('A callback is missing Inputs', [head, 'there are no `Input` elements.', 'Without `Input` elements, it will never get called.', '', 'Subscribing to `Input` components will cause the', 'callback to be called whenever their values change.']);
+    }
+
+    var spec = [[outputs, 'Output'], [inputs, 'Input'], [state, 'State']];
+    spec.forEach(function (_ref2) {
+      var _ref3 = _slicedToArray(_ref2, 2),
+          args = _ref3[0],
+          cls = _ref3[1];
+
+      if (cls === 'Output' && !hasOutputs) {
+        // just a quirk of how we pass & parse outputs - if you don't
+        // provide one, it looks like a single blank output. This is
+        // actually useful for graceful failure, so we work around it.
+        return;
+      }
+
+      if (!Array.isArray(args)) {
+        dispatchError("Callback ".concat(cls, "(s) must be an Array"), [head, "For ".concat(cls, "(s) we found:"), JSON.stringify(args), 'but we expected an Array.']);
+      }
+
+      args.forEach(function (idProp, i) {
+        validateArg(idProp, head, cls, i, dispatchError);
+      });
+    });
+    findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs);
+    findInOutOverlap(outputs, inputs, head, dispatchError);
+    findMismatchedWildcards(outputs, inputs, state, head, dispatchError);
+  });
+}
+
+function validateArg(_ref4, head, cls, i, dispatchError) {
+  var id = _ref4.id,
+      property = _ref4.property;
+
+  if (typeof property !== 'string' || !property) {
+    dispatchError('Callback property error', [head, "".concat(cls, "[").concat(i, "].property = ").concat(JSON.stringify(property)), 'but we expected `property` to be a non-empty string.']);
+  }
+
+  if (_typeof(id) === 'object') {
+    if (Object(ramda__WEBPACK_IMPORTED_MODULE_2__["isEmpty"])(id)) {
+      dispatchError('Callback item missing ID', [head, "".concat(cls, "[").concat(i, "].id = {}"), 'Every item linked to a callback needs an ID']);
+    }
+
+    Object(ramda__WEBPACK_IMPORTED_MODULE_2__["forEachObjIndexed"])(function (v, k) {
+      if (!k) {
+        dispatchError('Callback wildcard ID error', [head, "".concat(cls, "[").concat(i, "].id has key \"").concat(k, "\""), 'Keys must be non-empty strings.']);
+      }
+
+      if (_typeof(v) === 'object' && v.wild) {
+        if (allowedWildcards[cls][v.wild] !== v) {
+          dispatchError('Callback wildcard ID error', [head, "".concat(cls, "[").concat(i, "].id[\"").concat(k, "\"] = ").concat(v.wild), "Allowed wildcards for ".concat(cls, "s are:"), Object(ramda__WEBPACK_IMPORTED_MODULE_2__["keys"])(allowedWildcards[cls]).join(', ')]);
+        }
+      } else if (!Object(ramda__WEBPACK_IMPORTED_MODULE_2__["includes"])(_typeof(v), wildcardValTypes)) {
+        dispatchError('Callback wildcard ID error', [head, "".concat(cls, "[").concat(i, "].id[\"").concat(k, "\"] = ").concat(JSON.stringify(v)), 'Wildcard callback ID values must be either wildcards', 'or constants of one of these types:', wildcardValTypes.join(', ')]);
+      }
+    }, id);
+  } else if (typeof id === 'string') {
+    if (!id) {
+      dispatchError('Callback item missing ID', [head, "".concat(cls, "[").concat(i, "].id = \"").concat(id, "\""), 'Every item linked to a callback needs an ID']);
+    }
+
+    var invalidChars = idInvalidChars.filter(function (c) {
+      return Object(ramda__WEBPACK_IMPORTED_MODULE_2__["includes"])(c, id);
+    });
+
+    if (invalidChars.length) {
+      dispatchError('Callback invalid ID string', [head, "".concat(cls, "[").concat(i, "].id = '").concat(id, "'"), "characters '".concat(invalidChars.join("', '"), "' are not allowed.")]);
+    }
+  } else {
+    dispatchError('Callback ID type error', [head, "".concat(cls, "[").concat(i, "].id = ").concat(JSON.stringify(id)), 'IDs must be strings or wildcard-compatible objects.']);
+  }
+}
+
+function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
+  var newOutputStrs = {};
+  var newOutputObjs = [];
+  outputs.forEach(function (_ref5, i) {
+    var id = _ref5.id,
+        property = _ref5.property;
+
+    if (typeof id === 'string') {
+      var idProp = combineIdAndProp({
+        id: id,
+        property: property
+      });
+
+      if (newOutputStrs[idProp]) {
+        dispatchError('Duplicate callback Outputs', [head, "Output ".concat(i, " (").concat(idProp, ") is already used by this callback.")]);
+      } else if (outStrs[idProp]) {
+        dispatchError('Duplicate callback outputs', [head, "Output ".concat(i, " (").concat(idProp, ") is already in use."), 'Any given output can only have one callback that sets it.', 'To resolve this situation, try combining these into', 'one callback function, distinguishing the trigger', 'by using `dash.callback_context` if necessary.']);
+      } else {
+        newOutputStrs[idProp] = 1;
+      }
+    } else {
+      var idObj = {
+        id: id,
+        property: property
+      };
+      var selfOverlap = wildcardOverlap(idObj, newOutputObjs);
+      var otherOverlap = selfOverlap || wildcardOverlap(idObj, outObjs);
+
+      if (selfOverlap || otherOverlap) {
+        var _idProp = combineIdAndProp(idObj);
+
+        var idProp2 = combineIdAndProp(selfOverlap || otherOverlap);
+        dispatchError('Overlapping wildcard callback outputs', [head, "Output ".concat(i, " (").concat(_idProp, ")"), "overlaps another output (".concat(idProp2, ")"), "used in ".concat(selfOverlap ? 'this' : 'a different', " callback.")]);
+      } else {
+        newOutputObjs.push(idObj);
+      }
+    }
+  });
+  Object(ramda__WEBPACK_IMPORTED_MODULE_2__["keys"])(newOutputStrs).forEach(function (k) {
+    outStrs[k] = 1;
+  });
+  newOutputObjs.forEach(function (idObj) {
+    outObjs.push(idObj);
+  });
+}
+
+function findInOutOverlap(outputs, inputs, head, dispatchError) {
+  outputs.forEach(function (out, outi) {
+    var outId = out.id,
+        outProp = out.property;
+    inputs.forEach(function (in_, ini) {
+      var inId = in_.id,
+          inProp = in_.property;
+
+      if (outProp !== inProp || _typeof(outId) !== _typeof(inId)) {
+        return;
+      }
+
+      if (typeof outId === 'string') {
+        if (outId === inId) {
+          dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(combineIdAndProp(in_), ")"), "matches Output ".concat(outi, " (").concat(combineIdAndProp(out), ")")]);
+        }
+      } else if (wildcardOverlap(in_, [out])) {
+        dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(combineIdAndProp(in_), ")"), 'can match the same component(s) as', "Output ".concat(outi, " (").concat(combineIdAndProp(out), ")")]);
+      }
+    });
+  });
+}
+
+function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
+  var _findWildcardKeys = findWildcardKeys(outputs[0].id),
+      out0AnyKeys = _findWildcardKeys.anyKeys;
+
+  outputs.forEach(function (out, outi) {
+    if (outi && !Object(ramda__WEBPACK_IMPORTED_MODULE_2__["equals"])(findWildcardKeys(out.id).anyKeys, out0AnyKeys)) {
+      dispatchError('Mismatched `MATCH` wildcards across `Output`s', [head, "Output ".concat(outi, " (").concat(combineIdAndProp(out), ")"), 'does not have MATCH wildcards on the same keys as', "Output 0 (".concat(combineIdAndProp(outputs[0]), ")."), 'MATCH wildcards must be on the same keys for all Outputs.', 'ALL wildcards need not match, only MATCH.']);
+    }
+  });
+  [[inputs, 'Input'], [state, 'State']].forEach(function (_ref6) {
+    var _ref7 = _slicedToArray(_ref6, 2),
+        args = _ref7[0],
+        cls = _ref7[1];
+
+    args.forEach(function (arg, i) {
+      var _findWildcardKeys2 = findWildcardKeys(arg.id),
+          anyKeys = _findWildcardKeys2.anyKeys,
+          allsmallerKeys = _findWildcardKeys2.allsmallerKeys;
+
+      var allWildcardKeys = anyKeys.concat(allsmallerKeys);
+      var diff = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["difference"])(allWildcardKeys, out0AnyKeys);
+
+      if (diff.length) {
+        diff.sort();
+        dispatchError('`Input` / `State` wildcards not in `Output`s', [head, "".concat(cls, " ").concat(i, " (").concat(combineIdAndProp(arg), ")"), "has MATCH or ALLSMALLER on key(s) ".concat(diff.join(', ')), "where Output 0 (".concat(combineIdAndProp(outputs[0]), ")"), 'does not have a MATCH wildcard. Inputs and State do not', 'need every MATCH from the Output(s), but they cannot have', 'extras beyond the Output(s).']);
+      }
+    });
+  });
+}
+
+var matchWildKeys = function matchWildKeys(_ref8) {
+  var _ref9 = _slicedToArray(_ref8, 2),
+      a = _ref9[0],
+      b = _ref9[1];
+
+  var aWild = a && a.wild;
+  var bWild = b && b.wild;
+
+  if (aWild && bWild) {
+    // Every wildcard combination overlaps except MATCH<->ALLSMALLER
+    return !(a === MATCH && b === ALLSMALLER || a === ALLSMALLER && b === MATCH);
+  }
+
+  return a === b || aWild || bWild;
+};
+
+function wildcardOverlap(_ref10, objs) {
+  var id = _ref10.id,
+      property = _ref10.property;
+  var idKeys = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["keys"])(id).sort();
+  var idVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(idKeys, id);
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = objs[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var obj = _step.value;
+      var id2 = obj.id,
+          property2 = obj.property;
+
+      if (property2 === property && typeof id2 !== 'string' && Object(ramda__WEBPACK_IMPORTED_MODULE_2__["equals"])(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["keys"])(id2).sort(), idKeys) && Object(ramda__WEBPACK_IMPORTED_MODULE_2__["all"])(matchWildKeys, Object(ramda__WEBPACK_IMPORTED_MODULE_2__["zip"])(idVals, Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(idKeys, id2)))) {
+        return obj;
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+        _iterator["return"]();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return false;
+}
+
+function validateCallbacksToLayout(state_, dispatchError) {
+  var config = state_.config,
+      graphs = state_.graphs,
+      layout = state_.layout,
+      paths = state_.paths;
+  var outputMap = graphs.outputMap,
+      inputMap = graphs.inputMap,
+      outputPatterns = graphs.outputPatterns,
+      inputPatterns = graphs.inputPatterns;
+  var validateIds = !config.suppress_callback_exceptions;
+
+  function tail(callbacks) {
+    return 'This ID was used in the callback(s) for Output(s):\n  ' + callbacks.map(function (_ref11) {
+      var outputs = _ref11.outputs;
+      return outputs.map(combineIdAndProp).join(', ');
+    }).join('\n  ');
+  }
+
+  function missingId(id, cls, callbacks) {
+    dispatchError('ID not found in layout', ["Attempting to connect a callback ".concat(cls, " item to component:"), "  \"".concat(stringifyId(id), "\""), 'but no components with that id exist in the layout.', '', 'If you are assigning callbacks to components that are', 'generated by other callbacks (and therefore not in the', 'initial layout), you can suppress this exception by setting', '`suppress_callback_exceptions=True`.', tail(callbacks)]);
+  }
+
+  function validateProp(id, idPath, prop, cls, callbacks) {
+    var component = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["path"])(idPath, layout);
+    var element = _registry__WEBPACK_IMPORTED_MODULE_5__["default"].resolve(component); // note: Flow components do not have propTypes, so we can't validate.
+
+    if (element && element.propTypes && !element.propTypes[prop]) {
+      // look for wildcard props (ie data-* etc)
+      for (var propName in element.propTypes) {
+        var last = propName.length - 1;
+
+        if (propName.charAt(last) === '*' && prop.substr(0, last) === propName.substr(0, last)) {
+          return;
+        }
+      }
+
+      var type = component.type,
+          namespace = component.namespace;
+      dispatchError('Invalid prop for this component', ["Property \"".concat(prop, "\" was used with component ID:"), "  ".concat(JSON.stringify(id)), "in one of the ".concat(cls, " items of a callback."), "This ID is assigned to a ".concat(namespace, ".").concat(type, " component"), 'in the layout, which does not support this property.', tail(callbacks)]);
+    }
+  }
+
+  function validateIdPatternProp(id, property, cls, callbacks) {
+    resolveDeps()(paths)({
+      id: id,
+      property: property
+    }).forEach(function (dep) {
+      var idResolved = dep.id,
+          idPath = dep.path;
+      validateProp(idResolved, idPath, property, cls, callbacks);
+    });
+  }
+
+  var callbackIdsCheckedForState = {};
+
+  function validateState(callback) {
+    var state = callback.state,
+        output = callback.output; // ensure we don't check the same callback for state multiple times
+
+    if (callbackIdsCheckedForState[output]) {
+      return;
+    }
+
+    callbackIdsCheckedForState[output] = 1;
+    var cls = 'State';
+    state.forEach(function (_ref12) {
+      var id = _ref12.id,
+          property = _ref12.property;
+
+      if (typeof id === 'string') {
+        var idPath = Object(_paths__WEBPACK_IMPORTED_MODULE_3__["getPath"])(paths, id);
+
+        if (!idPath) {
+          if (validateIds) {
+            missingId(id, cls, [callback]);
+          }
+        } else {
+          validateProp(id, idPath, property, cls, [callback]);
+        }
+      } // Only validate props for State object ids that we don't need to
+      // resolve them to specific inputs or outputs
+      else if (!Object(ramda__WEBPACK_IMPORTED_MODULE_2__["intersection"])([MATCH, ALLSMALLER], Object(ramda__WEBPACK_IMPORTED_MODULE_2__["values"])(id)).length) {
+          validateIdPatternProp(id, property, cls, [callback]);
+        }
+    });
+  }
+
+  function validateMap(map, cls, doState) {
+    for (var id in map) {
+      var idProps = map[id];
+      var idPath = Object(_paths__WEBPACK_IMPORTED_MODULE_3__["getPath"])(paths, id);
+
+      if (!idPath) {
+        if (validateIds) {
+          missingId(id, cls, Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["values"])(idProps)));
+        }
+      } else {
+        for (var property in idProps) {
+          var callbacks = idProps[property];
+          validateProp(id, idPath, property, cls, callbacks);
+
+          if (doState) {
+            // It would be redundant to check state on both inputs
+            // and outputs - so only set doState for outputs.
+            callbacks.forEach(validateState);
+          }
+        }
+      }
+    }
+  }
+
+  validateMap(outputMap, 'Output', true);
+  validateMap(inputMap, 'Input');
+
+  function validatePatterns(patterns, cls, doState) {
+    for (var keyStr in patterns) {
+      var keyPatterns = patterns[keyStr];
+
+      var _loop = function _loop(property) {
+        keyPatterns[property].forEach(function (_ref13) {
+          var keys = _ref13.keys,
+              values = _ref13.values,
+              callbacks = _ref13.callbacks;
+          var id = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["zipObj"])(keys, values);
+          validateIdPatternProp(id, property, cls, callbacks);
+
+          if (doState) {
+            callbacks.forEach(validateState);
+          }
+        });
+      };
+
+      for (var property in keyPatterns) {
+        _loop(property);
+      }
+    }
+  }
+
+  validatePatterns(outputPatterns, 'Output', true);
+  validatePatterns(inputPatterns, 'Input');
+}
+function computeGraphs(dependencies, dispatchError) {
+  // multiGraph is just for finding circular deps
+  var multiGraph = new dependency_graph__WEBPACK_IMPORTED_MODULE_0__["DepGraph"]();
+  var wildcardPlaceholders = {};
+  var fixIds = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["evolve"])({
+    id: parseIfWildcard
+  }));
+  var parsedDependencies = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["map"])(function (dep) {
+    var output = dep.output;
+    var out = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["evolve"])({
+      inputs: fixIds,
+      state: fixIds
+    }, dep);
+    out.outputs = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["map"])(function (outi) {
+      return Object(ramda__WEBPACK_IMPORTED_MODULE_2__["assoc"])('out', true, splitIdAndProp(outi));
+    }, isMultiOutputProp(output) ? parseMultipleOutputs(output) : [output]);
+    return out;
+  }, dependencies);
+  var hasError = false;
+
+  var wrappedDE = function wrappedDE(message, lines) {
+    hasError = true;
+    dispatchError(message, lines);
+  };
+
+  validateDependencies(parsedDependencies, wrappedDE);
+  /*
+   * For regular ids, outputMap and inputMap are:
+   *   {[id]: {[prop]: [callback, ...]}}
+   * where callbacks are the matching specs from the original
+   * dependenciesRequest, but with outputs parsed to look like inputs,
+   * and a list anyKeys added if the outputs have MATCH wildcards.
+   * For outputMap there should only ever be one callback per id/prop
+   * but for inputMap there may be many.
+   *
+   * For wildcard ids, outputPatterns and inputPatterns are:
+   *   {
+   *       [keystr]: {
+   *           [prop]: [
+   *               {keys: [...], values: [...], callbacks: [callback, ...]},
+   *               {...}
+   *           ]
+   *       }
+   *   }
+   * keystr is a stringified ordered list of keys in the id
+   * keys is the same ordered list (just copied for convenience)
+   * values is an array of explicit or wildcard values for each key in keys
+   */
+
+  var outputMap = {};
+  var inputMap = {};
+  var outputPatterns = {};
+  var inputPatterns = {};
+  var finalGraphs = {
+    MultiGraph: multiGraph,
+    outputMap: outputMap,
+    inputMap: inputMap,
+    outputPatterns: outputPatterns,
+    inputPatterns: inputPatterns,
+    callbacks: parsedDependencies
+  };
+
+  if (hasError) {
+    // leave the graphs empty if we found an error, so we don't try to
+    // execute the broken callbacks.
+    return finalGraphs;
+  }
+
+  parsedDependencies.forEach(function (dependency) {
+    var outputs = dependency.outputs,
+        inputs = dependency.inputs;
+    outputs.concat(inputs).forEach(function (item) {
+      var id = item.id;
+
+      if (_typeof(id) === 'object') {
+        Object(ramda__WEBPACK_IMPORTED_MODULE_2__["forEachObjIndexed"])(function (val, key) {
+          if (!wildcardPlaceholders[key]) {
+            wildcardPlaceholders[key] = {
+              exact: [],
+              expand: 0
+            };
+          }
+
+          var keyPlaceholders = wildcardPlaceholders[key];
+
+          if (val && val.wild) {
+            if (val.expand) {
+              keyPlaceholders.expand += 1;
+            }
+          } else if (keyPlaceholders.exact.indexOf(val) === -1) {
+            keyPlaceholders.exact.push(val);
+          }
+        }, id);
+      }
+    });
+  });
+  Object(ramda__WEBPACK_IMPORTED_MODULE_2__["forEachObjIndexed"])(function (keyPlaceholders) {
+    var exact = keyPlaceholders.exact,
+        expand = keyPlaceholders.expand;
+    var vals = exact.slice().sort(idValSort);
+
+    if (expand) {
+      for (var i = 0; i < expand; i++) {
+        if (exact.length) {
+          vals.splice(0, 0, [valBefore(vals[0])]);
+          vals.push(valAfter(vals[vals.length - 1]));
+        } else {
+          vals.push(i);
+        }
+      }
+    } else if (!exact.length) {
+      // only MATCH/ALL - still need a value
+      vals.push(0);
+    }
+
+    keyPlaceholders.vals = vals;
+  }, wildcardPlaceholders);
+
+  function makeAllIds(idSpec, outIdFinal) {
+    var idList = [{}];
+    Object(ramda__WEBPACK_IMPORTED_MODULE_2__["forEachObjIndexed"])(function (val, key) {
+      var testVals = wildcardPlaceholders[key].vals;
+      var outValIndex = testVals.indexOf(outIdFinal[key]);
+      var newVals = [val];
+
+      if (val && val.wild) {
+        if (val === ALLSMALLER) {
+          if (outValIndex > 0) {
+            newVals = testVals.slice(0, outValIndex);
+          } else {
+            // no smaller items - delete all outputs.
+            newVals = [];
+          }
+        } else {
+          // MATCH or ALL
+          // MATCH *is* ALL for outputs, ie we don't already have a
+          // value specified in `outIdFinal`
+          newVals = outValIndex === -1 || val === ALL ? testVals : [outIdFinal[key]];
+        }
+      } // replicates everything in idList once for each item in
+      // newVals, attaching each value at key.
+
+
+      idList = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["ap"])(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["ap"])([Object(ramda__WEBPACK_IMPORTED_MODULE_2__["assoc"])(key)], newVals), idList);
+    }, idSpec);
+    return idList;
+  }
+
+  parsedDependencies.forEach(function registerDependency(dependency) {
+    var outputs = dependency.outputs,
+        inputs = dependency.inputs; // multiGraph - just for testing circularity
+
+    function addInputToMulti(inIdProp, outIdProp) {
+      multiGraph.addNode(inIdProp);
+      multiGraph.addDependency(inIdProp, outIdProp);
+    }
+
+    function addOutputToMulti(outIdFinal, outIdProp) {
+      multiGraph.addNode(outIdProp);
+      inputs.forEach(function (inObj) {
+        var inId = inObj.id,
+            property = inObj.property;
+
+        if (_typeof(inId) === 'object') {
+          var inIdList = makeAllIds(inId, outIdFinal);
+          inIdList.forEach(function (id) {
+            addInputToMulti(combineIdAndProp({
+              id: id,
+              property: property
+            }), outIdProp);
+          });
+        } else {
+          addInputToMulti(combineIdAndProp(inObj), outIdProp);
+        }
+      });
+    } // We'll continue to use dep.output as its id, but add outputs as well
+    // for convenience and symmetry with the structure of inputs and state.
+    // Also collect MATCH keys in the output (all outputs must share these)
+    // and ALL keys in the first output (need not be shared but we'll use
+    // the first output for calculations) for later convenience.
+
+
+    var _findWildcardKeys3 = findWildcardKeys(outputs[0].id),
+        anyKeys = _findWildcardKeys3.anyKeys,
+        hasALL = _findWildcardKeys3.hasALL;
+
+    var finalDependency = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["mergeRight"])({
+      hasALL: hasALL,
+      anyKeys: anyKeys,
+      outputs: outputs
+    }, dependency);
+    outputs.forEach(function (outIdProp) {
+      var outId = outIdProp.id,
+          property = outIdProp.property;
+
+      if (_typeof(outId) === 'object') {
+        var outIdList = makeAllIds(outId, {});
+        outIdList.forEach(function (id) {
+          addOutputToMulti(id, combineIdAndProp({
+            id: id,
+            property: property
+          }));
+        });
+        addPattern(outputPatterns, outId, property, finalDependency);
+      } else {
+        addOutputToMulti({}, combineIdAndProp(outIdProp));
+        addMap(outputMap, outId, property, finalDependency);
+      }
+    });
+    inputs.forEach(function (inputObject) {
+      var inId = inputObject.id,
+          inProp = inputObject.property;
+
+      if (_typeof(inId) === 'object') {
+        addPattern(inputPatterns, inId, inProp, finalDependency);
+      } else {
+        addMap(inputMap, inId, inProp, finalDependency);
+      }
+    });
+  });
+  return finalGraphs;
+}
+
+function findWildcardKeys(id) {
+  var anyKeys = [];
+  var allsmallerKeys = [];
+  var hasALL = false;
+
+  if (_typeof(id) === 'object') {
+    Object(ramda__WEBPACK_IMPORTED_MODULE_2__["forEachObjIndexed"])(function (val, key) {
+      if (val === MATCH) {
+        anyKeys.push(key);
+      } else if (val === ALLSMALLER) {
+        allsmallerKeys.push(key);
+      } else if (val === ALL) {
+        hasALL = true;
+      }
+    }, id);
+    anyKeys.sort();
+    allsmallerKeys.sort();
+  }
+
+  return {
+    anyKeys: anyKeys,
+    allsmallerKeys: allsmallerKeys,
+    hasALL: hasALL
+  };
+}
+/*
+ * Do the given id values `vals` match the pattern `patternVals`?
+ * `keys`, `patternVals`, and `vals` are all arrays, and we already know that
+ * we're only looking at ids with the same keys as the pattern.
+ *
+ * Optionally, include another reference set of the same - to ensure the
+ * correct matching of MATCH or ALLSMALLER between input and output items.
+ */
+
+
+function idMatch(keys, vals, patternVals, refKeys, refVals, refPatternVals) {
+  for (var i = 0; i < keys.length; i++) {
+    var val = vals[i];
+    var patternVal = patternVals[i];
+
+    if (patternVal.wild) {
+      // If we have a second id, compare the wildcard values.
+      // Without a second id, all wildcards pass at this stage.
+      if (refKeys && patternVal !== ALL) {
+        var refIndex = refKeys.indexOf(keys[i]);
+        var refPatternVal = refPatternVals[refIndex]; // Sanity check. Shouldn't ever fail this, if the back end
+        // did its job validating callbacks.
+        // You can't resolve an input against an input, because
+        // two ALLSMALLER's wouldn't make sense!
+
+        if (patternVal === ALLSMALLER && refPatternVal === ALLSMALLER) {
+          throw new Error('invalid wildcard id pair: ' + JSON.stringify({
+            keys: keys,
+            patternVals: patternVals,
+            vals: vals,
+            refKeys: refKeys,
+            refPatternVals: refPatternVals,
+            refVals: refVals
+          }));
+        }
+
+        if (idValSort(val, refVals[refIndex]) !== (patternVal === ALLSMALLER ? -1 : refPatternVal === ALLSMALLER ? 1 : 0)) {
+          return false;
+        }
+      }
+    } else if (val !== patternVal) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function getAnyVals(patternVals, vals) {
+  var matches = [];
+
+  for (var i = 0; i < patternVals.length; i++) {
+    if (patternVals[i] === MATCH) {
+      matches.push(vals[i]);
+    }
+  }
+
+  return matches.length ? JSON.stringify(matches) : '';
+}
+
+function resolveDeps(refKeys, refVals, refPatternVals) {
+  return function (paths) {
+    return function (_ref14) {
+      var idPattern = _ref14.id,
+          property = _ref14.property;
+
+      if (typeof idPattern === 'string') {
+        var _path = Object(_paths__WEBPACK_IMPORTED_MODULE_3__["getPath"])(paths, idPattern);
+
+        return _path ? [{
+          id: idPattern,
+          property: property,
+          path: _path
+        }] : [];
+      }
+
+      var keys = Object.keys(idPattern).sort();
+      var patternVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(keys, idPattern);
+      var keyStr = keys.join(',');
+      var keyPaths = paths.objs[keyStr];
+
+      if (!keyPaths) {
+        return [];
+      }
+
+      var result = [];
+      keyPaths.forEach(function (_ref15) {
+        var vals = _ref15.values,
+            path = _ref15.path;
+
+        if (idMatch(keys, vals, patternVals, refKeys, refVals, refPatternVals)) {
+          result.push({
+            id: Object(ramda__WEBPACK_IMPORTED_MODULE_2__["zipObj"])(keys, vals),
+            property: property,
+            path: path
+          });
+        }
+      });
+      return result;
+    };
+  };
+}
+/*
+ * Create a pending callback object. Includes the original callback definition,
+ * its resolved ID (including the value of all MATCH wildcards),
+ * accessors to find all inputs, outputs, and state involved in this
+ * callback (lazy as not all users will want all of these),
+ * placeholders for which other callbacks this one is blockedBy or blocking,
+ * and a boolean for whether it has been dispatched yet.
+ */
+
+
+var makeResolvedCallback = function makeResolvedCallback(callback, resolve, anyVals) {
+  return {
+    callback: callback,
+    anyVals: anyVals,
+    resolvedId: callback.output + anyVals,
+    getOutputs: function getOutputs(paths) {
+      return callback.outputs.map(resolve(paths));
+    },
+    getInputs: function getInputs(paths) {
+      return callback.inputs.map(resolve(paths));
+    },
+    getState: function getState(paths) {
+      return callback.state.map(resolve(paths));
+    },
+    blockedBy: {},
+    blocking: {},
+    changedPropIds: {},
+    initialCall: false,
+    requestId: 0,
+    requestedOutputs: {}
+  };
+};
+
+var DIRECT = 2;
+var INDIRECT = 1;
+var nextRequestId = 0;
+/*
+ * Give a callback a new requestId.
+ */
+
+function setNewRequestId(callback) {
+  nextRequestId++;
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_2__["assoc"])('requestId', nextRequestId, callback);
+}
+/*
+ * Does this item (input / output / state) support multiple values?
+ * string IDs do not; wildcard IDs only do if they contain ALL or ALLSMALLER
+ */
+
+function isMultiValued(_ref16) {
+  var id = _ref16.id;
+  return _typeof(id) === 'object' && Object(ramda__WEBPACK_IMPORTED_MODULE_2__["any"])(function (v) {
+    return v.multi;
+  }, Object(ramda__WEBPACK_IMPORTED_MODULE_2__["values"])(id));
+}
+/*
+ * For a given output id and prop, find the callback generating it.
+ * If no callback is found, returns false.
+ * If one is found, returns:
+ * {
+ *     callback: the callback spec {outputs, inputs, state etc}
+ *     anyVals: stringified list of resolved MATCH keys we matched
+ *     resolvedId: the "outputs" id string plus MATCH values we matched
+ *     getOutputs: accessor function to give all resolved outputs of this
+ *         callback. Takes `paths` as argument to apply when the callback is
+ *         dispatched, in case a previous callback has altered the layout.
+ *         The result is a list of {id (string or object), property (string)}
+ *     getInputs: same for inputs
+ *     getState: same for state
+ *     blockedBy: an object of {[resolvedId]: 1} blocking this callback
+ *     blocking: an object of {[resolvedId]: 1} this callback is blocking
+ *     changedPropIds: an object of {[idAndProp]: v} triggering this callback
+ *         v = DIRECT (2): the prop was changed in the front end, so dependent
+ *             callbacks *MUST* be executed.
+ *         v = INDIRECT (1): the prop is expected to be changed by a callback,
+ *             but if this is prevented, dependent callbacks may be pruned.
+ *     initialCall: boolean, if true we don't require any changedPropIds
+ *         to keep this callback around, as it's the initial call to populate
+ *         this value on page load or changing part of the layout.
+ *         By default this is true for callbacks generated by
+ *         getCallbackByOutput, false from getCallbacksByInput.
+ *     requestId: integer: starts at 0. when this callback is dispatched it will
+ *         get a unique requestId, but if it gets added again the requestId will
+ *         be reset to 0, and we'll know to ignore the response of the first
+ *         request.
+ *     requestedOutputs: object of {[idStr]: [props]} listing all the props
+ *         actually requested for update.
+ * }
+ */
+
+function getCallbackByOutput(graphs, paths, id, prop) {
+  var resolve;
+  var callback;
+  var anyVals = '';
+
+  if (typeof id === 'string') {
+    // standard id version
+    var callbacks = (graphs.outputMap[id] || {})[prop];
+
+    if (callbacks) {
+      callback = callbacks[0];
+      resolve = resolveDeps();
+    }
+  } else {
+    // wildcard version
+    var _keys = Object.keys(id).sort();
+
+    var vals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(_keys, id);
+
+    var keyStr = _keys.join(',');
+
+    var patterns = (graphs.outputPatterns[keyStr] || {})[prop];
+
+    if (patterns) {
+      for (var i = 0; i < patterns.length; i++) {
+        var patternVals = patterns[i].values;
+
+        if (idMatch(_keys, vals, patternVals)) {
+          callback = patterns[i].callbacks[0];
+          resolve = resolveDeps(_keys, vals, patternVals);
+          anyVals = getAnyVals(patternVals, vals);
+          break;
+        }
+      }
+    }
+  }
+
+  if (!resolve) {
+    return false;
+  }
+
+  return makeResolvedCallback(callback, resolve, anyVals);
+}
+/*
+ * If there are ALL keys we need to reduce a set of outputs resolved
+ * from an input to one item per combination of MATCH values.
+ * That will give one result per callback invocation.
+ */
+
+
+function reduceALLOuts(outs, anyKeys, hasALL) {
+  if (!hasALL) {
+    return outs;
+  }
+
+  if (!anyKeys.length) {
+    // If there's ALL but no MATCH, there's only one invocation
+    // of the callback, so just base it off the first output.
+    return [outs[0]];
+  }
+
+  var anySeen = {};
+  return outs.filter(function (i) {
+    var matchKeys = JSON.stringify(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(anyKeys, i.id));
+
+    if (!anySeen[matchKeys]) {
+      anySeen[matchKeys] = 1;
+      return true;
+    }
+
+    return false;
+  });
+}
+
+function addResolvedFromOutputs(callback, outPattern, outs, matches) {
+  var out0Keys = Object.keys(outPattern.id).sort();
+  var out0PatternVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(out0Keys, outPattern.id);
+  outs.forEach(function (_ref17) {
+    var outId = _ref17.id;
+    var outVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(out0Keys, outId);
+    matches.push(makeResolvedCallback(callback, resolveDeps(out0Keys, outVals, out0PatternVals), getAnyVals(out0PatternVals, outVals)));
+  });
+}
+/*
+ * For a given id and prop find all callbacks it's an input of.
+ *
+ * Returns an array of objects:
+ *   {callback, resolvedId, getOutputs, getInputs, getState}
+ *   See getCallbackByOutput for details.
+ *
+ * Note that if the original input contains an ALLSMALLER wildcard,
+ * there may be many entries for the same callback, but any given output
+ * (with an MATCH corresponding to the input's ALLSMALLER) will only appear
+ * in one entry.
+ */
+
+
+function getCallbacksByInput(graphs, paths, id, prop, changeType) {
+  var matches = [];
+  var idAndProp = combineIdAndProp({
+    id: id,
+    property: prop
+  });
+
+  if (typeof id === 'string') {
+    // standard id version
+    var callbacks = (graphs.inputMap[id] || {})[prop];
+
+    if (!callbacks) {
+      return [];
+    }
+
+    var baseResolve = resolveDeps();
+    callbacks.forEach(function (callback) {
+      var anyKeys = callback.anyKeys,
+          hasALL = callback.hasALL;
+
+      if (anyKeys) {
+        var out0Pattern = callback.outputs[0];
+        var out0Set = reduceALLOuts(baseResolve(paths)(out0Pattern), anyKeys, hasALL);
+        addResolvedFromOutputs(callback, out0Pattern, out0Set, matches);
+      } else {
+        matches.push(makeResolvedCallback(callback, baseResolve, ''));
+      }
+    });
+  } else {
+    // wildcard version
+    var _keys2 = Object.keys(id).sort();
+
+    var vals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(_keys2, id);
+
+    var keyStr = _keys2.join(',');
+
+    var patterns = (graphs.inputPatterns[keyStr] || {})[prop];
+
+    if (!patterns) {
+      return [];
+    }
+
+    patterns.forEach(function (pattern) {
+      if (idMatch(_keys2, vals, pattern.values)) {
+        var resolve = resolveDeps(_keys2, vals, pattern.values);
+        pattern.callbacks.forEach(function (callback) {
+          var out0Pattern = callback.outputs[0];
+          var anyKeys = callback.anyKeys,
+              hasALL = callback.hasALL;
+          var out0Set = reduceALLOuts(resolve(paths)(out0Pattern), anyKeys, hasALL);
+          addResolvedFromOutputs(callback, out0Pattern, out0Set, matches);
+        });
+      }
+    });
+  }
+
+  matches.forEach(function (match) {
+    match.changedPropIds[idAndProp] = changeType || DIRECT;
+  });
+  return matches;
+}
+function getWatchedKeys(id, newProps, graphs) {
+  if (!(id && graphs && newProps.length)) {
+    return [];
+  }
+
+  if (typeof id === 'string') {
+    var inputs = graphs.inputMap[id];
+    return inputs ? newProps.filter(function (newProp) {
+      return inputs[newProp];
+    }) : [];
+  }
+
+  var keys = Object.keys(id).sort();
+  var vals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(keys, id);
+  var keyStr = keys.join(',');
+  var keyPatterns = graphs.inputPatterns[keyStr];
+
+  if (!keyPatterns) {
+    return [];
+  }
+
+  return newProps.filter(function (prop) {
+    var patterns = keyPatterns[prop];
+    return patterns && patterns.some(function (pattern) {
+      return idMatch(keys, vals, pattern.values);
+    });
+  });
+}
+/*
+ * Return a list of all callbacks referencing a chunk of the layout,
+ * either as inputs or outputs.
+ *
+ * opts.outputsOnly: boolean, set true when crawling the *whole* layout,
+ *   because outputs are enough to get everything.
+ * opts.removedArrayInputsOnly: boolean, set true to only look for inputs in
+ *   wildcard arrays (ALL or ALLSMALLER), no outputs. This gets used to tell
+ *   when the new *absence* of a given component should trigger a callback.
+ * opts.newPaths: paths object after the edit - to be used with
+ *   removedArrayInputsOnly to determine if the callback still has its outputs
+ * opts.chunkPath: path to the new chunk - used to determine if any outputs are
+ *   outside of this chunk, because this determines whether inputs inside the
+ *   chunk count as having changed
+ *
+ * Returns an array of objects:
+ *   {callback, resolvedId, getOutputs, getInputs, getState, ...etc}
+ *   See getCallbackByOutput for details.
+ */
+
+function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
+  var outputsOnly = opts.outputsOnly,
+      removedArrayInputsOnly = opts.removedArrayInputsOnly,
+      newPaths = opts.newPaths,
+      chunkPath = opts.chunkPath;
+  var foundCbIds = {};
+  var callbacks = [];
+
+  function addCallback(callback) {
+    if (callback) {
+      var foundIndex = foundCbIds[callback.resolvedId];
+
+      if (foundIndex !== undefined) {
+        callbacks[foundIndex].changedPropIds = mergeMax(callbacks[foundIndex].changedPropIds, callback.changedPropIds);
+      } else {
+        foundCbIds[callback.resolvedId] = callbacks.length;
+        callbacks.push(callback);
+      }
+    }
+  }
+
+  function addCallbackIfArray(idStr) {
+    return function (cb) {
+      return cb.getInputs(paths).some(function (ini) {
+        if (Array.isArray(ini) && ini.some(function (inij) {
+          return stringifyId(inij.id) === idStr;
+        })) {
+          // This callback should trigger even with no changedProps,
+          // since the props that changed no longer exist.
+          if (Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(newPaths)).length) {
+            cb.initialCall = true;
+            cb.changedPropIds = {};
+            addCallback(cb);
+          }
+
+          return true;
+        }
+
+        return false;
+      });
+    };
+  }
+
+  function handleOneId(id, outIdCallbacks, inIdCallbacks) {
+    if (outIdCallbacks) {
+      for (var property in outIdCallbacks) {
+        var cb = getCallbackByOutput(graphs, paths, id, property);
+
+        if (cb) {
+          // callbacks found in the layout by output should always run
+          // ie this is the initial call of this callback even if it's
+          // not the page initialization but just a new layout chunk
+          cb.initialCall = true;
+          addCallback(cb);
+        }
+      }
+    }
+
+    if (!outputsOnly && inIdCallbacks) {
+      var maybeAddCallback = removedArrayInputsOnly ? addCallbackIfArray(stringifyId(id)) : addCallback;
+      var handleThisCallback = maybeAddCallback;
+
+      if (chunkPath) {
+        handleThisCallback = function handleThisCallback(cb) {
+          if (Object(ramda__WEBPACK_IMPORTED_MODULE_2__["all"])(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["startsWith"])(chunkPath), Object(ramda__WEBPACK_IMPORTED_MODULE_2__["pluck"])('path', Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(paths))))) {
+            cb.changedPropIds = {};
+          }
+
+          maybeAddCallback(cb);
+        };
+      }
+
+      for (var _property in inIdCallbacks) {
+        getCallbacksByInput(graphs, paths, id, _property, INDIRECT).forEach(handleThisCallback);
+      }
+    }
+  }
+
+  Object(_utils__WEBPACK_IMPORTED_MODULE_4__["crawlLayout"])(layoutChunk, function (child) {
+    var id = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["path"])(['props', 'id'], child);
+
+    if (id) {
+      if (typeof id === 'string' && !removedArrayInputsOnly) {
+        handleOneId(id, graphs.outputMap[id], graphs.inputMap[id]);
+      } else {
+        var keyStr = Object.keys(id).sort().join(',');
+        handleOneId(id, !removedArrayInputsOnly && graphs.outputPatterns[keyStr], graphs.inputPatterns[keyStr]);
+      }
+    }
+  }); // We still need to follow these forward in order to capture blocks and,
+  // if based on a partial layout, any knock-on effects in the full layout.
+
+  var finalCallbacks = followForward(graphs, paths, callbacks); // Exception to the `initialCall` case of callbacks found by output:
+  // if *every* input to this callback is itself an output of another
+  // callback earlier in the chain, we remove the `initialCall` flag
+  // so that if all of those prior callbacks abort all of their outputs,
+  // this later callback never runs.
+  // See test inin003 "callback2 is never triggered, even on initial load"
+
+  finalCallbacks.forEach(function (cb) {
+    if (cb.initialCall && !Object(ramda__WEBPACK_IMPORTED_MODULE_2__["isEmpty"])(cb.blockedBy)) {
+      var inputs = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getInputs(paths));
+      cb.initialCall = false;
+      inputs.forEach(function (i) {
+        var propId = combineIdAndProp(i);
+
+        if (cb.changedPropIds[propId]) {
+          cb.changedPropIds[propId] = INDIRECT;
+        } else {
+          cb.initialCall = true;
+        }
+      });
+    }
+  });
+  return finalCallbacks;
+}
+function removePendingCallback(pendingCallbacks, paths, removeResolvedId, skippedProps) {
+  var finalPendingCallbacks = [];
+  pendingCallbacks.forEach(function (pending) {
+    var blockedBy = pending.blockedBy,
+        blocking = pending.blocking,
+        changedPropIds = pending.changedPropIds,
+        resolvedId = pending.resolvedId;
+
+    if (resolvedId !== removeResolvedId) {
+      finalPendingCallbacks.push(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["mergeRight"])(pending, {
+        blockedBy: Object(ramda__WEBPACK_IMPORTED_MODULE_2__["dissoc"])(removeResolvedId, blockedBy),
+        blocking: Object(ramda__WEBPACK_IMPORTED_MODULE_2__["dissoc"])(removeResolvedId, blocking),
+        changedPropIds: Object(ramda__WEBPACK_IMPORTED_MODULE_2__["pickBy"])(function (v, k) {
+          return v === DIRECT || !Object(ramda__WEBPACK_IMPORTED_MODULE_2__["includes"])(k, skippedProps);
+        }, changedPropIds)
+      }));
+    }
+  }); // If any callback no longer has any changed inputs, it shouldn't fire.
+  // This will repeat recursively until all unneeded callbacks are pruned
+
+  if (skippedProps.length) {
+    for (var i = 0; i < finalPendingCallbacks.length; i++) {
+      var cb = finalPendingCallbacks[i];
+
+      if (!cb.initialCall && Object(ramda__WEBPACK_IMPORTED_MODULE_2__["isEmpty"])(cb.changedPropIds)) {
+        return removePendingCallback(finalPendingCallbacks, paths, cb.resolvedId, Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(paths)).map(combineIdAndProp));
+      }
+    }
+  }
+
+  return finalPendingCallbacks;
+}
+/*
+ * Split the list of pending callbacks into ready (not blocked by any others)
+ * and blocked. Sort the ready callbacks by how many each is blocking, on the
+ * theory that the most important ones to dispatch are the ones with the most
+ * others depending on them.
+ */
+
+function findReadyCallbacks(pendingCallbacks) {
+  var _partition = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["partition"])(function (pending) {
+    return Object(ramda__WEBPACK_IMPORTED_MODULE_2__["isEmpty"])(pending.blockedBy) && !pending.requestId;
+  }, pendingCallbacks),
+      _partition2 = _slicedToArray(_partition, 2),
+      readyCallbacks = _partition2[0],
+      blockedCallbacks = _partition2[1];
+
+  readyCallbacks.sort(function (a, b) {
+    return Object.keys(b.blocking).length - Object.keys(a.blocking).length;
+  });
+  return {
+    readyCallbacks: readyCallbacks,
+    blockedCallbacks: blockedCallbacks
+  };
+}
+
+function addBlock(callbacks, blockingId, blockedId) {
+  callbacks.forEach(function (_ref18) {
+    var blockedBy = _ref18.blockedBy,
+        blocking = _ref18.blocking,
+        resolvedId = _ref18.resolvedId;
+
+    if (resolvedId === blockingId || blocking[blockingId]) {
+      blocking[blockedId] = 1;
+    } else if (resolvedId === blockedId || blockedBy[blockedId]) {
+      blockedBy[blockingId] = 1;
+    }
+  });
+}
+
+function collectIds(callbacks) {
+  var allResolvedIds = {};
+  callbacks.forEach(function (_ref19, i) {
+    var resolvedId = _ref19.resolvedId;
+    allResolvedIds[resolvedId] = i;
+  });
+  return allResolvedIds;
+}
+/*
+ * Take a list of callbacks and follow them all forward, ie see if any of their
+ * outputs are inputs of another callback. Any new callbacks get added to the
+ * list. All that come after another get marked as blocked by that one, whether
+ * they were in the initial list or not.
+ */
+
+
+function followForward(graphs, paths, callbacks_) {
+  var callbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["clone"])(callbacks_);
+  var allResolvedIds = collectIds(callbacks);
+  var i;
+  var callback;
+
+  var followOutput = function followOutput(_ref20) {
+    var id = _ref20.id,
+        property = _ref20.property;
+    var nextCBs = getCallbacksByInput(graphs, paths, id, property, INDIRECT);
+    nextCBs.forEach(function (nextCB) {
+      var existingIndex = allResolvedIds[nextCB.resolvedId];
+
+      if (existingIndex === undefined) {
+        existingIndex = callbacks.length;
+        callbacks.push(nextCB);
+        allResolvedIds[nextCB.resolvedId] = existingIndex;
+      } else {
+        var existingCB = callbacks[existingIndex];
+        existingCB.changedPropIds = mergeMax(existingCB.changedPropIds, nextCB.changedPropIds);
+      }
+
+      addBlock(callbacks, callback.resolvedId, nextCB.resolvedId);
+    });
+  }; // Using a for loop instead of forEach because followOutput may extend the
+  // callbacks array, and we want to continue into these new elements.
+
+
+  for (i = 0; i < callbacks.length; i++) {
+    callback = callbacks[i];
+    var outputs = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["unnest"])(callback.getOutputs(paths));
+    outputs.forEach(followOutput);
+  }
+
+  return callbacks;
+}
+
+function mergeAllBlockers(cb1, cb2) {
+  function mergeBlockers(a, b) {
+    if (cb1[a][cb2.resolvedId] && !cb2[b][cb1.resolvedId]) {
+      cb2[b][cb1.resolvedId] = cb1[a][cb2.resolvedId];
+      cb2[b] = mergeMax(cb1[b], cb2[b]);
+      cb1[a] = mergeMax(cb2[a], cb1[a]);
+    }
+  }
+
+  mergeBlockers('blockedBy', 'blocking');
+  mergeBlockers('blocking', 'blockedBy');
+}
+/*
+ * Given two arrays of pending callbacks, merge them into one so that
+ * each will only fire once, and any extra blockages from combining the lists
+ * will be accounted for.
+ */
+
+
+function mergePendingCallbacks(cb1, cb2) {
+  if (!cb2.length) {
+    return cb1;
+  }
+
+  if (!cb1.length) {
+    return cb2;
+  }
+
+  var finalCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["clone"])(cb1);
+  var callbacks2 = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["clone"])(cb2);
+  var allResolvedIds = collectIds(finalCallbacks);
+  callbacks2.forEach(function (callback, i) {
+    var existingIndex = allResolvedIds[callback.resolvedId];
+
+    if (existingIndex !== undefined) {
+      finalCallbacks.forEach(function (finalCb) {
+        mergeAllBlockers(finalCb, callback);
+      });
+      callbacks2.slice(i + 1).forEach(function (cb2) {
+        mergeAllBlockers(cb2, callback);
+      });
+      finalCallbacks[existingIndex] = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["mergeDeepRight"])(finalCallbacks[existingIndex], callback);
+    } else {
+      allResolvedIds[callback.resolvedId] = finalCallbacks.length;
+      finalCallbacks.push(callback);
+    }
+  });
+  return finalCallbacks;
+}
+/*
+ * Remove callbacks whose outputs or changed inputs have been removed
+ * from the layout
+ */
+
+function pruneRemovedCallbacks(pendingCallbacks, paths) {
+  var removeIds = [];
+  var cleanedCallbacks = pendingCallbacks.map(function (callback) {
+    var changedPropIds = callback.changedPropIds,
+        getOutputs = callback.getOutputs,
+        resolvedId = callback.resolvedId;
+
+    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(getOutputs(paths)).length) {
+      removeIds.push(resolvedId);
+      return callback;
+    }
+
+    var omittedProps = false;
+    var newChangedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["pickBy"])(function (_, propId) {
+      if (Object(_paths__WEBPACK_IMPORTED_MODULE_3__["getPath"])(paths, splitIdAndProp(propId).id)) {
+        return true;
+      }
+
+      omittedProps = true;
+      return false;
+    }, changedPropIds);
+    return omittedProps ? Object(ramda__WEBPACK_IMPORTED_MODULE_2__["assoc"])('changedPropIds', newChangedProps, callback) : callback;
+  });
+  removeIds.forEach(function (resolvedId) {
+    var cb = cleanedCallbacks.find(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["propEq"])('resolvedId', resolvedId));
+
+    if (cb) {
+      cleanedCallbacks = removePendingCallback(pendingCallbacks, paths, resolvedId, Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(paths)).map(combineIdAndProp));
+    }
+  });
+  return cleanedCallbacks;
+}
+
+/***/ }),
+
+/***/ "./src/actions/index.js":
+/*!******************************!*\
+  !*** ./src/actions/index.js ***!
+  \******************************/
+/*! exports provided: updateProps, setPendingCallbacks, setRequestQueue, setGraphs, setPaths, setAppLifecycle, setConfig, setHooks, setLayout, onError, dispatchError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateProps", function() { return updateProps; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setPendingCallbacks", function() { return setPendingCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRequestQueue", function() { return setRequestQueue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setGraphs", function() { return setGraphs; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setPaths", function() { return setPaths; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setAppLifecycle", function() { return setAppLifecycle; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setConfig", function() { return setConfig; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setHooks", function() { return setHooks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLayout", function() { return setLayout; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onError", function() { return onError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "dispatchError", function() { return dispatchError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hydrateInitialOutputs", function() { return hydrateInitialOutputs; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCSRFHeader", function() { return getCSRFHeader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "redo", function() { return redo; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "undo", function() { return undo; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "revert", function() { return revert; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "notifyObservers", function() { return notifyObservers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleAsyncError", function() { return handleAsyncError; });
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/es/index.js");
+/* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../reducers/constants */ "./src/reducers/constants.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./constants */ "./src/actions/constants.js");
+/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! cookie */ "./node_modules/cookie/index.js");
+/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(cookie__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils */ "./src/actions/utils.js");
+/* harmony import */ var _dependencies__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./paths */ "./src/actions/paths.js");
+/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
+/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../persistence */ "./src/persistence.js");
+/* harmony import */ var _isAppReady__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./isAppReady */ "./src/actions/isAppReady.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 
 
@@ -32811,19 +34522,34 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-var updateProps = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('ON_PROP_CHANGE'));
-var setRequestQueue = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_REQUEST_QUEUE'));
-var computeGraphs = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('COMPUTE_GRAPHS'));
-var computePaths = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('COMPUTE_PATHS'));
-var setAppLifecycle = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_APP_LIFECYCLE'));
-var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_CONFIG'));
-var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_HOOKS'));
-var setLayout = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_LAYOUT'));
-var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('ON_ERROR'));
+
+
+var updateProps = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('ON_PROP_CHANGE'));
+var setPendingCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('SET_PENDING_CALLBACKS');
+var setRequestQueue = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_REQUEST_QUEUE'));
+var setGraphs = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_GRAPHS'));
+var setPaths = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_PATHS'));
+var setAppLifecycle = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_APP_LIFECYCLE'));
+var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_CONFIG'));
+var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_HOOKS'));
+var setLayout = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_LAYOUT'));
+var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('ON_ERROR'));
+var dispatchError = function dispatchError(dispatch) {
+  return function (message, lines) {
+    return dispatch(onError({
+      type: 'backEnd',
+      error: {
+        message: message,
+        html: lines.join('\n')
+      }
+    }));
+  };
+};
 function hydrateInitialOutputs() {
   return function (dispatch, getState) {
+    Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["validateCallbacksToLayout"])(getState(), dispatchError(dispatch));
     triggerDefaultState(dispatch, getState);
-    dispatch(setAppLifecycle(Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_3__["getAppState"])('HYDRATED')));
+    dispatch(setAppLifecycle(Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_2__["getAppState"])('HYDRATED')));
   };
 }
 /* eslint-disable-next-line no-console */
@@ -32832,7 +34558,7 @@ var logWarningOnce = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["once"])(console.
 function getCSRFHeader() {
   try {
     return {
-      'X-CSRFToken': cookie__WEBPACK_IMPORTED_MODULE_5___default.a.parse(document.cookie)._csrf_token
+      'X-CSRFToken': cookie__WEBPACK_IMPORTED_MODULE_4___default.a.parse(document.cookie)._csrf_token
     };
   } catch (e) {
     logWarningOnce(e);
@@ -32842,14 +34568,13 @@ function getCSRFHeader() {
 
 function triggerDefaultState(dispatch, getState) {
   var _getState = getState(),
-      graphs = _getState.graphs;
+      graphs = _getState.graphs,
+      paths = _getState.paths,
+      layout = _getState.layout; // overallOrder will assert circular dependencies for multi output.
 
-  var InputGraph = graphs.InputGraph,
-      MultiGraph = graphs.MultiGraph;
-  var allNodes = InputGraph.overallOrder(); // overallOrder will assert circular dependencies for multi output.
 
   try {
-    MultiGraph.overallOrder();
+    graphs.MultiGraph.overallOrder();
   } catch (err) {
     dispatch(onError({
       type: 'backEnd',
@@ -32860,315 +34585,79 @@ function triggerDefaultState(dispatch, getState) {
     }));
   }
 
-  var inputNodeIds = [];
-  allNodes.reverse();
-  allNodes.forEach(function (nodeId) {
-    var componentId = nodeId.split('.')[0];
-    /*
-     * Filter out the outputs,
-     * inputs that aren't leaves,
-     * and the invisible inputs
-     */
+  var initialCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["getCallbacksInLayout"])(graphs, paths, layout, {
+    outputsOnly: true
+  });
+  dispatch(startCallbacks(initialCallbacks));
+}
 
-    if (InputGraph.dependenciesOf(nodeId).length > 0 && InputGraph.dependantsOf(nodeId).length === 0 && Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])(componentId, getState().paths)) {
-      inputNodeIds.push(nodeId);
+var redo = moveHistory('REDO');
+var undo = moveHistory('UNDO');
+var revert = moveHistory('REVERT');
+
+function moveHistory(changeType) {
+  return function (dispatch, getState) {
+    var _getState2 = getState(),
+        history = _getState2.history,
+        paths = _getState2.paths;
+
+    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(changeType)());
+
+    var _ref = (changeType === 'REDO' ? history.future[0] : history.past[history.past.length - 1]) || {},
+        id = _ref.id,
+        props = _ref.props;
+
+    if (id) {
+      // Update props
+      dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('UNDO_PROP_CHANGE')({
+        itempath: Object(_paths__WEBPACK_IMPORTED_MODULE_7__["getPath"])(paths, id),
+        props: props
+      }));
+      dispatch(notifyObservers({
+        id: id,
+        props: props
+      }));
     }
-  });
-  reduceInputIds(inputNodeIds, InputGraph).forEach(function (inputOutput) {
-    var _inputOutput$input$sp = inputOutput.input.split('.'),
-        _inputOutput$input$sp2 = _slicedToArray(_inputOutput$input$sp, 2),
-        componentId = _inputOutput$input$sp2[0],
-        componentProp = _inputOutput$input$sp2[1]; // Get the initial property
-
-
-    var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(getState().paths[componentId], ['props', componentProp]));
-    var propValue = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["view"])(propLens, getState().layout);
-    dispatch(notifyObservers({
-      id: componentId,
-      props: _defineProperty({}, componentProp, propValue),
-      excludedOutputs: inputOutput.excludedOutputs
-    }));
-  });
-}
-
-function redo() {
-  return function (dispatch, getState) {
-    var history = getState().history;
-    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('REDO')());
-    var next = history.future[0]; // Update props
-
-    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('REDO_PROP_CHANGE')({
-      itempath: getState().paths[next.id],
-      props: next.props
-    })); // Notify observers
-
-    dispatch(notifyObservers({
-      id: next.id,
-      props: next.props
-    }));
-  };
-}
-var UNDO = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('UNDO')();
-function undo() {
-  return undo_revert(UNDO);
-}
-var REVERT = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('REVERT')();
-function revert() {
-  return undo_revert(REVERT);
-}
-
-function undo_revert(undo_or_revert) {
-  return function (dispatch, getState) {
-    var history = getState().history;
-    dispatch(undo_or_revert);
-    var previous = history.past[history.past.length - 1]; // Update props
-
-    dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('UNDO_PROP_CHANGE')({
-      itempath: getState().paths[previous.id],
-      props: previous.props
-    })); // Notify observers
-
-    dispatch(notifyObservers({
-      id: previous.id,
-      props: previous.props
-    }));
   };
 }
 
-function reduceInputIds(nodeIds, InputGraph) {
-  /*
-   * Create input-output(s) pairs,
-   * sort by number of outputs,
-   * and remove redundant inputs (inputs that update the same output)
-   */
-  var inputOutputPairs = nodeIds.map(function (nodeId) {
-    return {
-      input: nodeId,
-      // TODO - Does this include grandchildren?
-      outputs: InputGraph.dependenciesOf(nodeId),
-      excludedOutputs: []
-    };
-  });
-  var sortedInputOutputPairs = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["sort"])(function (a, b) {
-    return b.outputs.length - a.outputs.length;
-  }, inputOutputPairs);
-  /*
-   * In some cases, we may have unique outputs but inputs that could
-   * trigger components to update multiple times.
-   *
-   * For example, [A, B] => C and [A, D] => E
-   * The unique inputs might be [A, B, D] but that is redundant.
-   * We only need to update B and D or just A.
-   *
-   * In these cases, we'll supply an additional list of outputs
-   * to exclude.
-   */
+function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
+  if (Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["isMultiValued"])(spec)) {
+    return idProps;
+  }
 
-  sortedInputOutputPairs.forEach(function (pair, i) {
-    var outputsThatWillBeUpdated = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pluck"])('outputs', Object(ramda__WEBPACK_IMPORTED_MODULE_0__["slice"])(0, i, sortedInputOutputPairs)));
-    pair.outputs.forEach(function (output) {
-      if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(output, outputsThatWillBeUpdated)) {
-        pair.excludedOutputs.push(output);
-      }
-    });
-  });
-  return sortedInputOutputPairs;
+  if (idProps.length !== 1) {
+    if (!idProps.length) {
+      if (typeof spec.id === 'string') {
+        throw new ReferenceError('A nonexistent object was used in an `' + depType + '` of a Dash callback. The id of this object is `' + spec.id + '` and the property is `' + spec.property + '`. The string ids in the current layout are: [' + Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(paths.strs).join(', ') + ']');
+      } // TODO: unwrapped list of wildcard ids?
+      // eslint-disable-next-line no-console
+
+
+      console.log(paths.objs);
+      throw new ReferenceError('A nonexistent object was used in an `' + depType + '` of a Dash callback. The id of this object is ' + JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '') + ' and the property is `' + spec.property + '`. The wildcard ids currently available are logged above.');
+    }
+
+    throw new ReferenceError('Multiple objects were found for an `' + depType + '` of a callback that only takes one value. The id spec is ' + JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '') + ' and the property is `' + spec.property + '`. The objects we found are: ' + JSON.stringify(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), idProps)));
+  }
+
+  return idProps[0];
 }
 
-function notifyObservers(payload) {
+function startCallbacks(callbacks) {
   return (/*#__PURE__*/function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
-        var id, props, excludedOutputs, _getState2, dependenciesRequest, graphs, layout, paths, requestQueue, InputGraph, outputObservers, changedProps, depOrder, queuedObservers, deps, ids, newRequestQueue, promises, i, outputIdAndProp, requestUid;
-
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                id = payload.id, props = payload.props, excludedOutputs = payload.excludedOutputs;
-                _getState2 = getState(), dependenciesRequest = _getState2.dependenciesRequest, graphs = _getState2.graphs, layout = _getState2.layout, paths = _getState2.paths, requestQueue = _getState2.requestQueue;
-                InputGraph = graphs.InputGraph;
-                /*
-                 * Figure out all of the output id's that depend on this input.
-                 * This includes id's that are direct children as well as
-                 * grandchildren.
-                 * grandchildren will get filtered out in a later stage.
-                 */
+                _context.next = 2;
+                return fireReadyCallbacks(dispatch, getState, callbacks);
 
-                outputObservers = [];
-                changedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(props);
-                changedProps.forEach(function (propName) {
-                  var node = "".concat(id, ".").concat(propName);
+              case 2:
+                return _context.abrupt("return", _context.sent);
 
-                  if (!InputGraph.hasNode(node)) {
-                    return;
-                  }
-
-                  InputGraph.dependenciesOf(node).forEach(function (outputId) {
-                    /*
-                     * Multiple input properties that update the same
-                     * output can change at once.
-                     * For example, `n_clicks` and `n_clicks_previous`
-                     * on a button component.
-                     * We only need to update the output once for this
-                     * update, so keep outputObservers unique.
-                     */
-                    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(outputId, outputObservers)) {
-                      outputObservers.push(outputId);
-                    }
-                  });
-                });
-
-                if (excludedOutputs) {
-                  outputObservers = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["reject"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flip"])(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(excludedOutputs), outputObservers);
-                }
-
-                if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(outputObservers)) {
-                  _context.next = 9;
-                  break;
-                }
-
-                return _context.abrupt("return");
-
-              case 9:
-                /*
-                 * There may be several components that depend on this input.
-                 * And some components may depend on other components before
-                 * updating. Get this update order straightened out.
-                 */
-                depOrder = InputGraph.overallOrder();
-                outputObservers = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["sort"])(function (a, b) {
-                  return depOrder.indexOf(b) - depOrder.indexOf(a);
-                }, outputObservers);
-                queuedObservers = [];
-                outputObservers.forEach(function filterObservers(outputIdAndProp) {
-                  var outputIds;
-
-                  if (Object(_utils__WEBPACK_IMPORTED_MODULE_6__["isMultiOutputProp"])(outputIdAndProp)) {
-                    outputIds = Object(_utils__WEBPACK_IMPORTED_MODULE_6__["parseMultipleOutputs"])(outputIdAndProp).map(function (e) {
-                      return e.split('.')[0];
-                    });
-                  } else {
-                    outputIds = [outputIdAndProp.split('.')[0]];
-                  }
-                  /*
-                   * before we make the POST to update the output, check
-                   * that the output doesn't depend on any other inputs that
-                   * that depend on the same controller.
-                   * if the output has another input with a shared controller,
-                   * then don't update this output yet.
-                   * when each dependency updates, it'll dispatch its own
-                   * `notifyObservers` action which will allow this
-                   * component to update.
-                   *
-                   * for example, if A updates B and C (A -> [B, C]) and B updates C
-                   * (B -> C), then when A updates, this logic will
-                   * reject C from the queue since it will end up getting updated
-                   * by B.
-                   *
-                   * in this case, B will already be in queuedObservers by the time
-                   * this loop hits C because of the overallOrder sorting logic
-                   */
-
-
-                  var controllers = InputGraph.dependantsOf(outputIdAndProp);
-                  var controllersInFutureQueue = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["intersection"])(queuedObservers, controllers);
-                  /*
-                   * check that the output hasn't been triggered to update already
-                   * by a different input.
-                   *
-                   * for example:
-                   * Grandparent -> [Parent A, Parent B] -> Child
-                   *
-                   * when Grandparent changes, it will trigger Parent A and Parent B
-                   * to each update Child.
-                   * one of the components (Parent A or Parent B) will queue up
-                   * the change for Child. if this update has already been queued up,
-                   * then skip the update for the other component
-                   */
-
-                  var controllerIsInExistingQueue = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["any"])(function (r) {
-                    return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(r.controllerId, controllers) && r.status === 'loading';
-                  }, requestQueue);
-                  /*
-                   * TODO - Place throttling logic here?
-                   *
-                   * Only process the last two requests for a _single_ output
-                   * at a time.
-                   *
-                   * For example, if A -> B, and A is changed 10 times, then:
-                   * 1 - processing the first two requests
-                   * 2 - if more than 2 requests come in while the first two
-                   *     are being processed, then skip updating all of the
-                   *     requests except for the last 2
-                   */
-
-                  /*
-                   * also check that this observer is actually in the current
-                   * component tree.
-                   * observers don't actually need to be rendered at the moment
-                   * of a controller change.
-                   * for example, perhaps the user has hidden one of the observers
-                   */
-
-                  if (controllersInFutureQueue.length === 0 && Object(ramda__WEBPACK_IMPORTED_MODULE_0__["any"])(function (e) {
-                    return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])(e, getState().paths);
-                  })(outputIds) && !controllerIsInExistingQueue) {
-                    queuedObservers.push(outputIdAndProp);
-                  }
-                });
-                /**
-                 * Determine the id of all components used as input or state in the callbacks
-                 * triggered by the props change.
-                 *
-                 * Wait for all components associated to these ids to be ready before initiating
-                 * the callbacks.
-                 */
-
-                deps = queuedObservers.map(function (output) {
-                  return dependenciesRequest.content.find(function (dependency) {
-                    return dependency.output === output;
-                  });
-                });
-                ids = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["uniq"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(deps.map(function (dep) {
-                  return [dep.inputs.map(function (input) {
-                    return input.id;
-                  }), dep.state.map(function (state) {
-                    return state.id;
-                  })];
-                })));
-                _context.next = 17;
-                return Object(_isAppReady__WEBPACK_IMPORTED_MODULE_9__["default"])(layout, paths, ids);
-
-              case 17:
-                /*
-                 * record the set of output IDs that will eventually need to be
-                 * updated in a queue. not all of these requests will be fired in this
-                 * action
-                 */
-                newRequestQueue = queuedObservers.map(function (i) {
-                  return {
-                    controllerId: i,
-                    status: 'loading',
-                    uid: Object(_utils__WEBPACK_IMPORTED_MODULE_6__["uid"])(),
-                    requestTime: Date.now()
-                  };
-                });
-                dispatch(setRequestQueue(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestQueue, newRequestQueue)));
-                promises = [];
-
-                for (i = 0; i < queuedObservers.length; i++) {
-                  outputIdAndProp = queuedObservers[i];
-                  requestUid = newRequestQueue[i].uid;
-                  promises.push(updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedProps.map(function (prop) {
-                    return "".concat(id, ".").concat(prop);
-                  })));
-                }
-                /* eslint-disable-next-line consistent-return */
-
-
-                return _context.abrupt("return", Promise.all(promises));
-
-              case 22:
+              case 3:
               case "end":
                 return _context.stop();
             }
@@ -33177,523 +34666,487 @@ function notifyObservers(payload) {
       }));
 
       return function (_x, _x2) {
-        return _ref.apply(this, arguments);
+        return _ref2.apply(this, arguments);
       };
     }()
   );
 }
 
-function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPropIds) {
-  var _getState3 = getState(),
-      config = _getState3.config,
-      layout = _getState3.layout,
-      graphs = _getState3.graphs,
-      dependenciesRequest = _getState3.dependenciesRequest,
-      hooks = _getState3.hooks;
+function fireReadyCallbacks(_x3, _x4, _x5) {
+  return _fireReadyCallbacks.apply(this, arguments);
+}
 
-  var InputGraph = graphs.InputGraph;
+function _fireReadyCallbacks() {
+  _fireReadyCallbacks = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(dispatch, getState, callbacks) {
+    var _findReadyCallbacks, readyCallbacks, blockedCallbacks, _getState6, config, hooks, layout, paths, outputStash, requestedCallbacks, allCallbacks, ids, fireNext, hasClientSide, queue, done;
 
-  var getThisRequestIndex = function getThisRequestIndex() {
-    var postRequestQueue = getState().requestQueue;
-    var thisRequestIndex = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["findIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["propEq"])('uid', requestUid), postRequestQueue);
-    return thisRequestIndex;
-  };
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            fireNext = function _ref14() {
+              return fireReadyCallbacks(dispatch, getState, getState().pendingCallbacks);
+            };
 
-  var updateRequestQueue = function updateRequestQueue(rejected, status) {
-    var postRequestQueue = getState().requestQueue;
-    var thisRequestIndex = getThisRequestIndex();
+            _findReadyCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["findReadyCallbacks"])(callbacks), readyCallbacks = _findReadyCallbacks.readyCallbacks, blockedCallbacks = _findReadyCallbacks.blockedCallbacks;
+            _getState6 = getState(), config = _getState6.config, hooks = _getState6.hooks, layout = _getState6.layout, paths = _getState6.paths; // We want to calculate all the outputs only once, but we need them
+            // for pendingCallbacks which we're going to dispatch prior to
+            // initiating the queue. So first loop over readyCallbacks to
+            // generate the output lists, then dispatch pendingCallbacks,
+            // then loop again to fire off the requests.
 
-    if (thisRequestIndex === -1) {
-      // It was already pruned away
-      return;
-    }
+            outputStash = {};
+            requestedCallbacks = readyCallbacks.map(function (cb) {
+              var cbOut = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["setNewRequestId"])(cb);
+              var requestId = cbOut.requestId,
+                  getOutputs = cbOut.getOutputs;
+              var allOutputs = getOutputs(paths);
+              var flatOutputs = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(allOutputs);
+              var allPropIds = [];
+              var reqOut = {};
+              flatOutputs.forEach(function (_ref11) {
+                var id = _ref11.id,
+                    property = _ref11.property;
+                var idStr = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["stringifyId"])(id);
+                var idOut = reqOut[idStr] = reqOut[idStr] || [];
+                idOut.push(property);
+                allPropIds.push(Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["combineIdAndProp"])({
+                  id: idStr,
+                  property: property
+                }));
+              });
+              cbOut.requestedOutputs = reqOut;
+              outputStash[requestId] = {
+                allOutputs: allOutputs,
+                allPropIds: allPropIds
+              };
+              return cbOut;
+            });
+            allCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestedCallbacks, blockedCallbacks);
+            dispatch(setPendingCallbacks(allCallbacks));
+            ids = requestedCallbacks.map(function (cb) {
+              return [cb.getInputs(paths), cb.getState(paths)];
+            });
+            _context3.next = 10;
+            return Object(_isAppReady__WEBPACK_IMPORTED_MODULE_10__["default"])(layout, paths, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["uniq"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pluck"])('id', Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(ids))));
 
-    var updatedQueue = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["adjust"])(thisRequestIndex, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeLeft"])({
-      status: status,
-      responseTime: Date.now(),
-      rejected: rejected
-    }), postRequestQueue); // We don't need to store any requests before this one
+          case 10:
+            hasClientSide = false;
+            queue = requestedCallbacks.map(function (cb) {
+              var _cb$callback = cb.callback,
+                  output = _cb$callback.output,
+                  inputs = _cb$callback.inputs,
+                  state = _cb$callback.state,
+                  clientside_function = _cb$callback.clientside_function;
+              var requestId = cb.requestId,
+                  resolvedId = cb.resolvedId;
+              var _outputStash$requestI = outputStash[requestId],
+                  allOutputs = _outputStash$requestI.allOutputs,
+                  allPropIds = _outputStash$requestI.allPropIds;
+              var payload;
 
-    var thisControllerId = postRequestQueue[thisRequestIndex].controllerId;
-    var prunedQueue = updatedQueue.filter(function (queueItem, index) {
-      return queueItem.controllerId !== thisControllerId || index >= thisRequestIndex;
-    });
-    dispatch(setRequestQueue(prunedQueue));
-  };
-  /*
-   * Construct a payload of the input and state.
-   * For example:
-   * {
-   *      inputs: [{'id': 'input1', 'property': 'new value'}],
-   *      state: [{'id': 'state1', 'property': 'existing value'}]
-   * }
-   */
-  // eslint-disable-next-line no-unused-vars
+              try {
+                var outputs = allOutputs.map(function (out, i) {
+                  return unwrapIfNotMulti(paths, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), out), cb.callback.outputs[i], cb.anyVals, 'Output');
+                });
+                payload = {
+                  output: output,
+                  outputs: Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["isMultiOutputProp"])(output) ? outputs : outputs[0],
+                  inputs: fillVals(paths, layout, cb, inputs, 'Input'),
+                  changedPropIds: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(cb.changedPropIds)
+                };
+
+                if (cb.callback.state.length) {
+                  payload.state = fillVals(paths, layout, cb, state, 'State');
+                }
+              } catch (e) {
+                handleError(e);
+                return fireNext();
+              }
+
+              function updatePending(pendingCallbacks, skippedProps) {
+                var newPending = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["removePendingCallback"])(pendingCallbacks, getState().paths, resolvedId, skippedProps);
+                dispatch(setPendingCallbacks(newPending));
+              }
+
+              function handleData(data) {
+                var _getState7 = getState(),
+                    pendingCallbacks = _getState7.pendingCallbacks;
+
+                if (!requestIsActive(pendingCallbacks, resolvedId, requestId)) {
+                  return;
+                }
+
+                var updated = [];
+                Object.entries(data).forEach(function (_ref12) {
+                  var _ref13 = _slicedToArray(_ref12, 2),
+                      id = _ref13[0],
+                      props = _ref13[1];
+
+                  var parsedId = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["parseIfWildcard"])(id);
+
+                  var _getState8 = getState(),
+                      oldLayout = _getState8.layout,
+                      oldPaths = _getState8.paths;
+
+                  var appliedProps = doUpdateProps(dispatch, getState, parsedId, props);
+
+                  if (appliedProps) {
+                    // doUpdateProps can cause new callbacks to be added
+                    // via derived props - update pendingCallbacks
+                    // But we may also need to merge in other callbacks that
+                    // we found in an earlier interation of the data loop.
+                    var statePendingCallbacks = getState().pendingCallbacks;
+
+                    if (statePendingCallbacks !== pendingCallbacks) {
+                      pendingCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["mergePendingCallbacks"])(pendingCallbacks, statePendingCallbacks);
+                    }
+
+                    Object.keys(appliedProps).forEach(function (property) {
+                      updated.push(Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["combineIdAndProp"])({
+                        id: id,
+                        property: property
+                      }));
+                    });
+
+                    if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('children', appliedProps)) {
+                      var oldChildren = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(Object(_paths__WEBPACK_IMPORTED_MODULE_7__["getPath"])(oldPaths, parsedId), ['props', 'children']), oldLayout); // If components changed, need to update paths,
+                      // check if all pending callbacks are still
+                      // valid, and add all callbacks associated with
+                      // new components, either as inputs or outputs,
+                      // or components removed from ALL/ALLSMALLER inputs
+
+                      pendingCallbacks = updateChildPaths(dispatch, getState, pendingCallbacks, parsedId, appliedProps.children, oldChildren);
+                    } // persistence edge case: if you explicitly update the
+                    // persistence key, other props may change that require us
+                    // to fire additional callbacks
 
 
-  var _outputIdAndProp$spli = outputIdAndProp.split('.'),
-      _outputIdAndProp$spli2 = _slicedToArray(_outputIdAndProp$spli, 2),
-      outputComponentId = _outputIdAndProp$spli2[0],
-      _ = _outputIdAndProp$spli2[1];
+                    var addedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pickBy"])(function (v, k) {
+                      return !(k in props);
+                    }, appliedProps);
 
-  var payload = {
-    output: outputIdAndProp,
-    changedPropIds: changedPropIds
-  };
+                    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(addedProps)) {
+                      var _getState9 = getState(),
+                          graphs = _getState9.graphs,
+                          _paths = _getState9.paths;
 
-  var _dependenciesRequest$ = dependenciesRequest.content.find(function (dependency) {
-    return dependency.output === outputIdAndProp;
-  }),
-      inputs = _dependenciesRequest$.inputs,
-      state = _dependenciesRequest$.state,
-      clientside_function = _dependenciesRequest$.clientside_function;
+                      pendingCallbacks = includeObservers(id, addedProps, graphs, _paths, pendingCallbacks);
+                    }
+                  }
+                });
+                updatePending(pendingCallbacks, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["without"])(updated, allPropIds));
+              }
 
-  var validKeys = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(getState().paths);
-  payload.inputs = inputs.map(function (inputObject) {
-    // Make sure the component id exists in the layout
-    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(inputObject.id, validKeys)) {
-      throw new ReferenceError('An invalid input object was used in an ' + '`Input` of a Dash callback. ' + 'The id of this object is `' + inputObject.id + '` and the property is `' + inputObject.property + '`. The list of ids in the current layout is ' + '`[' + validKeys.join(', ') + ']`');
-    }
+              function handleError(err) {
+                var _getState10 = getState(),
+                    pendingCallbacks = _getState10.pendingCallbacks;
 
-    var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(getState().paths[inputObject.id], ['props', inputObject.property]));
-    return {
-      id: inputObject.id,
-      property: inputObject.property,
-      value: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["view"])(propLens, layout)
-    };
-  });
-  var inputsPropIds = inputs.map(function (p) {
-    return "".concat(p.id, ".").concat(p.property);
-  });
-  payload.changedPropIds = changedPropIds.filter(function (p) {
-    return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(p, inputsPropIds);
-  });
+                if (requestIsActive(pendingCallbacks, resolvedId, requestId)) {
+                  // Skip all prop updates from this callback, and remove
+                  // it from the pending list so callbacks it was blocking
+                  // that have other changed inputs will still fire.
+                  updatePending(pendingCallbacks, allPropIds);
+                }
 
-  if (state.length > 0) {
-    payload.state = state.map(function (stateObject) {
-      // Make sure the component id exists in the layout
-      if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(stateObject.id, validKeys)) {
-        throw new ReferenceError('An invalid input object was used in a ' + '`State` object of a Dash callback. ' + 'The id of this object is `' + stateObject.id + '` and the property is `' + stateObject.property + '`. The list of ids in the current layout is ' + '`[' + validKeys.join(', ') + ']`');
+                var outputs = payload ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_dependencies__WEBPACK_IMPORTED_MODULE_6__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])([payload.outputs])).join(', ') : output;
+                var message = "Callback error updating ".concat(outputs);
+
+                if (clientside_function) {
+                  var ns = clientside_function.namespace,
+                      fn = clientside_function.function_name;
+                  message += " via clientside function ".concat(ns, ".").concat(fn);
+                }
+
+                handleAsyncError(err, message, dispatch);
+              }
+
+              if (clientside_function) {
+                try {
+                  handleData(handleClientside(clientside_function, payload));
+                } catch (err) {
+                  handleError(err);
+                }
+
+                hasClientSide = true;
+                return null;
+              }
+
+              return handleServerside(config, payload, hooks).then(handleData)["catch"](handleError).then(fireNext);
+            });
+            done = Promise.all(queue);
+            return _context3.abrupt("return", hasClientSide ? fireNext().then(done) : done);
+
+          case 14:
+          case "end":
+            return _context3.stop();
+        }
       }
+    }, _callee3);
+  }));
+  return _fireReadyCallbacks.apply(this, arguments);
+}
 
-      var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(getState().paths[stateObject.id], ['props', stateObject.property]));
+function fillVals(paths, layout, cb, specs, depType) {
+  var getter = depType === 'Input' ? cb.getInputs : cb.getState;
+  return getter(paths).map(function (inputList, i) {
+    return unwrapIfNotMulti(paths, inputList.map(function (_ref3) {
+      var id = _ref3.id,
+          property = _ref3.property,
+          path_ = _ref3.path;
       return {
-        id: stateObject.id,
-        property: stateObject.property,
-        value: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["view"])(propLens, layout)
+        id: id,
+        property: property,
+        value: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(path_, layout).props[property]
       };
-    });
-  }
+    }), specs[i], cb.anyVals, depType);
+  });
+}
 
-  function doUpdateProps(id, updatedProps) {
-    var _getState4 = getState(),
-        layout = _getState4.layout,
-        paths = _getState4.paths;
-
-    var itempath = paths[id];
-
-    if (!itempath) {
-      return false;
-    } // This is a callback-generated update.
-    // Check if this invalidates existing persisted prop values,
-    // or if persistence changed, whether this updates other props.
-
-
-    var updatedProps2 = Object(_persistence__WEBPACK_IMPORTED_MODULE_8__["prunePersistence"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(itempath, layout), updatedProps, dispatch); // In case the update contains whole components, see if any of
-    // those components have props to update to persist user edits.
-
-    var _applyPersistence = Object(_persistence__WEBPACK_IMPORTED_MODULE_8__["applyPersistence"])({
-      props: updatedProps2
-    }, dispatch),
-        props = _applyPersistence.props;
-
-    dispatch(updateProps({
-      itempath: itempath,
-      props: props,
-      source: 'response'
-    }));
-    return props;
-  } // Clientside hook
-
-
-  if (clientside_function) {
-    var updateClientsideOutput = function updateClientsideOutput(outputIdAndProp, outputValue) {
-      var _outputIdAndProp$spli3 = outputIdAndProp.split('.'),
-          _outputIdAndProp$spli4 = _slicedToArray(_outputIdAndProp$spli3, 2),
-          outputId = _outputIdAndProp$spli4[0],
-          outputProp = _outputIdAndProp$spli4[1];
-
-      var updatedProps = _defineProperty({}, outputProp, outputValue);
-      /*
-       * Update the request queue by treating a successful clientside
-       * like a successful serverside response (200 status code)
-       */
-
-
-      updateRequestQueue(false, _constants_constants__WEBPACK_IMPORTED_MODULE_7__["STATUS"].OK);
-      /*
-       * Prevent update.
-       */
-
-      if (outputValue === window.dash_clientside.no_update) {
-        return;
-      } // Update the layout with the new result
-
-
-      var appliedProps = doUpdateProps(outputId, updatedProps);
-      /*
-       * This output could itself be a serverside or clientside input
-       * to another function
-       */
-
-      if (appliedProps) {
-        dispatch(notifyObservers({
-          id: outputId,
-          props: appliedProps
-        }));
-      }
-    };
-
-    var returnValue;
-    /*
-     * Create the dash_clientside namespace if it doesn't exist and inject
-     * no_update and PreventUpdate.
-     */
-
-    if (!window.dash_clientside) {
-      window.dash_clientside = {};
-    }
-
-    if (!window.dash_clientside.no_update) {
-      Object.defineProperty(window.dash_clientside, 'no_update', {
-        value: {
-          description: 'Return to prevent updating an Output.'
-        },
-        writable: false
-      });
-      Object.defineProperty(window.dash_clientside, 'PreventUpdate', {
-        value: {
-          description: 'Throw to prevent updating all Outputs.'
-        },
-        writable: false
-      });
-    }
-
-    try {
-      var _window$dash_clientsi;
-
-      returnValue = (_window$dash_clientsi = window.dash_clientside[clientside_function.namespace])[clientside_function.function_name].apply(_window$dash_clientsi, _toConsumableArray(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pluck"])('value', payload.inputs)).concat(_toConsumableArray(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('state', payload) ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pluck"])('value', payload.state) : [])));
-    } catch (e) {
-      /*
-       * Prevent all updates.
-       */
-      if (e === window.dash_clientside.PreventUpdate) {
-        updateRequestQueue(true, _constants_constants__WEBPACK_IMPORTED_MODULE_7__["STATUS"].PREVENT_UPDATE);
-        return;
-      }
-      /* eslint-disable-next-line no-console */
-
-
-      console.error("The following error occurred while executing ".concat(clientside_function.namespace, ".").concat(clientside_function.function_name, " ") + "in order to update component \"".concat(payload.output, "\" \u22C1\u22C1\u22C1"));
-      /* eslint-disable-next-line no-console */
-
-      console.error(e);
-      /*
-       * Update the request queue by treating an unsuccessful clientside
-       * like a failed serverside response via same request queue
-       * mechanism
-       */
-
-      updateRequestQueue(true, _constants_constants__WEBPACK_IMPORTED_MODULE_7__["STATUS"].CLIENTSIDE_ERROR);
-      return;
-    } // Returning promises isn't support atm
-
-
-    if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(returnValue) === 'Promise') {
-      /* eslint-disable-next-line no-console */
-      console.error('The clientside function ' + "".concat(clientside_function.namespace, ".").concat(clientside_function.function_name, " ") + 'returned a Promise instead of a value. Promises are not ' + 'supported in Dash clientside right now, but may be in the ' + 'future.');
-      updateRequestQueue(true, _constants_constants__WEBPACK_IMPORTED_MODULE_7__["STATUS"].CLIENTSIDE_ERROR);
-      return;
-    }
-
-    if (Object(_utils__WEBPACK_IMPORTED_MODULE_6__["isMultiOutputProp"])(payload.output)) {
-      Object(_utils__WEBPACK_IMPORTED_MODULE_6__["parseMultipleOutputs"])(payload.output).forEach(function (outputPropId, i) {
-        updateClientsideOutput(outputPropId, returnValue[i]);
-      });
-    } else {
-      updateClientsideOutput(payload.output, returnValue);
-    }
-    /*
-     * Note that unlike serverside updates, we're not handling
-     * children as components right now, so we don't need to
-     * crawl the computed result to check for nested components
-     * or properties that might trigger other inputs.
-     * In the future, we could handle this case.
-     */
-
-
-    return;
-  }
-
+function handleServerside(config, payload, hooks) {
   if (hooks.request_pre !== null) {
     hooks.request_pre(payload);
   }
-  /* eslint-disable-next-line consistent-return */
 
-
-  return fetch("".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_6__["urlBase"])(config), "_dash-update-component"), Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeDeepRight"])(config.fetch, {
+  return fetch("".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_5__["urlBase"])(config), "_dash-update-component"), Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeDeepRight"])(config.fetch, {
     method: 'POST',
     headers: getCSRFHeader(),
     body: JSON.stringify(payload)
-  })).then(function handleResponse(res) {
-    var isRejected = function isRejected() {
-      var latestRequestIndex = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["findLastIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["propEq"])('controllerId', outputIdAndProp), getState().requestQueue);
-      /*
-       * Note that if the latest request is still `loading`
-       * or even if the latest request failed,
-       * we still reject this response in favor of waiting
-       * for the latest request to finish.
-       */
+  })).then(function (res) {
+    var status = res.status;
 
-      var rejected = latestRequestIndex > getThisRequestIndex();
-      return rejected;
-    };
+    if (status === _constants_constants__WEBPACK_IMPORTED_MODULE_8__["STATUS"].OK) {
+      return res.json().then(function (data) {
+        var multi = data.multi,
+            response = data.response;
 
-    if (res.status !== _constants_constants__WEBPACK_IMPORTED_MODULE_7__["STATUS"].OK) {
-      // update the status of this request
-      updateRequestQueue(true, res.status);
-      /*
-       * This is a 204 response code, there's no content to process.
-       */
-
-      if (res.status === _constants_constants__WEBPACK_IMPORTED_MODULE_7__["STATUS"].PREVENT_UPDATE) {
-        return;
-      }
-      /*
-       * eject into `catch` handler below to display error
-       * message in ui
-       */
-
-
-      throw res;
-    }
-    /*
-     * Check to see if another request has already come back
-     * _after_ this one.
-     * If so, ignore this request.
-     */
-
-
-    if (isRejected()) {
-      updateRequestQueue(true, res.status);
-      return;
-    }
-
-    res.json().then(function handleJson(data) {
-      /*
-       * Even if the `res` was received in the correct order,
-       * the remainder of the response (res.json()) could happen
-       * at different rates causing the parsed responses to
-       * get out of order
-       */
-      if (isRejected()) {
-        updateRequestQueue(true, res.status);
-        return;
-      }
-
-      updateRequestQueue(false, res.status); // Fire custom request_post hook if any
-
-      if (hooks.request_post !== null) {
-        hooks.request_post(payload, data.response);
-      }
-      /*
-       * it's possible that this output item is no longer visible.
-       * for example, the could still be request running when
-       * the user switched the chapter
-       *
-       * if it's not visible, then ignore the rest of the updates
-       * to the store
-       */
-
-
-      var multi = data.multi;
-
-      var handleResponse = function handleResponse(_ref2) {
-        var _ref3 = _slicedToArray(_ref2, 2),
-            outputIdAndProp = _ref3[0],
-            props = _ref3[1];
-
-        // Backward compatibility
-        var pathKey = multi ? outputIdAndProp : outputComponentId;
-        var appliedProps = doUpdateProps(pathKey, props);
-
-        if (!appliedProps) {
-          return;
+        if (hooks.request_post !== null) {
+          hooks.request_post(payload, response);
         }
 
-        dispatch(notifyObservers({
-          id: pathKey,
-          props: appliedProps
-        }));
-        /*
-         * If the response includes children, then we need to update our
-         * paths store.
-         * TODO - Do we need to wait for updateProps to finish?
-         */
-
-        if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('children', appliedProps)) {
-          var newChildren = appliedProps.children;
-          dispatch(computePaths({
-            subTree: newChildren,
-            startingPath: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(getState().paths[pathKey], ['props', 'children'])
-          }));
-          /*
-           * if children contains objects with IDs, then we
-           * need to dispatch a propChange for all of these
-           * new children components
-           */
-
-          if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(newChildren), ['Array', 'Object']) && !Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(newChildren)) {
-            /*
-             * TODO: We're just naively crawling
-             * the _entire_ layout to recompute the
-             * the dependency graphs.
-             * We don't need to do this - just need
-             * to compute the subtree
-             */
-            var newProps = {};
-            Object(_reducers_utils__WEBPACK_IMPORTED_MODULE_2__["crawlLayout"])(newChildren, function appendIds(child) {
-              if (Object(_reducers_utils__WEBPACK_IMPORTED_MODULE_2__["hasId"])(child)) {
-                Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(child.props).forEach(function (childProp) {
-                  var componentIdAndProp = "".concat(child.props.id, ".").concat(childProp);
-
-                  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])(componentIdAndProp, InputGraph.nodes)) {
-                    newProps[componentIdAndProp] = {
-                      id: child.props.id,
-                      props: _defineProperty({}, childProp, child.props[childProp])
-                    };
-                  }
-                });
-              }
-            });
-            /*
-             * Organize props by shared outputs so that we
-             * only make one request per output component
-             * (even if there are multiple inputs).
-             *
-             * For example, we might render 10 inputs that control
-             * a single output. If that is the case, we only want
-             * to make a single call, not 10 calls.
-             */
-
-            /*
-             * In some cases, the new item will be an output
-             * with its inputs already rendered (not rendered)
-             * as part of this update.
-             * For example, a tab with global controls that
-             * renders different content containers without any
-             * additional inputs.
-             *
-             * In that case, we'll call `updateOutput` with that output
-             * and just "pretend" that one if its inputs changed.
-             *
-             * If we ever add logic that informs the user on
-             * "which input changed", we'll have to account for this
-             * special case (no input changed?)
-             */
-
-            var outputIds = [];
-            Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(newProps).forEach(function (idAndProp) {
-              if ( // It's an output
-              InputGraph.dependenciesOf(idAndProp).length === 0 &&
-              /*
-               * And none of its inputs are generated in this
-               * request
-               */
-              Object(ramda__WEBPACK_IMPORTED_MODULE_0__["intersection"])(InputGraph.dependantsOf(idAndProp), Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(newProps)).length === 0) {
-                outputIds.push(idAndProp);
-                delete newProps[idAndProp];
-              }
-            }); // Dispatch updates to inputs
-
-            var reducedNodeIds = reduceInputIds(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(newProps), InputGraph);
-            var depOrder = InputGraph.overallOrder();
-            var sortedNewProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["sort"])(function (a, b) {
-              return depOrder.indexOf(a.input) - depOrder.indexOf(b.input);
-            }, reducedNodeIds);
-            sortedNewProps.forEach(function (inputOutput) {
-              var payload = newProps[inputOutput.input];
-              payload.excludedOutputs = inputOutput.excludedOutputs;
-              dispatch(notifyObservers(payload));
-            }); // Dispatch updates to lone outputs
-
-            outputIds.forEach(function (idAndProp) {
-              var requestUid = Object(_utils__WEBPACK_IMPORTED_MODULE_6__["uid"])();
-              dispatch(setRequestQueue(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["append"])({
-                // TODO - Are there any implications of doing this??
-                controllerId: null,
-                status: 'loading',
-                uid: requestUid,
-                requestTime: Date.now()
-              }, getState().requestQueue)));
-              updateOutput(idAndProp, getState, requestUid, dispatch, changedPropIds);
-            });
-          }
+        if (multi) {
+          return response;
         }
-      };
 
-      if (multi) {
-        Object.entries(data.response).forEach(handleResponse);
-      } else {
-        handleResponse([outputIdAndProp, data.response.props]);
+        var output = payload.output;
+        var id = output.substr(0, output.lastIndexOf('.'));
+        return _defineProperty({}, id, response.props);
+      });
+    }
+
+    if (status === _constants_constants__WEBPACK_IMPORTED_MODULE_8__["STATUS"].PREVENT_UPDATE) {
+      return {};
+    }
+
+    throw res;
+  });
+}
+
+var getVals = function getVals(input) {
+  return Array.isArray(input) ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pluck"])('value', input) : input.value;
+};
+
+var zipIfArray = function zipIfArray(a, b) {
+  return Array.isArray(a) ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["zip"])(a, b) : [[a, b]];
+};
+
+function handleClientside(clientside_function, payload) {
+  var dc = window.dash_clientside = window.dash_clientside || {};
+
+  if (!dc.no_update) {
+    Object.defineProperty(dc, 'no_update', {
+      value: {
+        description: 'Return to prevent updating an Output.'
+      },
+      writable: false
+    });
+    Object.defineProperty(dc, 'PreventUpdate', {
+      value: {
+        description: 'Throw to prevent updating all Outputs.'
+      },
+      writable: false
+    });
+  }
+
+  var inputs = payload.inputs,
+      outputs = payload.outputs,
+      state = payload.state;
+  var returnValue;
+
+  try {
+    var _dc$namespace;
+
+    var namespace = clientside_function.namespace,
+        function_name = clientside_function.function_name;
+    var args = inputs.map(getVals);
+
+    if (state) {
+      args = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(args, state.map(getVals));
+    }
+
+    returnValue = (_dc$namespace = dc[namespace])[function_name].apply(_dc$namespace, _toConsumableArray(args));
+  } catch (e) {
+    if (e === dc.PreventUpdate) {
+      return {};
+    }
+
+    throw e;
+  }
+
+  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(returnValue) === 'Promise') {
+    throw new Error('The clientside function returned a Promise. ' + 'Promises are not supported in Dash clientside ' + 'right now, but may be in the future.');
+  }
+
+  var data = {};
+  zipIfArray(outputs, returnValue).forEach(function (_ref5) {
+    var _ref6 = _slicedToArray(_ref5, 2),
+        outi = _ref6[0],
+        reti = _ref6[1];
+
+    zipIfArray(outi, reti).forEach(function (_ref7) {
+      var _ref8 = _slicedToArray(_ref7, 2),
+          outij = _ref8[0],
+          retij = _ref8[1];
+
+      var id = outij.id,
+          property = outij.property;
+      var idStr = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["stringifyId"])(id);
+      var dataForId = data[idStr] = data[idStr] || {};
+
+      if (retij !== dc.no_update) {
+        dataForId[property] = retij;
       }
     });
-  })["catch"](function (err) {
-    var message = "Callback error updating ".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_6__["isMultiOutputProp"])(payload.output) ? Object(_utils__WEBPACK_IMPORTED_MODULE_6__["parseMultipleOutputs"])(payload.output).join(', ') : payload.output);
-    handleAsyncError(err, message, dispatch);
   });
+  return data;
+}
+
+function requestIsActive(pendingCallbacks, resolvedId, requestId) {
+  var thisCallback = pendingCallbacks.find(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["propEq"])('resolvedId', resolvedId)); // could be inactivated if it was requested again, in which case it could
+  // potentially even have finished and been removed from the list
+
+  return thisCallback && thisCallback.requestId === requestId;
+}
+
+function doUpdateProps(dispatch, getState, id, updatedProps) {
+  var _getState3 = getState(),
+      layout = _getState3.layout,
+      paths = _getState3.paths;
+
+  var itempath = Object(_paths__WEBPACK_IMPORTED_MODULE_7__["getPath"])(paths, id);
+
+  if (!itempath) {
+    return false;
+  } // This is a callback-generated update.
+  // Check if this invalidates existing persisted prop values,
+  // or if persistence changed, whether this updates other props.
+
+
+  var updatedProps2 = Object(_persistence__WEBPACK_IMPORTED_MODULE_9__["prunePersistence"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(itempath, layout), updatedProps, dispatch); // In case the update contains whole components, see if any of
+  // those components have props to update to persist user edits.
+
+  var _applyPersistence = Object(_persistence__WEBPACK_IMPORTED_MODULE_9__["applyPersistence"])({
+    props: updatedProps2
+  }, dispatch),
+      props = _applyPersistence.props;
+
+  dispatch(updateProps({
+    itempath: itempath,
+    props: props,
+    source: 'response'
+  }));
+  return props;
+}
+
+function updateChildPaths(dispatch, getState, pendingCallbacks, id, children, oldChildren) {
+  var _getState4 = getState(),
+      oldPaths = _getState4.paths,
+      graphs = _getState4.graphs;
+
+  var childrenPath = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(Object(_paths__WEBPACK_IMPORTED_MODULE_7__["getPath"])(oldPaths, id), ['props', 'children']);
+  var paths = Object(_paths__WEBPACK_IMPORTED_MODULE_7__["computePaths"])(children, childrenPath, oldPaths);
+  dispatch(setPaths(paths));
+  var cleanedCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["pruneRemovedCallbacks"])(pendingCallbacks, paths);
+  var newCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["getCallbacksInLayout"])(graphs, paths, children, {
+    chunkPath: childrenPath
+  }); // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
+  // even due to the deletion of components
+
+  var deletedComponentCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["getCallbacksInLayout"])(graphs, oldPaths, oldChildren, {
+    removedArrayInputsOnly: true,
+    newPaths: paths,
+    chunkPath: childrenPath
+  });
+  var allNewCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["mergePendingCallbacks"])(newCallbacks, deletedComponentCallbacks);
+  return Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["mergePendingCallbacks"])(cleanedCallbacks, allNewCallbacks);
+}
+
+function notifyObservers(_ref9) {
+  var id = _ref9.id,
+      props = _ref9.props;
+  return (/*#__PURE__*/function () {
+      var _ref10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(dispatch, getState) {
+        var _getState5, graphs, paths, pendingCallbacks, finalCallbacks;
+
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _getState5 = getState(), graphs = _getState5.graphs, paths = _getState5.paths, pendingCallbacks = _getState5.pendingCallbacks;
+                finalCallbacks = includeObservers(id, props, graphs, paths, pendingCallbacks);
+                dispatch(startCallbacks(finalCallbacks));
+
+              case 3:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }));
+
+      return function (_x6, _x7) {
+        return _ref10.apply(this, arguments);
+      };
+    }()
+  );
+}
+
+function includeObservers(id, props, graphs, paths, pendingCallbacks) {
+  var changedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(props);
+  var finalCallbacks = pendingCallbacks;
+  changedProps.forEach(function (propName) {
+    var newCBs = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["getCallbacksByInput"])(graphs, paths, id, propName);
+
+    if (newCBs.length) {
+      finalCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["mergePendingCallbacks"])(finalCallbacks, Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["followForward"])(graphs, paths, newCBs));
+    }
+  });
+  return finalCallbacks;
 }
 
 function handleAsyncError(err, message, dispatch) {
   // Handle html error responses
-  var errText = err && typeof err.text === 'function' ? err.text() : Promise.resolve(err);
-  errText.then(function (text) {
-    dispatch(onError({
-      type: 'backEnd',
-      error: {
+  if (err && typeof err.text === 'function') {
+    err.text().then(function (text) {
+      var error = {
         message: message,
         html: text
-      }
+      };
+      dispatch(onError({
+        type: 'backEnd',
+        error: error
+      }));
+    });
+  } else {
+    var error = err instanceof Error ? err : {
+      message: message,
+      html: err
+    };
+    dispatch(onError({
+      type: 'backEnd',
+      error: error
     }));
-  });
-}
-function serialize(state) {
-  // Record minimal input state in the url
-  var graphs = state.graphs,
-      paths = state.paths,
-      layout = state.layout;
-  var InputGraph = graphs.InputGraph;
-  var allNodes = InputGraph.nodes;
-  var savedState = {};
-  Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(allNodes).forEach(function (nodeId) {
-    var _nodeId$split = nodeId.split('.'),
-        _nodeId$split2 = _slicedToArray(_nodeId$split, 2),
-        componentId = _nodeId$split2[0],
-        componentProp = _nodeId$split2[1];
-    /*
-     * Filter out the outputs,
-     * and the invisible inputs
-     */
-
-
-    if (InputGraph.dependenciesOf(nodeId).length > 0 && Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])(componentId, paths)) {
-      // Get the property
-      var propLens = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(paths[componentId], ['props', componentProp]));
-      var propValue = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["view"])(propLens, layout);
-      savedState[nodeId] = propValue;
-    }
-  });
-  return savedState;
+  }
 }
 
 /***/ }),
@@ -33711,13 +35164,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @plotly/dash-component-plugins */ "./node_modules/@plotly/dash-component-plugins/dist/index.js");
 /* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../registry */ "./src/registry.js");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./paths */ "./src/actions/paths.js");
+/* harmony import */ var _dependencies__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./dependencies */ "./src/actions/dependencies.js");
+
+
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = (function (layout, paths, targets) {
+  if (!targets.length) {
+    return true;
+  }
+
   var promises = [];
+  var events = paths.events;
+  var rendered = new Promise(function (resolveRendered) {
+    events.once('rendered', resolveRendered);
+  });
   targets.forEach(function (id) {
-    var pathOfId = paths[id];
+    var pathOfId = Object(_paths__WEBPACK_IMPORTED_MODULE_3__["getPath"])(paths, id);
 
     if (!pathOfId) {
       return;
@@ -33733,11 +35198,246 @@ __webpack_require__.r(__webpack_exports__);
     var ready = Object(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1__["isReady"])(component);
 
     if (ready && typeof ready.then === 'function') {
-      promises.push(ready);
+      promises.push(Promise.race([ready, rendered.then(function () {
+        return document.getElementById(Object(_dependencies__WEBPACK_IMPORTED_MODULE_4__["stringifyId"])(id)) && ready;
+      })]));
     }
   });
   return promises.length ? Promise.all(promises) : true;
 });
+
+/***/ }),
+
+/***/ "./src/actions/paths.js":
+/*!******************************!*\
+  !*** ./src/actions/paths.js ***!
+  \******************************/
+/*! exports provided: computePaths, getPath */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "computePaths", function() { return computePaths; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPath", function() { return getPath; });
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils */ "./src/actions/utils.js");
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+
+
+/*
+ * state.paths has structure:
+ * {
+ *   strs: {[id]: path} // for regular string ids
+ *   objs: {[keyStr]: [{values, path}]} // for wildcard ids
+ * }
+ * keyStr: sorted keys of the id, joined with ',' into one string
+ * values: array of values in the id, in order of keys
+ */
+
+function computePaths(subTree, startingPath, oldPaths, events) {
+  var _ref = oldPaths || {
+    strs: {},
+    objs: {}
+  },
+      oldStrs = _ref.strs,
+      oldObjs = _ref.objs;
+
+  var diffHead = function diffHead(path) {
+    return startingPath.some(function (v, i) {
+      return path[i] !== v;
+    });
+  };
+
+  var spLen = startingPath.length; // if we're updating a subtree, clear out all of the existing items
+
+  var strs = spLen ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(diffHead, oldStrs) : {};
+  var objs = {};
+
+  if (spLen) {
+    Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEachObjIndexed"])(function (oldValPaths, oldKeys) {
+      var newVals = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (_ref2) {
+        var path = _ref2.path;
+        return diffHead(path);
+      }, oldValPaths);
+
+      if (newVals.length) {
+        objs[oldKeys] = newVals;
+      }
+    }, oldObjs);
+  }
+
+  Object(_utils__WEBPACK_IMPORTED_MODULE_1__["crawlLayout"])(subTree, function assignPath(child, itempath) {
+    var id = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(['props', 'id'], child);
+
+    if (id) {
+      if (_typeof(id) === 'object') {
+        var keys = Object.keys(id).sort();
+        var values = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["props"])(keys, id);
+        var keyStr = keys.join(',');
+        var paths = objs[keyStr] = objs[keyStr] || [];
+        paths.push({
+          values: values,
+          path: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(startingPath, itempath)
+        });
+      } else {
+        strs[id] = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(startingPath, itempath);
+      }
+    }
+  }); // We include an event emitter here because it will be used along with
+  // paths to determine when the app is ready for callbacks.
+
+  return {
+    strs: strs,
+    objs: objs,
+    events: events || oldPaths.events
+  };
+}
+function getPath(paths, id) {
+  if (_typeof(id) === 'object') {
+    var keys = Object.keys(id).sort();
+    var keyStr = keys.join(',');
+    var keyPaths = paths.objs[keyStr];
+
+    if (!keyPaths) {
+      return false;
+    }
+
+    var values = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["props"])(keys, id);
+    var pathObj = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["find"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["propEq"])('values', values), keyPaths);
+    return pathObj && pathObj.path;
+  }
+
+  return paths.strs[id];
+}
+
+/***/ }),
+
+/***/ "./src/actions/utils.js":
+/*!******************************!*\
+  !*** ./src/actions/utils.js ***!
+  \******************************/
+/*! exports provided: urlBase, crawlLayout, EventEmitter */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "urlBase", function() { return urlBase; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "crawlLayout", function() { return crawlLayout; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EventEmitter", function() { return EventEmitter; });
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+/*
+ * requests_pathname_prefix is the new config parameter introduced in
+ * dash==0.18.0. The previous versions just had url_base_pathname
+ */
+
+function urlBase(config) {
+  var hasUrlBase = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('url_base_pathname', config);
+  var hasReqPrefix = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('requests_pathname_prefix', config);
+
+  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(config) !== 'Object' || !hasUrlBase && !hasReqPrefix) {
+    throw new Error("\n            Trying to make an API request but neither\n            \"url_base_pathname\" nor \"requests_pathname_prefix\"\n            is in `config`. `config` is: ", config);
+  }
+
+  var base = hasReqPrefix ? config.requests_pathname_prefix : config.url_base_pathname;
+  return base.charAt(base.length - 1) === '/' ? base : base + '/';
+}
+var propsChildren = ['props', 'children']; // crawl a layout object or children array, apply a function on every object
+
+var crawlLayout = function crawlLayout(object, func) {
+  var currentPath = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+
+  if (Array.isArray(object)) {
+    // children array
+    object.forEach(function (child, i) {
+      crawlLayout(child, func, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["append"])(i, currentPath));
+    });
+  } else if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(object) === 'Object') {
+    func(object, currentPath);
+    var children = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(propsChildren, object);
+
+    if (children) {
+      var newPath = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(currentPath, propsChildren);
+      crawlLayout(children, func, newPath);
+    }
+  }
+}; // There are packages for this but it's simple enough, I just
+// adapted it from https://gist.github.com/mudge/5830382
+
+var EventEmitter = /*#__PURE__*/function () {
+  function EventEmitter() {
+    _classCallCheck(this, EventEmitter);
+
+    this._ev = {};
+  }
+
+  _createClass(EventEmitter, [{
+    key: "on",
+    value: function on(event, listener) {
+      var _this = this;
+
+      var events = this._ev[event] = this._ev[event] || [];
+      events.push(listener);
+      return function () {
+        return _this.removeListener(event, listener);
+      };
+    }
+  }, {
+    key: "removeListener",
+    value: function removeListener(event, listener) {
+      var events = this._ev[event];
+
+      if (events) {
+        var idx = events.indexOf(listener);
+
+        if (idx > -1) {
+          events.splice(idx, 1);
+        }
+      }
+    }
+  }, {
+    key: "emit",
+    value: function emit(event) {
+      var _this2 = this;
+
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      var events = this._ev[event];
+
+      if (events) {
+        events.forEach(function (listener) {
+          return listener.apply(_this2, args);
+        });
+      }
+    }
+  }, {
+    key: "once",
+    value: function once(event, listener) {
+      var _this3 = this;
+
+      var remove = this.on(event, function () {
+        remove();
+
+        for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
+        listener.apply(_this3, args);
+      });
+    }
+  }]);
+
+  return EventEmitter;
+}();
 
 /***/ }),
 
@@ -33821,11 +35521,10 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! prop-types */ "prop-types");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! prop-types */ "prop-types");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_2__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -33843,7 +35542,6 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
 
 
 
@@ -33867,9 +35565,7 @@ var DocumentTitle = /*#__PURE__*/function (_Component) {
   _createClass(DocumentTitle, [{
     key: "UNSAFE_componentWillReceiveProps",
     value: function UNSAFE_componentWillReceiveProps(props) {
-      if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["any"])(function (r) {
-        return r.status === 'loading';
-      }, props.requestQueue)) {
+      if (props.pendingCallbacks.length) {
         document.title = 'Updating...';
       } else {
         document.title = this.state.initialTitle;
@@ -33888,14 +35584,14 @@ var DocumentTitle = /*#__PURE__*/function (_Component) {
   }]);
 
   return DocumentTitle;
-}(react__WEBPACK_IMPORTED_MODULE_2__["Component"]);
+}(react__WEBPACK_IMPORTED_MODULE_1__["Component"]);
 
 DocumentTitle.propTypes = {
-  requestQueue: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.array.isRequired
+  pendingCallbacks: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.array.isRequired
 };
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(function (state) {
   return {
-    requestQueue: state.requestQueue
+    pendingCallbacks: state.pendingCallbacks
   };
 })(DocumentTitle));
 
@@ -33911,21 +35607,17 @@ DocumentTitle.propTypes = {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! prop-types */ "prop-types");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_3__);
-
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! prop-types */ "prop-types");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_2__);
 
 
 
 
 function Loading(props) {
-  if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["any"])(function (r) {
-    return r.status === 'loading';
-  }, props.requestQueue)) {
-    return react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+  if (props.pendingCallbacks.length) {
+    return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
       className: "_dash-loading-callback"
     });
   }
@@ -33934,11 +35626,11 @@ function Loading(props) {
 }
 
 Loading.propTypes = {
-  requestQueue: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.array.isRequired
+  pendingCallbacks: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.array.isRequired
 };
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(function (state) {
   return {
-    requestQueue: state.requestQueue
+    pendingCallbacks: state.pendingCallbacks
   };
 })(Loading));
 
@@ -34256,7 +35948,7 @@ function UnconnectedToolbar(props) {
       cursor: history.past.length ? 'pointer' : 'default'
     }, styles.parentSpanStyle),
     onClick: function onClick() {
-      return dispatch(Object(_actions_index_js__WEBPACK_IMPORTED_MODULE_4__["undo"])());
+      return dispatch(_actions_index_js__WEBPACK_IMPORTED_MODULE_4__["undo"]);
     }
   }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     style: Object(ramda__WEBPACK_IMPORTED_MODULE_3__["mergeRight"])({
@@ -34273,7 +35965,7 @@ function UnconnectedToolbar(props) {
       marginLeft: 10
     }, styles.parentSpanStyle),
     onClick: function onClick() {
-      return dispatch(Object(_actions_index_js__WEBPACK_IMPORTED_MODULE_4__["redo"])());
+      return dispatch(_actions_index_js__WEBPACK_IMPORTED_MODULE_4__["redo"]);
     }
   }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     style: Object(ramda__WEBPACK_IMPORTED_MODULE_3__["mergeRight"])({
@@ -34360,15 +36052,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallbackGraphContainer", function() { return CallbackGraphContainer; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _CallbackGraphContainer_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CallbackGraphContainer.css */ "./src/components/error/CallbackGraph/CallbackGraphContainer.css");
-/* harmony import */ var _CallbackGraphContainer_css__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_CallbackGraphContainer_css__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var viz_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! viz.js */ "./node_modules/viz.js/viz.es.js");
-/* harmony import */ var viz_js_full_render__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! viz.js/full.render */ "./node_modules/viz.js/full.render.js");
-/* harmony import */ var viz_js_full_render__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(viz_js_full_render__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! prop-types */ "prop-types");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_4__);
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! prop-types */ "prop-types");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _CallbackGraphContainer_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CallbackGraphContainer.css */ "./src/components/error/CallbackGraph/CallbackGraphContainer.css");
+/* harmony import */ var _CallbackGraphContainer_css__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_CallbackGraphContainer_css__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var viz_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! viz.js */ "./node_modules/viz.js/viz.es.js");
+/* harmony import */ var viz_js_full_render__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! viz.js/full.render */ "./node_modules/viz.js/full.render.js");
+/* harmony import */ var viz_js_full_render__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(viz_js_full_render__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../actions/dependencies */ "./src/actions/dependencies.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -34377,21 +36068,6 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -34399,106 +36075,72 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-var CallbackGraphContainer = /*#__PURE__*/function (_Component) {
-  _inherits(CallbackGraphContainer, _Component);
+var CallbackGraphContainer = function CallbackGraphContainer(_ref) {
+  var graphs = _ref.graphs;
+  var el = Object(react__WEBPACK_IMPORTED_MODULE_0__["useRef"])(null);
+  var viz = Object(react__WEBPACK_IMPORTED_MODULE_0__["useRef"])(null);
 
-  function CallbackGraphContainer(props) {
-    var _this;
+  var makeViz = function makeViz() {
+    viz.current = new viz_js__WEBPACK_IMPORTED_MODULE_3__["default"]({
+      Module: viz_js_full_render__WEBPACK_IMPORTED_MODULE_4__["Module"],
+      render: viz_js_full_render__WEBPACK_IMPORTED_MODULE_4__["render"]
+    });
+  };
 
-    _classCallCheck(this, CallbackGraphContainer);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(CallbackGraphContainer).call(this, props));
-    _this.viz = null;
-    _this.updateViz = _this.updateViz.bind(_assertThisInitialized(_this));
-    return _this;
+  if (!viz.current) {
+    makeViz();
   }
 
-  _createClass(CallbackGraphContainer, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.updateViz();
-    }
-  }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate() {
-      this.updateViz();
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "dash-callback-dag--container",
-        ref: "el"
-      });
-    }
-  }, {
-    key: "updateViz",
-    value: function updateViz() {
-      var _this2 = this;
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+    var callbacks = graphs.callbacks;
+    var elements = {};
+    var callbacksOut = [];
+    var links = callbacks.map(function (_ref2, i) {
+      var inputs = _ref2.inputs,
+          outputs = _ref2.outputs;
+      callbacksOut.push("cb".concat(i, ";"));
 
-      this.viz = this.viz || new viz_js__WEBPACK_IMPORTED_MODULE_2__["default"]({
-        Module: viz_js_full_render__WEBPACK_IMPORTED_MODULE_3__["Module"],
-        render: viz_js_full_render__WEBPACK_IMPORTED_MODULE_3__["render"]
-      });
-      var dependenciesRequest = this.props.dependenciesRequest;
-      var elements = {};
-      var callbacks = [];
-      var links = dependenciesRequest.content.map(function (_ref, i) {
-        var inputs = _ref.inputs,
-            output = _ref.output;
-        callbacks.push("cb".concat(i, ";"));
+      function recordAndReturn(_ref3) {
+        var id = _ref3.id,
+            property = _ref3.property;
+        var idClean = Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_5__["stringifyId"])(id).replace(/[\{\}".;\[\]()]/g, '').replace(/:/g, '-').replace(/,/g, '_');
+        elements[idClean] = elements[idClean] || {};
+        elements[idClean][property] = true;
+        return "\"".concat(idClean, ".").concat(property, "\"");
+      }
 
-        function recordAndReturn(_ref2) {
-          var _ref3 = _slicedToArray(_ref2, 2),
-              id = _ref3[0],
-              property = _ref3[1];
+      var out_nodes = outputs.map(recordAndReturn).join(', ');
+      var in_nodes = inputs.map(recordAndReturn).join(', ');
+      return "{".concat(in_nodes, "} -> cb").concat(i, " -> {").concat(out_nodes, "};");
+    });
+    var dot = "digraph G {\n            overlap = false; fontname=\"Arial\"; fontcolor=\"#333333\";\n            edge [color=\"#888888\"];\n            node [shape=box, fontname=\"Arial\", style=filled, color=\"#109DFF\", fontcolor=white];\n            graph [penwidth=0];\n            subgraph callbacks {\n                node [shape=circle, width=0.3, label=\"\", color=\"#00CC96\"];\n                ".concat(callbacksOut.join('\n'), " }\n\n            ").concat(Object.entries(elements).map(function (_ref4, i) {
+      var _ref5 = _slicedToArray(_ref4, 2),
+          id = _ref5[0],
+          props = _ref5[1];
 
-          elements[id] = elements[id] || {};
-          elements[id][property] = true;
-          return "\"".concat(id, ".").concat(property, "\"");
-        }
+      return "\n                subgraph cluster_".concat(i, " {\n                    bgcolor=\"#B9C2CE\";\n                    ").concat(Object.keys(props).map(function (p) {
+        return "\"".concat(id, ".").concat(p, "\" [label=\"").concat(p, "\"];");
+      }).join('\n'), "\n                    label = \"").concat(id, "\"; }");
+    }).join('\n'), "\n\n            ").concat(links.join('\n'), " }");
+    viz.current.renderSVGElement(dot).then(function (vizEl) {
+      el.current.innerHTML = '';
+      el.current.appendChild(vizEl);
+    })["catch"](function (e) {
+      // https://github.com/mdaines/viz.js/wiki/Caveats
+      makeViz(); // eslint-disable-next-line no-console
 
-        var out_nodes = output.replace(/^\.\./, '').replace(/\.\.$/, '').split('...').map(function (o) {
-          return recordAndReturn(o.split('.'));
-        }).join(', ');
-        var in_nodes = inputs.map(function (_ref4) {
-          var id = _ref4.id,
-              property = _ref4.property;
-          return recordAndReturn([id, property]);
-        }).join(', ');
-        return "{".concat(in_nodes, "} -> cb").concat(i, " -> {").concat(out_nodes, "};");
-      });
-      var dot = "digraph G {\n            overlap = false; fontname=\"Arial\"; fontcolor=\"#333333\";\n            edge [color=\"#888888\"];\n            node [shape=box, fontname=\"Arial\", style=filled, color=\"#109DFF\", fontcolor=white];\n            graph [penwidth=0];\n            subgraph callbacks {\n                node [shape=circle, width=0.3, label=\"\", color=\"#00CC96\"];\n                ".concat(callbacks.join('\n'), " }\n\n            ").concat(Object.entries(elements).map(function (_ref5, i) {
-        var _ref6 = _slicedToArray(_ref5, 2),
-            id = _ref6[0],
-            props = _ref6[1];
-
-        return "\n                subgraph cluster_".concat(i, " {\n                    bgcolor=\"#B9C2CE\";\n                    ").concat(Object.keys(props).map(function (p) {
-          return "\"".concat(id, ".").concat(p, "\" [label=\"").concat(p, "\"];");
-        }).join('\n'), "\n                    label = \"").concat(id, "\"; }");
-      }).join('\n'), "\n\n            ").concat(links.join('\n'), " }");
-      var el = this.refs.el;
-      this.viz.renderSVGElement(dot).then(function (vizEl) {
-        el.innerHTML = '';
-        el.appendChild(vizEl);
-      })["catch"](function (e) {
-        // https://github.com/mdaines/viz.js/wiki/Caveats
-        _this2.viz = new viz_js__WEBPACK_IMPORTED_MODULE_2__["default"]({
-          Module: viz_js_full_render__WEBPACK_IMPORTED_MODULE_3__["Module"],
-          render: viz_js_full_render__WEBPACK_IMPORTED_MODULE_3__["render"]
-        }); // eslint-disable-next-line no-console
-
-        console.error(e);
-        el.innerHTML = 'Error creating callback graph';
-      });
-    }
-  }]);
-
-  return CallbackGraphContainer;
-}(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
+      console.error(e);
+      el.current.innerHTML = 'Error creating callback graph';
+    });
+  });
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "dash-callback-dag--container",
+    ref: el
+  });
+};
 
 CallbackGraphContainer.propTypes = {
-  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_4___default.a.object
+  graphs: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object
 };
 
 
@@ -34675,7 +36317,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _Percy_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Percy.css */ "./src/components/error/Percy.css");
 /* harmony import */ var _Percy_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_Percy_css__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../utils */ "./src/utils.js");
+/* harmony import */ var _actions_utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../actions/utils */ "./src/actions/utils.js");
 /* harmony import */ var _werkzeugcss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../werkzeugcss */ "./src/components/error/werkzeugcss.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -34787,8 +36429,10 @@ function UnconnectedErrorContent(_ref) {
     className: "dash-fe-error__st"
   }, React.createElement("div", {
     className: "dash-fe-error__info"
-  }, React.createElement("details", null, React.createElement("summary", null, React.createElement("i", null, "(This error originated from the built-in JavaScript code that runs Dash apps. Click to see the full stack trace or open your browser's console.)")), error.stack.split('\n').map(function (line) {
-    return React.createElement("p", null, line);
+  }, React.createElement("details", null, React.createElement("summary", null, React.createElement("i", null, "(This error originated from the built-in JavaScript code that runs Dash apps. Click to see the full stack trace or open your browser's console.)")), error.stack.split('\n').map(function (line, i) {
+    return React.createElement("p", {
+      key: i
+    }, line);
   })))), typeof error.html !== 'string' ? null : error.html.indexOf('<!DOCTYPE HTML') === 0 ? React.createElement("div", {
     className: "dash-be-error__st"
   }, React.createElement("div", {
@@ -34830,7 +36474,7 @@ UnconnectedErrorContent.propTypes = {
 };
 var ErrorContent = Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(function (state) {
   return {
-    base: Object(_utils__WEBPACK_IMPORTED_MODULE_6__["urlBase"])(state.config)
+    base: Object(_actions_utils__WEBPACK_IMPORTED_MODULE_6__["urlBase"])(state.config)
   };
 })(UnconnectedErrorContent);
 FrontEndError.propTypes = {
@@ -35003,15 +36647,16 @@ var UnconnectedGlobalErrorContainer = /*#__PURE__*/function (_Component) {
     value: function render() {
       var _this$props = this.props,
           error = _this$props.error,
-          dependenciesRequest = _this$props.dependenciesRequest;
+          graphs = _this$props.graphs,
+          children = _this$props.children;
       return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
         id: "_dash-global-error-container"
       }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_4__["DebugMenu"], {
         error: error,
-        dependenciesRequest: dependenciesRequest
+        graphs: graphs
       }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
         id: "_dash-app-content"
-      }, this.props.children)));
+      }, children)));
     }
   }]);
 
@@ -35021,12 +36666,12 @@ var UnconnectedGlobalErrorContainer = /*#__PURE__*/function (_Component) {
 UnconnectedGlobalErrorContainer.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object,
   error: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object,
-  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object
+  graphs: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object
 };
 var GlobalErrorContainer = Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(function (state) {
   return {
     error: state.error,
-    dependenciesRequest: state.dependenciesRequest
+    graphs: state.graphs
   };
 })(Object(radium__WEBPACK_IMPORTED_MODULE_3__["default"])(UnconnectedGlobalErrorContainer));
 /* harmony default export */ __webpack_exports__["default"] = (GlobalErrorContainer);
@@ -35666,12 +37311,12 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
           callbackGraphOpened = _this$state.callbackGraphOpened;
       var _this$props = this.props,
           error = _this$props.error,
-          dependenciesRequest = _this$props.dependenciesRequest;
+          graphs = _this$props.graphs;
       var menuClasses = opened ? 'dash-debug-menu dash-debug-menu--opened' : 'dash-debug-menu dash-debug-menu--closed';
       var menuContent = opened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-menu__content"
       }, callbackGraphOpened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_CallbackGraph_CallbackGraphContainer_react__WEBPACK_IMPORTED_MODULE_12__["CallbackGraphContainer"], {
-        dependenciesRequest: dependenciesRequest
+        graphs: graphs
       }) : null, error.frontEnd.length > 0 || error.backEnd.length > 0 ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-menu__button-container"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_DebugAlertContainer_react__WEBPACK_IMPORTED_MODULE_10__["DebugAlertContainer"], {
@@ -35754,7 +37399,7 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
 DebugMenu.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_9___default.a.object,
   error: prop_types__WEBPACK_IMPORTED_MODULE_9___default.a.object,
-  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_9___default.a.object
+  graphs: prop_types__WEBPACK_IMPORTED_MODULE_9___default.a.object
 };
 
 
@@ -36050,13 +37695,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var storePrefix = '_dash_persistence.';
 
 function err(e) {
-  var error = typeof e === 'string' ? new Error(e) : e; // Send this to the console too, so it's still available with debug off
-
-  /* eslint-disable-next-line no-console */
-
-  console.error(e);
+  var error = typeof e === 'string' ? new Error(e) : e;
   return Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('ON_ERROR')({
-    myID: storePrefix,
     type: 'frontEnd',
     error: error
   });
@@ -36669,84 +38309,17 @@ function getAppState(state) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var dependency_graph__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! dependency-graph */ "./node_modules/dependency-graph/lib/dep_graph.js");
-/* harmony import */ var dependency_graph__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(dependency_graph__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
-
-
-
 var initialGraph = {};
 
 var graphs = function graphs() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialGraph;
   var action = arguments.length > 1 ? arguments[1] : undefined;
 
-  switch (action.type) {
-    case 'COMPUTE_GRAPHS':
-      {
-        var dependencies = action.payload;
-        var inputGraph = new dependency_graph__WEBPACK_IMPORTED_MODULE_1__["DepGraph"]();
-        var multiGraph = new dependency_graph__WEBPACK_IMPORTED_MODULE_1__["DepGraph"]();
-        dependencies.forEach(function registerDependency(dependency) {
-          var output = dependency.output,
-              inputs = dependency.inputs; // Multi output supported will be a string already
-          // Backward compatibility by detecting object.
-
-          var outputId;
-
-          if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(output) === 'Object') {
-            outputId = "".concat(output.id, ".").concat(output.property);
-          } else {
-            outputId = output;
-
-            if (Object(_utils__WEBPACK_IMPORTED_MODULE_2__["isMultiOutputProp"])(output)) {
-              Object(_utils__WEBPACK_IMPORTED_MODULE_2__["parseMultipleOutputs"])(output).forEach(function (out) {
-                multiGraph.addNode(out);
-                inputs.forEach(function (i) {
-                  var inputId = "".concat(i.id, ".").concat(i.property);
-
-                  if (!multiGraph.hasNode(inputId)) {
-                    multiGraph.addNode(inputId);
-                  }
-
-                  multiGraph.addDependency(inputId, out);
-                });
-              });
-            } else {
-              multiGraph.addNode(output);
-              inputs.forEach(function (i) {
-                var inputId = "".concat(i.id, ".").concat(i.property);
-
-                if (!multiGraph.hasNode(inputId)) {
-                  multiGraph.addNode(inputId);
-                }
-
-                multiGraph.addDependency(inputId, output);
-              });
-            }
-          }
-
-          inputs.forEach(function (inputObject) {
-            var inputId = "".concat(inputObject.id, ".").concat(inputObject.property);
-            inputGraph.addNode(outputId);
-
-            if (!inputGraph.hasNode(inputId)) {
-              inputGraph.addNode(inputId);
-            }
-
-            inputGraph.addDependency(inputId, outputId);
-          });
-        });
-        return {
-          InputGraph: inputGraph,
-          MultiGraph: multiGraph
-        };
-      }
-
-    default:
-      return state;
+  if (action.type === 'SET_GRAPHS') {
+    return action.payload;
   }
+
+  return state;
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (graphs);
@@ -36784,6 +38357,12 @@ function error() {
   switch (action.type) {
     case 'ON_ERROR':
       {
+        // log errors to the console for stack tracing and so they're
+        // available even with debugging off
+
+        /* eslint-disable-next-line no-console */
+        console.error(action.payload.error);
+
         if (action.payload.type === 'frontEnd') {
           return {
             frontEnd: [Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeRight"])(action.payload, {
@@ -36969,57 +38548,51 @@ var layout = function layout() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/reducers/utils.js");
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var _actions_constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/constants */ "./src/actions/constants.js");
+/* harmony import */ var _actions_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions/constants */ "./src/actions/constants.js");
 
-
-
-var initialPaths = null;
+var initialPaths = {
+  strs: {},
+  objs: {}
+};
 
 var paths = function paths() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialPaths;
   var action = arguments.length > 1 ? arguments[1] : undefined;
 
-  switch (action.type) {
-    case Object(_actions_constants__WEBPACK_IMPORTED_MODULE_2__["getAction"])('COMPUTE_PATHS'):
-      {
-        var _action$payload = action.payload,
-            subTree = _action$payload.subTree,
-            startingPath = _action$payload.startingPath;
-        var oldState = state;
-
-        if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isNil"])(state)) {
-          oldState = {};
-        }
-
-        var newState; // if we're updating a subtree, clear out all of the existing items
-
-        if (!Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(startingPath)) {
-          var removeKeys = Object(ramda__WEBPACK_IMPORTED_MODULE_1__["filter"])(function (k) {
-            return Object(ramda__WEBPACK_IMPORTED_MODULE_1__["equals"])(startingPath, Object(ramda__WEBPACK_IMPORTED_MODULE_1__["slice"])(0, startingPath.length, oldState[k]));
-          }, Object(ramda__WEBPACK_IMPORTED_MODULE_1__["keys"])(oldState));
-          newState = Object(ramda__WEBPACK_IMPORTED_MODULE_1__["omit"])(removeKeys, oldState);
-        } else {
-          newState = Object(ramda__WEBPACK_IMPORTED_MODULE_1__["mergeRight"])({}, oldState);
-        }
-
-        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["crawlLayout"])(subTree, function assignPath(child, itempath) {
-          if (Object(_utils__WEBPACK_IMPORTED_MODULE_0__["hasPropsId"])(child)) {
-            newState[child.props.id] = Object(ramda__WEBPACK_IMPORTED_MODULE_1__["concat"])(startingPath, itempath);
-          }
-        });
-        return newState;
-      }
-
-    default:
-      {
-        return state;
-      }
+  if (action.type === Object(_actions_constants__WEBPACK_IMPORTED_MODULE_0__["getAction"])('SET_PATHS')) {
+    return action.payload;
   }
+
+  return state;
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (paths);
+
+/***/ }),
+
+/***/ "./src/reducers/pendingCallbacks.js":
+/*!******************************************!*\
+  !*** ./src/reducers/pendingCallbacks.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+var pendingCallbacks = function pendingCallbacks() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  switch (action.type) {
+    case 'SET_PENDING_CALLBACKS':
+      return action.payload;
+
+    default:
+      return state;
+  }
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (pendingCallbacks);
 
 /***/ }),
 
@@ -37036,16 +38609,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createReducer", function() { return createReducer; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
-/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
-/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
-/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
-/* harmony import */ var _requestQueue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./requestQueue */ "./src/reducers/requestQueue.js");
-/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
-/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
-/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
-/* harmony import */ var _hooks__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
-/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
+/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
+/* harmony import */ var _pendingCallbacks__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./pendingCallbacks */ "./src/reducers/pendingCallbacks.js");
+/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
+/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
+/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
+/* harmony import */ var _hooks__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
+/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -37066,22 +38640,23 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 
+
 var apiRequests = ['dependenciesRequest', 'layoutRequest', 'reloadRequest', 'loginRequest'];
 
 function mainReducer() {
   var parts = {
-    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_6__["default"],
-    layout: _layout__WEBPACK_IMPORTED_MODULE_2__["default"],
-    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_3__["default"],
-    paths: _paths__WEBPACK_IMPORTED_MODULE_4__["default"],
-    requestQueue: _requestQueue__WEBPACK_IMPORTED_MODULE_5__["default"],
-    config: _config__WEBPACK_IMPORTED_MODULE_11__["default"],
-    history: _history__WEBPACK_IMPORTED_MODULE_7__["default"],
-    error: _error__WEBPACK_IMPORTED_MODULE_8__["default"],
-    hooks: _hooks__WEBPACK_IMPORTED_MODULE_9__["default"]
+    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_7__["default"],
+    layout: _layout__WEBPACK_IMPORTED_MODULE_3__["default"],
+    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_4__["default"],
+    paths: _paths__WEBPACK_IMPORTED_MODULE_5__["default"],
+    pendingCallbacks: _pendingCallbacks__WEBPACK_IMPORTED_MODULE_6__["default"],
+    config: _config__WEBPACK_IMPORTED_MODULE_12__["default"],
+    history: _history__WEBPACK_IMPORTED_MODULE_8__["default"],
+    error: _error__WEBPACK_IMPORTED_MODULE_9__["default"],
+    hooks: _hooks__WEBPACK_IMPORTED_MODULE_10__["default"]
   };
   Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (r) {
-    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_10__["default"])(r);
+    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_11__["default"])(r);
   }, apiRequests);
   return Object(redux__WEBPACK_IMPORTED_MODULE_1__["combineReducers"])(parts);
 }
@@ -37090,21 +38665,21 @@ function getInputHistoryState(itempath, props, state) {
   var graphs = state.graphs,
       layout = state.layout,
       paths = state.paths;
-  var InputGraph = graphs.InputGraph;
-  var keyObj = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["equals"])(itempath), paths);
+  var idProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(itempath.concat(['props']), layout);
+
+  var _ref = idProps || {},
+      id = _ref.id;
+
   var historyEntry;
 
-  if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(keyObj)) {
-    var id = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(keyObj)[0];
+  if (id) {
     historyEntry = {
       id: id,
       props: {}
     };
     Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(props).forEach(function (propKey) {
-      var inputKey = "".concat(id, ".").concat(propKey);
-
-      if (InputGraph.hasNode(inputKey) && InputGraph.dependenciesOf(inputKey).length > 0) {
-        historyEntry.props[propKey] = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["view"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["lensPath"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(paths[id], ['props', propKey])), layout);
+      if (Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_2__["getCallbacksByInput"])(graphs, paths, id, propKey).length) {
+        historyEntry.props[propKey] = idProps[propKey];
       }
     });
   }
@@ -37154,10 +38729,10 @@ function recordHistory(reducer) {
 
 function reloaderReducer(reducer) {
   return function (state, action) {
-    var _ref = state || {},
-        history = _ref.history,
-        config = _ref.config,
-        hooks = _ref.hooks;
+    var _ref2 = state || {},
+        history = _ref2.history,
+        config = _ref2.config,
+        hooks = _ref2.hooks;
 
     var newState = state;
 
@@ -37182,92 +38757,6 @@ function reloaderReducer(reducer) {
 
 function createReducer() {
   return reloaderReducer(recordHistory(mainReducer()));
-}
-
-/***/ }),
-
-/***/ "./src/reducers/requestQueue.js":
-/*!**************************************!*\
-  !*** ./src/reducers/requestQueue.js ***!
-  \**************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-
-
-var requestQueue = function requestQueue() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-  var action = arguments.length > 1 ? arguments[1] : undefined;
-
-  switch (action.type) {
-    case 'SET_REQUEST_QUEUE':
-      return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["clone"])(action.payload);
-
-    default:
-      return state;
-  }
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (requestQueue);
-
-/***/ }),
-
-/***/ "./src/reducers/utils.js":
-/*!*******************************!*\
-  !*** ./src/reducers/utils.js ***!
-  \*******************************/
-/*! exports provided: hasPropsId, hasPropsChildren, crawlLayout, hasId */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hasPropsId", function() { return hasPropsId; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hasPropsChildren", function() { return hasPropsChildren; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "crawlLayout", function() { return crawlLayout; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hasId", function() { return hasId; });
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-
-var extend = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["reduce"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flip"])(ramda__WEBPACK_IMPORTED_MODULE_0__["append"]));
-var hasProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["allPass"])([Object(ramda__WEBPACK_IMPORTED_MODULE_0__["is"])(Object), Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('props')]);
-var hasPropsId = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["allPass"])([hasProps, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["compose"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('id'), Object(ramda__WEBPACK_IMPORTED_MODULE_0__["prop"])('props'))]);
-var hasPropsChildren = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["allPass"])([hasProps, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["compose"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('children'), Object(ramda__WEBPACK_IMPORTED_MODULE_0__["prop"])('props'))]); // crawl a layout object, apply a function on every object
-
-var crawlLayout = function crawlLayout(object, func) {
-  var path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-  func(object, path);
-  /*
-   * object may be a string, a number, or null
-   * R.has will return false for both of those types
-   */
-
-  if (hasPropsChildren(object)) {
-    var newPath = extend(path, ['props', 'children']);
-
-    if (Array.isArray(object.props.children)) {
-      object.props.children.forEach(function (child, i) {
-        crawlLayout(child, func, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["append"])(i, newPath));
-      });
-    } else {
-      crawlLayout(object.props.children, func, newPath);
-    }
-  } else if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["is"])(Array, object)) {
-    /*
-     * Sometimes when we're updating a sub-tree
-     * (like when we're responding to a callback)
-     * that returns `{children: [{...}, {...}]}`
-     * then we'll need to start crawling from
-     * an array instead of an object.
-     */
-    object.forEach(function (child, i) {
-      crawlLayout(child, func, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["append"])(i, path));
-    });
-  }
-};
-function hasId(child) {
-  return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(child) === 'Object' && Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('props', child) && Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('id', child.props);
 }
 
 /***/ }),
@@ -37355,68 +38844,6 @@ var initializeStore = function initializeStore(reset) {
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (initializeStore);
-
-/***/ }),
-
-/***/ "./src/utils.js":
-/*!**********************!*\
-  !*** ./src/utils.js ***!
-  \**********************/
-/*! exports provided: urlBase, uid, isMultiOutputProp, parseMultipleOutputs */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "urlBase", function() { return urlBase; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "uid", function() { return uid; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isMultiOutputProp", function() { return isMultiOutputProp; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseMultipleOutputs", function() { return parseMultipleOutputs; });
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-
-/*
- * requests_pathname_prefix is the new config parameter introduced in
- * dash==0.18.0. The previous versions just had url_base_pathname
- */
-
-function urlBase(config) {
-  var hasUrlBase = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('url_base_pathname', config);
-  var hasReqPrefix = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('requests_pathname_prefix', config);
-
-  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(config) !== 'Object' || !hasUrlBase && !hasReqPrefix) {
-    throw new Error("\n            Trying to make an API request but neither\n            \"url_base_pathname\" nor \"requests_pathname_prefix\"\n            is in `config`. `config` is: ", config);
-  }
-
-  var base = hasReqPrefix ? config.requests_pathname_prefix : config.url_base_pathname;
-  return base.charAt(base.length - 1) === '/' ? base : base + '/';
-}
-function uid() {
-  function s4() {
-    var h = 0x10000;
-    return Math.floor((1 + Math.random()) * h).toString(16).substring(1);
-  }
-
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-}
-function isMultiOutputProp(outputIdAndProp) {
-  /*
-   * If this update is for multiple outputs, then it has
-   * starting & trailing `..` and each propId pair is separated
-   * by `...`, e.g.
-   * "..output-1.value...output-2.value...output-3.value...output-4.value.."
-   */
-  return outputIdAndProp.startsWith('..');
-}
-function parseMultipleOutputs(outputIdAndProp) {
-  /*
-   * If this update is for multiple outputs, then it has
-   * starting & trailing `..` and each propId pair is separated
-   * by `...`, e.g.
-   * "..output-1.value...output-2.value...output-3.value...output-4.value.."
-   */
-  return outputIdAndProp.split('...').map(function (o) {
-    return o.replace('..', '');
-  });
-}
 
 /***/ }),
 
