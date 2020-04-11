@@ -2,7 +2,7 @@ import React, {useState, useMemo, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
-import ReactJson from 'react-json-view'
+import JSONTree from 'react-json-tree'
 
 import './CallbackGraphContainer.css';
 import stylesheet from './CallbackGraphContainerStylesheet';
@@ -215,12 +215,14 @@ function CallbackGraphContainer(props) {
         />
       { selected ?
         <div className="dash-callback-dag--info">
-          <ReactJson
-            src={elementInfo}
-            name={elementName}
-            iconStyle="triangle"
-            displayDataTypes={false}
-            displayObjectSize={false}
+          <JSONTree
+            data={elementInfo}
+            theme="summerfruit"
+            hideRoot={true}
+            getItemString={(type, data, itemType, itemString) => (
+              <span>{itemType}</span>
+            )}
+            shouldExpandNode={(keyName, data, level) => level <= 1}
           />
         </div>
         : null
