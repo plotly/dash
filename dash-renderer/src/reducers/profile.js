@@ -5,6 +5,8 @@ import {STATUS} from '../constants/constants';
 const defaultProfile = {
   callCount: 0,
   totalTime: 0,
+  totalComputeTime: 0,
+  totalResourceTime: {},
   status: {
     current: null,
     success: 0,
@@ -35,7 +37,13 @@ const profile = (state = defaultState, action) => {
 
           // Process the entire request queue.
           action.payload.forEach(request => {
-            const {controllerId, status, uid, requestTime, responseTime} = clone(request);
+            const {controllerId,
+                   status,
+                   uid,
+                   requestTime,
+                   responseTime,
+                   resources} = clone(request);
+
             const profile = newState.callbacks[controllerId] || clone(defaultProfile);
 
             if (!profile.uid || profile.uid === uid) {
@@ -55,6 +63,16 @@ const profile = (state = defaultState, action) => {
                   profile.uid = null;
                   profile.callCount += 1;
                   profile.totalTime += (responseTime-requestTime);
+
+                  const totalResources = profile.totalResourceTime;
+                  const {dash_total, ...userResources} = resources;
+                  profile.totalComputeTime += dash_total;
+
+                  for (const r in userResources) {
+                    if (userResources.hasOwnProperty(r)) {
+                      totalResources[r] = (totalResources[r] || 0) + userResources[r];
+                    }
+                  }
 
                   switch (status) {
                     case STATUS.OK:

@@ -452,7 +452,7 @@ function updateOutput(
         return thisRequestIndex;
     };
 
-    const updateRequestQueue = (rejected, status) => {
+    const updateRequestQueue = (rejected, status, resources) => {
         const postRequestQueue = getState().requestQueue;
         const thisRequestIndex = getThisRequestIndex();
         if (thisRequestIndex === -1) {
@@ -465,6 +465,7 @@ function updateOutput(
                 status: status,
                 responseTime: Date.now(),
                 rejected,
+                resources,
             }),
             postRequestQueue
         );
@@ -639,7 +640,7 @@ function updateOutput(
              * Prevent all updates.
              */
             if (e === window.dash_clientside.PreventUpdate) {
-                updateRequestQueue(true, STATUS.PREVENT_UPDATE);
+                updateRequestQueue(true, STATUS.PREVENT_UPDATE, {});
                 return;
             }
 
@@ -657,7 +658,7 @@ function updateOutput(
              * mechanism
              */
 
-            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR, {});
             return;
         }
 
@@ -671,7 +672,7 @@ function updateOutput(
                     'supported in Dash clientside right now, but may be in the ' +
                     'future.'
             );
-            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR, {});
             return;
         }
 
@@ -685,7 +686,7 @@ function updateOutput(
              * Update the request queue by treating a successful clientside
              * like a successful serverside response (200 status code)
              */
-            updateRequestQueue(false, STATUS.OK);
+            updateRequestQueue(false, STATUS.OK, {});
 
             /*
              * Prevent update.
@@ -758,9 +759,29 @@ function updateOutput(
                 return rejected;
             };
 
+            /*
+             * Process headers and collect resource usage.
+             */
+            const resourceTiming = {};
+            const timingHeaders = res.headers.get('Server-Timing') || '';
+
+            timingHeaders.split(',').forEach(function processHeader(header) {
+              const name = header.split(';')[0];
+              const dur = header.match(/;dur=[0-9\.]+/);
+
+              if (resourceTiming.hasOwnProperty(name)) {
+                  throw new Error(`Duplicate Server-Timing resource "${name}".`);
+              }
+
+              if (dur) {
+                resourceTiming[name] = Number(dur[0].slice(5));
+              }
+
+            });
+
             if (res.status !== STATUS.OK) {
                 // update the status of this request
-                updateRequestQueue(true, res.status);
+                updateRequestQueue(true, res.status, resourceTiming);
 
                 /*
                  * This is a 204 response code, there's no content to process.
@@ -782,7 +803,7 @@ function updateOutput(
              * If so, ignore this request.
              */
             if (isRejected()) {
-                updateRequestQueue(true, res.status);
+                updateRequestQueue(true, res.status, resourceTiming);
                 return;
             }
 
@@ -794,11 +815,11 @@ function updateOutput(
                  * get out of order
                  */
                 if (isRejected()) {
-                    updateRequestQueue(true, res.status);
+                    updateRequestQueue(true, res.status, resourceTiming);
                     return;
                 }
 
-                updateRequestQueue(false, res.status);
+                updateRequestQueue(false, res.status, resourceTiming);
 
                 // Fire custom request_post hook if any
                 if (hooks.request_post !== null) {
