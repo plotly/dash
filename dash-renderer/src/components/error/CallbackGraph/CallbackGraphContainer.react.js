@@ -183,10 +183,15 @@ function CallbackGraphContainer(props) {
         elementInfo.language = data.lang;
 
         // Remove uid and set profile. Note: len('__dash_callback__.') = 18
-        const {uid, ...rest} = profile.callbacks[data.id.slice(18)];
-        const edges = getEdgeTypes(selected);
+        const callbackOutputId = data.id.slice(18);
+        if (profile.callbacks.hasOwnProperty(callbackOutputId)) {
+          const {uid, ...rest} = profile.callbacks[callbackOutputId];
+          elementInfo.profile = rest;
+        } else {
+          elementInfo.profile = {};
+        }
 
-        elementInfo.profile = rest;
+        const edges = getEdgeTypes(selected);
         elementInfo.inputs = edges.input.sources().reduce(reducer, {});
         elementInfo.states = edges.state.sources().reduce(reducer, {});
         elementInfo.outputs = edges.output.targets().reduce(reducer, {});
