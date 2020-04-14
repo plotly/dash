@@ -69,13 +69,13 @@ class DataTableCellFacade(object):
 
         return (
             self.mixin.find_element(
-                '#{} {} tbody td.dash-cell.column-{}[data-dash-row="{}"]'.format(
+                '#{} {} tbody td.dash-cell.column-{}[data-dash-row="{}"]:not(.phantom-cell)'.format(
                     self.id, self.state, self.col, self.row
                 )
             )
             if isinstance(self.col, int)
             else self.mixin.find_element(
-                '#{} {} tbody td.dash-cell[data-dash-column="{}"][data-dash-row="{}"]'.format(
+                '#{} {} tbody td.dash-cell[data-dash-column="{}"][data-dash-row="{}"]:not(.phantom-cell)'.format(
                     self.id, self.state, self.col, self.row
                 )
             )
@@ -96,6 +96,11 @@ class DataTableCellFacade(object):
 
         return "focused" in input.get_attribute("class").split(" ")
 
+    def is_selected(self):
+        cell = self.get()
+
+        return "cell--selected" in cell.get_attribute("class").split(" ")
+
     def is_focused(self):
         cell = self.get()
 
@@ -115,7 +120,7 @@ class DataTableColumnFacade(object):
         self.mixin._wait_for_table(self.id, self.state)
 
         return self.mixin.find_elements(
-            '#{} {} tbody tr th.dash-header[data-dash-column="{}"]'.format(
+            '#{} {} tbody tr th.dash-header[data-dash-column="{}"]:not(.phantom-cell)'.format(
                 self.id, self.state, self.col_id
             )
         )[row]
@@ -130,7 +135,7 @@ class DataTableColumnFacade(object):
 
     def filter(self):
         return self.mixin.find_element(
-            '#{} {} tbody tr th.dash-filter[data-dash-column="{}"]'.format(
+            '#{} {} tbody tr th.dash-filter[data-dash-column="{}"]:not(.phantom-cell)'.format(
                 self.id, self.state, self.col_id
             )
         ).click()
@@ -146,18 +151,24 @@ class DataTableRowFacade(object):
 
     def delete(self):
         return self.mixin.find_elements(
-            "#{} {} tbody tr td.dash-delete-cell".format(self.id, self.state)
+            "#{} {} tbody tr td.dash-delete-cell:not(.phantom-cell)".format(
+                self.id, self.state
+            )
         )[self.row].click()
 
     def select(self):
         return self.mixin.find_elements(
-            "#{} {} tbody tr td.dash-select-cell".format(self.id, self.state)
+            "#{} {} tbody tr td.dash-select-cell:not(.phantom-cell)".format(
+                self.id, self.state
+            )
         )[self.row].click()
 
     def is_selected(self):
         return (
             self.mixin.find_elements(
-                "#{} {} tbody tr td.dash-select-cell".format(self.id, self.state)
+                "#{} {} tbody tr td.dash-select-cell:not(.phantom-cell)".format(
+                    self.id, self.state
+                )
             )[self.row]
             .find_element_by_css_selector("input")
             .is_selected()

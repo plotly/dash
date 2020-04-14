@@ -19,7 +19,7 @@ Object.values([AppMode.ReadOnly]).forEach(mode => {
             DashTable.getCell(1, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Snowy'));
             DashTable.getCell(2, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Tropical Beaches'));
             DashTable.getCell(3, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
-            cy.get('tr th.column-6 .column-header--sort').last().click();
+            cy.get('tr th.column-6:not(.phantom-cell) .column-header--sort').last().click();
             DashTable.getCell(0, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
             DashTable.getCell(1, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
             DashTable.getCell(2, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));

@@ -18,7 +18,7 @@ variants.forEach(([mode, flavors]) => {
         });
 
         it('selects cell and keeps it / loses it based on virtualization', () => {
-            DashTable.getCellById(0, 'rows').click();
+            DashTable.clickCellById(0, 'rows');
             DashTable.getSelectedCells().should('have.length', 1);
 
             cy.get('.row-1').scrollTo(0, 1000);
@@ -26,7 +26,7 @@ variants.forEach(([mode, flavors]) => {
         });
 
         it('keeps active cell', () => {
-            DashTable.getCellById(0, 'rows').click();
+            DashTable.clickCellById(0, 'rows');
             DashTable.getActiveCell().should('have.length', 1);
 
             cy.get('.row-1').scrollTo(0, 1000);
@@ -38,9 +38,9 @@ variants.forEach(([mode, flavors]) => {
 
         it('keep selected cells', () => {
             DashTable.toggleScroll(false);
-            DashTable.getCell(0, 1).click();
-            DOM.focused.type(Key.Shift, { release: false });
-            DashTable.getCell(2, 2).click();
+            DashTable.clickCell(0, 1);
+            DashTable.focusedType(Key.Shift, { release: false });
+            DashTable.clickCell(2, 2);
             DashTable.toggleScroll(true);
 
             DashTable.getSelectedCells().should('have.length', 6);
@@ -54,16 +54,16 @@ variants.forEach(([mode, flavors]) => {
 
         it('can edit cell', () => {
             DashTable.toggleScroll(false);
-            DashTable.getCell(0, 0).click();
+            DashTable.clickCell(0, 0);
             DashTable.toggleScroll(true);
 
             cy.get('.row-1').scrollTo(0, 1000);
             cy.wait(1000);
 
-            DashTable.getCell(10, 1).click();
-            DOM.focused.type(`Edited${Key.Enter}`);
+            DashTable.clickCell(10, 1);
+            DashTable.focusedType(`Edited${Key.Enter}`);
 
-            DOM.focused.type(`${Key.ArrowUp}`);
+            DashTable.focusedType(`${Key.ArrowUp}`);
             DOM.focused.should('have.value', 'Edited');
         });
     });

@@ -3,6 +3,11 @@ import { storiesOf } from '@storybook/react';
 import DataTable from 'dash-table/dash/DataTable';
 import { Presentation } from 'dash-table/components/Table/props';
 
+interface ITest {
+    name: string;
+    props: any;
+}
+
 const setProps = () => { };
 
 const columnFormats = [
@@ -10,93 +15,149 @@ const columnFormats = [
     { id: 'b', name: 'Description' }
 ]
 
-storiesOf('DashTable/Markdown', module)
-    .add('Headers', () => (
-        <DataTable
-            setProps={setProps}
-            id='table'
-            data={[
-                { a: '# H1', b: 'header one' },
-                { a: '## H2', b: 'header two' },
-                { a: '### H3', b: 'header three' },
-                { a: '#### H4', b: 'header four' },
-                { a: '##### H5', b: 'header five' },
-                { a: '###### H6', b: 'header six' }
-            ]}
-            columns={columnFormats}
-        />))
-    .add('Emphasis', () => (
-        <DataTable
-            setProps={setProps}
-            id='table'
-            data={[
-                { a: '*italics*', b: 'italics with stars' },
-                { a: '_italics_', b: 'italics with underscores' },
-                { a: '**bold**', b: 'bold with stars' },
-                { a: '__bold__', b: 'bold with underscores' },
-                { a: '~~strikethrough~~', b: 'strikethrough' },
-                { a: '**_~~emphasis bonanza~~_**', b: 'everything all at once' }
-            ]}
-            columns={columnFormats}
-        />))
-    .add('Lists', () => (
-        <DataTable
-            setProps={setProps}
-            id='table'
-            data={[
-                { a: '1. Ordered list\n  - with subitem\n    * and sub sub item\n  - and another subitem\n2. and another item', b: 'ordered' },
-                { a: '* Unordered list\n  - with subitem\n    * and sub sub item\n  * and another subitem\n- and another item', b: 'unordered' }
-            ]}
-            columns={columnFormats}
-        />))
-    .add('Links and images', () => (
-        <DataTable
-            setProps={setProps}
-            id='table'
-            data={[
-                { a: '[Greatest website ever](http://plotly.com "Plotly site")', b: 'normal link with title' },
-                { a: '![the github logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png)', b: 'logo with alt text' }
-            ]}
-            columns={columnFormats}
-        />))
-    .add('Quotes, code, and syntax highlighting', () => (
-        <DataTable
-            setProps={setProps}
-            id='table'
-            data={[
-                { a: '> This is a quote.', b: 'simple quote' },
-                { a: '> This is a multiline\n> quote.', b: 'multiline quote' },
-                { a: 'The `dash_table` package is super cool!', b: 'inline code' },
-                {
-                    a: ['```plaintext',
-                        'export default helloworld(){',
-                        '  print("hello, world!")}',
-                        '```'].join('\n'),
-                    b: 'code block without syntax highlighting'
-                },
-                {
-                    a: ['```python',
-                        'def hello_world():',
-                        '  print("hello, world!")',
-                        '```'].join('\n'),
-                    b: 'code block with syntax highlighting'
-                }
-            ]}
-            columns={columnFormats}
-        />))
-    .add('Tables', () => (
-        <DataTable
-            setProps={setProps}
-            id='table'
-            data={[
-                {
-                    a: ['Statement | Is it true?',
-                        '--- | ---',
-                        'This page has two tables | yes',
-                        'This table has two rows | no',
-                        'This is an example of tableception | yes'].join('\n'),
-                    b: 'simple two-column table'
-                }
-            ]}
-            columns={columnFormats}
-        />))
+const variants: ITest[] = [
+    {
+        name: '',
+        props: {
+            row_deletable: true,
+            style_table: { maxWidth: '1000px', minWidth: '1000px', width: '1000px' }
+        }
+    },
+    {
+        name: ': fixed_columns',
+        props: {
+            row_deletable: true,
+            fixed_columns: { headers: true },
+            style_table: { maxWidth: '1000px', minWidth: '1000px', width: '1000px' }
+        }
+    },
+    {
+        name: ': fixed_rows',
+        props: {
+            row_deletable: true,
+            fixed_rows: { headers: true },
+            style_table: { maxWidth: '1000px', minWidth: '1000px', width: '1000px' }
+        }
+    },
+    {
+        name: ': fixed_columns & fixed_rows',
+        props: {
+            row_deletable: true,
+            fixed_columns: { headers: true },
+            fixed_rows: { headers: true },
+            style_table: { maxWidth: '1000px', minWidth: '1000px', width: '1000px' }
+        }
+    }
+];
+
+const chain = storiesOf('DashTable/Markdown', module);
+
+chain.add(`Links and images${name}`, () => (
+    <DataTable
+        setProps={setProps}
+        id='table'
+        data={[
+            { a: '[Greatest website ever](http://plotly.com "Plotly site")', b: 'normal link with title' },
+            { a: '![the github logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png)', b: 'logo with alt text' }
+        ]}
+        columns={columnFormats}
+        {...variants[0]}
+    />));
+
+variants.forEach(variant => {
+    const { name, props } = variant;
+
+    chain
+        .add(`Headers${name}`, () => (
+            <DataTable
+                setProps={setProps}
+                id='table'
+                data={[
+                    { a: '# H1', b: 'header one' },
+                    { a: '## H2', b: 'header two' },
+                    { a: '### H3', b: 'header three' },
+                    { a: '#### H4', b: 'header four' },
+                    { a: '##### H5', b: 'header five' },
+                    { a: '###### H6', b: 'header six' }
+                ]}
+                columns={columnFormats}
+                {...props}
+            />))
+        .add(`Emphasis${name}`, () => (
+            <DataTable
+                setProps={setProps}
+                id='table'
+                data={[
+                    { a: '*italics*', b: 'italics with stars' },
+                    { a: '_italics_', b: 'italics with underscores' },
+                    { a: '**bold**', b: 'bold with stars' },
+                    { a: '__bold__', b: 'bold with underscores' },
+                    { a: '~~strikethrough~~', b: 'strikethrough' },
+                    { a: '**_~~emphasis bonanza~~_**', b: 'everything all at once' }
+                ]}
+                columns={columnFormats}
+                {...props}
+            />))
+        .add(`Lists${name}`, () => (
+            <DataTable
+                setProps={setProps}
+                id='table'
+                data={[
+                    { a: '1. Ordered list\n  - with subitem\n    * and sub sub item\n  - and another subitem\n2. and another item', b: 'ordered' },
+                    { a: '* Unordered list\n  - with subitem\n    * and sub sub item\n  * and another subitem\n- and another item', b: 'unordered' }
+                ]}
+                columns={columnFormats}
+                {...props}
+            />))
+        .add(`Quotes, code, and syntax highlighting${name}`, () => (
+            <DataTable
+                setProps={setProps}
+                id='table'
+                data={[
+                    { a: '> This is a quote.', b: 'simple quote' },
+                    { a: '> This is a multiline\n> quote.', b: 'multiline quote' },
+                    { a: 'The `dash_table` package is super cool!', b: 'inline code' },
+                    {
+                        a: ['```plaintext',
+                            'export default helloworld(){',
+                            '  print("hello, world!")}',
+                            '```'].join('\n'),
+                        b: 'code block without syntax highlighting'
+                    },
+                    {
+                        a: ['```python',
+                            'def hello_world():',
+                            '  print("hello, world!")',
+                            '```'].join('\n'),
+                        b: 'code block with syntax highlighting'
+                    }
+                ]}
+                columns={columnFormats}
+                {...props}
+            />))
+        .add(`Tables${name}`, () => (
+            <DataTable
+                setProps={setProps}
+                id='table'
+                data={[
+                    {
+                        a: ['Statement | Is it true?',
+                            '--- | ---',
+                            'This page has two tables | yes',
+                            'This table has two rows | no',
+                            'This is an example of tableception | yes'].join('\n'),
+                        b: 'simple two-column table'
+                    },
+                    {
+                        a: ['Statement | Is it true?',
+                            '--- | ---',
+                            'This page has two tables | yes',
+                            'This table has two rows | no',
+                            'This is an example of tableception | yes'].join('\n'),
+                        b: 'simple two-column table'
+                    }
+                ]}
+                columns={columnFormats}
+                {...props}
+            />));
+});

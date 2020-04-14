@@ -50,7 +50,7 @@ export default class FilterFactory {
 
         return (<ColumnFilter
             key={`column-${index}`}
-            classes={`dash-filter column-${index}`}
+            className={`dash-filter column-${index}`}
             columnId={column.id}
             isValid={!ast || ast.isValid}
             setFilter={this.onChange.bind(this, column, map, setFilter)}

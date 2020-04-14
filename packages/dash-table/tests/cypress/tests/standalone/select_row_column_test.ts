@@ -16,7 +16,7 @@ Object.values(BasicModes).forEach(mode => {
             });
 
             it('can select row when sorted', () => {
-                cy.get('tr th.column-0 .column-header--sort').last().click({ force: true });
+                cy.get('tr th.column-0:not(.phantom-cell) .column-header--sort').last().click({ force: true });
                 DashTable.getSelect(0).within(() => cy.get('input').click());
                 DashTable.getSelect(0).within(() => cy.get('input').should('be.checked'));
             });
@@ -24,7 +24,7 @@ Object.values(BasicModes).forEach(mode => {
             it('select, sort, new row is not selected', () => {
                 DashTable.getSelect(0).within(() => cy.get('input').click());
                 DashTable.getSelect(0).within(() => cy.get('input').should('be.checked'));
-                cy.get('tr th.column-0 .column-header--sort').last().click({ force: true }).click({ force: true });
+                cy.get('tr th.column-0:not(.phantom-cell) .column-header--sort').last().click({ force: true }).click({ force: true });
                 DashTable.getSelect(0).within(() => cy.get('input').should('not.be.checked'));
             });
         });

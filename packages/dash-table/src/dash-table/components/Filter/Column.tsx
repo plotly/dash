@@ -8,7 +8,7 @@ import TableClipboardHelper from 'dash-table/utils/TableClipboardHelper';
 type SetFilter = (ev: any) => void;
 
 interface IColumnFilterProps {
-    classes: string;
+    className: string;
     columnId: ColumnId;
     isValid: boolean;
     setFilter: SetFilter;
@@ -39,7 +39,7 @@ export default class ColumnFilter extends PureComponent<IColumnFilterProps, ISta
 
     render() {
         const {
-            classes,
+            className,
             columnId,
             isValid,
             style,
@@ -47,7 +47,7 @@ export default class ColumnFilter extends PureComponent<IColumnFilterProps, ISta
         } = this.props;
 
         return (<th
-            className={classes + (isValid ? '' : ' invalid')}
+            className={className + (isValid ? '' : ' invalid')}
             data-dash-column={columnId}
             style={style}
         >

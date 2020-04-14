@@ -3,7 +3,7 @@ version: 2
 jobs:
     "server-test":
         docker:
-            - image: circleci/python:3.7.5-node-browsers
+            - image: circleci/python:3.7-node-browsers
             - image: cypress/base:10
 
         steps:

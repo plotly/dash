@@ -1,5 +1,4 @@
 import DashTable from 'cypress/DashTable';
-import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
 
 import { ReadWriteModes } from 'demo/AppMode';
@@ -13,17 +12,17 @@ Object.values(ReadWriteModes).forEach(mode => {
 
         describe('with keyboard', () => {
             beforeEach(() => {
-                DashTable.getCell(3, 1).click();
+                DashTable.clickCell(3, 1);
             });
 
             describe('from a focused cell input', () => {
                 beforeEach(() => {
-                    DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').dblclick());
+                    DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').dblclick({ force: true }));
                     DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').should('have.class', 'focused'));
                 });
 
                 it('does focus on next cell input on "enter"', () => {
-                    DOM.focused.type(Key.Enter);
+                    DashTable.focusedType(Key.Enter);
                     DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').should('not.have.class', 'focused'));
 
                     DashTable.getCell(4, 1).should('have.class', 'focused');
@@ -31,7 +30,7 @@ Object.values(ReadWriteModes).forEach(mode => {
                 });
 
                 it('does focus on next cell input on text + "enter"', () => {
-                    DOM.focused.type(`abc${Key.Enter}`);
+                    DashTable.focusedType(`abc${Key.Enter}`);
                     DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').should('not.have.class', 'focused'));
 
                     DashTable.getCell(4, 1).should('have.class', 'focused');
@@ -49,8 +48,8 @@ Object.values(ReadWriteModes).forEach(mode => {
 
                 it('pressing left and right arrows moves caret', () => {
                     const inputText = 'abc';
-                    DOM.focused.type(inputText);
-                    DOM.focused.type(Key.ArrowLeft);
+                    DashTable.focusedType(inputText);
+                    DashTable.focusedType(Key.ArrowLeft);
 
                     DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').then($inputs => {
                         const input = $inputs[0] as HTMLInputElement;
@@ -58,7 +57,7 @@ Object.values(ReadWriteModes).forEach(mode => {
                         expect(input.selectionEnd).to.equal(inputText.length - 1);
                     }));
 
-                    DOM.focused.type(Key.ArrowRight);
+                    DashTable.focusedType(Key.ArrowRight);
                     DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').then($inputs => {
                         const input = $inputs[0] as HTMLInputElement;
                         expect(input.selectionStart).to.equal(inputText.length);
@@ -70,14 +69,14 @@ Object.values(ReadWriteModes).forEach(mode => {
                 // so the test will fail. For now, we test if up and down arrows at least
                 // don't move focus to other cell
                 it('does not focus on next cell input on "arrow up"', () => {
-                    DOM.focused.type('abc');
-                    DOM.focused.type(Key.ArrowUp);
+                    DashTable.focusedType('abc');
+                    DashTable.focusedType(Key.ArrowUp);
                     DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').should('have.class', 'focused'));
                     DashTable.getCell(2, 1).should('not.have.class', 'focused');
                 });
                 it('does not focus on next cell input on "arrow down"', () => {
-                    DOM.focused.type('abc');
-                    DOM.focused.type(Key.ArrowDown);
+                    DashTable.focusedType('abc');
+                    DashTable.focusedType(Key.ArrowDown);
                     DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').should('have.class', 'focused'));
                     DashTable.getCell(4, 1).should('not.have.class', 'focused');
                 });
@@ -88,15 +87,15 @@ Object.values(ReadWriteModes).forEach(mode => {
             // writable (dropdown) version.
             describe('into a dropdown cell', () => {
                 beforeEach(() => {
-                    DashTable.getCell(3, 5).click();
+                    DashTable.clickCell(3, 5);
                 });
 
                 it('can move', () => {
-                    DOM.focused.type(Key.ArrowRight);
+                    DashTable.focusedType(Key.ArrowRight);
 
                     DashTable.getCell(3, 6).should('have.class', 'focused');
                     DashTable.getCell(3, 6).get('.Select').should('exist');
-                    DOM.focused.type(Key.ArrowLeft, { force: true });
+                    DashTable.focusedType(Key.ArrowLeft);
 
                     DashTable.getCell(3, 6).should('not.have.class', 'focused');
                     DashTable.getCell(3, 5).should('have.class', 'focused');
@@ -104,12 +103,12 @@ Object.values(ReadWriteModes).forEach(mode => {
             });
 
             it('does not allow the caret to be moved, instead it will select the entire text', () => {
-                DashTable.getCell(3, 1).click();
-                DOM.focused.type('abc');
+                DashTable.clickCell(3, 1);
+                DashTable.focusedType('abc');
                 // Click again - clicking with something like .click('right') doesn't work
                 // for some reason: DOM.focused will fail.
-                DashTable.getCell(3, 1).click();
-                DOM.focused.type('def');
+                DashTable.clickCell(3, 1);
+                DashTable.focusedType('def');
                 cy.tab();
 
                 DashTable.getCell(3, 1).within(() => cy.get('.dash-cell-value').then($inputs => {

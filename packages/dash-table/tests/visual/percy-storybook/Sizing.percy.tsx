@@ -69,13 +69,13 @@ storiesOf('DashTable/Sizing', module)
     />))
     .add('widths smaller than content (forced)', () => (<DataTable
         {...props}
-        css={[{
-            selector: '.dash-cell[data-dash-column=Region]',
-            rule: 'white-space: normal'
-        }]}
         style_data_conditional={[{
+            if: { column_id: 'Region' },
+            whiteSpace: 'normal'
+        }]}
+        style_data={{
             width: '100px',
             min_width: '100px',
             max_width: '100px'
-        }]}
+        }}
     />));

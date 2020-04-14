@@ -7,7 +7,7 @@ interface IAttributes {
 export interface ICellProps {
     active: boolean;
     attributes: IAttributes;
-    classes: string;
+    className: string;
     onClick: (e: MouseEvent) => void;
     onDoubleClick: (e: MouseEvent) => void;
     onMouseEnter: (e: MouseEvent) => void;

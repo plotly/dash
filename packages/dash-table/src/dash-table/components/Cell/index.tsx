@@ -22,7 +22,7 @@ export default class Cell extends Component<ICellProps> {
     render() {
         const {
             attributes,
-            classes,
+            className,
             onClick,
             onDoubleClick,
             onMouseEnter,
@@ -35,7 +35,7 @@ export default class Cell extends Component<ICellProps> {
             ref='td'
             children={(this as any).props.children}
             tabIndex={-1}
-            className={classes}
+            className={className}
             onClick={onClick}
             onDoubleClick={onDoubleClick}
             onMouseEnter={onMouseEnter}

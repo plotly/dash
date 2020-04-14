@@ -30,5 +30,5 @@ Cypress.Commands.add('tab',
         which: 9,
         shiftKey,
         ctrlKey
-    })
+    }, { force: true })
 );

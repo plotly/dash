@@ -176,9 +176,15 @@ export const generateMixedMarkdownMockData = (rows: number) => unpackIntoColumns
         name: ['Markdown'],
         type: ColumnType.Text,
         presentation: 'markdown',
-        data: gendata(_ => [
+        data: gendata(i => [
             '```javascript',
-            'console.warn("this is a markdown cell")',
+            ...(i % 2 === 0 ?
+                ['console.warn("this is a markdown cell")'] :
+                [
+                    'console.log("logging things")',
+                    'console.warn("this is a markdown cell")'
+                ]
+            ),
             '```'].join('\n'), rows)
     },
     {

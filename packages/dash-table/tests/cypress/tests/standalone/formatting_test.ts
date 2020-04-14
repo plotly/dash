@@ -1,5 +1,4 @@
 import DashTable from 'cypress/DashTable';
-import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
 import { AppMode } from 'demo/AppMode';
 
@@ -13,13 +12,13 @@ describe('formatting', () => {
         DashTable.getCellById(1, 'eee').within(
             () => cy.get('.dash-cell-value').should('have.html', 'N/A')
         );
-        DashTable.getCellById(1, 'eee').click();
-        DOM.focused.type(`1${Key.Enter}`);
+        DashTable.clickCellById(1, 'eee');
+        DashTable.focusedType(`1${Key.Enter}`);
         DashTable.getCellById(1, 'eee').within(
             () => cy.get('.dash-cell-value').should('have.html', '1')
         );
-        DashTable.getCellById(1, 'eee').click();
-        DOM.focused.type(`abc${Key.Enter}`);
+        DashTable.clickCellById(1, 'eee');
+        DashTable.focusedType(`abc${Key.Enter}`);
         DashTable.getCellById(1, 'eee').within(
             () => cy.get('.dash-cell-value').should('have.html', 'N/A')
         );
@@ -29,14 +28,14 @@ describe('formatting', () => {
         DashTable.getCellById(2, 'eee').within(
             () => cy.get('.dash-cell-value').should('have.html', '3')
         );
-        DashTable.getCellById(2, 'eee').click();
-        DOM.focused.type(`${Key.Shift}${Key.ArrowDown}${Key.ArrowDown}`);
-        DOM.focused.type(`${Key.Meta}c`);
+        DashTable.clickCellById(2, 'eee');
+        DashTable.focusedType(`${Key.Shift}${Key.ArrowDown}${Key.ArrowDown}`);
+        DashTable.focusedType(`${Key.Meta}c`);
 
-        DashTable.getCellById(2, 'ddd').click();
-        DOM.focused.type(`${Key.Meta}v`);
+        DashTable.clickCellById(2, 'ddd');
+        DashTable.focusedType(`${Key.Meta}v`);
 
-        DashTable.getCellById(2, 'eee').click();
+        DashTable.clickCellById(2, 'eee');
 
         DashTable.getCellById(2, 'ddd').within(
             () => cy.get('.dash-cell-value').should('have.html', 'eq. $ 3.00')

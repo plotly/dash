@@ -67,6 +67,7 @@
             border-width: 8px;
             margin-left: -8px;
         }
+
         &:before {
             border-color: transparent;
             border-bottom-color: #e4e4e4;
@@ -141,84 +142,87 @@
 }
 
 .dash-table-container {
-
     .previous-next-container {
-	display: inline-block;
-	float: right;
-	padding: 5px 0px;
+        display: inline-block;
+        float: right;
+        padding: 5px 0px;
 
+        .page-number {
+            font-family: monospace;
+            display: inline-block;
+            .last-page {
+            min-width: 30px;
+            display: inline-block;
+            text-align: center;
+            margin: 0.5em;
+            }
+        }
 
-	.page-number {
-	    font-family: monospace;
-	    display: inline-block;
-	    .last-page {
-		min-width: 30px;
-		display: inline-block;
-		text-align: center;
-		margin: 0.5em;
-	    }
-	}
+        input.current-page {
+            display: inline-block;
+            border-bottom: solid lightgrey 1px !important;
+            color: black;
+            border: none;
+            width: 30px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 10pt;
+            margin: 0.5em;
 
-	input.current-page {
-	    display: inline-block;
-	    border-bottom: solid lightgrey 1px !important;
-	    color: black;
-	    border: none;
-	    width: 30px;
-	    text-align: center;
-	    font-family: monospace;
-	    font-size: 10pt;
-	    margin: 0.5em;
+            &::placeholder {
+                color: black;
+            }
 
-	    &::placeholder {
-		color: black;
-	    }
-	    
-	    &:focus {
-		outline: none;
-		
-		&::placeholder {
-		    opacity: 0;
-		}
-	    }
-	}
+            &:focus {
+                outline: none;
 
-	button.previous-page, button.next-page, button.first-page, button.last-page {
-	    transition-duration: 400ms;
-	    padding: 5px;
-	    border: none;
-	    display: inline-block;
-	    margin-left: 5px;
-	    margin-right: 5px;
+                &::placeholder {
+                    opacity: 0;
+                }
+            }
+        }
 
-	    &:hover {
-		color: hotpink;
-		
-		&:disabled {
-		    color: graytext
-		}
-	    }
+        button.previous-page, button.next-page, button.first-page, button.last-page {
+            transition-duration: 400ms;
+            padding: 5px;
+            border: none;
+            display: inline-block;
+            margin-left: 5px;
+            margin-right: 5px;
 
-	    &:focus {
-		outline: none;
-	    }
-	}
+            &:hover {
+                color: hotpink;
+
+                &:disabled {
+                    color: graytext
+                }
+            }
+
+            &:focus {
+                outline: none;
+            }
+        }
     }
-    
+
     .dash-spreadsheet-container {
-	.reset-css();
-	display: flex;
-	flex-direction: row;
-	position: relative;
+        .reset-css();
+        display: flex;
+        flex-direction: row;
+        position: relative;
 
-	// This overrides Chrome's default `font-size: medium;` which is causing performance issues
-	// with AutoInputResize sub-component in react-select
-	// https://github.com/JedWatson/react-input-autosize/blob/05b0f86a7f8b16de99c2b31296ff0d3307f15957/src/AutosizeInput.js#L58
-	table {
+        // This overrides Chrome's default `font-size: medium;` which is causing performance issues
+        // with AutoInputResize sub-component in react-select
+        // https://github.com/JedWatson/react-input-autosize/blob/05b0f86a7f8b16de99c2b31296ff0d3307f15957/src/AutosizeInput.js#L58
+        table {
             font-size: inherit;
-	}
+            pointer-events: none;
 
-	.dash-spreadsheet-inner {
+            td, th {
+                pointer-events: initial;
+            }
+        }
+
+	    .dash-spreadsheet-inner {
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -226,252 +230,285 @@
             *,
             *:after,
             *:before {
-		box-sizing: inherit;
+		        box-sizing: inherit;
             }
 
             .Select {
-		overflow: hidden;
-		position: static;
+                overflow: hidden;
+                position: static;
             }
 
             .Select,
             .Select-control {
-		background-color: inherit;
+		        background-color: inherit;
             }
 
             .Select-value {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		margin-top: -2px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                margin-top: -2px;
             }
 
             .marker-row {
-		tr {
+                tr {
                     visibility: hidden !important;
-		}
+                }
 
-		td, th {
+                td, th {
                     height: 0 !important;
                     padding: 0 !important;
                     margin: 0 !important;
-		}
+                }
             }
 
             .dash-filter {
-		input::placeholder {
+		        input::placeholder {
                     color: inherit;
                     font-size: 0.8em;
                     padding-right: 5px;
-		}
+                }
 
-		& + .dash-filter {
+                & + .dash-filter {
                     &:not(:hover):not(:focus-within) {
-			input::placeholder {
+                        input::placeholder {
                             color: transparent;
-			}
+                        }
                     }
-		}
+                }
 
-		&.invalid {
+                &.invalid {
                     background-color: pink;
-		}
+                }
             }
 
             &:not(.dash-empty-11) {
-		.row-0 {
+                .row-0 {
                     tr:last-of-type {
-			td, th {
+                        td, th {
                             border-bottom: none !important;
-			}
+                        }
                     }
-		}
+                }
             }
 
             &:not(.dash-empty-01) {
-		.cell-0-0,
-		.cell-1-0 {
+        		.cell-0-0,
+		        .cell-1-0 {
                     tr {
-			td:last-of-type,
-			th:last-of-type {
-                            border-right: none !important;
-			}
+                        td, th {
+                            &:last-of-type {
+                                border-right: none !important;
+                            }
+                        }
                     }
-		}
+	    	    }
+            }
+
+            .cell-0-0 {
+                overflow: hidden;
+            }
+
+            .cell-0-0,
+            .cell-1-0 {
+                td, th {
+                    &.phantom-cell {
+                        border-color: transparent !important;
+                    }
+                }
+            }
+
+            .cell-0-1,
+            .cell-1-1 {
+                td, th {
+                    &.phantom-cell {
+                        border-color: transparent inherit transparent transparent !important;
+                    }
+                }
             }
 
             &.dash-freeze-left,
             &.dash-freeze-top,
             &.dash-virtualized {
-		overflow: hidden !important;
+                overflow: hidden !important;
 
-		.row-0 {
+                .row-0 {
                     display: flex;
                     flex: 0 0 auto;
                     flex-direction: row;
-		}
+                }
 
-		.row-1 {
+                .row-1 {
                     display: flex;
                     flex-direction: row;
                     overflow: auto;
-		}
+                }
 
-		.cell-0-0,
-		.cell-1-0 {
+                .cell-0-0,
+                .cell-1-0 {
                     flex: 0 0 auto;
                     left: 0;
                     position: sticky;
                     position:-webkit-sticky;
                     z-index: 400;
-		}
+                }
 
-		.cell-0-1 {
+                .cell-0-1 {
                     z-index: 300;
                     flex: 0 0 auto;
-		}
+                }
 
-		.cell-1-1 {
+                .cell-1-1 {
                     flex: 0 0 auto;
-		}
+                }
             }
 
             &.dash-fill-width {
-		.cell-0-1,
-		.cell-1-1 {
+                .cell-0-1,
+                .cell-1-1 {
                     flex: 1 0 auto;
-		}
+                }
 
-		table {
-                    width: 100%;
-		}
+                .cell {
+                    table {
+                        width: 100%;
+                    }
+                }
             }
 
             td {
-		background-color: inherit;
+                background-color: inherit;
 
-		&.focused {
+                &.focused {
                     margin: -1px;
                     z-index: 200;
-		}
+                }
 
-		.dash-cell-value-container {
+                .dash-cell-value-container {
                     width: 100%;
                     height: 100%;
-		}
+                }
 
-		.dash-input-cell-value-container {
+                .dash-input-cell-value-container {
                     position: relative;
-		}
+                }
 
-		.dash-cell-value {
+                .dash-cell-value {
                     height: 100%;
                     width: 100%;
-		}
+                }
 
-		input.dash-cell-value {
+                input.dash-cell-value {
                     position: absolute;
                     left: 0;
                     top: 0;
                     &.unfocused::selection {
-			background-color: transparent;
+                        background-color: transparent;
                     }
                     &.unfocused {
-			caret-color: transparent;
+                        caret-color: transparent;
                     }
-		}
+                }
 
-		.cell-value-shadow {
+                .cell-value-shadow {
                     margin: auto 0;
                     opacity: 0;
-		}
+                }
 
-		.input-cell-value-shadow {
+                .input-cell-value-shadow {
                     display: inline-block;
                     height: initial;
                     width: initial;
-		}
+                }
 
-		.dropdown-cell-value-shadow {
+                .dropdown-cell-value-shadow {
                     display: block;
                     height: 0px;
                     padding: 0 42px 0 10px;
-		}
+                }
             }
 
-        /*
-         * fixes Firefox td height bug on td > dropdown children
-         * bug should only appear on FF but
-         * @supports = scoped to Firefox only
-         * to minimize side effects
-         */
-        @supports (-moz-appearance:none) {
-            td.dropdown .dash-cell-value-container {
-                height: auto;
+            /*
+             * fixes Firefox td height bug on td > dropdown children
+             * bug should only appear on FF but
+             * @supports = scoped to Firefox only
+             * to minimize side effects
+             */
+            @supports (-moz-appearance:none) {
+                td.dropdown .dash-cell-value-container {
+                    height: auto;
+                }
             }
-        }
 
             th.dash-filter {
-		position: relative;
+                position: relative;
 
-		& input {
+                & input {
                     position: absolute;
                     left: 0;
                     top: 0;
                     height: 100%;
                     width: 100%;
-		}
+                }
             }
 
             th {
-		white-space: nowrap;
+                white-space: nowrap;
 
-		.column-header--clear,
-		.column-header--delete,
-		.column-header--edit,
-		.column-header--hide
-		    .column-header--sort {
+                .column-header--clear,
+                .column-header--delete,
+                .column-header--edit,
+                .column-header--hide,
+                .column-header--sort {
                     .not-selectable();
                     cursor: pointer;
-		}
+                }
+            }
+
+            tr {
+                min-height: 30px;
+                height: 30px;
             }
 
             // cell content styling
             td, th {
-		background-clip: padding-box;
-		padding: 2px;
-		overflow-x: hidden;
-		white-space: nowrap;
+                background-clip: padding-box;
+                padding: 2px;
+                overflow-x: hidden;
+                white-space: nowrap;
+                box-sizing: border-box;
 
-		height: 30px;
+                text-align: right;
 
-		text-align: right;
+                &.phantom-cell {
+                    visibility: hidden;
+                }
 
-		div.dash-cell-value {
+                div.dash-cell-value {
                     display: inline;
                     vertical-align: middle;
                     white-space: inherit;
                     overflow: inherit;
                     text-overflow: inherit;
 
-		    &.cell-markdown {
-			text-align: left;
-			font-family: sans-serif;
-			display: inline-block;
+                    &.cell-markdown {
+                        text-align: left;
+                        font-family: sans-serif;
+                        display: inline-block;
 
-			blockquote {
-			    white-space: pre;
-			}
-		    }
-		}
+                        blockquote {
+                            white-space: pre;
+                        }
+                    }
+                }
             }
-	}
+        }
 
-	.dash-spreadsheet-inner textarea {
+    	.dash-spreadsheet-inner textarea {
             white-space: pre;
-	}
+	    }
 
-	.dash-spreadsheet-inner table {
+	    .dash-spreadsheet-inner table {
             border-collapse: collapse;
 
             font-family: monospace;
@@ -485,24 +522,24 @@
             --selected-background: rgba(255, 65, 54, 0.2);
             --faded-dropdown: rgb(240, 240, 240);
             --muted: rgb(200, 200, 200);
-	}
+	    }
 
-	/* focus happens after copying to clipboard */
-	.dash-spreadsheet-inner table:focus {
+	    /* focus happens after copying to clipboard */
+	    .dash-spreadsheet-inner table:focus {
             outline: none;
-	}
+	    }
 
-	.dash-spreadsheet-inner thead {
+	    .dash-spreadsheet-inner thead {
             display: table-row-group;
-	}
+	    }
 
-	.elip {
+	    .elip {
             text-align: center;
             width: 100%;
             background-color: var(--background-color-ellipses);
-	}
+	    }
 
-	.dash-spreadsheet-inner td.dropdown {
+	    .dash-spreadsheet-inner td.dropdown {
             /*
              * To view the dropdown's contents, we need
              * overflow-y: visible.
@@ -516,30 +553,30 @@
              * tried it.
              */
             overflow-x: visible;
-	}
+	    }
 
-	.dash-spreadsheet-inner :not(.cell--selected) tr:hover,
-	tr:hover input :not(.cell--selected) {
+        .dash-spreadsheet-inner :not(.cell--selected) tr:hover,
+        tr:hover input :not(.cell--selected) {
             background-color: var(--hover);
-	}
+    	}
 
-	.dash-spreadsheet-inner th {
+    	.dash-spreadsheet-inner th {
             background-color: rgb(250, 250, 250);
-	}
+	    }
 
-	.dash-spreadsheet-inner td {
+	    .dash-spreadsheet-inner td {
             background-color: white;
-	}
+	    }
 
-	.expanded-row--empty-cell {
+	    .expanded-row--empty-cell {
             background-color: transparent;
-	}
+	    }
 
-	.expanded-row {
+	    .expanded-row {
             text-align: center;
-	}
+	    }
 
-	.dash-spreadsheet-inner input:not([type=radio]):not([type=checkbox]) {
+	    .dash-spreadsheet-inner input:not([type=radio]):not([type=checkbox]) {
             padding: 0px;
             margin: 0px;
             height: calc(100% - 1px);
@@ -556,19 +593,19 @@
              * or bare `td`
              */
             text-shadow: none;
-	}
+	    }
 
-	.dash-spreadsheet-inner input.unfocused {
+	    .dash-spreadsheet-inner input.unfocused {
             color: transparent;
             text-shadow: 0 0 0 var(--text-color);
             cursor: default;
-	}
+	    }
 
-	.dash-spreadsheet-inner input.unfocused:focus {
+	    .dash-spreadsheet-inner input.unfocused:focus {
             outline: none;
-	}
+	    }
 
-	.toggle-row {
+	    .toggle-row {
             border: none;
             box-shadow: none;
             width: 10px;
@@ -576,43 +613,43 @@
             padding-right: 10px;
             cursor: pointer;
             color: var(--faded-text);
-	}
+	    }
 
-	.toggle-row--expanded {
+    	.toggle-row--expanded {
             color: var(--accent);
-	}
+	    }
 
-	.dash-spreadsheet-inner tr:hover .toggle-row {
+    	.dash-spreadsheet-inner tr:hover .toggle-row {
             color: var(--accent);
-	}
+	    }
 
-	.dash-spreadsheet-inner .dash-delete-cell,
-	.dash-spreadsheet-inner .dash-delete-header {
+        .dash-spreadsheet-inner .dash-delete-cell,
+        .dash-spreadsheet-inner .dash-delete-header {
             .not-selectable();
 
             font-size: 1.3rem;
             text-align: center;
             cursor: pointer;
             color: var(--muted);
-	}
-	.dash-spreadsheet-inner .dash-delete-cell:hover,
-	.dash-spreadsheet-inner .dash-delete-header:hover {
+    	}
+        .dash-spreadsheet-inner .dash-delete-cell:hover,
+        .dash-spreadsheet-inner .dash-delete-header:hover {
             color: var(--accent);
-	}
+    	}
 
-	.dash-spreadsheet-inner {
+	    .dash-spreadsheet-inner {
             [class^='column-header--'] {
-		cursor: pointer;
-		float: left;
+                cursor: pointer;
+                float: left;
             }
 
             .column-header--select {
-		height: auto;
+		        height: auto;
             }
 
             .column-header--select,
             .column-header--sort {
-		color: var(--faded-text-header);
+        		color: var(--faded-text-header);
             }
 
 
@@ -620,17 +657,17 @@
             .column-header--delete,
             .column-header--edit,
             .column-header--hide {
-		opacity: 0.1;
-		padding-left: 2px;
-		padding-right: 2px;
+                opacity: 0.1;
+                padding-left: 2px;
+                padding-right: 2px;
             }
 
             th:hover {
-		[class^='column-header--']:not(.disabled) {
+        		[class^='column-header--']:not(.disabled) {
                     color: var(--accent);
                     opacity: 1;
-		}
+		        }
             }
-	}
+	    }
     }
 }

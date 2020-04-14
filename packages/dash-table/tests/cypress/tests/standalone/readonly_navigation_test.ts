@@ -1,7 +1,6 @@
 import * as R from 'ramda';
 
 import DashTable from 'cypress/DashTable';
-import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
 
 import { AppMode } from 'demo/AppMode';
@@ -15,22 +14,22 @@ Object.values([AppMode.ReadOnly, AppMode.SomeReadOnly]).forEach(mode => {
 
         describe('with keyboard', () => {
             beforeEach(() => {
-                DashTable.getCell(3, 1).click();
+                DashTable.clickCell(3, 1);
             });
 
             // Note: Dropdown cell is a label when readonly. Making a special
             // version of the test for the read only table.
             describe('into a dropdown cell', () => {
                 beforeEach(() => {
-                    DashTable.getCellById(3, 'ggg').click();
+                    DashTable.clickCellById(3, 'ggg');
                 });
 
                 it('can move', () => {
                     R.forEach(() => {
-                        DOM.focused.type(Key.ArrowRight);
+                        DashTable.focusedType(Key.ArrowRight);
 
                         DashTable.getCellById(3, 'bbb').should('have.class', 'focused');
-                        DOM.focused.type(Key.ArrowLeft, { force: true });
+                        DashTable.focusedType(Key.ArrowLeft);
 
                         DashTable.getCellById(3, 'bbb').should('not.have.class', 'focused');
                         DashTable.getCellById(3, 'ggg').should('have.class', 'focused');
@@ -40,15 +39,15 @@ Object.values([AppMode.ReadOnly, AppMode.SomeReadOnly]).forEach(mode => {
 
             describe('into a label cell', () => {
                 beforeEach(() => {
-                    DashTable.getCellById(3, 'eee').click();
+                    DashTable.clickCellById(3, 'eee');
                 });
 
                 it('can move', () => {
                     R.forEach(() => {
-                        DOM.focused.type(Key.ArrowRight);
+                        DashTable.focusedType(Key.ArrowRight);
 
                         DashTable.getCellById(3, 'fff').should('have.class', 'focused');
-                        DOM.focused.type(Key.ArrowLeft, { force: true });
+                        DashTable.focusedType(Key.ArrowLeft);
 
                         DashTable.getCellById(3, 'fff').should('not.have.class', 'focused');
                         DashTable.getCellById(3, 'eee').should('have.class', 'focused');

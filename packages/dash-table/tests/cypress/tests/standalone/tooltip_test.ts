@@ -9,7 +9,7 @@ describe(`tooltips, mode=${AppMode.Tooltips}`, () => {
     });
 
     it('displays html', () => {
-        DashTable.getCellById(0, 'bbb-readonly').trigger('mouseover');
+        DashTable.getCellById(0, 'bbb-readonly').trigger('mouseover', { force: true });
         cy.get('.dash-table-tooltip').should('not.be.visible');
         cy.wait(0);
         cy.get('.dash-table-tooltip').should('be.visible');
@@ -20,7 +20,7 @@ describe(`tooltips, mode=${AppMode.Tooltips}`, () => {
     });
 
     it('displays text', () => {
-        DashTable.getCellById(6, 'ccc').trigger('mouseover');
+        DashTable.getCellById(6, 'ccc').trigger('mouseover', { force: true });
         cy.get('.dash-table-tooltip').should('not.be.visible');
         cy.wait(0);
         cy.get('.dash-table-tooltip').should('be.visible');

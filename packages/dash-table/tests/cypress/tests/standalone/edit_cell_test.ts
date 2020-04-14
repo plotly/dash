@@ -1,5 +1,4 @@
 import DashTable from 'cypress/DashTable';
-import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
 
 import { AppMode, ReadWriteModes } from 'demo/AppMode';
@@ -17,25 +16,25 @@ Object.values([
         // Case: "Pressing enter to confirm change does not work on the last row"
         // Issue: https://github.com/plotly/dash-table/issues/50
         it('can edit on "enter"', () => {
-            DashTable.getCell(0, 1).click();
+            DashTable.clickCell(0, 1);
             // Case: 2+ tables results in infinite rendering loop b/c of shared cache
             // Issue: https://github.com/plotly/dash-table/pull/468
             //
             // Artificial delay added to make sure re-rendering has time to occur.
             cy.wait(1000);
-            DOM.focused.type(`abc${Key.Enter}`);
+            DashTable.focusedType(`abc${Key.Enter}`);
             DashTable.getCell(0, 1).within(() => cy.get('.dash-cell-value').should('have.html', `abc`));
         });
 
         it('can edit when clicking outside of cell', () => {
-            DashTable.getCell(0, 1).click();
-            DOM.focused.type(`abc`);
+            DashTable.clickCell(0, 1);
+            DashTable.focusedType(`abc`);
             // Case: 2+ tables results in infinite rendering loop b/c of shared cache
             // Issue: https://github.com/plotly/dash-table/pull/468
             //
             // Artificial delay added to make sure re-rendering has time to occur.
             cy.wait(1000);
-            DashTable.getCell(0, 0).click();
+            DashTable.clickCell(0, 0);
             DashTable.getCell(0, 1).within(() => cy.get('.dash-cell-value').should('have.html', `abc`));
         });
     });
@@ -51,7 +50,7 @@ Object.values(ReadWriteModes).forEach(mode => {
         describe('readonly cell', () => {
             describe('with input', () => {
                 it('does not modify value', () => {
-                    DashTable.getCellById(0, 'aaa-readonly').click();
+                    DashTable.clickCellById(0, 'aaa-readonly');
                     DashTable.getCellById(0, 'aaa-readonly').within(() => {
                         cy.get('input').should('not.exist');
                     });
@@ -60,7 +59,7 @@ Object.values(ReadWriteModes).forEach(mode => {
 
             describe('with dropdown', () => {
                 it('does not modify value', () => {
-                    DashTable.getCellById(0, 'bbb-readonly').click();
+                    DashTable.clickCellById(0, 'bbb-readonly');
                     DashTable.getCellById(0, 'bbb-readonly').within(() => {
                         cy.get('.Select-value-label').should('not.exist');
                     });
@@ -75,13 +74,13 @@ Object.values(ReadWriteModes).forEach(mode => {
                         () => cy.get('.dash-cell-value').then($cells => copiedValue = $cells[0].innerHTML)
                     );
 
-                    DashTable.getCellById(0, 'rows').click();
-                    DOM.focused.type(`${Key.Meta}c`);
+                    DashTable.clickCellById(0, 'rows');
+                    DashTable.focusedType(`${Key.Meta}c`);
                 });
 
                 it('does nothing', () => {
-                    DashTable.getCellById(0, 'bbb-readonly').click();
-                    DOM.focused.type(`${Key.Meta}v`);
+                    DashTable.clickCellById(0, 'bbb-readonly');
+                    DashTable.focusedType(`${Key.Meta}v`);
                     DashTable.getCellById(0, 'bbb-readonly').within(
                         () => cy.get('.dash-cell-value').should('not.have.html', copiedValue)
                     );
@@ -153,14 +152,14 @@ describe(`edit, mode=${AppMode.Typed}`, () => {
     });
 
     it('can edit number cell with a number string', () => {
-        DashTable.getCellById(0, 'ccc').click();
-        DOM.focused.type(`123${Key.Enter}`);
+        DashTable.clickCellById(0, 'ccc');
+        DashTable.focusedType(`123${Key.Enter}`);
         DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', `123`));
     });
 
     it('cannot edit number cell with a non-number string', () => {
-        DashTable.getCellById(0, 'ccc').click();
-        DOM.focused.type(`abc${Key.Enter}`);
+        DashTable.clickCellById(0, 'ccc');
+        DashTable.focusedType(`abc${Key.Enter}`);
         DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('not.have.html', `abc`));
     });
 
@@ -173,13 +172,13 @@ describe(`edit, mode=${AppMode.Typed}`, () => {
                     () => cy.get('.dash-cell-value').then($cells => copiedValue = $cells[0].innerHTML)
                 );
 
-                DashTable.getCellById(0, 'bbb-readonly').click();
-                DOM.focused.type(`${Key.Meta}c`);
+                DashTable.clickCellById(0, 'bbb-readonly');
+                DashTable.focusedType(`${Key.Meta}c`);
             });
 
             it('does nothing', () => {
-                DashTable.getCellById(0, 'ccc').click();
-                DOM.focused.type(`${Key.Meta}v`);
+                DashTable.clickCellById(0, 'ccc');
+                DashTable.focusedType(`${Key.Meta}v`);
                 DashTable.getCellById(0, 'ccc').within(
                     () => cy.get('.dash-cell-value').should('not.have.value', copiedValue)
                 );
@@ -194,13 +193,13 @@ describe(`edit, mode=${AppMode.Typed}`, () => {
                     () => cy.get('.dash-cell-value').then($cells => copiedValue = $cells[0].innerHTML)
                 );
 
-                DashTable.getCellById(0, 'ddd').click();
-                DOM.focused.type(`${Key.Meta}c`);
+                DashTable.clickCellById(0, 'ddd');
+                DashTable.focusedType(`${Key.Meta}c`);
             });
 
             it('copies value', () => {
-                DashTable.getCellById(0, 'ccc').click();
-                DOM.focused.type(`${Key.Meta}v`);
+                DashTable.clickCellById(0, 'ccc');
+                DashTable.focusedType(`${Key.Meta}v`);
                 DashTable.getCellById(0, 'ccc').within(
                     () => cy.get('.dash-cell-value').should('have.value', copiedValue)
                 );
@@ -216,14 +215,14 @@ describe(`edit, mode=${AppMode.Date}`, () => {
     });
 
     it('can edit date cell with a date string', () => {
-        DashTable.getCellById(0, 'ccc').click();
-        DOM.focused.type(`17-8-21${Key.Enter}`);
+        DashTable.clickCellById(0, 'ccc');
+        DashTable.focusedType(`17-8-21${Key.Enter}`);
         DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', `2017-08-21`));
     });
 
     it('cannot edit date cell with a non-date string', () => {
-        DashTable.getCellById(0, 'ccc').click();
-        DOM.focused.type(`abc${Key.Enter}`);
+        DashTable.clickCellById(0, 'ccc');
+        DashTable.focusedType(`abc${Key.Enter}`);
         DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('not.have.html', `abc`));
     });
 
@@ -236,13 +235,13 @@ describe(`edit, mode=${AppMode.Date}`, () => {
                     () => cy.get('.dash-cell-value').then($cells => copiedValue = $cells[0].innerHTML)
                 );
 
-                DashTable.getCellById(0, 'bbb-readonly').click();
-                DOM.focused.type(`${Key.Meta}c`);
+                DashTable.clickCellById(0, 'bbb-readonly');
+                DashTable.focusedType(`${Key.Meta}c`);
             });
 
             it('does nothing', () => {
-                DashTable.getCellById(0, 'ccc').click();
-                DOM.focused.type(`${Key.Meta}v`);
+                DashTable.clickCellById(0, 'ccc');
+                DashTable.focusedType(`${Key.Meta}v`);
                 DashTable.getCellById(0, 'ccc').within(
                     () => cy.get('.dash-cell-value').should('not.have.value', copiedValue)
                 );
@@ -257,13 +256,13 @@ describe(`edit, mode=${AppMode.Date}`, () => {
                     () => cy.get('.dash-cell-value').then($cells => copiedValue = $cells[0].innerHTML)
                 );
 
-                DashTable.getCellById(0, 'ddd').click();
-                DOM.focused.type(`${Key.Meta}c`);
+                DashTable.clickCellById(0, 'ddd');
+                DashTable.focusedType(`${Key.Meta}c`);
             });
 
             it('copies value', () => {
-                DashTable.getCellById(0, 'ccc').click();
-                DOM.focused.type(`${Key.Meta}v`);
+                DashTable.clickCellById(0, 'ccc');
+                DashTable.focusedType(`${Key.Meta}v`);
                 DashTable.getCellById(0, 'ccc').within(
                     () => cy.get('.dash-cell-value').should('have.value', copiedValue)
                 );
