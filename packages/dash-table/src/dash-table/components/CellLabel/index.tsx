@@ -44,6 +44,7 @@ export default class CellLabel extends PureComponent<IProps> {
         const el = this.refs.el as HTMLDivElement;
 
         if (applyFocus && el && document.activeElement !== el) {
+            window.getSelection()?.selectAllChildren(el);
             el.focus();
         }
     }
