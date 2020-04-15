@@ -647,36 +647,46 @@ def test_inin017_late_component_register(dash_duo):
 def test_inin019_callback_dep_types():
     app = Dash(__name__)
     app.layout = html.Div(
-        [html.Div("child", id="in"), html.Div("state", id="state"), html.Div(id="out")]
+        [html.Div("child", id="in1"), html.Div("state", id="state1"), html.Div(id="out1"),
+         html.Div("child", id="in2"), html.Div("state", id="state2"), html.Div(id="out2"),
+         html.Div("child", id="in3"), html.Div("state", id="state3"), html.Div(id="out3"),
+        ]
     )
 
     with pytest.raises(IncorrectTypeException):
 
-        @app.callback([[Output("out", "children")]], [Input("in", "children")])
+        @app.callback([[Output("out1", "children")]],
+                      [Input("in1", "children")])
         def f(i):
             return i
 
         pytest.fail("extra output nesting")
 
-    with pytest.raises(IncorrectTypeException):
-
-        @app.callback(
-            Output("out", "children"),
-            [Input("in", "children")],
-            State("state", "children"),
-        )
-        def f3(i):
-            return i
-
-        pytest.fail("un-nested state")
-
     # all OK with tuples
     @app.callback(
-        (Output("out", "children"),),
-        (Input("in", "children"),),
-        (State("state", "children"),),
+        (Output("out1", "children"),),
+        (Input("in1", "children"),),
+        (State("state1", "children"),),
     )
-    def f4(i):
+    def f1(i):
+        return i
+
+    # all OK with all args in single list
+    @app.callback(
+        Output("out2", "children"),
+        Input("in2", "children"),
+        State("state2", "children"),
+    )
+    def f2(i):
+        return i
+
+    # all OK with lists
+    @app.callback(
+        [Output("out3", "children")],
+        [Input("in3", "children")],
+        [State("state3", "children")],
+    )
+    def f3(i):
         return i
 
 
