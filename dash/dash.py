@@ -102,6 +102,38 @@ ns["{function_name}"] = {clientside_function};
 """
 
 
+def _handle_callback_args(args, kwargs):
+    """Split args into outputs, inputs and states"""
+    prevent_initial_call = None
+    for k, v in kwargs.items():
+        if k == "prevent_initial_call":
+            prevent_initial_call = v
+        else:
+            raise TypeError(
+                "callback got an unexpected keyword argument '{}'".format(k)
+            )
+    args = [
+        arg
+        # for backward compatibility, one arg can be a list
+        for arg_or_list in args
+        # flatten args that are lists
+        for arg in (
+            arg_or_list if isinstance(arg_or_list, (list, tuple))
+            else [arg_or_list]
+        )
+    ]
+    return [
+        # split according to type Output, Input, State
+        [arg for arg in args if isinstance(arg, class_)]
+        for class_ in [Output, Input, State]
+    ] + [
+        # keep list of args in order, for matching order
+        # in the callback's parameters
+        [arg for arg in args if not isinstance(arg, Output)],
+        prevent_initial_call
+    ]
+
+
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
@@ -913,7 +945,7 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        output, inputs, state, callback_args, prevent_initial_call = self._handle_callback_args(args, kwargs)
+        output, inputs, state, callback_args, prevent_initial_call = _handle_callback_args(args, kwargs)
         self._insert_callback(output, inputs, state, callback_args)
 
         # If JS source is explicitly given, create a namespace and function
@@ -945,37 +977,6 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def _handle_callback_args(self, args, kwargs):
-        """Split args into outputs, inputs and states"""
-        prevent_initial_call = None
-        for k, v in kwargs.items():
-            if k == "prevent_initial_call":
-                prevent_initial_call = v
-            else:
-                raise TypeError(
-                    "callback got an unexpected keyword argument '{}'".format(k)
-                )
-        args = [
-            arg
-            # for backward compatibility, one arg can be a list
-            for arg_or_list in args
-            # flatten args that are lists
-            for arg in (
-                arg_or_list if isinstance(arg_or_list, (list, tuple))
-                else [arg_or_list]
-            )
-        ]
-        return [
-            # split according to type Output, Input, State
-            [arg for arg in args if isinstance(arg, class_)]
-            for class_ in [Output, Input, State]
-        ] + [
-            # keep list of args in order, for matching order
-            # in the callback's parameters
-            [arg for arg in args if not isinstance(arg, Output)],
-            prevent_initial_call
-        ]
-
     def callback(self, *args, **kwargs):
         """
         Normally used as a decorator, `@app.callback` provides a server-side
@@ -988,7 +989,7 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        output, inputs, state, callback_args, prevent_initial_call = self._handle_callback_args(args, kwargs)
+        output, inputs, state, callback_args, prevent_initial_call = _handle_callback_args(args, kwargs)
         callback_id = self._insert_callback(output, inputs, state, callback_args, prevent_initial_call)
 
         def wrap_func(func):
