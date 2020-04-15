@@ -110,7 +110,8 @@ export const defaultProps = {
 
 export const propTypes = {
     /**
-     * The row and column indices and IDs of the currently active cell.
+     * The row and column indices and IDs of the currently active cell. 
+     * `row_id` is only returned if the data rows have an `id` key.
      */
     active_cell: PropTypes.exact({
         row: PropTypes.number,
