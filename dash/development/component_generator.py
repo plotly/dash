@@ -18,6 +18,8 @@ from ._r_components_generation import generate_exports
 from ._py_components_generation import generate_class_file
 from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
+from ._jl_components_generation import generate_struct_file
+from ._jl_components_generation import generate_module
 
 
 reserved_words = [
@@ -46,6 +48,7 @@ def generate_components(
     rdepends="",
     rimports="",
     rsuggests="",
+    jlprefix=None,
 ):
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
@@ -107,6 +110,11 @@ def generate_components(
             functools.partial(write_class_file, prefix=rprefix, rpkg_data=rpkg_data)
         )
 
+    if jlprefix is not False:
+        generator_methods.append(
+            functools.partial(generate_struct_file, prefix=jlprefix)
+        )
+
     components = generate_classes_files(project_shortname, metadata, *generator_methods)
 
     with open(os.path.join(project_shortname, "metadata.json"), "w") as f:
@@ -125,6 +133,14 @@ def generate_components(
             rdepends,
             rimports,
             rsuggests,
+        )
+
+    if jlprefix is not False:
+        generate_module(
+            project_shortname,
+            components,
+            metadata,
+            jlprefix
         )
 
 
@@ -181,6 +197,11 @@ def cli():
         help="Specify a comma-separated list of R packages to be "
         "inserted into the Suggests field of the DESCRIPTION file.",
     )
+    parser.add_argument(
+        "--jl-prefix",
+        help="Specify a prefix for Dash for R component names, write "
+        "components to R dir, create R package.",
+    )
 
     args = parser.parse_args()
     generate_components(
@@ -192,6 +213,7 @@ def cli():
         rdepends=args.r_depends,
         rimports=args.r_imports,
         rsuggests=args.r_suggests,
+        jlprefix=args.jl_prefix,
     )
 
 
