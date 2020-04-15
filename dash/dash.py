@@ -24,6 +24,7 @@ import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
+from .dependencies import Input, Output, State
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError
 from .version import __version__
@@ -824,7 +825,7 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(self, output, inputs, state, prevent_initial_call):
+    def _insert_callback(self, output, inputs, state, callback_args, prevent_initial_call):
         if prevent_initial_call is None:
             prevent_initial_call = self.config.prevent_initial_callbacks
 
@@ -834,20 +835,20 @@ class Dash(object):
             "output": callback_id,
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
+            "args": [c.to_dict() for c in callback_args],
             "clientside_function": None,
             "prevent_initial_call": prevent_initial_call,
         }
         self.callback_map[callback_id] = {
             "inputs": callback_spec["inputs"],
             "state": callback_spec["state"],
+            "args": callback_spec["args"],
         }
         self._callback_list.append(callback_spec)
 
         return callback_id
 
-    def clientside_callback(
-        self, clientside_function, output, input_, state=(), prevent_initial_call=None
-    ):
+    def clientside_callback(self, clientside_function, *args, **kwargs):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
 
@@ -912,10 +913,8 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        is_multi_input = isinstance(input_, (list, tuple))
-        inputs = input_ if is_multi_input else [input_]
-
-        self._insert_callback(output, inputs, state, prevent_initial_call)
+        output, inputs, state, callback_args, prevent_initial_call = self._handle_callback_args(args, kwargs)
+        self._insert_callback(output, inputs, state, callback_args)
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -946,7 +945,38 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def callback(self, output, input_, state=(), prevent_initial_call=None):
+    def _handle_callback_args(self, args, kwargs):
+        """Split args into outputs, inputs and states"""
+        prevent_initial_call = None
+        for k, v in kwargs.items():
+            if k == "prevent_initial_call":
+                prevent_initial_call = v
+            else:
+                raise TypeError(
+                    "callback got an unexpected keyword argument '{}'".format(k)
+                )
+        args = [
+            arg
+            # for backward compatibility, one arg can be a list
+            for arg_or_list in args
+            # flatten args that are lists
+            for arg in (
+                arg_or_list if isinstance(arg_or_list, (list, tuple))
+                else [arg_or_list]
+            )
+        ]
+        return [
+            # split according to type Output, Input, State
+            [arg for arg in args if isinstance(arg, class_)]
+            for class_ in [Output, Input, State]
+        ] + [
+            # keep list of args in order, for matching order
+            # in the callback's parameters
+            [arg for arg in args if not isinstance(arg, Output)],
+            prevent_initial_call
+        ]
+
+    def callback(self, *args, **kwargs):
         """
         Normally used as a decorator, `@app.callback` provides a server-side
         callback relating the values of one or more `output` items to one or
@@ -958,10 +988,8 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        is_multi_input = isinstance(input_, (list, tuple))
-        inputs = input_ if is_multi_input else [input_]
-        callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
-        multi = isinstance(output, (list, tuple))
+        output, inputs, state, callback_args, prevent_initial_call = self._handle_callback_args(args, kwargs)
+        callback_id = self._insert_callback(output, inputs, state, callback_args, prevent_initial_call)
 
         def wrap_func(func):
             @wraps(func)
@@ -976,8 +1004,11 @@ class Dash(object):
 
                 # wrap single outputs so we can treat them all the same
                 # for validation and response creation
-                if not multi:
-                    output_value, output_spec = [output_value], [output_spec]
+                if not isinstance(output_value, (list, tuple)):
+                    if not isinstance(output_spec, (list, tuple)):
+                        output_value, output_spec = [output_value], [output_spec]
+                    else:
+                        output_value, output_spec = [output_value], output_spec
 
                 _validate.validate_multi_return(output_spec, output_value, callback_id)
 
@@ -1031,7 +1062,15 @@ class Dash(object):
 
         response = flask.g.dash_response = flask.Response(mimetype="application/json")
 
-        args = inputs_to_vals(inputs) + inputs_to_vals(state)
+        # frontend sends inputs and state in separate variables
+        # we need to reorder them for the callback
+        args_inputs = [
+            value
+            for arg in self.callback_map[output]["args"]
+            for value in (inputs + state)
+            if arg['id'] == value['id']
+            and arg['property'] == value['property']]
+        args = inputs_to_vals(args_inputs)
 
         func = self.callback_map[output]["callback"]
         response.set_data(func(*args, outputs_list=outputs_list))
