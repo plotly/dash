@@ -331,7 +331,7 @@ class Dash(object):
         self.routes = []
 
         self._layout = None
-        self._cached_layout = None
+        self._layout_is_function = False
 
         self._setup_dev_tools()
         self._hot_reload = AttributeDict(
@@ -421,16 +421,12 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
-        if isinstance(self._layout, patch_collections_abc("Callable")):
-            self._cached_layout = self._layout()
-        else:
-            self._cached_layout = self._layout
-        return self._cached_layout
+        return self._layout() if self._layout_is_function else self._layout
 
     @layout.setter
     def layout(self, value):
         _validate.validate_layout_type(value)
-        self._cached_layout = None
+        self._layout_is_function = isinstance(value, patch_collections_abc("Callable"))
         self._layout = value
 
     @property
