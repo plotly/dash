@@ -989,6 +989,11 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
+        # for backward compatibility, store whether first argument is a
+        # list of only 1 Output
+        specified_output_list = (
+            isinstance(args[0], (list, tuple))
+            and len(args[0]) == 1)
         output, inputs, state, callback_args, prevent_initial_call = _handle_callback_args(args, kwargs)
         callback_id = self._insert_callback(output, inputs, state, callback_args, prevent_initial_call)
 
@@ -1005,11 +1010,8 @@ class Dash(object):
 
                 # wrap single outputs so we can treat them all the same
                 # for validation and response creation
-                if not isinstance(output_value, (list, tuple)):
-                    if not isinstance(output_spec, (list, tuple)):
-                        output_value, output_spec = [output_value], [output_spec]
-                    else:
-                        output_value, output_spec = [output_value], output_spec
+                if len(output_spec) == 1 and not specified_output_list:
+                    output_value = [output_value]
 
                 _validate.validate_multi_return(output_spec, output_value, callback_id)
 
