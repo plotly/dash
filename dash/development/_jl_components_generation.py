@@ -60,7 +60,7 @@ def stringify_wildcards(wclist, no_symbol=False):
         wcstring = ", ".join(
             'Symbol("{}-")'.format(item) for item in wclist
         )
-    return(wcstring)
+    return wcstring
 
 
 def get_wildcards_jl(props):
@@ -69,7 +69,7 @@ def get_wildcards_jl(props):
     for key in prop_keys:
         if key.endswith("-*"):
             wildcards.append(key.replace("-*", ""))
-    return(wildcards)
+    return wildcards
 
 
 def get_jl_prop_types(type_object):
