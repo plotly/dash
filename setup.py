@@ -15,7 +15,7 @@ setup(
     name="dash",
     version=main_ns["__version__"],
     author="Chris Parmer",
-    author_email="chris@plot.ly",
+    author_email="chris@plotly.com",
     packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
     license="MIT",
@@ -39,7 +39,7 @@ setup(
         ],
         "pytest11": ["dash = dash.testing.plugin"],
     },
-    url="https://plot.ly/dash",
+    url="https://plotly.com/dash",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",

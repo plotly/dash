@@ -1,4 +1,4 @@
-from dash.resources import Resources, Scripts
+from dash.resources import Resources
 
 
 class obj(object):

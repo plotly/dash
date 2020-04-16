@@ -11,7 +11,7 @@ def watch(folders, on_change, pattern=None, sleep_time=0.1):
     def walk():
         walked = []
         for folder in folders:
-            for current, _, files, in os.walk(folder):
+            for current, _, files in os.walk(folder):
                 for f in files:
                     if pattern and not pattern.search(f):
                         continue

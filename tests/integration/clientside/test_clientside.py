@@ -18,9 +18,7 @@ def test_clsd001_simple_clientside_serverside_callback(dash_duo):
         ]
     )
 
-    @app.callback(
-        Output("output-serverside", "children"), [Input("input", "value")]
-    )
+    @app.callback(Output("output-serverside", "children"), [Input("input", "value")])
     def update_output(value):
         return 'Server says "{}"'.format(value)
 
@@ -33,17 +31,11 @@ def test_clsd001_simple_clientside_serverside_callback(dash_duo):
     dash_duo.start_server(app)
 
     dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "None"')
-    dash_duo.wait_for_text_to_equal(
-        "#output-clientside", 'Client says "undefined"'
-    )
+    dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "undefined"')
 
     dash_duo.find_element("#input").send_keys("hello world")
-    dash_duo.wait_for_text_to_equal(
-        "#output-serverside", 'Server says "hello world"'
-    )
-    dash_duo.wait_for_text_to_equal(
-        "#output-clientside", 'Client says "hello world"'
-    )
+    dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "hello world"')
+    dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "hello world"')
 
 
 def test_clsd002_chained_serverside_clientside_callbacks(dash_duo):
@@ -82,9 +74,7 @@ def test_clsd002_chained_serverside_clientside_callbacks(dash_duo):
 
     call_counts = {"divide": Value("i", 0), "display": Value("i", 0)}
 
-    @app.callback(
-        Output("x-plus-y-div-2", "value"), [Input("x-plus-y", "value")]
-    )
+    @app.callback(Output("x-plus-y-div-2", "value"), [Input("x-plus-y", "value")])
     def divide_by_two(value):
         call_counts["divide"].value += 1
         return float(value) / 2.0
@@ -151,11 +141,7 @@ def test_clsd003_clientside_exceptions_halt_subsequent_updates(dash_duo):
     app = Dash(__name__, assets_folder="assets")
 
     app.layout = html.Div(
-        [
-            dcc.Input(id="first", value=1),
-            dcc.Input(id="second"),
-            dcc.Input(id="third"),
-        ]
+        [dcc.Input(id="first", value=1), dcc.Input(id="second"), dcc.Input(id="third")]
     )
 
     app.clientside_callback(
@@ -262,6 +248,7 @@ def test_clsd005_clientside_fails_when_returning_a_promise(dash_duo):
     dash_duo.wait_for_text_to_equal("#side-effect", "side effect")
     dash_duo.wait_for_text_to_equal("#output", "output")
 
+
 def test_clsd006_PreventUpdate(dash_duo):
     app = Dash(__name__, assets_folder="assets")
 
@@ -269,7 +256,7 @@ def test_clsd006_PreventUpdate(dash_duo):
         [
             dcc.Input(id="first", value=1),
             dcc.Input(id="second", value=1),
-            dcc.Input(id="third", value=1)
+            dcc.Input(id="third", value=1),
         ]
     )
 
@@ -277,33 +264,33 @@ def test_clsd006_PreventUpdate(dash_duo):
         ClientsideFunction(namespace="clientside", function_name="add1_prevent_at_11"),
         Output("second", "value"),
         [Input("first", "value")],
-        [State("second", "value")]
+        [State("second", "value")],
     )
 
     app.clientside_callback(
         ClientsideFunction(namespace="clientside", function_name="add1_prevent_at_11"),
         Output("third", "value"),
         [Input("second", "value")],
-        [State("third", "value")]
+        [State("third", "value")],
     )
 
     dash_duo.start_server(app)
 
-    dash_duo.wait_for_text_to_equal("#first", '1')
-    dash_duo.wait_for_text_to_equal("#second", '2')
-    dash_duo.wait_for_text_to_equal("#third", '2')
+    dash_duo.wait_for_text_to_equal("#first", "1")
+    dash_duo.wait_for_text_to_equal("#second", "2")
+    dash_duo.wait_for_text_to_equal("#third", "2")
 
     dash_duo.find_element("#first").send_keys("1")
 
-    dash_duo.wait_for_text_to_equal("#first", '11')
-    dash_duo.wait_for_text_to_equal("#second", '2')
-    dash_duo.wait_for_text_to_equal("#third", '2')
+    dash_duo.wait_for_text_to_equal("#first", "11")
+    dash_duo.wait_for_text_to_equal("#second", "2")
+    dash_duo.wait_for_text_to_equal("#third", "2")
 
     dash_duo.find_element("#first").send_keys("1")
 
-    dash_duo.wait_for_text_to_equal("#first", '111')
-    dash_duo.wait_for_text_to_equal("#second", '3')
-    dash_duo.wait_for_text_to_equal("#third", '3')
+    dash_duo.wait_for_text_to_equal("#first", "111")
+    dash_duo.wait_for_text_to_equal("#second", "3")
+    dash_duo.wait_for_text_to_equal("#third", "3")
 
 
 def test_clsd007_no_update(dash_duo):
@@ -313,36 +300,37 @@ def test_clsd007_no_update(dash_duo):
         [
             dcc.Input(id="first", value=1),
             dcc.Input(id="second", value=1),
-            dcc.Input(id="third", value=1)
+            dcc.Input(id="third", value=1),
         ]
     )
 
     app.clientside_callback(
-        ClientsideFunction(namespace="clientside", function_name="add1_no_update_at_11"),
-        [Output("second", "value"),
-         Output("third", "value")],
+        ClientsideFunction(
+            namespace="clientside", function_name="add1_no_update_at_11"
+        ),
+        [Output("second", "value"), Output("third", "value")],
         [Input("first", "value")],
-        [State("second", "value"),
-         State("third", "value")]
+        [State("second", "value"), State("third", "value")],
     )
 
     dash_duo.start_server(app)
 
-    dash_duo.wait_for_text_to_equal("#first", '1')
-    dash_duo.wait_for_text_to_equal("#second", '2')
-    dash_duo.wait_for_text_to_equal("#third", '2')
+    dash_duo.wait_for_text_to_equal("#first", "1")
+    dash_duo.wait_for_text_to_equal("#second", "2")
+    dash_duo.wait_for_text_to_equal("#third", "2")
 
     dash_duo.find_element("#first").send_keys("1")
 
-    dash_duo.wait_for_text_to_equal("#first", '11')
-    dash_duo.wait_for_text_to_equal("#second", '2')
-    dash_duo.wait_for_text_to_equal("#third", '3')
+    dash_duo.wait_for_text_to_equal("#first", "11")
+    dash_duo.wait_for_text_to_equal("#second", "2")
+    dash_duo.wait_for_text_to_equal("#third", "3")
 
     dash_duo.find_element("#first").send_keys("1")
 
-    dash_duo.wait_for_text_to_equal("#first", '111')
-    dash_duo.wait_for_text_to_equal("#second", '3')
-    dash_duo.wait_for_text_to_equal("#third", '4')
+    dash_duo.wait_for_text_to_equal("#first", "111")
+    dash_duo.wait_for_text_to_equal("#second", "3")
+    dash_duo.wait_for_text_to_equal("#third", "4")
+
 
 def test_clsd008_clientside_inline_source(dash_duo):
     app = Dash(__name__, assets_folder="assets")
@@ -355,9 +343,7 @@ def test_clsd008_clientside_inline_source(dash_duo):
         ]
     )
 
-    @app.callback(
-        Output("output-serverside", "children"), [Input("input", "value")]
-    )
+    @app.callback(Output("output-serverside", "children"), [Input("input", "value")])
     def update_output(value):
         return 'Server says "{}"'.format(value)
 
@@ -374,14 +360,8 @@ def test_clsd008_clientside_inline_source(dash_duo):
     dash_duo.start_server(app)
 
     dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "None"')
-    dash_duo.wait_for_text_to_equal(
-        "#output-clientside", 'Client says "undefined"'
-    )
+    dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "undefined"')
 
     dash_duo.find_element("#input").send_keys("hello world")
-    dash_duo.wait_for_text_to_equal(
-        "#output-serverside", 'Server says "hello world"'
-    )
-    dash_duo.wait_for_text_to_equal(
-        "#output-clientside", 'Client says "hello world"'
-    )
+    dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "hello world"')
+    dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "hello world"')

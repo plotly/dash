@@ -15,9 +15,9 @@ def _get_metadata(metadata_path):
     # Start processing
     with open(metadata_path) as data_file:
         json_string = data_file.read()
-        data = json.JSONDecoder(
-            object_pairs_hook=collections.OrderedDict
-        ).decode(json_string)
+        data = json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(
+            json_string
+        )
     return data
 
 
@@ -52,10 +52,7 @@ def load_components(metadata_path, namespace="default_namespace"):
         # the name of the component atm.
         name = componentPath.split("/").pop().split(".")[0]
         component = generate_class(
-            name,
-            componentData["props"],
-            componentData["description"],
-            namespace,
+            name, componentData["props"], componentData["description"], namespace
         )
 
         components.append(component)

@@ -1,53 +1,33 @@
-from multiprocessing import Value
-import datetime
 import time
 import pytest
 
-from bs4 import BeautifulSoup
-from selenium.webdriver.common.keys import Keys
-
-import dash_dangerously_set_inner_html
-import dash_flow_example
+from selenium.webdriver.common.by import By
 
 import dash_html_components as html
 import dash_core_components as dcc
 
-from dash import Dash, callback_context, no_update
+from dash import Dash
 
-from dash.dependencies import Input, Output, State
-from dash.exceptions import (
-    PreventUpdate,
-    DuplicateCallbackOutput,
-    CallbackException,
-    MissingCallbackContextException,
-    InvalidCallbackReturnValue,
-    IncorrectTypeException,
-    NonExistentIdException,
-)
-from dash.testing.wait import until
-from selenium.webdriver.common.by import By
+from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 
 
 def findSyncPlotlyJs(scripts):
     for script in scripts:
-        if "dash_core_components/plotly" in script.get_attribute('src'):
+        if "dash_core_components/plotly" in script.get_attribute("src"):
             return script
 
 
 def findAsyncPlotlyJs(scripts):
     for script in scripts:
-        if "dash_core_components/async~plotlyjs" in script.get_attribute(
-            'src'
-        ):
+        if "dash_core_components/async-plotlyjs" in script.get_attribute("src"):
             return script
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_scripts(dash_duo, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
-    app.layout = html.Div(
-        [dcc.Graph(id="output", figure={"data": [{"y": [3, 1, 2]}]})]
-    )
+    app.layout = html.Div([dcc.Graph(id="output", figure={"data": [{"y": [3, 1, 2]}]})])
 
     dash_duo.start_server(
         app,

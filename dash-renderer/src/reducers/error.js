@@ -8,6 +8,11 @@ const initialError = {
 export default function error(state = initialError, action) {
     switch (action.type) {
         case 'ON_ERROR': {
+            // log errors to the console for stack tracing and so they're
+            // available even with debugging off
+            /* eslint-disable-next-line no-console */
+            console.error(action.payload.error);
+
             if (action.payload.type === 'frontEnd') {
                 return {
                     frontEnd: [
