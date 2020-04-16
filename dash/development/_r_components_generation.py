@@ -502,14 +502,20 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
 
     os.makedirs("inst/deps")
 
-    for javascript in glob.glob("{}/*.js".format(project_shortname)):
-        shutil.copy(javascript, "inst/deps/")
+    for f in glob.glob("{}/**/*.*".format(project_shortname), recursive=True):
+        filename = os.path.basename(f)
+        extension = os.path.splitext(filename)[1]
 
-    for css in glob.glob("{}/*.css".format(project_shortname)):
-        shutil.copy(css, "inst/deps/")
+        if extension not in [".css", ".js", ".map"]:
+            continue
 
-    for sourcemap in glob.glob("{}/*.map".format(project_shortname)):
-        shutil.copy(sourcemap, "inst/deps/")
+        rel_dirname = os.path.relpath(os.path.dirname(f), project_shortname)
+        target_dirname = os.path.join(os.path.join("inst/deps/", rel_dirname))
+
+        if not os.path.exists(target_dirname):
+            os.makedirs(target_dirname)
+
+        shutil.copy(f, target_dirname)
 
 
 # pylint: disable=R0914, R0913, R0912, R0915
