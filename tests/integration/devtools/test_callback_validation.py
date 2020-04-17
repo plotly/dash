@@ -730,11 +730,7 @@ def multipage_app(validation=False):
     layout_page_2 = html.Div(
         [
             html.H2("Page 2"),
-            dcc.Dropdown(
-                id="page-2-dropdown",
-                options=[{"label": i, "value": i} for i in ["LA", "NYC", "MTL"]],
-                value="LA",
-            ),
+            dcc.Input(id="page-2-input", value="LA"),
             html.Div(id="page-2-display-value"),
             html.Br(),
             dcc.Link('Navigate to "/"', id="p2_index", href="/"),
@@ -776,7 +772,7 @@ def multipage_app(validation=False):
 
     # Page 2 callbacks
     @app.callback(
-        Output("page-2-display-value", "children"), [Input("page-2-dropdown", "value")]
+        Output("page-2-display-value", "children"), [Input("page-2-input", "value")]
     )
     def display_value(value):
         print("display_value")
@@ -792,7 +788,7 @@ def test_dvcv014_multipage_errors(dash_duo):
     specs = [
         [
             "ID not found in layout",
-            ['"page-2-dropdown"', "page-2-display-value.children"],
+            ['"page-2-input"', "page-2-display-value.children"],
         ],
         ["ID not found in layout", ['"submit-button"', "output-state.children"]],
         [
