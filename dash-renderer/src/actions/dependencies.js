@@ -35,7 +35,7 @@ import {
 
 const mergeMax = mergeWith(Math.max);
 
-import {getPath} from './paths';
+import {computePaths, getPath} from './paths';
 
 import {crawlLayout} from './utils';
 
@@ -464,9 +464,17 @@ function wildcardOverlap({id, property}, objs) {
 }
 
 export function validateCallbacksToLayout(state_, dispatchError) {
-    const {config, graphs, layout, paths} = state_;
-    const {outputMap, inputMap, outputPatterns, inputPatterns} = graphs;
+    const {config, graphs, layout: layout_, paths: paths_} = state_;
     const validateIds = !config.suppress_callback_exceptions;
+    let layout, paths;
+    if (validateIds && config.validation_layout) {
+        layout = config.validation_layout;
+        paths = computePaths(layout, [], null, paths_.events);
+    } else {
+        layout = layout_;
+        paths = paths_;
+    }
+    const {outputMap, inputMap, outputPatterns, inputPatterns} = graphs;
 
     function tail(callbacks) {
         return (
