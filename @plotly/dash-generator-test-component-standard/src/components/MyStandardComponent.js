@@ -4,9 +4,9 @@ import React from 'react';
 /**
  * MyComponent description
  */
-const MyComponent = ({ id, value }) => (<div id={id}>{value}</div>);
+const MyStandardComponent = ({ id, value }) => (<div id={id}>{value}</div>);
 
-MyComponent.propTypes = {
+MyStandardComponent.propTypes = {
     /**
      * The id of the component
      */
@@ -18,8 +18,8 @@ MyComponent.propTypes = {
     value: PropTypes.string
 };
 
-MyComponent.defaultProps = {
+MyStandardComponent.defaultProps = {
     value: ''
 };
 
-export default MyComponent;
+export default MyStandardComponent;

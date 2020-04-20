@@ -1,5 +1,5 @@
-import MyComponent from './components/MyComponent';
+import MyNestedComponent from './components/MyNestedComponent';
 
 export {
-    MyComponent,
+    MyNestedComponent,
 };

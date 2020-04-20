@@ -2,11 +2,11 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 /**
- * MyComponent description
+ * MyNestedComponent description
  */
-const MyComponent = ({ id, value }) => (<div id={id}>{value}</div>);
+const MyNestedComponent = ({ id, value }) => (<div id={id}>{value}</div>);
 
-MyComponent.propTypes = {
+MyNestedComponent.propTypes = {
     /**
      * The id of the component
      */
@@ -18,8 +18,8 @@ MyComponent.propTypes = {
     value: PropTypes.string
 };
 
-MyComponent.defaultProps = {
+MyNestedComponent.defaultProps = {
     value: ''
 };
 
-export default MyComponent;
+export default MyNestedComponent;
