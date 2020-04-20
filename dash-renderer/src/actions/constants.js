@@ -1,18 +1,18 @@
 const actionList = {
-    ON_PROP_CHANGE: 'ON_PROP_CHANGE',
-    SET_REQUEST_QUEUE: 'SET_REQUEST_QUEUE',
-    COMPUTE_GRAPHS: 'COMPUTE_GRAPHS',
-    COMPUTE_PATHS: 'COMPUTE_PATHS',
-    SET_LAYOUT: 'SET_LAYOUT',
-    SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
-    SET_CONFIG: 'SET_CONFIG',
-    ON_ERROR: 'ON_ERROR',
-    SET_HOOKS: 'SET_HOOKS',
+    ON_PROP_CHANGE: 1,
+    SET_REQUEST_QUEUE: 1,
+    SET_GRAPHS: 1,
+    SET_PATHS: 1,
+    SET_LAYOUT: 1,
+    SET_APP_LIFECYCLE: 1,
+    SET_CONFIG: 1,
+    ON_ERROR: 1,
+    SET_HOOKS: 1,
 };
 
 export const getAction = action => {
     if (actionList[action]) {
-        return actionList[action];
+        return action;
     }
     throw new Error(`${action} is not defined.`);
 };

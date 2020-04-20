@@ -849,7 +849,7 @@ def get_r_prop_types(type_object):
             )
         ),
         # React's PropTypes.objectOf
-        objectOf=lambda: ("list with named elements and values of type {}").format(
+        objectOf=lambda: "list with named elements and values of type {}".format(
             get_r_type(type_object["value"])
         ),
         # React's PropTypes.shape

@@ -31,7 +31,7 @@ class DebugMenu extends Component {
             toastsEnabled,
             callbackGraphOpened,
         } = this.state;
-        const {error, paths, layout, changed, profile, dependenciesRequest} = this.props;
+        const {error, graphs} = this.props;
 
         const menuClasses = opened
             ? 'dash-debug-menu dash-debug-menu--opened'
@@ -40,13 +40,7 @@ class DebugMenu extends Component {
         const menuContent = opened ? (
             <div className="dash-debug-menu__content">
                 {callbackGraphOpened ? (
-                    <CallbackGraphContainer
-                        paths={paths}
-                        layout={layout}
-                        changed={changed}
-                        profile={profile}
-                        dependenciesRequest={dependenciesRequest}
-                    />
+                    <CallbackGraphContainer graphs={graphs} />
                 ) : null}
                 {error.frontEnd.length > 0 || error.backEnd.length > 0 ? (
                     <div className="dash-debug-menu__button-container">
@@ -156,11 +150,7 @@ class DebugMenu extends Component {
 DebugMenu.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
-    paths: PropTypes.object,
-    layout: PropTypes.object,
-    changed: PropTypes.object,
-    profile: PropTypes.object,
-    dependenciesRequest: PropTypes.object,
+    graphs: PropTypes.object,
 };
 
 export {DebugMenu};

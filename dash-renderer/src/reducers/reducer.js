@@ -1,18 +1,12 @@
-import {
-    concat,
-    equals,
-    filter,
-    forEach,
-    isEmpty,
-    keys,
-    lensPath,
-    view,
-} from 'ramda';
+import {forEach, isEmpty, keys, path} from 'ramda';
 import {combineReducers} from 'redux';
+
+import {getCallbacksByInput} from '../actions/dependencies';
+
 import layout from './layout';
 import graphs from './dependencyGraph';
 import paths from './paths';
-import requestQueue from './requestQueue';
+import pendingCallbacks from './pendingCallbacks';
 import appLifecycle from './appLifecycle';
 import history from './history';
 import error from './error';
@@ -35,7 +29,7 @@ function mainReducer() {
         layout,
         graphs,
         paths,
-        requestQueue,
+        pendingCallbacks,
         config,
         history,
         error,
@@ -52,20 +46,17 @@ function mainReducer() {
 
 function getInputHistoryState(id, props, state) {
     const {graphs, layout, paths} = state;
-    const {InputGraph} = graphs;
-    const historyEntry = {id, props: {}};
-    keys(props).forEach(propKey => {
-        const inputKey = `${id}.${propKey}`;
-        if (
-            InputGraph.hasNode(inputKey) &&
-            InputGraph.dependenciesOf(inputKey).length > 0
-        ) {
-            historyEntry.props[propKey] = view(
-                lensPath(concat(paths[id], ['props', propKey])),
-                layout
-            );
-        }
-    });
+    const idProps = path(itempath.concat(['props']), layout);
+    const {id} = idProps || {};
+    let historyEntry;
+    if (id) {
+        historyEntry = {id, props: {}};
+        keys(props).forEach(propKey => {
+            if (getCallbacksByInput(graphs, paths, id, propKey).length) {
+                historyEntry.props[propKey] = idProps[propKey];
+            }
+        });
+    }
     return historyEntry;
 }
 

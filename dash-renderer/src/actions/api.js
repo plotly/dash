@@ -1,6 +1,6 @@
 import {mergeDeepRight} from 'ramda';
 import {handleAsyncError, getCSRFHeader} from '../actions';
-import {urlBase} from '../utils';
+import {urlBase} from './utils';
 
 function GET(path, fetchConfig) {
     return fetch(

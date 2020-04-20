@@ -9,13 +9,26 @@ def has_context(func):
     def assert_context(*args, **kwargs):
         if not flask.has_request_context():
             raise exceptions.MissingCallbackContextException(
-                ("dash.callback_context.{} is only available from a callback!").format(
+                "dash.callback_context.{} is only available from a callback!".format(
                     getattr(func, "__name__")
                 )
             )
         return func(*args, **kwargs)
 
     return assert_context
+
+
+class FalsyList(list):
+    def __bool__(self):
+        # for Python 3
+        return False
+
+    def __nonzero__(self):
+        # for Python 2
+        return False
+
+
+falsy_triggered = FalsyList([{"prop_id": ".", "value": None}])
 
 
 # pylint: disable=no-init
@@ -33,7 +46,26 @@ class CallbackContext:
     @property
     @has_context
     def triggered(self):
-        return getattr(flask.g, "triggered_inputs", [])
+        # For backward compatibility: previously `triggered` always had a
+        # value - to avoid breaking existing apps, add a dummy item but
+        # make the list still look falsy. So `if ctx.triggered` will make it
+        # look empty, but you can still do `triggered[0]["prop_id"].split(".")`
+        return getattr(flask.g, "triggered_inputs", []) or falsy_triggered
+
+    @property
+    @has_context
+    def outputs_list(self):
+        return getattr(flask.g, "outputs_list", [])
+
+    @property
+    @has_context
+    def inputs_list(self):
+        return getattr(flask.g, "inputs_list", [])
+
+    @property
+    @has_context
+    def states_list(self):
+        return getattr(flask.g, "states_list", [])
 
     @property
     @has_context
@@ -65,3 +97,5 @@ class CallbackContext:
         }
 
         setattr(flask.g, 'timing_information', timing_information)
+
+callback_context = CallbackContext()

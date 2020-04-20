@@ -1,146 +1,155 @@
 {
     "chapter1": {
-        "toc": ["props", "children", 0],
-        "body": ["props", "children", 1],
-        "chapter1-header": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            "props",
-            "children",
-            0
-        ],
-        "chapter1-controls": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            "props",
-            "children",
-            1
-        ],
-        "chapter1-label": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            "props",
-            "children",
-            2
-        ],
-        "chapter1-graph": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            "props",
-            "children",
-            3
-        ]
+        "objs": {},
+        "strs": {
+            "toc": ["props", "children", 0],
+            "body": ["props", "children", 1],
+            "chapter1-header": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                "props",
+                "children",
+                0
+            ],
+            "chapter1-controls": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                "props",
+                "children",
+                1
+            ],
+            "chapter1-label": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                "props",
+                "children",
+                2
+            ],
+            "chapter1-graph": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                "props",
+                "children",
+                3
+            ]
+        }
     },
     "chapter2": {
-        "toc": ["props", "children", 0],
-        "body": ["props", "children", 1],
-        "chapter2-header": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            "props",
-            "children",
-            0
-        ],
-        "chapter2-controls": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            "props",
-            "children",
-            1
-        ],
-        "chapter2-label": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            "props",
-            "children",
-            2
-        ],
-        "chapter2-graph": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            "props",
-            "children",
-            3
-        ]
+        "objs": {},
+        "strs": {
+            "toc": ["props", "children", 0],
+            "body": ["props", "children", 1],
+            "chapter2-header": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                "props",
+                "children",
+                0
+            ],
+            "chapter2-controls": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                "props",
+                "children",
+                1
+            ],
+            "chapter2-label": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                "props",
+                "children",
+                2
+            ],
+            "chapter2-graph": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                "props",
+                "children",
+                3
+            ]
+        }
     },
     "chapter3": {
-        "toc": ["props", "children", 0],
-        "body": ["props", "children", 1],
-        "chapter3-header": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            0,
-            "props",
-            "children",
-            "props",
-            "children",
-            0
-        ],
-        "chapter3-label": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            0,
-            "props",
-            "children",
-            "props",
-            "children",
-            1
-        ],
-        "chapter3-graph": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            0,
-            "props",
-            "children",
-            "props",
-            "children",
-            2
-        ],
-        "chapter3-controls": [
-            "props",
-            "children",
-            1,
-            "props",
-            "children",
-            0,
-            "props",
-            "children",
-            "props",
-            "children",
-            3
-        ]
+        "objs": {},
+        "strs": {
+            "toc": ["props", "children", 0],
+            "body": ["props", "children", 1],
+            "chapter3-header": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                0,
+                "props",
+                "children",
+                "props",
+                "children",
+                0
+            ],
+            "chapter3-label": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                0,
+                "props",
+                "children",
+                "props",
+                "children",
+                1
+            ],
+            "chapter3-graph": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                0,
+                "props",
+                "children",
+                "props",
+                "children",
+                2
+            ],
+            "chapter3-controls": [
+                "props",
+                "children",
+                1,
+                "props",
+                "children",
+                0,
+                "props",
+                "children",
+                "props",
+                "children",
+                3
+            ]
+        }
     }
 }
