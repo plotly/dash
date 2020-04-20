@@ -78,7 +78,10 @@ const getVisibleColumns = (
 export default class Sanitizer {
     sanitize(props: PropsWithDefaults): SanitizedProps {
         const locale_format = this.applyDefaultToLocale(props.locale_format);
-        const columns = this.applyDefaultsToColumns(locale_format, props.sort_as_null, props.columns, props.editable);
+        const columns = props.columns ?
+            this.applyDefaultsToColumns(locale_format, props.sort_as_null, props.columns, props.editable) :
+            [];
+        const data = props.data ?? [];
         const visibleColumns = this.getVisibleColumns(columns, props.hidden_columns);
 
         let headerFormat = props.export_headers;
@@ -90,9 +93,10 @@ export default class Sanitizer {
 
         return R.merge(props, {
             columns,
+            data,
             export_headers: headerFormat,
             fixed_columns: getFixedColumns(props.fixed_columns, props.row_deletable, props.row_selectable),
-            fixed_rows: getFixedRows(props.fixed_rows, props.columns, props.filter_action),
+            fixed_rows: getFixedRows(props.fixed_rows, columns, props.filter_action),
             loading_state: dataLoading(props.loading_state),
             locale_format,
             visibleColumns

@@ -77,8 +77,6 @@ export const defaultProps = {
     tooltip_duration: 2000,
 
     column_selectable: false,
-    columns: [],
-    data: [],
     editable: false,
     export_columns: 'visible',
     export_format: 'none',

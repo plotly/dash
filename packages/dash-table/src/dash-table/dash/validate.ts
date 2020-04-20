@@ -16,7 +16,7 @@ function validColumns(props: any) {
         columns
     } = props;
 
-    return !R.any((column: any) =>
+    return R.isNil(columns) || !R.any((column: any) =>
         column.format && (
             (
                 column.format.symbol &&
