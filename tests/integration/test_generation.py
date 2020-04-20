@@ -1,20 +1,16 @@
-import dash
-import dash_generator_test_component_nested
-import dash_generator_test_component_standard
-import dash_html_components
+from dash import Dash
+from dash_generator_test_component_nested import MyNestedComponent
+from dash_generator_test_component_standard import MyStandardComponent
+from dash_html_components import Div
 
 
 def test_gene001_simple_callback(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
-    app.layout = dash_html_components.Div(
+    app.layout = Div(
         [
-            dash_generator_test_component_nested.MyStandardComponent(
-                id="standard", value="Standard"
-            ),
-            dash_generator_test_component_standard.MyNestedComponent(
-                id="nested", value="Nested"
-            ),
+            MyStandardComponent(id="standard", value="Standard"),
+            MyNestedComponent(id="nested", value="Nested"),
         ]
     )
 
