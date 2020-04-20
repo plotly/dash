@@ -106,6 +106,11 @@ class DataTableCellFacade(object):
 
         return "focused" in cell.get_attribute("class").split(" ")
 
+    def open_dropdown(self):
+        cell = self.get()
+
+        cell.find_element_by_css_selector(".Select-arrow").click()
+
 
 class DataTableColumnFacade(object):
     @preconditions(_validate_id, _validate_mixin, _validate_col_id, _validate_state)

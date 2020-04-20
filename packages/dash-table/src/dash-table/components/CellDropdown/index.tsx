@@ -43,6 +43,7 @@ export default class CellDropdown extends PureComponent<IProps> {
                 onChange={(newValue: any) => {
                     onChange(newValue ? newValue.value : newValue);
                 }}
+                scrollMenuIntoView={false}
                 onOpen={this.handleOpenDropdown}
                 options={dropdown}
                 placeholder={''}
