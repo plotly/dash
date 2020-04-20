@@ -218,7 +218,9 @@ function CallbackGraphContainer(props) {
           <JSONTree
             data={elementInfo}
             theme="summerfruit"
-            hideRoot={true}
+            labelRenderer={(keys) => (
+              keys.length === 1 ? elementName : keys[0]
+            )}
             getItemString={(type, data, itemType, itemString) => (
               <span>{itemType}</span>
             )}

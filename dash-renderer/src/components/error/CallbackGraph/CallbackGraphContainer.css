@@ -22,11 +22,10 @@
     bottom: 16px;
     left: 16px;
     max-width: calc(100% - 32px);
-    max-height: 25%;
+    max-height: 50%;
     overflow: auto;
     box-sizing: border-box;
     background: rgba(255,255,255,0.9);
     border: 2px solid #ccc;
-    font-size: 1.2rem;
     font-family: "Arial", sans-serif;
 }
