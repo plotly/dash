@@ -4,7 +4,6 @@ from __future__ import print_function
 import os
 import sys
 import shutil
-import glob
 import importlib
 import textwrap
 import re
@@ -502,20 +501,19 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
 
     os.makedirs("inst/deps")
 
-    for f in glob.glob("{}/**/*.*".format(project_shortname), recursive=True):
-        filename = os.path.basename(f)
-        extension = os.path.splitext(filename)[1]
+    for rel_dirname, _, filenames in os.walk(project_shortname):
+        for filename in filenames:
+            extension = os.path.splitext(filename)[1]
 
-        if extension not in [".css", ".js", ".map"]:
-            continue
+            if extension not in [".css", ".js", ".map"]:
+                continue
 
-        rel_dirname = os.path.relpath(os.path.dirname(f), project_shortname)
-        target_dirname = os.path.join(os.path.join("inst/deps/", rel_dirname))
+            target_dirname = os.path.join(os.path.join("inst/deps/", rel_dirname))
 
-        if not os.path.exists(target_dirname):
-            os.makedirs(target_dirname)
+            if not os.path.exists(target_dirname):
+                os.makedirs(target_dirname)
 
-        shutil.copy(f, target_dirname)
+            shutil.copy(os.path.join(rel_dirname, filename), target_dirname)
 
 
 # pylint: disable=R0914, R0913, R0912, R0915
