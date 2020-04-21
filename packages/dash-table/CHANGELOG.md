@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- [#729](https://github.com/plotly/dash-table/pull/729) Improve conditional styling
+    - `style_data_conditional`: Add support for `row_index` and `column_id` array of values
+    - `style_header_conditional`: Add support for `header_index` and `column_id` array of values
+    - `style_filter_conditional`: Add support for `column_id` array of values
+    - `style_cell_conditional`: Add support for `column_id` array of values
+    - `style_data_conditional`: Add new conditions `state: 'active'|'selected'` to customize selected and active cell styles
+
 ### Fixed
 - [#722](https://github.com/plotly/dash-table/pull/722) Fix a bug where row height is misaligned when using fixed_columns and/or fixed_rows
 - [#728](https://github.com/plotly/dash-table/pull/728) Fix copy/paste on readonly cells

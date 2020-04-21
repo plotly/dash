@@ -2,7 +2,7 @@ import * as R from 'ramda';
 
 import { memoizeOne } from 'core/memoizer';
 
-import derivedDataEdges from 'dash-table/derived/edges/data';
+import { derivedPartialDataEdges, derivedDataEdges } from 'dash-table/derived/edges/data';
 import derivedDataOpEdges from 'dash-table/derived/edges/operationOfData';
 import derivedFilterEdges from 'dash-table/derived/edges/filter';
 import derivedFilterOpEdges from 'dash-table/derived/edges/operationOfFilters';
@@ -15,7 +15,7 @@ import getHeaderRows from 'dash-table/derived/header/headerRows';
 import { derivedRelevantCellStyles, derivedRelevantFilterStyles, derivedRelevantHeaderStyles } from 'dash-table/derived/style';
 import { Style, Cells, DataCells, BasicFilters, Headers } from 'dash-table/derived/style/props';
 
-import { ControlledTableProps, Columns, IViewportOffset, Data, ICellCoordinates, TableAction } from './Table/props';
+import { ControlledTableProps, Columns, IViewportOffset, Data, ICellCoordinates, TableAction, SelectedCells } from './Table/props';
 import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
 
 type EdgesMatricesOp = EdgesMatrices | undefined;
@@ -25,6 +25,7 @@ export default class EdgeFactory {
     private readonly filterStyles = derivedRelevantFilterStyles();
     private readonly headerStyles = derivedRelevantHeaderStyles();
 
+    private readonly getPartialDataEdges = derivedPartialDataEdges();
     private readonly getDataEdges = derivedDataEdges();
     private readonly getDataOpEdges = derivedDataOpEdges();
     private readonly getFilterEdges = derivedFilterEdges();
@@ -146,6 +147,7 @@ export default class EdgeFactory {
             fixed_rows,
             row_deletable,
             row_selectable,
+            selected_cells,
             style_as_list_view,
             style_cell,
             style_cell_conditional,
@@ -168,6 +170,7 @@ export default class EdgeFactory {
             workFilter.map,
             fixed_columns,
             fixed_rows,
+            selected_cells,
             style_as_list_view,
             style_cell,
             style_cell_conditional,
@@ -191,6 +194,7 @@ export default class EdgeFactory {
         filterMap: Map<string, SingleColumnSyntaxTree>,
         fixed_columns: number,
         fixed_rows: number,
+        selected_cells: SelectedCells,
         style_as_list_view: boolean,
         style_cell: Style,
         style_cell_conditional: Cells,
@@ -200,7 +204,7 @@ export default class EdgeFactory {
         style_filter_conditional: BasicFilters,
         style_header: Style,
         style_header_conditional: Headers,
-        data: Data,
+        virtualizedData: Data,
         offset: IViewportOffset
     ) => {
         const dataStyles = this.dataStyles(
@@ -226,19 +230,28 @@ export default class EdgeFactory {
 
         const headerRows = getHeaderRows(columns);
 
-        let dataEdges = this.getDataEdges(
+        const partialDataEdges = this.getPartialDataEdges(
             visibleColumns,
             dataStyles,
-            data,
+            virtualizedData,
+            offset,
+            style_as_list_view
+        )
+
+        let dataEdges = this.getDataEdges(
+            partialDataEdges,
+            visibleColumns,
+            dataStyles,
+            virtualizedData,
             offset,
             active_cell,
-            style_as_list_view
+            selected_cells
         );
 
         let dataOpEdges = this.getDataOpEdges(
             operations,
             dataStyles,
-            data,
+            virtualizedData,
             offset,
             style_as_list_view
         );

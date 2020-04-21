@@ -1,5 +1,5 @@
 import { map, range, xprod } from 'ramda';
-import { ICellCoordinates, Columns, IDerivedData } from 'dash-table/components/Table/props';
+import { ICellCoordinates, Columns, IDerivedData, IndexedData } from 'dash-table/components/Table/props';
 
 export function makeCell (
     row: number,
@@ -12,7 +12,7 @@ export function makeCell (
         column,
         column_id: columns[column].id
     };
-    const rowId = viewport.data[row].id;
+    const rowId = (viewport.data as IndexedData)[row].id;
     if (rowId !== undefined) {
         cell.row_id = rowId;
     }

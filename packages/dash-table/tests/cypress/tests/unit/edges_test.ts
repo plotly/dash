@@ -1,17 +1,25 @@
-import dataEdges from 'dash-table/derived/edges/data';
+import { derivedPartialDataEdges } from 'dash-table/derived/edges/data';
 import Environment from 'core/environment';
+import { IConvertedStyle } from 'dash-table/derived/style';
 
-const converter = {
-    checksColumn: () => true,
-    checksFilter: () => true,
-    checksRow: () => true,
+const converter: Omit<IConvertedStyle, 'style'> = {
+    checksColumn: () => false,
+    checksDataRow: () => false,
+    checksFilter: () => false,
+    checksHeaderRow: () => false,
+    checksState: () => false,
+    checksStateActive: () => false,
+    checksStateSelected: () => false,
+    matchesActive: () => true,
     matchesColumn: () => true,
+    matchesDataRow: () => true,
     matchesFilter: () => true,
-    matchesRow: () => true
+    matchesHeaderRow: () => true,
+    matchesSelected: () => true
 };
 
 describe('data edges', () => {
-    const edgesFn = dataEdges();
+    const edgesFn = derivedPartialDataEdges();
 
     it('without data has no edges', () => {
         const res = edgesFn(
@@ -19,7 +27,6 @@ describe('data edges', () => {
             [],
             [],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -32,7 +39,6 @@ describe('data edges', () => {
             [],
             [{ id: 1 }],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -45,7 +51,6 @@ describe('data edges', () => {
             [],
             [{ id: 1 }],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -72,7 +77,6 @@ describe('data edges', () => {
             [],
             [{ id: 1 }],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -107,7 +111,6 @@ describe('data edges', () => {
                 { id: 2, name: 'b' }
             ],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -152,7 +155,6 @@ describe('data edges', () => {
                 { id: 2, name: 'b' }
             ],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -197,7 +199,6 @@ describe('data edges', () => {
                 { id: 2, name: 'b' }
             ],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -248,7 +249,6 @@ describe('data edges', () => {
                 { id: 1, name: 'a' }
             ],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -281,7 +281,6 @@ describe('data edges', () => {
                 { id: 1, name: 'a' }
             ],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -314,7 +313,6 @@ describe('data edges', () => {
                 { id: 1, name: 'a' }
             ],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 
@@ -359,7 +357,6 @@ describe('data edges', () => {
                 { id: 1, name: 'a' }
             ],
             { columns: 0, rows: 0 },
-            undefined,
             false
         );
 

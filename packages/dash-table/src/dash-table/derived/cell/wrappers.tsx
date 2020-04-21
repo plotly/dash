@@ -44,6 +44,10 @@ class Wrappers {
     ) => {
         wrappers = shallowClone(wrappers);
 
+        const cells = selectedCells.length ?
+            selectedCells :
+            activeCell ? [activeCell] : [];
+
         R.forEach(({ row: i, column: j }) => {
             i -= offset.rows;
             j -= offset.columns;
@@ -59,7 +63,7 @@ class Wrappers {
                 className: w.props.className + ' cell--selected' + (active ? ' focused' : '')
             });
 
-        }, selectedCells);
+        }, cells);
 
         return wrappers;
     });

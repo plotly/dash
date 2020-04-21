@@ -23,7 +23,7 @@ const getter = (
     sort_by: SortBy = []
 ): IDerivedData => {
     const map = new Map<Datum, number>();
-    R.addIndex(R.forEach)((datum, index) => {
+    R.addIndex<Datum>(R.forEach)((datum, index) => {
         map.set(datum, index);
     }, data);
 

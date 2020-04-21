@@ -24,7 +24,12 @@ import {
     IEditableElement,
     ifColumnId,
     ifColumnType,
-    ifEditable
+    ifEditable,
+    ifColumnStateActive,
+    IStateElement,
+    ifColumnStateSelected,
+    ifRowIndex,
+    ifHeaderIndex
  } from 'dash-table/conditional';
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 import { BORDER_PROPERTIES_AND_FRAGMENTS } from '../edges/type';
@@ -33,18 +38,24 @@ import { matchesDataCell, matchesDataOpCell, matchesFilterCell, getFilterOpStyle
 export interface IConvertedStyle {
     style: CSSProperties;
     checksColumn: () => boolean;
-    checksRow: () => boolean;
+    checksDataRow: () => boolean;
+    checksHeaderRow: () => boolean;
     checksFilter: () => boolean;
+    checksState: () => boolean;
+    checksStateActive: () => boolean;
+    checksStateSelected: () => boolean;
+    matchesActive: (active: boolean) => boolean;
     matchesColumn: (column: IColumn | undefined) => boolean;
-    matchesRow: (index: number | undefined) => boolean;
     matchesFilter: (datum: Datum) => boolean;
+    matchesDataRow: (index: number) => boolean;
+    matchesHeaderRow: (index: number) => boolean;
+    matchesSelected: (selected: boolean) => boolean;
 }
 
-type GenericIf = Partial<IConditionalElement & IIndexedHeaderElement & IIndexedRowElement & INamedElement & ITypedElement & IEditableElement>;
+type GenericIf = Partial<IStateElement & IConditionalElement & IIndexedHeaderElement & IIndexedRowElement & INamedElement & ITypedElement & IEditableElement>;
 type GenericStyle = Style & Partial<{ if: GenericIf }>;
 
 function convertElement(style: GenericStyle): IConvertedStyle {
-    const indexFilter = style.if && (style.if.header_index || style.if.row_index);
     let ast: QuerySyntaxTree;
 
     return {
@@ -53,9 +64,13 @@ function convertElement(style: GenericStyle): IConvertedStyle {
             !R.isNil(style.if.column_type) ||
             !R.isNil(style.if.column_editable)
         ),
-        checksRow: () => !R.isNil(indexFilter),
         checksFilter: () => !R.isNil(style.if) && !R.isNil(style.if.filter_query),
-
+        checksDataRow: () => !R.isNil(style.if) && !R.isNil(style.if.row_index),
+        checksHeaderRow: () => !R.isNil(style.if) && !R.isNil(style.if.header_index),
+        checksState: () => !R.isNil(style.if?.state),
+        checksStateActive: () => style.if?.state === 'active',
+        checksStateSelected: () => style.if?.state === 'selected',
+        matchesActive: (active: boolean) => ifColumnStateActive(style.if, active),
         matchesColumn: (column: IColumn | undefined) =>
             !style.if || (
                 !R.isNil(column) &&
@@ -63,16 +78,13 @@ function convertElement(style: GenericStyle): IConvertedStyle {
                 ifColumnType(style.if, column && column.type) &&
                 ifEditable (style.if, column && column.editable)
             ),
-        matchesRow: (index: number | undefined) =>
-            indexFilter === undefined ?
-                true :
-                typeof indexFilter === 'number' ?
-                    index === indexFilter :
-                    !R.isNil(index) && (indexFilter === 'odd' ? index % 2 === 1 : index % 2 === 0),
         matchesFilter: (datum: Datum) =>
             !style.if ||
             style.if.filter_query === undefined ||
             (ast = ast || new QuerySyntaxTree(style.if.filter_query)).evaluate(datum),
+        matchesDataRow: (index: number) => ifRowIndex(style.if, index),
+        matchesHeaderRow: (index: number) => ifHeaderIndex(style.if, index),
+        matchesSelected: (selected: boolean) => ifColumnStateSelected(style.if, selected),
         style: convertStyle(style)
     };
 }
@@ -139,7 +151,7 @@ export function resolveStyle(styles: IConvertedStyle[]): CSSProperties {
     return R.omit(BORDER_PROPERTIES_AND_FRAGMENTS, res);
 }
 
-export const getDataCellStyle = (datum: Datum, i: number, column: IColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesDataCell(datum, i, column)(styles));
+export const getDataCellStyle = (datum: Datum, i: number, column: IColumn, active: boolean, selected: boolean) => (styles: IConvertedStyle[]) => resolveStyle(matchesDataCell(datum, i, column, active, selected)(styles));
 export const getDataOpCellStyle = (datum: Datum, i: number) => (styles: IConvertedStyle[]) => resolveStyle(matchesDataOpCell(datum, i)(styles));
 export const getFilterCellStyle = (column: IColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesFilterCell(column)(styles));
 export const getFilterOpCellStyle = () => (styles: IConvertedStyle[]) => resolveStyle(getFilterOpStyles(styles));

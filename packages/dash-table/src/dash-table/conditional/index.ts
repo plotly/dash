@@ -13,11 +13,15 @@ export interface IIndexedHeaderElement {
 }
 
 export interface IIndexedRowElement {
-    row_index?: number | 'odd' | 'even';
+    row_index?: number[] | number | 'odd' | 'even';
 }
 
 export interface INamedElement {
-    column_id?: ColumnId;
+    column_id?: ColumnId[] | ColumnId;
+}
+
+export interface IStateElement {
+    state?: 'active' | 'selected';
 }
 
 export interface ITypedElement {
@@ -29,7 +33,7 @@ export interface IEditableElement {
 }
 
 export type ConditionalBasicFilter = INamedElement & ITypedElement;
-export type ConditionalDataCell = IConditionalElement & IIndexedRowElement & INamedElement & ITypedElement & IEditableElement;
+export type ConditionalDataCell = IConditionalElement & IIndexedRowElement & INamedElement & IStateElement & ITypedElement & IEditableElement;
 export type ConditionalCell = INamedElement & ITypedElement;
 export type ConditionalHeader = IIndexedHeaderElement & INamedElement & ITypedElement;
 
@@ -37,9 +41,21 @@ function ifAstFilter(ast: QuerySyntaxTree, datum: Datum) {
     return ast.isValid && ast.evaluate(datum);
 }
 
+export function ifColumnStateActive(condition: IStateElement | undefined, active: boolean) {
+    return condition?.state !== 'active' || active;
+}
+
+export function ifColumnStateSelected(condition: IStateElement | undefined, selected: boolean) {
+    return condition?.state !== 'selected' || selected;
+}
+
 export function ifColumnId(condition: INamedElement | undefined, columnId: ColumnId) {
-    return !condition ||
-        condition.column_id === undefined ||
+    if (!condition || condition.column_id === undefined) {
+        return true;
+    }
+
+    return Array.isArray(condition.column_id) ?
+        R.includes(columnId, condition.column_id) :
         condition.column_id === columnId;
 }
 
@@ -50,27 +66,29 @@ export function ifColumnType(condition: ITypedElement | undefined, columnType?: 
 }
 
 export function ifRowIndex(condition: IIndexedRowElement | undefined, rowIndex: number) {
-    if (!condition ||
-        condition.row_index === undefined) {
+    if (!condition || condition.row_index === undefined) {
         return true;
     }
 
     const rowCondition = condition.row_index;
-    return typeof rowCondition === 'number' ?
-        rowIndex === rowCondition :
-        rowCondition === 'odd' ? rowIndex % 2 === 1 : rowIndex % 2 === 0;
+    return typeof rowCondition === 'string' ?
+        rowIndex % 2 === (rowCondition === 'odd' ? 1 : 0) :
+        Array.isArray(rowCondition) ?
+            R.includes(rowIndex, rowCondition) :
+            rowIndex === rowCondition;
 }
 
 export function ifHeaderIndex(condition: IIndexedHeaderElement | undefined, headerIndex: number) {
-    if (!condition ||
-        condition.header_index === undefined) {
+    if (!condition || condition.header_index === undefined) {
         return true;
     }
 
     const headerCondition = condition.header_index;
-    return typeof headerCondition === 'number' ?
-        headerIndex === headerCondition :
-        headerCondition === 'odd' ? headerIndex % 2 === 1 : headerIndex % 2 === 0;
+    return typeof headerCondition === 'string' ?
+        headerIndex % 2 === (headerCondition === 'odd' ? 1 : 0) :
+        Array.isArray(headerCondition) ?
+            R.includes(headerIndex, headerCondition) :
+            headerIndex === headerCondition;
 }
 
 export function ifFilter(condition: IConditionalElement | undefined, datum: Datum) {
@@ -89,32 +107,52 @@ export function ifEditable(condition: IEditableElement | undefined, isEditable: 
 
 export type Filter<T> = (s: T[]) => T[];
 
-export const matchesDataCell = (datum: Datum, i: number, column: IColumn): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
-    style.matchesRow(i) &&
+export const matchesDataCell = (
+    datum: Datum,
+    i: number, column: IColumn,
+    active: boolean,
+    selected: boolean
+): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
+    !style.checksHeaderRow() &&
+    style.matchesActive(active) &&
+    style.matchesSelected(selected) &&
+    style.matchesDataRow(i) &&
     style.matchesColumn(column) &&
     style.matchesFilter(datum)
 ));
 
 export const matchesFilterCell = (column: IColumn): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
+    !style.checksState() &&
+    !style.checksDataRow() &&
+    !style.checksHeaderRow() &&
     style.matchesColumn(column)
 ));
 
 export const matchesHeaderCell = (i: number, column: IColumn): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
-    style.matchesRow(i) &&
+    !style.checksState() &&
+    !style.checksDataRow() &&
+    style.matchesHeaderRow(i) &&
     style.matchesColumn(column)
 ));
 
 export const matchesDataOpCell = (datum: Datum, i: number): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
+    !style.checksState() &&
     !style.checksColumn() &&
-    style.matchesRow(i) &&
+    !style.checksHeaderRow() &&
+    style.matchesDataRow(i) &&
     style.matchesFilter(datum)
 ));
 
 export const getFilterOpStyles: Filter<IConvertedStyle> = R.filter<IConvertedStyle>((style =>
+    !style.checksState() &&
+    !style.checksDataRow() &&
+    !style.checksHeaderRow() &&
     !style.checksColumn()
 ));
 
 export const getHeaderOpStyles = (i: number): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
-    style.matchesRow(i) &&
-    !style.checksColumn()
+    !style.checksDataRow() &&
+    !style.checksState() &&
+    !style.checksColumn() &&
+    style.matchesHeaderRow(i)
 ));

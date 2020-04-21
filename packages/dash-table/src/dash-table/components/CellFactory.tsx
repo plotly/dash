@@ -73,7 +73,11 @@ export default class CellFactory {
 
         const cellStyles = this.dataStyles(
             partialCellStyles,
+            visibleColumns,
+            relevantStyles,
+            virtualized.data,
             virtualized.offset,
+            active_cell,
             selected_cells
         );
 

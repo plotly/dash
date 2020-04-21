@@ -6,6 +6,7 @@ import QuerySyntaxTree from 'dash-table/syntax-tree/QuerySyntaxTree';
 
 import {
     ControlledTableProps,
+    IndexedData,
     SanitizedAndDerivedProps,
     SetProps,
     TableAction
@@ -67,19 +68,19 @@ export default () => {
         if (!virtualCached) {
             newProps.derived_virtual_data = virtual.data;
             newProps.derived_virtual_indices = virtual.indices;
-            newProps.derived_virtual_row_ids = R.pluck('id', virtual.data);
+            newProps.derived_virtual_row_ids = R.pluck('id', virtual.data as IndexedData);
         }
 
         if (!viewportCached) {
             newProps.derived_viewport_data = viewport.data;
             newProps.derived_viewport_indices = viewport.indices;
-            newProps.derived_viewport_row_ids = R.pluck('id', viewport.data);
+            newProps.derived_viewport_row_ids = R.pluck('id', viewport.data as IndexedData);
         }
 
         if (!virtualSelectedRowsCached) {
             newProps.derived_virtual_selected_rows = virtual_selected_rows;
             newProps.derived_virtual_selected_row_ids = R.map(
-                i => virtual.data[i].id,
+                i => (virtual.data as IndexedData)[i].id,
                 virtual_selected_rows
             );
         }
@@ -91,7 +92,7 @@ export default () => {
         if (!viewportSelectedRowsCached) {
             newProps.derived_viewport_selected_rows = viewport_selected_rows;
             newProps.derived_viewport_selected_row_ids = R.map(
-                i => viewport.data[i].id,
+                i => (viewport.data as IndexedData)[i].id,
                 viewport_selected_rows
             );
         }

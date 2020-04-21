@@ -4,7 +4,7 @@ import { Datum, IColumn } from 'dash-table/components/Table/props';
 import { matchesDataCell, matchesDataOpCell, matchesFilterCell, getFilterOpStyles, matchesHeaderCell, getHeaderOpStyles } from 'dash-table/conditional';
 import { traverse2 } from 'core/math/matrixZipMap';
 
-function resolveEdges(styles: IConvertedStyle[]): BorderStyle {
+function resolveEdges(styles: IConvertedStyle[], priority?: number): BorderStyle {
     let res: BorderStyle = {};
 
     traverse2(
@@ -14,7 +14,7 @@ function resolveEdges(styles: IConvertedStyle[]): BorderStyle {
             const border = s.style[p] || s.style.border;
 
             if (border) {
-                res[p] = [border, i];
+                res[p] = [border, priority ?? i];
             }
         }
     );
@@ -22,7 +22,14 @@ function resolveEdges(styles: IConvertedStyle[]): BorderStyle {
     return res;
 }
 
-export const getDataCellEdges = (datum: Datum, i: number, column: IColumn) => (styles: IConvertedStyle[]) => resolveEdges(matchesDataCell(datum, i, column)(styles));
+export const getDataCellEdges = (
+    datum: Datum,
+    i: number,
+    column: IColumn,
+    active: boolean,
+    selected: boolean,
+    priority?: number
+) => (styles: IConvertedStyle[]) => resolveEdges(matchesDataCell(datum, i, column, active, selected)(styles), priority);
 export const getDataOpCellEdges = (datum: Datum, i: number) => (styles: IConvertedStyle[]) => resolveEdges(matchesDataOpCell(datum, i)(styles));
 export const getFilterCellEdges = (column: IColumn) => (styles: IConvertedStyle[]) => resolveEdges(matchesFilterCell(column)(styles));
 export const getFilterOpCellEdges = () => (styles: IConvertedStyle[]) => resolveEdges(getFilterOpStyles(styles));

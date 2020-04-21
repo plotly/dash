@@ -4,7 +4,6 @@ import React from 'react';
 import { memoizeOneFactory } from 'core/memoizer';
 
 import {
-    Datum,
     Selection
 } from 'dash-table/components/Table/props';
 
@@ -29,7 +28,7 @@ const getter = (
     headerRows: number,
     rowSelectable: Selection,
     rowDeletable: boolean
-): JSX.Element[][] => R.addIndex<Datum, JSX.Element[]>(R.map)(
+): JSX.Element[][] => R.addIndex<number, JSX.Element[]>(R.map)(
     () => [
         ...(rowDeletable ? [rowDeleteHeader()] : []),
         ...(rowSelectable ? [rowSelectCell()] : [])
