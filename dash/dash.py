@@ -601,7 +601,7 @@ class Dash(object):
         )
 
     def _generate_config_html(self):
-        return ('<script id="_dash-config" type="application/json">{}</script>').format(
+        return '<script id="_dash-config" type="application/json">{}</script>'.format(
             json.dumps(self._config())
         )
 
