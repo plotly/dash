@@ -15,7 +15,8 @@ import {
     SetFilter,
     SetProps,
     SortMode,
-    TableAction
+    TableAction,
+    FilterLogicalOperator
 } from 'dash-table/components/Table/props';
 import getColumnFlag from 'dash-table/derived/header/columnFlag';
 import * as actions from 'dash-table/utils/actions';
@@ -34,6 +35,7 @@ const doAction = (
     selected_columns: string[],
     column: IColumn,
     columns: Columns,
+    operator: FilterLogicalOperator,
     visibleColumns: Columns,
     columnRowIndex: any,
     mergeDuplicateHeaders: boolean,
@@ -64,7 +66,7 @@ const doAction = (
         }
     }, affectedColumIds);
 
-    clearColumnsFilter(map, affectedColumns, setFilter);
+    clearColumnsFilter(map, affectedColumns, operator, setFilter);
 };
 
 function doSort(columnId: ColumnId, sortBy: SortBy, mode: SortMode, setProps: SetProps) {
@@ -162,6 +164,7 @@ function getter(
     sort_action: TableAction,
     mode: SortMode,
     sortBy: SortBy,
+    filterOperator: FilterLogicalOperator,
     paginationMode: TableAction,
     setFilter: SetFilter,
     setProps: SetProps,
@@ -263,7 +266,7 @@ function getter(
                             null :
                             (<span
                                 className='column-header--clear'
-                                onClick={doAction(actions.clearColumn, selected_columns, column, columns, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)}
+                                onClick={doAction(actions.clearColumn, selected_columns, column, columns, filterOperator, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)}
                             >
                                 <FontAwesomeIcon icon='eraser' />
                             </span>)
@@ -275,7 +278,7 @@ function getter(
                                 className={'column-header--delete' + (spansAllColumns ? ' disabled' : '')}
                                 onClick={spansAllColumns ?
                                     undefined :
-                                    doAction(actions.deleteColumn, selected_columns, column, columns, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)
+                                    doAction(actions.deleteColumn, selected_columns, column, columns, filterOperator, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)
                                 }
                             >
                                 <FontAwesomeIcon icon={['far', 'trash-alt']} />

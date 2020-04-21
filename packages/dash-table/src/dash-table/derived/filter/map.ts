@@ -2,7 +2,7 @@ import * as R from 'ramda';
 
 import { memoizeOneFactory } from 'core/memoizer';
 
-import { Columns, IColumn, SetFilter } from 'dash-table/components/Table/props';
+import { Columns, IColumn, SetFilter, FilterLogicalOperator } from 'dash-table/components/Table/props';
 import { SingleColumnSyntaxTree, MultiColumnsSyntaxTree, getMultiColumnQueryString, getSingleColumnMap } from 'dash-table/syntax-tree';
 
 const cloneIf = (
@@ -12,12 +12,12 @@ const cloneIf = (
 
 export default memoizeOneFactory((
     map: Map<string, SingleColumnSyntaxTree>,
+    operator: FilterLogicalOperator,
     query: string,
     columns: Columns
 ): Map<string, SingleColumnSyntaxTree> => {
-    const multiQuery = new MultiColumnsSyntaxTree(query);
+    const multiQuery = new MultiColumnsSyntaxTree(query, operator);
     const reversedMap = getSingleColumnMap(multiQuery, columns);
-
     /*
      * Couldn't process the query, just use the previous value.
      */
@@ -74,14 +74,18 @@ function updateMap(map: Map<string, SingleColumnSyntaxTree>, column: IColumn, va
     return newMap;
 }
 
-function updateState(map: Map<string, SingleColumnSyntaxTree>, setFilter: SetFilter) {
+function updateState(
+    map: Map<string, SingleColumnSyntaxTree>,
+    operator: FilterLogicalOperator,
+    setFilter: SetFilter
+) {
     const asts = Array.from(map.values());
-    const globalFilter = getMultiColumnQueryString(asts);
+    const globalFilter = getMultiColumnQueryString(asts, operator);
 
     const rawGlobalFilter = R.map(
         ast => ast.query || '',
         R.filter<SingleColumnSyntaxTree>(ast => Boolean(ast), asts)
-    ).join(' && ');
+    ).join(operator === FilterLogicalOperator.And ? ' && ' : ' || ');
 
     setFilter(globalFilter, rawGlobalFilter, map);
 }
@@ -89,21 +93,23 @@ function updateState(map: Map<string, SingleColumnSyntaxTree>, setFilter: SetFil
 export const updateColumnFilter = (
     map: Map<string, SingleColumnSyntaxTree>,
     column: IColumn,
+    operator: FilterLogicalOperator,
     value: any,
     setFilter: SetFilter
 ) => {
     map = updateMap(map, column, value);
-    updateState(map, setFilter);
+    updateState(map, operator, setFilter);
 };
 
 export const clearColumnsFilter = (
     map: Map<string, SingleColumnSyntaxTree>,
     columns: Columns,
+    operator: FilterLogicalOperator,
     setFilter: SetFilter
 ) => {
     R.forEach(column => {
         map = updateMap(map, column, '');
     }, columns);
 
-    updateState(map, setFilter);
+    updateState(map, operator, setFilter);
 };

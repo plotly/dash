@@ -6,14 +6,15 @@ import MultiColumnsSyntaxTree from './MultiColumnsSyntaxTree';
 import QuerySyntaxTree from './QuerySyntaxTree';
 import SingleColumnSyntaxTree from './SingleColumnSyntaxTree';
 import { RelationalOperator } from './lexeme/relational';
-import { IColumn } from 'dash-table/components/Table/props';
+import { IColumn, FilterLogicalOperator } from 'dash-table/components/Table/props';
 
 export const getMultiColumnQueryString = (
-    asts: SingleColumnSyntaxTree[]
+    asts: SingleColumnSyntaxTree[],
+    operator: FilterLogicalOperator
 ) => R.map(
     ast => ast.toQueryString(),
     R.filter<SingleColumnSyntaxTree>(ast => ast && ast.isValid && ast.query !== '', asts)
-    ).join(' && ');
+    ).join(` ${operator === FilterLogicalOperator.And ? '&&' : '||' } `);
 
 export const getSingleColumnMap = (
     ast: MultiColumnsSyntaxTree,

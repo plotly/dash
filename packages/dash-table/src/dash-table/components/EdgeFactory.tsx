@@ -164,7 +164,7 @@ export default class EdgeFactory {
             columns,
             visibleColumns,
             (row_deletable ? 1 : 0) + (row_selectable ? 1 : 0),
-            filter_action !== TableAction.None,
+            filter_action.type !== TableAction.None,
             workFilter.map,
             fixed_columns,
             fixed_rows,

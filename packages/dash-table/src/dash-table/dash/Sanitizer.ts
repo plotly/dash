@@ -14,7 +14,9 @@ import {
     SortAsNull,
     TableAction,
     ExportFormat,
-    ExportHeaders
+    ExportHeaders,
+    IFilterAction,
+    FilterLogicalOperator
 } from 'dash-table/components/Table/props';
 import headerRows from 'dash-table/derived/header/headerRows';
 import resolveFlag from 'dash-table/derived/cell/resolveFlag';
@@ -70,6 +72,12 @@ const applyDefaultsToColumns = (
 
 const applyDefaultToLocale = (locale: INumberLocale) => getLocale(locale);
 
+const getFilterAction = (
+    action: TableAction | IFilterAction
+): IFilterAction => typeof action === 'object' ?
+        { type: action.type ?? TableAction.None, operator: action.operator ?? FilterLogicalOperator.And } :
+        { type: action, operator: FilterLogicalOperator.And };
+
 const getVisibleColumns = (
     columns: Columns,
     hiddenColumns: string[] | undefined
@@ -95,6 +103,7 @@ export default class Sanitizer {
             columns,
             data,
             export_headers: headerFormat,
+            filter_action: this.getFilterAction(props.filter_action),
             fixed_columns: getFixedColumns(props.fixed_columns, props.row_deletable, props.row_selectable),
             fixed_rows: getFixedRows(props.fixed_rows, columns, props.filter_action),
             loading_state: dataLoading(props.loading_state),
@@ -107,6 +116,7 @@ export default class Sanitizer {
 
     private readonly applyDefaultsToColumns = memoizeOne(applyDefaultsToColumns);
 
+    private readonly getFilterAction = memoizeOne(getFilterAction);
     private readonly getVisibleColumns = memoizeOne(getVisibleColumns);
 }
 

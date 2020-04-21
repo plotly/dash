@@ -6,10 +6,11 @@ import { ISyntaxTree } from 'core/syntax-tree/syntaxer';
 
 import columnMultiLexicon from './lexicon/columnMulti';
 import { ILexemeResult } from 'core/syntax-tree/lexer';
+import { FilterLogicalOperator } from 'dash-table/components/Table/props';
 
 export default class MultiColumnsSyntaxTree extends SyntaxTree {
-    constructor(query: string) {
-        super(columnMultiLexicon, query);
+    constructor(query: string, operator: FilterLogicalOperator) {
+        super(columnMultiLexicon(operator), query);
     }
     get isValid() {
         return super.isValid &&

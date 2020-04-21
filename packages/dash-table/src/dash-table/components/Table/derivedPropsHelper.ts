@@ -54,7 +54,7 @@ export default () => {
         const invalidatedSort = sortCache(sort_by);
 
         const invalidateSelection =
-            (!invalidatedFilter.cached && !invalidatedFilter.first && filter_action === TableAction.Custom) ||
+            (!invalidatedFilter.cached && !invalidatedFilter.first && filter_action.type === TableAction.Custom) ||
             (!invalidatedPagination.cached && !invalidatedPagination.first && page_action === TableAction.Custom) ||
             (!invalidatedSort.cached && !invalidatedSort.first && sort_action === TableAction.Custom);
 

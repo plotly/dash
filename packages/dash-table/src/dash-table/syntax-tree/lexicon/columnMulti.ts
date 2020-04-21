@@ -6,7 +6,8 @@ import {
     valueExpression
 } from '../lexeme/expression';
 import {
-    and
+    and,
+    or
 } from '../lexeme/logical';
 import {
     contains,
@@ -37,49 +38,50 @@ import {
     ifUnaryOperator,
     isTerminalExpression
 } from '.';
+import { FilterLogicalOperator } from 'dash-table/components/Table/props';
 
-const lexicon: ILexeme[] = [
-    {
-        ...and,
-        if: ifLogicalOperator,
-        terminal: false
-    },
-    ...[contains,
-        dateStartsWith,
-        equal,
-        greaterOrEqual,
-        greaterThan,
-        lessOrEqual,
-        lessThan,
-        notEqual
-    ].map(op => ({
-        ...op,
-        if: ifRelationalOperator,
-        terminal: false
-    })),
-    ...[isBlank,
-        isBool,
-        isEven,
-        isNil,
-        isNum,
-        isObject,
-        isOdd,
-        isPrime,
-        isStr
-    ].map(op => ({
-        ...op,
-        if: ifUnaryOperator,
-        terminal: true
-    })),
-    ...[
-        fieldExpression,
-        stringExpression,
-        valueExpression
-    ].map(exp => ({
-        ...exp,
-        if: ifExpression,
-        terminal: isTerminalExpression
-    }))
-];
-
-export default lexicon;
+export default function (operator: FilterLogicalOperator): ILexeme[] {
+    return [
+        {
+            ...(operator === FilterLogicalOperator.And ? and : or),
+            if: ifLogicalOperator,
+            terminal: false
+        },
+        ...[contains,
+            dateStartsWith,
+            equal,
+            greaterOrEqual,
+            greaterThan,
+            lessOrEqual,
+            lessThan,
+            notEqual
+        ].map(op => ({
+            ...op,
+            if: ifRelationalOperator,
+            terminal: false
+        })),
+        ...[isBlank,
+            isBool,
+            isEven,
+            isNil,
+            isNum,
+            isObject,
+            isOdd,
+            isPrime,
+            isStr
+        ].map(op => ({
+            ...op,
+            if: ifUnaryOperator,
+            terminal: true
+        })),
+        ...[
+            fieldExpression,
+            stringExpression,
+            valueExpression
+        ].map(exp => ({
+            ...exp,
+            if: ifExpression,
+            terminal: isTerminalExpression
+        }))
+    ];
+}

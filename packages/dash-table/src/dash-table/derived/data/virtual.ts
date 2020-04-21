@@ -9,14 +9,15 @@ import {
     IDerivedData,
     SortAsNull,
     Columns,
-    TableAction
+    TableAction,
+    IFilterAction
 } from 'dash-table/components/Table/props';
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 
 const getter = (
     columns: Columns,
     data: Data,
-    filter_action: TableAction,
+    filter_action: IFilterAction,
     filter_query: string,
     sort_action: TableAction,
     sort_by: SortBy = []
@@ -26,7 +27,7 @@ const getter = (
         map.set(datum, index);
     }, data);
 
-    if (filter_action === TableAction.Native) {
+    if (filter_action.type === TableAction.Native) {
         const tree = new QuerySyntaxTree(filter_query);
 
         data = tree.isValid ?
