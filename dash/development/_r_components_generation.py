@@ -508,7 +508,11 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
             if extension not in [".css", ".js", ".map"]:
                 continue
 
-            target_dirname = os.path.join(os.path.join("inst/deps/", rel_dirname))
+            target_dirname = os.path.join(
+                os.path.join(
+                    "inst/deps/", os.path.relpath(rel_dirname, project_shortname)
+                )
+            )
 
             if not os.path.exists(target_dirname):
                 os.makedirs(target_dirname)
