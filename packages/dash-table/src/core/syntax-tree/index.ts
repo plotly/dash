@@ -62,7 +62,7 @@ export default class SyntaxTree {
 
     evaluate = (target: any) => {
         if (!this.isValid) {
-            const msg = `unable to evaluate target: syntax tree is invalid for query=${this.query}`;
+            const msg = `DataTable filtering syntax is invalid for query: ${this.query}`;
 
             Logger.error(msg);
             throw new Error(msg);

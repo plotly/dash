@@ -18,6 +18,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [#732](https://github.com/plotly/dash-table/pull/732) Fix a bug where opening a dropdown scrolled the table down its last row
 - [#731](https://github.com/plotly/dash-table/pull/731) Fix a bug where `data=None` and `columns=None` caused the table to throw an error
 
+## Changed
+- [#758](https://github.com/plotly/dash-table/pull/758) Improve error message for invalid filter queries
+
 ## [4.6.2] - 2020-04-01
 ### Changed
 - [#713](https://github.com/plotly/dash-table/pull/713) Update from React 16.8.6 to 16.13.0
