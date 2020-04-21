@@ -71,6 +71,8 @@ inst/
 man/
 R/
 .Rbuildignore
+.Rdata
+.Rhistory
 DESCRIPTION
 NAMESPACE
 digest.json
