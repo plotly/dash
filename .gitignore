@@ -64,5 +64,16 @@ node_modules/
 npm-debug*
 
 dash_renderer/
+dash_generator_test_component_standard/
+dash_generator_test_component_nested/
+dash_generator_test_component_sub_nested/
+inst/
+man/
+R/
+.Rbuildignore
+.Rdata
+.Rhistory
+DESCRIPTION
+NAMESPACE
 digest.json
 VERSION.txt

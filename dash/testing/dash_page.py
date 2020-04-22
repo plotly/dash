@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 class DashPageMixin(object):
     def _get_dash_dom_by_attribute(self, attr):
         return BeautifulSoup(
-            self.find_element(self.dash_entry_locator).get_attribute(attr), "lxml",
+            self.find_element(self.dash_entry_locator).get_attribute(attr), "lxml"
         )
 
     @property
@@ -25,30 +25,33 @@ class DashPageMixin(object):
 
     @property
     def redux_state_paths(self):
-        return self.driver.execute_script("return window.store.getState().paths")
+        return self.driver.execute_script(
+            """
+            var p = window.store.getState().paths;
+            return {strs: p.strs, objs: p.objs}
+            """
+        )
 
     @property
     def redux_state_rqs(self):
-        return self.driver.execute_script("return window.store.getState().requestQueue")
+        return self.driver.execute_script(
+            """
+            return window.store.getState().pendingCallbacks.map(function(cb) {
+                var out = {};
+                for (var key in cb) {
+                    if (typeof cb[key] !== 'function') { out[key] = cb[key]; }
+                }
+                return out;
+            })
+            """
+        )
 
     @property
     def window_store(self):
         return self.driver.execute_script("return window.store")
 
     def _wait_for_callbacks(self):
-        if self.window_store:
-            # note that there is still a small chance of FP (False Positive)
-            # where we get two earlier requests in the queue, this returns
-            # True but there are still more requests to come
-            return self.redux_state_rqs and all(
-                (
-                    _.get("responseTime")
-                    for _ in self.redux_state_rqs
-                    if _.get("controllerId")
-                )
-            )
-
-        return True
+        return not self.window_store or self.redux_state_rqs == []
 
     def get_local_storage(self, store_id="local"):
         return self.driver.execute_script(

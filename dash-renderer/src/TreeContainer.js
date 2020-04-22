@@ -5,19 +5,18 @@ import {propTypeErrorHandler} from './exceptions';
 import {connect} from 'react-redux';
 import {
     addIndex,
-    any,
     concat,
+    dissoc,
+    equals,
     filter,
-    forEach,
     has,
-    includes,
     isEmpty,
     isNil,
-    keysIn,
+    keys,
     map,
     mergeRight,
-    omit,
     pick,
+    pickBy,
     propOr,
     type,
 } from 'ramda';
@@ -26,6 +25,7 @@ import isSimpleComponent from './isSimpleComponent';
 import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
 import checkPropTypes from './checkPropTypes';
+import {getWatchedKeys, stringifyId} from './actions/dependencies';
 
 function validateComponent(componentDefinition) {
     if (type(componentDefinition) === 'Array') {
@@ -33,7 +33,7 @@ function validateComponent(componentDefinition) {
             'The children property of a component is a list of lists, instead ' +
                 'of just a list. ' +
                 'Check the component that has the following contents, ' +
-                'and remove of the levels of nesting: \n' +
+                'and remove one of the levels of nesting: \n' +
                 JSON.stringify(componentDefinition, null, 2)
         );
     }
@@ -59,7 +59,9 @@ const createContainer = (component, path) =>
         component
     ) : (
         <AugmentedTreeContainer
-            key={component && component.props && component.props.id}
+            key={
+                component && component.props && stringifyId(component.props.id)
+            }
             _dashprivate_layout={component}
             _dashprivate_path={path}
         />
@@ -78,11 +80,7 @@ function CheckedComponent(p) {
         propTypeErrorHandler(errorMessage, props, type);
     }
 
-    return React.createElement(
-        element,
-        mergeRight(props, extraProps),
-        ...(Array.isArray(children) ? children : [children])
-    );
+    return createElement(element, props, extraProps, children);
 }
 
 CheckedComponent.propTypes = {
@@ -93,6 +91,15 @@ CheckedComponent.propTypes = {
     extraProps: PropTypes.any,
     id: PropTypes.string,
 };
+
+function createElement(element, props, extraProps, children) {
+    const allProps = mergeRight(props, extraProps);
+    if (Array.isArray(children)) {
+        return React.createElement(element, allProps, ...children);
+    }
+    return React.createElement(element, allProps, children);
+}
+
 class TreeContainer extends Component {
     constructor(props) {
         super(props);
@@ -102,49 +109,47 @@ class TreeContainer extends Component {
 
     setProps(newProps) {
         const {
-            _dashprivate_dependencies,
+            _dashprivate_graphs,
             _dashprivate_dispatch,
             _dashprivate_path,
             _dashprivate_layout,
         } = this.props;
 
-        const id = this.getLayoutProps().id;
-
-        // Identify the modified props that are required for callbacks
-        const watchedKeys = filter(
-            key =>
-                _dashprivate_dependencies &&
-                _dashprivate_dependencies.find(
-                    dependency =>
-                        dependency.inputs.find(
-                            input => input.id === id && input.property === key
-                        ) ||
-                        dependency.state.find(
-                            state => state.id === id && state.property === key
-                        )
-                )
-        )(keysIn(newProps));
-
-        // setProps here is triggered by the UI - record these changes
-        // for persistence
-        recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
-
-        // Always update this component's props
-        _dashprivate_dispatch(
-            updateProps({
-                props: newProps,
-                itempath: _dashprivate_path,
-            })
+        const oldProps = this.getLayoutProps();
+        const {id} = oldProps;
+        const changedProps = pickBy(
+            (val, key) => !equals(val, oldProps[key]),
+            newProps
         );
+        if (!isEmpty(changedProps)) {
+            // Identify the modified props that are required for callbacks
+            const watchedKeys = getWatchedKeys(
+                id,
+                keys(changedProps),
+                _dashprivate_graphs
+            );
 
-        // Only dispatch changes to Dash if a watched prop changed
-        if (watchedKeys.length) {
+            // setProps here is triggered by the UI - record these changes
+            // for persistence
+            recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
+
+            // Always update this component's props
             _dashprivate_dispatch(
-                notifyObservers({
-                    id: id,
-                    props: pick(watchedKeys)(newProps),
+                updateProps({
+                    props: changedProps,
+                    itempath: _dashprivate_path,
                 })
             );
+
+            // Only dispatch changes to Dash if a watched prop changed
+            if (watchedKeys.length) {
+                _dashprivate_dispatch(
+                    notifyObservers({
+                        id,
+                        props: pick(watchedKeys, changedProps),
+                    })
+                );
+            }
         }
     }
 
@@ -179,32 +184,32 @@ class TreeContainer extends Component {
 
         const element = Registry.resolve(_dashprivate_layout);
 
-        const props = omit(['children'], _dashprivate_layout.props);
+        const props = dissoc('children', _dashprivate_layout.props);
 
-        return _dashprivate_config.props_check ? (
+        if (type(props.id) === 'Object') {
+            // Turn object ids (for wildcards) into unique strings.
+            // Because of the `dissoc` above we're not mutating the layout,
+            // just the id we pass on to the rendered component
+            props.id = stringifyId(props.id);
+        }
+        const extraProps = {loading_state, setProps};
+
+        return (
             <ComponentErrorBoundary
                 componentType={_dashprivate_layout.type}
-                componentId={_dashprivate_layout.props.id}
-                key={element && element.props && element.props.id}
+                componentId={props.id}
+                key={props.id}
             >
-                <CheckedComponent
-                    children={children}
-                    element={element}
-                    props={props}
-                    extraProps={{loading_state, setProps}}
-                    type={_dashprivate_layout.type}
-                />
-            </ComponentErrorBoundary>
-        ) : (
-            <ComponentErrorBoundary
-                componentType={_dashprivate_layout.type}
-                componentId={_dashprivate_layout.props.id}
-                key={element && element.props && element.props.id}
-            >
-                {React.createElement(
-                    element,
-                    mergeRight(props, {loading_state, setProps}),
-                    ...(Array.isArray(children) ? children : [children])
+                {_dashprivate_config.props_check ? (
+                    <CheckedComponent
+                        children={children}
+                        element={element}
+                        props={props}
+                        extraProps={extraProps}
+                        type={_dashprivate_layout.type}
+                    />
+                ) : (
+                    createElement(element, props, extraProps, children)
                 )}
             </ComponentErrorBoundary>
         );
@@ -247,11 +252,10 @@ class TreeContainer extends Component {
 }
 
 TreeContainer.propTypes = {
-    _dashprivate_dependencies: PropTypes.any,
+    _dashprivate_graphs: PropTypes.any,
     _dashprivate_dispatch: PropTypes.func,
     _dashprivate_layout: PropTypes.object,
     _dashprivate_loadingState: PropTypes.object,
-    _dashprivate_requestQueue: PropTypes.any,
     _dashprivate_config: PropTypes.object,
     _dashprivate_path: PropTypes.array,
 };
@@ -294,28 +298,34 @@ function getNestedIds(layout) {
     return ids;
 }
 
-function getLoadingState(layout, requestQueue) {
+function getLoadingState(layout, pendingCallbacks) {
     const ids = isLoadingComponent(layout)
         ? getNestedIds(layout)
-        : layout && layout.props.id
-        ? [layout.props.id]
-        : [];
+        : layout && layout.props.id && [layout.props.id];
 
     let isLoading = false;
     let loadingProp;
     let loadingComponent;
 
-    if (requestQueue) {
-        forEach(r => {
-            const controllerId = isNil(r.controllerId) ? '' : r.controllerId;
-            if (
-                r.status === 'loading' &&
-                any(id => includes(id, controllerId), ids)
-            ) {
-                isLoading = true;
-                [loadingComponent, loadingProp] = r.controllerId.split('.');
+    if (pendingCallbacks && pendingCallbacks.length && ids && ids.length) {
+        const idStrs = ids.map(stringifyId);
+
+        pendingCallbacks.forEach(cb => {
+            const {requestId, requestedOutputs} = cb;
+            if (requestId === undefined) {
+                return;
             }
-        }, requestQueue);
+
+            idStrs.forEach(idStr => {
+                const props = requestedOutputs[idStr];
+                if (props) {
+                    isLoading = true;
+                    // TODO: what about multiple loading components / props?
+                    loadingComponent = idStr;
+                    loadingProp = props[0];
+                }
+            });
+        });
     }
 
     // Set loading state
@@ -328,21 +338,20 @@ function getLoadingState(layout, requestQueue) {
 
 export const AugmentedTreeContainer = connect(
     state => ({
-        dependencies: state.dependenciesRequest.content,
-        requestQueue: state.requestQueue,
+        graphs: state.graphs,
+        pendingCallbacks: state.pendingCallbacks,
         config: state.config,
     }),
     dispatch => ({dispatch}),
     (stateProps, dispatchProps, ownProps) => ({
-        _dashprivate_dependencies: stateProps.dependencies,
+        _dashprivate_graphs: stateProps.graphs,
         _dashprivate_dispatch: dispatchProps.dispatch,
         _dashprivate_layout: ownProps._dashprivate_layout,
         _dashprivate_path: ownProps._dashprivate_path,
         _dashprivate_loadingState: getLoadingState(
             ownProps._dashprivate_layout,
-            stateProps.requestQueue
+            stateProps.pendingCallbacks
         ),
-        _dashprivate_requestQueue: stateProps.requestQueue,
         _dashprivate_config: stateProps.config,
     })
 )(TreeContainer);

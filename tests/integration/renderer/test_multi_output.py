@@ -6,7 +6,6 @@ from dash.exceptions import PreventUpdate
 
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_renderer_test_components
 
 
 def test_rdmo001_single_input_multi_outputs_on_multiple_components(dash_duo):
@@ -134,8 +133,10 @@ def test_rdmo004_multi_output_circular_dependencies(dash_duo):
         dev_tools_hot_reload=False,
     )
 
-    # the UI still renders the output triggered by callback
-    dash_duo.wait_for_text_to_equal("#c", "X" * 100)
+    # the UI still renders the output triggered by callback.
+    # The new system does NOT loop infinitely like it used to, each callback
+    # is invoked no more than once.
+    dash_duo.wait_for_text_to_equal("#c", "X")
 
     err_text = dash_duo.find_element("span.dash-fe-error__title").text
     assert err_text == "Circular Dependencies"
@@ -145,11 +146,8 @@ def test_rdmo005_set_props_behavior(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
-            dash_renderer_test_components.UncontrolledInput(id="id", value=""),
-            html.Div(
-                id="container",
-                children=dash_renderer_test_components.UncontrolledInput(value=""),
-            ),
+            dcc.Input(id="id", value=""),
+            html.Div(id="container", children=dcc.Input(value=""),),
         ]
     )
 
