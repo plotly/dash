@@ -432,7 +432,11 @@ class Dash(object):
 
         # for using flask.has_request_context() to deliver a full layout for
         # validation inside a layout function - track if a user might be doing this.
-        if self._layout_is_function and not self.validation_layout:
+        if (
+            self._layout_is_function
+            and not self.validation_layout
+            and not self.config.suppress_callback_exceptions
+        ):
 
             def simple_clone(c, children=None):
                 cls = type(c)
@@ -456,7 +460,8 @@ class Dash(object):
             _validate.validate_layout(value, layout_value)
             self.validation_layout = simple_clone(
                 # pylint: disable=protected-access
-                layout_value, [simple_clone(c) for c in layout_value._traverse_ids()]
+                layout_value,
+                [simple_clone(c) for c in layout_value._traverse_ids()],
             )
 
     @property
@@ -494,7 +499,7 @@ class Dash(object):
                 "interval": int(self._dev_tools.hot_reload_interval * 1000),
                 "max_retry": self._dev_tools.hot_reload_max_retry,
             }
-        if self.validation_layout:
+        if self.validation_layout and not self.config.suppress_callback_exceptions:
             config["validation_layout"] = self.validation_layout
 
         return config
