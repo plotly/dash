@@ -8,13 +8,13 @@ logger = logging.getLogger(__name__)
 
 class DashCoreComponentsMixin(object):
     def select_date_single(self, compid, index=0, day="", outside_month=False):
-        '''Select Date in DPS component with either index or day
+        """Select Date in DPS component with either index or day
         compid: the id defined for component
         index: the index for all visibles in the popup calendar
         day: a number or string; if set, use this to select instead of index
         outside_month: used in conjunction with day. indicates if the day out
             the scope of current month. default False.
-        '''
+        """
         date = self.find_element("#{} input".format(compid))
         date.click()
 
@@ -45,14 +45,14 @@ class DashCoreComponentsMixin(object):
         return date.get_attribute("value")
 
     def select_date_range(self, compid, day_range, start_first=True):
-        '''Select Date in DPR component with a day_range tuple
+        """Select Date in DPR component with a day_range tuple
         compid: the id defined for component
         day_range: a tuple or list, defines the start and end date you want to
             select, the tuple must be length of 1 or 2, i.e.
             (start, ) or (start, end)
         start_first: boolean value decides clicking start or end date.
             default True
-        '''
+        """
 
         if (
             not day_range
