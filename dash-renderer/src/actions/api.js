@@ -56,7 +56,9 @@ export default function apiThunk(endpoint, method, store, id, body) {
                         return json;
                     });
                 }
-                logWarningOnce('Response is missing header: content-type: application/json');
+                logWarningOnce(
+                    'Response is missing header: content-type: application/json'
+                );
                 return dispatch({
                     type: store,
                     payload: {
