@@ -331,7 +331,8 @@ class Dash(object):
         self.routes = []
 
         self._layout = None
-        self._cached_layout = None
+        self._layout_is_function = False
+        self.validation_layout = None
 
         self._setup_dev_tools()
         self._hot_reload = AttributeDict(
@@ -421,17 +422,47 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
-        if isinstance(self._layout, patch_collections_abc("Callable")):
-            self._cached_layout = self._layout()
-        else:
-            self._cached_layout = self._layout
-        return self._cached_layout
+        return self._layout() if self._layout_is_function else self._layout
 
     @layout.setter
     def layout(self, value):
         _validate.validate_layout_type(value)
-        self._cached_layout = None
+        self._layout_is_function = isinstance(value, patch_collections_abc("Callable"))
         self._layout = value
+
+        # for using flask.has_request_context() to deliver a full layout for
+        # validation inside a layout function - track if a user might be doing this.
+        if (
+            self._layout_is_function
+            and not self.validation_layout
+            and not self.config.suppress_callback_exceptions
+        ):
+
+            def simple_clone(c, children=None):
+                cls = type(c)
+                # in Py3 we can use the __init__ signature to reduce to just
+                # required args and id; in Py2 this doesn't work so we just
+                # empty out children.
+                sig = getattr(cls.__init__, "__signature__", None)
+                props = {
+                    p: getattr(c, p)
+                    for p in c._prop_names  # pylint: disable=protected-access
+                    if hasattr(c, p)
+                    and (
+                        p == "id" or not sig or sig.parameters[p].default == c.REQUIRED
+                    )
+                }
+                if props.get("children", children):
+                    props["children"] = children or []
+                return cls(**props)
+
+            layout_value = self._layout_value()
+            _validate.validate_layout(value, layout_value)
+            self.validation_layout = simple_clone(
+                # pylint: disable=protected-access
+                layout_value,
+                [simple_clone(c) for c in layout_value._traverse_ids()],
+            )
 
     @property
     def index_string(self):
@@ -468,6 +499,9 @@ class Dash(object):
                 "interval": int(self._dev_tools.hot_reload_interval * 1000),
                 "max_retry": self._dev_tools.hot_reload_max_retry,
             }
+        if self.validation_layout and not self.config.suppress_callback_exceptions:
+            config["validation_layout"] = self.validation_layout
+
         return config
 
     def serve_reload_hash(self):
@@ -601,8 +635,8 @@ class Dash(object):
         )
 
     def _generate_config_html(self):
-        return ('<script id="_dash-config" type="application/json">{}</script>').format(
-            json.dumps(self._config())
+        return '<script id="_dash-config" type="application/json">{}</script>'.format(
+            json.dumps(self._config(), cls=plotly.utils.PlotlyJSONEncoder)
         )
 
     def _generate_renderer(self):

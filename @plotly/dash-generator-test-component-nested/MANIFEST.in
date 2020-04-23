@@ -1,0 +1,3 @@
+include dash_generator_test_component_nested/**
+include dash_generator_test_component_nested/nested/**
+include package.json

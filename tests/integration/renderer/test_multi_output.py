@@ -6,7 +6,6 @@ from dash.exceptions import PreventUpdate
 
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_renderer_test_components
 
 
 def test_rdmo001_single_input_multi_outputs_on_multiple_components(dash_duo):
@@ -147,11 +146,8 @@ def test_rdmo005_set_props_behavior(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
-            dash_renderer_test_components.UncontrolledInput(id="id", value=""),
-            html.Div(
-                id="container",
-                children=dash_renderer_test_components.UncontrolledInput(value=""),
-            ),
+            dcc.Input(id="id", value=""),
+            html.Div(id="container", children=dcc.Input(value=""),),
         ]
     )
 
