@@ -27,8 +27,7 @@ _js_dist = [
 _css_dist = [
     dict(
         relative_package_path='style.css',
-        namespace='dash_generator_test_component_standard',
-        dynamic=True
+        namespace='dash_generator_test_component_standard'
     )
 ]
 
