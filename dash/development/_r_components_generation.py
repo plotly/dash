@@ -505,7 +505,7 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
         for filename in filenames:
             extension = os.path.splitext(filename)[1]
 
-            if extension not in [".css", ".js", ".map"]:
+            if extension in [".py", ".pyc", ".json"]:
                 continue
 
             target_dirname = os.path.join(
