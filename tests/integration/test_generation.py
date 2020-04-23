@@ -19,6 +19,8 @@ def test_gene001_simple_callback(dash_duo):
     assert dash_duo.wait_for_element("#standard").text == "Standard"
     assert dash_duo.wait_for_element("#nested").text == "Nested"
 
+    dash_duo.percy_snapshot(name="nested-and-standard-components")
+
 
 def test_gene002_arbitrary_resources(dash_duo):
     app = Dash(__name__)
@@ -27,12 +29,12 @@ def test_gene002_arbitrary_resources(dash_duo):
         [
             MyStandardComponent(
                 id="standard", value="Standard", style={"font-family": "godfather"}
-            ),
-            MyNestedComponent(id="nested", value="Nested"),
+            )
         ]
     )
 
     dash_duo.start_server(app)
 
     assert dash_duo.wait_for_element("#standard").text == "Standard"
-    assert dash_duo.wait_for_element("#nested").text == "Nested"
+
+    dash_duo.percy_snapshot(name="standard-godfather")
