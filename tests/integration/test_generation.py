@@ -19,7 +19,7 @@ def test_gene001_simple_callback(dash_duo):
     assert dash_duo.wait_for_element("#standard").text == "Standard"
     assert dash_duo.wait_for_element("#nested").text == "Nested"
 
-    dash_duo.percy_snapshot(name="nested-and-standard-components")
+    dash_duo.percy_snapshot(name="gene001-simple-callback")
 
 
 def test_gene002_arbitrary_resources(dash_duo):
@@ -37,4 +37,4 @@ def test_gene002_arbitrary_resources(dash_duo):
 
     assert dash_duo.wait_for_element("#standard").text == "Standard"
 
-    dash_duo.percy_snapshot(name="standard-godfather")
+    dash_duo.percy_snapshot(name="gene002-arbitrary-resource")
