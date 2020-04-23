@@ -106,8 +106,6 @@ jobs:
               cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              cd dash-renderer-test-components && npm ci && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
               ls -la packages
       - persist_to_workspace:
           root: ~/dash
@@ -209,8 +207,6 @@ jobs:
               cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              cd dash-renderer-test-components && npm ci && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
               ls -la packages
       - persist_to_workspace:
           root: ~/dash

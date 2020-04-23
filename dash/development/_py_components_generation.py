@@ -516,7 +516,7 @@ def map_js_to_py_types_prop_types(type_object):
             )
         ),
         # React's PropTypes.objectOf
-        objectOf=lambda: ("dict with strings as keys and values of type {}").format(
+        objectOf=lambda: "dict with strings as keys and values of type {}".format(
             js_to_py_type(type_object["value"])
         ),
         # React's PropTypes.shape

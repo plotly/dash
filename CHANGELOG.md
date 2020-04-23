@@ -2,9 +2,16 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [UNRELEASED]
 ### Added
-- [#1103](https://github.com/plotly/dash/pull/1103) Wildcard IDs and callbacks. Component IDs can be dictionaries, and callbacks can reference patterns of components, using three different wildcards: `ALL`, `MATCH`, and `ALLSMALLER`, available from `dash.dependencies`. This lets you create components on demand, and have callbacks respond to any and all of them. To help with this, `dash.callback_context` gets three new entries: `outputs_list`, `inputs_list`, and `states_list`, which contain all the ids, properties, and except for the outputs, the property values from all matched components.
+- [#1201](https://github.com/plotly/dash/pull/1201) New attribute `app.validation_layout` allows you to create a multi-page app without `suppress_callback_exceptions=True` or layout function tricks. Set this to a component layout containing the superset of all IDs on all pages in your app.
+
+### Fixed
+- [#1201](https://github.com/plotly/dash/pull/1201) Fixes [#1193](https://github.com/plotly/dash/issues/1193) - prior to Dash 1.11, you could use `flask.has_request_context() == False` inside an `app.layout` function to provide a special layout containing all IDs for validation purposes in a multi-page app. Dash 1.11 broke this when we moved most of this validation into the renderer. This change makes it work again.
+
+## [1.11.0] - 2020-04-10
+### Added
+- [#1103](https://github.com/plotly/dash/pull/1103) Pattern-matching IDs and callbacks. Component IDs can be dictionaries, and callbacks can reference patterns of components, using three different wildcards: `ALL`, `MATCH`, and `ALLSMALLER`, available from `dash.dependencies`. This lets you create components on demand, and have callbacks respond to any and all of them. To help with this, `dash.callback_context` gets three new entries: `outputs_list`, `inputs_list`, and `states_list`, which contain all the ids, properties, and except for the outputs, the property values from all matched components.
 - [#1103](https://github.com/plotly/dash/pull/1103) `dash.testing` option `--pause`: after opening the dash app in a test, will invoke `pdb` for live debugging of both Javascript and Python. Use with a single test case like `pytest -k cbwc001 --pause`.
 - [#1078](https://github.com/plotly/dash/pull/1078) Permit usage of arbitrary file extensions for assets within component libraries
 
