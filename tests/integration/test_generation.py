@@ -18,3 +18,21 @@ def test_gene001_simple_callback(dash_duo):
 
     assert dash_duo.wait_for_element("#standard").text == "Standard"
     assert dash_duo.wait_for_element("#nested").text == "Nested"
+
+
+def test_gene002_arbitrary_resources(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = Div(
+        [
+            MyStandardComponent(
+                id="standard", value="Standard", style={"font-family": "godfather"}
+            ),
+            MyNestedComponent(id="nested", value="Nested"),
+        ]
+    )
+
+    dash_duo.start_server(app)
+
+    assert dash_duo.wait_for_element("#standard").text == "Standard"
+    assert dash_duo.wait_for_element("#nested").text == "Nested"
