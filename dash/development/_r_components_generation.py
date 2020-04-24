@@ -44,18 +44,14 @@ frame_element_template = """`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
-stylesheet = {css_name},
-other = {other_name},
-head = NULL, attachment = NULL, package = "{rpkgname}",
+stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE{async_or_dynamic}), class = "html_dependency")"""  # noqa:E501
 
 frame_body_template = """`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
-stylesheet = {css_name},
-other = {other_name},
-head = NULL, attachment = NULL, package = "{rpkgname}",
+stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE{async_or_dynamic}), class = "html_dependency")"""  # noqa:E501
 
 frame_close_template = """)
@@ -174,6 +170,7 @@ wildcard_template = """
 
 wildcard_help_template = """
 
+
 \\item{{...}}{{wildcards allowed have the form: `{}`}}
 """
 
@@ -261,8 +258,7 @@ def generate_js_metadata(pkg_data, project_shortname):
     sys.path.insert(0, os.getcwd())
     mod = importlib.import_module(project_shortname)
 
-    alldist = getattr(mod, "_js_dist", []) + getattr(mod, "_css_dist", []) \
-        + getattr(mod, "_asset_dist", [])
+    alldist = getattr(mod, "_js_dist", []) + getattr(mod, "_css_dist", [])
 
     project_ver = pkg_data.get("version")
 
@@ -294,15 +290,9 @@ def generate_js_metadata(pkg_data, project_shortname):
             if "css" in rpp:
                 css_name = "'{}'".format(rpp)
                 script_name = "NULL"
-                other_name = "NULL"
-            elif "js" in rpp:
+            else:
                 script_name = "'{}'".format(rpp)
                 css_name = "NULL"
-                other_name = "NULL"
-            else:
-                css_name = "NULL"
-                script_name = "NULL"
-                other_name = "'{}'".format(rpp)
 
             function_frame += [
                 frame_element_template.format(
@@ -312,7 +302,6 @@ def generate_js_metadata(pkg_data, project_shortname):
                     project_shortname=project_shortname,
                     script_name=script_name,
                     css_name=css_name,
-                    other_name=other_name,
                     async_or_dynamic=async_or_dynamic,
                 )
             ]
@@ -326,15 +315,9 @@ def generate_js_metadata(pkg_data, project_shortname):
         if "css" in rpp:
             css_name = "'{}'".format(rpp)
             script_name = "NULL"
-            other_name = "NULL"
-        elif "js" in rpp:
+        else:
             script_name = "'{}'".format(rpp)
             css_name = "NULL"
-            other_name = "NULL"
-        else:
-            script_name = "NULL"
-            css_name = "NULL"
-            other_name = "'{}'".format(rpp)
 
         function_frame_body = frame_body_template.format(
             project_shortname=project_shortname,
@@ -342,7 +325,6 @@ def generate_js_metadata(pkg_data, project_shortname):
             rpkgname=rpkgname,
             script_name=script_name,
             css_name=css_name,
-            other_name=other_name,
             async_or_dynamic=async_or_dynamic,
         )
 
@@ -426,26 +408,28 @@ def write_help_file(name, props, description, prefix, rpkg_data):
         description = description.split("**Example Usage**")[0].rstrip()
 
     if any(key.endswith("-*") for key in prop_keys_wc):
-        default_argtext += ', ...'
+        default_argtext += ", ..."
         item_text += wildcard_help_template.format(get_wildcards_r(prop_keys_wc))
 
     # in R, the online help viewer does not properly wrap lines for
-    # the usage string -- we will hard wrap at 70 characters using
+    # the usage string -- we will hard wrap at 60 characters using
     # textwrap.fill, starting from the beginning of the usage string
 
-    file_path = os.path.join('man', file_name)
-    with open(file_path, 'w') as f:
-        f.write(help_string.format(
-            funcname=funcname,
-            name=name,
-            default_argtext=textwrap.fill(default_argtext,
-                                          width=60,
-                                          break_long_words=False),
-            item_text=item_text,
-            description=description.replace('\n', ' ')
-        ))
-    if rpkg_data is not None and 'r_examples' in rpkg_data:
-        ex = rpkg_data.get('r_examples')
+    file_path = os.path.join("man", file_name)
+    with open(file_path, "w") as f:
+        f.write(
+            help_string.format(
+                funcname=funcname,
+                name=name,
+                default_argtext=textwrap.fill(
+                    default_argtext, width=60, break_long_words=False
+                ),
+                item_text=item_text,
+                description=description.replace("\n", " "),
+            )
+        )
+    if rpkg_data is not None and "r_examples" in rpkg_data:
+        ex = rpkg_data.get("r_examples")
         the_ex = ([e for e in ex if e.get("name") == funcname] or [None])[0]
         result = ""
         if the_ex and "code" in the_ex.keys():
@@ -522,7 +506,7 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
         for filename in filenames:
             extension = os.path.splitext(filename)[1]
 
-            if extension not in [".css", ".js", ".map"]:
+            if extension in [".py", ".pyc", ".json"]:
                 continue
 
             target_dirname = os.path.join(
