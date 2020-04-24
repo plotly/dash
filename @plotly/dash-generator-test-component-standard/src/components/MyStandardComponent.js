@@ -4,13 +4,18 @@ import React from 'react';
 /**
  * MyComponent description
  */
-const MyStandardComponent = ({ id, value }) => (<div id={id}>{value}</div>);
+const MyStandardComponent = ({ id, style, value }) => (<div id={id} style={style}>{value}</div>);
 
 MyStandardComponent.propTypes = {
     /**
      * The id of the component
      */
     id: PropTypes.string,
+
+    /**
+     * The style
+     */
+    style: PropTypes.shape,
 
     /**
      * The value to display
