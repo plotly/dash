@@ -154,9 +154,6 @@ function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
                         ']'
                 );
             }
-            // TODO: unwrapped list of wildcard ids?
-            // eslint-disable-next-line no-console
-            console.log(paths.objs);
             throw new ReferenceError(
                 'A nonexistent object was used in an `' +
                     depType +
@@ -247,20 +244,47 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
 
         let payload;
         try {
-            const outputs = allOutputs.map((out, i) =>
-                unwrapIfNotMulti(
-                    paths,
-                    map(pick(['id', 'property']), out),
-                    cb.callback.outputs[i],
-                    cb.anyVals,
-                    'Output'
-                )
-            );
+            const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
+
+            const preventCallback = () => {
+                removeCallbackFromPending();
+                // no server call here; for performance purposes pretend this is
+                // a clientside callback and defer fireNext for the end
+                // of the currently-ready callbacks.
+                hasClientSide = true;
+                return null;
+            };
+
+            if (inVals === null) {
+                return preventCallback();
+            }
+
+            let outputs;
+            try {
+                outputs = allOutputs.map((out, i) =>
+                    unwrapIfNotMulti(
+                        paths,
+                        map(pick(['id', 'property']), out),
+                        cb.callback.outputs[i],
+                        cb.anyVals,
+                        'Output'
+                    )
+                );
+            } catch (e) {
+                if (e instanceof ReferenceError && !flatten(inVals).length) {
+                    // This case is all-empty multivalued wildcard inputs,
+                    // which we would normally fire the callback for, except
+                    // some outputs are missing. So instead we treat it like
+                    // regular missing inputs and just silently prevent it.
+                    return preventCallback();
+                }
+                throw e;
+            }
 
             payload = {
                 output,
                 outputs: isMultiOutputProp(output) ? outputs : outputs[0],
-                inputs: fillVals(paths, layout, cb, inputs, 'Input'),
+                inputs: inVals,
                 changedPropIds: keys(cb.changedPropIds),
             };
             if (cb.callback.state.length) {
@@ -360,7 +384,7 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
             updatePending(pendingCallbacks, without(updated, allPropIds));
         }
 
-        function handleError(err) {
+        function removeCallbackFromPending() {
             const {pendingCallbacks} = getState();
             if (requestIsActive(pendingCallbacks, resolvedId, requestId)) {
                 // Skip all prop updates from this callback, and remove
@@ -368,6 +392,10 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
                 // that have other changed inputs will still fire.
                 updatePending(pendingCallbacks, allPropIds);
             }
+        }
+
+        function handleError(err) {
+            removeCallbackFromPending();
             const outputs = payload
                 ? map(combineIdAndProp, flatten([payload.outputs])).join(', ')
                 : output;
@@ -398,9 +426,12 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
     return hasClientSide ? fireNext().then(done) : done;
 }
 
-function fillVals(paths, layout, cb, specs, depType) {
+function fillVals(paths, layout, cb, specs, depType, allowAllMissing) {
     const getter = depType === 'Input' ? cb.getInputs : cb.getState;
-    return getter(paths).map((inputList, i) =>
+    const errors = [];
+    let emptyMultiValues = 0;
+
+    const fillInputs = (inputList, i) =>
         unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}) => ({
@@ -411,8 +442,45 @@ function fillVals(paths, layout, cb, specs, depType) {
             specs[i],
             cb.anyVals,
             depType
-        )
-    );
+        );
+
+    const tryFill = (inputList, i) => {
+        try {
+            const inputs = fillInputs(inputList, i);
+            if (isMultiValued(specs[i]) && !inputs.length) {
+                emptyMultiValues++;
+            }
+            return inputs;
+        } catch (e) {
+            if (e instanceof ReferenceError) {
+                errors.push(e);
+                return null;
+            }
+            // any other error we still want to see!
+            throw e;
+        }
+    };
+
+    const inputVals = getter(paths).map(allowAllMissing ? tryFill : fillInputs);
+
+    if (errors.length) {
+        if (errors.length + emptyMultiValues === inputVals.length) {
+            // We have at least one non-multivalued input, but all simple and
+            // multi-valued inputs are missing.
+            // (if all inputs are multivalued and all missing we still return
+            // them as normal, and fire the callback.)
+            return null;
+        }
+        // If we get here we have some missing and some present inputs.
+        // That's a real error, so rethrow the first missing error.
+        // Wildcard reference errors mention a list of wildcard specs logged
+        // TODO: unwrapped list of wildcard ids?
+        // eslint-disable-next-line no-console
+        console.log(paths.objs);
+        throw errors[0];
+    }
+
+    return inputVals;
 }
 
 function handleServerside(config, payload, hooks) {
