@@ -4,6 +4,7 @@ import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
 import '../components/css/react-virtualized-select@3.1.0.css';
 import '../components/css/react-virtualized@9.9.0.css';
+import '../components/css/Dropdown.css';
 
 import {propTypes, defaultProps} from '../components/Dropdown.react';
 
@@ -64,6 +65,7 @@ export default class Dropdown extends Component {
         return (
             <div
                 id={id}
+                className="dash-dropdown"
                 style={style}
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
