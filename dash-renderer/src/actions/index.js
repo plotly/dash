@@ -476,7 +476,7 @@ function fillVals(paths, layout, cb, specs, depType, allowAllMissing) {
         // Wildcard reference errors mention a list of wildcard specs logged
         // TODO: unwrapped list of wildcard ids?
         // eslint-disable-next-line no-console
-        console.log(paths.objs);
+        console.error(paths.objs);
         throw errors[0];
     }
 
