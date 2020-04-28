@@ -136,37 +136,33 @@ function moveHistory(changeType) {
 }
 
 function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
+    let msg = '';
+
     if (isMultiValued(spec)) {
-        return idProps;
+        return [idProps, msg];
     }
+
     if (idProps.length !== 1) {
         if (!idProps.length) {
-            if (typeof spec.id === 'string') {
-                throw new ReferenceError(
-                    'A nonexistent object was used in an `' +
-                        depType +
-                        '` of a Dash callback. The id of this object is `' +
-                        spec.id +
-                        '` and the property is `' +
-                        spec.property +
-                        '`. The string ids in the current layout are: [' +
-                        keys(paths.strs).join(', ') +
-                        ']'
-                );
-            }
-            throw new ReferenceError(
+            const isStr = typeof spec.id === 'string';
+            msg =
                 'A nonexistent object was used in an `' +
-                    depType +
-                    '` of a Dash callback. The id of this object is ' +
-                    JSON.stringify(spec.id) +
-                    (anyVals ? ' with MATCH values ' + anyVals : '') +
-                    ' and the property is `' +
-                    spec.property +
-                    '`. The wildcard ids currently available are logged above.'
-            );
-        }
-        throw new ReferenceError(
-            'Multiple objects were found for an `' +
+                depType +
+                '` of a Dash callback. The id of this object is ' +
+                (isStr
+                    ? '`' + spec.id + '`'
+                    : JSON.stringify(spec.id) +
+                      (anyVals ? ' with MATCH values ' + anyVals : '')) +
+                ' and the property is `' +
+                spec.property +
+                (isStr
+                    ? '`. The string ids in the current layout are: [' +
+                      keys(paths.strs).join(', ') +
+                      ']'
+                    : '`. The wildcard ids currently available are logged above.');
+        } else {
+            msg =
+                'Multiple objects were found for an `' +
                 depType +
                 '` of a callback that only takes one value. The id spec is ' +
                 JSON.stringify(spec.id) +
@@ -174,10 +170,10 @@ function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
                 ' and the property is `' +
                 spec.property +
                 '`. The objects we found are: ' +
-                JSON.stringify(map(pick(['id', 'property']), idProps))
-        );
+                JSON.stringify(map(pick(['id', 'property']), idProps));
+        }
     }
-    return idProps[0];
+    return [idProps[0], msg];
 }
 
 function startCallbacks(callbacks) {
@@ -259,26 +255,30 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
                 return preventCallback();
             }
 
-            let outputs;
-            try {
-                outputs = allOutputs.map((out, i) =>
-                    unwrapIfNotMulti(
-                        paths,
-                        map(pick(['id', 'property']), out),
-                        cb.callback.outputs[i],
-                        cb.anyVals,
-                        'Output'
-                    )
+            const outputs = [];
+            const outputErrors = [];
+            allOutputs.forEach((out, i) => {
+                const [outi, erri] = unwrapIfNotMulti(
+                    paths,
+                    map(pick(['id', 'property']), out),
+                    cb.callback.outputs[i],
+                    cb.anyVals,
+                    'Output'
                 );
-            } catch (e) {
-                if (e instanceof ReferenceError && !flatten(inVals).length) {
-                    // This case is all-empty multivalued wildcard inputs,
-                    // which we would normally fire the callback for, except
-                    // some outputs are missing. So instead we treat it like
-                    // regular missing inputs and just silently prevent it.
-                    return preventCallback();
+                outputs.push(outi);
+                if (erri) {
+                    outputErrors.push(erri);
                 }
-                throw e;
+            });
+            if (outputErrors.length) {
+                if (flatten(inVals).length) {
+                    refErr(outputErrors, paths);
+                }
+                // This case is all-empty multivalued wildcard inputs,
+                // which we would normally fire the callback for, except
+                // some outputs are missing. So instead we treat it like
+                // regular missing inputs and just silently prevent it.
+                return preventCallback();
             }
 
             payload = {
@@ -431,8 +431,8 @@ function fillVals(paths, layout, cb, specs, depType, allowAllMissing) {
     const errors = [];
     let emptyMultiValues = 0;
 
-    const fillInputs = (inputList, i) =>
-        unwrapIfNotMulti(
+    const inputVals = getter(paths).map((inputList, i) => {
+        const [inputs, inputError] = unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}) => ({
                 id,
@@ -443,28 +443,20 @@ function fillVals(paths, layout, cb, specs, depType, allowAllMissing) {
             cb.anyVals,
             depType
         );
-
-    const tryFill = (inputList, i) => {
-        try {
-            const inputs = fillInputs(inputList, i);
-            if (isMultiValued(specs[i]) && !inputs.length) {
-                emptyMultiValues++;
-            }
-            return inputs;
-        } catch (e) {
-            if (e instanceof ReferenceError) {
-                errors.push(e);
-                return null;
-            }
-            // any other error we still want to see!
-            throw e;
+        if (isMultiValued(specs[i]) && !inputs.length) {
+            emptyMultiValues++;
         }
-    };
-
-    const inputVals = getter(paths).map(allowAllMissing ? tryFill : fillInputs);
+        if (inputError) {
+            errors.push(inputError);
+        }
+        return inputs;
+    });
 
     if (errors.length) {
-        if (errors.length + emptyMultiValues === inputVals.length) {
+        if (
+            allowAllMissing &&
+            errors.length + emptyMultiValues === inputVals.length
+        ) {
             // We have at least one non-multivalued input, but all simple and
             // multi-valued inputs are missing.
             // (if all inputs are multivalued and all missing we still return
@@ -472,15 +464,23 @@ function fillVals(paths, layout, cb, specs, depType, allowAllMissing) {
             return null;
         }
         // If we get here we have some missing and some present inputs.
-        // That's a real error, so rethrow the first missing error.
+        // Or all missing in a context that doesn't allow this.
+        // That's a real problem, so throw the first message as an error.
+        refErr(errors, paths);
+    }
+
+    return inputVals;
+}
+
+function refErr(errors, paths) {
+    const err = errors[0];
+    if (err.indexOf('logged above') !== -1) {
         // Wildcard reference errors mention a list of wildcard specs logged
         // TODO: unwrapped list of wildcard ids?
         // eslint-disable-next-line no-console
         console.error(paths.objs);
-        throw errors[0];
     }
-
-    return inputVals;
+    throw new ReferenceError(err);
 }
 
 function handleServerside(config, payload, hooks) {
