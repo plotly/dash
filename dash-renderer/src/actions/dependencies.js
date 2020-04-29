@@ -10,6 +10,7 @@ import {
     dissoc,
     equals,
     evolve,
+    findIndex,
     flatten,
     forEachObjIndexed,
     includes,
@@ -785,9 +786,10 @@ export function computeGraphs(dependencies, dispatchError) {
         // Also collect MATCH keys in the output (all outputs must share these)
         // and ALL keys in the first output (need not be shared but we'll use
         // the first output for calculations) for later convenience.
-        const {anyKeys, hasALL} = findWildcardKeys(outputs[0].id);
+        const {anyKeys} = findWildcardKeys(outputs[0].id);
+        const firstSingleOutput = findIndex(o => !isMultiValued(o.id), outputs);
         const finalDependency = mergeRight(
-            {hasALL, anyKeys, outputs},
+            {anyKeys, firstSingleOutput, outputs},
             dependency
         );
 
@@ -822,21 +824,18 @@ export function computeGraphs(dependencies, dispatchError) {
 function findWildcardKeys(id) {
     const anyKeys = [];
     const allsmallerKeys = [];
-    let hasALL = false;
     if (typeof id === 'object') {
         forEachObjIndexed((val, key) => {
             if (val === MATCH) {
                 anyKeys.push(key);
             } else if (val === ALLSMALLER) {
                 allsmallerKeys.push(key);
-            } else if (val === ALL) {
-                hasALL = true;
             }
         }, id);
         anyKeys.sort();
         allsmallerKeys.sort();
     }
-    return {anyKeys, allsmallerKeys, hasALL};
+    return {anyKeys, allsmallerKeys};
 }
 
 /*
@@ -1048,31 +1047,6 @@ function getCallbackByOutput(graphs, paths, id, prop) {
     return makeResolvedCallback(callback, resolve, anyVals);
 }
 
-/*
- * If there are ALL keys we need to reduce a set of outputs resolved
- * from an input to one item per combination of MATCH values.
- * That will give one result per callback invocation.
- */
-function reduceALLOuts(outs, anyKeys, hasALL) {
-    if (!hasALL) {
-        return outs;
-    }
-    if (!anyKeys.length) {
-        // If there's ALL but no MATCH, there's only one invocation
-        // of the callback, so just base it off the first output.
-        return [outs[0]];
-    }
-    const anySeen = {};
-    return outs.filter(i => {
-        const matchKeys = JSON.stringify(props(anyKeys, i.id));
-        if (!anySeen[matchKeys]) {
-            anySeen[matchKeys] = 1;
-            return true;
-        }
-        return false;
-    });
-}
-
 function addResolvedFromOutputs(callback, outPattern, outs, matches) {
     const out0Keys = Object.keys(outPattern.id).sort();
     const out0PatternVals = props(out0Keys, outPattern.id);
@@ -1086,6 +1060,51 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
             )
         );
     });
+}
+
+function addAllResolvedFromOutputs(resolve, paths, matches) {
+    return callback => {
+        const {anyKeys, firstSingleOutput, outputs} = callback;
+        if (anyKeys.length) {
+            const singleOutPattern = outputs[firstSingleOutput];
+            if (singleOutPattern) {
+                addResolvedFromOutputs(
+                    callback,
+                    singleOutPattern,
+                    resolve(paths)(singleOutPattern),
+                    matches
+                );
+            } else {
+                /*
+                 * If every output has ALL we need to reduce resolved set
+                 * to one item per combination of MATCH values.
+                 * That will give one result per callback invocation.
+                 */
+                const anySeen = {};
+                outputs.forEach(outPattern => {
+                    const outSet = resolve(paths)(outPattern).filter(i => {
+                        const matchKeys = JSON.stringify(props(anyKeys, i.id));
+                        if (!anySeen[matchKeys]) {
+                            anySeen[matchKeys] = 1;
+                            return true;
+                        }
+                        return false;
+                    });
+                    addResolvedFromOutputs(
+                        callback,
+                        outPattern,
+                        outSet,
+                        matches
+                    );
+                });
+            }
+        } else {
+            const cb = makeResolvedCallback(callback, resolve, '');
+            if (flatten(cb.getOutputs(paths)).length) {
+                matches.push(cb);
+            }
+        }
+    };
 }
 
 /*
@@ -1111,21 +1130,9 @@ export function getCallbacksByInput(graphs, paths, id, prop, changeType) {
             return [];
         }
 
-        const baseResolve = resolveDeps();
-        callbacks.forEach(callback => {
-            const {anyKeys, hasALL} = callback;
-            if (anyKeys) {
-                const out0Pattern = callback.outputs[0];
-                const out0Set = reduceALLOuts(
-                    baseResolve(paths)(out0Pattern),
-                    anyKeys,
-                    hasALL
-                );
-                addResolvedFromOutputs(callback, out0Pattern, out0Set, matches);
-            } else {
-                matches.push(makeResolvedCallback(callback, baseResolve, ''));
-            }
-        });
+        callbacks.forEach(
+            addAllResolvedFromOutputs(resolveDeps(), paths, matches)
+        );
     } else {
         // wildcard version
         const keys = Object.keys(id).sort();
@@ -1137,23 +1144,13 @@ export function getCallbacksByInput(graphs, paths, id, prop, changeType) {
         }
         patterns.forEach(pattern => {
             if (idMatch(keys, vals, pattern.values)) {
-                const resolve = resolveDeps(keys, vals, pattern.values);
-                pattern.callbacks.forEach(callback => {
-                    const out0Pattern = callback.outputs[0];
-                    const {anyKeys, hasALL} = callback;
-                    const out0Set = reduceALLOuts(
-                        resolve(paths)(out0Pattern),
-                        anyKeys,
-                        hasALL
-                    );
-
-                    addResolvedFromOutputs(
-                        callback,
-                        out0Pattern,
-                        out0Set,
+                pattern.callbacks.forEach(
+                    addAllResolvedFromOutputs(
+                        resolveDeps(keys, vals, pattern.values),
+                        paths,
                         matches
-                    );
-                });
+                    )
+                );
             }
         });
     }
