@@ -2,7 +2,7 @@ import {connect} from 'react-redux';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
 import Radium from 'radium';
-import {onError, revert} from '../../actions';
+import {onError} from '../../actions';
 
 class UnconnectedComponentErrorBoundary extends Component {
     constructor(props) {
@@ -28,7 +28,6 @@ class UnconnectedComponentErrorBoundary extends Component {
                 info,
             })
         );
-        dispatch(revert);
     }
 
     componentDidUpdate(prevProps, prevState) {

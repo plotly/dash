@@ -111,7 +111,6 @@ function triggerDefaultState(dispatch, getState) {
 
 export const redo = moveHistory('REDO');
 export const undo = moveHistory('UNDO');
-export const revert = moveHistory('REVERT');
 
 function moveHistory(changeType) {
     return function(dispatch, getState) {

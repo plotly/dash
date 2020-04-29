@@ -28,17 +28,6 @@ function history(state = initialHistory, action) {
             };
         }
 
-        case 'REVERT': {
-            const {past, future} = state;
-            const previous = past[past.length - 1];
-            const newPast = past.slice(0, past.length - 1);
-            return {
-                past: newPast,
-                present: previous,
-                future: [...future],
-            };
-        }
-
         default: {
             return state;
         }
