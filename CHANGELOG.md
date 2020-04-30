@@ -2,6 +2,15 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [UNRELEASED]
+### Added
+- [#1201](https://github.com/plotly/dash/pull/1201) New attribute `app.validation_layout` allows you to create a multi-page app without `suppress_callback_exceptions=True` or layout function tricks. Set this to a component layout containing the superset of all IDs on all pages in your app.
+- [#1078](https://github.com/plotly/dash/pull/1078) Permit usage of arbitrary file extensions for assets within component libraries
+
+### Fixed
+- [#1212](https://github.com/plotly/dash/pull/1212) Fixes [#1200](https://github.com/plotly/dash/issues/1200) - prior to Dash 1.11, if none of the inputs to a callback were on the page, it was not an error. This was, and is now again, treated as though the callback raised PreventUpdate. The one exception to this is with pattern-matching callbacks, when every Input uses a multi-value wildcard (ALL or ALLSMALLER), and every Output is on the page. In that case the callback fires as usual.
+- [#1201](https://github.com/plotly/dash/pull/1201) Fixes [#1193](https://github.com/plotly/dash/issues/1193) - prior to Dash 1.11, you could use `flask.has_request_context() == False` inside an `app.layout` function to provide a special layout containing all IDs for validation purposes in a multi-page app. Dash 1.11 broke this when we moved most of this validation into the renderer. This change makes it work again.
+
 ## [1.11.0] - 2020-04-10
 ### Added
 - [#1103](https://github.com/plotly/dash/pull/1103) Pattern-matching IDs and callbacks. Component IDs can be dictionaries, and callbacks can reference patterns of components, using three different wildcards: `ALL`, `MATCH`, and `ALLSMALLER`, available from `dash.dependencies`. This lets you create components on demand, and have callbacks respond to any and all of them. To help with this, `dash.callback_context` gets three new entries: `outputs_list`, `inputs_list`, and `states_list`, which contain all the ids, properties, and except for the outputs, the property values from all matched components.
@@ -65,7 +74,7 @@ These functions are particularly useful for apps deployed on Dash Enterprise whe
 
 ### Changed
 - [#1035](https://github.com/plotly/dash/pull/1035) Simplify our build process.
-- [#1074](https://github.com/plotly/dash/pull/1045) Error messages when providing an incorrect property to a component have been improved: they now specify the component type, library, version, and ID (if available).
+- [#1074](https://github.com/plotly/dash/pull/1074) Error messages when providing an incorrect property to a component have been improved: they now specify the component type, library, version, and ID (if available).
 
 ### Fixed
 - [#1037](https://github.com/plotly/dash/pull/1037) Fix no_update test to allow copies, such as those stored and retrieved from a cache.
