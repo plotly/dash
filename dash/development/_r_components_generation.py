@@ -385,8 +385,8 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     item_text = ""
 
     # the return value of all Dash components should be the same,
-    # in an abstract sense -- they produce a list 
-    value_text = "named list of JSON elements corresponding to React.js properties and their values" # noqa:E501
+    # in an abstract sense -- they produce a list
+    value_text = "named list of JSON elements corresponding to React.js properties and their values"  # noqa:E501
 
     prop_keys = list(props.keys())
     prop_keys_wc = list(props.keys())
