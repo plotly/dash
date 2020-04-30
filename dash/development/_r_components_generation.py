@@ -77,6 +77,9 @@ help_string = """% Auto-generated: do not edit by hand
 \\arguments{{
 {item_text}
 }}
+
+\\value{{{value_text}}}
+
 """
 
 description_template = """Package: {package_name}
@@ -381,6 +384,10 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     default_argtext = ""
     item_text = ""
 
+    # the return value of all Dash components should be the same,
+    # in an abstract sense -- they produce a list 
+    value_text = "named list of JSON elements corresponding to React.js properties and their values" # noqa:E501
+
     prop_keys = list(props.keys())
     prop_keys_wc = list(props.keys())
 
@@ -425,6 +432,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
                     default_argtext, width=60, break_long_words=False
                 ),
                 item_text=item_text,
+                value_text=value_text,
                 description=description.replace("\n", " "),
             )
         )
