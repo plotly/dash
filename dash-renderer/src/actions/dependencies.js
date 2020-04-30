@@ -397,12 +397,12 @@ function findInOutOverlap(outputs, inputs, head, dispatchError) {
 }
 
 function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
-    const {anyKeys: out0AnyKeys} = findWildcardKeys(outputs[0].id);
-    outputs.forEach((out, outi) => {
-        if (outi && !equals(findWildcardKeys(out.id).anyKeys, out0AnyKeys)) {
+    const {matchKeys: out0MatchKeys} = findWildcardKeys(outputs[0].id);
+    outputs.forEach((out, i) => {
+        if (i && !equals(findWildcardKeys(out.id).matchKeys, out0MatchKeys)) {
             dispatchError('Mismatched `MATCH` wildcards across `Output`s', [
                 head,
-                `Output ${outi} (${combineIdAndProp(out)})`,
+                `Output ${i} (${combineIdAndProp(out)})`,
                 'does not have MATCH wildcards on the same keys as',
                 `Output 0 (${combineIdAndProp(outputs[0])}).`,
                 'MATCH wildcards must be on the same keys for all Outputs.',
@@ -415,9 +415,9 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
         [state, 'State'],
     ].forEach(([args, cls]) => {
         args.forEach((arg, i) => {
-            const {anyKeys, allsmallerKeys} = findWildcardKeys(arg.id);
-            const allWildcardKeys = anyKeys.concat(allsmallerKeys);
-            const diff = difference(allWildcardKeys, out0AnyKeys);
+            const {matchKeys, allsmallerKeys} = findWildcardKeys(arg.id);
+            const allWildcardKeys = matchKeys.concat(allsmallerKeys);
+            const diff = difference(allWildcardKeys, out0MatchKeys);
             if (diff.length) {
                 diff.sort();
                 dispatchError('`Input` / `State` wildcards not in `Output`s', [
@@ -640,7 +640,7 @@ export function computeGraphs(dependencies, dispatchError) {
      *   {[id]: {[prop]: [callback, ...]}}
      * where callbacks are the matching specs from the original
      * dependenciesRequest, but with outputs parsed to look like inputs,
-     * and a list anyKeys added if the outputs have MATCH wildcards.
+     * and a list matchKeys added if the outputs have MATCH wildcards.
      * For outputMap there should only ever be one callback per id/prop
      * but for inputMap there may be many.
      *
@@ -786,10 +786,10 @@ export function computeGraphs(dependencies, dispatchError) {
         // Also collect MATCH keys in the output (all outputs must share these)
         // and ALL keys in the first output (need not be shared but we'll use
         // the first output for calculations) for later convenience.
-        const {anyKeys} = findWildcardKeys(outputs[0].id);
+        const {matchKeys} = findWildcardKeys(outputs[0].id);
         const firstSingleOutput = findIndex(o => !isMultiValued(o.id), outputs);
         const finalDependency = mergeRight(
-            {anyKeys, firstSingleOutput, outputs},
+            {matchKeys, firstSingleOutput, outputs},
             dependency
         );
 
@@ -822,20 +822,20 @@ export function computeGraphs(dependencies, dispatchError) {
 }
 
 function findWildcardKeys(id) {
-    const anyKeys = [];
+    const matchKeys = [];
     const allsmallerKeys = [];
     if (typeof id === 'object') {
         forEachObjIndexed((val, key) => {
             if (val === MATCH) {
-                anyKeys.push(key);
+                matchKeys.push(key);
             } else if (val === ALLSMALLER) {
                 allsmallerKeys.push(key);
             }
         }, id);
-        anyKeys.sort();
+        matchKeys.sort();
         allsmallerKeys.sort();
     }
-    return {anyKeys, allsmallerKeys};
+    return {matchKeys, allsmallerKeys};
 }
 
 /*
@@ -1064,8 +1064,8 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
 
 function addAllResolvedFromOutputs(resolve, paths, matches) {
     return callback => {
-        const {anyKeys, firstSingleOutput, outputs} = callback;
-        if (anyKeys.length) {
+        const {matchKeys, firstSingleOutput, outputs} = callback;
+        if (matchKeys.length) {
             const singleOutPattern = outputs[firstSingleOutput];
             if (singleOutPattern) {
                 addResolvedFromOutputs(
@@ -1083,9 +1083,9 @@ function addAllResolvedFromOutputs(resolve, paths, matches) {
                 const anySeen = {};
                 outputs.forEach(outPattern => {
                     const outSet = resolve(paths)(outPattern).filter(i => {
-                        const matchKeys = JSON.stringify(props(anyKeys, i.id));
-                        if (!anySeen[matchKeys]) {
-                            anySeen[matchKeys] = 1;
+                        const matchStr = JSON.stringify(props(matchKeys, i.id));
+                        if (!anySeen[matchStr]) {
+                            anySeen[matchStr] = 1;
                             return true;
                         }
                         return false;
