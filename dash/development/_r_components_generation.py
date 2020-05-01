@@ -88,15 +88,13 @@ Version: {package_version}
 Description: {package_description}
 Depends: R (>= 3.0.2){package_depends}
 Imports: {package_imports}
-Suggests: {package_suggests}
+Suggests: {package_suggests}{package_rauthors}
 License: {package_license}{package_copyright}
 URL: {package_url}
 BugReports: {package_issues}
 Encoding: UTF-8
 LazyData: true{vignette_builder}
 KeepSource: true
-Author: {package_author_no_email}
-Maintainer: {maintainer}
 """
 
 rbuild_ignore_string = r"""# ignore JS config files/folders
@@ -451,7 +449,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
 
 # pylint: disable=too-many-arguments
 def write_class_file(
-    name, props, description, project_shortname, prefix=None, rpkg_data=None
+        name, props, description, project_shortname, prefix=None, rpkg_data=None
 ):
     props = reorder_props(props=props)
 
@@ -531,14 +529,14 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
 
 # pylint: disable=R0914, R0913, R0912, R0915
 def generate_rpkg(
-    pkg_data,
-    rpkg_data,
-    project_shortname,
-    export_string,
-    package_depends,
-    package_imports,
-    package_suggests,
-    has_wildcards,
+        pkg_data,
+        rpkg_data,
+        project_shortname,
+        export_string,
+        package_depends,
+        package_imports,
+        package_suggests,
+        has_wildcards,
 ):
     """Generate documents for R package creation.
 
@@ -562,6 +560,7 @@ def generate_rpkg(
 
     package_name = snake_case_to_camel_case(project_shortname)
     package_copyright = ""
+    package_authors = ""
     lib_name = pkg_data.get("name")
 
     if rpkg_data is not None:
@@ -573,16 +572,13 @@ def generate_rpkg(
             package_description = rpkg_data.get(
                 "pkg_help_description", pkg_data.get("description", "")
             )
+        if rpkg_data.get("pkg_copyright"):
+            package_copyright = "\nCopyright: {}".format(rpkg_data.get(
+                "pkg_copyright", ""))
     else:
         # fall back to using description in package.json, if present
         package_title = pkg_data.get("description", "")
         package_description = pkg_data.get("description", "")
-
-    if rpkg_data is not None:
-        if rpkg_data.get("copyright"):
-            package_copyright = "\nCopyright: {}".format(rpkg_data.get(
-                "copyright", "")
-            )
 
     package_version = pkg_data.get("version", "0.0.1")
 
@@ -617,19 +613,34 @@ def generate_rpkg(
 
     package_author = pkg_data.get("author")
 
-    package_author_no_email = package_author.split(" <")[0] + " [aut]"
+    package_author_name = package_author.split(" <")[0]
+    package_author_email = package_author.split(" <")[1][:-1]
+
+    package_author_fn = package_author_name.split(" ")[0]
+    package_author_ln = package_author_name.rsplit(" ", 2)[-1]
 
     maintainer = pkg_data.get("maintainer", pkg_data.get("author"))
 
-    if "<" not in package_author or "<" not in maintainer:
+    if "<" not in package_author:
         print(
             "Error, aborting R package generation: "
-            "R packages require a properly formatted author or "
-            "maintainer field or installation will fail. Please include "
-            "an email address enclosed within < > brackets in package.json. ",
+            "R packages require a properly formatted author field "
+            "or installation will fail. Please include an email "
+            "address enclosed within < > brackets in package.json. ",
             file=sys.stderr,
         )
         sys.exit(1)
+
+    if rpkg_data is not None:
+        if rpkg_data.get("pkg_authors"):
+            package_rauthors = '\nAuthors@R: {}'.format(rpkg_data.get(
+                "pkg_authors", ""))
+        else:
+            package_rauthors = '\nAuthors@R: person("{}", "{}", role = c("aut", "cre"), email = "{}")'.format(
+                package_author_fn,
+                package_author_ln,
+                package_author_email
+            )
 
     if not (os.path.isfile("LICENSE") or os.path.isfile("LICENSE.txt")):
         package_license = pkg_data.get("license", "")
@@ -676,17 +687,16 @@ def generate_rpkg(
         package_title=package_title,
         package_description=package_description,
         package_version=package_version,
-        package_author=package_author,
+        package_rauthors=package_rauthors,
         package_depends=package_depends,
         package_imports=package_imports,
         package_suggests=package_suggests,
+        package_authors=package_authors,
         package_license=package_license,
         package_copyright=package_copyright,
         package_url=package_url,
         package_issues=package_issues,
         vignette_builder=vignette_builder,
-        package_author_no_email=package_author_no_email,
-        maintainer=maintainer,
     )
 
     with open("DESCRIPTION", "w+") as f3:
@@ -725,16 +735,16 @@ def format_fn_name(prefix, name):
 
 # pylint: disable=unused-argument
 def generate_exports(
-    project_shortname,
-    components,
-    metadata,
-    pkg_data,
-    rpkg_data,
-    prefix,
-    package_depends,
-    package_imports,
-    package_suggests,
-    **kwargs
+        project_shortname,
+        components,
+        metadata,
+        pkg_data,
+        rpkg_data,
+        prefix,
+        package_depends,
+        package_imports,
+        package_suggests,
+        **kwargs
 ):
     export_string = make_namespace_exports(components, prefix)
 
@@ -764,9 +774,9 @@ def make_namespace_exports(components, prefix):
     export_string = ""
     for component in components:
         if (
-            not component.endswith("-*")
-            and str(component) not in r_keywords
-            and str(component) not in ["setProps", "children"]
+                not component.endswith("-*")
+                and str(component) not in r_keywords
+                and str(component) not in ["setProps", "children"]
         ):
             export_string += "export({}{})\n".format(prefix, component)
 
@@ -902,9 +912,9 @@ def get_r_type(type_object, is_flow_type=False, indent_num=0):
     js_type_name = type_object["name"]
     js_to_r_types = get_r_prop_types(type_object=type_object)
     if (
-        "computed" in type_object
-        and type_object["computed"]
-        or type_object.get("type", "") == "function"
+            "computed" in type_object
+            and type_object["computed"]
+            or type_object.get("type", "") == "function"
     ):
         return ""
     elif js_type_name in js_to_r_types:
@@ -922,7 +932,7 @@ def print_r_type(typedata):
 
 # pylint: disable=too-many-arguments
 def create_prop_docstring_r(
-    prop_name, type_object, required, description, indent_num, is_flow_type=False
+        prop_name, type_object, required, description, indent_num, is_flow_type=False
 ):
     """
     Create the Dash component prop docstring
