@@ -560,7 +560,7 @@ def generate_rpkg(
 
     package_name = snake_case_to_camel_case(project_shortname)
     package_copyright = ""
-    package_authors = ""
+    package_rauthors = ""
     lib_name = pkg_data.get("name")
 
     if rpkg_data is not None:
@@ -691,7 +691,6 @@ def generate_rpkg(
         package_depends=package_depends,
         package_imports=package_imports,
         package_suggests=package_suggests,
-        package_authors=package_authors,
         package_license=package_license,
         package_copyright=package_copyright,
         package_url=package_url,
