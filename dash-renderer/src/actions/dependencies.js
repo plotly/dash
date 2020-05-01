@@ -1214,10 +1214,14 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         if (callback) {
             const foundIndex = foundCbIds[callback.resolvedId];
             if (foundIndex !== undefined) {
-                callbacks[foundIndex].changedPropIds = mergeMax(
-                    callbacks[foundIndex].changedPropIds,
+                const foundCb = callbacks[foundIndex];
+                foundCb.changedPropIds = mergeMax(
+                    foundCb.changedPropIds,
                     callback.changedPropIds
                 );
+                if (callback.initialCall) {
+                    foundCb.initialCall = true;
+                }
             } else {
                 foundCbIds[callback.resolvedId] = callbacks.length;
                 callbacks.push(callback);
