@@ -89,7 +89,7 @@ Description: {package_description}
 Depends: R (>= 3.0.2){package_depends}
 Imports: {package_imports}
 Suggests: {package_suggests}
-License: {package_license}
+License: {package_license}{package_copyright}
 URL: {package_url}
 BugReports: {package_issues}
 Encoding: UTF-8
@@ -561,6 +561,7 @@ def generate_rpkg(
     # does not exist in package.json
 
     package_name = snake_case_to_camel_case(project_shortname)
+    package_copyright = ""
     lib_name = pkg_data.get("name")
 
     if rpkg_data is not None:
@@ -576,6 +577,12 @@ def generate_rpkg(
         # fall back to using description in package.json, if present
         package_title = pkg_data.get("description", "")
         package_description = pkg_data.get("description", "")
+
+    if rpkg_data is not None:
+        if rpkg_data.get("copyright"):
+            package_copyright = "\nCopyright: {}".format(rpkg_data.get(
+                "copyright", "")
+            )
 
     package_version = pkg_data.get("version", "0.0.1")
 
@@ -674,6 +681,7 @@ def generate_rpkg(
         package_imports=package_imports,
         package_suggests=package_suggests,
         package_license=package_license,
+        package_copyright=package_copyright,
         package_url=package_url,
         package_issues=package_issues,
         vignette_builder=vignette_builder,
