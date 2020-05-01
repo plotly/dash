@@ -37,6 +37,7 @@
     "lint": "run-s private::lint.*"
   },
   "author": "Chris Parmer <chris@plotly.com>",
+  "maintainer": "Ryan Patrick Kyle <ryan@plotly.com>",
   "license": "MIT",
   "dependencies": {
     "color": "^3.1.0",
