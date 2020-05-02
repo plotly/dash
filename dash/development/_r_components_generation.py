@@ -663,7 +663,8 @@ def generate_rpkg(
     if os.path.exists("vignettes"):
         vignette_builder = "\nVignetteBuilder: knitr"
         if "knitr" not in package_suggests and "rmarkdown" not in package_suggests:
-            package_suggests += ", knitr, rmarkdown".lstrip(", ")
+            package_suggests += ", knitr, rmarkdown"
+            package_suggests = package_suggests.lstrip(", ")
     else:
         vignette_builder = ""
 
