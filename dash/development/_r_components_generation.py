@@ -449,7 +449,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
 
 # pylint: disable=too-many-arguments
 def write_class_file(
-        name, props, description, project_shortname, prefix=None, rpkg_data=None
+    name, props, description, project_shortname, prefix=None, rpkg_data=None
 ):
     props = reorder_props(props=props)
 
@@ -529,14 +529,14 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
 
 # pylint: disable=R0914, R0913, R0912, R0915
 def generate_rpkg(
-        pkg_data,
-        rpkg_data,
-        project_shortname,
-        export_string,
-        package_depends,
-        package_imports,
-        package_suggests,
-        has_wildcards,
+    pkg_data,
+    rpkg_data,
+    project_shortname,
+    export_string,
+    package_depends,
+    package_imports,
+    package_suggests,
+    has_wildcards,
 ):
     """Generate documents for R package creation.
 
@@ -735,16 +735,16 @@ def format_fn_name(prefix, name):
 
 # pylint: disable=unused-argument
 def generate_exports(
-        project_shortname,
-        components,
-        metadata,
-        pkg_data,
-        rpkg_data,
-        prefix,
-        package_depends,
-        package_imports,
-        package_suggests,
-        **kwargs
+    project_shortname,
+    components,
+    metadata,
+    pkg_data,
+    rpkg_data,
+    prefix,
+    package_depends,
+    package_imports,
+    package_suggests,
+    **kwargs
 ):
     export_string = make_namespace_exports(components, prefix)
 
@@ -774,9 +774,9 @@ def make_namespace_exports(components, prefix):
     export_string = ""
     for component in components:
         if (
-                not component.endswith("-*")
-                and str(component) not in r_keywords
-                and str(component) not in ["setProps", "children"]
+            not component.endswith("-*")
+            and str(component) not in r_keywords
+            and str(component) not in ["setProps", "children"]
         ):
             export_string += "export({}{})\n".format(prefix, component)
 
@@ -912,9 +912,9 @@ def get_r_type(type_object, is_flow_type=False, indent_num=0):
     js_type_name = type_object["name"]
     js_to_r_types = get_r_prop_types(type_object=type_object)
     if (
-            "computed" in type_object
-            and type_object["computed"]
-            or type_object.get("type", "") == "function"
+        "computed" in type_object
+        and type_object["computed"]
+        or type_object.get("type", "") == "function"
     ):
         return ""
     elif js_type_name in js_to_r_types:
@@ -932,7 +932,7 @@ def print_r_type(typedata):
 
 # pylint: disable=too-many-arguments
 def create_prop_docstring_r(
-        prop_name, type_object, required, description, indent_num, is_flow_type=False
+    prop_name, type_object, required, description, indent_num, is_flow_type=False
 ):
     """
     Create the Dash component prop docstring
