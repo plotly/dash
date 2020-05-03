@@ -26,7 +26,7 @@ r_examples:
             # The following if statement is not required to run this
             # example locally, but was added at the request of CRAN
             # maintainers.
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashTable)
 
