@@ -14,7 +14,7 @@ r_examples:
     - name: dccChecklist
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
               library(dashCoreComponents)
@@ -38,7 +38,7 @@ r_examples:
     - name: dccInterval
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashHtmlComponents)
                 library(dashCoreComponents)
@@ -89,7 +89,7 @@ r_examples:
     - name: dccSlider
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
@@ -127,7 +127,7 @@ r_examples:
     - name: dccConfirmDialog
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
@@ -164,7 +164,7 @@ r_examples:
     - name: dccLink
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
@@ -196,7 +196,7 @@ r_examples:
     - name: dccStore
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
                 library(dash)
@@ -241,7 +241,7 @@ r_examples:
                   app$callback(
                     output(id = i, property = 'data'),
                     params = list(
-                      input(id = sprintf('%s-button', i), property = 'n_clicks'),
+                      input(id = paste0(i, '-button'), property = 'n_clicks'),
                       state(id = i, property = 'data')
                     ),
                     function(n_clicks, data){
@@ -261,7 +261,7 @@ r_examples:
 
                 for (i in c('memory', 'local', 'session')) {
                   app$callback(
-                    output(id = sprintf('%s-clicks', i), property = 'children'),
+                    output(id = paste0(i, '-clicks'), property = 'children'),
                     params = list(
                       input(id = i, property = 'modified_timestamp'),
                       state(id = i, property = 'data')
@@ -285,7 +285,7 @@ r_examples:
     - name: dccConfirmDialogProvider
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
@@ -324,7 +324,7 @@ r_examples:
     - name: dccLoading
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
@@ -372,7 +372,7 @@ r_examples:
     - name: dccTab
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
@@ -409,7 +409,7 @@ r_examples:
     - name: dccDatePickerRange
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
 
@@ -428,7 +428,7 @@ r_examples:
     - name: dccLocation
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
@@ -462,7 +462,7 @@ r_examples:
     - name: dccTabs
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
@@ -499,7 +499,7 @@ r_examples:
     - name: dccDatePickerSingle
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
 
@@ -517,7 +517,7 @@ r_examples:
     - name: dccLogoutButton
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
 
@@ -532,7 +532,7 @@ r_examples:
     - name: dccTextarea
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
 
@@ -552,7 +552,7 @@ r_examples:
     - name: dccDropdown
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
 
@@ -576,7 +576,7 @@ r_examples:
     - name: dccMarkdown
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashHtmlComponents)
                 library(dashCoreComponents)
@@ -610,7 +610,7 @@ r_examples:
     - name: dccUpload
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(dashHtmlComponents)
@@ -677,7 +677,7 @@ r_examples:
     - name: dccGraph
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashCoreComponents)
                 library(plotly)
@@ -725,7 +725,7 @@ r_examples:
     - name: dccRadioItems
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashHtmlComponents)
                 library(dashCoreComponents)
@@ -750,7 +750,7 @@ r_examples:
     - name: dccInput
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashHtmlComponents)
                 library(dashCoreComponents)
@@ -772,7 +772,7 @@ r_examples:
     - name: dccRangeSlider
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
                 library(dash)
                 library(dashHtmlComponents)
                 library(dashCoreComponents)
