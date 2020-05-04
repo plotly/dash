@@ -18,7 +18,8 @@
     "format": "run-s private::format.*",
     "initialize": "run-s private::initialize.*",
     "lint": "run-s private::lint.*",
-    "test.integration": "run-s private::test.setup-* private::test.integration-*",
+    "setup-tests": "run-s private::test.setup-*",
+    "test.integration": "run-s setup-tests private::test.integration-*",
     "test.unit": "run-s private::test.unit-**"
   },
   "devDependencies": {

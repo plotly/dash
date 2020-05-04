@@ -423,15 +423,10 @@ def bad_id_app(**kwargs):
     return app
 
 
-# These ones are raised by bad_id_app whether suppressing callback exceptions or not
+# This one is raised by bad_id_app whether suppressing callback exceptions or not
+# yeah-no no longer raises an error on dispatch due to the no-input regression fix
+# for issue #1200
 dispatch_specs = [
-    [
-        "A nonexistent object was used in an `Input` of a Dash callback. "
-        "The id of this object is `yeah-no` and the property is `value`. "
-        "The string ids in the current layout are: "
-        "[main, outer-div, inner-div, inner-input, outer-input]",
-        [],
-    ],
     [
         "A nonexistent object was used in an `Output` of a Dash callback. "
         "The id of this object is `nope` and the property is `children`. "

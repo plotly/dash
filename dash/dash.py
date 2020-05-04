@@ -11,6 +11,7 @@ import pkgutil
 import threading
 import re
 import logging
+import mimetypes
 
 from functools import wraps
 
@@ -44,6 +45,9 @@ from ._utils import (
 )
 from . import _validate
 from . import _watch
+
+# Add explicit mapping for map files
+mimetypes.add_type("application/json", ".map", True)
 
 _default_index = """<!DOCTYPE html>
 <html>
@@ -669,13 +673,8 @@ class Dash(object):
 
         _validate.validate_js_path(self.registered_paths, package_name, path_in_pkg)
 
-        mimetype = (
-            {
-                "js": "application/javascript",
-                "css": "text/css",
-                "map": "application/json",
-            }
-        )[path_in_pkg.split(".")[-1]]
+        extension = "." + path_in_pkg.split(".")[-1]
+        mimetype = mimetypes.types_map.get(extension, "application/octet-stream")
 
         package = sys.modules[package_name]
         self.logger.debug(
