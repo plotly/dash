@@ -211,6 +211,15 @@ class Dash(object):
         env: ``DASH_SUPPRESS_CALLBACK_EXCEPTIONS``
     :type suppress_callback_exceptions: boolean
 
+    :param prevent_initial_callbacks: Default ``False``: Sets the default value
+        of ``prevent_initial_call`` for all callbacks added to the app.
+        Normally all callbacks are fired when the associated outputs are first
+        added to the page. You can disable this for individual callbacks by
+        setting ``prevent_initial_call`` in their definitions, or set it
+        ``True`` here in which case you must explicitly set it ``False`` for
+        those callbacks you wish to have an initial call. This setting has no
+        effect on triggering callbacks when their inputs change later on.
+
     :param show_undo_redo: Default ``False``, set to ``True`` to enable undo
         and redo buttons for stepping through the history of the app state.
     :type show_undo_redo: boolean
@@ -241,6 +250,7 @@ class Dash(object):
         external_scripts=None,
         external_stylesheets=None,
         suppress_callback_exceptions=None,
+        prevent_initial_callbacks=False,
         show_undo_redo=False,
         plugins=None,
         **obsolete
@@ -288,6 +298,7 @@ class Dash(object):
             suppress_callback_exceptions=get_combined_config(
                 "suppress_callback_exceptions", suppress_callback_exceptions, False
             ),
+            prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
         )
         self.config.set_read_only(
@@ -813,7 +824,10 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(self, output, inputs, state):
+    def _insert_callback(self, output, inputs, state, prevent_initial_call):
+        if prevent_initial_call is None:
+            prevent_initial_call = self.config.prevent_initial_callbacks
+
         _validate.validate_callback(output, inputs, state)
         callback_id = create_callback_id(output)
         callback_spec = {
@@ -821,6 +835,7 @@ class Dash(object):
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
             "clientside_function": None,
+            "prevent_initial_call": prevent_initial_call,
         }
         self.callback_map[callback_id] = {
             "inputs": callback_spec["inputs"],
@@ -830,7 +845,9 @@ class Dash(object):
 
         return callback_id
 
-    def clientside_callback(self, clientside_function, output, inputs, state=()):
+    def clientside_callback(
+        self, clientside_function, output, inputs, state=(), prevent_initial_call=None
+    ):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
 
@@ -890,8 +907,12 @@ class Dash(object):
              Input('another-input', 'value')]
         )
         ```
+
+        The last, optional argument `prevent_initial_call` causes the callback
+        not to fire when its outputs are first added to the page. Defaults to
+        `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        self._insert_callback(output, inputs, state)
+        self._insert_callback(output, inputs, state, prevent_initial_call)
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -922,8 +943,19 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def callback(self, output, inputs, state=()):
-        callback_id = self._insert_callback(output, inputs, state)
+    def callback(self, output, inputs, state=(), prevent_initial_call=None):
+        """
+        Normally used as a decorator, `@app.callback` provides a server-side
+        callback relating the values of one or more `output` items to one or
+        more `input` items which will trigger the callback when they change,
+        and optionally `state` items which provide additional information but
+        do not trigger the callback directly.
+
+        The last, optional argument `prevent_initial_call` causes the callback
+        not to fire when its outputs are first added to the page. Defaults to
+        `False` unless `prevent_initial_callbacks=True` at the app level.
+        """
+        callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
         multi = isinstance(output, (list, tuple))
 
         def wrap_func(func):
