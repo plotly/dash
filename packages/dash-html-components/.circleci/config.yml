@@ -35,7 +35,7 @@ jobs:
               . venv/bin/activate
               pip install -e ./dash-main[testing,dev] --quiet
               cd dash-core-components && npm ci && npm run build && pip install -e . && cd ..
-              cd dash-main/dash-renderer && npm run build && pip install -e . && cd ../..
+              cd dash-main/dash-renderer && npm ci && npm run build && pip install -e . && cd ../..
               cd dash-table && npm ci && npm run build && pip install -e . && cd ..
 
       - run:
