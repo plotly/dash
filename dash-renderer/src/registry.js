@@ -1,3 +1,5 @@
+import { path } from 'ramda';
+
 export default {
     resolve: component => {
         const {type, namespace} = component;
@@ -5,8 +7,9 @@ export default {
         const ns = window[namespace];
 
         if (ns) {
-            if (ns[type]) {
-                return ns[type];
+            const c = path(type.split('.'), ns);
+            if (c) {
+                return c;
             }
 
             throw new Error(`Component ${type} not found in ${namespace}`);
