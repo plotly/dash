@@ -1,4 +1,4 @@
-import { path } from 'ramda';
+import {path} from 'ramda';
 
 export default {
     resolve: component => {
