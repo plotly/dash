@@ -813,7 +813,7 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(self, output, inputs, state):
+    def _insert_callback(self, output, inputs, state, prevent_initial_call):
         _validate.validate_callback(output, inputs, state)
         callback_id = create_callback_id(output)
         callback_spec = {
@@ -821,6 +821,7 @@ class Dash(object):
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
             "clientside_function": None,
+            "prevent_initial_call": prevent_initial_call,
         }
         self.callback_map[callback_id] = {
             "inputs": callback_spec["inputs"],
@@ -830,7 +831,9 @@ class Dash(object):
 
         return callback_id
 
-    def clientside_callback(self, clientside_function, output, inputs, state=()):
+    def clientside_callback(
+        self, clientside_function, output, inputs, state=(), prevent_initial_call=False
+    ):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
 
@@ -891,7 +894,7 @@ class Dash(object):
         )
         ```
         """
-        self._insert_callback(output, inputs, state)
+        self._insert_callback(output, inputs, state, prevent_initial_call)
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -922,8 +925,8 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def callback(self, output, inputs, state=()):
-        callback_id = self._insert_callback(output, inputs, state)
+    def callback(self, output, inputs, state=(), prevent_initial_call=False):
+        callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
         multi = isinstance(output, (list, tuple))
 
         def wrap_func(func):

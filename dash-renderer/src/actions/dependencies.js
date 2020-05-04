@@ -1238,6 +1238,9 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
                 ) {
                     // This callback should trigger even with no changedProps,
                     // since the props that changed no longer exist.
+                    // We're kind of abusing the `initialCall` flag here, it's
+                    // more like a "final call" for the removed inputs, but
+                    // this case is not subject to `prevent_initial_call`.
                     if (flatten(cb.getOutputs(newPaths)).length) {
                         cb.initialCall = true;
                         cb.changedPropIds = {};
@@ -1255,10 +1258,13 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
                 const cb = getCallbackByOutput(graphs, paths, id, property);
                 if (cb) {
                     // callbacks found in the layout by output should always run
+                    // unless specifically requested not to.
                     // ie this is the initial call of this callback even if it's
                     // not the page initialization but just a new layout chunk
-                    cb.initialCall = true;
-                    addCallback(cb);
+                    if (!cb.callback.prevent_initial_call) {
+                        cb.initialCall = true;
+                        addCallback(cb);
+                    }
                 }
             }
         }
@@ -1270,14 +1276,13 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
             if (chunkPath) {
                 handleThisCallback = cb => {
                     if (
-                        all(
+                        !all(
                             startsWith(chunkPath),
                             pluck('path', flatten(cb.getOutputs(paths)))
                         )
                     ) {
-                        cb.changedPropIds = {};
+                        maybeAddCallback(cb);
                     }
-                    maybeAddCallback(cb);
                 };
             }
             for (const property in inIdCallbacks) {
