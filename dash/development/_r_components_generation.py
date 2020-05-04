@@ -582,15 +582,18 @@ def generate_rpkg(
 
     package_version = pkg_data.get("version", "0.0.1")
 
-    # remove leading and trailing commas
+    # remove leading and trailing commas, add space after comma if missing
     if package_depends:
         package_depends = ", " + package_depends.strip(",").lstrip()
+        package_depends = re.sub(r"(,(?![ ]))", ", ", package_depends)
 
     if package_imports:
         package_imports = package_imports.strip(",").lstrip()
+        package_imports = re.sub(r"(,(?![ ]))", ", ", package_imports)
 
     if package_suggests:
         package_suggests = package_suggests.strip(",").lstrip()
+        package_suggests = re.sub(r"(,(?![ ]))", ", ", package_suggests)
 
     if "bugs" in pkg_data:
         package_issues = pkg_data["bugs"].get("url", "")
