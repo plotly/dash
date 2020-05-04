@@ -1,18 +1,22 @@
 pkg_help_description: >-
-    Dash is a web application framework that
+    'Dash' is a web application framework that
     provides pure Python and R abstraction around HTML, CSS, and
     JavaScript. Instead of writing HTML or using an HTML
     templating engine, you compose your layout using R
-    functions within the dashHtmlComponents package. The
+    functions within the 'dashHtmlComponents' package. The
     source for this package is on GitHub:
     plotly/dash-html-components.
 pkg_help_title: >-
-    Vanilla HTML Components for Dash
+    Vanilla HTML Components for 'Dash'
+pkg_authors: >-
+    c(person("Chris", "Parmer", email = "chris@plotly.com", role = c("aut")), person("Ryan Patrick", "Kyle", email = "ryan@plotly.com", role = c("cre"), comment = c(ORCID = "0000-0002-4958-2844")), person(family = "Plotly Technologies, Inc.", role = "cph"))
+pkg_copyright: >-
+    Plotly Technologies, Inc.
 r_examples:
     - name: htmlA
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -32,26 +36,26 @@ r_examples:
     - name: htmlAbbr
       dontrun: FALSE
       code: |
-            if (interactive()) {      
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
-
+              
               app <- Dash$new()
-
+              
               app$layout(
                 htmlDiv(list(
                   htmlAbbr(children='Hello! htmlAbbr at work!',
-                            title='\U{1F50D} Hover over this line for a few seconds and see the text box appear...')
-                    )
+                  title='\U{1F50D} Hover over this line for a few seconds and see the text box appear...')
+                  )
                 )
               )
-
+              
               app$run_server()
             }
     - name: htmlAcronym
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -70,7 +74,7 @@ r_examples:
     - name: htmlAddress
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -88,15 +92,19 @@ r_examples:
     - name: htmlArea
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            # The URL below has been chunked to comply with CRAN
+            # requirements; the use of file.path is optional and not required
+            # for this component.
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
-              app <- Dash$new()
-
               app$layout(
                 htmlDiv(list(
-                  htmlImg(src = 'https://upload.wikimedia.org/wikipedia/commons/0/0c/PIA17351-ApparentSizes-MarsDeimosPhobos-EarthMoon.jpg',
+                  htmlImg(src = file.path('https://upload.wikimedia.org',
+                          'wikipedia/commons/0/0c',
+                          'PIA17351-ApparentSizes-MarsDeimosPhobos-EarthMoon.jpg',
+                          fsep = '/'),
                           useMap = '#image-map'),
                   htmlMapEl(list(
                     htmlArea(target='_blank',
@@ -131,7 +139,7 @@ r_examples:
     - name: htmlArticle
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -141,10 +149,12 @@ r_examples:
                 htmlDiv(list(
                   htmlArticle(list(
                     htmlH2('Dash for R launched!'),
-                    htmlP('Dash is a user interface library for creating analytical web applications.\n
-                          Those who use R for data analysis, data exploration, visualization,\n
-                          modelling, instrument control, and reporting will find immediate use for Dash for R.'),
-                    htmlAside('Plotly is a technical computing company with offices in Montreal, Canada and Cambridge, Massachusetts.')
+                    htmlP('Dash is a user interface library for creating analytical\n
+                          web applications. Those who use R for data analysis, data\n
+                          exploration, visualization, modelling, instrument control,\n
+                          and reporting will find immediate use for Dash for R.'),
+                    htmlAside('Plotly is a technical computing company with offices\n
+                               in Montreal, Canada and Cambridge, Massachusetts.')
                     )
                   )
                 )
@@ -156,7 +166,7 @@ r_examples:
     - name: htmlAside
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -166,10 +176,12 @@ r_examples:
                 htmlDiv(list(
                   htmlArticle(list(
                     htmlH2('Dash for R launched!'),
-                    htmlP('Dash is a user interface library for creating analytical web applications.\n
-                          Those who use R for data analysis, data exploration, visualization,\n
-                          modelling, instrument control, and reporting will find immediate use for Dash for R.'),
-                    htmlAside('Plotly is a technical computing company with offices in Montreal, Canada and Cambridge, Massachusetts.')
+                    htmlP('Dash is a user interface library for creating analytical\n
+                          web applications. Those who use R for data analysis, data\n
+                          exploration, visualization, modelling, instrument control,\n
+                          and reporting will find immediate use for Dash for R.'),
+                    htmlAside('Plotly is a technical computing company with offices\n
+                               in Montreal, Canada and Cambridge, Massachusetts.')
                     )
                   )
                 )
@@ -181,7 +193,7 @@ r_examples:
     - name: htmlAudio
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -201,7 +213,7 @@ r_examples:
     - name: htmlB
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -220,7 +232,7 @@ r_examples:
     - name: htmlBase
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -239,7 +251,7 @@ r_examples:
     - name: htmlBasefont
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # This feature is obsolete. It may still work in some
               # browsers, but could stop working at any time. Try to
               # avoid using this component.
@@ -266,7 +278,7 @@ r_examples:
     - name: htmlBdi
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -274,8 +286,9 @@ r_examples:
 
               app$layout(
                   htmlDiv(list(
-                      htmlP(children="The line below should render as 'Aladdin', but in Arabic script:"),
-                      htmlBdi(children="\U{0639}\U{0644}\U{0627}\U{0621} \U{0627}\U{0644}\U{062F}\U{064A}\U{0646}")
+                      htmlP(children="This text is 'Aladdin', but in Arabic script:"),
+                      htmlBdi(children=paste0("\U{0639}\U{0644}\U{0627}\U{0621}",
+                                              "\U{0627}\U{0644}\U{062F}\U{064A}\U{0646}"))
                   )
                   )
               )
@@ -285,7 +298,7 @@ r_examples:
     - name: htmlBdo
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # This element supports bidirectional text override.
               # We can force text to render from right to left instead
               # of left to right.
@@ -309,7 +322,7 @@ r_examples:
     - name: htmlBig
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # The <big> tag is not supported in HTML5.
               # Instead, use the font-size property in
               # CSS to enlarge text.
@@ -331,7 +344,7 @@ r_examples:
     - name: htmlBlink
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # The blink tag is now obsolete and deprecated.
               # It may not function properly in all browsers,
               # and it may cease working without warning.
@@ -356,7 +369,7 @@ r_examples:
     - name: htmlBlockquote
       dontrun: FALSE
       code: |
-            if (interactive()) {      
+            if (interactive() && require(dash)) {      
               library(dash)
               library(dashHtmlComponents)
 
@@ -378,7 +391,7 @@ r_examples:
     - name: htmlBr
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -400,7 +413,7 @@ r_examples:
     - name: htmlButton
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -418,7 +431,7 @@ r_examples:
     - name: htmlCanvas
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # this component requires JavaScript code to draw on the canvas
               library(dash)
               library(dashHtmlComponents)
@@ -437,7 +450,7 @@ r_examples:
     - name: htmlCaption
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -494,7 +507,7 @@ r_examples:
     - name: htmlCenter
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -512,7 +525,7 @@ r_examples:
     - name: htmlCite
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -530,7 +543,7 @@ r_examples:
     - name: htmlCode
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -549,7 +562,7 @@ r_examples:
     - name: htmlCol
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # Used within htmlColgroup to define columns.
               library(dash)
               library(dashHtmlComponents)
@@ -581,7 +594,7 @@ r_examples:
     - name: htmlColgroup
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -621,7 +634,7 @@ r_examples:
     - name: htmlData
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -651,7 +664,7 @@ r_examples:
     - name: htmlDatalist
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
               library(dashCoreComponents)
@@ -678,7 +691,7 @@ r_examples:
     - name: htmlDd
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -699,7 +712,7 @@ r_examples:
     - name: htmlDel
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -718,7 +731,7 @@ r_examples:
     - name: htmlDetails
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -743,7 +756,7 @@ r_examples:
     - name: htmlDfn
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -762,7 +775,7 @@ r_examples:
     - name: htmlDialog
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -781,7 +794,10 @@ r_examples:
     - name: htmlDiv
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
+              library(dash)
+              library(dashHtmlComponents)
+              
               app <- Dash$new()
 
               app$layout(
@@ -796,7 +812,7 @@ r_examples:
     - name: htmlDl
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -817,7 +833,7 @@ r_examples:
     - name: htmlDt
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -844,7 +860,7 @@ r_examples:
     - name: htmlEm
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -864,7 +880,7 @@ r_examples:
     - name: htmlEmbed
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -884,7 +900,7 @@ r_examples:
     - name: htmlFieldset
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
               library(dashCoreComponents)
@@ -896,9 +912,9 @@ r_examples:
                   children = list('Choose your favorite Dash HTML component',
                   dccRadioItems(
                     options=list(
-                      list("label'= "htmlDiv", "value'= "htmlDiv"),
-                      list("label'= "htmlBase", "value'= "htmlBase"),
-                      list("label'= "htmlArticle", "value'= "htmlArticle")
+                      list("label"= "htmlDiv", "value"= "htmlDiv"),
+                      list("label"= "htmlBase", "value"= "htmlBase"),
+                      list("label"= "htmlArticle", "value"= "htmlArticle")
                           )
                         )
                       )
@@ -912,7 +928,7 @@ r_examples:
     - name: htmlFigcaption
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -931,7 +947,7 @@ r_examples:
     - name: htmlFigure
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -959,7 +975,7 @@ r_examples:
     - name: htmlFooter
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -981,7 +997,7 @@ r_examples:
     - name: htmlForm
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
               library(dashCoreComponents)
@@ -990,16 +1006,24 @@ r_examples:
 
               app$layout(htmlDiv(list(
                 htmlForm(children=list(
-                  htmlP(children=list('Username: ', dccInput(type='text', id='username', placeholder='username'))),
-                  htmlP(children=list('Password: ', dccInput(type='password', id='password', placeholder='password'))),
-                  htmlButton(children=list('Login'), type='submit', id='login_button')
+                  htmlP(children=list('Username: ',
+                                      dccInput(type='text', 
+                                               id='username', 
+                                               placeholder='username'))),
+                  htmlP(children=list('Password: ',
+                                      dccInput(type='password', 
+                                               id='password',
+                                               placeholder='password'))),
+                  htmlButton(children=list('Login'), 
+                             type='submit', 
+                             id='login_button')
                       )
                     )
                   )
                 )
               )
 
-              app$run_server()
+              app$run_server()              
             }
     - name: htmlFrame
       dontrun: FALSE
@@ -1012,7 +1036,7 @@ r_examples:
     - name: htmlHeader
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1031,7 +1055,7 @@ r_examples:
     - name: htmlH1
       dontrun: FALSE
       code: |
-            if (interactive()) {      
+            if (interactive() && require(dash)) {      
               library(dash)
               library(dashHtmlComponents)
 
@@ -1053,7 +1077,7 @@ r_examples:
     - name: htmlH2
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1075,7 +1099,7 @@ r_examples:
     - name: htmlH3
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1097,7 +1121,7 @@ r_examples:
     - name: htmlH4
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1119,7 +1143,7 @@ r_examples:
     - name: htmlH5
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1141,7 +1165,7 @@ r_examples:
     - name: htmlH6
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1163,7 +1187,7 @@ r_examples:
     - name: htmlHgroup
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1186,7 +1210,7 @@ r_examples:
     - name: htmlHr
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1209,7 +1233,7 @@ r_examples:
     - name: htmlI
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1227,7 +1251,7 @@ r_examples:
     - name: htmlIframe
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1245,7 +1269,7 @@ r_examples:
     - name: htmlImg
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1264,7 +1288,7 @@ r_examples:
     - name: htmlIns
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1286,7 +1310,7 @@ r_examples:
     - name: htmlKbd
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1314,7 +1338,7 @@ r_examples:
     - name: htmlLabel
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
               library(dashCoreComponents)
@@ -1342,7 +1366,7 @@ r_examples:
     - name: htmlLegend
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
               library(dashCoreComponents)
@@ -1355,9 +1379,9 @@ r_examples:
                                   htmlLegend('Select your favorite component'),
                                   dccRadioItems(
                                     options=list(
-                                      list("label'= "htmlDiv", "value'= "htmlDiv"),
-                                      list("label'= "htmlBase", "value'= "htmlBase"),
-                                      list("label'= "htmlArticle", "value'= "htmlArticle")
+                                      list("label"= "htmlDiv", "value"= "htmlDiv"),
+                                      list("label"= "htmlBase", "value"= "htmlBase"),
+                                      list("label"= "htmlArticle", "value"= "htmlArticle")
                           )
                         )
                       )
@@ -1371,7 +1395,7 @@ r_examples:
     - name: htmlLi
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1397,7 +1421,7 @@ r_examples:
     - name: htmlLink
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1405,7 +1429,9 @@ r_examples:
 
               app$layout(
                 htmlDiv(list(
-                  htmlLink(rel = "stylesheet", type = "text/css", href = "https://codepen.io/chriddyp/pen/bWLwgP.css")
+                  htmlLink(rel = "stylesheet",
+                          type = "text/css",
+                          href = "https://codepen.io/chriddyp/pen/bWLwgP.css")
                 ))
               )
 
@@ -1414,7 +1440,7 @@ r_examples:
     - name: htmlListing
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # Warning: The <listing> element was intended as a way to render HTML code on a page.
               # It was never properly supported, and is now deprecated. Using <listing> will almost
               # certainly result in unexpected results. Instead, use <code>, or place the content in
@@ -1440,7 +1466,7 @@ r_examples:
     - name: htmlMain
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1464,52 +1490,51 @@ r_examples:
     - name: htmlMapEl
       dontrun: FALSE
       code: |
-            if (interactive()) {
-              # Note that htmlMapEl generates the <map> HTML element;
-              # for more information, please visit the link in this
-              # component's description.
-              library(dash)
-              library(dashHtmlComponents)
-
-              app <- Dash$new()
-
+            # The URL below has been chunked to comply with CRAN
+            # requirements; the use of file.path is optional and not required
+            # for this component.
+            if (interactive() && require(dash)) {
               app$layout(
                 htmlDiv(list(
-                  htmlImg(src = "https://upload.wikimedia.org/wikipedia/commons/0/0c/PIA17351-ApparentSizes-MarsDeimosPhobos-EarthMoon.jpg",
-                          useMap = "#image-map"),
+                  htmlImg(src = file.path('https://upload.wikimedia.org',
+                          'wikipedia/commons/0/0c',
+                          'PIA17351-ApparentSizes-MarsDeimosPhobos-EarthMoon.jpg',
+                          fsep = '/'),
+                          useMap = '#image-map'),
                   htmlMapEl(list(
-                    htmlArea(target="_blank",
-                            alt="Deimos",
-                            title="Deimos",
-                            href="https://en.wikipedia.org/wiki/Deimos_(moon)",
-                            coords="5,114,32,147",
-                            shape="rect"),
-                    htmlArea(target="_blank",
-                            alt="Phobos",
-                            title="Phobos",
-                            href="https://en.wikipedia.org/wiki/Phobos_(moon)",
-                            coords="113,196,32,103",
-                            shape="rect"),
-                    htmlArea(target="_blank",
-                            alt="Moon",
-                            title="Moon",
-                            href="https://en.wikipedia.org/wiki/Moon",
-                            coords="127,285,294,1",
-                            shape="rect")
+                    htmlArea(target='_blank',
+                            alt='Deimos',
+                            title='Deimos',
+                            href='https://en.wikipedia.org/wiki/Deimos_(moon)',
+                            coords='5,114,32,147',
+                            shape='rect'),
+                    htmlArea(target='_blank',
+                            alt='Phobos',
+                            title='Phobos',
+                            href='https://en.wikipedia.org/wiki/Phobos_(moon)',
+                            coords='113,196,32,103',
+                            shape='rect'),
+                    htmlArea(target='_blank',
+                            alt='Moon',
+                            title='Moon',
+                            href='https://en.wikipedia.org/wiki/Moon',
+                            coords='127,285,294,1',
+                            shape='rect')
                     ),
-                    name = "image-map"
+                    name = 'image-map'
                   ),
-                  htmlDiv(children = "Click on the image to visit a Wikipedia article",
-                          id = "object-name")
+                  htmlDiv(children = 'Click on the image to visit a Wikipedia article',
+                          id = 'object-name')
                   )
                 )
               )
+
               app$run_server()
             }
     - name: htmlMark
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1529,7 +1554,7 @@ r_examples:
     - name: htmlMarquee
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # This feature is obsolete. It may still work in some
               # browsers, but could stop working at any time. Try to
               # avoid using this component.
@@ -1551,7 +1576,7 @@ r_examples:
     - name: htmlMeta
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1571,7 +1596,7 @@ r_examples:
     - name: htmlMeter
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1601,7 +1626,7 @@ r_examples:
     - name: htmlNav
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1612,9 +1637,9 @@ r_examples:
                   htmlNav(
                     list(
                       htmlA("Plotly", href = "https://plotly.com/"),
-                      '> ",
+                      "> ",
                       htmlA("Dash", href = "https://plotly.com/dash"),
-                      '> ",
+                      "> ",
                       htmlA("Request Trial", href = "https://go.plotly.com/dash-enterprise-trial")
                     )
                   )
@@ -1631,7 +1656,7 @@ r_examples:
     - name: htmlNobr
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1663,7 +1688,7 @@ r_examples:
     - name: htmlObjectEl
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # Note that htmlObjectEl generates the <object> HTML element;
               # for more information, please visit the link in this
               # component's description.
@@ -1687,7 +1712,7 @@ r_examples:
     - name: htmlOl
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1708,7 +1733,7 @@ r_examples:
     - name: htmlOptgroup
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1735,7 +1760,7 @@ r_examples:
     - name: htmlOption
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1757,11 +1782,13 @@ r_examples:
     - name: htmlOutput
       dontrun: FALSE
       code: |
-            # This component works with htmlForm and htmlInput and may be used to present the result of an executed script.
+            # This component works with htmlForm and htmlInput 
+            # and may be used to present the result of an
+            # executed script.
     - name: htmlP
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1778,7 +1805,7 @@ r_examples:
     - name: htmlParam
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1801,7 +1828,10 @@ r_examples:
     - name: htmlPicture
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            # The URL below has been chunked to comply with CRAN
+            # requirements; the use of file.path is optional and not required
+            # for this component.
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1810,9 +1840,15 @@ r_examples:
               app$layout(
                 htmlDiv(list(
                   htmlPicture(list(
-                    htmlSource(srcSet = "https://upload.wikimedia.org/wikipedia/commons/a/a7/Winter_and_the_City.jpg",
+                    htmlSource(srcSet = file.path("https://upload.wikimedia.org",
+                                                  "wikipedia/commons/a/a7",
+                                                  "Winter_and_the_City.jpg",
+                                                  fsep = "/"),
                               media = "(min-width: 800px)"),
-                    htmlImg(src = "https://upload.wikimedia.org/wikipedia/commons/5/56/Summer_and_the_City.jpg"),
+                    htmlImg(src = file.path("https://upload.wikimedia.org",
+                                                  "wikipedia/commons/5/56",
+                                                  "Summer_and_the_City.jpg",
+                                                  fsep = "/")),
                     htmlP("Resize screen to see image changing...")
                   ))
                 ))
@@ -1823,7 +1859,7 @@ r_examples:
     - name: htmlPlaintext
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               # Warning: The <plaintext> tag is obsolete,
               # it might not work as intended.
               # Use the <pre> tag instead.
@@ -1848,7 +1884,7 @@ r_examples:
     - name: htmlPre
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1871,7 +1907,7 @@ r_examples:
     - name: htmlProgress
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1889,7 +1925,7 @@ r_examples:
     - name: htmlQ
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1909,7 +1945,7 @@ r_examples:
     - name: htmlRb
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1937,7 +1973,7 @@ r_examples:
     - name: htmlRp
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1965,7 +2001,7 @@ r_examples:
     - name: htmlRt
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -1993,7 +2029,7 @@ r_examples:
     - name: htmlRtc
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2003,7 +2039,7 @@ r_examples:
                 htmlDiv(list(
                   htmlRuby(list(
                     "\U2661",
-                    htmlRtc(htmlRt('Heart"))
+                    htmlRtc(htmlRt("Heart"))
                   ))
                 ))
               )
@@ -2013,7 +2049,7 @@ r_examples:
     - name: htmlRuby
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2030,7 +2066,7 @@ r_examples:
     - name: htmlS
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2049,7 +2085,7 @@ r_examples:
     - name: htmlSamp
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2072,7 +2108,7 @@ r_examples:
     - name: htmlSection
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2095,7 +2131,7 @@ r_examples:
     - name: htmlSelect
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2135,7 +2171,7 @@ r_examples:
     - name: htmlSmall
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2155,7 +2191,10 @@ r_examples:
     - name: htmlSource
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            # The URL below has been chunked to comply with CRAN
+            # requirements; the use of file.path is optional and not required
+            # for this component.
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2163,7 +2202,7 @@ r_examples:
 
               app$layout(
                 htmlDiv(list(
-                    "Resize your browser window to see the image source change based based on the browser width",
+                    "Resize your browser window to see the image source change based on the browser width",
                     htmlBr(),
                     htmlPicture(
                       list(
@@ -2180,7 +2219,7 @@ r_examples:
                 )
               )
 
-              app$run_server()
+              app$run_server()              
             }
     - name: htmlSpacer
       dontrun: FALSE
@@ -2191,7 +2230,7 @@ r_examples:
     - name: htmlSpan
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2214,7 +2253,7 @@ r_examples:
     - name: htmlStrike
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2233,7 +2272,7 @@ r_examples:
     - name: htmlStrong
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2253,7 +2292,7 @@ r_examples:
     - name: htmlSub
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2272,7 +2311,7 @@ r_examples:
     - name: htmlSummary
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2297,7 +2336,7 @@ r_examples:
     - name: htmlSup
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2316,7 +2355,7 @@ r_examples:
     - name: htmlTable
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2351,7 +2390,7 @@ r_examples:
     - name: htmlTbody
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2359,7 +2398,7 @@ r_examples:
 
               app$layout(
                 htmlDiv(list(
-                  "Within an htmlTable, you can specify the rows that go in the body of the table with htmlTbody",
+                  "Within an htmlTable, htmlTbody specifies rows for the table body",
                   htmlBr(),
                   htmlTable(
                     list(
@@ -2389,7 +2428,7 @@ r_examples:
     - name: htmlTd
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2424,7 +2463,7 @@ r_examples:
     - name: htmlTemplate
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2461,7 +2500,7 @@ r_examples:
     - name: htmlTextarea
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2482,7 +2521,7 @@ r_examples:
     - name: htmlTfoot
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2520,7 +2559,7 @@ r_examples:
     - name: htmlTh
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2548,7 +2587,7 @@ r_examples:
     - name: htmlThead
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2586,7 +2625,7 @@ r_examples:
     - name: htmlTime
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2618,7 +2657,7 @@ r_examples:
     - name: htmlTr
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2655,7 +2694,10 @@ r_examples:
     - name: htmlTrack
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            # The URL below has been chunked to comply with CRAN
+            # requirements; the use of file.path is optional and not required
+            # for this component.
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2664,8 +2706,19 @@ r_examples:
               app$layout(
                 htmlDiv(list(
                   htmlVideo(children = list(
-                    htmlSource(src = 'https://interactive-examples.mdn.mozilla.net/media/examples/friday.mp4', type = 'video/mp4'),
-                    htmlTrack(kind = 'captions', srcLang = 'en', src = 'https://interactive-examples.mdn.mozilla.net/media/examples/friday.vtt', default = 'default', label = 'English')
+                    htmlSource(src = file.path("https://interactive-examples.mdn.mozilla.net",
+                                              "media/examples",
+                                              "friday.mp4",
+                                              fsep = "/"), 
+                              type = 'video/mp4'),
+                    htmlTrack(kind = 'captions',
+                              srcLang = 'en',
+                              src = file.path("https://interactive-examples.mdn.mozilla.net",
+                                              "media/examples",
+                                              "friday.vtt",
+                                              fsep = "/"), 
+                              default = 'default',
+                              label = 'English')
                   ),
                   controls = TRUE
                 )
@@ -2678,7 +2731,7 @@ r_examples:
     - name: htmlU
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2696,7 +2749,7 @@ r_examples:
     - name: htmlUl
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2721,7 +2774,7 @@ r_examples:
     - name: htmlVar
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2741,7 +2794,7 @@ r_examples:
     - name: htmlVideo
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2750,7 +2803,10 @@ r_examples:
               app$layout(
                 htmlDiv(list(
                   htmlVideo(
-                    src = "https://ia800303.us.archive.org/18/items/bacteria_friend_and_foe/bacteria_friend_and_foe_512kb.mp4",
+                    src = file.path('https://ia800303.us.archive.org',
+                          '18/items/bacteria_friend_and_foe',
+                          'bacteria_friend_and_foe_512kb.mp4',
+                          fsep = '/'),
                     controls = TRUE,
                     title = "Bacteria: Friend and Foe"
                   )
@@ -2763,7 +2819,7 @@ r_examples:
     - name: htmlWbr
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
@@ -2784,7 +2840,7 @@ r_examples:
     - name: htmlXmp
       dontrun: FALSE
       code: |
-            if (interactive()) {
+            if (interactive() && require(dash)) {
               library(dash)
               library(dashHtmlComponents)
 
