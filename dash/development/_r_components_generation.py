@@ -573,8 +573,9 @@ def generate_rpkg(
                 "pkg_help_description", pkg_data.get("description", "")
             )
         if rpkg_data.get("pkg_copyright"):
-            package_copyright = "\nCopyright: {}".format(rpkg_data.get(
-                "pkg_copyright", ""))
+            package_copyright = "\nCopyright: {}".format(
+                rpkg_data.get("pkg_copyright", "")
+            )
     else:
         # fall back to using description in package.json, if present
         package_title = pkg_data.get("description", "")
@@ -636,13 +637,12 @@ def generate_rpkg(
 
     if rpkg_data is not None:
         if rpkg_data.get("pkg_authors"):
-            package_rauthors = '\nAuthors@R: {}'.format(rpkg_data.get(
-                "pkg_authors", ""))
+            package_rauthors = "\nAuthors@R: {}".format(
+                rpkg_data.get("pkg_authors", "")
+            )
         else:
             package_rauthors = '\nAuthors@R: person("{}", "{}", role = c("aut", "cre"), email = "{}")'.format(
-                package_author_fn,
-                package_author_ln,
-                package_author_email
+                package_author_fn, package_author_ln, package_author_email
             )
 
     if not (os.path.isfile("LICENSE") or os.path.isfile("LICENSE.txt")):

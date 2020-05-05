@@ -270,29 +270,32 @@ def test_cbmt007_early_preventupdate_inputs_above_below(dash_duo):
 
     @app.callback(Output("content", "children"), [Input("content", "style")])
     def content(_):
-        return html.Div([
-            html.Div(42, id="above-in"),
-            html.Div(id="above-dummy"),
-            html.Hr(),
-            html.Div(0, id='above-out'),
-            html.Div(0, id='below-out'),
-            html.Hr(),
-            html.Div(id="below-dummy"),
-            html.Div(44, id="below-in"),
-        ])
+        return html.Div(
+            [
+                html.Div(42, id="above-in"),
+                html.Div(id="above-dummy"),
+                html.Hr(),
+                html.Div(0, id="above-out"),
+                html.Div(0, id="below-out"),
+                html.Hr(),
+                html.Div(id="below-dummy"),
+                html.Div(44, id="below-in"),
+            ]
+        )
 
     # Create 4 callbacks - 2 above, 2 below.
-    for pos in ('above', 'below'):
+    for pos in ("above", "below"):
+
         @app.callback(
             Output("{}-dummy".format(pos), "children"),
-            [Input("{}-dummy".format(pos), "style")]
+            [Input("{}-dummy".format(pos), "style")],
         )
         def dummy(_):
             raise PreventUpdate
 
         @app.callback(
-            Output('{}-out'.format(pos), 'children'),
-            [Input('{}-in'.format(pos), 'children')]
+            Output("{}-out".format(pos), "children"),
+            [Input("{}-in".format(pos), "children")],
         )
         def out(v):
             return v
