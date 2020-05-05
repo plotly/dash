@@ -1,0 +1,10 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+// Werkzeug css included as a string, because we want to inject
+// it into an iframe srcDoc
+var _default = "\nbody {\n    margin: 0px;\n    margin-top: 10px;\n}\n\n.error-container {\n    font-family: Roboto;\n}\n\n.traceback {\n    background-color: white;\n    border: 2px solid #dfe8f3;\n    border-radius: 0px 0px 4px 4px;\n    color: #506784;\n}\n\nh2.traceback {\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    border-bottom: 0px;\n    box-sizing: border-box;\n    border-radius: 4px 4px 0px 0px;\n    color: #506784;\n}\n\nh2.traceback em {\n    color: #506784;\n    font-weight: 100;\n}\n\n.traceback pre, .debugger textarea {\n    background-color: #F3F6FA;\n}\n\n.debugger h1 {\n    color: #506784;\n    font-family: Roboto;\n}\n\n.explanation {\n    color: #A2B1C6;\n}\n\n/* Hide the Don't Panic! footer */\n.debugger .footer {\n    display: none;\n}\n\n/* Hide all of the Dash traceback stuff that leads up to the call */\n.line.before {\n    display: none;\n}\n\ndiv.debugger {\n    padding: 0px;\n}\n\n.debugger h1 {\n    display: none;\n}\n\n.debugger .errormsg {\n    margin: 0;\n    color: #506784;\n    font-size: 16px;\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    box-sizing: border-box;\n    border-radius: 4px;\n    padding: 10px;\n}\n\n.debugger .pastemessage input {\n    display: none;\n}\n\n.debugger .explanation {\n    display: none;\n}\n\n.debugger div.plain {\n    border-radius: 4px;\n    border-width: 2px;\n    color: #506784;\n}\n\n.plain {\n    display: block !important;\n}\n.plain > form > p {\n    display: none;\n}\n.plain pre {\n    padding: 15px !important;\n    overflow-x: scroll;\n}\n\n.debugger div.traceback pre {\n    cursor: default;\n}\n\n.debugger .traceback .source pre.line img {\n    display: none;\n}\n";
+exports["default"] = _default;

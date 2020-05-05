@@ -1,0 +1,12 @@
+.percy-show {
+    display: none;
+}
+
+@media only percy {
+    .percy-hide {
+        display: none;
+    }
+    .percy-show {
+        display: block;
+    }
+}

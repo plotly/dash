@@ -1,3 +1,6 @@
+import flask
+import pytest
+
 import dash_core_components as dcc
 import dash_html_components as html
 from dash import Dash
@@ -420,15 +423,10 @@ def bad_id_app(**kwargs):
     return app
 
 
-# These ones are raised by bad_id_app whether suppressing callback exceptions or not
+# This one is raised by bad_id_app whether suppressing callback exceptions or not
+# yeah-no no longer raises an error on dispatch due to the no-input regression fix
+# for issue #1200
 dispatch_specs = [
-    [
-        "A nonexistent object was used in an `Input` of a Dash callback. "
-        "The id of this object is `yeah-no` and the property is `value`. "
-        "The string ids in the current layout are: "
-        "[main, outer-div, inner-div, inner-input, outer-input]",
-        [],
-    ],
     [
         "A nonexistent object was used in an `Output` of a Dash callback. "
         "The id of this object is `nope` and the property is `children`. "
@@ -695,3 +693,124 @@ def test_dvcv013_circular_3_step(dash_duo):
         ]
     ]
     check_errors(dash_duo, specs)
+
+
+def multipage_app(validation=False):
+    app = Dash(__name__, suppress_callback_exceptions=(validation == "suppress"))
+
+    skeleton = html.Div(
+        [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
+    )
+
+    layout_index = html.Div(
+        [
+            dcc.Link('Navigate to "/page-1"', id="index_p1", href="/page-1"),
+            dcc.Link('Navigate to "/page-2"', id="index_p2", href="/page-2"),
+        ]
+    )
+
+    layout_page_1 = html.Div(
+        [
+            html.H2("Page 1"),
+            dcc.Input(id="input-1-state", type="text", value="Montreal"),
+            dcc.Input(id="input-2-state", type="text", value="Canada"),
+            html.Button(id="submit-button", n_clicks=0, children="Submit"),
+            html.Div(id="output-state"),
+            html.Br(),
+            dcc.Link('Navigate to "/"', id="p1_index", href="/"),
+            dcc.Link('Navigate to "/page-2"', id="p1_p2", href="/page-2"),
+        ]
+    )
+
+    layout_page_2 = html.Div(
+        [
+            html.H2("Page 2"),
+            dcc.Input(id="page-2-input", value="LA"),
+            html.Div(id="page-2-display-value"),
+            html.Br(),
+            dcc.Link('Navigate to "/"', id="p2_index", href="/"),
+            dcc.Link('Navigate to "/page-1"', id="p2_p1", href="/page-1"),
+        ]
+    )
+
+    validation_layout = html.Div([skeleton, layout_index, layout_page_1, layout_page_2])
+
+    def validation_function():
+        return skeleton if flask.has_request_context() else validation_layout
+
+    app.layout = validation_function if validation == "function" else skeleton
+    if validation == "attribute":
+        app.validation_layout = validation_layout
+
+    # Index callbacks
+    @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+    def display_page(pathname):
+        if pathname == "/page-1":
+            return layout_page_1
+        elif pathname == "/page-2":
+            return layout_page_2
+        else:
+            return layout_index
+
+    # Page 1 callbacks
+    @app.callback(
+        Output("output-state", "children"),
+        [Input("submit-button", "n_clicks")],
+        [State("input-1-state", "value"), State("input-2-state", "value")],
+    )
+    def update_output(n_clicks, input1, input2):
+        return (
+            "The Button has been pressed {} times,"
+            'Input 1 is "{}",'
+            'and Input 2 is "{}"'
+        ).format(n_clicks, input1, input2)
+
+    # Page 2 callbacks
+    @app.callback(
+        Output("page-2-display-value", "children"), [Input("page-2-input", "value")]
+    )
+    def display_value(value):
+        print("display_value")
+        return 'You have selected "{}"'.format(value)
+
+    return app
+
+
+def test_dvcv014_multipage_errors(dash_duo):
+    app = multipage_app()
+    dash_duo.start_server(app, **debugging)
+
+    specs = [
+        [
+            "ID not found in layout",
+            ['"page-2-input"', "page-2-display-value.children"],
+        ],
+        ["ID not found in layout", ['"submit-button"', "output-state.children"]],
+        [
+            "ID not found in layout",
+            ['"page-2-display-value"', "page-2-display-value.children"],
+        ],
+        ["ID not found in layout", ['"output-state"', "output-state.children"]],
+    ]
+    check_errors(dash_duo, specs)
+
+
+@pytest.mark.parametrize("validation", ("function", "attribute", "suppress"))
+def test_dvcv015_multipage_validation_layout(validation, dash_duo):
+    app = multipage_app(validation)
+    dash_duo.start_server(app, **debugging)
+
+    dash_duo.wait_for_text_to_equal("#index_p1", 'Navigate to "/page-1"')
+    dash_duo.find_element("#index_p1").click()
+
+    dash_duo.find_element("#submit-button").click()
+    dash_duo.wait_for_text_to_equal(
+        "#output-state",
+        "The Button has been pressed 1 times,"
+        'Input 1 is "Montreal",and Input 2 is "Canada"',
+    )
+
+    dash_duo.find_element("#p1_p2").click()
+    dash_duo.wait_for_text_to_equal("#page-2-display-value", 'You have selected "LA"')
+
+    assert not dash_duo.get_logs()

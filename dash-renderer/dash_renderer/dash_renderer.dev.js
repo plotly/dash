@@ -32759,6 +32759,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+/* eslint-disable-next-line no-console */
+
+var logWarningOnce = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["once"])(console.warn);
 
 function GET(path, fetchConfig) {
   return fetch(path, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeDeepRight"])(fetchConfig, {
@@ -32808,6 +32811,7 @@ function apiThunk(endpoint, method, store, id, body) {
         });
       }
 
+      logWarningOnce('Response is missing header: content-type: application/json');
       return dispatch({
         type: store,
         payload: {
@@ -33256,11 +33260,11 @@ function findInOutOverlap(outputs, inputs, head, dispatchError) {
 
 function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
   var _findWildcardKeys = findWildcardKeys(outputs[0].id),
-      out0AnyKeys = _findWildcardKeys.anyKeys;
+      out0MatchKeys = _findWildcardKeys.matchKeys;
 
-  outputs.forEach(function (out, outi) {
-    if (outi && !Object(ramda__WEBPACK_IMPORTED_MODULE_2__["equals"])(findWildcardKeys(out.id).anyKeys, out0AnyKeys)) {
-      dispatchError('Mismatched `MATCH` wildcards across `Output`s', [head, "Output ".concat(outi, " (").concat(combineIdAndProp(out), ")"), 'does not have MATCH wildcards on the same keys as', "Output 0 (".concat(combineIdAndProp(outputs[0]), ")."), 'MATCH wildcards must be on the same keys for all Outputs.', 'ALL wildcards need not match, only MATCH.']);
+  outputs.forEach(function (out, i) {
+    if (i && !Object(ramda__WEBPACK_IMPORTED_MODULE_2__["equals"])(findWildcardKeys(out.id).matchKeys, out0MatchKeys)) {
+      dispatchError('Mismatched `MATCH` wildcards across `Output`s', [head, "Output ".concat(i, " (").concat(combineIdAndProp(out), ")"), 'does not have MATCH wildcards on the same keys as', "Output 0 (".concat(combineIdAndProp(outputs[0]), ")."), 'MATCH wildcards must be on the same keys for all Outputs.', 'ALL wildcards need not match, only MATCH.']);
     }
   });
   [[inputs, 'Input'], [state, 'State']].forEach(function (_ref6) {
@@ -33270,11 +33274,11 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
 
     args.forEach(function (arg, i) {
       var _findWildcardKeys2 = findWildcardKeys(arg.id),
-          anyKeys = _findWildcardKeys2.anyKeys,
+          matchKeys = _findWildcardKeys2.matchKeys,
           allsmallerKeys = _findWildcardKeys2.allsmallerKeys;
 
-      var allWildcardKeys = anyKeys.concat(allsmallerKeys);
-      var diff = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["difference"])(allWildcardKeys, out0AnyKeys);
+      var allWildcardKeys = matchKeys.concat(allsmallerKeys);
+      var diff = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["difference"])(allWildcardKeys, out0MatchKeys);
 
       if (diff.length) {
         diff.sort();
@@ -33340,13 +33344,23 @@ function wildcardOverlap(_ref10, objs) {
 function validateCallbacksToLayout(state_, dispatchError) {
   var config = state_.config,
       graphs = state_.graphs,
-      layout = state_.layout,
-      paths = state_.paths;
+      layout_ = state_.layout,
+      paths_ = state_.paths;
+  var validateIds = !config.suppress_callback_exceptions;
+  var layout, paths;
+
+  if (validateIds && config.validation_layout) {
+    layout = config.validation_layout;
+    paths = Object(_paths__WEBPACK_IMPORTED_MODULE_3__["computePaths"])(layout, [], null, paths_.events);
+  } else {
+    layout = layout_;
+    paths = paths_;
+  }
+
   var outputMap = graphs.outputMap,
       inputMap = graphs.inputMap,
       outputPatterns = graphs.outputPatterns,
       inputPatterns = graphs.inputPatterns;
-  var validateIds = !config.suppress_callback_exceptions;
 
   function tail(callbacks) {
     return 'This ID was used in the callback(s) for Output(s):\n  ' + callbacks.map(function (_ref11) {
@@ -33509,7 +33523,7 @@ function computeGraphs(dependencies, dispatchError) {
    *   {[id]: {[prop]: [callback, ...]}}
    * where callbacks are the matching specs from the original
    * dependenciesRequest, but with outputs parsed to look like inputs,
-   * and a list anyKeys added if the outputs have MATCH wildcards.
+   * and a list matchKeys added if the outputs have MATCH wildcards.
    * For outputMap there should only ever be one callback per id/prop
    * but for inputMap there may be many.
    *
@@ -33661,12 +33675,14 @@ function computeGraphs(dependencies, dispatchError) {
 
 
     var _findWildcardKeys3 = findWildcardKeys(outputs[0].id),
-        anyKeys = _findWildcardKeys3.anyKeys,
-        hasALL = _findWildcardKeys3.hasALL;
+        matchKeys = _findWildcardKeys3.matchKeys;
 
+    var firstSingleOutput = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["findIndex"])(function (o) {
+      return !isMultiValued(o.id);
+    }, outputs);
     var finalDependency = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["mergeRight"])({
-      hasALL: hasALL,
-      anyKeys: anyKeys,
+      matchKeys: matchKeys,
+      firstSingleOutput: firstSingleOutput,
       outputs: outputs
     }, dependency);
     outputs.forEach(function (outIdProp) {
@@ -33702,28 +33718,24 @@ function computeGraphs(dependencies, dispatchError) {
 }
 
 function findWildcardKeys(id) {
-  var anyKeys = [];
+  var matchKeys = [];
   var allsmallerKeys = [];
-  var hasALL = false;
 
   if (_typeof(id) === 'object') {
     Object(ramda__WEBPACK_IMPORTED_MODULE_2__["forEachObjIndexed"])(function (val, key) {
       if (val === MATCH) {
-        anyKeys.push(key);
+        matchKeys.push(key);
       } else if (val === ALLSMALLER) {
         allsmallerKeys.push(key);
-      } else if (val === ALL) {
-        hasALL = true;
       }
     }, id);
-    anyKeys.sort();
+    matchKeys.sort();
     allsmallerKeys.sort();
   }
 
   return {
-    anyKeys: anyKeys,
-    allsmallerKeys: allsmallerKeys,
-    hasALL: hasALL
+    matchKeys: matchKeys,
+    allsmallerKeys: allsmallerKeys
   };
 }
 /*
@@ -33961,36 +33973,6 @@ function getCallbackByOutput(graphs, paths, id, prop) {
 
   return makeResolvedCallback(callback, resolve, anyVals);
 }
-/*
- * If there are ALL keys we need to reduce a set of outputs resolved
- * from an input to one item per combination of MATCH values.
- * That will give one result per callback invocation.
- */
-
-
-function reduceALLOuts(outs, anyKeys, hasALL) {
-  if (!hasALL) {
-    return outs;
-  }
-
-  if (!anyKeys.length) {
-    // If there's ALL but no MATCH, there's only one invocation
-    // of the callback, so just base it off the first output.
-    return [outs[0]];
-  }
-
-  var anySeen = {};
-  return outs.filter(function (i) {
-    var matchKeys = JSON.stringify(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(anyKeys, i.id));
-
-    if (!anySeen[matchKeys]) {
-      anySeen[matchKeys] = 1;
-      return true;
-    }
-
-    return false;
-  });
-}
 
 function addResolvedFromOutputs(callback, outPattern, outs, matches) {
   var out0Keys = Object.keys(outPattern.id).sort();
@@ -34000,6 +33982,48 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
     var outVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(out0Keys, outId);
     matches.push(makeResolvedCallback(callback, resolveDeps(out0Keys, outVals, out0PatternVals), getAnyVals(out0PatternVals, outVals)));
   });
+}
+
+function addAllResolvedFromOutputs(resolve, paths, matches) {
+  return function (callback) {
+    var matchKeys = callback.matchKeys,
+        firstSingleOutput = callback.firstSingleOutput,
+        outputs = callback.outputs;
+
+    if (matchKeys.length) {
+      var singleOutPattern = outputs[firstSingleOutput];
+
+      if (singleOutPattern) {
+        addResolvedFromOutputs(callback, singleOutPattern, resolve(paths)(singleOutPattern), matches);
+      } else {
+        /*
+         * If every output has ALL we need to reduce resolved set
+         * to one item per combination of MATCH values.
+         * That will give one result per callback invocation.
+         */
+        var anySeen = {};
+        outputs.forEach(function (outPattern) {
+          var outSet = resolve(paths)(outPattern).filter(function (i) {
+            var matchStr = JSON.stringify(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(matchKeys, i.id));
+
+            if (!anySeen[matchStr]) {
+              anySeen[matchStr] = 1;
+              return true;
+            }
+
+            return false;
+          });
+          addResolvedFromOutputs(callback, outPattern, outSet, matches);
+        });
+      }
+    } else {
+      var cb = makeResolvedCallback(callback, resolve, '');
+
+      if (Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(paths)).length) {
+        matches.push(cb);
+      }
+    }
+  };
 }
 /*
  * For a given id and prop find all callbacks it's an input of.
@@ -34030,19 +34054,7 @@ function getCallbacksByInput(graphs, paths, id, prop, changeType) {
       return [];
     }
 
-    var baseResolve = resolveDeps();
-    callbacks.forEach(function (callback) {
-      var anyKeys = callback.anyKeys,
-          hasALL = callback.hasALL;
-
-      if (anyKeys) {
-        var out0Pattern = callback.outputs[0];
-        var out0Set = reduceALLOuts(baseResolve(paths)(out0Pattern), anyKeys, hasALL);
-        addResolvedFromOutputs(callback, out0Pattern, out0Set, matches);
-      } else {
-        matches.push(makeResolvedCallback(callback, baseResolve, ''));
-      }
-    });
+    callbacks.forEach(addAllResolvedFromOutputs(resolveDeps(), paths, matches));
   } else {
     // wildcard version
     var _keys2 = Object.keys(id).sort();
@@ -34059,14 +34071,7 @@ function getCallbacksByInput(graphs, paths, id, prop, changeType) {
 
     patterns.forEach(function (pattern) {
       if (idMatch(_keys2, vals, pattern.values)) {
-        var resolve = resolveDeps(_keys2, vals, pattern.values);
-        pattern.callbacks.forEach(function (callback) {
-          var out0Pattern = callback.outputs[0];
-          var anyKeys = callback.anyKeys,
-              hasALL = callback.hasALL;
-          var out0Set = reduceALLOuts(resolve(paths)(out0Pattern), anyKeys, hasALL);
-          addResolvedFromOutputs(callback, out0Pattern, out0Set, matches);
-        });
+        pattern.callbacks.forEach(addAllResolvedFromOutputs(resolveDeps(_keys2, vals, pattern.values), paths, matches));
       }
     });
   }
@@ -34137,7 +34142,12 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
       var foundIndex = foundCbIds[callback.resolvedId];
 
       if (foundIndex !== undefined) {
-        callbacks[foundIndex].changedPropIds = mergeMax(callbacks[foundIndex].changedPropIds, callback.changedPropIds);
+        var foundCb = callbacks[foundIndex];
+        foundCb.changedPropIds = mergeMax(foundCb.changedPropIds, callback.changedPropIds);
+
+        if (callback.initialCall) {
+          foundCb.initialCall = true;
+        }
       } else {
         foundCbIds[callback.resolvedId] = callbacks.length;
         callbacks.push(callback);
@@ -34153,6 +34163,9 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         })) {
           // This callback should trigger even with no changedProps,
           // since the props that changed no longer exist.
+          // We're kind of abusing the `initialCall` flag here, it's
+          // more like a "final call" for the removed inputs, but
+          // this case is not subject to `prevent_initial_call`.
           if (Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(newPaths)).length) {
             cb.initialCall = true;
             cb.changedPropIds = {};
@@ -34174,10 +34187,13 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
 
         if (cb) {
           // callbacks found in the layout by output should always run
+          // unless specifically requested not to.
           // ie this is the initial call of this callback even if it's
           // not the page initialization but just a new layout chunk
-          cb.initialCall = true;
-          addCallback(cb);
+          if (!cb.callback.prevent_initial_call) {
+            cb.initialCall = true;
+            addCallback(cb);
+          }
         }
       }
     }
@@ -34188,11 +34204,9 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
 
       if (chunkPath) {
         handleThisCallback = function handleThisCallback(cb) {
-          if (Object(ramda__WEBPACK_IMPORTED_MODULE_2__["all"])(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["startsWith"])(chunkPath), Object(ramda__WEBPACK_IMPORTED_MODULE_2__["pluck"])('path', Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(paths))))) {
-            cb.changedPropIds = {};
+          if (!Object(ramda__WEBPACK_IMPORTED_MODULE_2__["all"])(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["startsWith"])(chunkPath), Object(ramda__WEBPACK_IMPORTED_MODULE_2__["pluck"])('path', Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(paths))))) {
+            maybeAddCallback(cb);
           }
-
-          maybeAddCallback(cb);
         };
       }
 
@@ -34491,14 +34505,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
 /* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../persistence */ "./src/persistence.js");
 /* harmony import */ var _isAppReady__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./isAppReady */ "./src/actions/isAppReady.js");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -34508,6 +34514,14 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -34622,26 +34636,22 @@ function moveHistory(changeType) {
 }
 
 function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
+  var msg = '';
+
   if (Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["isMultiValued"])(spec)) {
-    return idProps;
+    return [idProps, msg];
   }
 
   if (idProps.length !== 1) {
     if (!idProps.length) {
-      if (typeof spec.id === 'string') {
-        throw new ReferenceError('A nonexistent object was used in an `' + depType + '` of a Dash callback. The id of this object is `' + spec.id + '` and the property is `' + spec.property + '`. The string ids in the current layout are: [' + Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(paths.strs).join(', ') + ']');
-      } // TODO: unwrapped list of wildcard ids?
-      // eslint-disable-next-line no-console
-
-
-      console.log(paths.objs);
-      throw new ReferenceError('A nonexistent object was used in an `' + depType + '` of a Dash callback. The id of this object is ' + JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '') + ' and the property is `' + spec.property + '`. The wildcard ids currently available are logged above.');
+      var isStr = typeof spec.id === 'string';
+      msg = 'A nonexistent object was used in an `' + depType + '` of a Dash callback. The id of this object is ' + (isStr ? '`' + spec.id + '`' : JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '')) + ' and the property is `' + spec.property + (isStr ? '`. The string ids in the current layout are: [' + Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(paths.strs).join(', ') + ']' : '`. The wildcard ids currently available are logged above.');
+    } else {
+      msg = 'Multiple objects were found for an `' + depType + '` of a callback that only takes one value. The id spec is ' + JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '') + ' and the property is `' + spec.property + '`. The objects we found are: ' + JSON.stringify(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), idProps));
     }
-
-    throw new ReferenceError('Multiple objects were found for an `' + depType + '` of a callback that only takes one value. The id spec is ' + JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '') + ' and the property is `' + spec.property + '`. The objects we found are: ' + JSON.stringify(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), idProps)));
   }
 
-  return idProps[0];
+  return [idProps[0], msg];
 }
 
 function startCallbacks(callbacks) {
@@ -34746,13 +34756,52 @@ function _fireReadyCallbacks() {
               var payload;
 
               try {
-                var outputs = allOutputs.map(function (out, i) {
-                  return unwrapIfNotMulti(paths, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), out), cb.callback.outputs[i], cb.anyVals, 'Output');
+                var inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
+
+                var preventCallback = function preventCallback() {
+                  removeCallbackFromPending(); // no server call here; for performance purposes pretend this is
+                  // a clientside callback and defer fireNext for the end
+                  // of the currently-ready callbacks.
+
+                  hasClientSide = true;
+                  return null;
+                };
+
+                if (inVals === null) {
+                  return preventCallback();
+                }
+
+                var outputs = [];
+                var outputErrors = [];
+                allOutputs.forEach(function (out, i) {
+                  var _unwrapIfNotMulti3 = unwrapIfNotMulti(paths, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), out), cb.callback.outputs[i], cb.anyVals, 'Output'),
+                      _unwrapIfNotMulti4 = _slicedToArray(_unwrapIfNotMulti3, 2),
+                      outi = _unwrapIfNotMulti4[0],
+                      erri = _unwrapIfNotMulti4[1];
+
+                  outputs.push(outi);
+
+                  if (erri) {
+                    outputErrors.push(erri);
+                  }
                 });
+
+                if (outputErrors.length) {
+                  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(inVals).length) {
+                    refErr(outputErrors, paths);
+                  } // This case is all-empty multivalued wildcard inputs,
+                  // which we would normally fire the callback for, except
+                  // some outputs are missing. So instead we treat it like
+                  // regular missing inputs and just silently prevent it.
+
+
+                  return preventCallback();
+                }
+
                 payload = {
                   output: output,
                   outputs: Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["isMultiOutputProp"])(output) ? outputs : outputs[0],
-                  inputs: fillVals(paths, layout, cb, inputs, 'Input'),
+                  inputs: inVals,
                   changedPropIds: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(cb.changedPropIds)
                 };
 
@@ -34838,7 +34887,7 @@ function _fireReadyCallbacks() {
                 updatePending(pendingCallbacks, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["without"])(updated, allPropIds));
               }
 
-              function handleError(err) {
+              function removeCallbackFromPending() {
                 var _getState10 = getState(),
                     pendingCallbacks = _getState10.pendingCallbacks;
 
@@ -34848,7 +34897,10 @@ function _fireReadyCallbacks() {
                   // that have other changed inputs will still fire.
                   updatePending(pendingCallbacks, allPropIds);
                 }
+              }
 
+              function handleError(err) {
+                removeCallbackFromPending();
                 var outputs = payload ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_dependencies__WEBPACK_IMPORTED_MODULE_6__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])([payload.outputs])).join(', ') : output;
                 var message = "Callback error updating ".concat(outputs);
 
@@ -34887,10 +34939,12 @@ function _fireReadyCallbacks() {
   return _fireReadyCallbacks.apply(this, arguments);
 }
 
-function fillVals(paths, layout, cb, specs, depType) {
+function fillVals(paths, layout, cb, specs, depType, allowAllMissing) {
   var getter = depType === 'Input' ? cb.getInputs : cb.getState;
-  return getter(paths).map(function (inputList, i) {
-    return unwrapIfNotMulti(paths, inputList.map(function (_ref3) {
+  var errors = [];
+  var emptyMultiValues = 0;
+  var inputVals = getter(paths).map(function (inputList, i) {
+    var _unwrapIfNotMulti = unwrapIfNotMulti(paths, inputList.map(function (_ref3) {
       var id = _ref3.id,
           property = _ref3.property,
           path_ = _ref3.path;
@@ -34899,8 +34953,51 @@ function fillVals(paths, layout, cb, specs, depType) {
         property: property,
         value: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(path_, layout).props[property]
       };
-    }), specs[i], cb.anyVals, depType);
+    }), specs[i], cb.anyVals, depType),
+        _unwrapIfNotMulti2 = _slicedToArray(_unwrapIfNotMulti, 2),
+        inputs = _unwrapIfNotMulti2[0],
+        inputError = _unwrapIfNotMulti2[1];
+
+    if (Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["isMultiValued"])(specs[i]) && !inputs.length) {
+      emptyMultiValues++;
+    }
+
+    if (inputError) {
+      errors.push(inputError);
+    }
+
+    return inputs;
   });
+
+  if (errors.length) {
+    if (allowAllMissing && errors.length + emptyMultiValues === inputVals.length) {
+      // We have at least one non-multivalued input, but all simple and
+      // multi-valued inputs are missing.
+      // (if all inputs are multivalued and all missing we still return
+      // them as normal, and fire the callback.)
+      return null;
+    } // If we get here we have some missing and some present inputs.
+    // Or all missing in a context that doesn't allow this.
+    // That's a real problem, so throw the first message as an error.
+
+
+    refErr(errors, paths);
+  }
+
+  return inputVals;
+}
+
+function refErr(errors, paths) {
+  var err = errors[0];
+
+  if (err.indexOf('logged above') !== -1) {
+    // Wildcard reference errors mention a list of wildcard specs logged
+    // TODO: unwrapped list of wildcard ids?
+    // eslint-disable-next-line no-console
+    console.error(paths.objs);
+  }
+
+  throw new ReferenceError(err);
 }
 
 function handleServerside(config, payload, hooks) {

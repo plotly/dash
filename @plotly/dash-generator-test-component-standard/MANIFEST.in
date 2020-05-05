@@ -1,0 +1,2 @@
+include dash_generator_test_component_standard/**
+include package.json
