@@ -75,6 +75,7 @@
     "@types/react-select": "^3.0.10",
     "babel-loader": "^8.0.6",
     "css-loader": "^3.4.2",
+    "css.escape": "^1.5.1",
     "cypress": "^3.8.1",
     "d3-format": "^1.4.3",
     "es-check": "^5.1.0",

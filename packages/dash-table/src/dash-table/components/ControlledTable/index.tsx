@@ -53,7 +53,7 @@ const MAX_WIDTH_ITERATIONS = 30;
 
 export default class ControlledTable extends PureComponent<ControlledTableProps> {
     private readonly menuRef = React.createRef<HTMLDivElement>();
-    private readonly stylesheet: Stylesheet = new Stylesheet(`#${this.props.id}`);
+    private readonly stylesheet: Stylesheet = new Stylesheet(`#${CSS.escape(this.props.id)}`);
     private readonly tableFn = derivedTable(() => this.props);
     private readonly tableFragments = derivedTableFragments();
     private readonly tableStyle = derivedTableStyle();

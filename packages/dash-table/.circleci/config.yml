@@ -27,7 +27,7 @@ jobs:
                     pip install -r dev-requirements.txt --quiet
                     git clone --depth 1 git@github.com:plotly/dash.git dash-main
                     pip install -e ./dash-main[dev,testing] --quiet
-                    cd dash-main/dash-renderer && npm run build && pip install -e . && cd ./../..
+                    cd dash-main/dash-renderer && npm ci && npm run build && pip install -e . && cd ./../..
 
             - run:
                 name: Build
@@ -215,7 +215,7 @@ jobs:
                     . venv/bin/activate
                     git clone --depth 1 git@github.com:plotly/dash.git dash-main
                     pip install -e ./dash-main[dev,testing] --quiet
-                    cd dash-main/dash-renderer && npm run build && pip install -e . && cd ../..
+                    cd dash-main/dash-renderer && npm ci && npm run build && pip install -e . && cd ../..
 
             - run:
                 name: Install test requirements

@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [#724](https://github.com/plotly/dash-table/pull/724) Fix `active_cell` docstring: clarify optional nature of the `row_id` nested prop
 - [#732](https://github.com/plotly/dash-table/pull/732) Fix a bug where opening a dropdown scrolled the table down its last row
 - [#731](https://github.com/plotly/dash-table/pull/731) Fix a bug where `data=None` and `columns=None` caused the table to throw an error
+- [#766](https://github.com/plotly/dash-table/pull/766) Sanitize table `id` for stylesheet injection (fixes usage with Pattern-Matching callbacks)
 
 ## Changed
 - [#758](https://github.com/plotly/dash-table/pull/758) Improve error message for invalid filter queries

@@ -1,3 +1,5 @@
+import 'css.escape'; // polyfill
+
 import Environment from 'core/environment';
 import Logger from 'core/Logger';
 
