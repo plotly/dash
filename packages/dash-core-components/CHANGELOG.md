@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - [#793](https://github.com/plotly/dash-core-components/pull/793) Added title key (i.e. HTML `title` attribute) to option dicts in `dcc.Dropdown` `options[]` list property.
 ### Fixed
+- [#792](https://github.com/plotly/dash-core-components/pull/792) Improved the robustness of `dcc.Store` components, fixing [#456](https://github.com/plotly/dash-core-components/issues/456) whereby persistent storage could become corrupted, and fixing lifecycle issues that prevented adding `Store` components to the page after initial loading.
 - [#790](https://github.com/plotly/dash-core-components/pull/790) Fixed bug where the dcc.Dropdown dropdown was hidden by the dash_table.DataTable fixed rows and columns.
 
 ## [1.9.1] - 2020-04-10

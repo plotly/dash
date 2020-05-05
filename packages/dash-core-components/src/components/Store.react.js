@@ -1,45 +1,6 @@
-import {any, includes, isNil, type} from 'ramda';
+import {equals, isNil} from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Deep equality check to know if the data has changed.
- *
- * @param {*} newData - New data to compare
- * @param {*} oldData - The old data to compare
- * @returns {boolean} The data has changed.
- */
-function dataChanged(newData, oldData) {
-    const oldNull = isNil(oldData);
-    const newNull = isNil(newData);
-    if (oldNull || newNull) {
-        return newData !== oldData;
-    }
-    const newType = type(newData);
-    if (newType !== type(oldData)) {
-        return true;
-    }
-    if (newType === 'Array') {
-        if (newData.length !== oldData.length) {
-            return true;
-        }
-        for (let i = 0; i < newData.length; i++) {
-            if (dataChanged(newData[i], oldData[i])) {
-                return true;
-            }
-        }
-    } else if (includes(newType, ['String', 'Number', 'Boolean'])) {
-        return oldData !== newData;
-    } else if (newType === 'Object') {
-        const oldEntries = Object.entries(oldData);
-        const newEntries = Object.entries(newData);
-        if (oldEntries.length !== newEntries.length) {
-            return true;
-        }
-        return any(([k, v]) => dataChanged(v, oldData[k]))(newEntries);
-    }
-    return false;
-}
 
 /**
  * Abstraction for the memory storage_type to work the same way as local/session
@@ -88,7 +49,13 @@ class WebStore {
     }
 
     getItem(key) {
-        return JSON.parse(this._storage.getItem(key));
+        try {
+            return JSON.parse(this._storage.getItem(key));
+        } catch (e) {
+            // in case we somehow got a non-JSON value in storage,
+            // just ignore it.
+            return null;
+        }
     }
 
     setItem(key, value) {
@@ -150,7 +117,7 @@ export default class Store extends React.Component {
         }
 
         const old = this._backstore.getItem(id);
-        if (isNil(old) && data) {
+        if (isNil(old) && !isNil(data)) {
             // Initial data mount
             this._backstore.setItem(id, data);
             setProps({
@@ -159,7 +126,7 @@ export default class Store extends React.Component {
             return;
         }
 
-        if (dataChanged(old, data)) {
+        if (!equals(old, data)) {
             setProps({
                 data: old,
                 modified_timestamp: this._backstore.getModified(id),
@@ -186,11 +153,19 @@ export default class Store extends React.Component {
         }
         const old = this._backstore.getItem(id);
         // Only set the data if it's not the same data.
-        if (dataChanged(data, old)) {
-            this._backstore.setItem(id, data);
-            setProps({
-                modified_timestamp: this._backstore.getModified(id),
-            });
+        // If the new data is undefined, we got here by overwriting the entire
+        // component with a new copy that has no `data` specified - so pull back
+        // out the old value.
+        // Note: this still allows you to set data to null
+        if (!equals(data, old)) {
+            if (data === undefined) {
+                setProps({data: old});
+            } else {
+                this._backstore.setItem(id, data);
+                setProps({
+                    modified_timestamp: this._backstore.getModified(id),
+                });
+            }
         }
     }
 
