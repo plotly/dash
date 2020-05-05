@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [4.7.0] - 2020-05-05
 ### Added
 - [#729](https://github.com/plotly/dash-table/pull/729) Improve conditional styling
     - `style_data_conditional`: Add support for `row_index` and `column_id` array of values
