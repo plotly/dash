@@ -18,5 +18,8 @@
         "strictPropertyInitialization": true,
         "target": "esnext",
         "traceResolution": false
-    }
+    },
+    "include": [
+        "src/*"
+    ]
 }
