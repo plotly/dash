@@ -185,6 +185,7 @@ def generate_class_string(name, props, project_shortname, prefix):
     props = reorder_props(props=props)
 
     prop_keys = list(props.keys())
+    prop_keys_wc = list(props.keys())
 
     wildcards = ""
     wildcard_declaration = ""
@@ -193,8 +194,8 @@ def generate_class_string(name, props, project_shortname, prefix):
     default_argtext = ""
     accepted_wildcards = ""
 
-    if any(key.endswith("-*") for key in prop_keys):
-        accepted_wildcards = get_wildcards_r(prop_keys)
+    if any(key.endswith("-*") for key in prop_keys_wc):
+        accepted_wildcards = get_wildcards_r(prop_keys_wc)
         wildcards = ", ..."
         wildcard_declaration = wildcard_template.format(
             accepted_wildcards.replace("-*", "")
