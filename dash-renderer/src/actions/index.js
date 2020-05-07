@@ -18,6 +18,10 @@ import {
     zip,
 } from 'ramda';
 import {createAction} from 'redux-actions';
+import {
+    CallbackActionType,
+    CallbackAggregateActionType,
+} from '../reducers/callbacks';
 import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
 import cookie from 'cookie';
@@ -44,16 +48,44 @@ import {applyPersistence, prunePersistence} from '../persistence';
 
 import isAppReady from './isAppReady';
 
-export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
-export const setPendingCallbacks = createAction('SET_PENDING_CALLBACKS');
-export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
-export const setGraphs = createAction(getAction('SET_GRAPHS'));
-export const setPaths = createAction(getAction('SET_PATHS'));
+export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
 export const setConfig = createAction(getAction('SET_CONFIG'));
+export const setGraphs = createAction(getAction('SET_GRAPHS'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
-export const onError = createAction(getAction('ON_ERROR'));
+export const setPaths = createAction(getAction('SET_PATHS'));
+export const setPendingCallbacks = createAction('SET_PENDING_CALLBACKS');
+export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
+export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
+
+export const addExecutedCallbacks = createAction(
+    CallbackActionType.AddExecuted
+);
+export const addExecutingCallbacks = createAction(
+    CallbackActionType.AddExecuting
+);
+export const addPrioritizedCallbacks = createAction(
+    CallbackActionType.AddPrioritized
+);
+export const addRequestedCallbacks = createAction(
+    CallbackActionType.AddRequested
+);
+export const removeExecutedCallbacks = createAction(
+    CallbackActionType.RemoveExecuted
+);
+export const removeExecutingCallbacks = createAction(
+    CallbackActionType.RemoveExecuting
+);
+export const removePrioritizedCallbacks = createAction(
+    CallbackActionType.RemovePrioritized
+);
+export const removeRequestedCallbacks = createAction(
+    CallbackActionType.RemoveRequested
+);
+export const aggregateCallbacks = createAction(
+    CallbackAggregateActionType.Aggregate
+);
 
 export const dispatchError = dispatch => (message, lines) =>
     dispatch(
