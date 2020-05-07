@@ -18,19 +18,28 @@ import {
 export enum CallbackActionType {
     AddExecuted = 'Callbacks.AddExecuted',
     AddExecuting = 'Callbacks.AddExecuting',
-    AddRequested = 'Callbacks.AddRequested',
     AddPrioritized = 'Callbacks.AddPrioritized',
+    AddRequested = 'Callbacks.AddRequested',
+    AddWatched = 'Callbacks.Watched',
     RemoveExecuted = 'Callbacks.RemoveExecuted',
     RemoveExecuting = 'Callbacks.RemoveExecuting',
-    RemoveRequested = 'Callbacks.RemoveRequested',
     RemovePrioritized = 'Callbacks.ReomvePrioritized',
+    RemoveRequested = 'Callbacks.RemoveRequested',
+    RemoveWatched = 'Callbacks.RemoveWatched'
 }
 
 export enum CallbackAggregateActionType {
     Aggregate = 'Callbacks.Aggregate'
 }
 
-export type Callback = any;
+export type CallbackResult = {
+    data: any;
+} | { error: any };
+
+export type Callback = {
+    executionResult?: Promise<CallbackResult> | CallbackResult | null;
+    [key: string]: any;
+};
 
 interface ICallbackAction {
     type: CallbackActionType | CallbackAggregateActionType | string;
@@ -48,13 +57,15 @@ export interface ICallbacksState {
     executing: Callback[];
     prioritized: Callback[];
     requested: Callback[];
+    watched: Callback[];
 }
 
-const DEFAULT_STATE = {
+const DEFAULT_STATE: ICallbacksState = {
     executed: [],
     executing: [],
     prioritized: [],
-    requested: []
+    requested: [],
+    watched: []
 };
 
 const transforms: {
@@ -64,10 +75,12 @@ const transforms: {
     [CallbackActionType.AddExecuting]: concat,
     [CallbackActionType.AddPrioritized]: concat,
     [CallbackActionType.AddRequested]: concat,
+    [CallbackActionType.AddWatched]: concat,
     [CallbackActionType.RemoveExecuted]: difference,
     [CallbackActionType.RemoveExecuting]: difference,
     [CallbackActionType.RemovePrioritized]: difference,
     [CallbackActionType.RemoveRequested]: difference,
+    [CallbackActionType.RemoveWatched]: difference,
 };
 
 const fields: {
@@ -77,10 +90,12 @@ const fields: {
     [CallbackActionType.AddExecuting]: 'executing',
     [CallbackActionType.AddPrioritized]: 'prioritized',
     [CallbackActionType.AddRequested]: 'requested',
+    [CallbackActionType.AddWatched]: 'watched',
     [CallbackActionType.RemoveExecuted]: 'executed',
     [CallbackActionType.RemoveExecuting]: 'executing',
     [CallbackActionType.RemovePrioritized]: 'prioritized',
     [CallbackActionType.RemoveRequested]: 'requested',
+    [CallbackActionType.RemoveWatched]: 'watched'
 }
 
 export default (
