@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {concat, isEmpty} from 'ramda';
 import './DebugMenu.css';
 
 import DebugIcon from '../icons/DebugIcon.svg';
@@ -9,7 +8,6 @@ import BellIconGrey from '../icons/BellIconGrey.svg';
 import GraphIcon from '../icons/GraphIcon.svg';
 import GraphIconGrey from '../icons/GraphIconGrey.svg';
 import PropTypes from 'prop-types';
-import {DebugAlertContainer} from './DebugAlertContainer.react';
 import GlobalErrorOverlay from '../GlobalErrorOverlay.react';
 import {CallbackGraphContainer} from '../CallbackGraph/CallbackGraphContainer.react';
 
@@ -19,39 +17,32 @@ class DebugMenu extends Component {
 
         this.state = {
             opened: false,
-            alertsOpened: false,
             callbackGraphOpened: false,
-            toastsEnabled: true,
+            errorsOpened: true,
         };
     }
     render() {
-        const {
-            opened,
-            alertsOpened,
-            toastsEnabled,
-            callbackGraphOpened,
-        } = this.state;
+        const {opened, errorsOpened, callbackGraphOpened} = this.state;
         const {error, graphs} = this.props;
 
         const menuClasses = opened
             ? 'dash-debug-menu dash-debug-menu--opened'
             : 'dash-debug-menu dash-debug-menu--closed';
 
+        const errCount = error.frontEnd.length + error.backEnd.length;
+        const connected = error.backEndConnected;
+
+        const toggleErrorsOpened = () => {
+            this.setState({errorsOpened: !errorsOpened});
+        };
+
+        const _GraphIcon = callbackGraphOpened ? GraphIcon : GraphIconGrey;
+        const _BellIcon = errorsOpened ? BellIcon : BellIconGrey;
+
         const menuContent = opened ? (
             <div className="dash-debug-menu__content">
                 {callbackGraphOpened ? (
                     <CallbackGraphContainer graphs={graphs} />
-                ) : null}
-                {error.frontEnd.length > 0 || error.backEnd.length > 0 ? (
-                    <div className="dash-debug-menu__button-container">
-                        <DebugAlertContainer
-                            errors={concat(error.frontEnd, error.backEnd)}
-                            alertsOpened={alertsOpened}
-                            onClick={() =>
-                                this.setState({alertsOpened: !alertsOpened})
-                            }
-                        />
-                    </div>
                 ) : null}
                 <div className="dash-debug-menu__button-container">
                     <div
@@ -66,11 +57,7 @@ class DebugMenu extends Component {
                             })
                         }
                     >
-                        {callbackGraphOpened ? (
-                            <GraphIcon className="dash-debug-menu__icon dash-debug-menu__icon--graph" />
-                        ) : (
-                            <GraphIconGrey className="dash-debug-menu__icon dash-debug-menu__icon--bell" />
-                        )}
+                        <_GraphIcon className="dash-debug-menu__icon dash-debug-menu__icon--graph" />
                     </div>
                     <label className="dash-debug-menu__button-label">
                         Callback Graph
@@ -79,24 +66,25 @@ class DebugMenu extends Component {
                 <div className="dash-debug-menu__button-container">
                     <div
                         className={`dash-debug-menu__button ${
-                            toastsEnabled
+                            errorsOpened
                                 ? 'dash-debug-menu__button--enabled'
                                 : ''
                         }`}
-                        onClick={() =>
-                            this.setState({
-                                toastsEnabled: !toastsEnabled,
-                            })
-                        }
+                        onClick={toggleErrorsOpened}
                     >
-                        {toastsEnabled ? (
-                            <BellIcon className="dash-debug-menu__icon dash-debug-menu__icon--bell" />
-                        ) : (
-                            <BellIconGrey className="dash-debug-menu__icon dash-debug-menu__icon--bell" />
-                        )}
+                        <_BellIcon className="dash-debug-menu__icon dash-debug-menu__icon--bell" />
                     </div>
                     <label className="dash-debug-menu__button-label">
-                        Errors
+                        🛑 &nbsp;
+                        {errCount + ' Error' + (errCount === 1 ? '' : 's')}
+                    </label>
+                </div>
+                <div className="dash-debug-menu__button-container">
+                    <div className="dash-debug-menu__connection">
+                        {connected ? '✅' : '🚫'}
+                    </div>
+                    <label className="dash-debug-menu__button-label">
+                        Back End {connected ? 'Connected' : 'Disconnected'}
                     </label>
                 </div>
                 <div className="dash-debug-menu__button-container">
@@ -116,10 +104,20 @@ class DebugMenu extends Component {
         );
 
         const alertsLabel =
-            error.frontEnd.length + error.backEnd.length > 0 && !opened ? (
+            (errCount || !connected) && !opened ? (
                 <div className="dash-debug-alert-label">
-                    <div className="dash-debug-alert">
-                        🛑 &nbsp;{error.frontEnd.length + error.backEnd.length}
+                    <div
+                        className="dash-debug-alert"
+                        onClick={toggleErrorsOpened}
+                    >
+                        {errCount ? (
+                            <div className="dash-debug-error-count">
+                                {'🛑 ' + errCount}
+                            </div>
+                        ) : null}
+                        {connected ? null : (
+                            <div className="dash-debug-disconnected">🚫</div>
+                        )}
                     </div>
                 </div>
             ) : null;
@@ -135,10 +133,8 @@ class DebugMenu extends Component {
                 </div>
                 <GlobalErrorOverlay
                     error={error}
-                    visible={
-                        !(isEmpty(error.backEnd) && isEmpty(error.frontEnd))
-                    }
-                    toastsEnabled={toastsEnabled}
+                    visible={errCount > 0}
+                    errorsOpened={errorsOpened}
                 >
                     {this.props.children}
                 </GlobalErrorOverlay>
