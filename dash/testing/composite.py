@@ -29,3 +29,18 @@ class DashRComposite(Browser):
 
         # set the default server_url, it implicitly call wait_for_page
         self.server_url = self.server.url
+
+
+class DashJuliaComposite(Browser):
+    def __init__(self, server, **kwargs):
+        super(DashJuliaComposite, self).__init__(**kwargs)
+        self.server = server
+
+    def start_server(self, app, cwd=None):
+        self.wait_timeout = 15
+        # start server with Dash.jl app. The app sets its own run_server args
+        # on the Julia side, but we support overriding the automatic cwd
+        self.server(app, cwd=cwd)
+
+        # set the default server_url, it implicitly call wait_for_page
+        self.server_url = self.server.url
