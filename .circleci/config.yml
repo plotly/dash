@@ -359,44 +359,44 @@ workflows:
   version: 2
   python3.7:
     jobs:
-      #- lint-unit-37
-      #- build-core-37
-      #- build-windows-37
-      #- build-misc-37
+      - lint-unit-37
+      - build-core-37
+      - build-windows-37
+      - build-misc-37
       - build-dashr
-      #- test-37:
-      #    requires:
-      #      - build-core-37
-      #      - build-misc-37
-      #- percy-finalize:
-      #    requires:
-      #      - test-37
-      #- artifacts:
-      #    requires:
-      #      - percy-finalize
-      #    filters:
-      #      branches:
-      #        only:
-      #          - master
-      #          - dev
-      #      tags:
-      #        only: /v*/
+      - test-37:
+          requires:
+            - build-core-37
+            - build-misc-37
+      - percy-finalize:
+          requires:
+            - test-37
+      - artifacts:
+          requires:
+            - percy-finalize
+          filters:
+            branches:
+              only:
+                - master
+                - dev
+            tags:
+              only: /v*/
 
-  #python3.6:
-  #  jobs:
-  #    - lint-unit-36
-  #    - build-core-36
-  #    - build-misc-36
-  #    - test-36:
-  #        requires:
-  #          - build-core-36
-  #          - build-misc-36
-  #python2.7:
-  #  jobs:
-  #    - lint-unit-27
-  #    - build-core-27
-  #    - build-misc-27
-  #    - test-27:
-  #        requires:
-  #          - build-core-27
-  #          - build-misc-27
+  python3.6:
+    jobs:
+      - lint-unit-36
+      - build-core-36
+      - build-misc-36
+      - test-36:
+          requires:
+            - build-core-36
+            - build-misc-36
+  python2.7:
+    jobs:
+      - lint-unit-27
+      - build-core-27
+      - build-misc-27
+      - test-27:
+          requires:
+            - build-core-27
+            - build-misc-27
