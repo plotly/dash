@@ -185,6 +185,7 @@ def generate_class_string(name, props, project_shortname, prefix):
     props = reorder_props(props=props)
 
     prop_keys = list(props.keys())
+    prop_keys_wc = list(props.keys())
 
     wildcards = ""
     wildcard_declaration = ""
@@ -193,8 +194,8 @@ def generate_class_string(name, props, project_shortname, prefix):
     default_argtext = ""
     accepted_wildcards = ""
 
-    if any(key.endswith("-*") for key in prop_keys):
-        accepted_wildcards = get_wildcards_r(prop_keys)
+    if any(key.endswith("-*") for key in prop_keys_wc):
+        accepted_wildcards = get_wildcards_r(prop_keys_wc)
         wildcards = ", ..."
         wildcard_declaration = wildcard_template.format(
             accepted_wildcards.replace("-*", "")
@@ -573,8 +574,9 @@ def generate_rpkg(
                 "pkg_help_description", pkg_data.get("description", "")
             )
         if rpkg_data.get("pkg_copyright"):
-            package_copyright = "\nCopyright: {}".format(rpkg_data.get(
-                "pkg_copyright", ""))
+            package_copyright = "\nCopyright: {}".format(
+                rpkg_data.get("pkg_copyright", "")
+            )
     else:
         # fall back to using description in package.json, if present
         package_title = pkg_data.get("description", "")
@@ -636,13 +638,12 @@ def generate_rpkg(
 
     if rpkg_data is not None:
         if rpkg_data.get("pkg_authors"):
-            package_rauthors = '\nAuthors@R: {}'.format(rpkg_data.get(
-                "pkg_authors", ""))
+            package_rauthors = "\nAuthors@R: {}".format(
+                rpkg_data.get("pkg_authors", "")
+            )
         else:
             package_rauthors = '\nAuthors@R: person("{}", "{}", role = c("aut", "cre"), email = "{}")'.format(
-                package_author_fn,
-                package_author_ln,
-                package_author_email
+                package_author_fn, package_author_ln, package_author_email
             )
 
     if not (os.path.isfile("LICENSE") or os.path.isfile("LICENSE.txt")):

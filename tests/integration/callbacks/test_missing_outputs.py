@@ -1,6 +1,7 @@
 import pytest
 
 import dash_html_components as html
+
 # import dash_core_components as dcc
 import dash
 from dash.dependencies import Input, Output, ALL, MATCH
@@ -14,12 +15,14 @@ debugging = dict(
 def test_cbmo001_all_output(with_simple, dash_duo):
     app = dash.Dash(__name__)
 
-    app.layout = html.Div(children=[
-        html.Button("items", id="items"),
-        html.Button("values", id="values"),
-        html.Div(id="content"),
-        html.Div("Output init", id="output"),
-    ])
+    app.layout = html.Div(
+        children=[
+            html.Button("items", id="items"),
+            html.Button("values", id="values"),
+            html.Div(id="content"),
+            html.Div("Output init", id="output"),
+        ]
+    )
 
     @app.callback(Output("content", "children"), [Input("items", "n_clicks")])
     def content(n1):
@@ -28,9 +31,10 @@ def test_cbmo001_all_output(with_simple, dash_duo):
     # these two variants have identical results, but the internal behavior
     # is different when you combine the callbacks.
     if with_simple:
+
         @app.callback(
             [Output({"i": ALL}, "children"), Output("output", "children")],
-            [Input("values", "n_clicks"), Input({"i": ALL}, "id")]
+            [Input("values", "n_clicks"), Input({"i": ALL}, "id")],
         )
         def content_and_output(n2, content_ids):
             # this variant *does* get called with empty ALL, because of the
@@ -42,6 +46,7 @@ def test_cbmo001_all_output(with_simple, dash_duo):
             return content, sum(content)
 
     else:
+
         @app.callback(Output({"i": ALL}, "children"), [Input("values", "n_clicks")])
         def content_inner(n2):
             # this variant does NOT get called with empty ALL
@@ -71,7 +76,7 @@ def test_cbmo001_all_output(with_simple, dash_duo):
         ["#values", "4\n4\n4", "12"],
         ["#items", "", "0"],
         ["#values", "", "0"],
-        ["#items", "5", "5"]
+        ["#items", "5", "5"],
     ]
     for selector, content, output in actions:
         dash_duo.find_element(selector).click()
@@ -85,32 +90,43 @@ def test_cbmo001_all_output(with_simple, dash_duo):
 def test_cbmo002_all_and_match_output(with_simple, dash_duo):
     app = dash.Dash(__name__)
 
-    app.layout = html.Div(children=[
-        html.Button("items", id="items"),
-        html.Button("values", id="values"),
-        html.Div(id="content"),
-    ])
+    app.layout = html.Div(
+        children=[
+            html.Button("items", id="items"),
+            html.Button("values", id="values"),
+            html.Div(id="content"),
+        ]
+    )
 
     @app.callback(Output("content", "children"), [Input("items", "n_clicks")])
     def content(n1):
         return [
-            html.Div([
-                html.Div(
-                    [html.Div(id={"i": i, "j": j}) for i in range(((n1 or 0) + j) % 4)],
-                    className="content{}".format(j)
-                ),
-                html.Div(id={"j": j}, className="output{}".format(j)),
-                html.Hr(),
-            ])
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.Div(id={"i": i, "j": j})
+                            for i in range(((n1 or 0) + j) % 4)
+                        ],
+                        className="content{}".format(j),
+                    ),
+                    html.Div(id={"j": j}, className="output{}".format(j)),
+                    html.Hr(),
+                ]
+            )
             for j in range(4)
         ]
 
     # these two variants have identical results, but the internal behavior
     # is different when you combine the callbacks.
     if with_simple:
+
         @app.callback(
-            [Output({"i": ALL, "j": MATCH}, "children"), Output({"j": MATCH}, "children")],
-            [Input("values", "n_clicks"), Input({"i": ALL, "j": MATCH}, "id")]
+            [
+                Output({"i": ALL, "j": MATCH}, "children"),
+                Output({"j": MATCH}, "children"),
+            ],
+            [Input("values", "n_clicks"), Input({"i": ALL, "j": MATCH}, "id")],
         )
         def content_and_output(n2, content_ids):
             # this variant *does* get called with empty ALL, because of the
@@ -122,9 +138,9 @@ def test_cbmo002_all_and_match_output(with_simple, dash_duo):
             return content, sum(content)
 
     else:
+
         @app.callback(
-            Output({"i": ALL, "j": MATCH}, "children"),
-            [Input("values", "n_clicks")]
+            Output({"i": ALL, "j": MATCH}, "children"), [Input("values", "n_clicks")]
         )
         def content_inner(n2):
             # this variant does NOT get called with empty ALL
@@ -137,7 +153,7 @@ def test_cbmo002_all_and_match_output(with_simple, dash_duo):
 
         @app.callback(
             Output({"j": MATCH}, "children"),
-            [Input({"i": ALL, "j": MATCH}, "children")]
+            [Input({"i": ALL, "j": MATCH}, "children")],
         )
         def out2(contents):
             return sum(contents)
@@ -157,7 +173,7 @@ def test_cbmo002_all_and_match_output(with_simple, dash_duo):
         ["#values", [["4\n4\n4", "12"], ["", "0"], ["4", "4"], ["4\n4", "8"]]],
         ["#items", [["", "0"], ["4", "4"], ["4\n4", "8"], ["4\n4\n4", "12"]]],
         ["#values", [["", "0"], ["5", "5"], ["5\n5", "10"], ["5\n5\n5", "15"]]],
-        ["#items", [["5", "5"], ["5\n5", "10"], ["5\n5\n5", "15"], ["", "0"]]]
+        ["#items", [["5", "5"], ["5\n5", "10"], ["5\n5\n5", "15"], ["", "0"]]],
     ]
     for selector, output_spec in actions:
         dash_duo.find_element(selector).click()
@@ -171,19 +187,21 @@ def test_cbmo002_all_and_match_output(with_simple, dash_duo):
 def test_cbmo003_multi_all(dash_duo):
     app = dash.Dash(__name__)
 
-    app.layout = html.Div(children=[
-        html.Button("items", id="items"),
-        html.Button("values", id="values"),
-        html.Div(id="content1"),
-        html.Hr(),
-        html.Div(id="content2"),
-        html.Hr(),
-        html.Div("Output init", id="output"),
-    ])
+    app.layout = html.Div(
+        children=[
+            html.Button("items", id="items"),
+            html.Button("values", id="values"),
+            html.Div(id="content1"),
+            html.Hr(),
+            html.Div(id="content2"),
+            html.Hr(),
+            html.Div("Output init", id="output"),
+        ]
+    )
 
     @app.callback(
         [Output("content1", "children"), Output("content2", "children")],
-        [Input("items", "n_clicks")]
+        [Input("items", "n_clicks")],
     )
     def content(n1):
         c1 = [html.Div(id={"i": i}) for i in range(((n1 or 0) + 2) % 4)]
@@ -192,7 +210,7 @@ def test_cbmo003_multi_all(dash_duo):
 
     @app.callback(
         [Output({"i": ALL}, "children"), Output({"j": ALL}, "children")],
-        [Input("values", "n_clicks")]
+        [Input("values", "n_clicks")],
     )
     def content_inner(n2):
         # this variant does NOT get called with empty ALL
@@ -206,7 +224,7 @@ def test_cbmo003_multi_all(dash_duo):
 
     @app.callback(
         Output("output", "children"),
-        [Input({"i": ALL}, "children"), Input({"j": ALL}, "children")]
+        [Input({"i": ALL}, "children"), Input({"j": ALL}, "children")],
     )
     def out2(ci, cj):
         return sum(ci) + sum(cj)
@@ -232,7 +250,7 @@ def test_cbmo003_multi_all(dash_duo):
         # all empty! we'll see an error logged if the callback was fired
         ["#items", "", "", "0"],
         ["#values", "", "", "0"],
-        ["#items", "7", "9", "16"]
+        ["#items", "7", "9", "16"],
     ]
     for selector, content1, content2, output in actions:
         dash_duo.find_element(selector).click()
