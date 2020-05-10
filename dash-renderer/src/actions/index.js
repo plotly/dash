@@ -525,6 +525,23 @@ const getVals = input =>
 
 const zipIfArray = (a, b) => (Array.isArray(a) ? zip(a, b) : [[a, b]]);
 
+function inputsToDict(inputs_list) {
+    // Ported directly from _utils.py, inputs_to_dict
+    // takes an array of inputs (some inputs may be an array)
+    // returns an Object (map):
+    //  keys of the form `id.property` or `{"id": 0}.property`
+    //  values contain the property value
+    let inputs = {};
+    for (let i = 0; i < inputs_list.length; i++) {
+        let inputsi = Array.isArray(inputs_list[i]) ? inputs_list[i] : [inputs_list[i]];
+        for (let ii = 0; ii < inputsi.length; ii++) {
+            let id_str = `${JSON.stringify(inputsi[ii].id)}.${inputsi[ii].property}`;
+            inputs[id_str] = inputsi[ii].value;
+        }
+    }
+    return inputs;
+}
+
 function handleClientside(clientside_function, payload) {
     const dc = (window.dash_clientside = window.dash_clientside || {});
     if (!dc.no_update) {
@@ -540,6 +557,23 @@ function handleClientside(clientside_function, payload) {
     }
 
     const {inputs, outputs, state} = payload;
+
+    if (!dc.callback_context) {
+        Object.defineProperty(dc, 'callback_context', {
+            value: {'triggered': [{'prop_id': '.', 'value': null}],
+                    'inputs_list': inputsToDict(payload.inputs),
+                    'inputs': payload.inputs,
+                    'outputs_list': payload.outputs}
+                    // TODO: add the rest: states, states_list, response(??)
+        })
+    }
+    else{
+        let input_dict = inputsToDict(inputs);
+        dc.callback_context.triggered = payload.changedPropIds.map(
+            prop_id => ({'prop_id': prop_id, 'value': input_dict[prop_id]}));
+        dc.callback_context.inputs_list = input_dict;
+        dc.callback_context.inputs = inputs;
+    }
 
     let returnValue;
 
