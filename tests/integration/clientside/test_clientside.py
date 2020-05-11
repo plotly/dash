@@ -368,57 +368,56 @@ def test_clsd008_clientside_inline_source(dash_duo):
     dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "hello world"')
 
 
-def test_clsd009_clientside_callback_context(dash_duo):
+def test_clsd009_clientside_callback_context_triggered(dash_duo):
     app = Dash(__name__, assets_folder="assets")
 
     app.layout = html.Div(
         [
-            html.Button("0", id={"btn": 0}),
-            html.Button("1", id={"btn": 1}),
-            html.Button("2", id={"btn": 2}),
+            html.Button("btn0", id="btn0"),
+            html.Button("btn1:0", id={"btn1": 0}),
+            html.Button("btn1:1", id={"btn1": 1}),
+            html.Button("btn1:2", id={"btn1": 2}),
             html.Div(id="output-clientside"),
-            html.Div(id="output-serverside"),
         ]
     )
 
-    @app.callback(
-        Output("output-serverside", "children"), [Input({"btn": ALL}, "n_clicks")]
-    )
-    def update_output(n_clicks):
-        return "triggered: %s" % dash.callback_context.triggered
-
     app.clientside_callback(
         """
-        function (n_clicks) {
+        function (n_clicks0, n_clicks1) {
             console.log(dash_clientside.callback_context)
             return `triggered: ${JSON.stringify(dash_clientside.callback_context.triggered)}`
         }
         """,
         Output("output-clientside", "children"),
-        [Input({"btn": ALL}, "n_clicks")],
+        [Input("btn0", "n_clicks"),
+         Input({"btn1": ALL}, "n_clicks")],
     )
 
     dash_duo.start_server(app)
 
     dash_duo.wait_for_text_to_equal(
-        "#output-serverside", "triggered: [{'prop_id': '.', 'value': None}]"
-    )
-    dash_duo.wait_for_text_to_equal(
         "#output-clientside", r'triggered: [{"prop_id":".","value":null}]'
     )
 
-    dash_duo.find_element("button[id*='0']").click()
+    dash_duo.find_element("#btn0").click()
 
     dash_duo.wait_for_text_to_equal(
         "#output-clientside",
-        r'triggered: [{"prop_id":"{\"btn\":0}.n_clicks","value":1}]',
+        r'triggered: [{"prop_id":"btn0.n_clicks","value":1}]',
     )
 
-    dash_duo.find_element("button[id*='2']").click()
+    dash_duo.find_element("button[id*='btn1\":0']").click()
 
     dash_duo.wait_for_text_to_equal(
         "#output-clientside",
-        r'triggered: [{"prop_id":"{\"btn\":2}.n_clicks","value":1}]',
+        r'triggered: [{"prop_id":"{\"btn1\":0}.n_clicks","value":1}]',
+    )
+
+    dash_duo.find_element("button[id*='btn1\":2']").click()
+
+    dash_duo.wait_for_text_to_equal(
+        "#output-clientside",
+        r'triggered: [{"prop_id":"{\"btn1\":2}.n_clicks","value":1}]',
     )
 
     # TODO: flush out these tests and make them look prettier.
