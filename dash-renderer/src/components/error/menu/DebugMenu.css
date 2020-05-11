@@ -107,7 +107,7 @@
     justify-content: center;
     align-items: center;
     font-size: 50px;
-    line-height: 1;
+    height: 66px;
 }
 
 .dash-debug-alert {
@@ -132,6 +132,7 @@
 
 .dash-debug-error-count {
     display: block;
+    margin: 0 3px;
 }
 
 .dash-debug-disconnected {

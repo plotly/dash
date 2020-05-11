@@ -32,7 +32,7 @@ class FrontEndErrorContainer extends Component {
                         <strong className="test-devtools-error-count">
                             {errorsLength}
                         </strong>
-                        ){connected ? null : '\u00a0 🚫 Back End Disconnected'}
+                        ){connected ? null : '\u00a0 🚫 Server Unavailable'}
                     </div>
                 </div>
                 <div className="dash-error-card__list">{errorElements}</div>

@@ -23,7 +23,7 @@ class DebugMenu extends Component {
     }
     render() {
         const {opened, errorsOpened, callbackGraphOpened} = this.state;
-        const {error, graphs} = this.props;
+        const {error, graphs, hotReload} = this.props;
 
         const menuClasses = opened
             ? 'dash-debug-menu dash-debug-menu--opened'
@@ -81,10 +81,13 @@ class DebugMenu extends Component {
                 </div>
                 <div className="dash-debug-menu__button-container">
                     <div className="dash-debug-menu__connection">
-                        {connected ? '✅' : '🚫'}
+                        {hotReload ? (connected ? '✅' : '🚫') : '❄'}
                     </div>
                     <label className="dash-debug-menu__button-label">
-                        Back End {connected ? 'Connected' : 'Disconnected'}
+                        {hotReload
+                            ? 'Server ' +
+                              (connected ? 'Available' : 'Unavailable')
+                            : 'Hot Reload Off'}
                     </label>
                 </div>
                 <div className="dash-debug-menu__button-container">
@@ -147,6 +150,7 @@ DebugMenu.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
     graphs: PropTypes.object,
+    hotReload: PropTypes.bool,
 };
 
 export {DebugMenu};
