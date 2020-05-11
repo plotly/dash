@@ -533,10 +533,16 @@ function inputsToDict(inputs_list) {
     //  values contain the property value
     let inputs = {};
     for (let i = 0; i < inputs_list.length; i++) {
-        let inputsi = Array.isArray(inputs_list[i]) ? inputs_list[i] : [inputs_list[i]];
-        for (let ii = 0; ii < inputsi.length; ii++) {
-            let id_str = `${JSON.stringify(inputsi[ii].id)}.${inputsi[ii].property}`;
-            inputs[id_str] = inputsi[ii].value;
+        if (Array.isArray(inputs_list[i])) {
+            let inputsi = inputs_list[i];
+            for (let ii = 0; ii < inputsi.length; ii++) {
+                let id_str = `${JSON.stringify(inputsi[ii].id)}.${inputsi[ii].property}`;
+                inputs[id_str] = inputsi[ii].value;
+            }
+        }
+        else {
+            let id_str = `${inputs_list[i].id}.${inputs_list[i].property}`;
+            inputs[id_str] = inputs_list[i].value;
         }
     }
     return inputs;
@@ -581,7 +587,7 @@ function handleClientside(clientside_function, payload) {
             args = concat(args, state.map(getVals));
         }
         returnValue = dc[namespace][function_name](...args);
-        
+
         delete dc.callback_context;
     } catch (e) {
         if (e === dc.PreventUpdate) {
