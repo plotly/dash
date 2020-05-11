@@ -558,32 +558,31 @@ function handleClientside(clientside_function, payload) {
 
     const {inputs, outputs, state} = payload;
 
-    if (!dc.callback_context) {
-        Object.defineProperty(dc, 'callback_context', {
-            value: {'triggered': [{'prop_id': '.', 'value': null}],
-                    'inputs_list': inputsToDict(payload.inputs),
-                    'inputs': payload.inputs,
-                    'outputs_list': payload.outputs}
-                    // TODO: add the rest: states, states_list, response(??)
-        })
-    }
-    else{
-        let input_dict = inputsToDict(inputs);
-        dc.callback_context.triggered = payload.changedPropIds.map(
-            prop_id => ({'prop_id': prop_id, 'value': input_dict[prop_id]}));
-        dc.callback_context.inputs_list = input_dict;
-        dc.callback_context.inputs = inputs;
-    }
-
     let returnValue;
 
     try {
+        // setup callback context
+        let input_dict = inputsToDict(inputs);
+        dc.callback_context = {};
+        if (payload.changedPropIds.length === 0) {
+            dc.callback_context.triggered = [{'prop_id': '.', 'value': null}];
+        }
+        else {
+            dc.callback_context.triggered = payload.changedPropIds.map(
+                prop_id => ({'prop_id': prop_id, 'value': input_dict[prop_id]}));
+        }
+        dc.callback_context.inputs_list = input_dict;
+        dc.callback_context.inputs = inputs;
+        // TODO: add the rest: states, states_list, response(??)
+
         const {namespace, function_name} = clientside_function;
         let args = inputs.map(getVals);
         if (state) {
             args = concat(args, state.map(getVals));
         }
         returnValue = dc[namespace][function_name](...args);
+        
+        delete dc.callback_context;
     } catch (e) {
         if (e === dc.PreventUpdate) {
             return {};
