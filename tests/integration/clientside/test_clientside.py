@@ -385,7 +385,7 @@ def test_clsd009_clientside_callback_context(dash_duo):
         Output("output-serverside", "children"), [Input({"btn": ALL}, "n_clicks")]
     )
     def update_output(n_clicks):
-        return f"triggered: {dash.callback_context.triggered}"
+        return "triggered: %s" % dash.callback_context.triggered
 
     app.clientside_callback(
         """
