@@ -495,29 +495,37 @@ function handleServerside(config, payload, hooks) {
             headers: getCSRFHeader(),
             body: JSON.stringify(payload),
         })
-    ).then(res => {
-        const {status} = res;
-        if (status === STATUS.OK) {
-            return res.json().then(data => {
-                const {multi, response} = data;
-                if (hooks.request_post !== null) {
-                    hooks.request_post(payload, response);
-                }
+    ).then(
+        res => {
+            const {status} = res;
+            if (status === STATUS.OK) {
+                return res.json().then(data => {
+                    const {multi, response} = data;
+                    if (hooks.request_post !== null) {
+                        hooks.request_post(payload, response);
+                    }
 
-                if (multi) {
-                    return response;
-                }
+                    if (multi) {
+                        return response;
+                    }
 
-                const {output} = payload;
-                const id = output.substr(0, output.lastIndexOf('.'));
-                return {[id]: response.props};
-            });
+                    const {output} = payload;
+                    const id = output.substr(0, output.lastIndexOf('.'));
+                    return {[id]: response.props};
+                });
+            }
+            if (status === STATUS.PREVENT_UPDATE) {
+                return {};
+            }
+            throw res;
+        },
+        () => {
+            // fetch rejection - this means the request didn't return,
+            // we don't get here from 400/500 errors, only network
+            // errors or unresponsive servers.
+            throw new Error('Callback failed: the server did not respond.');
         }
-        if (status === STATUS.PREVENT_UPDATE) {
-            return {};
-        }
-        throw res;
-    });
+    );
 }
 
 const getVals = input =>
