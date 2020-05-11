@@ -531,17 +531,18 @@ function inputsToDict(inputs_list) {
     // returns an Object (map):
     //  keys of the form `id.property` or `{"id": 0}.property`
     //  values contain the property value
-    let inputs = {};
+    const inputs = {};
     for (let i = 0; i < inputs_list.length; i++) {
         if (Array.isArray(inputs_list[i])) {
-            let inputsi = inputs_list[i];
+            const inputsi = inputs_list[i];
             for (let ii = 0; ii < inputsi.length; ii++) {
-                let id_str = `${JSON.stringify(inputsi[ii].id)}.${inputsi[ii].property}`;
+                const id_str = `${JSON.stringify(inputsi[ii].id)}.${
+                    inputsi[ii].property
+                }`;
                 inputs[id_str] = inputsi[ii].value;
             }
-        }
-        else {
-            let id_str = `${inputs_list[i].id}.${inputs_list[i].property}`;
+        } else {
+            const id_str = `${inputs_list[i].id}.${inputs_list[i].property}`;
             inputs[id_str] = inputs_list[i].value;
         }
     }
@@ -568,14 +569,14 @@ function handleClientside(clientside_function, payload) {
 
     try {
         // setup callback context
-        let input_dict = inputsToDict(inputs);
+        const input_dict = inputsToDict(inputs);
         dc.callback_context = {};
         if (payload.changedPropIds.length === 0) {
-            dc.callback_context.triggered = [{'prop_id': '.', 'value': null}];
-        }
-        else {
+            dc.callback_context.triggered = [{prop_id: '.', value: null}];
+        } else {
             dc.callback_context.triggered = payload.changedPropIds.map(
-                prop_id => ({'prop_id': prop_id, 'value': input_dict[prop_id]}));
+                prop_id => ({prop_id: prop_id, value: input_dict[prop_id]})
+            );
         }
         dc.callback_context.inputs_list = input_dict;
         dc.callback_context.inputs = inputs;
