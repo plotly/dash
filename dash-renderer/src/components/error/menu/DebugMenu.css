@@ -31,9 +31,9 @@
     width: 24px;
     height: 28px;
 }
-.dash-debug-menu__icon--close {
-    width: 14px;
-    height: 14px;
+.dash-debug-menu__icon--small {
+    width: 24px;
+    height: 24px;
 }
 .dash-debug-menu__icon--bell {
     height: 24px;
@@ -60,6 +60,9 @@
     align-items: center;
     width: 74px;
     margin-left: 10px;
+}
+.dash-debug-menu__button-container--small {
+    margin-right: -20px;
 }
 .dash-debug-menu__button-label {
     color: #A2B1C6;
@@ -102,12 +105,56 @@
     background-color: #03bb8a;
 }
 
-.dash-debug-menu__connection {
+.dash-debug-menu__indicator {
+    border-radius: 100%;
+    width: 34px;
+    height: 34px;
+    font-size: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 50px;
-    height: 66px;
+    position: relative;
+}
+.dash-debug-menu__indicator::before {
+    visibility: hidden;
+    pointer-events: none;
+    position: absolute;
+    box-sizing: border-box;
+    top: 110%;
+    left: 50%;
+    margin-left: -60px;
+    padding: 7px;
+    width: 120px;
+    border-radius: 3px;
+    background-color: rgba(68,68,68,0.7);
+    color: #fff;
+    content: attr(data-tooltip);
+    text-align: center;
+    font-size: 10px;
+    line-height: 1.2;
+}
+.dash-debug-menu__indicator:hover::before {
+    visibility: visible;
+}
+.dash-debug-menu__indicator--available {
+    background-color: #7FCCBB;
+}
+.dash-debug-menu__indicator--available::before {
+    content: "Server Available"
+}
+.dash-debug-menu__indicator--unavailable {
+    background-color: #F1564E;
+}
+.dash-debug-menu__indicator--unavailable::before {
+    content: "Server Unavailable. Check if the process has halted.";
+    margin-left: -70px;
+    width: 140px;
+}
+.dash-debug-menu__indicator--cold {
+    background-color: #FDDA68;
+}
+.dash-debug-menu__indicator--cold::before {
+    content: "Hot Reload Disabled"
 }
 
 .dash-debug-alert {
