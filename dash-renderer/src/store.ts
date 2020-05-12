@@ -2,10 +2,11 @@ import { createStore, applyMiddleware, Store } from 'redux';
 import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
 import StoreObserver from './StoreObserver';
-import { ICallbacksState } from './reducers/callbacks';
+import { ICallbacksState, ICallback } from './reducers/callbacks';
 
 interface IStoreState {
     callbacks: ICallbacksState;
+    pendingCallbacks: ICallback[];
     [key: string]: any;
 }
 

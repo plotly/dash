@@ -1,11 +1,8 @@
 import {
     any,
-    assocPath,
-    concat,
     forEach,
     map,
-    path,
-    reduce
+    path
 } from 'ramda';
 
 import { Store, Unsubscribe } from 'redux';
@@ -17,7 +14,6 @@ interface IStoreObserver<TStore> {
     inputPaths: string[][];
     lastState: any;
     observer: Observer<TStore>;
-    statePaths: string[][];
     triggered: boolean;
 }
 
@@ -33,10 +29,9 @@ export default class StoreObserver<TStore extends Store> {
 
     observe = (
         observer: Observer<TStore>,
-        inputs: string[],
-        states: string[] = []
+        inputs: string[]
     ): UnregisterObserver => {
-        this.add(observer, inputs, states);
+        this.add(observer, inputs);
 
         return () => this.remove(observer);
     }
@@ -59,13 +54,11 @@ export default class StoreObserver<TStore extends Store> {
 
     private add = (
         observer: Observer<TStore>,
-        inputs: string[],
-        states: string[]
+        inputs: string[]
     ) => this._observers.push({
         inputPaths: map(p => p.split('.'), inputs),
         lastState: null,
         observer,
-        statePaths: map(p => p.split('.'), states),
         triggered: false
     });
 
@@ -87,7 +80,7 @@ export default class StoreObserver<TStore extends Store> {
             return;
         }
 
-        const { inputPaths, lastState, observer, statePaths } = o;
+        const { inputPaths, lastState, observer } = o;
 
         /** Don't notify observer if there's no change */
         if (!any(
@@ -98,18 +91,15 @@ export default class StoreObserver<TStore extends Store> {
         }
 
         o.triggered = true;
-        observer({
-            ...store,
-            /** Build partial state that interests the observer */
-            getState: () => reduce<string[], object>((s, p) => assocPath(
-                p,
-                path(p, state),
-                s
-            ), {}, concat(inputPaths, statePaths)) as TStore
-        });
+        /**
+         * Due to nested store updates, the state could change between the
+         * observer call and setting `lastState`, leading to untriggered changes
+         */
+        const s = store.getState();
+        observer(store);
 
         o.triggered = false;
-        o.lastState = store.getState();
+        o.lastState = s;
     };
 
     private remove = (observer: Observer<TStore>) => this._observers.splice(

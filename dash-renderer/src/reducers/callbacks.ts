@@ -4,23 +4,14 @@ import {
     reduce
 } from 'ramda';
 
-/**
- * Callback states and transitions
- *
- * State                transition --> {State}
- * -------------------------------
- * {Requested}          prioritize --> {Prioritized}
- * {Prioritized}        execute --> {Executing}
- * {Executing}          processResult --> {Executed}
- * {Executed}           (none)
- */
-
 export enum CallbackActionType {
+    AddApplied = 'Callbacks.AddApplied',
     AddExecuted = 'Callbacks.AddExecuted',
     AddExecuting = 'Callbacks.AddExecuting',
     AddPrioritized = 'Callbacks.AddPrioritized',
     AddRequested = 'Callbacks.AddRequested',
-    AddWatched = 'Callbacks.Watched',
+    AddWatched = 'Callbacks.AddWatched',
+    RemoveApplied = 'Callbacks.RemoveApplied',
     RemoveExecuted = 'Callbacks.RemoveExecuted',
     RemoveExecuting = 'Callbacks.RemoveExecuting',
     RemovePrioritized = 'Callbacks.ReomvePrioritized',
@@ -29,35 +20,65 @@ export enum CallbackActionType {
 }
 
 export enum CallbackAggregateActionType {
+    AddCompleted = 'Callbacks.Completed',
     Aggregate = 'Callbacks.Aggregate'
 }
 
-export type CallbackResult = {
-    data: any;
-} | { error: any };
+export interface ICallback {
+    callback: {
+        clientside_function: string;
+        input: string;
+        inputs: { id: string; property: string; }[];
+        output: string;
+        outputs: { id: string; property: string; }[];
+        state: { id: string; property: string; }[];
+    };
+    prevent_initial_call: boolean;
 
-export type Callback = {
-    executionResult?: Promise<CallbackResult> | CallbackResult | null;
     [key: string]: any;
-};
-
-interface ICallbackAction {
-    type: CallbackActionType | CallbackAggregateActionType | string;
-    payload: Callback[];
 }
 
-type CallbackAction = ICallbackAction | {
-    type: CallbackAggregateActionType.Aggregate,
-    payload: ICallbackAction[]
-};
+export interface IExecutingCallback extends ICallback {
+    executionPromise: Promise<CallbackResult> | CallbackResult | null;
+}
 
+export interface IExecutedCallback extends IExecutingCallback {
+    executionResult: CallbackResult | null;
+}
+
+
+export type CallbackResult = {
+    data?: any;
+    error?: Error
+}
+
+export interface IAggregateAction {
+    type: CallbackAggregateActionType.Aggregate,
+    payload: (ICallbackAction | ICompletedAction | null)[]
+}
+
+export interface ICallbackAction {
+    type: CallbackActionType;
+    payload: ICallback[];
+}
+
+export interface ICompletedAction {
+    type: CallbackAggregateActionType.AddCompleted,
+    payload: number
+}
+
+type CallbackAction =
+    IAggregateAction |
+    ICallbackAction |
+    ICompletedAction;
 
 export interface ICallbacksState {
-    executed: Callback[];
-    executing: Callback[];
-    prioritized: Callback[];
-    requested: Callback[];
-    watched: Callback[];
+    requested: ICallback[];
+    prioritized: ICallback[];
+    executing: IExecutingCallback[];
+    watched: IExecutingCallback[];
+    executed: IExecutedCallback[];
+    completed: number;
 }
 
 const DEFAULT_STATE: ICallbacksState = {
@@ -65,17 +86,20 @@ const DEFAULT_STATE: ICallbacksState = {
     executing: [],
     prioritized: [],
     requested: [],
-    watched: []
+    watched: [],
+    completed: 0
 };
 
 const transforms: {
-    [key: string]: (a1: Callback[], a2: Callback[]) => Callback[]
+    [key: string]: (a1: ICallback[], a2: ICallback[]) => ICallback[]
 } = {
+    [CallbackActionType.AddApplied]: concat,
     [CallbackActionType.AddExecuted]: concat,
     [CallbackActionType.AddExecuting]: concat,
     [CallbackActionType.AddPrioritized]: concat,
     [CallbackActionType.AddRequested]: concat,
     [CallbackActionType.AddWatched]: concat,
+    [CallbackActionType.RemoveApplied]: difference,
     [CallbackActionType.RemoveExecuted]: difference,
     [CallbackActionType.RemoveExecuting]: difference,
     [CallbackActionType.RemovePrioritized]: difference,
@@ -84,7 +108,7 @@ const transforms: {
 };
 
 const fields: {
-    [key: string]: keyof ICallbacksState
+    [key: string]: keyof Omit<ICallbacksState, 'completed'>
 } = {
     [CallbackActionType.AddExecuted]: 'executed',
     [CallbackActionType.AddExecuting]: 'executing',
@@ -98,17 +122,38 @@ const fields: {
     [CallbackActionType.RemoveWatched]: 'watched'
 }
 
+const mutateCompleted = (
+    state: ICallbacksState,
+    action: ICompletedAction
+) => ({ ...state, completed: state.completed + action.payload });
+
+const mutateCallbacks = (
+    state: ICallbacksState,
+    action: ICallbackAction
+) => {
+    const transform = transforms[action.type];
+    const field = fields[action.type];
+
+    return (!transform || !field || action.payload.length === 0) ?
+        state : {
+            ...state,
+            [field]: transform(state[field], action.payload)
+        };
+}
+
+
+
 export default (
     state: ICallbacksState = DEFAULT_STATE,
     action: CallbackAction
 ) => reduce((s, a) => {
-    const transform = transforms[a.type];
-    const field = fields[a.type];
-
-    return (!transform || !field || a.payload.length === 0) ? s : {
-        ...s,
-        [field]: transform(s[field], a.payload)
-    };
+    if (a === null) {
+        return s;
+    } else if (a.type === CallbackAggregateActionType.AddCompleted) {
+        return mutateCompleted(s, a);
+    } else {
+        return mutateCallbacks(s, a);
+    }
 }, state, action.type === CallbackAggregateActionType.Aggregate ?
     action.payload :
     [action]

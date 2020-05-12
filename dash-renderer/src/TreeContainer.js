@@ -311,8 +311,8 @@ function getLoadingState(layout, pendingCallbacks) {
         const idStrs = ids.map(stringifyId);
 
         pendingCallbacks.forEach(cb => {
-            const {requestId, requestedOutputs} = cb;
-            if (requestId === undefined) {
+            const {executionPromise, requestedOutputs} = cb;
+            if (executionPromise === undefined) {
                 return;
             }
 
