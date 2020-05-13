@@ -98,7 +98,14 @@ class DebugMenu extends Component {
                     'bell',
                     errCount + ' Error' + (errCount === 1 ? '' : 's')
                 )}
-                {buttonFactory(false, status, null, _StatusIcon, 'indicator', 'Server')}
+                {buttonFactory(
+                    false,
+                    status,
+                    null,
+                    _StatusIcon,
+                    'indicator',
+                    'Server'
+                )}
             </div>
         ) : (
             <div className="dash-debug-menu__content" />
