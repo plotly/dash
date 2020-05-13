@@ -531,7 +531,7 @@ function inputsToDict(inputs_list) {
     // returns an Object (map):
     //  keys of the form `id.property` or `{"id": 0}.property`
     //  values contain the property value
-    if (!inputs_list){
+    if (!inputs_list) {
         return {};
     }
     const inputs = {};
