@@ -3,9 +3,28 @@ const R = require('ramda');
 const path = require('path');
 const packagejson = require('./package.json');
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
+const { WebpackPluginServe: Serve } = require('webpack-plugin-serve');
+
 
 const defaults = {
-    plugins: [],
+    plugins: [
+        new Serve(
+            {
+                port: 5000,
+                /* we need to proxy the call to the relevant dash app, in addition, we need to rewrite
+                 * for the second path, as dash app are by default mountained on the root path '/'
+                 */
+                middleware: (app, builtins) => {
+                    app.use(builtins.proxy('/_dash-*', {target: 'http://localhost:9000'}));
+                    app.use(builtins.proxy('/second/_dash-*', {
+                        pathRewrite: {
+                            '/second': ''
+                        },
+                        target: 'http://localhost:8050'
+                    }));
+                }
+            })
+    ],
     module: {
         rules: [
             {

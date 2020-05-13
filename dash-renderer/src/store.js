@@ -15,6 +15,9 @@ let store;
  *  An initialized redux store with middleware and possible hot reloading of reducers
  */
 const initializeStore = reset => {
+
+    // the store is treated as singleton object, but if we want to have multiple store ( = multipe dash apps running
+    // on one page, we'll need to remove the singleton constrain ( we can use the reset flag )
     if (store && !reset) {
         return store;
     }

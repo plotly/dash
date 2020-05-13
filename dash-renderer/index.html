@@ -1,15 +1,50 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
     </head>
     <body>
         <div id="react-entry-point"></div>
     </body>
 
-    <script type="text/javascript">
 
+    <!-- dash renderer configuration, the app wil fallback to it if nothing is passed -->
+    <script id="_dash-config" type="application/json">
+        {   "url_base_pathname": null,
+            "requests_pathname_prefix": "/",
+            "ui": false,
+            "props_check": false,
+            "show_undo_redo": false}
     </script>
 
-    <script type="text/javascript" src="build/bundle.js"></script>
+
+    <!-- dash renderer dependencies-->
+    <script src="dash_renderer/react@16.8.6.js"></script>
+    <script src="dash_renderer/react-dom@16.8.6.js"></script>
+    <script src="dash_renderer/prop-types@15.7.2.js"></script>
+
+    <!-- dash libraries -->
+    <script src="http://localhost:9000/_dash-component-suites/dash_html_components/dash_html_components.v1_0_2m1580425022.min.js"></script>
+    <script src="http://localhost:9000/_dash-component-suites/dash_core_components/dash_core_components.v1_8_1m1582838725.min.js"></script>
+    <script src="http://localhost:9000/_dash-component-suites/dash_core_components/dash_core_components-shared.v1_8_1m1582838725.js"></script>
+    <script src="http://localhost:9000/_dash-component-suites/dash_table/bundle.v4_6_1m1582839186.js"></script>
+    <!--  take the latest mp components-->
+    <script src="http://localhost:8050/_dash-component-suites/dash_mp_components/dash_mp_components.v0_0_21m1588325558.min.js"></script>
+    <script src="http://localhost:9000/_dash-component-suites/crystal_toolkit/crystal_toolkit.v2020_02_05m1581397905.min.js"></script>
+
+    <!-- dash renderer should come last -->
+    <script src="dash_renderer/dash_renderer.dev.js"></script>
+
+    <!-- client side callback -->
+    <script>
+        var clientside = window.dash_clientside = window.dash_clientside || {};
+        var ns = clientside["_dashprivate_mp-url"] = clientside["_dashprivate_mp-url"] || {};
+        ns["pathname"] =
+            function(value) {
+                console.log('pathname', value);
+                return value && '/' + value;
+            }
+        ;
+        console.log(ns);
+    </script>
 </html>
