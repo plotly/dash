@@ -531,6 +531,9 @@ function inputsToDict(inputs_list) {
     // returns an Object (map):
     //  keys of the form `id.property` or `{"id": 0}.property`
     //  values contain the property value
+    if (!inputs_list){
+        return {};
+    }
     const inputs = {};
     for (let i = 0; i < inputs_list.length; i++) {
         if (Array.isArray(inputs_list[i])) {
@@ -539,11 +542,11 @@ function inputsToDict(inputs_list) {
                 const id_str = `${JSON.stringify(inputsi[ii].id)}.${
                     inputsi[ii].property
                 }`;
-                inputs[id_str] = inputsi[ii].value;
+                inputs[id_str] = inputsi[ii].value ? inputsi[ii].value : null;
             }
         } else {
             const id_str = `${inputs_list[i].id}.${inputs_list[i].property}`;
-            inputs[id_str] = inputs_list[i].value;
+            inputs[id_str] = inputs_list[i].value ? inputs_list[i].value : null;
         }
     }
     return inputs;
@@ -578,9 +581,10 @@ function handleClientside(clientside_function, payload) {
                 prop_id => ({prop_id: prop_id, value: input_dict[prop_id]})
             );
         }
-        dc.callback_context.inputs_list = input_dict;
-        dc.callback_context.inputs = inputs;
-        // TODO: add the rest: states, states_list, response(??)
+        dc.callback_context.inputs_list = inputs;
+        dc.callback_context.inputs = input_dict;
+        dc.callback_context.states_list = state;
+        dc.callback_context.states = inputsToDict(state);
 
         const {namespace, function_name} = clientside_function;
         let args = inputs.map(getVals);
