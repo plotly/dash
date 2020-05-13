@@ -18,33 +18,29 @@ export function includeObservers(id: any, props: any, graphs: any, paths: any): 
 }
 
 export function pruneCallbacks<T extends ICallback>(callbacks: T[], paths: any): {
-    initial: T[],
-    modified: T[],
-    removed: T[],
-    pruned: number
+    added: T[],
+    removed: T[]
 } {
-    const [, affected] = partition(
+    const [, removed] = partition(
         ({ getOutputs, callback: { outputs } }) => flatten(getOutputs(paths)).length === outputs.length,
         callbacks
     );
 
-    const [removed, initial] = partition(
+    const [, modified] = partition(
         ({ getOutputs }) => !flatten(getOutputs(paths)).length,
-        affected
+        removed
     );
 
-    const modified = map(
+    const added = map(
         cb => assoc('changedPropIds', pickBy(
             (_, propId) => getPath(paths, splitIdAndProp(propId).id),
             cb.changedPropIds
         ), cb),
-        initial
+        modified
     );
 
     return {
-        initial,
-        modified,
-        removed,
-        pruned: initial.length + removed.length
+        added,
+        removed
     };
 }

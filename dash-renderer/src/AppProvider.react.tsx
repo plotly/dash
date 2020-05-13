@@ -202,13 +202,13 @@ observe(({
         3. Modify or remove callbacks that are outputing to non-existing layout `id`.
     */
 
-    const { pruned: rPruned, initial: rInitial, modified: rModified, removed: rRemoved } = pruneCallbacks(requested, paths);
-    const { pruned: pPruned, initial: pInitial, modified: pModified, removed: pRemoved } = pruneCallbacks(prioritized, paths);
-    const { pruned: ePruned, initial: eInitial, modified: eModified, removed: eRemoved } = pruneCallbacks(executing, paths);
-    const { pruned: wPruned, initial: wInitial, modified: wModified, removed: wRemoved } = pruneCallbacks(watched, paths);
+    const { added: rAdded, removed: rRemoved } = pruneCallbacks(requested, paths);
+    const { added: pAdded, removed: pRemoved } = pruneCallbacks(prioritized, paths);
+    const { added: eAdded, removed: eRemoved } = pruneCallbacks(executing, paths);
+    const { added: wAdded, removed: wRemoved } = pruneCallbacks(watched, paths);
 
-    if (rPruned + pPruned + ePruned + wPruned) {
-        console.log('onCallbacksChanged.requested', '[pruned]', rPruned, pPruned, ePruned, wPruned);
+    if (rRemoved.length + pRemoved.length + eRemoved.length + wRemoved.length) {
+        console.log('onCallbacksChanged.requested', '[pruned]', rRemoved.length, pRemoved.length, eRemoved.length, wRemoved.length);
     }
 
     /*
@@ -218,9 +218,9 @@ observe(({
     requested = concat(
         difference(
             requested,
-            concat(rInitial, rRemoved)
+            rRemoved
         ),
-        rModified
+        rAdded
     );
 
     /* 4. Determine `requested` callbacks that can be `prioritized` */
@@ -250,14 +250,14 @@ observe(({
         eDuplicates.length ? removeExecutingCallbacks(eDuplicates) : null,
         wDuplicates.length ? removeWatchedCallbacks(wDuplicates) : null,
         // Prune callbacks
-        (rInitial.length + rRemoved.length) ? removeRequestedCallbacks(concat(rInitial, rRemoved)) : null,
-        rModified.length ? addRequestedCallbacks(rModified) : null,
-        (pInitial.length + pRemoved.length) ? removePrioritizedCallbacks(concat(pInitial, pRemoved)) : null,
-        pModified.length ? addPrioritizedCallbacks(pModified) : null,
-        (eInitial.length + eRemoved.length) ? removeExecutingCallbacks(concat(eInitial, eRemoved)) : null,
-        eModified.length ? addExecutingCallbacks(eModified) : null,
-        (wInitial.length + wRemoved.length) ? removeWatchedCallbacks(concat(wInitial, wRemoved)) : null,
-        wModified.length ? addWatchedCallbacks(wModified) : null,
+        rRemoved.length ? removeRequestedCallbacks(rRemoved) : null,
+        rAdded.length ? addRequestedCallbacks(rAdded) : null,
+        pRemoved.length ? removePrioritizedCallbacks(pRemoved) : null,
+        pAdded.length ? addPrioritizedCallbacks(pAdded) : null,
+        eRemoved.length ? removeExecutingCallbacks(eRemoved) : null,
+        eAdded.length ? addExecutingCallbacks(eAdded) : null,
+        wRemoved.length ? removeWatchedCallbacks(wRemoved) : null,
+        wAdded.length ? addWatchedCallbacks(wAdded) : null,
         // Promoted callbacks
         readyCallbacks.length ? removeRequestedCallbacks(readyCallbacks) : null,
         readyCallbacks.length ? addPrioritizedCallbacks(readyCallbacks) : null
