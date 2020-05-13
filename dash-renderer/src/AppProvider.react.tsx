@@ -301,13 +301,14 @@ observe(async ({
         return [cb, { allOutputs, allPropIds }];
     });
 
-    const ids = callbacks.map(([cb]) => [
-        cb.getInputs(paths),
-        cb.getState(paths),
-    ]);
+    const ids = reduce((res, [cb]) => ([
+        ...res,
+        ...cb.getInputs(paths),
+        ...cb.getState(paths)
+    ]), [] as ICallbackProperty[], callbacks);
 
     /* Make sure the app is ready to execute callbacks impacting `ids` */
-    await isAppReady(layout, paths, uniq(pluck('id', flatten(ids))));
+    await isAppReady(layout, paths, uniq(pluck('id', ids)));
 
     const executingCallbacks: IExecutingCallback[] = callbacks.map(([cb, stash]) => {
         return executeCallback(cb, config, hooks, paths, layout, stash);
@@ -418,7 +419,7 @@ observe(({
         console.log('SPECIAL', '[executionResult]', data);
 
         if (data !== undefined) {
-            return forEach(([id, props]: [any, any]) => {
+            return forEach(([id, props]: [any, { [key: string]: any }]) => {
                 const parsedId = parseIfWildcard(id);
 
                 // Components will trigger callbacks on their own as required (eg. derived)
@@ -429,7 +430,7 @@ observe(({
                     const { children } = appliedProps;
 
                     const { paths: oldPaths, graphs } = getState();
-                    const childrenPath = concat(getPath(oldPaths, id), ['props', 'children']);
+                    const childrenPath = concat(getPath(oldPaths, parsedId), ['props', 'children']);
                     const paths = computePaths(children, childrenPath, oldPaths);
                     dispatch(setPaths(paths));
 
