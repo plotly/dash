@@ -40,6 +40,9 @@ export interface ICallback {
         outputs: ICallbackProperty[];
         state: ICallbackProperty[];
     };
+    getInputs: (paths: any) => ICallbackProperty[];
+    getOutputs: (paths: any) => ICallbackProperty[];
+    getState: (paths: any) => ICallbackProperty[];
     prevent_initial_call: boolean;
 
     [key: string]: any;

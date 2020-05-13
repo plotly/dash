@@ -5,7 +5,6 @@ import {
     any,
     ap,
     assoc,
-    clone,
     difference,
     equals,
     evolve,
@@ -18,20 +17,16 @@ import {
     keys,
     map,
     mergeRight,
-    mergeWith,
     path,
     pluck,
-    // propEq,
     props,
     startsWith,
-    unnest,
     values,
     zip,
     zipObj,
 } from 'ramda';
 
-const mergeMax = mergeWith(Math.max);
-
+import {DIRECT, followForward, INDIRECT, mergeMax} from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 
 import {crawlLayout} from './utils';
@@ -951,9 +946,6 @@ const makeResolvedCallback = (callback, resolve, anyVals) => ({
     requestedOutputs: {},
 });
 
-const DIRECT = 2;
-const INDIRECT = 1;
-
 /*
  * Does this item (input / output / state) support multiple values?
  * string IDs do not; wildcard IDs only do if they contain ALL or ALLSMALLER
@@ -1322,69 +1314,4 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
     });
 
     return finalCallbacks;
-}
-
-function addBlock(callbacks, blockingId, blockedId) {
-    callbacks.forEach(({blockedBy, blocking, resolvedId}) => {
-        if (resolvedId === blockingId || blocking[blockingId]) {
-            blocking[blockedId] = 1;
-        } else if (resolvedId === blockedId || blockedBy[blockedId]) {
-            blockedBy[blockingId] = 1;
-        }
-    });
-}
-
-function collectIds(callbacks) {
-    const allResolvedIds = {};
-    callbacks.forEach(({resolvedId}, i) => {
-        allResolvedIds[resolvedId] = i;
-    });
-    return allResolvedIds;
-}
-
-/*
- * Take a list of callbacks and follow them all forward, ie see if any of their
- * outputs are inputs of another callback. Any new callbacks get added to the
- * list. All that come after another get marked as blocked by that one, whether
- * they were in the initial list or not.
- */
-export function followForward(graphs, paths, callbacks_) {
-    const callbacks = clone(callbacks_);
-    const allResolvedIds = collectIds(callbacks);
-    let i;
-    let callback;
-
-    const followOutput = ({id, property}) => {
-        const nextCBs = getCallbacksByInput(
-            graphs,
-            paths,
-            id,
-            property,
-            INDIRECT
-        );
-        nextCBs.forEach(nextCB => {
-            let existingIndex = allResolvedIds[nextCB.resolvedId];
-            if (existingIndex === undefined) {
-                existingIndex = callbacks.length;
-                callbacks.push(nextCB);
-                allResolvedIds[nextCB.resolvedId] = existingIndex;
-            } else {
-                const existingCB = callbacks[existingIndex];
-                existingCB.changedPropIds = mergeMax(
-                    existingCB.changedPropIds,
-                    nextCB.changedPropIds
-                );
-            }
-            addBlock(callbacks, callback.resolvedId, nextCB.resolvedId);
-        });
-    };
-
-    // Using a for loop instead of forEach because followOutput may extend the
-    // callbacks array, and we want to continue into these new elements.
-    for (i = 0; i < callbacks.length; i++) {
-        callback = callbacks[i];
-        const outputs = unnest(callback.getOutputs(paths));
-        outputs.forEach(followOutput);
-    }
-    return callbacks;
 }
