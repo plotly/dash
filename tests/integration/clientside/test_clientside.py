@@ -389,7 +389,7 @@ def test_clsd009_clientside_callback_context_triggered(dash_duo):
 
     dash_duo.start_server(app)
 
-    dash_duo.wait_for_text_to_equal("#output-clientside", ". = null")
+    dash_duo.wait_for_text_to_equal("#output-clientside", "")
 
     dash_duo.find_element("#btn0").click()
 
@@ -545,8 +545,6 @@ def test_clsd011_clientside_callback_context_inputs_list(dash_duo):
             '{"id":{"btn1":2},"property":"n_clicks","value":1}]]'
         ),
     )
-    # TODO: flush out these tests and make them look prettier.
-    #  Maybe one test for each of the callback_context properties?
 
 
 def test_clsd012_clientside_callback_context_states(dash_duo):
