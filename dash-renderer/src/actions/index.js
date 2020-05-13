@@ -576,13 +576,10 @@ function handleClientside(clientside_function, payload) {
         // setup callback context
         const input_dict = inputsToDict(inputs);
         dc.callback_context = {};
-        if (payload.changedPropIds.length === 0) {
-            dc.callback_context.triggered = [{prop_id: '.', value: null}];
-        } else {
-            dc.callback_context.triggered = payload.changedPropIds.map(
-                prop_id => ({prop_id: prop_id, value: input_dict[prop_id]})
-            );
-        }
+        dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
+            prop_id: prop_id,
+            value: input_dict[prop_id],
+        }));
         dc.callback_context.inputs_list = inputs;
         dc.callback_context.inputs = input_dict;
         dc.callback_context.states_list = state;
