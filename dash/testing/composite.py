@@ -37,7 +37,6 @@ class DashJuliaComposite(Browser):
         self.server = server
 
     def start_server(self, app, cwd=None):
-        self.wait_timeout = 30 
         # start server with Dash.jl app. The app sets its own run_server args
         # on the Julia side, but we support overriding the automatic cwd
         self.server(app, cwd=cwd)
