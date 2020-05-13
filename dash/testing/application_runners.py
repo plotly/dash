@@ -222,6 +222,8 @@ class ProcessRunner(BaseDashRunner):
                 logger.info("proc.terminate with pid %s", self.proc.pid)
                 self.proc.terminate()
                 if os.path.exists(self.tmp_app_path):
+                    logger.debug("removing temporary app path %s",
+                                 self.tmp_app_path)
                     shutil.rmtree(self.tmp_app_path)
                 if utils.PY3:
                     # pylint:disable=no-member
