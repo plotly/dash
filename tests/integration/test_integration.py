@@ -648,16 +648,21 @@ def test_inin019_callback_dep_types():
     app = Dash(__name__)
     app.layout = html.Div(
         [
-            html.Div("child", id="in1"), html.Div("state", id="state1"), html.Div(id="out1"),
-            html.Div("child", id="in2"), html.Div("state", id="state2"), html.Div(id="out2"),
-            html.Div("child", id="in3"), html.Div("state", id="state3"), html.Div(id="out3"),
+            html.Div("child", id="in1"),
+            html.Div("state", id="state1"),
+            html.Div(id="out1"),
+            html.Div("child", id="in2"),
+            html.Div("state", id="state2"),
+            html.Div(id="out2"),
+            html.Div("child", id="in3"),
+            html.Div("state", id="state3"),
+            html.Div(id="out3"),
         ]
     )
 
     with pytest.raises(IncorrectTypeException):
 
-        @app.callback([[Output("out1", "children")]],
-                      [Input("in1", "children")])
+        @app.callback([[Output("out1", "children")]], [Input("in1", "children")])
         def f(i):
             return i
 

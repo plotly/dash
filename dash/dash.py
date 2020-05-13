@@ -118,8 +118,7 @@ def _handle_callback_args(args, kwargs):
         for arg_or_list in args
         # flatten args that are lists
         for arg in (
-            arg_or_list if isinstance(arg_or_list, (list, tuple))
-            else [arg_or_list]
+            arg_or_list if isinstance(arg_or_list, (list, tuple)) else [arg_or_list]
         )
     ]
     return [
@@ -130,7 +129,7 @@ def _handle_callback_args(args, kwargs):
         # keep list of args in order, for matching order
         # in the callback's parameters
         [arg for arg in args if not isinstance(arg, Output)],
-        prevent_initial_call
+        prevent_initial_call,
     ]
 
 
@@ -857,7 +856,9 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(self, output, inputs, state, callback_args, prevent_initial_call):
+    def _insert_callback(
+        self, output, inputs, state, callback_args, prevent_initial_call
+    ):
         if prevent_initial_call is None:
             prevent_initial_call = self.config.prevent_initial_callbacks
 
@@ -945,7 +946,13 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        output, inputs, state, callback_args, prevent_initial_call = _handle_callback_args(args, kwargs)
+        (
+            output,
+            inputs,
+            state,
+            callback_args,
+            prevent_initial_call,
+        ) = _handle_callback_args(args, kwargs)
         self._insert_callback(output, inputs, state, callback_args)
 
         # If JS source is explicitly given, create a namespace and function
@@ -991,11 +998,17 @@ class Dash(object):
         """
         # for backward compatibility, store whether first argument is a
         # list of only 1 Output
-        specified_output_list = (
-            isinstance(args[0], (list, tuple))
-            and len(args[0]) == 1)
-        output, inputs, state, callback_args, prevent_initial_call = _handle_callback_args(args, kwargs)
-        callback_id = self._insert_callback(output, inputs, state, callback_args, prevent_initial_call)
+        specified_output_list = isinstance(args[0], (list, tuple)) and len(args[0]) == 1
+        (
+            output,
+            inputs,
+            state,
+            callback_args,
+            prevent_initial_call,
+        ) = _handle_callback_args(args, kwargs)
+        callback_id = self._insert_callback(
+            output, inputs, state, callback_args, prevent_initial_call
+        )
 
         def wrap_func(func):
             @wraps(func)
@@ -1071,8 +1084,8 @@ class Dash(object):
             value
             for arg in self.callback_map[output]["args"]
             for value in (inputs + state)
-            if arg['id'] == value['id']
-            and arg['property'] == value['property']]
+            if arg["id"] == value["id"] and arg["property"] == value["property"]
+        ]
         args = inputs_to_vals(args_inputs)
 
         func = self.callback_map[output]["callback"]
