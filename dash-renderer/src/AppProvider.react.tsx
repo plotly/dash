@@ -11,10 +11,10 @@ import {
     has,
     isEmpty,
     isNil,
+    keys,
     map,
     partition,
     path,
-    pick,
     pickBy,
     pluck,
     reduce,
@@ -56,9 +56,10 @@ import {
 } from './actions/callbacks';
 import { stringifyId, combineIdAndProp, parseIfWildcard, getCallbacksInLayout } from './actions/dependencies';
 import { includeObservers, pruneCallbacks } from './actions/dependencies_ts';
-import { ICallbacksState, IExecutingCallback, ICallback } from './reducers/callbacks';
+import { ICallbacksState, IExecutingCallback, ICallback, ICallbackProperty } from './reducers/callbacks';
 import isAppReady from './actions/isAppReady';
 import { prunePersistence, applyPersistence } from './persistence';
+import type from 'ramda/es/type';
 
 const store = initializeStore();
 
@@ -111,6 +112,25 @@ observe(({
 
     console.log('onCallbacksChanged.requested', completed, requested);
 
+    const stringifyCallbackProperty = ({
+        id,
+        property
+    }: ICallbackProperty): string =>
+        type(id) === 'String' ?
+            `${id}.${property}` :
+            `{${keys(id).join(',')}}.${property}`;
+
+    const stringifyCallbackProperties = ({
+        callback: {
+            inputs,
+            outputs,
+            state }
+    }: ICallback): string => map(stringifyCallbackProperty, [
+        ...inputs,
+        ...outputs,
+        ...state
+    ]).join(',');
+
     /*
         1. Remove duplicated `requested` callbacks
     */
@@ -124,9 +144,7 @@ observe(({
         group => group.slice(1),
         values(
             groupBy<ICallback>(
-                r => JSON.stringify(
-                    pick(['inputs', 'outputs', 'state'], r.callback)
-                ),
+                stringifyCallbackProperties,
                 requested
             )
         )
@@ -150,9 +168,7 @@ observe(({
         group => group.slice(1),
         values(
             groupBy<ICallback>(
-                r => JSON.stringify(
-                    pick(['inputs', 'outputs', 'state'], r.callback)
-                ),
+                stringifyCallbackProperties,
                 concat(requested, prioritized)
             )
         )
@@ -162,9 +178,7 @@ observe(({
         group => group.slice(1),
         values(
             groupBy<ICallback>(
-                r => JSON.stringify(
-                    pick(['inputs', 'outputs', 'state'], r.callback)
-                ),
+                stringifyCallbackProperties,
                 concat(requested, executing)
             )
         )
@@ -174,9 +188,7 @@ observe(({
         group => group.slice(1),
         values(
             groupBy<ICallback>(
-                r => JSON.stringify(
-                    pick(['inputs', 'outputs', 'state'], r.callback)
-                ),
+                stringifyCallbackProperties,
                 concat(requested, watched)
             )
         )
@@ -214,7 +226,7 @@ observe(({
     /* 4. Determine `requested` callbacks that can be `prioritized` */
     /* Find all outputs of all active callbacks */
     const outputs = map(
-        o => `${o.id}.${o.property}`,
+        stringifyCallbackProperty,
         reduce<ICallback, any[]>((o, cb) => concat(o, cb.callback.outputs), [], pendingCallbacks)
     );
 
@@ -225,7 +237,7 @@ observe(({
     /* Find `requested` callbacks that do not depend on a outstanding output (as either input or state) */
     const readyCallbacks = filter(
         cb => all(
-            i => !outputsMap[`${i.id}.${i.property}`],
+            i => !outputsMap[stringifyCallbackProperty(i)],
             cb.callback.inputs
         ),
         requested

@@ -24,14 +24,21 @@ export enum CallbackAggregateActionType {
     Aggregate = 'Callbacks.Aggregate'
 }
 
+type CallbackId = string | { [key: string]: any }
+
+export interface ICallbackProperty {
+    id: CallbackId;
+    property: string;
+}
+
 export interface ICallback {
     callback: {
         clientside_function: string;
         input: string;
-        inputs: { id: string; property: string; }[];
+        inputs: ICallbackProperty[];
         output: string;
-        outputs: { id: string; property: string; }[];
-        state: { id: string; property: string; }[];
+        outputs: ICallbackProperty[];
+        state: ICallbackProperty[];
     };
     prevent_initial_call: boolean;
 
