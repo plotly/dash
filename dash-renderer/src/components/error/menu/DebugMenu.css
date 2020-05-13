@@ -22,23 +22,8 @@
 }
 
 .dash-debug-menu__icon {
-    width: 24px;
-    height: 28px;
-}
-.dash-debug-menu__icon--bell {
-    height: 24px;
-    width: 28px;
-}
-.dash-debug-menu__icon--debug {
-    height: 24px;
     width: auto;
-}
-.dash-debug-menu__icon--graph {
     height: 24px;
-}
-.dash-debug-menu__icon--indicator {
-    height: 54px;
-    width: 54px;
 }
 
 .dash-debug-menu__outer {
