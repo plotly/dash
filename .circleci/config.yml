@@ -297,21 +297,21 @@ jobs:
           command: |
               sudo Rscript -e 'res=devtools::test("dashR/tests/", reporter=default_reporter());df=as.data.frame(res);if(sum(df$failed) > 0 || any(df$error)) {q(status=1)}'
 
-      # - run:
-      #     name: ⚙️ Integration tests
-      #     command: |
-      #       python -m venv venv
-      #       . venv/bin/activate
-      #       cd dash-main/\@plotly/dash-generator-test-component-nested && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
-      #       cd dash-main/\@plotly/dash-generator-test-component-standard && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
-      #       export PATH=$PATH:/home/circleci/.local/bin/
-      #       pytest --nopercyfinalize --junitxml=test-reports/dashr.xml dashR/tests/integration/dopsa/
-      # - store_artifacts:
-      #     path: test-reports
-      # - store_test_results:
-      #     path: test-reports
-      # - store_artifacts:
-      #     path: /tmp/dash_artifacts
+      - run:
+          name: ⚙️ Integration tests
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            cd dash-main/\@plotly/dash-generator-test-component-nested && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
+            cd dash-main/\@plotly/dash-generator-test-component-standard && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
+            export PATH=$PATH:/home/circleci/.local/bin/
+            pytest --nopercyfinalize --junitxml=test-reports/dashr.xml dashR/tests/integration/dopsa/
+      - store_artifacts:
+          path: test-reports
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: /tmp/dash_artifacts
 
       - run:
           name: 🦔 percy finalize
