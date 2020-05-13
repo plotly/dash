@@ -342,7 +342,7 @@ class JuliaRunner(ProcessRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self, app, start_timeout=20, cwd=None):
+    def start(self, app, start_timeout=15, cwd=None):
         """Start the server with subprocess and julia."""
 
         if os.path.isfile(app) and os.path.exists(app):
