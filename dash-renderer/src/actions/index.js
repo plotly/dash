@@ -539,14 +539,16 @@ function inputsToDict(inputs_list) {
         if (Array.isArray(inputs_list[i])) {
             const inputsi = inputs_list[i];
             for (let ii = 0; ii < inputsi.length; ii++) {
-                const id_str = `${JSON.stringify(inputsi[ii].id)}.${
+                const id_str = `${stringifyId(inputsi[ii].id)}.${
                     inputsi[ii].property
                 }`;
-                inputs[id_str] = inputsi[ii].value ? inputsi[ii].value : null;
+                inputs[id_str] = inputsi[ii].value ?? null;
             }
         } else {
-            const id_str = `${inputs_list[i].id}.${inputs_list[i].property}`;
-            inputs[id_str] = inputs_list[i].value ? inputs_list[i].value : null;
+            const id_str = `${stringifyId(inputs_list[i].id)}.${
+                inputs_list[i].property
+            }`;
+            inputs[id_str] = inputs_list[i].value ?? null;
         }
     }
     return inputs;
