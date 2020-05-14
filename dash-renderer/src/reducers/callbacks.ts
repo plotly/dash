@@ -32,6 +32,7 @@ export interface ICallbackProperty {
 }
 
 export interface ICallback {
+    anyVals: any[] | string;
     callback: {
         clientside_function: string;
         input: string;

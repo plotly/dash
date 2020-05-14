@@ -26,7 +26,13 @@ import {
     zipObj,
 } from 'ramda';
 
-import {DIRECT, followForward, INDIRECT, mergeMax} from './dependencies_ts';
+import {
+    combineIdAndProp,
+    DIRECT,
+    followForward,
+    INDIRECT,
+    mergeMax,
+} from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 
 import {crawlLayout} from './utils';
@@ -99,9 +105,6 @@ export function splitIdAndProp(idAndProp) {
 export function parseIfWildcard(idStr) {
     return isWildcardId(idStr) ? parseWildcardId(idStr) : idStr;
 }
-
-export const combineIdAndProp = ({id, property}) =>
-    `${stringifyId(id)}.${property}`;
 
 /*
  * JSON.stringify - for the object form - but ensuring keys are sorted

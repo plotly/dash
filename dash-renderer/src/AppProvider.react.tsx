@@ -11,7 +11,6 @@ import {
     has,
     isEmpty,
     isNil,
-    keys,
     map,
     partition,
     path,
@@ -35,31 +34,28 @@ import {
     handleAsyncError
 } from './actions';
 import {
+    addCompletedCallbacks,
     addExecutedCallbacks,
     addExecutingCallbacks,
     addPrioritizedCallbacks,
+    addRequestedCallbacks,
+    addWatchedCallbacks,
     aggregateCallbacks,
+    executeCallback,
+    removeExecutedCallbacks,
+    removeExecutingCallbacks,
     removePrioritizedCallbacks,
     removeRequestedCallbacks,
-    setPendingCallbacks,
-    addWatchedCallbacks,
-    removeExecutingCallbacks,
     removeWatchedCallbacks,
-    removeExecutedCallbacks,
-    addCompletedCallbacks,
-    addRequestedCallbacks
+    setPendingCallbacks
 } from './actions/callbacks';
 import { getPath, computePaths } from './actions/paths';
 
-import {
-    executeCallback
-} from './actions/callbacks';
-import { stringifyId, combineIdAndProp, parseIfWildcard, getCallbacksInLayout } from './actions/dependencies';
-import { includeObservers, pruneCallbacks } from './actions/dependencies_ts';
+import { stringifyId, parseIfWildcard, getCallbacksInLayout } from './actions/dependencies';
+import { combineIdAndProp, getUniqueIdentifier, includeObservers, pruneCallbacks } from './actions/dependencies_ts';
 import { ICallbacksState, IExecutingCallback, ICallback, ICallbackProperty } from './reducers/callbacks';
 import isAppReady from './actions/isAppReady';
 import { prunePersistence, applyPersistence } from './persistence';
-import type from 'ramda/es/type';
 
 const store = initializeStore();
 
@@ -112,29 +108,9 @@ observe(({
 
     console.log('onCallbacksChanged.requested', completed, requested);
 
-    const stringifyCallbackProperty = ({
-        id,
-        property
-    }: ICallbackProperty): string =>
-        type(id) === 'String' ?
-            `${id}.${property}` :
-            `{${keys(id).join(',')}}.${property}`;
-
-    const stringifyCallbackProperties = ({
-        callback: {
-            inputs,
-            outputs,
-            state }
-    }: ICallback): string => map(stringifyCallbackProperty, [
-        ...inputs,
-        ...outputs,
-        ...state
-    ]).join(',');
-
     /*
         1. Remove duplicated `requested` callbacks
     */
-
 
     /*
         Extract all but the first callback from each IOS-key group
@@ -144,7 +120,7 @@ observe(({
         group => group.slice(1),
         values(
             groupBy<ICallback>(
-                stringifyCallbackProperties,
+                getUniqueIdentifier,
                 requested
             )
         )
@@ -168,7 +144,7 @@ observe(({
         group => group.slice(1),
         values(
             groupBy<ICallback>(
-                stringifyCallbackProperties,
+                getUniqueIdentifier,
                 concat(requested, prioritized)
             )
         )
@@ -178,7 +154,7 @@ observe(({
         group => group.slice(1),
         values(
             groupBy<ICallback>(
-                stringifyCallbackProperties,
+                getUniqueIdentifier,
                 concat(requested, executing)
             )
         )
@@ -188,7 +164,7 @@ observe(({
         group => group.slice(1),
         values(
             groupBy<ICallback>(
-                stringifyCallbackProperties,
+                getUniqueIdentifier,
                 concat(requested, watched)
             )
         )
@@ -226,7 +202,7 @@ observe(({
     /* 4. Determine `requested` callbacks that can be `prioritized` */
     /* Find all outputs of all active callbacks */
     const outputs = map(
-        stringifyCallbackProperty,
+        combineIdAndProp,
         reduce<ICallback, any[]>((o, cb) => concat(o, cb.callback.outputs), [], pendingCallbacks)
     );
 
@@ -237,7 +213,7 @@ observe(({
     /* Find `requested` callbacks that do not depend on a outstanding output (as either input or state) */
     const readyCallbacks = filter(
         cb => all(
-            i => !outputsMap[stringifyCallbackProperty(i)],
+            cbp => !outputsMap[combineIdAndProp(cbp)],
             cb.callback.inputs
         ),
         requested

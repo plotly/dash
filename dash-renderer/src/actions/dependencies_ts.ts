@@ -10,12 +10,35 @@ import {
     unnest
 } from 'ramda';
 import { ICallback, ICallbackProperty } from '../reducers/callbacks';
-import { getCallbacksByInput, splitIdAndProp } from './dependencies';
+import { getCallbacksByInput, splitIdAndProp, stringifyId } from './dependencies';
 import { getPath } from './paths';
 
 export const DIRECT = 2;
 export const INDIRECT = 1;
 export const mergeMax = mergeWith(Math.max);
+
+export const combineIdAndProp = ({
+    id,
+    property
+}: ICallbackProperty) => `${stringifyId(id)}.${property}`;
+
+export const getUniqueIdentifier = ({
+    anyVals,
+    callback: {
+        inputs,
+        outputs,
+        state
+    }
+}: ICallback): string => concat(
+    map(combineIdAndProp, [
+        ...inputs,
+        ...outputs,
+        ...state,
+    ]),
+    Array.isArray(anyVals) ?
+        anyVals :
+        anyVals === '' ? [] : [anyVals]
+    ).join(',');
 
 export function includeObservers(id: any, props: any, graphs: any, paths: any): ICallback[] {
     return followForward(graphs, paths, flatten(map(
