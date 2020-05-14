@@ -3,6 +3,9 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [UNRELEASED]
+### Added
+- [#1240](https://github.com/plotly/dash/pull/1240) Adds `callback_context` to clientside callbacks (e.g. `dash_clientside.callback_context.triggered`). Supports `triggered`, `inputs`, `inputs_list`, `states`, and `states_list`, all of which closely resemble their serverside cousins.
+
 ### Changed
 - [#1237](https://github.com/plotly/dash/pull/1237) Closes [#920](https://github.com/plotly/dash/issues/920): Converts hot reload fetch failures into a server status indicator showing whether the latest fetch succeeded or failed. Callback fetch failures still appear as errors but have a clearer message.
 
