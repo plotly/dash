@@ -397,6 +397,7 @@ observe(({
         if (data !== undefined) {
             return forEach(([id, props]: [any, { [key: string]: any }]) => {
                 const parsedId = parseIfWildcard(id);
+                const { graphs, layout: oldLayout, paths: oldPaths } = getState();
 
                 // Components will trigger callbacks on their own as required (eg. derived)
                 const appliedProps = applyProps(parsedId, props);
@@ -405,15 +406,20 @@ observe(({
                 if (has('children', appliedProps)) {
                     const { children } = appliedProps;
 
-                    const { paths: oldPaths, graphs } = getState();
-                    const childrenPath = concat(getPath(oldPaths, parsedId), ['props', 'children']);
-                    const paths = computePaths(children, childrenPath, oldPaths);
+                    const oldChildrenPath: string[] = concat(getPath(oldPaths, parsedId) as string[], ['props', 'children']);
+                    const oldChildren = path(oldChildrenPath, oldLayout);
+
+                    const paths = computePaths(children, oldChildrenPath, oldPaths);
                     dispatch(setPaths(paths));
 
                     callbacks = concat(
-                        callbacks,
                         getCallbacksInLayout(graphs, paths, children, {
-                            chunkPath: childrenPath,
+                            chunkPath: oldChildrenPath,
+                        }),
+                        // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
+                        // even due to the deletion of components
+                        getCallbacksInLayout(graphs, oldPaths, oldChildren, {
+                            removedArrayInputsOnly: true, newPaths: paths, chunkPath: oldChildrenPath
                         })
                     );
                 }
