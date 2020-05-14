@@ -29,7 +29,6 @@ import {
 import {
     combineIdAndProp,
     DIRECT,
-    followForward,
     INDIRECT,
     mergeMax,
 } from './dependencies_ts';
@@ -1291,30 +1290,5 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         }
     });
 
-    // We still need to follow these forward in order to capture blocks and,
-    // if based on a partial layout, any knock-on effects in the full layout.
-    const finalCallbacks = followForward(graphs, paths, callbacks);
-
-    // Exception to the `initialCall` case of callbacks found by output:
-    // if *every* input to this callback is itself an output of another
-    // callback earlier in the chain, we remove the `initialCall` flag
-    // so that if all of those prior callbacks abort all of their outputs,
-    // this later callback never runs.
-    // See test inin003 "callback2 is never triggered, even on initial load"
-    finalCallbacks.forEach(cb => {
-        if (cb.initialCall && !isEmpty(cb.blockedBy)) {
-            const inputs = flatten(cb.getInputs(paths));
-            cb.initialCall = false;
-            inputs.forEach(i => {
-                const propId = combineIdAndProp(i);
-                if (cb.changedPropIds[propId]) {
-                    cb.changedPropIds[propId] = INDIRECT;
-                } else {
-                    cb.initialCall = true;
-                }
-            });
-        }
-    });
-
-    return finalCallbacks;
+    return callbacks;
 }

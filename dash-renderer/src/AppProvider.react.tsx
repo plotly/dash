@@ -11,6 +11,7 @@ import {
     has,
     isEmpty,
     isNil,
+    keys,
     map,
     partition,
     path,
@@ -51,7 +52,7 @@ import {
 } from './actions/callbacks';
 import { getPath, computePaths } from './actions/paths';
 
-import { stringifyId, parseIfWildcard, getCallbacksInLayout } from './actions/dependencies';
+import { stringifyId, parseIfWildcard, getCallbacksInLayout, getCallbacksByInput } from './actions/dependencies';
 import { combineIdAndProp, getUniqueIdentifier, includeObservers, pruneCallbacks } from './actions/dependencies_ts';
 import { ICallbacksState, IExecutingCallback, ICallback, ICallbackProperty } from './reducers/callbacks';
 import isAppReady from './actions/isAppReady';
@@ -401,6 +402,14 @@ observe(({
 
                 // Components will trigger callbacks on their own as required (eg. derived)
                 const appliedProps = applyProps(parsedId, props);
+
+                callbacks = concat(
+                    callbacks,
+                    flatten(map(
+                        prop => getCallbacksByInput(graphs, oldPaths, parsedId, prop),
+                        keys(props)
+                    ))
+                )
 
                 // New layout - trigger callbacks for that explicitly
                 if (has('children', appliedProps)) {
