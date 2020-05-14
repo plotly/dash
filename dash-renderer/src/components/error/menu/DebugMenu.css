@@ -134,7 +134,7 @@
     cursor: default;
 }
 .dash-debug-menu__button--unavailable::before {
-    content: "Server Unavailable. Check if the process has halted.";
+    content: "Server Unavailable. Check if the process has halted or crashed.";
 }
 .dash-debug-menu__button--cold,
 .dash-debug-menu__button--cold:hover {
