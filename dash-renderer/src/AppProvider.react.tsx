@@ -413,11 +413,16 @@ observe(({
                     dispatch(setPaths(paths));
 
                     callbacks = concat(
+                        callbacks,
                         getCallbacksInLayout(graphs, paths, children, {
                             chunkPath: oldChildrenPath,
-                        }),
-                        // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
-                        // even due to the deletion of components
+                        })
+                    );
+
+                    // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
+                    // even due to the deletion of components
+                    callbacks = concat(
+                        callbacks,
                         getCallbacksInLayout(graphs, oldPaths, oldChildren, {
                             removedArrayInputsOnly: true, newPaths: paths, chunkPath: oldChildrenPath
                         })
