@@ -26,12 +26,7 @@ import {
     zipObj,
 } from 'ramda';
 
-import {
-    combineIdAndProp,
-    DIRECT,
-    INDIRECT,
-    mergeMax,
-} from './dependencies_ts';
+import {combineIdAndProp, DIRECT, INDIRECT, mergeMax} from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 
 import {crawlLayout} from './utils';
