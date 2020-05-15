@@ -16,10 +16,10 @@ RED_BG = """
 
 def test_dvhr001_hot_reload(dash_duo):
     app = dash.Dash(__name__, assets_folder="hr_assets")
-    app.layout = html.Div([
-        html.H3("Hot reload", id="text"),
-        html.Button("Click", id="btn")
-    ], id="hot-reload-content")
+    app.layout = html.Div(
+        [html.H3("Hot reload", id="text"), html.Button("Click", id="btn")],
+        id="hot-reload-content",
+    )
 
     @app.callback(Output("text", "children"), [Input("btn", "n_clicks")])
     def new_text(n):
