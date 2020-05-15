@@ -1,10 +1,13 @@
 import {
     all,
+    any,
     assoc,
     concat,
+    difference,
     filter,
     flatten,
     forEach,
+    isEmpty,
     keys,
     map,
     mergeWith,
@@ -13,7 +16,7 @@ import {
     reduce
 } from 'ramda';
 import { ICallback, ICallbackProperty } from '../types/callbacks';
-import { getCallbacksByInput, splitIdAndProp, stringifyId, getCallbacksInLayout } from './dependencies';
+import { getCallbacksByInput, splitIdAndProp, stringifyId, getCallbacksInLayout, isMultiValued } from './dependencies';
 import { getPath } from './paths';
 
 export const DIRECT = 2;
@@ -54,12 +57,50 @@ export const getLayoutCallbacks = (
     paths: any,
     layout: any,
     options: any
-): ICallback[] => getReadyCallbacks(getCallbacksInLayout(
-    graphs,
-    paths,
-    layout,
-    options
-));
+): ICallback[] => {
+    let exclusions: string[] = [];
+    const initial = getCallbacksInLayout(
+        graphs,
+        paths,
+        layout,
+        options
+    );
+    let callbacks = initial;
+
+    while (true) {
+        // Find callbacks for which all inputs are missing or in the exclusions
+        const [included, excluded] = partition(({
+            callback: { inputs },
+            getInputs
+        }) => any(isMultiValued, inputs) ||
+            !isEmpty(difference(
+                map(combineIdAndProp, flatten(getInputs(paths))),
+                exclusions
+            )),
+            callbacks
+        );
+
+        // If there's no additional exclusions, break loop - callbacks have been cleaned
+        if (!excluded.length) {
+            break;
+        }
+
+        callbacks = included;
+
+        // update exclusions with all additional excluded outputs
+        exclusions = concat(
+            exclusions,
+            map(combineIdAndProp, flatten(map(
+                ({ getOutputs }) => getOutputs(paths),
+                excluded
+            )))
+        );
+    }
+
+    // only return ready callbacks (the executed callbacks will ensure followups are triggered)
+    return getReadyCallbacks(callbacks);
+
+}
 
 export const getUniqueIdentifier = ({
     anyVals,
