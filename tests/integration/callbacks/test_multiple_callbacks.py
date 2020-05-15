@@ -226,6 +226,9 @@ def test_cbmt005_multi_converging_chain(dash_duo):
         [Input("slider1", "value"), Input("slider2", "value")],
     )
     def update_graph(s1, s2):
+        if s1 is None or s2 is None:
+            raise PreventUpdate
+
         return "x={}, y={}".format(s1, s2)
 
     dash_duo.start_server(app)
