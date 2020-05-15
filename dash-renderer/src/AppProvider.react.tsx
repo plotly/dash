@@ -9,6 +9,7 @@ import {
     forEach,
     groupBy,
     has,
+    includes,
     isEmpty,
     isNil,
     keys,
@@ -78,7 +79,7 @@ observe(({
     } = getState();
 
     const next = getPendingCallbacks(callbacks);
-    console.log('onCallbacksChanged', '[pendingCallbacks-candidate]', next);
+    console.log('onCallbacksChanged', '[pendingCallbacks-candidate]', callbacks, next);
 
     /**
      * If the calculated list of pending callbacks is equivalent
@@ -284,15 +285,30 @@ observe(async ({
         ...cb.getState(paths)
     ]), [] as ICallbackProperty[], callbacks);
 
-    /* Make sure the app is ready to execute callbacks impacting `ids` */
+    /*
+        Make sure the app is ready to execute callbacks impacting `ids`
+    */
     await isAppReady(layout, paths, uniq(pluck('id', ids)));
 
-    const executingCallbacks: IExecutingCallback[] = callbacks.map(([cb, stash]) => {
+    /*
+        Make sure to only execute callbacks that are still in the `prioritized` list (isAppReady is async - state could have changed)
+    */
+    const { callbacks: { prioritized: updatedPrioritized } } = getState();
+    const [remainingCallbacks, droppedCallbacks] = partition(
+        ([cb]) => includes(cb, updatedPrioritized),
+        callbacks
+    );
+
+    if (droppedCallbacks.length) {
+        console.log('onCallbacksChanged.prioritized', '[dropped]', map(([cb]) => cb, droppedCallbacks));
+    }
+
+    const executingCallbacks: IExecutingCallback[] = remainingCallbacks.map(([cb, stash]) => {
         return executeCallback(cb, config, hooks, paths, layout, stash);
     });
 
     dispatch(aggregateCallbacks([
-        callbacks.length ? removePrioritizedCallbacks(prioritized) : null,
+        remainingCallbacks.length ? removePrioritizedCallbacks(map(([cb]) => cb, remainingCallbacks)) : null,
         executingCallbacks.length ? addExecutingCallbacks(executingCallbacks) : null
     ]));
 
@@ -321,18 +337,22 @@ observe(({
     deferred.forEach(async function (cb: IExecutingCallback) {
         const result = await cb.executionPromise;
 
-        /* Check if it's been removed from the `watched` list since - on callback completion, another callback may be cancelled */
-        const watched = getState().callbacks.watched;
+        /*
+            Check if it's been removed from the `watched` list since - on callback completion, another callback may be cancelled
+        */
+        const { callbacks: { watched } } = getState();
 
         /*
-            Find the callback instance or one that matches its promise (could have been pruned)
+            Find the callback instance or one that matches its promise (eg. could have been pruned)
         */
         const currentCb = find(_cb => _cb === cb || _cb.executionPromise === cb.executionPromise, watched);
         if (!currentCb) {
             return;
         }
 
-        /* Otherwise move to `executed` and remove from `watched` */
+        /*
+            Otherwise move to `executed` and remove from `watched`
+        */
         dispatch(aggregateCallbacks([
             removeWatchedCallbacks([currentCb]),
             addExecutedCallbacks([{
