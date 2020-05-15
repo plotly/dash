@@ -1,5 +1,4 @@
 from multiprocessing import Value
-
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -133,10 +132,8 @@ def test_rdmo004_multi_output_circular_dependencies(dash_duo):
         dev_tools_hot_reload=False,
     )
 
-    # the UI still renders the output triggered by callback.
-    # The new system does NOT loop infinitely like it used to, each callback
-    # is invoked no more than once.
-    dash_duo.wait_for_text_to_equal("#c", "X")
+    # The new system does NOT trigger callbacks in circular dependencies
+    dash_duo.wait_for_text_to_equal("#c", "")
 
     err_text = dash_duo.find_element("span.dash-fe-error__title").text
     assert err_text == "Circular Dependencies"
