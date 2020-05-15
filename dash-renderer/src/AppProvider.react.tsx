@@ -103,7 +103,7 @@ observe(({
     dispatch,
     getState
 }) => {
-    const { callbacks, callbacks: { prioritized, executing, watched, completed }, paths } = getState();
+    const { callbacks, callbacks: { prioritized, executing, watched, executed, completed }, paths } = getState();
     let { callbacks: { requested } } = getState();
 
     const pendingCallbacks = getPendingCallbacks(callbacks);
@@ -221,6 +221,24 @@ observe(({
         requested
     );
 
+    /*
+        If:
+        - there are `requested` callbacks
+        - no `requested` callback can be promoted to `prioritized`
+        - no callbacks are `prioritized`, `executing`, `watched` or `executed`
+        Then:
+        - the `requested` callbacks form a ciruclar dependency and can never be executed
+        - prune them out of `requested`
+    */
+    const rCircular = (
+        !readyCallbacks.length &&
+        !prioritized.length &&
+        !executing.length &&
+        !watched.length &&
+        !executed.length &&
+        requested.length
+    ) ? requested : [];
+
     dispatch(aggregateCallbacks([
         // Clean up duplicated callbacks
         rDuplicates.length ? removeRequestedCallbacks(rDuplicates) : null,
@@ -236,7 +254,9 @@ observe(({
         eAdded.length ? addExecutingCallbacks(eAdded) : null,
         wRemoved.length ? removeWatchedCallbacks(wRemoved) : null,
         wAdded.length ? addWatchedCallbacks(wAdded) : null,
-        // Promoted callbacks
+        // Prune circular callbacks
+        rCircular.length ? removeRequestedCallbacks(rCircular) : null,
+        // Promote callbacks
         readyCallbacks.length ? removeRequestedCallbacks(readyCallbacks) : null,
         readyCallbacks.length ? addPrioritizedCallbacks(readyCallbacks) : null
     ]));
