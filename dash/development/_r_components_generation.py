@@ -77,6 +77,9 @@ help_string = """% Auto-generated: do not edit by hand
 \\arguments{{
 {item_text}
 }}
+
+\\value{{{value_text}}}
+
 """
 
 description_template = """Package: {package_name}
@@ -85,15 +88,13 @@ Version: {package_version}
 Description: {package_description}
 Depends: R (>= 3.0.2){package_depends}
 Imports: {package_imports}
-Suggests: {package_suggests}
-License: {package_license}
+Suggests: {package_suggests}{package_rauthors}
+License: {package_license}{package_copyright}
 URL: {package_url}
 BugReports: {package_issues}
 Encoding: UTF-8
 LazyData: true{vignette_builder}
 KeepSource: true
-Author: {package_author_no_email}
-Maintainer: {maintainer}
 """
 
 rbuild_ignore_string = r"""# ignore JS config files/folders
@@ -184,6 +185,7 @@ def generate_class_string(name, props, project_shortname, prefix):
     props = reorder_props(props=props)
 
     prop_keys = list(props.keys())
+    prop_keys_wc = list(props.keys())
 
     wildcards = ""
     wildcard_declaration = ""
@@ -192,8 +194,8 @@ def generate_class_string(name, props, project_shortname, prefix):
     default_argtext = ""
     accepted_wildcards = ""
 
-    if any(key.endswith("-*") for key in prop_keys):
-        accepted_wildcards = get_wildcards_r(prop_keys)
+    if any(key.endswith("-*") for key in prop_keys_wc):
+        accepted_wildcards = get_wildcards_r(prop_keys_wc)
         wildcards = ", ..."
         wildcard_declaration = wildcard_template.format(
             accepted_wildcards.replace("-*", "")
@@ -381,7 +383,12 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     default_argtext = ""
     item_text = ""
 
+    # the return value of all Dash components should be the same,
+    # in an abstract sense -- they produce a list
+    value_text = "named list of JSON elements corresponding to React.js properties and their values"  # noqa:E501
+
     prop_keys = list(props.keys())
+    prop_keys_wc = list(props.keys())
 
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
@@ -406,12 +413,12 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     if "**Example Usage**" in description:
         description = description.split("**Example Usage**")[0].rstrip()
 
-    if any(key.endswith("-*") for key in prop_keys):
+    if any(key.endswith("-*") for key in prop_keys_wc):
         default_argtext += ", ..."
-        item_text += wildcard_help_template.format(get_wildcards_r(prop_keys))
+        item_text += wildcard_help_template.format(get_wildcards_r(prop_keys_wc))
 
     # in R, the online help viewer does not properly wrap lines for
-    # the usage string -- we will hard wrap at 80 characters using
+    # the usage string -- we will hard wrap at 60 characters using
     # textwrap.fill, starting from the beginning of the usage string
 
     file_path = os.path.join("man", file_name)
@@ -421,9 +428,10 @@ def write_help_file(name, props, description, prefix, rpkg_data):
                 funcname=funcname,
                 name=name,
                 default_argtext=textwrap.fill(
-                    default_argtext, width=80, break_long_words=False
+                    default_argtext, width=60, break_long_words=False
                 ),
                 item_text=item_text,
+                value_text=value_text,
                 description=description.replace("\n", " "),
             )
         )
@@ -552,6 +560,8 @@ def generate_rpkg(
     # does not exist in package.json
 
     package_name = snake_case_to_camel_case(project_shortname)
+    package_copyright = ""
+    package_rauthors = ""
     lib_name = pkg_data.get("name")
 
     if rpkg_data is not None:
@@ -563,6 +573,10 @@ def generate_rpkg(
             package_description = rpkg_data.get(
                 "pkg_help_description", pkg_data.get("description", "")
             )
+        if rpkg_data.get("pkg_copyright"):
+            package_copyright = "\nCopyright: {}".format(
+                rpkg_data.get("pkg_copyright", "")
+            )
     else:
         # fall back to using description in package.json, if present
         package_title = pkg_data.get("description", "")
@@ -570,15 +584,18 @@ def generate_rpkg(
 
     package_version = pkg_data.get("version", "0.0.1")
 
-    # remove leading and trailing commas
+    # remove leading and trailing commas, add space after comma if missing
     if package_depends:
         package_depends = ", " + package_depends.strip(",").lstrip()
+        package_depends = re.sub(r"(,(?![ ]))", ", ", package_depends)
 
     if package_imports:
         package_imports = package_imports.strip(",").lstrip()
+        package_imports = re.sub(r"(,(?![ ]))", ", ", package_imports)
 
     if package_suggests:
         package_suggests = package_suggests.strip(",").lstrip()
+        package_suggests = re.sub(r"(,(?![ ]))", ", ", package_suggests)
 
     if "bugs" in pkg_data:
         package_issues = pkg_data["bugs"].get("url", "")
@@ -601,19 +618,33 @@ def generate_rpkg(
 
     package_author = pkg_data.get("author")
 
-    package_author_no_email = package_author.split(" <")[0] + " [aut]"
+    package_author_name = package_author.split(" <")[0]
+    package_author_email = package_author.split(" <")[1][:-1]
+
+    package_author_fn = package_author_name.split(" ")[0]
+    package_author_ln = package_author_name.rsplit(" ", 2)[-1]
 
     maintainer = pkg_data.get("maintainer", pkg_data.get("author"))
 
-    if "<" not in package_author or "<" not in maintainer:
+    if "<" not in package_author:
         print(
             "Error, aborting R package generation: "
-            "R packages require a properly formatted author or "
-            "maintainer field or installation will fail. Please include "
-            "an email address enclosed within < > brackets in package.json. ",
+            "R packages require a properly formatted author field "
+            "or installation will fail. Please include an email "
+            "address enclosed within < > brackets in package.json. ",
             file=sys.stderr,
         )
         sys.exit(1)
+
+    if rpkg_data is not None:
+        if rpkg_data.get("pkg_authors"):
+            package_rauthors = "\nAuthors@R: {}".format(
+                rpkg_data.get("pkg_authors", "")
+            )
+        else:
+            package_rauthors = '\nAuthors@R: person("{}", "{}", role = c("aut", "cre"), email = "{}")'.format(
+                package_author_fn, package_author_ln, package_author_email
+            )
 
     if not (os.path.isfile("LICENSE") or os.path.isfile("LICENSE.txt")):
         package_license = pkg_data.get("license", "")
@@ -636,7 +667,8 @@ def generate_rpkg(
     if os.path.exists("vignettes"):
         vignette_builder = "\nVignetteBuilder: knitr"
         if "knitr" not in package_suggests and "rmarkdown" not in package_suggests:
-            package_suggests += ", knitr, rmarkdown".lstrip(", ")
+            package_suggests += ", knitr, rmarkdown"
+            package_suggests = package_suggests.lstrip(", ")
     else:
         vignette_builder = ""
 
@@ -660,16 +692,15 @@ def generate_rpkg(
         package_title=package_title,
         package_description=package_description,
         package_version=package_version,
-        package_author=package_author,
+        package_rauthors=package_rauthors,
         package_depends=package_depends,
         package_imports=package_imports,
         package_suggests=package_suggests,
         package_license=package_license,
+        package_copyright=package_copyright,
         package_url=package_url,
         package_issues=package_issues,
         vignette_builder=vignette_builder,
-        package_author_no_email=package_author_no_email,
-        maintainer=maintainer,
     )
 
     with open("DESCRIPTION", "w+") as f3:

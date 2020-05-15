@@ -77,3 +77,6 @@ DESCRIPTION
 NAMESPACE
 digest.json
 VERSION.txt
+
+# vim
+*.swp
