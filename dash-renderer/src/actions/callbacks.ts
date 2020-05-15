@@ -271,7 +271,7 @@ export function executeCallback(
                     throw e;
                 }
 
-                if (returnValue === 'Object' && returnValue.then) {
+                if (typeof returnValue?.then === 'function') {
                     throw new Error(
                         'The clientside function returned a Promise. ' +
                         'Promises are not supported in Dash clientside ' +
