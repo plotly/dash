@@ -4,8 +4,8 @@ import {addRequestedCallbacks} from './callbacks';
 import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
 import cookie from 'cookie';
-import {getCallbacksInLayout, validateCallbacksToLayout} from './dependencies';
-import {includeObservers} from './dependencies_ts';
+import {validateCallbacksToLayout} from './dependencies';
+import {includeObservers, getLayoutCallbacks} from './dependencies_ts';
 import {getPath} from './paths';
 
 export const onError = createAction(getAction('ON_ERROR'));
@@ -66,11 +66,13 @@ function triggerDefaultState(dispatch, getState) {
         );
     }
 
-    const initialCallbacks = getCallbacksInLayout(graphs, paths, layout, {
-        outputsOnly: true,
-    });
-
-    dispatch(addRequestedCallbacks(initialCallbacks));
+    dispatch(
+        addRequestedCallbacks(
+            getLayoutCallbacks(graphs, paths, layout, {
+                outputsOnly: true,
+            })
+        )
+    );
 }
 
 export const redo = moveHistory('REDO');

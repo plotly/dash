@@ -1,15 +1,19 @@
 import {
+    all,
     assoc,
     concat,
+    filter,
     flatten,
+    forEach,
     keys,
     map,
     mergeWith,
     partition,
-    pickBy
+    pickBy,
+    reduce
 } from 'ramda';
 import { ICallback, ICallbackProperty } from '../types/callbacks';
-import { getCallbacksByInput, splitIdAndProp, stringifyId } from './dependencies';
+import { getCallbacksByInput, splitIdAndProp, stringifyId, getCallbacksInLayout } from './dependencies';
 import { getPath } from './paths';
 
 export const DIRECT = 2;
@@ -20,6 +24,42 @@ export const combineIdAndProp = ({
     id,
     property
 }: ICallbackProperty) => `${stringifyId(id)}.${property}`;
+
+export const getReadyCallbacks = (
+    candidates: ICallback[],
+    callbacks: ICallback[] = candidates
+): ICallback[] => {
+    // Find all outputs of all active callbacks
+    const outputs = map(
+        combineIdAndProp,
+        reduce<ICallback, any[]>((o, cb) => concat(o, cb.callback.outputs), [], callbacks)
+    );
+
+    // Make `outputs` hash table for faster access
+    const outputsMap: { [key: string]: boolean } = {};
+    forEach(output => outputsMap[output] = true, outputs);
+
+    // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
+    return filter(
+        cb => all(
+            cbp => !outputsMap[combineIdAndProp(cbp)],
+            cb.callback.inputs
+        ),
+        candidates
+    );
+}
+
+export const getLayoutCallbacks = (
+    graphs: any,
+    paths: any,
+    layout: any,
+    options: any
+): ICallback[] => getReadyCallbacks(getCallbacksInLayout(
+    graphs,
+    paths,
+    layout,
+    options
+));
 
 export const getUniqueIdentifier = ({
     anyVals,

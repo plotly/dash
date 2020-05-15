@@ -1,9 +1,7 @@
 import {
-    all,
     assoc,
     concat,
     difference,
-    filter,
     find,
     flatten,
     forEach,
@@ -53,8 +51,8 @@ import {
 } from './actions/callbacks';
 import { getPath, computePaths } from './actions/paths';
 
-import { stringifyId, parseIfWildcard, getCallbacksInLayout, getCallbacksByInput } from './actions/dependencies';
-import { combineIdAndProp, getUniqueIdentifier, includeObservers, pruneCallbacks } from './actions/dependencies_ts';
+import { stringifyId, parseIfWildcard, getCallbacksByInput } from './actions/dependencies';
+import { combineIdAndProp, getUniqueIdentifier, includeObservers, pruneCallbacks, getReadyCallbacks, getLayoutCallbacks } from './actions/dependencies_ts';
 import { ICallbacksState } from './reducers/callbacks';
 import { IExecutingCallback, ICallback, ICallbackProperty } from './types/callbacks';
 import isAppReady from './actions/isAppReady';
@@ -202,25 +200,10 @@ observe(({
         rAdded
     );
 
-    /* 4. Determine `requested` callbacks that can be `prioritized` */
-    /* Find all outputs of all active callbacks */
-    const outputs = map(
-        combineIdAndProp,
-        reduce<ICallback, any[]>((o, cb) => concat(o, cb.callback.outputs), [], pendingCallbacks)
-    );
-
-    /* Make `outputs` hash table for faster access */
-    const outputsMap: { [key: string]: boolean } = {};
-    forEach(output => outputsMap[output] = true, outputs);
-
-    /* Find `requested` callbacks that do not depend on a outstanding output (as either input or state) */
-    const readyCallbacks = filter(
-        cb => all(
-            cbp => !outputsMap[combineIdAndProp(cbp)],
-            cb.callback.inputs
-        ),
-        requested
-    );
+    /*
+        4. Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
+    */
+    const readyCallbacks = getReadyCallbacks(requested, pendingCallbacks);
 
     /*
         If:
@@ -464,7 +447,7 @@ observe(({
 
                     callbacks = concat(
                         callbacks,
-                        getCallbacksInLayout(graphs, paths, children, {
+                        getLayoutCallbacks(graphs, paths, children, {
                             chunkPath: oldChildrenPath,
                         })
                     );
@@ -473,7 +456,7 @@ observe(({
                     // even due to the deletion of components
                     callbacks = concat(
                         callbacks,
-                        getCallbacksInLayout(graphs, oldPaths, oldChildren, {
+                        getLayoutCallbacks(graphs, oldPaths, oldChildren, {
                             removedArrayInputsOnly: true, newPaths: paths, chunkPath: oldChildrenPath
                         })
                     );

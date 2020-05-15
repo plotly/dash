@@ -1,4 +1,5 @@
 from multiprocessing import Value
+
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate

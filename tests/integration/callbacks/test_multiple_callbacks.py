@@ -183,9 +183,9 @@ def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
         return "Slider2 value {}".format(val)
 
     dash_duo.start_server(app)
-
-    dash_duo.wait_for_text_to_equal("#label1", "Slider1 value 0")
-    dash_duo.wait_for_text_to_equal("#label2", "Slider2 value 0")
+    time.sleep(10000)
+    dash_duo.wait_for_text_to_equal("#label1", "")
+    dash_duo.wait_for_text_to_equal("#label2", "")
 
     dash_duo.find_element("#button").click()
     dash_duo.wait_for_text_to_equal("#label1", "Slider1 value 1")
@@ -226,9 +226,6 @@ def test_cbmt005_multi_converging_chain(dash_duo):
         [Input("slider1", "value"), Input("slider2", "value")],
     )
     def update_graph(s1, s2):
-        if s1 is None or s2 is None:
-            raise PreventUpdate
-
         return "x={}, y={}".format(s1, s2)
 
     dash_duo.start_server(app)
