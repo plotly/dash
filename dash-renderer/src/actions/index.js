@@ -136,40 +136,33 @@ function moveHistory(changeType) {
 }
 
 function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
+    let msg = '';
+
     if (isMultiValued(spec)) {
-        return idProps;
+        return [idProps, msg];
     }
+
     if (idProps.length !== 1) {
         if (!idProps.length) {
-            if (typeof spec.id === 'string') {
-                throw new ReferenceError(
-                    'A nonexistent object was used in an `' +
-                        depType +
-                        '` of a Dash callback. The id of this object is `' +
-                        spec.id +
-                        '` and the property is `' +
-                        spec.property +
-                        '`. The string ids in the current layout are: [' +
-                        keys(paths.strs).join(', ') +
-                        ']'
-                );
-            }
-            // TODO: unwrapped list of wildcard ids?
-            // eslint-disable-next-line no-console
-            console.log(paths.objs);
-            throw new ReferenceError(
+            const isStr = typeof spec.id === 'string';
+            msg =
                 'A nonexistent object was used in an `' +
-                    depType +
-                    '` of a Dash callback. The id of this object is ' +
-                    JSON.stringify(spec.id) +
-                    (anyVals ? ' with MATCH values ' + anyVals : '') +
-                    ' and the property is `' +
-                    spec.property +
-                    '`. The wildcard ids currently available are logged above.'
-            );
-        }
-        throw new ReferenceError(
-            'Multiple objects were found for an `' +
+                depType +
+                '` of a Dash callback. The id of this object is ' +
+                (isStr
+                    ? '`' + spec.id + '`'
+                    : JSON.stringify(spec.id) +
+                      (anyVals ? ' with MATCH values ' + anyVals : '')) +
+                ' and the property is `' +
+                spec.property +
+                (isStr
+                    ? '`. The string ids in the current layout are: [' +
+                      keys(paths.strs).join(', ') +
+                      ']'
+                    : '`. The wildcard ids currently available are logged above.');
+        } else {
+            msg =
+                'Multiple objects were found for an `' +
                 depType +
                 '` of a callback that only takes one value. The id spec is ' +
                 JSON.stringify(spec.id) +
@@ -177,10 +170,10 @@ function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
                 ' and the property is `' +
                 spec.property +
                 '`. The objects we found are: ' +
-                JSON.stringify(map(pick(['id', 'property']), idProps))
-        );
+                JSON.stringify(map(pick(['id', 'property']), idProps));
+        }
     }
-    return idProps[0];
+    return [idProps[0], msg];
 }
 
 function startCallbacks(callbacks) {
@@ -247,20 +240,51 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
 
         let payload;
         try {
-            const outputs = allOutputs.map((out, i) =>
-                unwrapIfNotMulti(
+            const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
+
+            const preventCallback = () => {
+                removeCallbackFromPending();
+                // no server call here; for performance purposes pretend this is
+                // a clientside callback and defer fireNext for the end
+                // of the currently-ready callbacks.
+                hasClientSide = true;
+                return null;
+            };
+
+            if (inVals === null) {
+                return preventCallback();
+            }
+
+            const outputs = [];
+            const outputErrors = [];
+            allOutputs.forEach((out, i) => {
+                const [outi, erri] = unwrapIfNotMulti(
                     paths,
                     map(pick(['id', 'property']), out),
                     cb.callback.outputs[i],
                     cb.anyVals,
                     'Output'
-                )
-            );
+                );
+                outputs.push(outi);
+                if (erri) {
+                    outputErrors.push(erri);
+                }
+            });
+            if (outputErrors.length) {
+                if (flatten(inVals).length) {
+                    refErr(outputErrors, paths);
+                }
+                // This case is all-empty multivalued wildcard inputs,
+                // which we would normally fire the callback for, except
+                // some outputs are missing. So instead we treat it like
+                // regular missing inputs and just silently prevent it.
+                return preventCallback();
+            }
 
             payload = {
                 output,
                 outputs: isMultiOutputProp(output) ? outputs : outputs[0],
-                inputs: fillVals(paths, layout, cb, inputs, 'Input'),
+                inputs: inVals,
                 changedPropIds: keys(cb.changedPropIds),
             };
             if (cb.callback.state.length) {
@@ -360,7 +384,7 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
             updatePending(pendingCallbacks, without(updated, allPropIds));
         }
 
-        function handleError(err) {
+        function removeCallbackFromPending() {
             const {pendingCallbacks} = getState();
             if (requestIsActive(pendingCallbacks, resolvedId, requestId)) {
                 // Skip all prop updates from this callback, and remove
@@ -368,6 +392,10 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
                 // that have other changed inputs will still fire.
                 updatePending(pendingCallbacks, allPropIds);
             }
+        }
+
+        function handleError(err) {
+            removeCallbackFromPending();
             const outputs = payload
                 ? map(combineIdAndProp, flatten([payload.outputs])).join(', ')
                 : output;
@@ -398,10 +426,13 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
     return hasClientSide ? fireNext().then(done) : done;
 }
 
-function fillVals(paths, layout, cb, specs, depType) {
+function fillVals(paths, layout, cb, specs, depType, allowAllMissing) {
     const getter = depType === 'Input' ? cb.getInputs : cb.getState;
-    return getter(paths).map((inputList, i) =>
-        unwrapIfNotMulti(
+    const errors = [];
+    let emptyMultiValues = 0;
+
+    const inputVals = getter(paths).map((inputList, i) => {
+        const [inputs, inputError] = unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}) => ({
                 id,
@@ -411,8 +442,45 @@ function fillVals(paths, layout, cb, specs, depType) {
             specs[i],
             cb.anyVals,
             depType
-        )
-    );
+        );
+        if (isMultiValued(specs[i]) && !inputs.length) {
+            emptyMultiValues++;
+        }
+        if (inputError) {
+            errors.push(inputError);
+        }
+        return inputs;
+    });
+
+    if (errors.length) {
+        if (
+            allowAllMissing &&
+            errors.length + emptyMultiValues === inputVals.length
+        ) {
+            // We have at least one non-multivalued input, but all simple and
+            // multi-valued inputs are missing.
+            // (if all inputs are multivalued and all missing we still return
+            // them as normal, and fire the callback.)
+            return null;
+        }
+        // If we get here we have some missing and some present inputs.
+        // Or all missing in a context that doesn't allow this.
+        // That's a real problem, so throw the first message as an error.
+        refErr(errors, paths);
+    }
+
+    return inputVals;
+}
+
+function refErr(errors, paths) {
+    const err = errors[0];
+    if (err.indexOf('logged above') !== -1) {
+        // Wildcard reference errors mention a list of wildcard specs logged
+        // TODO: unwrapped list of wildcard ids?
+        // eslint-disable-next-line no-console
+        console.error(paths.objs);
+    }
+    throw new ReferenceError(err);
 }
 
 function handleServerside(config, payload, hooks) {
@@ -427,35 +495,72 @@ function handleServerside(config, payload, hooks) {
             headers: getCSRFHeader(),
             body: JSON.stringify(payload),
         })
-    ).then(res => {
-        const {status} = res;
-        if (status === STATUS.OK) {
-            return res.json().then(data => {
-                const {multi, response} = data;
-                if (hooks.request_post !== null) {
-                    hooks.request_post(payload, response);
-                }
+    ).then(
+        res => {
+            const {status} = res;
+            if (status === STATUS.OK) {
+                return res.json().then(data => {
+                    const {multi, response} = data;
+                    if (hooks.request_post !== null) {
+                        hooks.request_post(payload, response);
+                    }
 
-                if (multi) {
-                    return response;
-                }
+                    if (multi) {
+                        return response;
+                    }
 
-                const {output} = payload;
-                const id = output.substr(0, output.lastIndexOf('.'));
-                return {[id]: response.props};
-            });
+                    const {output} = payload;
+                    const id = output.substr(0, output.lastIndexOf('.'));
+                    return {[id]: response.props};
+                });
+            }
+            if (status === STATUS.PREVENT_UPDATE) {
+                return {};
+            }
+            throw res;
+        },
+        () => {
+            // fetch rejection - this means the request didn't return,
+            // we don't get here from 400/500 errors, only network
+            // errors or unresponsive servers.
+            throw new Error('Callback failed: the server did not respond.');
         }
-        if (status === STATUS.PREVENT_UPDATE) {
-            return {};
-        }
-        throw res;
-    });
+    );
 }
 
 const getVals = input =>
     Array.isArray(input) ? pluck('value', input) : input.value;
 
 const zipIfArray = (a, b) => (Array.isArray(a) ? zip(a, b) : [[a, b]]);
+
+function inputsToDict(inputs_list) {
+    // Ported directly from _utils.py, inputs_to_dict
+    // takes an array of inputs (some inputs may be an array)
+    // returns an Object (map):
+    //  keys of the form `id.property` or `{"id": 0}.property`
+    //  values contain the property value
+    if (!inputs_list) {
+        return {};
+    }
+    const inputs = {};
+    for (let i = 0; i < inputs_list.length; i++) {
+        if (Array.isArray(inputs_list[i])) {
+            const inputsi = inputs_list[i];
+            for (let ii = 0; ii < inputsi.length; ii++) {
+                const id_str = `${stringifyId(inputsi[ii].id)}.${
+                    inputsi[ii].property
+                }`;
+                inputs[id_str] = inputsi[ii].value ?? null;
+            }
+        } else {
+            const id_str = `${stringifyId(inputs_list[i].id)}.${
+                inputs_list[i].property
+            }`;
+            inputs[id_str] = inputs_list[i].value ?? null;
+        }
+    }
+    return inputs;
+}
 
 function handleClientside(clientside_function, payload) {
     const dc = (window.dash_clientside = window.dash_clientside || {});
@@ -476,12 +581,26 @@ function handleClientside(clientside_function, payload) {
     let returnValue;
 
     try {
+        // setup callback context
+        const input_dict = inputsToDict(inputs);
+        dc.callback_context = {};
+        dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
+            prop_id: prop_id,
+            value: input_dict[prop_id],
+        }));
+        dc.callback_context.inputs_list = inputs;
+        dc.callback_context.inputs = input_dict;
+        dc.callback_context.states_list = state;
+        dc.callback_context.states = inputsToDict(state);
+
         const {namespace, function_name} = clientside_function;
         let args = inputs.map(getVals);
         if (state) {
             args = concat(args, state.map(getVals));
         }
         returnValue = dc[namespace][function_name](...args);
+
+        delete dc.callback_context;
     } catch (e) {
         if (e === dc.PreventUpdate) {
             return {};
