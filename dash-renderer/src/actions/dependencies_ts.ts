@@ -8,7 +8,7 @@ import {
     partition,
     pickBy
 } from 'ramda';
-import { ICallback, ICallbackProperty } from '../reducers/callbacks';
+import { ICallback, ICallbackProperty } from '../types/callbacks';
 import { getCallbacksByInput, splitIdAndProp, stringifyId } from './dependencies';
 import { getPath } from './paths';
 

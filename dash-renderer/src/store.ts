@@ -2,7 +2,8 @@ import { createStore, applyMiddleware, Store } from 'redux';
 import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
 import StoreObserver from './StoreObserver';
-import { ICallbacksState, ICallback } from './reducers/callbacks';
+import { ICallbacksState } from './reducers/callbacks';
+import { ICallback } from './types/callbacks';
 
 interface IStoreState {
     callbacks: ICallbacksState;

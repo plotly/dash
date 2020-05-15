@@ -11,7 +11,8 @@ import {
 } from 'ramda';
 
 import { STATUS } from '../constants/constants';
-import { ICallback, CallbackResult, IExecutingCallback, CallbackActionType, IExecutedCallback, CallbackAggregateActionType } from "../reducers/callbacks";
+import { CallbackActionType, CallbackAggregateActionType } from "../reducers/callbacks";
+import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback } from '../types/callbacks';
 import { isMultiValued, stringifyId, isMultiOutputProp } from './dependencies';
 import { urlBase } from './utils';
 import { getCSRFHeader } from '.';

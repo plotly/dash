@@ -55,7 +55,8 @@ import { getPath, computePaths } from './actions/paths';
 
 import { stringifyId, parseIfWildcard, getCallbacksInLayout, getCallbacksByInput } from './actions/dependencies';
 import { combineIdAndProp, getUniqueIdentifier, includeObservers, pruneCallbacks } from './actions/dependencies_ts';
-import { ICallbacksState, IExecutingCallback, ICallback, ICallbackProperty } from './reducers/callbacks';
+import { ICallbacksState } from './reducers/callbacks';
+import { IExecutingCallback, ICallback, ICallbackProperty } from './types/callbacks';
 import isAppReady from './actions/isAppReady';
 import { prunePersistence, applyPersistence } from './persistence';
 
