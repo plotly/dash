@@ -156,8 +156,8 @@ def test_inin003_aborted_callback(dash_duo):
     )
 
     assert (
-        callback2_count.value == 0
-    ), "callback2 is never triggered, even on initial load"
+        callback2_count.value == 1
+    ), "callback2 is triggered on initial load, even if callback1 is prevented"
 
     # double check that output1 and output2 children were not updated
     assert dash_duo.find_element("#output1").text == initial_output
