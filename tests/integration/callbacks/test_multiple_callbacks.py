@@ -184,8 +184,8 @@ def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
 
     dash_duo.start_server(app)
 
-    dash_duo.wait_for_text_to_equal("#label1", "")
-    dash_duo.wait_for_text_to_equal("#label2", "")
+    dash_duo.wait_for_text_to_equal("#label1", "Slider1 value 0")
+    dash_duo.wait_for_text_to_equal("#label2", "Slider1 value 0")
 
     dash_duo.find_element("#button").click()
     dash_duo.wait_for_text_to_equal("#label1", "Slider1 value 1")

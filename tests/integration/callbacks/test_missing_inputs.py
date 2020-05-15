@@ -62,14 +62,15 @@ def test_cbmi001_all_missing_inputs(dash_duo):
     dash_duo.start_server(app)
     wait_for_queue(dash_duo)
 
-    # out3 fires because it has another Input besides out1
+    # out3 fires because it has an existing input
     dash_duo.wait_for_text_to_equal("#out3", "output1 init - 3 - Title")
 
     assert dash_duo.find_element("#out1").text == "output1 init"
 
-    # out2 doesn't fire because its only input (out1) is "prevented"
+    # out2 is fired because while its only input (out1) is "prevented",
+    # it exists and provides a value for it to execute
     # State items don't matter for this.
-    assert dash_duo.find_element("#out2").text == "output2 init"
+    assert dash_duo.find_element("#out2").text == "output1 init - 2 - Title"
 
     dash_duo.find_element("#btn").click()
 
@@ -114,9 +115,9 @@ def test_cbmi002_follow_on_to_two_skipped_callbacks(dash_duo):
 
     dash_duo.start_server(app)
     wait_for_queue(dash_duo)
-
-    for i in ["1", "2", "3"]:
-        assert dash_duo.find_element("#out" + i).text == "output{} init".format(i)
+    assert dash_duo.find_element("#out1").text == "output1 init"
+    assert dash_duo.find_element("#out2").text == "output2 init"
+    assert dash_duo.find_element("#out3").text == "output1 initoutput2 init"
 
     dash_duo.find_element("#btn").click()
     # now all callbacks fire
@@ -383,7 +384,7 @@ def test_cbmi008_multi_wildcards_and_simple_all_missing(dash_duo):
     dash_duo.wait_for_text_to_equal("#content", "content init")
 
     assert dash_duo.find_element("#out1").text == "output1 init"
-    assert dash_duo.find_element("#out2").text == "output2 init"
+    assert dash_duo.find_element("#out2").text == "output1 init - 2"
 
     dash_duo.find_element("#btn").click()
     dash_duo.wait_for_text_to_equal("#out1", "A - item 0")
@@ -472,7 +473,7 @@ def test_cbmi009_match_wildcards_all_missing(dash_duo):
 
     # out2 doesn't fire because its only input (out1) is "prevented"
     # State items don't matter for this.
-    assert dash_duo.find_element(cssid("out2")).text == "output2 init"
+    assert dash_duo.find_element(cssid("out2")).text == "output1 init - 2 - Title"
 
     dash_duo.find_element("#btn").click()
 
