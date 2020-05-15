@@ -1,23 +1,26 @@
 import {clone} from 'ramda';
-import {getAction} from '../actions/constants';
-import {STATUS} from '../constants/constants';
 
 const defaultProfile = {
-  callCount: 0,
-  totalTime: 0,
-  totalComputeTime: 0,
-  totalResourceTime: {},
+  count: 0,
+  total: 0,
+  compute: 0,
+  network: {
+    time: 0,
+    upload: 0,
+    download: 0,
+  },
+  resources: {},
   status: {
     current: null,
     success: 0,
     rejected: 0,
     error: 0
-  },
-  uid: null
+  }
 };
 
 const defaultState = {
   updated: [],
+  resources: {},
   callbacks: {}
 };
 
@@ -27,73 +30,45 @@ const profile = (state = defaultState, action) => {
         // Keep a record of the most recent change. This
         // is subtly different from history.present becasue
         // it watches all props, not just inputs.
-        case getAction('SET_REQUEST_QUEUE'): {
+        case 'UPDATE_RESOURCE_USAGE': {
 
-          // Keep track of the callbacks that actually changed.
+          const {id, usage} = action.payload;
+          const {
+            __dash_client,
+            __dash_server,
+            __dash_upload,
+            __dash_download,
+            ...user
+          } = usage;
+
+
+          // Keep track of the callback that actually changed.
           const newState = {
-            updated: [],
-            callbacks: clone(state.callbacks)
+            updated: [id],
+            resources: state.resources,
+            callbacks: state.callbacks
           };
 
-          // Process the entire request queue.
-          action.payload.forEach(request => {
-            const {controllerId,
-                   status,
-                   uid,
-                   requestTime,
-                   responseTime,
-                   resources} = clone(request);
+          newState.callbacks[id] = newState.callbacks[id] || clone(defaultProfile);
 
-            const profile = newState.callbacks[controllerId] || clone(defaultProfile);
+          const cb = newState.callbacks[id];
+          const cbResources = cb.resources;
+          const totalResources = newState.resources;
 
-            if (!profile.uid || profile.uid === uid) {
-              if (profile.status.current !== status) {
+          // Update resource usage.
+          cb.count += 1;
+          cb.total += __dash_client;
+          cb.compute += __dash_server;
+          cb.network.time += (__dash_client - __dash_server);
+          cb.network.upload += __dash_upload;
+          cb.network.download += __dash_download;
 
-                // Update status.
-                newState.updated.push(controllerId);
-                profile.status.current = status;
-
-                // Request.
-                if (status === 'loading') {
-                  profile.uid = uid;
-                }
-
-                // Response.
-                else {
-                  profile.uid = null;
-                  profile.callCount += 1;
-                  profile.totalTime += (responseTime-requestTime);
-
-                  const totalResources = profile.totalResourceTime;
-                  const {dash_total, ...userResources} = resources;
-                  profile.totalComputeTime += dash_total;
-
-                  for (const r in userResources) {
-                    if (userResources.hasOwnProperty(r)) {
-                      totalResources[r] = (totalResources[r] || 0) + userResources[r];
-                    }
-                  }
-
-                  switch (status) {
-                    case STATUS.OK:
-                      profile.status.success += 1;
-                      break;
-
-                    case STATUS.PREVENT_UPDATE:
-                      profile.status.rejected += 1;
-                      break;
-
-                    default:
-                      profile.status.error += 1;
-                  }
-
-                }
-
-                newState.callbacks[controllerId] = profile;
-
-              }
+          for (const r in user) {
+            if (user.hasOwnProperty(r)) {
+              cbResources[r] = (cbResources[r] || 0) + user[r];
+              totalResources[r] = (totalResources[r] || 0) + user[r];
             }
-          });
+          }
 
           return newState;
 

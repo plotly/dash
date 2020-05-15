@@ -82,7 +82,7 @@ const stylesheet = [
   },
 
   {
-    selector: 'node[type="component"]',
+    selector: 'node[type="component"], node[type="wildcard"]',
     style: {
       'width': 'label',
       'height': 'label',
@@ -90,6 +90,18 @@ const stylesheet = [
       'content': 'data(label)',
       'text-valign': 'top',
       'background-color': '#B9C2CE'
+    }
+  },
+
+  {
+    selector: 'node[type="wildcard"]',
+    style: {
+      'shape': 'rectangle',
+      'label': e => e.data('label').join('\n'),
+      'text-valign': 'center',
+      'text-halign': 'right',
+      'text-wrap': 'wrap',
+      'text-justification': 'left',
     }
   },
 

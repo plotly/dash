@@ -1,6 +1,5 @@
 const actionList = {
     ON_PROP_CHANGE: 1,
-    SET_REQUEST_QUEUE: 1,
     SET_GRAPHS: 1,
     SET_PATHS: 1,
     SET_LAYOUT: 1,

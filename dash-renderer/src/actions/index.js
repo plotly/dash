@@ -381,7 +381,7 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
 
         if (clientside_function) {
             try {
-                handleData(handleClientside(clientside_function, payload));
+                handleData(handleClientside(dispatch, clientside_function, payload));
             } catch (err) {
                 handleError(err);
             }
@@ -389,7 +389,7 @@ async function fireReadyCallbacks(dispatch, getState, callbacks) {
             return null;
         }
 
-        return handleServerside(config, payload, hooks)
+        return handleServerside(dispatch, config, payload, hooks)
             .then(handleData)
             .catch(handleError)
             .then(fireNext);
@@ -424,7 +424,7 @@ function parseServerTiming(headers) {
     const name = header.split(';')[0];
     const dur = header.match(/;dur=[0-9\.]+/);
 
-    if (resourceTiming.hasOwnProperty(name)) {
+    if (resources.hasOwnProperty(name)) {
         throw new Error(`Duplicate Server-Timing resource "${name}".`);
     }
 
@@ -438,7 +438,7 @@ function parseServerTiming(headers) {
 
 }
 
-function handleServerside(config, payload, hooks) {
+function handleServerside(dispatch, config, payload, hooks) {
     const requestTime = Date.now();
     const body = JSON.stringify(payload);
 
@@ -456,13 +456,19 @@ function handleServerside(config, payload, hooks) {
     ).then(res => {
         const {status} = res;
         const resources = {
-          ...parseServerTiming(res.headers);
+          __dash_server: 0,
           __dash_client: Date.now() - requestTime,
           __dash_upload: body.length,
-          __dash_download: response.headers.get("Content-Length")
+          __dash_download: res.headers.get("Content-Length"),
+          ...parseServerTiming(res.headers),
         };
 
-        dispatch(updateResourceUsage(payload.output, resources));
+        dispatch(
+          updateResourceUsage({
+            id: payload.output,
+            usage: resources
+          })
+        );
 
         if (status === STATUS.OK) {
             return res.json().then(data => {
@@ -492,7 +498,7 @@ const getVals = input =>
 
 const zipIfArray = (a, b) => (Array.isArray(a) ? zip(a, b) : [[a, b]]);
 
-function handleClientside(clientside_function, payload) {
+function handleClientside(dispatch, clientside_function, payload) {
     const dc = (window.dash_clientside = window.dash_clientside || {});
     if (!dc.no_update) {
         Object.defineProperty(dc, 'no_update', {
@@ -524,13 +530,21 @@ function handleClientside(clientside_function, payload) {
         }
         throw e;
     } finally {
+      // Setting server = client forces network = 0
+      const totalTime = Date.now() - requestTime;
       const resources = {
-        __dash_client: Date.now() - requestTime,
+        __dash_server: totalTime,
+        __dash_client: totalTime,
         __dash_upload: 0,
         __dash_download: 0
       };
 
-      dispatch(updateResourceUsage(payload.output, resources));
+      dispatch(
+        updateResourceUsage({
+          id: payload.output,
+          usage: resources
+        })
+      );
     }
 
 

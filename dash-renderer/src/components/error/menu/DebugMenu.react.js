@@ -40,7 +40,7 @@ class DebugMenu extends Component {
         const menuContent = opened ? (
             <div className="dash-debug-menu__content">
                 {callbackGraphOpened ? (
-                    <CallbackGraphContainer graphs={graphs} />
+                    <CallbackGraphContainer/>
                 ) : null}
                 {error.frontEnd.length > 0 || error.backEnd.length > 0 ? (
                     <div className="dash-debug-menu__button-container">

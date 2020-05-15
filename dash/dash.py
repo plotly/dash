@@ -11,6 +11,7 @@ import pkgutil
 import threading
 import re
 import logging
+import time
 
 from functools import wraps
 
@@ -992,11 +993,11 @@ class Dash(object):
 
     def _before_request(self):
         flask.g.timing_information = {
-            'dash_total': {'dur': time.time(), 'desc': None}
+            '__dash_server': {'dur': time.time(), 'desc': None}
         }
 
     def _after_request(self, response):
-        dash_total = flask.g.timing_information['dash_total']
+        dash_total = flask.g.timing_information['__dash_server']
         dash_total['dur'] = round((time.time() - dash_total['dur'])*1000)
 
         for name, info in flask.g.timing_information.items():

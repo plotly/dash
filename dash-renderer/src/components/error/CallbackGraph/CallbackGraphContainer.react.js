@@ -1,4 +1,5 @@
 import React, {useState, useMemo, useEffect} from 'react';
+import {useSelector} from 'react-redux'
 import PropTypes from 'prop-types';
 import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
@@ -27,47 +28,66 @@ const cyLayout = {
 /**
  * Generates all the elements (nodes, edeges) for the dependency graph.
  */
-function generateElements(dependenciesRequest, profile) {
+function generateElements(graphs, profile) {
 
   const consumed = [];
   const elements = [];
 
-  function recordNode([id, property]) {
+  function recordNode(id, property) {
+
+    const parentType = typeof id === 'object' ? 'wildcard' : 'component';
+    if (parentType === 'wildcard') {
+      id = Object.keys(id)
+                 .sort()
+                 .map(key => {
+                   const val = id[key];
+                   return `${key}: ${val && val.wild ? val.wild : val}`;
+                 });
+    }
+
     const parent = `${id}`;
     const child = `${id}.${property}`;
 
     if (!consumed.includes(parent)) {
       consumed.push(parent);
-      elements.push({data: {id: parent, label: parent, type: 'component'}});
+      elements.push({data: {
+        id: parent,
+        label: id,
+        type: parentType
+      }});
     }
 
     if (!consumed.includes(child)) {
       consumed.push(child);
-      elements.push({data: {id: child, label: `${property}`, parent: parent, type: 'property'}});
+      elements.push({data: {
+        id: child,
+        label: `${property}`,
+        parent: parent,
+        type: 'property'
+      }});
     }
+
+    return child;
 
   }
 
-  function recordEdge([sourceId, sourceProperty], [targetId, targetProperty], type, label) {
-    const source = `${sourceId}.${sourceProperty}`;
-    const target = `${targetId}.${targetProperty}`;
+  function recordEdge(source, target, type) {
     elements.push({data: {
       source: source,
       target: target,
-      type: type,
-      label: label || ''
+      type: type
     }});
   }
 
-  dependenciesRequest.content.map((callback, i) => {
+  graphs.callbacks.map((callback, i) => {
 
-      const cb = ['__dash_callback__', callback.output];
+      const cb = `__dash_callback__.${callback.output}`;
       const cbProfile = profile.callbacks[callback.output] || {};
       const count = cbProfile.callCount || 0;
       const time = cbProfile.totalTime || 0;
 
       elements.push({data: {
-        id: `${cb[0]}.${cb[1]}`,
+        id: cb,
         label: `callback.${i}`,
         type: 'callback',
         lang: callback.clientside_function ? 'javascript' : 'python',
@@ -77,43 +97,47 @@ function generateElements(dependenciesRequest, profile) {
         errorSet: Date.now()
       }});
 
-      callback.output.replace(/^\.\./, '')
-                     .replace(/\.\.$/, '')
-                     .split('...')
-                     .forEach(o => {
-                       const node = o.split('.');
-                       recordNode(node);
-                       recordEdge(cb, node, 'output');
-                     });
+      callback.outputs.map(({id, property}) => {
+        const node = recordNode(id, property);
+        recordEdge(cb, node, 'output');
+      });
 
       callback.inputs.map(({id, property}) => {
-        const node = [id, property];
-        recordNode(node);
+        const node = recordNode(id, property);
         recordEdge(node, cb, 'input');
       });
 
       callback.state.map(({id, property}) => {
-        const node = [id, property];
-        recordNode(node);
+        const node = recordNode(id, property);
         recordEdge(node, cb, 'state');
       });
 
   });
 
+  console.log(elements)
   return elements;
 
 }
 
 function CallbackGraphContainer(props) {
 
-  const {paths, layout, changed, profile, dependenciesRequest} = props;
+  // Grab items from the redux store.
+  const paths = useSelector(state => state.paths);
+  const layout = useSelector(state => state.layout);
+  const graphs = useSelector(state => state.graphs);
+  const profile = useSelector(state => state.profile);
+  const changed = useSelector(state => state.changed);
+
+  console.log(paths, layout, graphs, profile);
+
+  // Keep track of cytoscape reference and user selected items.
   const [selected, setSelected] = useState(null);
   const [cytoscape, setCytoscape] = useState(null);
 
   // Generate and memoize the elements.
   const elements = useMemo(
-    () => generateElements(dependenciesRequest, profile),
-    [dependenciesRequest]
+    () => generateElements(graphs, profile),
+    [graphs]
   );
 
   // Custom hook to make sure cytoscape is loaded.
@@ -210,7 +234,7 @@ function CallbackGraphContainer(props) {
           style={{width: '100%', height: '100%'}}
           cy={setCytoscape}
           elements={elements}
-          layout={cyLayout}
+          layout={window.layout || cyLayout}
           stylesheet={stylesheet}
         />
       { selected ?
@@ -235,12 +259,6 @@ function CallbackGraphContainer(props) {
 
 }
 
-CallbackGraphContainer.propTypes = {
-    paths: PropTypes.object,
-    layout: PropTypes.object,
-    changed: PropTypes.object,
-    profile: PropTypes.object,
-    dependenciesRequest: PropTypes.object,
-};
+CallbackGraphContainer.propTypes = {};
 
 export {CallbackGraphContainer};

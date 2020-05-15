@@ -45,15 +45,13 @@ function mainReducer() {
 }
 
 function getInputHistoryState(id, props, state) {
-    const {graphs, layout, paths} = state;
-    const idProps = path(itempath.concat(['props']), layout);
-    const {id} = idProps || {};
+    const {graphs, paths} = state;
     let historyEntry;
     if (id) {
         historyEntry = {id, props: {}};
         keys(props).forEach(propKey => {
             if (getCallbacksByInput(graphs, paths, id, propKey).length) {
-                historyEntry.props[propKey] = idProps[propKey];
+                historyEntry.props[propKey] = props[propKey];
             }
         });
     }
@@ -65,15 +63,20 @@ function recordHistory(reducer) {
         // Record initial state
         if (action.type === 'ON_PROP_CHANGE') {
             const {itempath, props} = action.payload;
-            const keyObj = filter(equals(itempath), state.paths);
-            if (!isEmpty(keyObj)) {
-                const id = keys(keyObj)[0];
-                const historyEntry = getInputHistoryState(id, props, state);
-                state.changed = {id, props};
-                if (!isEmpty(historyEntry.props)) {
-                    state.history.present = historyEntry;
-                }
+            const idProps = path(itempath.concat(['props']), state.layout);
+            const {id} = idProps || {};
+
+            // changed flags all prop changes.
+            if (id) {
+              state.changed = {id, props};
             }
+
+            // history records all prop changes that are inputs.
+            const historyEntry = getInputHistoryState(id, props, state);
+            if (historyEntry && !isEmpty(historyEntry.props)) {
+                state.history.present = historyEntry;
+            }
+
         }
 
         const nextState = reducer(state, action);
