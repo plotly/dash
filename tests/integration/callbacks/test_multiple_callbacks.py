@@ -183,7 +183,7 @@ def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
         return "Slider2 value {}".format(val)
 
     dash_duo.start_server(app)
-    time.sleep(10000)
+
     dash_duo.wait_for_text_to_equal("#label1", "")
     dash_duo.wait_for_text_to_equal("#label2", "")
 
