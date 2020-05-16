@@ -221,7 +221,7 @@ class ProcessRunner(BaseDashRunner):
             try:
                 logger.info("proc.terminate with pid %s", self.proc.pid)
                 self.proc.terminate()
-                if os.path.exists(self.tmp_app_path):
+                if self.tmp_app_path and os.path.exists(self.tmp_app_path):
                     logger.debug("removing temporary app path %s",
                                  self.tmp_app_path)
                     shutil.rmtree(self.tmp_app_path)
