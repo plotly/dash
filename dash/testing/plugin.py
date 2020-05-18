@@ -75,7 +75,7 @@ def pytest_runtest_makereport(item, call):  # pylint: disable=unused-argument
     rep = outcome.get_result()
 
     # we only look at actual failing test calls, not setup/teardown
-    if rep.when == "call" and rep.failed:
+    if rep.when == "call" and rep.failed and hasattr(item, "funcargs"):
         for name, fixture in item.funcargs.items():
             try:
                 if name in {"dash_duo", "dash_br", "dashr", "dashjl"}:

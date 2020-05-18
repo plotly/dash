@@ -495,35 +495,72 @@ function handleServerside(config, payload, hooks) {
             headers: getCSRFHeader(),
             body: JSON.stringify(payload),
         })
-    ).then(res => {
-        const {status} = res;
-        if (status === STATUS.OK) {
-            return res.json().then(data => {
-                const {multi, response} = data;
-                if (hooks.request_post !== null) {
-                    hooks.request_post(payload, response);
-                }
+    ).then(
+        res => {
+            const {status} = res;
+            if (status === STATUS.OK) {
+                return res.json().then(data => {
+                    const {multi, response} = data;
+                    if (hooks.request_post !== null) {
+                        hooks.request_post(payload, response);
+                    }
 
-                if (multi) {
-                    return response;
-                }
+                    if (multi) {
+                        return response;
+                    }
 
-                const {output} = payload;
-                const id = output.substr(0, output.lastIndexOf('.'));
-                return {[id]: response.props};
-            });
+                    const {output} = payload;
+                    const id = output.substr(0, output.lastIndexOf('.'));
+                    return {[id]: response.props};
+                });
+            }
+            if (status === STATUS.PREVENT_UPDATE) {
+                return {};
+            }
+            throw res;
+        },
+        () => {
+            // fetch rejection - this means the request didn't return,
+            // we don't get here from 400/500 errors, only network
+            // errors or unresponsive servers.
+            throw new Error('Callback failed: the server did not respond.');
         }
-        if (status === STATUS.PREVENT_UPDATE) {
-            return {};
-        }
-        throw res;
-    });
+    );
 }
 
 const getVals = input =>
     Array.isArray(input) ? pluck('value', input) : input.value;
 
 const zipIfArray = (a, b) => (Array.isArray(a) ? zip(a, b) : [[a, b]]);
+
+function inputsToDict(inputs_list) {
+    // Ported directly from _utils.py, inputs_to_dict
+    // takes an array of inputs (some inputs may be an array)
+    // returns an Object (map):
+    //  keys of the form `id.property` or `{"id": 0}.property`
+    //  values contain the property value
+    if (!inputs_list) {
+        return {};
+    }
+    const inputs = {};
+    for (let i = 0; i < inputs_list.length; i++) {
+        if (Array.isArray(inputs_list[i])) {
+            const inputsi = inputs_list[i];
+            for (let ii = 0; ii < inputsi.length; ii++) {
+                const id_str = `${stringifyId(inputsi[ii].id)}.${
+                    inputsi[ii].property
+                }`;
+                inputs[id_str] = inputsi[ii].value ?? null;
+            }
+        } else {
+            const id_str = `${stringifyId(inputs_list[i].id)}.${
+                inputs_list[i].property
+            }`;
+            inputs[id_str] = inputs_list[i].value ?? null;
+        }
+    }
+    return inputs;
+}
 
 function handleClientside(clientside_function, payload) {
     const dc = (window.dash_clientside = window.dash_clientside || {});
@@ -544,12 +581,26 @@ function handleClientside(clientside_function, payload) {
     let returnValue;
 
     try {
+        // setup callback context
+        const input_dict = inputsToDict(inputs);
+        dc.callback_context = {};
+        dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
+            prop_id: prop_id,
+            value: input_dict[prop_id],
+        }));
+        dc.callback_context.inputs_list = inputs;
+        dc.callback_context.inputs = input_dict;
+        dc.callback_context.states_list = state;
+        dc.callback_context.states = inputsToDict(state);
+
         const {namespace, function_name} = clientside_function;
         let args = inputs.map(getVals);
         if (state) {
             args = concat(args, state.map(getVals));
         }
         returnValue = dc[namespace][function_name](...args);
+
+        delete dc.callback_context;
     } catch (e) {
         if (e === dc.PreventUpdate) {
             return {};
