@@ -6,15 +6,22 @@ import os
 import shutil
 import glob
 import warnings
+import sys
+import importlib
+import uuid
 
 from ._all_keywords import julia_keywords
 from ._py_components_generation import reorder_props
 
+#uuid of Dash Julia package. Used as base for component package uuid
+jl_dash_uuid = "1b08a953-4be3-4667-9a23-3db579824955"
 
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
 jl_component_string = '''
+export {funcname}
+
 """
     {funcname}(;kwargs...)
     {funcname}(children::Any;kwargs...)
@@ -50,6 +57,57 @@ end
 {funcname}(children_maker::Function; kwargs...) = {funcname}(children_maker(); kwargs...)
 '''  # noqa:E501
 
+jl_package_file_string = '''
+module {package_name}
+using Dash
+
+const resources_path = realpath(joinpath( @__DIR__, "..", "deps"))
+const version = "{version}"
+
+{component_includes}
+
+function __init__()
+    Dash.register_package(
+        Dash.ResourcePkg(
+            "{project_shortname}",
+            resources_path,
+            version = version,
+            [
+                {resources_dist}
+            ]
+        )
+    )
+end
+end
+'''
+
+jl_projecttoml_string = '''
+name = "{package_name}"
+uuid = "{package_uuid}"
+{authors}
+version = "{version}"
+
+[deps]
+Dash = "{dash_uuid}"
+
+[compact]
+julia = "1.1"
+Dash = ">=0.1"
+'''
+
+jl_component_include_string = 'include("{name}.jl")'
+
+jl_resource_tuple_string = '''Dash.Resource(
+    relative_package_path = {relative_package_path},
+    external_url = {external_url},
+    dynamic = {dynamic},
+    async = {async_string},
+    type = :{type}
+)'''
+
+def jl_package_name(namestring):
+    s = namestring.split("_")
+    return "".join(w.capitalize() for w in s)
 
 def stringify_wildcards(wclist, no_symbol=False):
     if no_symbol:
@@ -306,6 +364,69 @@ def format_fn_name(prefix, name):
     return name.lower()
 
 
+def generate_metadata_strings(resources, type):
+    def noting_or_string(v):
+        return '"{}"'.format(v) if v else "nothing"
+    return [jl_resource_tuple_string.format(
+        relative_package_path = noting_or_string(resource.get("relative_package_path", "")),
+        external_url = noting_or_string(resource.get("external_url", "")),
+        dynamic = str(resource.get("dynamic", 'nothing')).lower(),
+        type = type,
+        async_string = ":{}".format(str(resource.get("async")).lower())
+             if "async" in resource.keys()
+              else 'nothing'
+    ) for resource in resources]
+
+
+def generate_package_file(project_shortname, components, pkg_data, prefix):
+    package_name = jl_package_name(project_shortname)
+    
+    sys.path.insert(0, os.getcwd())
+    mod = importlib.import_module(project_shortname)
+    js_dist = getattr(mod, "_js_dist", []) 
+    css_dist = getattr(mod, "_css_dist", []) 
+    project_ver = pkg_data.get("version")
+
+    resources_dist = ",\n".join(
+        generate_metadata_strings(js_dist, "js") + generate_metadata_strings(css_dist, "css")
+    )
+
+    package_string = jl_package_file_string.format(
+        package_name = package_name,
+        component_includes = "\n".join(
+            [jl_component_include_string.format(name = format_fn_name(prefix, comp_name)) for comp_name in components]
+        ),
+        resources_dist = resources_dist,
+        version = project_ver,
+        project_shortname = project_shortname
+
+    )
+    file_path = os.path.join("src", package_name + ".jl")
+    with open(file_path, "w") as f:
+        f.write(package_string)
+    print("Generated {}".format(file_path))
+
+def generate_toml_file(project_shortname, pkg_data):
+    package_author = pkg_data.get("author", "")
+    project_ver = pkg_data.get("version")
+    package_name = jl_package_name(project_shortname)
+    u = uuid.UUID(jl_dash_uuid)
+    package_uuid = uuid.UUID(hex=u.hex[:-12] + hex(hash(package_name))[-12:])
+
+    authors_string = 'authors = ["{}"]'.format(package_author) if package_author else ""
+
+    toml_string = jl_projecttoml_string.format(
+        package_name = package_name,
+        package_uuid = package_uuid,
+        version = project_ver,
+        authors = authors_string,
+        dash_uuid = jl_dash_uuid
+    )
+    file_path = "Project.toml"
+    with open(file_path, "w") as f:
+        f.write(toml_string)
+    print("Generated {}".format(file_path))
+
 def generate_class_string(name, props, description, project_shortname, prefix):
     # Ensure props are ordered with children first
     filtered_props = reorder_props(filter_props(props))
@@ -374,6 +495,7 @@ def generate_module(
     project_shortname,
     components,
     metadata,
+    pkg_data,
     prefix,
     **kwargs
 ):
@@ -398,3 +520,9 @@ def generate_module(
 
     for sourcemap in glob.glob("{}/*.map".format(project_shortname)):
         shutil.copy(sourcemap, "deps/")
+
+    generate_package_file(project_shortname, components, pkg_data, prefix)
+    generate_toml_file(project_shortname, pkg_data)
+    
+
+    

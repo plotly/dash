@@ -111,6 +111,10 @@ def generate_components(
         )
 
     if jlprefix is not False:
+        if pkg_data is None:
+            with open("package.json", "r") as f:
+                pkg_data = safe_json_loads(f.read())
+
         generator_methods.append(
             functools.partial(generate_struct_file, prefix=jlprefix)
         )
@@ -140,6 +144,7 @@ def generate_components(
             project_shortname,
             components,
             metadata,
+            pkg_data,
             jlprefix
         )
 
