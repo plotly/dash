@@ -112,7 +112,7 @@ def generate_components(
             functools.partial(write_class_file, prefix=rprefix, rpkg_data=rpkg_data)
         )
 
-    if jlprefix is not False:
+    if jlprefix is not None:
         generator_methods.append(
             functools.partial(generate_struct_file, prefix=jlprefix)
         )
@@ -137,7 +137,7 @@ def generate_components(
             rsuggests,
         )
 
-    if jlprefix is not False:
+    if jlprefix is not None:
         generate_module(
             project_shortname,
             components,
