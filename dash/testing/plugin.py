@@ -4,9 +4,9 @@ from .consts import SELENIUM_GRID_DEFAULT
 
 
 try:
-    from dash.testing.application_runners import ThreadedRunner, ProcessRunner, RRunner
+    from dash.testing.application_runners import ThreadedRunner, ProcessRunner, RRunner, JuliaRunner
     from dash.testing.browser import Browser
-    from dash.testing.composite import DashComposite, DashRComposite
+    from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
 except ImportError:
     pass
 
@@ -75,10 +75,10 @@ def pytest_runtest_makereport(item, call):  # pylint: disable=unused-argument
     rep = outcome.get_result()
 
     # we only look at actual failing test calls, not setup/teardown
-    if rep.when == "call" and rep.failed:
+    if rep.when == "call" and rep.failed and hasattr(item, "funcargs"):
         for name, fixture in item.funcargs.items():
             try:
-                if name in {"dash_duo", "dash_br", "dashr"}:
+                if name in {"dash_duo", "dash_br", "dashr", "dashjl"}:
                     fixture.take_snapshot(item.name)
             except Exception as e:  # pylint: disable=broad-except
                 print(e)
@@ -106,6 +106,12 @@ def dash_process_server():
 @pytest.fixture
 def dashr_server():
     with RRunner() as starter:
+        yield starter
+
+
+@pytest.fixture
+def dashjl_server():
+    with JuliaRunner() as starter:
         yield starter
 
 
@@ -146,6 +152,23 @@ def dash_duo(request, dash_thread_server, tmpdir):
 def dashr(request, dashr_server, tmpdir):
     with DashRComposite(
         dashr_server,
+        browser=request.config.getoption("webdriver"),
+        remote=request.config.getoption("remote"),
+        remote_url=request.config.getoption("remote_url"),
+        headless=request.config.getoption("headless"),
+        options=request.config.hook.pytest_setup_options(),
+        download_path=tmpdir.mkdir("download").strpath,
+        percy_assets_root=request.config.getoption("percy_assets"),
+        percy_finalize=request.config.getoption("nopercyfinalize"),
+        pause=request.config.getoption("pause"),
+    ) as dc:
+        yield dc
+
+
+@pytest.fixture
+def dashjl(request, dashjl_server, tmpdir):
+    with DashJuliaComposite(
+        dashjl_server,
         browser=request.config.getoption("webdriver"),
         remote=request.config.getoption("remote"),
         remote_url=request.config.getoption("remote_url"),
