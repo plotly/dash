@@ -155,7 +155,7 @@ def get_jl_prop_types(type_object):
     return dict(
         array=lambda: "Array",
         bool=lambda: "Bool",
-        number=lambda: "Float64",
+        number=lambda: "Real",
         string=lambda: "String",
         object=lambda: "Dict",
         any=lambda: "Bool | Float64 | String | Dict | Array",
