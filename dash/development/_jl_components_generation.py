@@ -296,8 +296,6 @@ Keyword arguments:\n{args}"""
     )
 
 
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-arguments
 def create_prop_docstring_jl(
     prop_name,
     type_object,
