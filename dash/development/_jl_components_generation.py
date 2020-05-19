@@ -84,8 +84,7 @@ end
 jl_projecttoml_string = '''
 name = "{package_name}"
 uuid = "{package_uuid}"
-{authors}
-version = "{version}"
+{authors}version = "{version}"
 
 [deps]
 Dash = "{dash_uuid}"
@@ -408,7 +407,7 @@ def generate_toml_file(project_shortname, pkg_data):
     u = uuid.UUID(jl_dash_uuid)
     package_uuid = uuid.UUID(hex=u.hex[:-12] + hex(hash(package_name))[-12:])
 
-    authors_string = 'authors = ["{}"]'.format(package_author) if package_author else ""
+    authors_string = 'authors = ["{}"]\n'.format(package_author) if package_author else ""
 
     toml_string = jl_projecttoml_string.format(
         package_name=package_name,
