@@ -246,7 +246,7 @@ jobs:
               sudo Rscript -e 'dash_desc <- read.dcf("dashR/DESCRIPTION"); dt_version <- read.dcf("dash-table/DESCRIPTION")[,"Version"]; dcc_version <- read.dcf("dash-core-components/DESCRIPTION")[,"Version"]; dhc_version <- read.dcf("dash-html-components/DESCRIPTION")[,"Version"]; imports <- dash_desc[,"Imports"][[1]]; imports <- gsub("((?<=dashHtmlComponents )(\\\\(.*?\\\\)))", paste0("(= ", dhc_version, ")"), imports, perl = TRUE); imports <- gsub("((?<=dashCoreComponents )(\\\\(.*?\\\\)))", paste0("(= ", dcc_version, ")"), imports, perl = TRUE); imports <- gsub("((?<=dashTable )(\\\\(.*?\\\\)))", paste0("(= ", dt_version, ")"), imports, perl = TRUE); dash_desc[,"Imports"][[1]] <- imports; dhc_hash <- system("cd dash-html-components; git rev-parse HEAD | tr -d '\''\n'\''", intern=TRUE); dcc_hash <- system("cd dash-core-components; git rev-parse HEAD | tr -d '\''\n'\''", intern=TRUE); dt_hash <- system("cd dash-table; git rev-parse HEAD | tr -d '\''\n'\''", intern=TRUE); remotes <- dash_desc[,"Remotes"][[1]];  remotes <- gsub("((?<=plotly\\\\/dash-html-components@)([a-zA-Z0-9]+))", dhc_hash, remotes, perl=TRUE); remotes <- gsub("((?<=plotly\\\\/dash-core-components@)([a-zA-Z0-9]+))", dcc_hash, remotes, perl=TRUE); remotes <- gsub("((?<=plotly\\\\/dash-table@)([a-zA-Z0-9]+))", dt_hash, remotes, perl=TRUE); dash_desc[,"Remotes"][[1]] <- remotes; write.dcf(dash_desc, "dashR/DESCRIPTION")'
 
       - run:
-          name: 🎛set environment variables
+          name: 🎛 set environment variables
           command: |
             Rscript --vanilla \
               -e 'dash_dsc <- read.dcf("dashR/DESCRIPTION")' \
@@ -264,7 +264,7 @@ jobs:
               >> ${BASH_ENV}
 
       - run:
-          name: ️️📋run CRAN package checks
+          name: ️️📋 run CRAN package checks
           command: |
             R CMD build dash-core-components
             R CMD build dash-html-components
@@ -280,7 +280,7 @@ jobs:
             R CMD check "${DASH_TARBALL}" --as-cran --no-manual
 
       - run:
-          name: 🕵detect failures
+          name: 🕵 detect failures
           command: |
             Rscript -e "message(devtools::check_failures(path = '${DHC_CHECK_DIR}'))"
             Rscript -e "message(devtools::check_failures(path = '${DCC_CHECK_DIR}'))"
@@ -316,7 +316,7 @@ jobs:
       - run:
           name: 🦔 percy finalize
           command: npx percy finalize --all
-          when: always
+          when: on_fail 
 
 
   test-37: &test
@@ -392,6 +392,7 @@ workflows:
             - build-misc-37
       - percy-finalize:
           requires:
+            - build-dashr
             - test-37
       - artifacts:
           requires:
