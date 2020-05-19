@@ -361,11 +361,11 @@ def format_fn_name(prefix, name):
 
 
 def generate_metadata_strings(resources, metatype):
-    def noting_or_string(v):
+    def nothing_or_string(v):
         return '"{}"'.format(v) if v else "nothing"
     return [jl_resource_tuple_string.format(
-        relative_package_path=noting_or_string(resource.get("relative_package_path", "")),
-        external_url=noting_or_string(resource.get("external_url", "")),
+        relative_package_path=nothing_or_string(resource.get("relative_package_path", "")),
+        external_url=nothing_or_string(resource.get("external_url", "")),
         dynamic=str(resource.get("dynamic", 'nothing')).lower(),
         type=metatype,
         async_string=":{}".format(str(resource.get("async")).lower())
