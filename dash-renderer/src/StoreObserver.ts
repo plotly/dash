@@ -1,5 +1,6 @@
 import {
     any,
+    filter,
     forEach,
     map,
     path
@@ -75,45 +76,33 @@ export default class StoreObserver<TStore> {
         triggered: false
     });
 
-    private notify = () => forEach(
-        this.notifyObserver,
-        this._observers
-    );
-
-    private notifyObserver = (o: IStoreObserverState<Store<TStore>>) => {
+    private notify = () => {
         const store = this._store;
         if (!store) {
             return;
         }
 
-        const state: any = store.getState();
+        const state = store.getState();
 
-        /** Don't trigger if nested */
-        if (o.triggered) {
-            return;
-        }
+        const triggered = filter(
+            o => !o.triggered && any(
+                i => path(i, state) !== path(i, o.lastState),
+                o.inputPaths
+            ),
+            this._observers
+        );
 
-        const { inputPaths, lastState, observer } = o;
+        forEach(o => o.triggered = true, triggered);
 
-        /** Don't notify observer if there's no change */
-        if (!any(
-            i => path(i, state) !== path(i, lastState),
-            inputPaths
-        )) {
-            return;
-        }
-
-        o.triggered = true;
-        /**
-         * Due to nested store updates, the state could change between the
-         * observer call and setting `lastState`, leading to untriggered changes
-         */
-        const s = store.getState();
-        observer(store);
-
-        o.triggered = false;
-        o.lastState = s;
-    };
+        forEach(
+            o => {
+                o.lastState = store.getState();
+                o.observer(store);
+                o.triggered = false;
+            },
+            triggered
+        );
+    }
 
     private remove = (observer: Observer<Store<TStore>>) => this._observers.splice(
         this._observers.findIndex(

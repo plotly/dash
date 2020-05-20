@@ -3,10 +3,12 @@ import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
 import StoreObserver from './StoreObserver';
 import { ICallbacksState } from './reducers/callbacks';
+import { LoadingMapState } from './reducers/loadingMap';
 import { ICallback } from './types/callbacks';
 
 export interface IStoreState {
     callbacks: ICallbacksState;
+    loadingMap: LoadingMapState;
     pendingCallbacks: ICallback[];
     [key: string]: any;
 }

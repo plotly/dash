@@ -8,13 +8,14 @@ import {
     concat,
     dissoc,
     equals,
-    filter,
+    find,
     has,
     isEmpty,
     isNil,
     keys,
     map,
     mergeRight,
+    path,
     pick,
     pickBy,
     propOr,
@@ -265,81 +266,50 @@ function isLoadingComponent(layout) {
     return Registry.resolve(layout)._dashprivate_isLoadingComponent;
 }
 
-function getNestedIds(layout) {
-    const ids = [];
-    const queue = [layout];
-
-    while (queue.length) {
-        const elementLayout = queue.shift();
-
-        const props = elementLayout && elementLayout.props;
-
-        if (!props) {
-            continue;
-        }
-
-        const {children, id} = props;
-
-        if (id) {
-            ids.push(id);
-        }
-
-        if (children) {
-            const filteredChildren = filter(
-                child =>
-                    !isSimpleComponent(child) && !isLoadingComponent(child),
-                Array.isArray(children) ? children : [children]
-            );
-
-            queue.push(...filteredChildren);
-        }
+function getLoadingState(componentLayout, componentPath, loadingMap) {
+    if (isNil(loadingMap)) {
+        return {
+            is_loading: false,
+        };
     }
 
-    return ids;
-}
-
-function getLoadingState(layout, pendingCallbacks) {
-    const ids = isLoadingComponent(layout)
-        ? getNestedIds(layout)
-        : layout && layout.props.id && [layout.props.id];
-
-    let isLoading = false;
-    let loadingProp;
-    let loadingComponent;
-
-    if (pendingCallbacks && pendingCallbacks.length && ids && ids.length) {
-        const idStrs = ids.map(stringifyId);
-
-        pendingCallbacks.forEach(cb => {
-            const {executionPromise, requestedOutputs} = cb;
-            if (executionPromise === undefined) {
-                return;
-            }
-
-            idStrs.forEach(idStr => {
-                const props = requestedOutputs[idStr];
-                if (props) {
-                    isLoading = true;
-                    // TODO: what about multiple loading components / props?
-                    loadingComponent = idStr;
-                    loadingProp = props[0];
-                }
-            });
-        });
+    const loadingFragment = path(componentPath, loadingMap);
+    // Component and children are not loading if there's no loading fragment
+    // for the component's path in the layout.
+    if (isNil(loadingFragment)) {
+        return {
+            is_loading: false,
+        };
     }
 
-    // Set loading state
+    const {__dashprivate__idprop__: ids} = loadingFragment;
+
+    if (isLoadingComponent(componentLayout)) {
+        return {
+            is_loading: true,
+            prop_name: ids[0].property,
+            component_name: ids[0].id,
+        };
+    }
+
+    const entry = find(id => id.id === componentLayout.props.id, ids);
+    if (entry) {
+        return {
+            is_loading: true,
+            prop_name: entry.property,
+            component_name: entry.id,
+        };
+    }
+
     return {
-        is_loading: isLoading,
-        prop_name: loadingProp,
-        component_name: loadingComponent,
+        is_loading: false,
     };
 }
 
 export const AugmentedTreeContainer = connect(
     state => ({
         graphs: state.graphs,
-        pendingCallbacks: state.pendingCallbacks,
+        loadingMap: state.loadingMap,
         config: state.config,
     }),
     dispatch => ({dispatch}),
@@ -350,7 +320,8 @@ export const AugmentedTreeContainer = connect(
         _dashprivate_path: ownProps._dashprivate_path,
         _dashprivate_loadingState: getLoadingState(
             ownProps._dashprivate_layout,
-            stateProps.pendingCallbacks
+            ownProps._dashprivate_path,
+            stateProps.loadingMap
         ),
         _dashprivate_config: stateProps.config,
     })

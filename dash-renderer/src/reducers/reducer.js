@@ -12,6 +12,7 @@ import error from './error';
 import history from './history';
 import hooks from './hooks';
 import layout from './layout';
+import loadingMap from './loadingMap';
 import paths from './paths';
 import pendingCallbacks from './pendingCallbacks';
 
@@ -32,6 +33,7 @@ function mainReducer() {
         history,
         hooks,
         layout,
+        loadingMap,
         paths,
         pendingCallbacks,
     };

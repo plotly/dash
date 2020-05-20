@@ -5,6 +5,10 @@ export interface ICallbackProperty {
     property: string;
 }
 
+export interface ILayoutCallbackProperty extends ICallbackProperty {
+    path: (string | number)[];
+}
+
 export interface ICallback {
     anyVals: any[] | string;
     callback: {
@@ -19,9 +23,9 @@ export interface ICallback {
         state: ICallbackProperty[];
     };
     executionGroup?: string;
-    getInputs: (paths: any) => ICallbackProperty[];
-    getOutputs: (paths: any) => ICallbackProperty[];
-    getState: (paths: any) => ICallbackProperty[];
+    getInputs: (paths: any) => ILayoutCallbackProperty[];
+    getOutputs: (paths: any) => ILayoutCallbackProperty[];
+    getState: (paths: any) => ILayoutCallbackProperty[];
     prevent_initial_call: boolean;
 
     [key: string]: any;
