@@ -8,7 +8,10 @@ export interface ICallbackProperty {
 export interface ICallback {
     anyVals: any[] | string;
     callback: {
-        clientside_function: string;
+        clientside_function?: {
+            namespace: string;
+            function_name: string;
+        };
         input: string;
         inputs: ICallbackProperty[];
         output: string;
@@ -39,7 +42,15 @@ export interface IStoredCallback extends IExecutedCallback {
     }
 }
 
+interface ICallbackPayload {
+    changedPropIds: any[];
+    inputs: any[];
+    output: string;
+    outputs: any[];
+}
+
 export type CallbackResult = {
     data?: any;
-    error?: Error
+    error?: Error;
+    payload: ICallbackPayload | null;
 }

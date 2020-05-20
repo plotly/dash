@@ -243,7 +243,7 @@ export function executeCallback(
                     payload.state = fillVals(paths, layout, cb, state, 'State');
                 }
             } catch (error) {
-                resolve({ error });
+                resolve({ error, payload });
             }
 
             function handleClientside(clientside_function: any, payload: any) {
@@ -339,15 +339,15 @@ export function executeCallback(
 
             if (clientside_function) {
                 try {
-                    resolve({ data: handleClientside(clientside_function, payload) });
+                    resolve({ data: handleClientside(clientside_function, payload), payload });
                 } catch (error) {
-                    resolve({ error });
+                    resolve({ error, payload });
                 }
                 return null;
             } else {
                 handleServerside(payload)
-                    .then(data => resolve({ data }))
-                    .catch(error => resolve({ error }));
+                    .then(data => resolve({ data, payload }))
+                    .catch(error => resolve({ error, payload }));
             }
         });
 
@@ -360,7 +360,7 @@ export function executeCallback(
     } catch (error) {
         return {
             ...cb,
-            executionPromise: { error }
+            executionPromise: { error, payload: null }
         };
     }
 }

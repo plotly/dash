@@ -510,13 +510,19 @@ observe(({
     let storedCallbacks: IStoredCallback[] = [];
 
     forEach(cb => {
-        const { executionResult } = cb;
+        const {
+            callback: {
+                clientside_function,
+                output
+            },
+            executionResult
+        } = cb;
 
         if (isNil(executionResult)) {
             return;
         }
 
-        const { data, error } = executionResult;
+        const { data, error, payload } = executionResult;
         console.log('onCallbacksChanged.executed', '[executionResult]', cb, data);
 
         if (data !== undefined) {
@@ -599,7 +605,16 @@ observe(({
         }
 
         if (error !== undefined) {
-            handleAsyncError(error, error.message, dispatch);
+            const outputs = payload
+                ? map(combineIdAndProp, flatten([payload.outputs])).join(', ')
+                : output;
+            let message = `Callback error updating ${outputs}`;
+            if (clientside_function) {
+                const { namespace: ns, function_name: fn } = clientside_function;
+                message += ` via clientside function ${ns}.${fn}`;
+            }
+
+            handleAsyncError(error, message, dispatch);
 
             storedCallbacks.push({
                 ...cb,
