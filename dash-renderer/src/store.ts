@@ -1,22 +1,25 @@
-import { createStore, applyMiddleware, Store } from 'redux';
+import { createStore, applyMiddleware, Store, Observer } from 'redux';
 import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
 import StoreObserver from './StoreObserver';
 import { ICallbacksState } from './reducers/callbacks';
 import { ICallback } from './types/callbacks';
 
-interface IStoreState {
+export interface IStoreState {
     callbacks: ICallbacksState;
     pendingCallbacks: ICallback[];
     [key: string]: any;
 }
 
-type DashStore = Store<IStoreState, any>;
-
-let store: DashStore;
-const storeObserver = new StoreObserver<DashStore>();
+let store: Store<IStoreState>;
+const storeObserver = new StoreObserver<IStoreState>();
 
 export const observe = storeObserver.observe;
+
+export interface IStoreObserver {
+    observer: Observer<Store<IStoreState>>;
+    inputs: string[];
+}
 
 function createAppStore(reducer: any, middleware: any) {
     store = createStore(reducer, middleware);
@@ -31,7 +34,7 @@ function createAppStore(reducer: any, middleware: any) {
  * @returns {Store<GenericStoreEnhancer>}
  *  An initialized redux store with middleware and possible hot reloading of reducers
  */
-const initializeStore = (reset?: boolean): DashStore => {
+const initializeStore = (reset?: boolean): Store<IStoreState> => {
     if (store && !reset) {
         return store;
     }

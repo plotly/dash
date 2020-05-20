@@ -10,40 +10,53 @@ import { Store, Unsubscribe } from 'redux';
 type Observer<TStore> = (store: TStore) => void;
 type UnregisterObserver = () => void;
 
-interface IStoreObserver<TStore> {
+interface IStoreObserverState<TStore> {
     inputPaths: string[][];
     lastState: any;
     observer: Observer<TStore>;
     triggered: boolean;
 }
 
-export default class StoreObserver<TStore extends Store> {
-    private _store?: TStore;
+export interface IStoreObserverDefinition<TStore> {
+    observer: Observer<Store<TStore>>;
+    inputs: string[]
+}
+
+export default class StoreObserver<TStore> {
+    private _store?: Store<TStore>;
     private _unsubscribe?: Unsubscribe;
 
-    private readonly _observers: IStoreObserver<TStore>[] = [];
+    private readonly _observers: IStoreObserverState<Store<TStore>>[] = [];
 
-    constructor(store?: TStore) {
+    constructor(store?: Store<TStore>) {
         this.__init__(store);
     }
 
     observe = (
-        observer: Observer<TStore>,
-        inputs: string[]
+        observer: IStoreObserverDefinition<TStore> | Observer<Store<TStore>>,
+        inputs?: string[]
     ): UnregisterObserver => {
-        this.add(observer, inputs);
+        if (typeof observer === 'function') {
+            if (!Array.isArray(inputs)) {
+                throw new Error('inputs must be an array');
+            }
 
-        return () => this.remove(observer);
+            this.add(observer, inputs);
+            return () => this.remove(observer);
+        } else {
+            this.add(observer.observer, observer.inputs);
+            return () => this.remove(observer.observer);
+        }
     }
 
-    setStore = (store: TStore) => {
+    setStore = (store: Store<TStore>) => {
         this.__finalize__();
         this.__init__(store);
     }
 
     private __finalize__ = () => this._unsubscribe?.()
 
-    private __init__ = (store?: TStore) => {
+    private __init__ = (store?: Store<TStore>) => {
         this._store = store;
         if (store) {
             this._unsubscribe = store.subscribe(this.notify);
@@ -53,7 +66,7 @@ export default class StoreObserver<TStore extends Store> {
     }
 
     private add = (
-        observer: Observer<TStore>,
+        observer: Observer<Store<TStore>>,
         inputs: string[]
     ) => this._observers.push({
         inputPaths: map(p => p.split('.'), inputs),
@@ -67,7 +80,7 @@ export default class StoreObserver<TStore extends Store> {
         this._observers
     );
 
-    private notifyObserver = (o: IStoreObserver<TStore>) => {
+    private notifyObserver = (o: IStoreObserverState<Store<TStore>>) => {
         const store = this._store;
         if (!store) {
             return;
@@ -102,7 +115,7 @@ export default class StoreObserver<TStore extends Store> {
         o.lastState = s;
     };
 
-    private remove = (observer: Observer<TStore>) => this._observers.splice(
+    private remove = (observer: Observer<Store<TStore>>) => this._observers.splice(
         this._observers.findIndex(
             o => observer === o.observer,
             this._observers
