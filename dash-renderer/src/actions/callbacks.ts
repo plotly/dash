@@ -12,7 +12,7 @@ import {
 
 import { STATUS } from '../constants/constants';
 import { CallbackActionType, CallbackAggregateActionType } from "../reducers/callbacks";
-import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, IStoredCallback } from '../types/callbacks';
+import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, ICallbackPayload, IStoredCallback } from '../types/callbacks';
 import { isMultiValued, stringifyId, isMultiOutputProp } from './dependencies';
 import { urlBase } from './utils';
 import { getCSRFHeader } from '.';
@@ -231,22 +231,63 @@ export function executeCallback(
         }
 
         const __promise = new Promise<CallbackResult>(resolve => {
-            let payload: any;
             try {
-                payload = {
+                const payload: ICallbackPayload = {
                     output,
                     outputs: isMultiOutputProp(output) ? outputs : outputs[0],
                     inputs: inVals,
                     changedPropIds: keys(cb.changedPropIds),
+                    state: cb.callback.state.length ?
+                        fillVals(paths, layout, cb, state, 'State') :
+                        undefined
                 };
-                if (cb.callback.state.length) {
-                    payload.state = fillVals(paths, layout, cb, state, 'State');
+
+                if (clientside_function) {
+                    try {
+                        resolve({ data: handleClientside(clientside_function, payload), payload });
+                    } catch (error) {
+                        resolve({ error, payload });
+                    }
+                    return null;
+                } else {
+                    handleServerside(payload)
+                        .then(data => resolve({ data, payload }))
+                        .catch(error => resolve({ error, payload }));
                 }
             } catch (error) {
-                resolve({ error, payload });
+                resolve({ error, payload: null });
             }
 
-            function handleClientside(clientside_function: any, payload: any) {
+            function inputsToDict(inputs_list: any) {
+                // Ported directly from _utils.py, inputs_to_dict
+                // takes an array of inputs (some inputs may be an array)
+                // returns an Object (map):
+                //  keys of the form `id.property` or `{"id": 0}.property`
+                //  values contain the property value
+                if (!inputs_list) {
+                    return {};
+                }
+                const inputs: any = {};
+                for (let i = 0; i < inputs_list.length; i++) {
+                    if (Array.isArray(inputs_list[i])) {
+                        const inputsi = inputs_list[i];
+                        for (let ii = 0; ii < inputsi.length; ii++) {
+                            const id_str = `${stringifyId(inputsi[ii].id)}.${
+                                inputsi[ii].property
+                                }`;
+                            inputs[id_str] = inputsi[ii].value ?? null;
+                        }
+                    } else {
+                        const id_str = `${stringifyId(inputs_list[i].id)}.${
+                            inputs_list[i].property
+                            }`;
+                        inputs[id_str] = inputs_list[i].value ?? null;
+                    }
+                }
+                return inputs;
+            }
+
+            function handleClientside(clientside_function: any, payload: ICallbackPayload) {
                 const dc = ((window as any).dash_clientside = (window as any).dash_clientside || {});
                 if (!dc.no_update) {
                     Object.defineProperty(dc, 'no_update', {
@@ -270,12 +311,27 @@ export function executeCallback(
                     if (state) {
                         args = concat(args, state.map(getVals));
                     }
+
+                    // setup callback context
+                    const input_dict = inputsToDict(inputs);
+                    dc.callback_context = {};
+                    dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
+                        prop_id: prop_id,
+                        value: input_dict[prop_id],
+                    }));
+                    dc.callback_context.inputs_list = inputs;
+                    dc.callback_context.inputs = input_dict;
+                    dc.callback_context.states_list = state;
+                    dc.callback_context.states = inputsToDict(state);
+
                     returnValue = dc[namespace][function_name](...args);
                 } catch (e) {
                     if (e === dc.PreventUpdate) {
                         return {};
                     }
                     throw e;
+                } finally {
+                    delete dc.callback_context;
                 }
 
                 if (typeof returnValue?.then === 'function') {
@@ -335,19 +391,6 @@ export function executeCallback(
                     }
                     throw res;
                 });
-            }
-
-            if (clientside_function) {
-                try {
-                    resolve({ data: handleClientside(clientside_function, payload), payload });
-                } catch (error) {
-                    resolve({ error, payload });
-                }
-                return null;
-            } else {
-                handleServerside(payload)
-                    .then(data => resolve({ data, payload }))
-                    .catch(error => resolve({ error, payload }));
             }
         });
 

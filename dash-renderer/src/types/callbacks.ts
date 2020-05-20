@@ -42,11 +42,12 @@ export interface IStoredCallback extends IExecutedCallback {
     }
 }
 
-interface ICallbackPayload {
+export interface ICallbackPayload {
     changedPropIds: any[];
     inputs: any[];
     output: string;
     outputs: any[];
+    state?: any[] | null;
 }
 
 export type CallbackResult = {
