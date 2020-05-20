@@ -1,6 +1,7 @@
 import {connect} from 'react-redux';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
+import {isEmpty} from 'ramda';
 
 class DocumentTitle extends Component {
     constructor(props) {
@@ -11,7 +12,7 @@ class DocumentTitle extends Component {
     }
 
     UNSAFE_componentWillReceiveProps(props) {
-        if (props.pendingCallbacks.length) {
+        if (props.isLoading) {
             document.title = 'Updating...';
         } else {
             document.title = this.state.initialTitle;
@@ -28,9 +29,9 @@ class DocumentTitle extends Component {
 }
 
 DocumentTitle.propTypes = {
-    pendingCallbacks: PropTypes.array.isRequired,
+    isLoading: PropTypes.any.isRequired,
 };
 
 export default connect(state => ({
-    pendingCallbacks: state.pendingCallbacks,
+    isLoading: !isEmpty(state.loadingMap?.__dashprivate__idprops),
 }))(DocumentTitle);

@@ -292,7 +292,7 @@ function getLoadingState(componentLayout, componentPath, loadingMap) {
         };
     }
 
-    const entry = find(id => id.id === componentLayout.props.id, ids);
+    const entry = find(id => id.id === componentLayout.props.id, ids ?? []);
     if (entry) {
         return {
             is_loading: true,

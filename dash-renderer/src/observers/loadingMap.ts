@@ -7,9 +7,7 @@ import {
     reduce
 } from 'ramda';
 
-import { setPendingCallbacks } from '../actions/callbacks';
 import { setLoadingMap } from '../actions/loadingMap';
-import { getPendingCallbacks } from '../utils/callbacks';
 import { IStoreObserverDefinition } from '../StoreObserver';
 import { IStoreState } from '../store';
 
@@ -19,18 +17,17 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         getState
     }) => {
         const {
-            callbacks,
             callbacks: {
                 executing,
                 watched,
                 executed
             },
             loadingMap,
-            paths,
-            pendingCallbacks
+            paths
         } = getState();
 
-        console.log('onCallbacksChanged.pendingCallbacks', callbacks);
+        const callbacks = [...executing, ...watched, ...executed];
+        console.log('onCallbacksChanged.loadingMap', callbacks);
 
         /*
             Get the path of all components impacted by callbacks
@@ -74,27 +71,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             );
 
         if (!equals(nextMap, loadingMap)) {
-            console.log('SPECIAL', '[setLoadingMap]', nextMap);
             dispatch(setLoadingMap(nextMap));
         }
-
-        /*
-         * If the calculated list of pending callbacks is not
-         * equivalent to the current one, update it.
-         */
-        const next = getPendingCallbacks(callbacks);
-        if (
-            !pendingCallbacks ||
-            pendingCallbacks.length !== next.length ||
-            !next.every((v, i) =>
-                v === pendingCallbacks[i] ||
-                v.callback === pendingCallbacks[i].callback)
-        ) {
-            console.log('SPECIAL', '[setPendingCallbacks]', next);
-            dispatch(setPendingCallbacks(next));
-        }
     },
-    inputs: ['callbacks']
+    inputs: ['callbacks.executing', 'callbacks.watched', 'callbacks.executed']
 };
 
 export default observer;

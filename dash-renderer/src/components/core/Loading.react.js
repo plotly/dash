@@ -1,18 +1,19 @@
 import {connect} from 'react-redux';
 import React from 'react';
 import PropTypes from 'prop-types';
+import {isEmpty} from 'ramda';
 
 function Loading(props) {
-    if (props.pendingCallbacks.length) {
+    if (props.isLoading) {
         return <div className="_dash-loading-callback" />;
     }
     return null;
 }
 
 Loading.propTypes = {
-    pendingCallbacks: PropTypes.array.isRequired,
+    isLoading: PropTypes.any.isRequired,
 };
 
 export default connect(state => ({
-    pendingCallbacks: state.pendingCallbacks,
+    isLoading: !isEmpty(state.loadingMap?.__dashprivate__idprops),
 }))(Loading);

@@ -18,8 +18,6 @@ import { urlBase } from './utils';
 import { getCSRFHeader } from '.';
 import { createAction, Action } from 'redux-actions';
 
-export const setPendingCallbacks = createAction<ICallback[]>('SET_PENDING_CALLBACKS');
-
 export const addCompletedCallbacks = createAction<number>(
     CallbackAggregateActionType.AddCompleted
 );
