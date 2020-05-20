@@ -492,7 +492,7 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal("#output2", "3")
         ready = self.driver.execute_script(
             """
-            return window.store.getState().isLoading;
+            return !window.store.getState().isLoading;
             """
         )
 
