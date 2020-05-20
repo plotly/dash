@@ -490,18 +490,13 @@ class Tests(IntegrationTests):
         self.assertEqual(call_count.value, 3)
         self.wait_for_text_to_equal("#output1", "2")
         self.wait_for_text_to_equal("#output2", "3")
-        pending_count = self.driver.execute_script(
+        ready = self.driver.execute_script(
             """
-            var loadingMap = window.store.getState().loadingMap;
-            if (!loadingMap || !loadingMap.__dashprivate__idprop__) {
-                return 0;
-            }
-
-            return loadingMap.__dashprivate__idprop__.length;
+            return window.store.getState().isLoading;
             """
         )
 
-        assert pending_count == 0
+        assert ready
 
     def test_callbacks_with_shared_grandparent(self):
         app = Dash()
