@@ -5,7 +5,7 @@ import time
 from selenium.webdriver.common.keys import Keys
 
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State, MATCH
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -451,3 +451,78 @@ def test_rdps011_toggle_persistence2(dash_duo):
     dash_duo.find_element("#persistence-val").send_keys("2")
     assert not dash_duo.get_logs()
     dash_duo.wait_for_text_to_equal("#out", "artichoke")
+
+
+def test_rdps012_pattern_matching(dash_duo):
+    # copy of rdps010 but with dict IDs,
+    # plus a button to change the dict ID so the persistence should reset
+    def make_input(persistence, n):
+        return dcc.Input(
+            id={"i": n, "id": "persisted"},
+            className="persisted",
+            value="a",
+            persistence=persistence,
+        )
+
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [html.Button("click", id="btn", n_clicks=0), html.Div(id="content")]
+    )
+
+    @app.callback(Output("content", "children"), [Input("btn", "n_clicks")])
+    def content(n):
+        return [
+            dcc.Input(
+                id={"i": n, "id": "persistence-val"},
+                value="",
+                className="persistence-val",
+            ),
+            html.Div(make_input("", n), id={"i": n, "id": "persisted-container"}),
+            html.Div(id={"i": n, "id": "out"}, className="out"),
+        ]
+
+    @app.callback(
+        Output({"i": MATCH, "id": "persisted-container"}, "children"),
+        [Input({"i": MATCH, "id": "persistence-val"}, "value")],
+        [State("btn", "n_clicks")],
+    )
+    def set_persistence(val, n):
+        return make_input(val, n)
+
+    @app.callback(
+        Output({"i": MATCH, "id": "out"}, "children"),
+        [Input({"i": MATCH, "id": "persisted"}, "value")],
+    )
+    def set_out(val):
+        return val
+
+    dash_duo.start_server(app)
+
+    for _ in range(3):
+        dash_duo.wait_for_text_to_equal(".out", "a")
+        dash_duo.find_element(".persisted").send_keys("lpaca")
+        dash_duo.wait_for_text_to_equal(".out", "alpaca")
+
+        dash_duo.find_element(".persistence-val").send_keys("s")
+        dash_duo.wait_for_text_to_equal(".out", "a")
+        dash_duo.find_element(".persisted").send_keys("nchovies")
+        dash_duo.wait_for_text_to_equal(".out", "anchovies")
+
+        dash_duo.find_element(".persistence-val").send_keys("2")
+        dash_duo.wait_for_text_to_equal(".out", "a")
+        dash_duo.find_element(".persisted").send_keys(
+            Keys.BACK_SPACE
+        )  # persist falsy value
+        dash_duo.wait_for_text_to_equal(".out", "")
+
+        # alpaca not saved with falsy persistence
+        dash_duo.clear_input(".persistence-val")
+        dash_duo.wait_for_text_to_equal(".out", "a")
+
+        # anchovies and aardvark saved
+        dash_duo.find_element(".persistence-val").send_keys("s")
+        dash_duo.wait_for_text_to_equal(".out", "anchovies")
+        dash_duo.find_element(".persistence-val").send_keys("2")
+        dash_duo.wait_for_text_to_equal(".out", "")
+
+        dash_duo.find_element("#btn").click()

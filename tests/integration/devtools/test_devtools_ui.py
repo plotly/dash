@@ -1,3 +1,5 @@
+from time import sleep
+
 import dash_core_components as dcc
 import dash_html_components as html
 import dash
@@ -25,9 +27,9 @@ def test_dvui001_disable_props_check_config(dash_duo):
     dash_duo.wait_for_text_to_equal("#tcid", "Hello Props Check")
     assert dash_duo.find_elements("#broken svg.main-svg"), "graph should be rendered"
 
-    assert dash_duo.find_elements(
-        ".dash-debug-menu"
-    ), "the debug menu icon should show up"
+    # open the debug menu so we see the "hot reload off" indicator
+    dash_duo.find_element(".dash-debug-menu").click()
+    sleep(1)  # wait for debug menu opening animation
 
     dash_duo.percy_snapshot("devtools - disable props check - Graph should render")
 
