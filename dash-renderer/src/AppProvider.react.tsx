@@ -142,7 +142,8 @@ observe(({
         these callbacks are duplicates.
     */
     const rDuplicates = flatten(map(
-        group => filter(cb => !cb.executionGroup, group).slice(1),
+        group => group.slice(0, -1),
+        // group => filter(cb => !cb.executionGroup, group).slice(1),
         values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
@@ -167,31 +168,34 @@ observe(({
         these callbacks are `prioritized` and duplicates.
     */
     const pDuplicates = flatten(map(
-        group => filter(cb => !cb.executionGroup, group).slice(1),
+        group => group.slice(0, -1),
+        // group => filter(cb => !cb.executionGroup, group).slice(1),
         values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
-                concat(requested, prioritized)
+                concat(prioritized, requested)
             )
         )
     ));
 
     const eDuplicates = flatten(map(
-        group => filter(cb => !cb.executionGroup, group).slice(1),
+        group => group.slice(0, -1),
+        // group => filter(cb => !cb.executionGroup, group).slice(1),
         values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
-                concat(requested, executing)
+                concat(executing, requested)
             )
         )
     )) as IExecutingCallback[];
 
     const wDuplicates = flatten(map(
-        group => filter(cb => !cb.executionGroup, group).slice(1),
+        group => group.slice(0, -1),
+        // group => filter(cb => !cb.executionGroup, group).slice(1),
         values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
-                concat(requested, watched)
+                concat(watched, requested)
             )
         )
     )) as IExecutingCallback[];
