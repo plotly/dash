@@ -176,7 +176,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
             TIMEOUT,
         )
 
-        assert dash_duo.redux_state_rqs == [], "pendingCallbacks is empty"
+        assert dash_duo.redux_state_rqs == 0, "loadingMap is empty"
 
     def check_call_counts(chapters, count):
         for chapter in chapters:

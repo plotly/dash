@@ -36,13 +36,12 @@ class DashPageMixin(object):
     def redux_state_rqs(self):
         return self.driver.execute_script(
             """
-            return window.store.getState().pendingCallbacks.map(function(cb) {
-                var out = {};
-                for (var key in cb) {
-                    if (typeof cb[key] !== 'function') { out[key] = cb[key]; }
-                }
-                return out;
-            })
+            var loadingMap = window.store.getState().loadingMap;
+            if (!loadingMap || !loadingMap.__dashprivate__idprop__) {
+                return 0;
+            }
+
+            return loadingMap.__dashprivate__idprop__.length;
             """
         )
 
@@ -51,7 +50,7 @@ class DashPageMixin(object):
         return self.driver.execute_script("return window.store")
 
     def _wait_for_callbacks(self):
-        return not self.window_store or self.redux_state_rqs == []
+        return not self.window_store or self.redux_state_rqs == 0
 
     def get_local_storage(self, store_id="local"):
         return self.driver.execute_script(
