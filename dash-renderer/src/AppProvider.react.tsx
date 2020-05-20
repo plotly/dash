@@ -5,14 +5,16 @@ import {Provider} from 'react-redux';
 import initializeStore, { observe } from './store';
 import AppContainer from './AppContainer.react';
 
-import loadingMap from './observers/loadingMap';
-import requestedCallbacks from './observers/requestedCallbacks';
-import prioritizeCallbacks from './observers/prioritizedCallbacks';
-import executingCallbacks from './observers/executingCallbacks';
 import executedCallbacks from './observers/executedCallbacks';
+import executingCallbacks from './observers/executingCallbacks';
+import isLoading from './observers/isLoading'
+import loadingMap from './observers/loadingMap';
+import prioritizeCallbacks from './observers/prioritizedCallbacks';
+import requestedCallbacks from './observers/requestedCallbacks';
 import storedCallbacks from './observers/storedCallbacks';
 
 const store = initializeStore();
+observe(isLoading);
 observe(loadingMap);
 observe(requestedCallbacks);
 observe(prioritizeCallbacks);

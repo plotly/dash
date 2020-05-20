@@ -4,9 +4,11 @@ import {createReducer} from './reducers/reducer';
 import StoreObserver from './StoreObserver';
 import { ICallbacksState } from './reducers/callbacks';
 import { LoadingMapState } from './reducers/loadingMap';
+import { IsLoadingState } from './reducers/isLoading';
 
 export interface IStoreState {
     callbacks: ICallbacksState;
+    isLoading: IsLoadingState;
     loadingMap: LoadingMapState;
     [key: string]: any;
 }

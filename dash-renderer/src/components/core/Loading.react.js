@@ -1,7 +1,6 @@
 import {connect} from 'react-redux';
 import React from 'react';
 import PropTypes from 'prop-types';
-import {isEmpty} from 'ramda';
 
 function Loading(props) {
     if (props.isLoading) {
@@ -11,9 +10,9 @@ function Loading(props) {
 }
 
 Loading.propTypes = {
-    isLoading: PropTypes.any.isRequired,
+    isLoading: PropTypes.bool.isRequired,
 };
 
 export default connect(state => ({
-    isLoading: !isEmpty(state.loadingMap?.__dashprivate__idprops),
+    isLoading: state.isLoading,
 }))(Loading);

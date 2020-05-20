@@ -11,6 +11,7 @@ import graphs from './dependencyGraph';
 import error from './error';
 import history from './history';
 import hooks from './hooks';
+import isLoading from './isLoading';
 import layout from './layout';
 import loadingMap from './loadingMap';
 import paths from './paths';
@@ -31,6 +32,7 @@ function mainReducer() {
         graphs,
         history,
         hooks,
+        isLoading,
         layout,
         loadingMap,
         paths,

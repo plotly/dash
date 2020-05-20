@@ -1,7 +1,6 @@
 import {connect} from 'react-redux';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
-import {isEmpty} from 'ramda';
 
 class DocumentTitle extends Component {
     constructor(props) {
@@ -29,9 +28,9 @@ class DocumentTitle extends Component {
 }
 
 DocumentTitle.propTypes = {
-    isLoading: PropTypes.any.isRequired,
+    isLoading: PropTypes.bool.isRequired,
 };
 
 export default connect(state => ({
-    isLoading: !isEmpty(state.loadingMap?.__dashprivate__idprops),
+    isLoading: state.isLoading,
 }))(DocumentTitle);
