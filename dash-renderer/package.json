@@ -68,6 +68,7 @@
     "prettier-eslint-cli": "^5.0.0",
     "prettier-stylelint": "^0.4.2",
     "style-loader": "^1.1.3",
+    "ts-jest": "^26.0.0",
     "ts-loader": "^7.0.2",
     "typescript": "^3.8.3",
     "webpack": "^4.42.0",
