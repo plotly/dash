@@ -54,6 +54,7 @@ def test_rddd001_initial_state(dash_duo):
     # fmt:on
 
     dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal(r"#p\.c\.5", "")
 
     # Note: this .html file shows there's no undo/redo button by default
     with open(
