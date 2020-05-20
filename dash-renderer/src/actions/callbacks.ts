@@ -390,6 +390,11 @@ export function executeCallback(
                         return {};
                     }
                     throw res;
+                }, () => {
+                    // fetch rejection - this means the request didn't return,
+                    // we don't get here from 400/500 errors, only network
+                    // errors or unresponsive servers.
+                    throw new Error('Callback failed: the server did not respond.');
                 });
             }
         });
