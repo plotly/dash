@@ -1,13 +1,16 @@
 import {
+    all,
     assoc,
     concat,
     difference,
+    filter,
     find,
     flatten,
     forEach,
     groupBy,
     has,
     includes,
+    intersection,
     isEmpty,
     isNil,
     keys,
@@ -17,6 +20,7 @@ import {
     pickBy,
     pluck,
     reduce,
+    toPairs,
     uniq,
     values
 } from 'ramda';
@@ -29,9 +33,9 @@ import AppContainer from './AppContainer.react';
 
 import PropTypes from 'prop-types';
 import {
-    updateProps,
+    handleAsyncError,
     setPaths,
-    handleAsyncError
+    updateProps
 } from './actions';
 import {
     addCompletedCallbacks,
@@ -39,6 +43,7 @@ import {
     addExecutingCallbacks,
     addPrioritizedCallbacks,
     addRequestedCallbacks,
+    addStoredCallbacks,
     addWatchedCallbacks,
     aggregateCallbacks,
     executeCallback,
@@ -46,17 +51,38 @@ import {
     removeExecutingCallbacks,
     removePrioritizedCallbacks,
     removeRequestedCallbacks,
+    removeStoredCallbacks,
     removeWatchedCallbacks,
     setPendingCallbacks
 } from './actions/callbacks';
 import { getPath, computePaths } from './actions/paths';
 
-import { stringifyId, parseIfWildcard, getCallbacksByInput } from './actions/dependencies';
-import { combineIdAndProp, getUniqueIdentifier, includeObservers, pruneCallbacks, getReadyCallbacks, getLayoutCallbacks } from './actions/dependencies_ts';
+import {
+    getCallbacksByInput,
+    parseIfWildcard,
+    stringifyId,
+    isMultiValued
+} from './actions/dependencies';
+import {
+    combineIdAndProp,
+    getLayoutCallbacks,
+    getReadyCallbacks,
+    getUniqueIdentifier,
+    includeObservers,
+    pruneCallbacks
+} from './actions/dependencies_ts';
 import { ICallbacksState } from './reducers/callbacks';
-import { IExecutingCallback, ICallback, ICallbackProperty } from './types/callbacks';
+import {
+    IExecutingCallback,
+    ICallback,
+    ICallbackProperty,
+    IStoredCallback
+} from './types/callbacks';
 import isAppReady from './actions/isAppReady';
-import { prunePersistence, applyPersistence } from './persistence';
+import {
+    applyPersistence,
+    prunePersistence
+} from './persistence';
 
 const store = initializeStore();
 
@@ -78,7 +104,6 @@ observe(({
     } = getState();
 
     const next = getPendingCallbacks(callbacks);
-    console.log('onCallbacksChanged', '[pendingCallbacks-candidate]', callbacks, next);
 
     /**
      * If the calculated list of pending callbacks is equivalent
@@ -94,7 +119,6 @@ observe(({
         return;
     }
 
-    console.log('onCallbacksChanged', '[pendingCallbacks]', next);
     dispatch(setPendingCallbacks(next));
 }, ['callbacks']);
 
@@ -102,12 +126,12 @@ observe(({
     dispatch,
     getState
 }) => {
-    const { callbacks, callbacks: { prioritized, executing, watched, executed, completed }, paths } = getState();
+    const { callbacks, callbacks: { prioritized, executing, watched, executed, completed, stored }, paths } = getState();
     let { callbacks: { requested } } = getState();
 
     const pendingCallbacks = getPendingCallbacks(callbacks);
 
-    console.log('onCallbacksChanged.requested', completed, requested);
+    console.log('onCallbacksChanged.requested', requested, completed, callbacks);
 
     /*
         1. Remove duplicated `requested` callbacks
@@ -118,7 +142,7 @@ observe(({
         these callbacks are duplicates.
     */
     const rDuplicates = flatten(map(
-        group => group.slice(1),
+        group => filter(cb => !cb.executionGroup, group).slice(1),
         values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
@@ -128,6 +152,7 @@ observe(({
     ));
 
     /*
+        TODO?
         Clean up the `requested` list - during the dispatch phase,
         duplicates will be removed for real
     */
@@ -142,7 +167,7 @@ observe(({
         these callbacks are `prioritized` and duplicates.
     */
     const pDuplicates = flatten(map(
-        group => group.slice(1),
+        group => filter(cb => !cb.executionGroup, group).slice(1),
         values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
@@ -152,7 +177,7 @@ observe(({
     ));
 
     const eDuplicates = flatten(map(
-        group => group.slice(1),
+        group => filter(cb => !cb.executionGroup, group).slice(1),
         values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
@@ -162,7 +187,7 @@ observe(({
     )) as IExecutingCallback[];
 
     const wDuplicates = flatten(map(
-        group => group.slice(1),
+        group => filter(cb => !cb.executionGroup, group).slice(1),
         values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
@@ -189,6 +214,7 @@ observe(({
     }
 
     /*
+        TODO?
         Clean up the `requested` list - during the dispatch phase,
         it will be updated for real
     */
@@ -203,7 +229,8 @@ observe(({
     /*
         4. Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
     */
-    const readyCallbacks = getReadyCallbacks(requested, pendingCallbacks);
+    let readyCallbacks = getReadyCallbacks(requested, pendingCallbacks);
+    console.log('onCallbacksChanged.requested', '[readyCallbacks]', readyCallbacks);
 
     /*
         If:
@@ -223,6 +250,73 @@ observe(({
         requested.length
     ) ? requested : [];
 
+    /*
+        5. Prune callbacks that became irrelevant in their `executionGroup`
+    */
+    const pendingGroups = groupBy<IStoredCallback>(
+        cb => cb.executionGroup as any,
+        filter(cb => !isNil(cb.executionGroup), stored)
+    );
+    console.log('onCallbacksChanged.requested', '[pendingGroups]', pendingGroups, map(pg => flatten(map(
+        gcb => gcb.executionMeta.updatedProps,
+        pg
+    )), values(pendingGroups)));
+
+    const dropped: ICallback[] = filter(cb => {
+        if (!cb.executionGroup || !pendingGroups[cb.executionGroup] || !pendingGroups[cb.executionGroup].length) {
+            return false;
+        }
+
+        const inputs = map(combineIdAndProp, flatten(cb.getInputs(paths)));
+
+        const allProps = flatten(map(
+            gcb => gcb.executionMeta.allProps,
+            pendingGroups[cb.executionGroup]
+        ));
+
+        const updated = flatten(map(
+            gcb => gcb.executionMeta.updatedProps,
+            pendingGroups[cb.executionGroup]
+        ));
+
+        const res =
+            isEmpty(intersection(
+                inputs,
+                updated
+            )) &&
+            isEmpty(difference(
+                inputs,
+                allProps
+            ))
+            && !all(
+                isMultiValued,
+                cb.callback.inputs
+            );
+
+        console.log('SPECIAL', cb, res, inputs, allProps, updated);
+
+        return res;
+    },
+        readyCallbacks
+    );
+
+    console.log('onCallbacksChanged.requested', '[dropped]', readyCallbacks, dropped, pendingGroups);
+
+    /*
+        TODO?
+        Clean up the `requested` list - during the dispatch phase,
+        it will be updated for real
+    */
+    requested = difference(
+        requested,
+        dropped
+    );
+
+    readyCallbacks = difference(
+        readyCallbacks,
+        dropped
+    );
+
     dispatch(aggregateCallbacks([
         // Clean up duplicated callbacks
         rDuplicates.length ? removeRequestedCallbacks(rDuplicates) : null,
@@ -240,6 +334,8 @@ observe(({
         wAdded.length ? addWatchedCallbacks(wAdded) : null,
         // Prune circular callbacks
         rCircular.length ? removeRequestedCallbacks(rCircular) : null,
+        // Drop non-triggered initial callbacks
+        dropped.length ? removeRequestedCallbacks(dropped) : null,
         // Promote callbacks
         readyCallbacks.length ? removeRequestedCallbacks(readyCallbacks) : null,
         readyCallbacks.length ? addPrioritizedCallbacks(readyCallbacks) : null
@@ -298,14 +394,10 @@ observe(async ({
         Make sure to only execute callbacks that are still in the `prioritized` list (isAppReady is async - state could have changed)
     */
     const { callbacks: { prioritized: updatedPrioritized } } = getState();
-    const [remainingCallbacks, droppedCallbacks] = partition(
+    const [remainingCallbacks] = partition(
         ([cb]) => includes(cb, updatedPrioritized),
         callbacks
     );
-
-    if (droppedCallbacks.length) {
-        console.log('onCallbacksChanged.prioritized', '[dropped]', map(([cb]) => cb, droppedCallbacks));
-    }
 
     const executingCallbacks: IExecutingCallback[] = remainingCallbacks.map(([cb, stash]) => {
         return executeCallback(cb, config, hooks, paths, layout, stash);
@@ -410,30 +502,36 @@ observe(({
 
     console.log('onCallbacksChanged.executed', executed);
 
-    let callbacks: ICallback[] = [];
-    forEach(({ executionResult }) => {
+    let requestedCallbacks: ICallback[] = [];
+    let storedCallbacks: IStoredCallback[] = [];
+
+    forEach(cb => {
+        const { executionResult } = cb;
+
         if (isNil(executionResult)) {
             return;
         }
 
         const { data, error } = executionResult;
-        console.log('SPECIAL', '[executionResult]', data);
+        console.log('onCallbacksChanged.executed', '[executionResult]', cb, data);
 
         if (data !== undefined) {
-            return forEach(([id, props]: [any, { [key: string]: any }]) => {
+            forEach(([id, props]: [any, { [key: string]: any }]) => {
                 const parsedId = parseIfWildcard(id);
                 const { graphs, layout: oldLayout, paths: oldPaths } = getState();
 
                 // Components will trigger callbacks on their own as required (eg. derived)
                 const appliedProps = applyProps(parsedId, props);
 
-                callbacks = concat(
-                    callbacks,
+                // Skip prop-triggered callbacks for callbacks with an execution group - these callbacks
+                // should already be present in `requested`
+                requestedCallbacks = concat(
+                    requestedCallbacks,
                     flatten(map(
                         prop => getCallbacksByInput(graphs, oldPaths, parsedId, prop),
                         keys(props)
                     ))
-                )
+                );
 
                 // New layout - trigger callbacks for that explicitly
                 if (has('children', appliedProps)) {
@@ -445,8 +543,8 @@ observe(({
                     const paths = computePaths(children, oldChildrenPath, oldPaths);
                     dispatch(setPaths(paths));
 
-                    callbacks = concat(
-                        callbacks,
+                    requestedCallbacks = concat(
+                        requestedCallbacks,
                         getLayoutCallbacks(graphs, paths, children, {
                             chunkPath: oldChildrenPath,
                         })
@@ -454,8 +552,8 @@ observe(({
 
                     // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
                     // even due to the deletion of components
-                    callbacks = concat(
-                        callbacks,
+                    requestedCallbacks = concat(
+                        requestedCallbacks,
                         getLayoutCallbacks(graphs, oldPaths, oldChildren, {
                             removedArrayInputsOnly: true, newPaths: paths, chunkPath: oldChildrenPath
                         })
@@ -472,26 +570,95 @@ observe(({
                 if (!isEmpty(addedProps)) {
                     const { graphs, paths } = getState();
 
-                    callbacks = concat(
-                        callbacks,
+                    requestedCallbacks = concat(
+                        requestedCallbacks,
                         includeObservers(id, addedProps, graphs, paths)
                     );
                 }
-
             }, Object.entries(data));
+
+
+
+            storedCallbacks.push({
+                ...cb,
+                executionMeta: {
+                    allProps: map(combineIdAndProp, flatten(cb.getOutputs(getState().paths))),
+                    updatedProps: flatten(map(
+                        ([id, value]) => map(
+                            property => combineIdAndProp({ id, property }),
+                            keys(value)
+                        ),
+                        toPairs(data)
+                    ))
+                }
+            });
         }
 
         if (error !== undefined) {
             handleAsyncError(error, error.message, dispatch);
+
+            storedCallbacks.push({
+                ...cb,
+                executionMeta: {
+                    allProps: map(combineIdAndProp, flatten(cb.getOutputs(getState().paths))),
+                    updatedProps: []
+                }
+            });
         }
     }, executed);
 
+    console.log('SPECIAL', '[requestedCallbacks]', requestedCallbacks);
     dispatch(aggregateCallbacks([
         executed.length ? removeExecutedCallbacks(executed) : null,
         executed.length ? addCompletedCallbacks(executed.length) : null,
-        callbacks.length ? addRequestedCallbacks(callbacks) : null
+        storedCallbacks.length ? addStoredCallbacks(storedCallbacks) : null,
+        requestedCallbacks.length ? addRequestedCallbacks(requestedCallbacks) : null
     ]));
 }, ['callbacks.executed']);
+
+observe(({
+    dispatch,
+    getState
+}) => {
+    const { callbacks } = getState();
+    const pendingCallbacks = getPendingCallbacks(callbacks);
+
+    let { callbacks: { stored } } = getState();
+
+    console.log('onCallbacksChanged.stored', stored);
+
+    const [nullGroupCallbacks, groupCallbacks] = partition(
+        cb => isNil(cb.executionGroup),
+        stored
+    );
+
+    const executionGroups = groupBy<IStoredCallback>(
+        cb => cb.executionGroup as any,
+        groupCallbacks
+    )
+
+    const pendingGroups = groupBy<ICallback>(
+        cb => cb.executionGroup as any,
+        filter(cb => !isNil(cb.executionGroup), pendingCallbacks)
+    );
+
+    let dropped = reduce((res, [
+        executionGroup,
+        callbacks
+    ]) => !pendingGroups[executionGroup] ?
+            concat(res, callbacks) :
+            res,
+        [] as IStoredCallback[],
+        toPairs(executionGroups)
+    );
+
+    console.log('onCallbacksChanged.stored', '[dropped]', nullGroupCallbacks, dropped);
+
+    dispatch(aggregateCallbacks([
+        nullGroupCallbacks.length ? removeStoredCallbacks(nullGroupCallbacks) : null,
+        dropped.length ? removeStoredCallbacks(dropped): null
+    ]));
+}, ['callbacks.stored', 'callbacks.completed'])
 
 const AppProvider = ({hooks}: any) => {
     return (

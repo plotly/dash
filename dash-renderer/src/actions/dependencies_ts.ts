@@ -1,6 +1,5 @@
 import {
     all,
-    any,
     assoc,
     concat,
     difference,
@@ -27,6 +26,41 @@ export const combineIdAndProp = ({
     id,
     property
 }: ICallbackProperty) => `${stringifyId(id)}.${property}`;
+
+// /*
+// * Take a list of callbacks and follow them all forward, ie see if any of their
+// * outputs are inputs of another callback. Any new callbacks get added to the
+// * list. All that come after another get marked as blocked by that one, whether
+// * they were in the initial list or not.
+// */
+// export const followForward = (
+//     graphs: any,
+//     paths: any,
+//     callbacks: ICallback[]
+// ): ICallback[] => {
+//     callbacks = callbacks.slice(0);
+//     let i;
+//     let callback: ICallback;
+
+//     const followOutput = ({ id, property }: ICallbackProperty) => {
+//         callbacks = concat(callbacks, getCallbacksByInput(
+//             graphs,
+//             paths,
+//             id,
+//             property,
+//             INDIRECT
+//         ));
+//     };
+
+//     // Using a for loop instead of forEach because followOutput may extend the
+//     // callbacks array, and we want to continue into these new elements.
+//     for (i = 0; i < callbacks.length; i++) {
+//         callback = callbacks[i];
+//         const outputs = unnest(callback.getOutputs(paths));
+//         outputs.forEach(followOutput);
+//     }
+//     return callbacks;
+// }
 
 export const getReadyCallbacks = (
     candidates: ICallback[],
@@ -59,20 +93,39 @@ export const getLayoutCallbacks = (
     options: any
 ): ICallback[] => {
     let exclusions: string[] = [];
-    const initial = getCallbacksInLayout(
+    let callbacks = getCallbacksInLayout(
         graphs,
         paths,
         layout,
         options
     );
-    let callbacks = initial;
+    console.log('SPECIAL', '[getLayoutCallbacks-initial]', callbacks);
 
+    // /*
+    //     Basic implementation - retrieve all `ready` callbacks.
+    //     Follow up callbacks will be triggered by executed callbacks.
+    // */
+    // return getReadyCallbacks(callbacks);
+
+    /*
+        This loop is for backward compatibility with previous implementation
+        of the callbacks chain. Remove from the initial callbacks those that are left
+        with only excluded inputs.
+
+        Exclusion of inputs happens when:
+        - an input is missing
+        - an input in the initial callback chain depends only on excluded inputs
+
+        Further execlusion might happen after callbacks return with:
+        - PreventUpdate
+        - no_update
+    */
     while (true) {
         // Find callbacks for which all inputs are missing or in the exclusions
         const [included, excluded] = partition(({
             callback: { inputs },
             getInputs
-        }) => any(isMultiValued, inputs) ||
+        }) => all(isMultiValued, inputs) ||
             !isEmpty(difference(
                 map(combineIdAndProp, flatten(getInputs(paths))),
                 exclusions
@@ -97,9 +150,14 @@ export const getLayoutCallbacks = (
         );
     }
 
-    // only return ready callbacks (the executed callbacks will ensure followups are triggered)
-    return getReadyCallbacks(callbacks);
-
+    /*
+        Return all callbacks with an `executionGroup` to allow group-processing
+    */
+    const executionGroup = Math.random().toString(16);
+    return map(cb => ({
+        ...cb,
+        executionGroup
+    }), callbacks);
 }
 
 export const getUniqueIdentifier = ({

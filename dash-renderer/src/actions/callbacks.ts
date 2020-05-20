@@ -12,7 +12,7 @@ import {
 
 import { STATUS } from '../constants/constants';
 import { CallbackActionType, CallbackAggregateActionType } from "../reducers/callbacks";
-import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback } from '../types/callbacks';
+import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, IStoredCallback } from '../types/callbacks';
 import { isMultiValued, stringifyId, isMultiOutputProp } from './dependencies';
 import { urlBase } from './utils';
 import { getCSRFHeader } from '.';
@@ -35,6 +35,9 @@ export const addPrioritizedCallbacks = createAction<ICallback[]>(
 export const addRequestedCallbacks = createAction<ICallback[]>(
     CallbackActionType.AddRequested
 );
+export const addStoredCallbacks = createAction<IStoredCallback[]>(
+    CallbackActionType.AddStored
+);
 export const addWatchedCallbacks = createAction<IExecutingCallback[]>(CallbackActionType.AddWatched);
 export const removeExecutedCallbacks = createAction(
     CallbackActionType.RemoveExecuted
@@ -47,6 +50,9 @@ export const removePrioritizedCallbacks = createAction<ICallback[]>(
 );
 export const removeRequestedCallbacks = createAction<ICallback[]>(
     CallbackActionType.RemoveRequested
+);
+export const removeStoredCallbacks = createAction<IStoredCallback[]>(
+    CallbackActionType.RemoveStored
 );
 export const removeWatchedCallbacks = createAction<IExecutingCallback[]>(
     CallbackActionType.RemoveWatched

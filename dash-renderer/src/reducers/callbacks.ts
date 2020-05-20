@@ -7,7 +7,8 @@ import {
 import {
     ICallback,
     IExecutedCallback,
-    IExecutingCallback
+    IExecutingCallback,
+    IStoredCallback
 } from '../types/callbacks';
 
 export enum CallbackActionType {
@@ -16,12 +17,14 @@ export enum CallbackActionType {
     AddExecuting = 'Callbacks.AddExecuting',
     AddPrioritized = 'Callbacks.AddPrioritized',
     AddRequested = 'Callbacks.AddRequested',
+    AddStored = 'Callbacks.AddStored',
     AddWatched = 'Callbacks.AddWatched',
     RemoveApplied = 'Callbacks.RemoveApplied',
     RemoveExecuted = 'Callbacks.RemoveExecuted',
     RemoveExecuting = 'Callbacks.RemoveExecuting',
     RemovePrioritized = 'Callbacks.ReomvePrioritized',
     RemoveRequested = 'Callbacks.RemoveRequested',
+    RemoveStored = 'Callbacks.RemoveStored',
     RemoveWatched = 'Callbacks.RemoveWatched'
 }
 
@@ -56,6 +59,7 @@ export interface ICallbacksState {
     executing: IExecutingCallback[];
     watched: IExecutingCallback[];
     executed: IExecutedCallback[];
+    stored: IStoredCallback[];
     completed: number;
 }
 
@@ -64,6 +68,7 @@ const DEFAULT_STATE: ICallbacksState = {
     executing: [],
     prioritized: [],
     requested: [],
+    stored: [],
     watched: [],
     completed: 0
 };
@@ -76,12 +81,14 @@ const transforms: {
     [CallbackActionType.AddExecuting]: concat,
     [CallbackActionType.AddPrioritized]: concat,
     [CallbackActionType.AddRequested]: concat,
+    [CallbackActionType.AddStored]: concat,
     [CallbackActionType.AddWatched]: concat,
     [CallbackActionType.RemoveApplied]: difference,
     [CallbackActionType.RemoveExecuted]: difference,
     [CallbackActionType.RemoveExecuting]: difference,
     [CallbackActionType.RemovePrioritized]: difference,
     [CallbackActionType.RemoveRequested]: difference,
+    [CallbackActionType.RemoveStored]: difference,
     [CallbackActionType.RemoveWatched]: difference,
 };
 
@@ -92,11 +99,13 @@ const fields: {
     [CallbackActionType.AddExecuting]: 'executing',
     [CallbackActionType.AddPrioritized]: 'prioritized',
     [CallbackActionType.AddRequested]: 'requested',
+    [CallbackActionType.AddStored]: 'stored',
     [CallbackActionType.AddWatched]: 'watched',
     [CallbackActionType.RemoveExecuted]: 'executed',
     [CallbackActionType.RemoveExecuting]: 'executing',
     [CallbackActionType.RemovePrioritized]: 'prioritized',
     [CallbackActionType.RemoveRequested]: 'requested',
+    [CallbackActionType.RemoveStored]: 'stored',
     [CallbackActionType.RemoveWatched]: 'watched'
 }
 

@@ -15,6 +15,7 @@ export interface ICallback {
         outputs: ICallbackProperty[];
         state: ICallbackProperty[];
     };
+    executionGroup?: string;
     getInputs: (paths: any) => ICallbackProperty[];
     getOutputs: (paths: any) => ICallbackProperty[];
     getState: (paths: any) => ICallbackProperty[];
@@ -29,6 +30,13 @@ export interface IExecutingCallback extends ICallback {
 
 export interface IExecutedCallback extends IExecutingCallback {
     executionResult: CallbackResult | null;
+}
+
+export interface IStoredCallback extends IExecutedCallback {
+    executionMeta: {
+        allProps: string[];
+        updatedProps: string[];
+    }
 }
 
 export type CallbackResult = {
