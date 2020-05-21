@@ -65,7 +65,7 @@ function createElement(element, props, extraProps, children) {
 
 const TreeContainer = memo(props => (
     <DashContext.Consumer>
-        {value => <BaseTreeContainer {...value} {...props} />}
+        {context => <BaseTreeContainer {...context} {...props} />}
     </DashContext.Consumer>
 ));
 
@@ -250,14 +250,11 @@ TreeContainer.propTypes = {
 };
 
 BaseTreeContainer.propTypes = {
+    ...TreeContainer.propTypes,
     _dashprivate_config: PropTypes.object,
     _dashprivate_dispatch: PropTypes.func,
     _dashprivate_graphs: PropTypes.any,
-    _dashprivate_layout: PropTypes.object,
-    _dashprivate_loadingState: PropTypes.object,
-    _dashprivate_loadingStateHash: PropTypes.string,
     _dashprivate_loadingMap: PropTypes.any,
-    _dashprivate_path: PropTypes.array,
 };
 
 export default TreeContainer;

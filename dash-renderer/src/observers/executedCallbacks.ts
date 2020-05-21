@@ -86,8 +86,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             return props;
         }
 
-        console.log('onCallbacksChanged.executed', executed);
-
         let requestedCallbacks: ICallback[] = [];
         let storedCallbacks: IStoredCallback[] = [];
 
@@ -105,7 +103,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             }
 
             const { data, error, payload } = executionResult;
-            console.log('onCallbacksChanged.executed', '[executionResult]', cb, data);
 
             if (data !== undefined) {
                 forEach(([id, props]: [any, { [key: string]: any }]) => {
@@ -208,7 +205,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             }
         }, executed);
 
-        console.log('SPECIAL', '[requestedCallbacks]', requestedCallbacks);
         dispatch(aggregateCallbacks([
             executed.length ? removeExecutedCallbacks(executed) : null,
             executed.length ? addCompletedCallbacks(executed.length) : null,

@@ -49,12 +49,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         dispatch,
         getState
     }) => {
-        const { callbacks, callbacks: { prioritized, executing, watched, executed, completed, stored }, paths } = getState();
+        const { callbacks, callbacks: { prioritized, executing, watched, executed, stored }, paths } = getState();
         let { callbacks: { requested } } = getState();
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
-
-        console.log('onCallbacksChanged.requested', requested, completed, callbacks);
 
         /*
             1. Remove duplicated `requested` callbacks
@@ -66,7 +64,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         */
         const rDuplicates = flatten(map(
             group => group.slice(0, -1),
-            // group => filter(cb => !cb.executionGroup, group).slice(1),
             values(
                 groupBy<ICallback>(
                     getUniqueIdentifier,
@@ -92,7 +89,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         */
         const pDuplicates = flatten(map(
             group => group.slice(0, -1),
-            // group => filter(cb => !cb.executionGroup, group).slice(1),
             values(
                 groupBy<ICallback>(
                     getUniqueIdentifier,
@@ -103,7 +99,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const eDuplicates = flatten(map(
             group => group.slice(0, -1),
-            // group => filter(cb => !cb.executionGroup, group).slice(1),
             values(
                 groupBy<ICallback>(
                     getUniqueIdentifier,
@@ -114,7 +109,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const wDuplicates = flatten(map(
             group => group.slice(0, -1),
-            // group => filter(cb => !cb.executionGroup, group).slice(1),
             values(
                 groupBy<ICallback>(
                     getUniqueIdentifier,
@@ -122,10 +116,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 )
             )
         )) as IExecutingCallback[];
-
-        if (rDuplicates.length || pDuplicates.length || eDuplicates.length || wDuplicates.length) {
-            console.log('onCallbacksChanged.requested', '[duplicates]', rDuplicates.length, pDuplicates.length, eDuplicates.length, wDuplicates.length);
-        }
 
         /*
             3. Modify or remove callbacks that are outputing to non-existing layout `id`.
@@ -135,10 +125,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const { added: pAdded, removed: pRemoved } = pruneCallbacks(prioritized, paths);
         const { added: eAdded, removed: eRemoved } = pruneCallbacks(executing, paths);
         const { added: wAdded, removed: wRemoved } = pruneCallbacks(watched, paths);
-
-        if (rRemoved.length + pRemoved.length + eRemoved.length + wRemoved.length) {
-            console.log('onCallbacksChanged.requested', '[pruned]', rRemoved.length, pRemoved.length, eRemoved.length, wRemoved.length);
-        }
 
         /*
             TODO?
@@ -157,7 +143,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             4. Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
         */
         let readyCallbacks = getReadyCallbacks(requested, pendingCallbacks);
-        console.log('onCallbacksChanged.requested', '[readyCallbacks]', readyCallbacks);
 
         /*
             If:
@@ -184,10 +169,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             cb => cb.executionGroup as any,
             filter(cb => !isNil(cb.executionGroup), stored)
         );
-        console.log('onCallbacksChanged.requested', '[pendingGroups]', pendingGroups, map(pg => flatten(map(
-            gcb => gcb.executionMeta.updatedProps,
-            pg
-        )), values(pendingGroups)));
 
         const dropped: ICallback[] = filter(cb => {
             if (!cb.executionGroup || !pendingGroups[cb.executionGroup] || !pendingGroups[cb.executionGroup].length) {
@@ -220,14 +201,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     cb.callback.inputs
                 );
 
-            console.log('SPECIAL', cb, res, inputs, allProps, updated);
-
             return res;
         },
             readyCallbacks
         );
-
-        console.log('onCallbacksChanged.requested', '[dropped]', readyCallbacks, dropped, pendingGroups);
 
         /*
             TODO?

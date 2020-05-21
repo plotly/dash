@@ -26,9 +26,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             paths
         } = getState();
 
-        const callbacks = [...executing, ...watched, ...executed];
-        console.log('onCallbacksChanged.loadingMap', callbacks);
-
         /*
             Get the path of all components impacted by callbacks
             with states: executing, watched, executed

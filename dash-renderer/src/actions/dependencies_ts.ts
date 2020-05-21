@@ -99,18 +99,9 @@ export const getLayoutCallbacks = (
         layout,
         options
     );
-    console.log('SPECIAL', '[getLayoutCallbacks-initial]', callbacks);
-
-    // /*
-    //     Basic implementation - retrieve all `ready` callbacks.
-    //     Follow up callbacks will be triggered by executed callbacks.
-    // */
-    // return getReadyCallbacks(callbacks);
 
     /*
-        This loop is for backward compatibility with previous implementation
-        of the callbacks chain. Remove from the initial callbacks those that are left
-        with only excluded inputs.
+        Remove from the initial callbacks those that are left with only excluded inputs.
 
         Exclusion of inputs happens when:
         - an input is missing

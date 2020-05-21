@@ -29,8 +29,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             },
         } = getState();
 
-        console.log('onCallbacksChanged.executing', executing);
-
         const [deferred, skippedOrReady] = partition(cb => cb.executionPromise instanceof Promise, executing);
 
         dispatch(aggregateCallbacks([
@@ -42,22 +40,16 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         deferred.forEach(async function (cb: IExecutingCallback) {
             const result = await cb.executionPromise;
 
-            /*
-                Check if it's been removed from the `watched` list since - on callback completion, another callback may be cancelled
-            */
+            // Check if it's been removed from the `watched` list since - on callback completion, another callback may be cancelled
             const { callbacks: { watched } } = getState();
 
-            /*
-                Find the callback instance or one that matches its promise (eg. could have been pruned)
-            */
+            // Find the callback instance or one that matches its promise (eg. could have been pruned)
             const currentCb = find(_cb => _cb === cb || _cb.executionPromise === cb.executionPromise, watched);
             if (!currentCb) {
                 return;
             }
 
-            /*
-                Otherwise move to `executed` and remove from `watched`
-            */
+            // Otherwise move to `executed` and remove from `watched`
             dispatch(aggregateCallbacks([
                 removeWatchedCallbacks([currentCb]),
                 addExecutedCallbacks([{

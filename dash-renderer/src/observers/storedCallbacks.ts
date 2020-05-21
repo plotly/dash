@@ -33,8 +33,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         let { callbacks: { stored } } = getState();
 
-        console.log('onCallbacksChanged.stored', stored);
-
         const [nullGroupCallbacks, groupCallbacks] = partition(
             cb => isNil(cb.executionGroup),
             stored
@@ -59,8 +57,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             [] as IStoredCallback[],
             toPairs(executionGroups)
         );
-
-        console.log('onCallbacksChanged.stored', '[dropped]', nullGroupCallbacks, dropped);
 
         dispatch(aggregateCallbacks([
             nullGroupCallbacks.length ? removeStoredCallbacks(nullGroupCallbacks) : null,

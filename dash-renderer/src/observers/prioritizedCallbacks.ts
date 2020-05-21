@@ -40,8 +40,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const { callbacks: { executing, watched }, config, hooks, layout, paths } = getState();
         let { callbacks: { prioritized } } = getState();
 
-        console.log('onCallbacksChanged.prioritized', prioritized);
-
         const available = Math.max(
             0,
             6 - executing.length - watched.length
