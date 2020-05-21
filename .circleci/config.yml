@@ -232,9 +232,9 @@ jobs:
             git clone --depth 1 https://github.com/plotly/dash.git -b ${CIRCLE_BRANCH} dash-main
             cd dash-main && pip install -e .[dev,testing] --progress-bar off && cd ..
             git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
-            git clone --depth 1 https://github.com/plotly/dash-html-components.git -b dev
-            git clone --depth 1 https://github.com/plotly/dash-core-components.git -b dev
-            git clone --depth 1 https://github.com/plotly/dash-table.git -b dev
+            git clone --depth 1 https://github.com/plotly/dash-html-components.git
+            git clone --depth 1 https://github.com/plotly/dash-core-components.git
+            git clone --depth 1 https://github.com/plotly/dash-table.git
             shopt -s extglob
             cd dash-html-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
             cd ../dash-core-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
