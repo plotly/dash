@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 import {includes, isEmpty} from 'ramda';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, createContext} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
@@ -19,6 +19,9 @@ import {EventEmitter} from './actions/utils';
 import {applyPersistence} from './persistence';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
+import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
+
+export const DashContext = createContext({});
 
 /**
  * Fire off API calls for initialization
@@ -45,10 +48,13 @@ const UnconnectedContainer = props => {
 
     const {
         appLifecycle,
+        config,
         dependenciesRequest,
+        dispatch,
+        graphs,
         layoutRequest,
         layout,
-        config,
+        loadingMap,
     } = props;
 
     let content;
@@ -65,11 +71,31 @@ const UnconnectedContainer = props => {
         content = <div className="_dash-error">Error loading dependencies</div>;
     } else if (appLifecycle === getAppState('HYDRATED')) {
         renderedTree.current = true;
+
         content = (
-            <TreeContainer
-                _dashprivate_layout={layout}
-                _dashprivate_path={[]}
-            />
+            <DashContext.Provider
+                value={{
+                    _dashprivate_config: config,
+                    _dashprivate_dispatch: dispatch,
+                    _dashprivate_graphs: graphs,
+                    _dashprivate_loadingMap: loadingMap,
+                }}
+            >
+                <TreeContainer
+                    _dashprivate_layout={layout}
+                    _dashprivate_loadingState={getLoadingState(
+                        layout,
+                        [],
+                        loadingMap
+                    )}
+                    _dashprivate_loadingStateHash={getLoadingHash(
+                        layout,
+                        [],
+                        loadingMap
+                    )}
+                    _dashprivate_path={[]}
+                />
+            </DashContext.Provider>
         );
     } else {
         content = <div className="_dash-loading">Loading...</div>;
@@ -157,6 +183,7 @@ UnconnectedContainer.propTypes = {
     graphs: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
+    loadingMap: PropTypes.any,
     history: PropTypes.any,
     error: PropTypes.object,
     config: PropTypes.object,
@@ -169,6 +196,7 @@ const Container = connect(
         dependenciesRequest: state.dependenciesRequest,
         layoutRequest: state.layoutRequest,
         layout: state.layout,
+        loadingMap: state.loadingMap,
         graphs: state.graphs,
         history: state.history,
         error: state.error,

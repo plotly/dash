@@ -1,21 +1,17 @@
-import React, {Component} from 'react';
+import React, {Component, memo} from 'react';
 import PropTypes from 'prop-types';
 import Registry from './registry';
 import {propTypeErrorHandler} from './exceptions';
-import {connect} from 'react-redux';
 import {
     addIndex,
     concat,
     dissoc,
     equals,
-    find,
-    has,
     isEmpty,
     isNil,
     keys,
     map,
     mergeRight,
-    path,
     pick,
     pickBy,
     propOr,
@@ -27,46 +23,12 @@ import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
 import checkPropTypes from './checkPropTypes';
 import {getWatchedKeys, stringifyId} from './actions/dependencies';
-
-function validateComponent(componentDefinition) {
-    if (type(componentDefinition) === 'Array') {
-        throw new Error(
-            'The children property of a component is a list of lists, instead ' +
-                'of just a list. ' +
-                'Check the component that has the following contents, ' +
-                'and remove one of the levels of nesting: \n' +
-                JSON.stringify(componentDefinition, null, 2)
-        );
-    }
-    if (
-        type(componentDefinition) === 'Object' &&
-        !(
-            has('namespace', componentDefinition) &&
-            has('type', componentDefinition) &&
-            has('props', componentDefinition)
-        )
-    ) {
-        throw new Error(
-            'An object was provided as `children` instead of a component, ' +
-                'string, or number (or list of those). ' +
-                'Check the children property that looks something like:\n' +
-                JSON.stringify(componentDefinition, null, 2)
-        );
-    }
-}
-
-const createContainer = (component, path) =>
-    isSimpleComponent(component) ? (
-        component
-    ) : (
-        <AugmentedTreeContainer
-            key={
-                component && component.props && stringifyId(component.props.id)
-            }
-            _dashprivate_layout={component}
-            _dashprivate_path={path}
-        />
-    );
+import {
+    getLoadingHash,
+    getLoadingState,
+    validateComponent,
+} from './utils/TreeContainer';
+import {DashContext} from './APIController.react';
 
 function CheckedComponent(p) {
     const {element, extraProps, props, children, type} = p;
@@ -101,11 +63,43 @@ function createElement(element, props, extraProps, children) {
     return React.createElement(element, allProps, children);
 }
 
-class TreeContainer extends Component {
+const TreeContainer = memo(props => (
+    <DashContext.Consumer>
+        {value => <BaseTreeContainer {...value} {...props} />}
+    </DashContext.Consumer>
+));
+
+class BaseTreeContainer extends Component {
     constructor(props) {
         super(props);
 
         this.setProps = this.setProps.bind(this);
+    }
+
+    createContainer(props, component, path) {
+        return isSimpleComponent(component) ? (
+            component
+        ) : (
+            <TreeContainer
+                key={
+                    component &&
+                    component.props &&
+                    stringifyId(component.props.id)
+                }
+                _dashprivate_layout={component}
+                _dashprivate_loadingState={getLoadingState(
+                    component,
+                    path,
+                    props._dashprivate_loadingMap
+                )}
+                _dashprivate_loadingStateHash={getLoadingHash(
+                    component,
+                    path,
+                    props._dashprivate_loadingMap
+                )}
+                _dashprivate_path={path}
+            />
+        );
     }
 
     setProps(newProps) {
@@ -162,13 +156,18 @@ class TreeContainer extends Component {
         return Array.isArray(components)
             ? addIndex(map)(
                   (component, i) =>
-                      createContainer(
+                      this.createContainer(
+                          this.props,
                           component,
                           concat(path, ['props', 'children', i])
                       ),
                   components
               )
-            : createContainer(components, concat(path, ['props', 'children']));
+            : this.createContainer(
+                  this.props,
+                  components,
+                  concat(path, ['props', 'children'])
+              );
     }
 
     getComponent(_dashprivate_layout, children, loading_state, setProps) {
@@ -216,15 +215,6 @@ class TreeContainer extends Component {
         );
     }
 
-    shouldComponentUpdate(nextProps) {
-        const {_dashprivate_layout, _dashprivate_loadingState} = nextProps;
-        return (
-            _dashprivate_layout !== this.props._dashprivate_layout ||
-            _dashprivate_loadingState.is_loading !==
-                this.props._dashprivate_loadingState.is_loading
-        );
-    }
-
     getLayoutProps() {
         return propOr({}, 'props', this.props._dashprivate_layout);
     }
@@ -253,78 +243,21 @@ class TreeContainer extends Component {
 }
 
 TreeContainer.propTypes = {
-    _dashprivate_graphs: PropTypes.any,
-    _dashprivate_dispatch: PropTypes.func,
     _dashprivate_layout: PropTypes.object,
     _dashprivate_loadingState: PropTypes.object,
-    _dashprivate_config: PropTypes.object,
+    _dashprivate_loadingStateHash: PropTypes.string,
     _dashprivate_path: PropTypes.array,
 };
 
-function isLoadingComponent(layout) {
-    validateComponent(layout);
-    return Registry.resolve(layout)._dashprivate_isLoadingComponent;
-}
+BaseTreeContainer.propTypes = {
+    _dashprivate_config: PropTypes.object,
+    _dashprivate_dispatch: PropTypes.func,
+    _dashprivate_graphs: PropTypes.any,
+    _dashprivate_layout: PropTypes.object,
+    _dashprivate_loadingState: PropTypes.object,
+    _dashprivate_loadingStateHash: PropTypes.string,
+    _dashprivate_loadingMap: PropTypes.any,
+    _dashprivate_path: PropTypes.array,
+};
 
-function getLoadingState(componentLayout, componentPath, loadingMap) {
-    if (isNil(loadingMap)) {
-        return {
-            is_loading: false,
-        };
-    }
-
-    const loadingFragment = path(componentPath, loadingMap);
-    // Component and children are not loading if there's no loading fragment
-    // for the component's path in the layout.
-    if (isNil(loadingFragment)) {
-        return {
-            is_loading: false,
-        };
-    }
-
-    const {__dashprivate__idprop__: ids} = loadingFragment;
-
-    if (isLoadingComponent(componentLayout)) {
-        return {
-            is_loading: true,
-            prop_name: ids[0].property,
-            component_name: ids[0].id,
-        };
-    }
-
-    const entry = find(id => id.id === componentLayout.props.id, ids ?? []);
-    if (entry) {
-        return {
-            is_loading: true,
-            prop_name: entry.property,
-            component_name: entry.id,
-        };
-    }
-
-    return {
-        is_loading: false,
-    };
-}
-
-export const AugmentedTreeContainer = connect(
-    state => ({
-        graphs: state.graphs,
-        loadingMap: state.loadingMap,
-        config: state.config,
-    }),
-    dispatch => ({dispatch}),
-    (stateProps, dispatchProps, ownProps) => ({
-        _dashprivate_graphs: stateProps.graphs,
-        _dashprivate_dispatch: dispatchProps.dispatch,
-        _dashprivate_layout: ownProps._dashprivate_layout,
-        _dashprivate_path: ownProps._dashprivate_path,
-        _dashprivate_loadingState: getLoadingState(
-            ownProps._dashprivate_layout,
-            ownProps._dashprivate_path,
-            stateProps.loadingMap
-        ),
-        _dashprivate_config: stateProps.config,
-    })
-)(TreeContainer);
-
-export default AugmentedTreeContainer;
+export default TreeContainer;
