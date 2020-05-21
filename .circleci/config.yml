@@ -29,6 +29,7 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
+          PYLINTRC: .pylintrc37
           PYVERSION: python37
 
     steps:
@@ -81,7 +82,6 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
-          PYLINTRC: .pylintrc37
           PYVERSION: python37
     steps:
       - checkout
