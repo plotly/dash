@@ -157,7 +157,7 @@ def get_jl_prop_types(type_object):
         number=lambda: "Real",
         string=lambda: "String",
         object=lambda: "Dict",
-        any=lambda: "Bool | Float64 | String | Dict | Array",
+        any=lambda: "Bool | Real | String | Dict | Array",
         element=lambda: "dash component",
         node=lambda: "a list of or a singular dash component, string or number",
         # React's PropTypes.oneOf
