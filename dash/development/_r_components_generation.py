@@ -221,9 +221,6 @@ def generate_class_string(name, props, project_shortname, prefix):
 
     default_argtext += ", ".join("{}=NULL".format(p) for p in prop_keys)
 
-    if wildcards == ", ...":
-        default_argtext += ", ..."
-
     # pylint: disable=C0301
     default_paramtext += ", ".join(
         "{0}={0}".format(p) if p != "children" else "{}=children".format(p)
