@@ -112,8 +112,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     // Components will trigger callbacks on their own as required (eg. derived)
                     const appliedProps = applyProps(parsedId, props);
 
-                    // Skip prop-triggered callbacks for callbacks with an execution group - these callbacks
-                    // should already be present in `requested`
+                    // Add callbacks for modified inputs
                     requestedCallbacks = concat(
                         requestedCallbacks,
                         flatten(map(
@@ -132,6 +131,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         const paths = computePaths(children, oldChildrenPath, oldPaths);
                         dispatch(setPaths(paths));
 
+                        // Get callbacks for new layout (w/ execution group)
                         requestedCallbacks = concat(
                             requestedCallbacks,
                             getLayoutCallbacks(graphs, paths, children, {
