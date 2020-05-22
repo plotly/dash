@@ -27,41 +27,6 @@ export const combineIdAndProp = ({
     property
 }: ICallbackProperty) => `${stringifyId(id)}.${property}`;
 
-// /*
-// * Take a list of callbacks and follow them all forward, ie see if any of their
-// * outputs are inputs of another callback. Any new callbacks get added to the
-// * list. All that come after another get marked as blocked by that one, whether
-// * they were in the initial list or not.
-// */
-// export const followForward = (
-//     graphs: any,
-//     paths: any,
-//     callbacks: ICallback[]
-// ): ICallback[] => {
-//     callbacks = callbacks.slice(0);
-//     let i;
-//     let callback: ICallback;
-
-//     const followOutput = ({ id, property }: ICallbackProperty) => {
-//         callbacks = concat(callbacks, getCallbacksByInput(
-//             graphs,
-//             paths,
-//             id,
-//             property,
-//             INDIRECT
-//         ));
-//     };
-
-//     // Using a for loop instead of forEach because followOutput may extend the
-//     // callbacks array, and we want to continue into these new elements.
-//     for (i = 0; i < callbacks.length; i++) {
-//         callback = callbacks[i];
-//         const outputs = unnest(callback.getOutputs(paths));
-//         outputs.forEach(followOutput);
-//     }
-//     return callbacks;
-// }
-
 export const getReadyCallbacks = (
     candidates: ICallback[],
     callbacks: ICallback[] = candidates
