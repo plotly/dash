@@ -94,7 +94,6 @@ const UnconnectedContainer = props => {
                         loadingMap
                     )}
                     _dashprivate_loadingStateHash={getLoadingHash(
-                        layout,
                         [],
                         loadingMap
                     )}
