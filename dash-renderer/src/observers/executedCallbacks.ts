@@ -166,8 +166,9 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     }
                 }, Object.entries(data));
 
-
-
+                // Add information about potentially updated outputs vs. updated outputs,
+                // this will be used to drop callbacks from execution groups when no output
+                // matching the downstream callback's inputs were modified
                 storedCallbacks.push({
                     ...cb,
                     executionMeta: {

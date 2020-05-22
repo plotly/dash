@@ -55,7 +55,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
         /*
-            1. Remove duplicated `requested` callbacks
+            1. Remove duplicated `requested` callbacks - give precedence to newer callbacks over older ones
         */
 
         /*
@@ -165,28 +165,40 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         /*
             5. Prune callbacks that became irrelevant in their `executionGroup`
         */
+
+        // Group by executionGroup, drop non-executionGroup callbacks
+        // those were not triggered by layout changes and don't have "strong" interdependency for
+        // callback chain completion
         const pendingGroups = groupBy<IStoredCallback>(
             cb => cb.executionGroup as any,
             filter(cb => !isNil(cb.executionGroup), stored)
         );
 
         const dropped: ICallback[] = filter(cb => {
+            // If there is no `stored` callback for the group, no outputs were dropped -> `cb` is kept
             if (!cb.executionGroup || !pendingGroups[cb.executionGroup] || !pendingGroups[cb.executionGroup].length) {
                 return false;
             }
 
+            // Get all intputs for `cb`
             const inputs = map(combineIdAndProp, flatten(cb.getInputs(paths)));
 
+            // Get all the potentially updated props for the group so far
             const allProps = flatten(map(
                 gcb => gcb.executionMeta.allProps,
                 pendingGroups[cb.executionGroup]
             ));
 
+            // Get all the updated props for the group so far
             const updated = flatten(map(
                 gcb => gcb.executionMeta.updatedProps,
                 pendingGroups[cb.executionGroup]
             ));
 
+            // If there's no overlap between the updated props and the inputs,
+            // + there's no props that aren't covered by the potentially updated props,
+            // and not all inputs are multi valued
+            // -> drop `cb`
             const res =
                 isEmpty(intersection(
                     inputs,
