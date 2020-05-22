@@ -28,7 +28,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         /*
             Get the path of all components impacted by callbacks
-            with states: executing, watched, executed
+            with states: executing, watched, executed.
+
+            For each path, keep track of all (id,prop) tuples that
+            are impacted for this node and nested nodes.
         */
 
         const loadingPaths = flatten(map(
@@ -41,11 +44,13 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             reduce(
                 (res, path) => {
                     let target = res;
-                    target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || [];
-                    target.__dashprivate__idprop__.push({
+                    const idprop = {
                         id: path.id,
                         property: path.property
-                    });
+                    };
+
+                    target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || [];
+                    target.__dashprivate__idprop__.push(idprop);
 
                     forEach(p => {
                         target = (target[p] =
@@ -54,11 +59,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         )
 
                         target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || [];
-                        target.__dashprivate__idprop__.push({
-                            id: path.id,
-                            property: path.property
-                        });
-
+                        target.__dashprivate__idprop__.push(idprop);
                     }, path.path);
 
                     return res;
