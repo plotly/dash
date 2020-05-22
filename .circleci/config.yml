@@ -29,6 +29,7 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
+          PYLINTRC: .pylintrc37
           PYVERSION: python37
 
     steps:
@@ -81,7 +82,6 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
-          PYLINTRC: .pylintrc37
           PYVERSION: python37
     steps:
       - checkout
@@ -213,6 +213,113 @@ jobs:
           paths:
             - packages/*.tar.gz
 
+  build-dashr:
+    working_directory: ~/dashr
+    docker:
+      - image: plotly/dashr:ci
+        environment:
+          PERCY_PARALLEL_TOTAL: -1
+          PYVERSION: python37
+          _R_CHECK_FORCE_SUGGESTS_: FALSE
+
+    steps:
+      - checkout
+
+      - run:
+          name: ️️🏭 clone and npm build core for R
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            git clone --depth 1 https://github.com/plotly/dash.git -b ${CIRCLE_BRANCH} dash-main
+            cd dash-main && pip install -e .[dev,testing] --progress-bar off && cd ..
+            git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
+            git clone --depth 1 https://github.com/plotly/dash-html-components.git
+            git clone --depth 1 https://github.com/plotly/dash-core-components.git
+            git clone --depth 1 https://github.com/plotly/dash-table.git
+            shopt -s extglob
+            cd dash-html-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
+            cd ../dash-core-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
+            cd ../dash-table; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build); cd ..
+            
+      - run:
+          name: 🔧fix up dash metadata
+          command: |
+              sudo Rscript -e 'dash_desc <- read.dcf("dashR/DESCRIPTION"); dt_version <- read.dcf("dash-table/DESCRIPTION")[,"Version"]; dcc_version <- read.dcf("dash-core-components/DESCRIPTION")[,"Version"]; dhc_version <- read.dcf("dash-html-components/DESCRIPTION")[,"Version"]; imports <- dash_desc[,"Imports"][[1]]; imports <- gsub("((?<=dashHtmlComponents )(\\\\(.*?\\\\)))", paste0("(= ", dhc_version, ")"), imports, perl = TRUE); imports <- gsub("((?<=dashCoreComponents )(\\\\(.*?\\\\)))", paste0("(= ", dcc_version, ")"), imports, perl = TRUE); imports <- gsub("((?<=dashTable )(\\\\(.*?\\\\)))", paste0("(= ", dt_version, ")"), imports, perl = TRUE); dash_desc[,"Imports"][[1]] <- imports; dhc_hash <- system("cd dash-html-components; git rev-parse HEAD | tr -d '\''\n'\''", intern=TRUE); dcc_hash <- system("cd dash-core-components; git rev-parse HEAD | tr -d '\''\n'\''", intern=TRUE); dt_hash <- system("cd dash-table; git rev-parse HEAD | tr -d '\''\n'\''", intern=TRUE); remotes <- dash_desc[,"Remotes"][[1]];  remotes <- gsub("((?<=plotly\\\\/dash-html-components@)([a-zA-Z0-9]+))", dhc_hash, remotes, perl=TRUE); remotes <- gsub("((?<=plotly\\\\/dash-core-components@)([a-zA-Z0-9]+))", dcc_hash, remotes, perl=TRUE); remotes <- gsub("((?<=plotly\\\\/dash-table@)([a-zA-Z0-9]+))", dt_hash, remotes, perl=TRUE); dash_desc[,"Remotes"][[1]] <- remotes; write.dcf(dash_desc, "dashR/DESCRIPTION")'
+
+      - run:
+          name: 🎛 set environment variables
+          command: |
+            Rscript --vanilla \
+              -e 'dash_dsc <- read.dcf("dashR/DESCRIPTION")' \
+              -e 'cat(sprintf("export DASH_TARBALL=%s_%s.tar.gz\n", dash_dsc[,"Package"], dash_dsc[,"Version"]))' \
+              -e 'cat(sprintf("export DASH_CHECK_DIR=%s.Rcheck\n", dash_dsc[,"Package"]))' \
+              -e 'dhc_dsc <- read.dcf("dash-html-components/DESCRIPTION")' \
+              -e 'cat(sprintf("export DHC_TARBALL=%s_%s.tar.gz\n", dhc_dsc[,"Package"], dhc_dsc[,"Version"]))' \
+              -e 'cat(sprintf("export DHC_CHECK_DIR=%s.Rcheck\n", dhc_dsc[,"Package"]))' \
+              -e 'dcc_dsc <- read.dcf("dash-core-components/DESCRIPTION")' \
+              -e 'cat(sprintf("export DCC_TARBALL=%s_%s.tar.gz\n", dcc_dsc[,"Package"], dcc_dsc[,"Version"]))' \
+              -e 'cat(sprintf("export DCC_CHECK_DIR=%s.Rcheck\n", dcc_dsc[,"Package"]))' \
+              -e 'dt_dsc <- read.dcf("dash-table/DESCRIPTION")' \
+              -e 'cat(sprintf("export DT_TARBALL=%s_%s.tar.gz\n", dt_dsc[,"Package"], dt_dsc[,"Version"]))' \
+              -e 'cat(sprintf("export DT_CHECK_DIR=%s.Rcheck\n", dt_dsc[,"Package"]))' \
+              >> ${BASH_ENV}
+
+      - run:
+          name: ️️📋 run CRAN package checks
+          command: |
+            R CMD build dash-core-components
+            R CMD build dash-html-components
+            R CMD build dash-table
+            R CMD build dashR
+            sudo R CMD INSTALL dash-core-components
+            sudo R CMD INSTALL dash-html-components
+            sudo R CMD INSTALL dash-table
+            sudo R CMD INSTALL dashR
+            R CMD check "${DHC_TARBALL}" --as-cran --no-manual
+            R CMD check "${DCC_TARBALL}" --as-cran --no-manual
+            R CMD check "${DT_TARBALL}" --as-cran --no-manual
+            R CMD check "${DASH_TARBALL}" --as-cran --no-manual
+
+      - run:
+          name: 🕵 detect failures
+          command: |
+            Rscript -e "message(devtools::check_failures(path = '${DHC_CHECK_DIR}'))"
+            Rscript -e "message(devtools::check_failures(path = '${DCC_CHECK_DIR}'))"
+            Rscript -e "message(devtools::check_failures(path = '${DT_CHECK_DIR}'))"
+            Rscript -e "message(devtools::check_failures(path = '${DASH_CHECK_DIR}'))"                                    
+            # warnings are errors; enable for stricter checks once CRAN submission finished
+            # if grep -q -R "WARNING" "${DHC_CHECK_DIR}/00check.log"; then exit 1; fi
+            # if grep -q -R "WARNING" "${DCC_CHECK_DIR}/00check.log"; then exit 1; fi
+            # if grep -q -R "WARNING" "${DT_CHECK_DIR}/00check.log"; then exit 1; fi
+            # if grep -q -R "WARNING" "${DASH_CHECK_DIR}/00check.log"; then exit 1; fi
+
+      - run:
+          name: 🔎 run unit tests
+          command: |
+              sudo Rscript -e 'res=devtools::test("dashR/tests/", reporter=default_reporter());df=as.data.frame(res);if(sum(df$failed) > 0 || any(df$error)) {q(status=1)}'
+
+      - run:
+          name: ⚙️ Integration tests
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            cd dash-main/\@plotly/dash-generator-test-component-nested && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
+            cd dash-main/\@plotly/dash-generator-test-component-standard && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
+            export PATH=$PATH:/home/circleci/.local/bin/
+            pytest --nopercyfinalize --junitxml=test-reports/dashr.xml dashR/tests/integration/dopsa/
+      - store_artifacts:
+          path: test-reports
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: /tmp/dash_artifacts
+
+      - run:
+          name: 🦔 percy finalize
+          command: npx percy finalize --all
+          when: on_fail 
+
+
   test-37: &test
     working_directory: ~/dash
     docker:
@@ -279,12 +386,14 @@ workflows:
       - build-core-37
       - build-windows-37
       - build-misc-37
+      - build-dashr
       - test-37:
           requires:
             - build-core-37
             - build-misc-37
       - percy-finalize:
           requires:
+            - build-dashr
             - test-37
       - artifacts:
           requires:
