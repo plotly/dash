@@ -7,9 +7,7 @@ function isLoadingComponent(layout: any) {
     return (Registry.resolve(layout) as any)._dashprivate_isLoadingComponent;
 }
 
-const NULL_LOADING_STATE = {
-    is_loading: false
-};
+const NULL_LOADING_STATE = false;
 
 export function getLoadingState(componentLayout: any, componentPath: any, loadingMap: any) {
     if (isNil(loadingMap)) {

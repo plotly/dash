@@ -63,11 +63,20 @@ function createElement(element, props, extraProps, children) {
     return React.createElement(element, allProps, children);
 }
 
-const TreeContainer = memo(props => (
-    <DashContext.Consumer>
-        {context => <BaseTreeContainer {...context} {...props} />}
-    </DashContext.Consumer>
-));
+const TreeContainer = memo(
+    props =>
+        Boolean() || (
+            <DashContext.Consumer>
+                {context => (
+                    <BaseTreeContainer
+                        {...context.fn()}
+                        {...props}
+                        _dashprivate_path={JSON.parse(props._dashprivate_path)}
+                    />
+                )}
+            </DashContext.Consumer>
+        )
+);
 
 class BaseTreeContainer extends Component {
     constructor(props) {
@@ -97,7 +106,7 @@ class BaseTreeContainer extends Component {
                     path,
                     props._dashprivate_loadingMap
                 )}
-                _dashprivate_path={path}
+                _dashprivate_path={JSON.stringify(path)}
             />
         );
     }
@@ -246,7 +255,7 @@ TreeContainer.propTypes = {
     _dashprivate_layout: PropTypes.object,
     _dashprivate_loadingState: PropTypes.object,
     _dashprivate_loadingStateHash: PropTypes.string,
-    _dashprivate_path: PropTypes.array,
+    _dashprivate_path: PropTypes.string,
 };
 
 BaseTreeContainer.propTypes = {

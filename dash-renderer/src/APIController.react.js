@@ -29,6 +29,15 @@ export const DashContext = createContext({});
  * @returns {*} component
  */
 const UnconnectedContainer = props => {
+    const {
+        appLifecycle,
+        config,
+        dependenciesRequest,
+        layoutRequest,
+        layout,
+        loadingMap,
+    } = props;
+
     const [errorLoading, setErrorLoading] = useState(false);
 
     const events = useRef(null);
@@ -36,6 +45,18 @@ const UnconnectedContainer = props => {
         events.current = new EventEmitter();
     }
     const renderedTree = useRef(false);
+
+    const propsRef = useRef({});
+    propsRef.current = props;
+
+    const provider = useRef({
+        fn: () => ({
+            _dashprivate_config: propsRef.current.config,
+            _dashprivate_dispatch: propsRef.current.dispatch,
+            _dashprivate_graphs: propsRef.current.graphs,
+            _dashprivate_loadingMap: propsRef.current.loadingMap,
+        }),
+    });
 
     useEffect(storeEffect.bind(null, props, events, setErrorLoading));
 
@@ -45,17 +66,6 @@ const UnconnectedContainer = props => {
             events.current.emit('rendered');
         }
     });
-
-    const {
-        appLifecycle,
-        config,
-        dependenciesRequest,
-        dispatch,
-        graphs,
-        layoutRequest,
-        layout,
-        loadingMap,
-    } = props;
 
     let content;
     if (
@@ -73,14 +83,7 @@ const UnconnectedContainer = props => {
         renderedTree.current = true;
 
         content = (
-            <DashContext.Provider
-                value={{
-                    _dashprivate_config: config,
-                    _dashprivate_dispatch: dispatch,
-                    _dashprivate_graphs: graphs,
-                    _dashprivate_loadingMap: loadingMap,
-                }}
-            >
+            <DashContext.Provider value={provider.current}>
                 <TreeContainer
                     _dashprivate_layout={layout}
                     _dashprivate_loadingState={getLoadingState(
@@ -93,7 +96,7 @@ const UnconnectedContainer = props => {
                         [],
                         loadingMap
                     )}
-                    _dashprivate_path={[]}
+                    _dashprivate_path={JSON.stringify([])}
                 />
             </DashContext.Provider>
         );
