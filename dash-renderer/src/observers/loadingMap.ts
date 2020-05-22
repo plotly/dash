@@ -49,8 +49,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         property: path.property
                     };
 
-                    target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || [];
-                    target.__dashprivate__idprop__.push(idprop);
+                    // Assign one affected prop for this path
+                    target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || idprop;
+                    // Assign all affected props for this path and nested paths
+                    target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
+                    target.__dashprivate__idprops__.push(idprop);
 
                     forEach(p => {
                         target = (target[p] =
@@ -58,8 +61,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                 p === 'children' ? [] : {}
                         )
 
-                        target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || [];
-                        target.__dashprivate__idprop__.push(idprop);
+                        target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
+                        target.__dashprivate__idprops__.push(idprop);
                     }, path.path);
 
                     return res;

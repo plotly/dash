@@ -1,4 +1,4 @@
-import { path, isNil, find, type, has } from "ramda";
+import { path, type, has } from "ramda";
 
 import Registry from '../registry';
 
@@ -10,33 +10,32 @@ function isLoadingComponent(layout: any) {
 const NULL_LOADING_STATE = false;
 
 export function getLoadingState(componentLayout: any, componentPath: any, loadingMap: any) {
-    if (isNil(loadingMap)) {
+    if (!loadingMap) {
         return NULL_LOADING_STATE;
     }
 
     const loadingFragment: any = path(componentPath, loadingMap);
     // Component and children are not loading if there's no loading fragment
     // for the component's path in the layout.
-    if (isNil(loadingFragment)) {
+    if (!loadingFragment) {
         return NULL_LOADING_STATE;
     }
 
-    const ids: any[] = loadingFragment.__dashprivate__idprop__;
-
-    if (isLoadingComponent(componentLayout)) {
+    const idprop: any = loadingFragment.__dashprivate__idprop__;
+    if (idprop) {
         return {
             is_loading: true,
-            prop_name: ids[0].property,
-            component_name: ids[0].id,
+            prop_name: idprop.property,
+            component_name: idprop.id,
         };
     }
 
-    const entry = find(id => id.id === componentLayout.props.id, ids ?? []);
-    if (entry) {
+    const idprops: any = loadingFragment.__dashprivate__idprops__?.[0];
+    if (idprops && isLoadingComponent(componentLayout)) {
         return {
             is_loading: true,
-            prop_name: entry.property,
-            component_name: entry.id,
+            prop_name: idprops.property,
+            component_name: idprops.id,
         };
     }
 
@@ -47,7 +46,7 @@ export const getLoadingHash = (
     componentPath: any,
     loadingMap: any
 ) => (
-    ((loadingMap && (path(componentPath, loadingMap) as any)?.__dashprivate__idprop__) ?? []) as any[]
+    ((loadingMap && (path(componentPath, loadingMap) as any)?.__dashprivate__idprops__) ?? []) as any[]
 ).map(({ id, property }) => `${id}.${property}`).join(',');
 
 export function validateComponent(componentDefinition: any) {
