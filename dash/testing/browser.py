@@ -75,9 +75,6 @@ class Browser(DashPageMixin):
                     root_dir=percy_assets_root,
                 )
             )
-            print("===========================")
-            print(" Initializing Percy build  ")
-            print("===========================")
             self.percy_runner.initialize_build()
 
         logger.info("initialize browser with arguments")
