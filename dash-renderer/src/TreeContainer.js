@@ -30,6 +30,10 @@ import {
 } from './utils/TreeContainer';
 import {DashContext} from './APIController.react';
 
+const NOT_LOADING = {
+    is_loading: false,
+};
+
 function CheckedComponent(p) {
     const {element, extraProps, props, children, type} = p;
 
@@ -201,7 +205,10 @@ class BaseTreeContainer extends Component {
             // just the id we pass on to the rendered component
             props.id = stringifyId(props.id);
         }
-        const extraProps = {loading_state, setProps};
+        const extraProps = {
+            loading_state: loading_state || NOT_LOADING,
+            setProps,
+        };
 
         return (
             <ComponentErrorBoundary
@@ -253,7 +260,10 @@ class BaseTreeContainer extends Component {
 
 TreeContainer.propTypes = {
     _dashprivate_layout: PropTypes.object,
-    _dashprivate_loadingState: PropTypes.object,
+    _dashprivate_loadingState: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.bool,
+    ]),
     _dashprivate_loadingStateHash: PropTypes.string,
     _dashprivate_path: PropTypes.string,
 };
@@ -264,6 +274,7 @@ BaseTreeContainer.propTypes = {
     _dashprivate_dispatch: PropTypes.func,
     _dashprivate_graphs: PropTypes.any,
     _dashprivate_loadingMap: PropTypes.any,
+    _dashprivate_path: PropTypes.array,
 };
 
 export default TreeContainer;
