@@ -218,6 +218,7 @@ jobs:
     docker:
       - image: plotly/dashr:ci
         environment:
+          PERCY_PARALLEL_TOTAL: -1
           PYVERSION: python37
           _R_CHECK_FORCE_SUGGESTS_: FALSE
 
