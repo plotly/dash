@@ -42,7 +42,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const available = Math.max(
             0,
-            6 - executing.length - watched.length
+            10 - executing.length - watched.length
         );
 
         prioritized = prioritized.slice(0, available);
