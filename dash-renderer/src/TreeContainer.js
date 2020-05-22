@@ -99,6 +99,7 @@ class BaseTreeContainer extends Component {
                     component.props &&
                     stringifyId(component.props.id)
                 }
+                _dashprivate_error={props._dashprivate_error}
                 _dashprivate_layout={component}
                 _dashprivate_loadingState={getLoadingState(
                     component,
@@ -184,7 +185,11 @@ class BaseTreeContainer extends Component {
     }
 
     getComponent(_dashprivate_layout, children, loading_state, setProps) {
-        const {_dashprivate_config} = this.props;
+        const {
+            _dashprivate_config,
+            _dashprivate_dispatch,
+            _dashprivate_error,
+        } = this.props;
 
         if (isEmpty(_dashprivate_layout)) {
             return null;
@@ -215,6 +220,8 @@ class BaseTreeContainer extends Component {
                 componentType={_dashprivate_layout.type}
                 componentId={props.id}
                 key={props.id}
+                dispatch={_dashprivate_dispatch}
+                error={_dashprivate_error}
             >
                 {_dashprivate_config.props_check ? (
                     <CheckedComponent
@@ -259,6 +266,7 @@ class BaseTreeContainer extends Component {
 }
 
 TreeContainer.propTypes = {
+    _dashprivate_error: PropTypes.any,
     _dashprivate_layout: PropTypes.object,
     _dashprivate_loadingState: PropTypes.oneOfType([
         PropTypes.object,

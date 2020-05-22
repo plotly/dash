@@ -33,6 +33,7 @@ const UnconnectedContainer = props => {
         appLifecycle,
         config,
         dependenciesRequest,
+        error,
         layoutRequest,
         layout,
         loadingMap,
@@ -85,6 +86,7 @@ const UnconnectedContainer = props => {
         content = (
             <DashContext.Provider value={provider.current}>
                 <TreeContainer
+                    _dashprivate_error={error}
                     _dashprivate_layout={layout}
                     _dashprivate_loadingState={getLoadingState(
                         layout,

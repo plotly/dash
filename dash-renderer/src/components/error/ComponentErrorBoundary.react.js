@@ -1,10 +1,8 @@
-import {connect} from 'react-redux';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
-import Radium from 'radium';
 import {onError, revert} from '../../actions';
 
-class UnconnectedComponentErrorBoundary extends Component {
+class ComponentErrorBoundary extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -51,20 +49,11 @@ class UnconnectedComponentErrorBoundary extends Component {
     }
 }
 
-UnconnectedComponentErrorBoundary.propTypes = {
+ComponentErrorBoundary.propTypes = {
     children: PropTypes.object,
     componentId: PropTypes.string,
     error: PropTypes.object,
     dispatch: PropTypes.func,
 };
-
-const ComponentErrorBoundary = connect(
-    state => ({
-        error: state.error,
-    }),
-    dispatch => {
-        return {dispatch};
-    }
-)(Radium(UnconnectedComponentErrorBoundary));
 
 export default ComponentErrorBoundary;
