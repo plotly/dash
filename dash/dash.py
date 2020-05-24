@@ -101,17 +101,19 @@ var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
 ns["{function_name}"] = {clientside_function};
 """
 
+def extract_callback_args(args, kwargs, name, type_):
+    """Extract arguments for callback from a name and type"""
+    print(args, kwargs)
+    parameters = kwargs.get(name, [])
+    if not parameters:
+        while args and isinstance(args[0], type_):
+            parameters.append(args.pop(0))
+    return parameters
 
-def _handle_callback_args(args, kwargs):
+def _handle_callback_args(*args, **kwargs):
     """Split args into outputs, inputs and states"""
-    prevent_initial_call = None
-    for k, v in kwargs.items():
-        if k == "prevent_initial_call":
-            prevent_initial_call = v
-        else:
-            raise TypeError(
-                "callback got an unexpected keyword argument '{}'".format(k)
-            )
+    prevent_initial_call = kwargs.get('prevent_initial_call', None)
+    # flatten args
     args = [
         arg
         # for backward compatibility, one arg can be a list
@@ -121,14 +123,17 @@ def _handle_callback_args(args, kwargs):
             arg_or_list if isinstance(arg_or_list, (list, tuple)) else [arg_or_list]
         )
     ]
+    outputs = extract_callback_args(args, kwargs, 'output', Output)
+    inputs = extract_callback_args(args, kwargs, 'inputs', Input)
+    states = extract_callback_args(args, kwargs, 'state', State)
+
+    if args:
+        raise TypeError(
+            "callback must received first all Outputs, then all Inputs, then all States")
     return [
-        # split according to type Output, Input, State
-        [arg for arg in args if isinstance(arg, class_)]
-        for class_ in [Output, Input, State]
-    ] + [
-        # keep list of args in order, for matching order
-        # in the callback's parameters
-        [arg for arg in args if not isinstance(arg, Output)],
+        outputs,
+        inputs,
+        states,
         prevent_initial_call,
     ]
 
@@ -857,7 +862,7 @@ class Dash(object):
         return flask.jsonify(self._callback_list)
 
     def _insert_callback(
-        self, output, inputs, state, callback_args, prevent_initial_call
+        self, output, inputs, state, prevent_initial_call
     ):
         if prevent_initial_call is None:
             prevent_initial_call = self.config.prevent_initial_callbacks
@@ -868,14 +873,12 @@ class Dash(object):
             "output": callback_id,
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
-            "args": [c.to_dict() for c in callback_args],
             "clientside_function": None,
             "prevent_initial_call": prevent_initial_call,
         }
         self.callback_map[callback_id] = {
             "inputs": callback_spec["inputs"],
             "state": callback_spec["state"],
-            "args": callback_spec["args"],
         }
         self._callback_list.append(callback_spec)
 
@@ -996,18 +999,21 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
+        kwargs['prevent_initial_call'] = kwargs.get(
+            'prevent_initial_call', None)
+        output = kwargs.get('output', args[0])
         # for backward compatibility, store whether first argument is a
         # list of only 1 Output
-        specified_output_list = isinstance(args[0], (list, tuple)) and len(args[0]) == 1
+        specified_output_list = (
+            isinstance(output, (list, tuple)) and len(output) == 1)
         (
             output,
             inputs,
             state,
-            callback_args,
             prevent_initial_call,
-        ) = _handle_callback_args(args, kwargs)
+        ) = _handle_callback_args(*args, **kwargs)
         callback_id = self._insert_callback(
-            output, inputs, state, callback_args, prevent_initial_call
+            output, inputs, state, prevent_initial_call
         )
 
         def wrap_func(func):
@@ -1078,15 +1084,7 @@ class Dash(object):
 
         response = flask.g.dash_response = flask.Response(mimetype="application/json")
 
-        # frontend sends inputs and state in separate variables
-        # we need to reorder them for the callback
-        args_inputs = [
-            value
-            for arg in self.callback_map[output]["args"]
-            for value in (inputs + state)
-            if arg["id"] == value["id"] and arg["property"] == value["property"]
-        ]
-        args = inputs_to_vals(args_inputs)
+        args = inputs_to_vals(inputs + state)
 
         func = self.callback_map[output]["callback"]
         response.set_data(func(*args, outputs_list=outputs_list))
