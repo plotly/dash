@@ -22,10 +22,11 @@ import {
     addStoredCallbacks
 } from '../actions/callbacks';
 
-import { parseIfWildcard, getCallbacksByInput } from '../actions/dependencies';
+import { parseIfWildcard } from '../actions/dependencies';
 
 import {
     combineIdAndProp,
+    getCallbacksByInput,
     getLayoutCallbacks,
     includeObservers
 } from '../actions/dependencies_ts';

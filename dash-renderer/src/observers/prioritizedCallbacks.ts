@@ -1,11 +1,12 @@
 import {
     flatten,
+    includes,
     map,
-    reduce,
-    uniq,
-    pluck,
     partition,
-    includes
+    pluck,
+    reduce,
+    sort,
+    uniq
 } from 'ramda';
 
 import { IStoreState } from "../store";
@@ -32,6 +33,22 @@ import {
 } from '../types/callbacks';
 import { IStoreObserverDefinition } from '../StoreObserver';
 
+const sortPriority = (c1: ICallback, c2: ICallback): number => {
+    const lDiff = c2.priority.length - c1.priority.length;
+    if (lDiff) {
+        return lDiff;
+    }
+
+    for (let i = 0; i < c1.priority.length; ++i) {
+        const pDiff = c2.priority[i] - c1.priority[i];
+        if (pDiff) {
+            return pDiff;
+        }
+    }
+
+    return 0;
+}
+
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: async ({
         dispatch,
@@ -44,6 +61,9 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             0,
             10 - executing.length - watched.length
         );
+
+        // Order prioritized callbacks based on depth and breadth of callback chain
+        prioritized = sort(sortPriority, prioritized);
 
         prioritized = prioritized.slice(0, available);
         if (!prioritized.length) {

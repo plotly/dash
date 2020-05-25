@@ -26,7 +26,13 @@ import {
     zipObj,
 } from 'ramda';
 
-import {combineIdAndProp, DIRECT, INDIRECT, mergeMax} from './dependencies_ts';
+import {
+    combineIdAndProp,
+    getCallbacksByInput,
+    INDIRECT,
+    mergeMax,
+    getPriority,
+} from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 
 import {crawlLayout} from './utils';
@@ -834,7 +840,14 @@ function findWildcardKeys(id) {
  * Optionally, include another reference set of the same - to ensure the
  * correct matching of MATCH or ALLSMALLER between input and output items.
  */
-function idMatch(keys, vals, patternVals, refKeys, refVals, refPatternVals) {
+export function idMatch(
+    keys,
+    vals,
+    patternVals,
+    refKeys,
+    refVals,
+    refPatternVals
+) {
     for (let i = 0; i < keys.length; i++) {
         const val = vals[i];
         const patternVal = patternVals[i];
@@ -889,7 +902,7 @@ function getAnyVals(patternVals, vals) {
     return matches.length ? JSON.stringify(matches) : '';
 }
 
-function resolveDeps(refKeys, refVals, refPatternVals) {
+export function resolveDeps(refKeys, refVals, refPatternVals) {
     return paths => ({id: idPattern, property}) => {
         if (typeof idPattern === 'string') {
             const path = getPath(paths, idPattern);
@@ -1032,7 +1045,7 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
     });
 }
 
-function addAllResolvedFromOutputs(resolve, paths, matches) {
+export function addAllResolvedFromOutputs(resolve, paths, matches) {
     return callback => {
         const {matchKeys, firstSingleOutput, outputs} = callback;
         if (matchKeys.length) {
@@ -1089,47 +1102,6 @@ function addAllResolvedFromOutputs(resolve, paths, matches) {
  * (with an MATCH corresponding to the input's ALLSMALLER) will only appear
  * in one entry.
  */
-export function getCallbacksByInput(graphs, paths, id, prop, changeType) {
-    const matches = [];
-    const idAndProp = combineIdAndProp({id, property: prop});
-
-    if (typeof id === 'string') {
-        // standard id version
-        const callbacks = (graphs.inputMap[id] || {})[prop];
-        if (!callbacks) {
-            return [];
-        }
-
-        callbacks.forEach(
-            addAllResolvedFromOutputs(resolveDeps(), paths, matches)
-        );
-    } else {
-        // wildcard version
-        const keys = Object.keys(id).sort();
-        const vals = props(keys, id);
-        const keyStr = keys.join(',');
-        const patterns = (graphs.inputPatterns[keyStr] || {})[prop];
-        if (!patterns) {
-            return [];
-        }
-        patterns.forEach(pattern => {
-            if (idMatch(keys, vals, pattern.values)) {
-                pattern.callbacks.forEach(
-                    addAllResolvedFromOutputs(
-                        resolveDeps(keys, vals, pattern.values),
-                        paths,
-                        matches
-                    )
-                );
-            }
-        });
-    }
-    matches.forEach(match => {
-        match.changedPropIds[idAndProp] = changeType || DIRECT;
-    });
-    return matches;
-}
-
 export function getWatchedKeys(id, newProps, graphs) {
     if (!(id && graphs && newProps.length)) {
         return [];
@@ -1285,5 +1257,11 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         }
     });
 
-    return callbacks;
+    return map(
+        cb => ({
+            ...cb,
+            priority: getPriority(graphs, paths, cb),
+        }),
+        callbacks
+    );
 }

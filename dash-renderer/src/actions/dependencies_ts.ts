@@ -12,10 +12,11 @@ import {
     mergeWith,
     partition,
     pickBy,
+    props,
     reduce
 } from 'ramda';
 import { ICallback, ICallbackProperty } from '../types/callbacks';
-import { getCallbacksByInput, splitIdAndProp, stringifyId, getCallbacksInLayout, isMultiValued } from './dependencies';
+import { addAllResolvedFromOutputs, splitIdAndProp, stringifyId, getCallbacksInLayout, isMultiValued, resolveDeps, idMatch } from './dependencies';
 import { getPath } from './paths';
 
 export const DIRECT = 2;
@@ -26,6 +27,89 @@ export const combineIdAndProp = ({
     id,
     property
 }: ICallbackProperty) => `${stringifyId(id)}.${property}`;
+
+export function getCallbacksByInput(
+    graphs: any,
+    paths: any,
+    id: any,
+    prop: any,
+    changeType?: any
+): ICallback[] {
+    const matches: ICallback[] = [];
+    const idAndProp = combineIdAndProp({ id, property: prop });
+
+    if (typeof id === 'string') {
+        // standard id version
+        const callbacks = (graphs.inputMap[id] || {})[prop];
+        if (!callbacks) {
+            return [];
+        }
+
+        callbacks.forEach(
+            addAllResolvedFromOutputs(resolveDeps(), paths, matches)
+        );
+    } else {
+        // wildcard version
+        const keys = Object.keys(id).sort();
+        const vals = props(keys, id);
+        const keyStr = keys.join(',');
+        const patterns: any[] = (graphs.inputPatterns[keyStr] || {})[prop];
+        if (!patterns) {
+            return [];
+        }
+        patterns.forEach(pattern => {
+            if (idMatch(keys, vals, pattern.values)) {
+                pattern.callbacks.forEach(
+                    addAllResolvedFromOutputs(
+                        resolveDeps(keys, vals, pattern.values),
+                        paths,
+                        matches
+                    )
+                );
+            }
+        });
+    }
+    matches.forEach(match => {
+        match.changedPropIds[idAndProp] = changeType || DIRECT;
+        match.priority = getPriority(graphs, paths, match)
+    });
+    return matches;
+}
+
+/*
+ * Take a list of callbacks and follow them all forward, ie see if any of their
+ * outputs are inputs of another callback. Any new callbacks get added to the
+ * list. All that come after another get marked as blocked by that one, whether
+ * they were in the initial list or not.
+ */
+export function getPriority(graphs: any, paths: any, callback: ICallback) {
+    let callbacks: ICallback[] = [callback];
+    let priority: number[] = [];
+
+    while (callbacks.length) {
+        const outputs = flatten(map(
+            cb => flatten(cb.getOutputs(paths)),
+            callbacks
+        ));
+
+        callbacks = flatten(map(
+            ({ id, property }: any) => getCallbacksByInput(
+                graphs,
+                paths,
+                id,
+                property,
+                INDIRECT
+            ),
+            outputs
+        ));
+
+        if (callbacks.length) {
+            priority.push(callbacks.length);
+        }
+    }
+
+    return priority;
+}
 
 export const getReadyCallbacks = (
     candidates: ICallback[],

@@ -22,13 +22,15 @@ export interface ICallback {
         outputs: ICallbackProperty[];
         state: ICallbackProperty[];
     };
+    changedPropIds: any;
     executionGroup?: string;
+    priority: number[];
     getInputs: (paths: any) => ILayoutCallbackProperty[];
     getOutputs: (paths: any) => ILayoutCallbackProperty[];
     getState: (paths: any) => ILayoutCallbackProperty[];
     prevent_initial_call: boolean;
-
-    [key: string]: any;
+    requestedOutputs: object;
+    resolvedId: any;
 }
 
 export interface IExecutingCallback extends ICallback {
