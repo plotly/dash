@@ -16,10 +16,13 @@ $ pip install -e .[testing,dev]  # in some shells you need \ to escape []
 $ cd dash-renderer
 # build renderer bundles, this will build all bundles from source code
 # the only true source of npm version is defined in package.json
+$ npm install
 $ npm run build  # or `renderer build`
 # install dash-renderer for development
 $ pip install -e .
 # build and install components used in tests
+$ cd .. # should be back in dash/ root directory
+$ npm install
 $ npm run setup-tests
 # you should see both dash and dash-renderer are pointed to local source repos
 $ pip list | grep dash
@@ -104,7 +107,7 @@ Note that we also start using [`black`](https://black.readthedocs.io/en/stable/)
 
 ## Tests
 
-We started migrating to [pytest](https://docs.pytest.org/en/latest/) from `unittest` as our test automation framework. You will see more testing enhancements in the near future.
+We started migrating to [pytest](https://docs.pytest.org/en/latest/) from `unittest` as our test automation framework. You will see more testing enhancements in the near future. To run the tests, see the commands in the `package.json` (such as `npm run test.integration`)
 
 ### Unit Tests
 
@@ -115,6 +118,8 @@ Note: *You might find out that we have more integration tests than unit tests in
 ### Integration Tests
 
 We introduced the `dash.testing` feature in [Dash 1.0](https://community.plotly.com/t/announcing-dash-testing/24868). It makes writing a Dash integration test much easier. Please read the [tutorial](http://dash.plotly.com/testing) and add relevant integration tests with any new features or bug fixes.
+
+To run the integration tests, you may have to [install circleci](https://circleci.com/docs/2.0/local-cli/).
 
 ## Financial Contributions
 
