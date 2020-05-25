@@ -20,9 +20,7 @@ window.cheese = 'gouda';
 
 
 def replace_file(filename, new_content):
-    path = os.path.join(
-        os.path.dirname(__file__), "hr_assets", filename
-    )
+    path = os.path.join(os.path.dirname(__file__), "hr_assets", filename)
     with open(path, "r+") as fp:
         sleep(1)  # ensure a new mod time
         old_content = fp.read()
@@ -92,7 +90,7 @@ def test_dvhr001_hot_reload(dash_duo):
     try:
         until(
             lambda: dash_duo.driver.execute_script("return window.cheese") == "gouda",
-            timeout=3
+            timeout=3,
         )
     finally:
         sleep(1)  # ensure a new mod time
@@ -101,7 +99,7 @@ def test_dvhr001_hot_reload(dash_duo):
 
     until(
         lambda: dash_duo.driver.execute_script("return window.cheese") == "roquefort",
-        timeout=3
+        timeout=3,
     )
 
     # we've done a hard reload so someVar is gone

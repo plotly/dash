@@ -613,7 +613,7 @@ class Dash(object):
         # scripts have rendered.
         # The rest of the scripts can just be loaded after React but before
         # dash renderer.
-        # pylint: disable=protected-access
+        # pylint: disable=protected-access,no-member
 
         mode = "dev" if self._dev_tools["props_check"] is True else "prod"
 
