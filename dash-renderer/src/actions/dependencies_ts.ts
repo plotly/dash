@@ -33,7 +33,8 @@ export function getCallbacksByInput(
     paths: any,
     id: any,
     prop: any,
-    changeType?: any
+    changeType?: any,
+    withPriority: boolean = true
 ): ICallback[] {
     const matches: ICallback[] = [];
     const idAndProp = combineIdAndProp({ id, property: prop });
@@ -71,7 +72,9 @@ export function getCallbacksByInput(
     }
     matches.forEach(match => {
         match.changedPropIds[idAndProp] = changeType || DIRECT;
-        match.priority = getPriority(graphs, paths, match)
+        if (withPriority) {
+            match.priority = getPriority(graphs, paths, match)
+        }
     });
     return matches;
 }
@@ -84,13 +87,23 @@ export function getCallbacksByInput(
  */
 export function getPriority(graphs: any, paths: any, callback: ICallback) {
     let callbacks: ICallback[] = [callback];
+    let touchedOutputs: { [key: string]: boolean } = {};
     let priority: number[] = [];
 
     while (callbacks.length) {
-        const outputs = flatten(map(
-            cb => flatten(cb.getOutputs(paths)),
-            callbacks
-        ));
+        const outputs = filter(
+            o => !touchedOutputs[combineIdAndProp(o)],
+            flatten(map(
+                cb => flatten(cb.getOutputs(paths)),
+                callbacks
+            ))
+        );
+
+        touchedOutputs = reduce(
+            (touched, o) => assoc(combineIdAndProp(o), true, touched),
+            touchedOutputs,
+            outputs
+        );
 
         callbacks = flatten(map(
             ({ id, property }: any) => getCallbacksByInput(
@@ -98,7 +111,8 @@ export function getPriority(graphs: any, paths: any, callback: ICallback) {
                 paths,
                 id,
                 property,
-                INDIRECT
+                INDIRECT,
+                false
             ),
             outputs
         ));

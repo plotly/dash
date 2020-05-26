@@ -117,7 +117,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     requestedCallbacks = concat(
                         requestedCallbacks,
                         flatten(map(
-                            prop => getCallbacksByInput(graphs, oldPaths, parsedId, prop),
+                            prop => getCallbacksByInput(graphs, oldPaths, parsedId, prop, true),
                             keys(props)
                         ))
                     );
