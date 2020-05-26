@@ -230,6 +230,7 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
+            npm ci
             pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
