@@ -230,8 +230,7 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            git clone --depth 1 https://github.com/plotly/dash.git -b ${CIRCLE_BRANCH} dash-main
-            cd dash-main && pip install -e .[dev,testing] --progress-bar off && cd ..
+            pip install --no-cache-dir --upgrade -e . --progress-bar off
             git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
             git clone --depth 1 https://github.com/plotly/dash-core-components.git
