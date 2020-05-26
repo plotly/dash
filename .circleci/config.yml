@@ -230,7 +230,7 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            pip install --no-cache-dir --upgrade -e . --progress-bar off
+            pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
             git clone --depth 1 https://github.com/plotly/dash-core-components.git
@@ -239,7 +239,7 @@ jobs:
             cd dash-html-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
             cd ../dash-core-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
             cd ../dash-table; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build); cd ..
-            
+
       - run:
           name: 🔧fix up dash metadata
           command: |
@@ -285,7 +285,7 @@ jobs:
             Rscript -e "message(devtools::check_failures(path = '${DHC_CHECK_DIR}'))"
             Rscript -e "message(devtools::check_failures(path = '${DCC_CHECK_DIR}'))"
             Rscript -e "message(devtools::check_failures(path = '${DT_CHECK_DIR}'))"
-            Rscript -e "message(devtools::check_failures(path = '${DASH_CHECK_DIR}'))"                                    
+            Rscript -e "message(devtools::check_failures(path = '${DASH_CHECK_DIR}'))"
             # warnings are errors; enable for stricter checks once CRAN submission finished
             # if grep -q -R "WARNING" "${DHC_CHECK_DIR}/00check.log"; then exit 1; fi
             # if grep -q -R "WARNING" "${DCC_CHECK_DIR}/00check.log"; then exit 1; fi
@@ -316,7 +316,7 @@ jobs:
       - run:
           name: 🦔 percy finalize
           command: npx percy finalize --all
-          when: on_fail 
+          when: on_fail
 
 
   test-37: &test
