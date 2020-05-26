@@ -14,7 +14,7 @@
     "private::test.setup-standard": "cd \\@plotly/dash-generator-test-component-standard && npm ci && npm run build",
     "private::test.py.deploy-nested": "npm run private::test.setup-nested && pip install -e .",
     "private::test.py.deploy-standard": "npm run private::test.setup-standard && pip install -e .",
-    "private::test.R.deploy-nested": "npm run private::test.setup-nested &&  && sudo R CMD INSTALL .",
+    "private::test.R.deploy-nested": "npm run private::test.setup-nested && sudo R CMD INSTALL .",
     "private::test.R.deploy-standard": "npm run private::test.setup-standard && sudo R CMD INSTALL .",
     "private::test.unit-dash": "PYTHONPATH=~/dash/tests/assets pytest tests/unit",
     "private::test.unit-renderer": "cd dash-renderer && npm run test",
