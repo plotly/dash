@@ -49,8 +49,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         property: path.property
                     };
 
-                    // Assign one affected prop for this path
-                    target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || idprop;
                     // Assign all affected props for this path and nested paths
                     target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
                     target.__dashprivate__idprops__.push(idprop);
@@ -64,6 +62,9 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
                         target.__dashprivate__idprops__.push(idprop);
                     }, path.path);
+
+                    // Assign one affected prop for this path
+                    target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || idprop;
 
                     return res;
                 },
