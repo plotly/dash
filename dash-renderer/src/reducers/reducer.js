@@ -1,7 +1,7 @@
 import {forEach, isEmpty, keys, path} from 'ramda';
 import {combineReducers} from 'redux';
 
-import {getCallbacksByInput} from '../actions/dependencies';
+import {getCallbacksByInput} from '../actions/dependencies_ts';
 
 import createApiReducer from './api';
 import appLifecycle from './appLifecycle';
