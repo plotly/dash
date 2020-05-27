@@ -90,8 +90,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const ids = reduce((res, [cb]) => ([
             ...res,
-            ...cb.getInputs(paths),
-            ...cb.getState(paths)
+            ...flatten(cb.getInputs(paths)),
+            ...flatten(cb.getState(paths))
         ]), [] as ICallbackProperty[], callbacks);
 
         /*
