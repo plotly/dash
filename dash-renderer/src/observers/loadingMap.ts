@@ -10,6 +10,7 @@ import {
 import { setLoadingMap } from '../actions/loadingMap';
 import { IStoreObserverDefinition } from '../StoreObserver';
 import { IStoreState } from '../store';
+import { ILayoutCallbackProperty } from '../types/callbacks';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: ({
@@ -34,7 +35,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             are impacted for this node and nested nodes.
         */
 
-        const loadingPaths = flatten(map(
+        const loadingPaths: ILayoutCallbackProperty[] = flatten(map(
             cb => cb.getOutputs(paths),
             [...executing, ...watched, ...executed]
         ));

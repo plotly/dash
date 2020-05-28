@@ -13,10 +13,11 @@ import {
     partition,
     pickBy,
     props,
-    reduce
+    reduce,
+    zipObj
 } from 'ramda';
-import { ICallback, ICallbackProperty } from '../types/callbacks';
-import { addAllResolvedFromOutputs, splitIdAndProp, stringifyId, getCallbacksInLayout, isMultiValued, resolveDeps, idMatch } from './dependencies';
+import { ICallback, ICallbackProperty, ICallbackDefinition, ILayoutCallbackProperty, ICallbackTemplate } from '../types/callbacks';
+import { addAllResolvedFromOutputs, splitIdAndProp, stringifyId, getCallbacksInLayout, isMultiValued, idMatch } from './dependencies';
 import { getPath } from './paths';
 
 export const DIRECT = 2;
@@ -239,6 +240,28 @@ export function includeObservers(id: any, props: any, graphs: any, paths: any): 
     ));
 }
 
+/*
+ * Create a pending callback object. Includes the original callback definition,
+ * its resolved ID (including the value of all MATCH wildcards),
+ * accessors to find all inputs, outputs, and state involved in this
+ * callback (lazy as not all users will want all of these).
+ */
+export const makeResolvedCallback = (
+    callback: ICallbackDefinition,
+    resolve: (_: any) => (_: ICallbackProperty) => ILayoutCallbackProperty[],
+    anyVals: any[] | string
+): ICallbackTemplate => ({
+    callback,
+    anyVals,
+    resolvedId: callback.output + anyVals,
+    getOutputs: paths => callback.outputs.map(resolve(paths)),
+    getInputs: paths => callback.inputs.map(resolve(paths)),
+    getState: paths => callback.state.map(resolve(paths)),
+    changedPropIds: {},
+    initialCall: false,
+    requestedOutputs: {},
+});
+
 export function pruneCallbacks<T extends ICallback>(callbacks: T[], paths: any): {
     added: T[],
     removed: T[]
@@ -264,5 +287,37 @@ export function pruneCallbacks<T extends ICallback>(callbacks: T[], paths: any):
     return {
         added,
         removed
+    };
+}
+
+export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: string) {
+    return (paths: any) => ({ id: idPattern, property }: ICallbackProperty) => {
+        if (typeof idPattern === 'string') {
+            const path = getPath(paths, idPattern);
+            return path ? [{ id: idPattern, property, path }] : [];
+        }
+        const keys = Object.keys(idPattern).sort();
+        const patternVals = props(keys, idPattern);
+        const keyStr = keys.join(',');
+        const keyPaths = paths.objs[keyStr];
+        if (!keyPaths) {
+            return [];
+        }
+        const result: ILayoutCallbackProperty[] = [];
+        keyPaths.forEach(({ values: vals, path }: any) => {
+            if (
+                idMatch(
+                    keys,
+                    vals,
+                    patternVals,
+                    refKeys,
+                    refVals,
+                    refPatternVals
+                )
+            ) {
+                result.push({ id: zipObj(keys, vals), property, path });
+            }
+        });
+        return result;
     };
 }

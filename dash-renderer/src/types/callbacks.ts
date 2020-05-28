@@ -1,5 +1,18 @@
 type CallbackId = string | { [key: string]: any }
 
+export interface ICallbackDefinition {
+    clientside_function?: {
+        namespace: string;
+        function_name: string;
+    };
+    input: string;
+    inputs: ICallbackProperty[];
+    output: string;
+    outputs: ICallbackProperty[];
+    prevent_initial_call: boolean;
+    state: ICallbackProperty[];
+}
+
 export interface ICallbackProperty {
     id: CallbackId;
     property: string;
@@ -9,28 +22,21 @@ export interface ILayoutCallbackProperty extends ICallbackProperty {
     path: (string | number)[];
 }
 
-export interface ICallback {
+export interface ICallbackTemplate {
     anyVals: any[] | string;
-    callback: {
-        clientside_function?: {
-            namespace: string;
-            function_name: string;
-        };
-        input: string;
-        inputs: ICallbackProperty[];
-        output: string;
-        outputs: ICallbackProperty[];
-        state: ICallbackProperty[];
-    };
+    callback: ICallbackDefinition;
     changedPropIds: any;
     executionGroup?: string;
-    priority: number[];
-    getInputs: (paths: any) => ILayoutCallbackProperty[];
-    getOutputs: (paths: any) => ILayoutCallbackProperty[];
-    getState: (paths: any) => ILayoutCallbackProperty[];
-    prevent_initial_call: boolean;
-    requestedOutputs: object;
+    initialCall: boolean;
+    getInputs: (paths: any) => ILayoutCallbackProperty[][];
+    getOutputs: (paths: any) => ILayoutCallbackProperty[][];
+    getState: (paths: any) => ILayoutCallbackProperty[][];
+    requestedOutputs: { [key: string]: any };
     resolvedId: any;
+}
+
+export interface ICallback extends ICallbackTemplate {
+    priority: number[];
 }
 
 export interface IExecutingCallback extends ICallback {

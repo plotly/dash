@@ -354,7 +354,7 @@ export function executeCallback(
                 return data;
             }
 
-            function handleServerside(payload: any) {
+            function handleServerside(payload: any): Promise<any> {
                 if (hooks.request_pre !== null) {
                     hooks.request_pre(payload);
                 }
@@ -363,13 +363,13 @@ export function executeCallback(
                     `${urlBase(config)}_dash-update-component`,
                     mergeDeepRight(config.fetch, {
                         method: 'POST',
-                        headers: getCSRFHeader(),
+                        headers: getCSRFHeader() as any,
                         body: JSON.stringify(payload),
                     })
-                ).then(res => {
+                ).then((res: any) => {
                     const { status } = res;
                     if (status === STATUS.OK) {
-                        return res.json().then(data => {
+                        return res.json().then((data: any) => {
                             const { multi, response } = data;
                             if (hooks.request_post !== null) {
                                 hooks.request_post(payload, response);

@@ -29,9 +29,11 @@ import {
 import {
     combineIdAndProp,
     getCallbacksByInput,
+    getPriority,
     INDIRECT,
     mergeMax,
-    getPriority,
+    makeResolvedCallback,
+    resolveDeps,
 } from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 
@@ -902,60 +904,6 @@ function getAnyVals(patternVals, vals) {
     return matches.length ? JSON.stringify(matches) : '';
 }
 
-export function resolveDeps(refKeys, refVals, refPatternVals) {
-    return paths => ({id: idPattern, property}) => {
-        if (typeof idPattern === 'string') {
-            const path = getPath(paths, idPattern);
-            return path ? [{id: idPattern, property, path}] : [];
-        }
-        const keys = Object.keys(idPattern).sort();
-        const patternVals = props(keys, idPattern);
-        const keyStr = keys.join(',');
-        const keyPaths = paths.objs[keyStr];
-        if (!keyPaths) {
-            return [];
-        }
-        const result = [];
-        keyPaths.forEach(({values: vals, path}) => {
-            if (
-                idMatch(
-                    keys,
-                    vals,
-                    patternVals,
-                    refKeys,
-                    refVals,
-                    refPatternVals
-                )
-            ) {
-                result.push({id: zipObj(keys, vals), property, path});
-            }
-        });
-        return result;
-    };
-}
-
-/*
- * Create a pending callback object. Includes the original callback definition,
- * its resolved ID (including the value of all MATCH wildcards),
- * accessors to find all inputs, outputs, and state involved in this
- * callback (lazy as not all users will want all of these),
- * placeholders for which other callbacks this one is blockedBy or blocking,
- * and a boolean for whether it has been dispatched yet.
- */
-const makeResolvedCallback = (callback, resolve, anyVals) => ({
-    callback,
-    anyVals,
-    resolvedId: callback.output + anyVals,
-    getOutputs: paths => callback.outputs.map(resolve(paths)),
-    getInputs: paths => callback.inputs.map(resolve(paths)),
-    getState: paths => callback.state.map(resolve(paths)),
-    blockedBy: {},
-    blocking: {},
-    changedPropIds: {},
-    initialCall: false,
-    requestedOutputs: {},
-});
-
 /*
  * Does this item (input / output / state) support multiple values?
  * string IDs do not; wildcard IDs only do if they contain ALL or ALLSMALLER
@@ -978,8 +926,6 @@ export function isMultiValued({id}) {
  *         The result is a list of {id (string or object), property (string)}
  *     getInputs: same for inputs
  *     getState: same for state
- *     blockedBy: an object of {[resolvedId]: 1} blocking this callback
- *     blocking: an object of {[resolvedId]: 1} this callback is blocking
  *     changedPropIds: an object of {[idAndProp]: v} triggering this callback
  *         v = DIRECT (2): the prop was changed in the front end, so dependent
  *             callbacks *MUST* be executed.
