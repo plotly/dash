@@ -264,7 +264,7 @@ def test_no_proxy_success(mocker, caplog, empty_environ):
 
     app.run_server(port=8787)
 
-    assert "Running on http://127.0.0.1:8787/\n" in caplog.text
+    assert "Dash is running on http://127.0.0.1:8787/\n" in caplog.text
 
 
 @pytest.mark.parametrize(
@@ -284,7 +284,7 @@ def test_proxy_success(mocker, caplog, empty_environ, proxy, host, port, path):
 
     app.run_server(proxy=proxystr, host=host, port=port)
 
-    assert "Running on {}{}\n".format(proxy, path) in caplog.text
+    assert "Dash is running on {}{}\n".format(proxy, path) in caplog.text
 
 
 def test_proxy_failure(mocker, empty_environ):
