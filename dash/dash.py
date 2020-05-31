@@ -1599,7 +1599,7 @@ class Dash(object):
             else:
                 display_url = (protocol, host, ":{}".format(port), path)
 
-            self.logger.info("Running on {}://{}{}{}".format(*display_url))
+            self.logger.info("Running on %s://%s%s%s", *display_url)
 
         if not os.environ.get("FLASK_ENV"):
             os.environ["FLASK_ENV"] = "development"
