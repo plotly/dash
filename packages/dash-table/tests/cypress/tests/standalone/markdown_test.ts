@@ -136,15 +136,6 @@ describe('markdown cells', () => {
         });
     });
 
-    describe('clicking links', () => {
-        it('correctly redirects', () => {
-            cy.visit(`http://localhost:8080?mode=${AppMode.Markdown}`);
-            // change href, since Cypress raises error when navigating away from localhost
-            DashTable.getCellById(10, 'markdown-links').within(() => cy.get('.dash-cell-value > p > a').invoke('attr', 'href', '#testlinkclick').click().click());
-            cy.url().should('include', `#testlinkclick`);
-        });
-    });
-
     describe('loading highlightjs', () => {
         it('loads highlight.js and does not attach hljs to window', () => {
             cy.visit(`http://localhost:8080?mode=${AppMode.Markdown}`);

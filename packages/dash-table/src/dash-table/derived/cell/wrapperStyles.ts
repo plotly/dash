@@ -30,7 +30,7 @@ const getter = (
     styles: IConvertedStyle[],
     data: Data,
     offset: IViewportOffset,
-    activeCell: ICellCoordinates,
+    activeCell: ICellCoordinates | undefined,
     selectedCells: SelectedCells
 ) => {
     baseline = shallowClone(baseline);

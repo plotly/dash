@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+- [#787](https://github.com/plotly/dash-table/pull/787) Add `cell_selectable` property to allow/disallow cell selection
+
+### Changed
+- [#787](https://github.com/plotly/dash-table/pull/787)
+    - Clicking on a link in a Markdown cell now requires a single click instead of two
+    - Links in Markdown cells now open a new tab (target="_blank")
+
 ## [4.7.0] - 2020-05-05
 ### Added
 - [#729](https://github.com/plotly/dash-table/pull/729) Improve conditional styling

@@ -1,5 +1,5 @@
 import { min, max, set, lensPath } from 'ramda';
-import { ICellFactoryProps } from 'dash-table/components/Table/props';
+import { ICellFactoryProps, Presentation } from 'dash-table/components/Table/props';
 import isActive from 'dash-table/derived/cell/isActive';
 import isSelected from 'dash-table/derived/cell/isSelected';
 import { makeCell, makeSelection } from 'dash-table/derived/cell/cellProps';
@@ -12,6 +12,7 @@ export const handleClick = (
     e: any
 ) => {
     const {
+        cell_selectable,
         selected_cells,
         active_cell,
         setProps,
@@ -29,7 +30,14 @@ export const handleClick = (
         return;
     }
 
-    e.preventDefault();
+    const column = visibleColumns[col];
+    if (column.presentation !== Presentation.Markdown) {
+        e.preventDefault();
+    }
+
+    if (!cell_selectable) {
+        return;
+    }
 
     /*
      * In some cases this will initiate browser text selection.

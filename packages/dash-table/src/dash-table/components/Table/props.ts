@@ -301,6 +301,7 @@ export interface IProps {
     tooltip_conditional: ConditionalTooltip[];
 
     active_cell?: ICellCoordinates;
+    cell_selectable?: boolean;
     column_selectable?: Selection;
     columns?: Columns;
     dropdown?: StaticDropdowns;
@@ -351,35 +352,35 @@ export interface IProps {
 }
 
 interface IDefaultProps {
-    active_cell: ICellCoordinates;
+    cell_selectable: boolean;
     column_selectable: Selection;
+    css: IStylesheetRule[];
     dropdown: StaticDropdowns;
     dropdown_conditional: ConditionalDropdowns;
     dropdown_data: DataDropdowns;
-    css: IStylesheetRule[];
     editable: boolean;
+    end_cell: ICellCoordinates;
     export_columns: ExportColumns;
     export_format: ExportFormat;
     export_headers: ExportHeaders;
     fill_width: boolean;
     filter_query: string;
     filter_action: TableAction;
-    include_headers_on_copy_paste: boolean;
-    merge_duplicate_headers: boolean;
     fixed_columns: Fixed;
     fixed_rows: Fixed;
+    include_headers_on_copy_paste: boolean;
+    merge_duplicate_headers: boolean;
     row_deletable: boolean;
     row_selectable: Selection;
     selected_cells: SelectedCells;
     selected_columns: string[];
-    start_cell: ICellCoordinates;
-    end_cell: ICellCoordinates;
-    selected_rows: Indices;
     selected_row_ids: RowId[];
+    selected_rows: Indices;
     sort_action: TableAction;
     sort_by: SortBy;
     sort_mode: SortMode;
     sort_as_null: SortAsNull;
+    start_cell: ICellCoordinates;
     style_as_list_view: boolean;
     tooltip_data: DataTooltips;
 
@@ -475,8 +476,9 @@ export type HeaderFactoryProps = ControlledTableProps & {
 };
 
 export interface ICellFactoryProps {
-    active_cell: ICellCoordinates;
+    active_cell?: ICellCoordinates;
     applyFocus?: boolean;
+    cell_selectable: boolean;
     dropdown: StaticDropdowns;
     dropdown_conditional: ConditionalDropdowns;
     dropdown_data: DataDropdowns;

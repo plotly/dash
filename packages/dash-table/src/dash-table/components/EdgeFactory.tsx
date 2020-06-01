@@ -186,7 +186,7 @@ export default class EdgeFactory {
     }
 
     private memoizedCreateEdges = memoizeOne((
-        active_cell: ICellCoordinates,
+        active_cell: ICellCoordinates | undefined,
         columns: Columns,
         visibleColumns: Columns,
         operations: number,

@@ -85,6 +85,7 @@ export const defaultProps = {
     selected_columns: [],
     selected_rows: [],
     selected_row_ids: [],
+    cell_selectable: true,
     row_selectable: false,
 
     style_table: {},
@@ -621,6 +622,12 @@ export const propTypes = {
      * and the user can delete the row.
      */
     row_deletable: PropTypes.bool,
+
+    /**
+     * If True (default), then it is possible to click and navigate
+     * table cells.
+     */
+    cell_selectable: PropTypes.bool,
 
     /**
      * If `single`, then the user can select a single row

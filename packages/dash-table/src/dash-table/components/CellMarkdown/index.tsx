@@ -5,7 +5,7 @@ import React, {
 import DOM from 'core/browser/DOM';
 import { memoizeOne } from 'core/memoizer';
 
-import MarkdownHighlighter from 'dash-table/utils/MarkdownHighlighter';
+import Markdown from 'dash-table/utils/Markdown';
 
 interface IProps {
     active: boolean;
@@ -18,15 +18,15 @@ export default class CellMarkdown extends PureComponent<IProps, {}> {
 
     getMarkdown = memoizeOne((value: string, _ready: any) => ({
         dangerouslySetInnerHTML: {
-            __html: MarkdownHighlighter.render(String(value))
+            __html: Markdown.render(String(value))
         }
     }));
 
     constructor(props: IProps) {
         super(props);
 
-        if (MarkdownHighlighter.isReady !== true) {
-            MarkdownHighlighter.isReady.then(() => { this.setState({}); });
+        if (Markdown.isReady !== true) {
+            Markdown.isReady.then(() => { this.setState({}); });
         }
     }
 
@@ -47,7 +47,7 @@ export default class CellMarkdown extends PureComponent<IProps, {}> {
         return (<div
             ref='el'
             className={[className, 'cell-markdown'].join(' ')}
-            {...this.getMarkdown(value, MarkdownHighlighter.isReady)}
+            {...this.getMarkdown(value, Markdown.isReady)}
         />);
     }
 

@@ -531,7 +531,15 @@ storiesOf('DashTable/Style type condition', module)
             { row: 2, column: 1, column_id: 'b' },
             { row: 2, column: 2, column_id: 'c' }]}
         active_cell={{ row: 1, column: 1 }}
+    />))
+    .add('unselectable cells', () => (<DataTable
+        {...DEFAULT_TABLE}
+        id='unselectable-cells'
+        cell_selectable={false}
+        selected_cells={[
+            { row: 1, column: 1, column_id: 'b' },
+            { row: 1, column: 2, column_id: 'c' },
+            { row: 2, column: 1, column_id: 'b' },
+            { row: 2, column: 2, column_id: 'c' }]}
+        active_cell={{ row: 1, column: 1 }}
     />));
-
-
-

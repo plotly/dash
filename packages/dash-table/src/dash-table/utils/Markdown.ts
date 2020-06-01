@@ -1,14 +1,14 @@
 import { Remarkable } from 'remarkable';
 import LazyLoader from 'dash-table/LazyLoader';
 
-export default class MarkdownHighlighter {
+export default class Markdown {
 
     static isReady: Promise<boolean> | true = new Promise<boolean>(resolve => {
-        MarkdownHighlighter.hljsResolve = resolve;
+        Markdown.hljsResolve = resolve;
     });
 
     static render = (value: string) => {
-        return MarkdownHighlighter.md.render(value);
+        return Markdown.md.render(value);
     }
 
     private static hljsResolve: () => any;
@@ -17,26 +17,27 @@ export default class MarkdownHighlighter {
 
     private static readonly md: Remarkable = new Remarkable({
         highlight: (str: string, lang: string) => {
-            if (MarkdownHighlighter.hljs) {
-                if (lang && MarkdownHighlighter.hljs.getLanguage(lang)) {
+            if (Markdown.hljs) {
+                if (lang && Markdown.hljs.getLanguage(lang)) {
                     try {
-                        return MarkdownHighlighter.hljs.highlight(lang, str).value;
+                        return Markdown.hljs.highlight(lang, str).value;
                     } catch (err) { }
                 }
 
                 try {
-                    return MarkdownHighlighter.hljs.highlightAuto(str).value;
+                    return Markdown.hljs.highlightAuto(str).value;
                 } catch (err) { }
             } else {
-                MarkdownHighlighter.loadhljs();
+                Markdown.loadhljs();
             }
             return '';
-        }
+        },
+        linkTarget:'_blank'
     });
 
     private static async loadhljs() {
-        MarkdownHighlighter.hljs = await LazyLoader.hljs;
-        MarkdownHighlighter.hljsResolve();
-        MarkdownHighlighter.isReady = true;
+        Markdown.hljs = await LazyLoader.hljs;
+        Markdown.hljsResolve();
+        Markdown.isReady = true;
     }
 }
