@@ -1343,7 +1343,7 @@ class Dash(object):
             packages = [
                 pkgutil.find_loader(x)
                 for x in list(ComponentRegistry.registry) + ["dash_renderer"]
-                if x not in ("__main__")
+                if x != "__main__"
             ]
 
             component_packages_dist = [
