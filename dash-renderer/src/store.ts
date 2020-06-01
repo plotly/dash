@@ -1,3 +1,4 @@
+import { once } from 'ramda';
 import { createStore, applyMiddleware, Store, Observer } from 'redux';
 import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
@@ -5,6 +6,19 @@ import StoreObserver from './StoreObserver';
 import { ICallbacksState } from './reducers/callbacks';
 import { LoadingMapState } from './reducers/loadingMap';
 import { IsLoadingState } from './reducers/isLoading';
+
+import executedCallbacks from './observers/executedCallbacks';
+import executingCallbacks from './observers/executingCallbacks';
+import isLoading from './observers/isLoading'
+import loadingMap from './observers/loadingMap';
+import prioritizedCallbacks from './observers/prioritizedCallbacks';
+import requestedCallbacks from './observers/requestedCallbacks';
+import storedCallbacks from './observers/storedCallbacks';
+
+export interface IStoreObserver {
+    observer: Observer<Store<IStoreState>>;
+    inputs: string[];
+}
 
 export interface IStoreState {
     callbacks: ICallbacksState;
@@ -16,16 +30,22 @@ export interface IStoreState {
 let store: Store<IStoreState>;
 const storeObserver = new StoreObserver<IStoreState>();
 
-export const observe = storeObserver.observe;
+const setObservers = once(() => {
+    const observe = storeObserver.observe;
 
-export interface IStoreObserver {
-    observer: Observer<Store<IStoreState>>;
-    inputs: string[];
-}
+    observe(isLoading);
+    observe(loadingMap);
+    observe(requestedCallbacks);
+    observe(prioritizedCallbacks);
+    observe(executingCallbacks);
+    observe(executedCallbacks);
+    observe(storedCallbacks);
+});
 
 function createAppStore(reducer: any, middleware: any) {
     store = createStore(reducer, middleware);
     storeObserver.setStore(store);
+    setObservers();
 }
 
 /**
