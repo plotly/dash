@@ -9,7 +9,7 @@ jobs:
   lint-unit-37: &lint-unit
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PYTHON_VERSION: py37
     steps:
@@ -22,6 +22,7 @@ jobs:
           command: |
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
+            pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
             pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -42,7 +43,7 @@ jobs:
   lint-unit-36:
     <<: *lint-unit
     docker:
-      - image: circleci/python:3.6-stretch-node-browsers
+      - image: circleci/python:3.6.9-stretch-node-browsers
         environment:
           PYTHON_VERSION: py36
 
@@ -56,7 +57,7 @@ jobs:
   build-dash-37: &build-dash
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
             PYTHON_VERSION: py37
     steps:
@@ -97,7 +98,7 @@ jobs:
   build-dash-36:
     <<: *build-dash
     docker:
-      - image: circleci/python:3.6-stretch-node-browsers
+      - image: circleci/python:3.6.9-stretch-node-browsers
         environment:
           PYTHON_VERSION: py36
 
@@ -111,7 +112,7 @@ jobs:
   test-37: &test
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
             PYTHON_VERSION: py37
             PERCY_PARALLEL_TOTAL: -1
@@ -143,7 +144,7 @@ jobs:
   test-36:
     <<: *test
     docker:
-      - image: circleci/python:3.6-stretch-node-browsers
+      - image: circleci/python:3.6.9-stretch-node-browsers
         environment:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
@@ -159,7 +160,7 @@ jobs:
   test-legacy-37: &test-legacy
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
             PYTHON_VERSION: py37
             PERCY_PARALLEL_TOTAL: -1
@@ -193,7 +194,7 @@ jobs:
   test-legacy-36:
     <<: *test-legacy
     docker:
-      - image: circleci/python:3.6-stretch-node-browsers
+      - image: circleci/python:3.6.9-stretch-node-browsers
         environment:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
