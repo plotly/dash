@@ -18,7 +18,7 @@
         "array-type": false,
         "arrow-parens": [true, "ban-single-arg-parens"],
         "ban-types": false, // to allow use of 'function' type
-        "eofline": false,
+        "eofline": true,
         "max-classes-per-file": false,
         "max-line-length": false,
         "member-access": false,
