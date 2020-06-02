@@ -50,9 +50,9 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         let dropped = reduce((res, [
             executionGroup,
-            callbacks
+            executionGroupCallbacks
         ]) => !pendingGroups[executionGroup] ?
-                concat(res, callbacks) :
+                concat(res, executionGroupCallbacks) :
                 res,
             [] as IStoredCallback[],
             toPairs(executionGroups)

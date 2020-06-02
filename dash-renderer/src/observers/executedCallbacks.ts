@@ -12,7 +12,7 @@ import {
     toPairs
 } from 'ramda';
 
-import { IStoreState } from "../store";
+import { IStoreState } from '../store';
 
 import {
     aggregateCallbacks,
@@ -80,7 +80,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 updateProps({
                     itempath,
                     props,
-                    source: 'response',
+                    source: 'response'
                 })
             );
 
@@ -136,7 +136,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         requestedCallbacks = concat(
                             requestedCallbacks,
                             getLayoutCallbacks(graphs, paths, children, {
-                                chunkPath: oldChildrenPath,
+                                chunkPath: oldChildrenPath
                             })
                         );
 
@@ -158,11 +158,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         appliedProps
                     );
                     if (!isEmpty(addedProps)) {
-                        const { graphs, paths } = getState();
+                        const { graphs: currentGraphs, paths } = getState();
 
                         requestedCallbacks = concat(
                             requestedCallbacks,
-                            includeObservers(id, addedProps, graphs, paths)
+                            includeObservers(id, addedProps, currentGraphs, paths)
                         );
                     }
                 }, Object.entries(data));

@@ -12,7 +12,7 @@ import {
     values
 } from 'ramda';
 
-import { IStoreState } from "../store";
+import { IStoreState } from '../store';
 
 import {
     aggregateCallbacks,
@@ -41,7 +41,7 @@ import {
     IStoredCallback
 } from '../types/callbacks';
 
-import { getPendingCallbacks } from "../utils/callbacks";
+import { getPendingCallbacks } from '../utils/callbacks';
 import { IStoreObserverDefinition } from '../StoreObserver';
 
 const observer: IStoreObserverDefinition<IStoreState> = {

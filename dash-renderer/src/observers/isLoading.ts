@@ -1,6 +1,6 @@
 import { IStoreObserverDefinition } from '../StoreObserver';
 import { IStoreState } from '../store';
-import { getPendingCallbacks } from "../utils/callbacks";
+import { getPendingCallbacks } from '../utils/callbacks';
 import { setIsLoading } from '../actions/isLoading';
 
 

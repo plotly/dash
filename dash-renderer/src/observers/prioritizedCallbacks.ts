@@ -9,7 +9,7 @@ import {
     uniq
 } from 'ramda';
 
-import { IStoreState } from "../store";
+import { IStoreState } from '../store';
 
 import {
     aggregateCallbacks,

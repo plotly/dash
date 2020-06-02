@@ -85,7 +85,7 @@ const transforms: {
     [CallbackActionType.RemovePrioritized]: difference,
     [CallbackActionType.RemoveRequested]: difference,
     [CallbackActionType.RemoveStored]: difference,
-    [CallbackActionType.RemoveWatched]: difference,
+    [CallbackActionType.RemoveWatched]: difference
 };
 
 const fields: {

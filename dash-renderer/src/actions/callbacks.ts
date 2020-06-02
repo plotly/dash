@@ -7,11 +7,11 @@ import {
     path,
     pick,
     pluck,
-    zip,
+    zip
 } from 'ramda';
 
 import { STATUS } from '../constants/constants';
-import { CallbackActionType, CallbackAggregateActionType } from "../reducers/callbacks";
+import { CallbackActionType, CallbackAggregateActionType } from '../reducers/callbacks';
 import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, ICallbackPayload, IStoredCallback } from '../types/callbacks';
 import { isMultiValued, stringifyId, isMultiOutputProp } from './dependencies';
 import { urlBase } from './utils';
@@ -126,7 +126,7 @@ function fillVals(
             inputList.map(({ id, property, path: path_ }: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property],
+                value: (path(path_, layout) as any).props[property]
             })),
             specs[i],
             cb.anyVals,
@@ -176,6 +176,150 @@ const getVals = (input: any) =>
     Array.isArray(input) ? pluck('value', input) : input.value;
 
 const zipIfArray = (a: any, b: any) => (Array.isArray(a) ? zip(a, b) : [[a, b]]);
+
+function handleClientside(clientside_function: any, payload: ICallbackPayload) {
+    const dc = ((window as any).dash_clientside = (window as any).dash_clientside || {});
+    if (!dc.no_update) {
+        Object.defineProperty(dc, 'no_update', {
+            value: { description: 'Return to prevent updating an Output.' },
+            writable: false
+        });
+
+        Object.defineProperty(dc, 'PreventUpdate', {
+            value: { description: 'Throw to prevent updating all Outputs.' },
+            writable: false
+        });
+    }
+
+    const { inputs, outputs, state } = payload;
+
+    let returnValue;
+
+    try {
+        const { namespace, function_name } = clientside_function;
+        let args = inputs.map(getVals);
+        if (state) {
+            args = concat(args, state.map(getVals));
+        }
+
+        // setup callback context
+        const input_dict = inputsToDict(inputs);
+        dc.callback_context = {};
+        dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
+            prop_id: prop_id,
+            value: input_dict[prop_id]
+        }));
+        dc.callback_context.inputs_list = inputs;
+        dc.callback_context.inputs = input_dict;
+        dc.callback_context.states_list = state;
+        dc.callback_context.states = inputsToDict(state);
+
+        returnValue = dc[namespace][function_name](...args);
+    } catch (e) {
+        if (e === dc.PreventUpdate) {
+            return {};
+        }
+        throw e;
+    } finally {
+        delete dc.callback_context;
+    }
+
+    if (typeof returnValue?.then === 'function') {
+        throw new Error(
+            'The clientside function returned a Promise. ' +
+            'Promises are not supported in Dash clientside ' +
+            'right now, but may be in the future.'
+        );
+    }
+
+    const data: any = {};
+    zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
+        zipIfArray(outi, reti).forEach(([outij, retij]) => {
+            const { id, property } = outij;
+            const idStr = stringifyId(id);
+            const dataForId = (data[idStr] = data[idStr] || {});
+            if (retij !== dc.no_update) {
+                dataForId[property] = retij;
+            }
+        });
+    });
+    return data;
+}
+
+function handleServerside(
+    hooks: any,
+    config: any,
+    payload: any
+): Promise<any> {
+    if (hooks.request_pre !== null) {
+        hooks.request_pre(payload);
+    }
+
+    return fetch(
+        `${urlBase(config)}_dash-update-component`,
+        mergeDeepRight(config.fetch, {
+            method: 'POST',
+            headers: getCSRFHeader() as any,
+            body: JSON.stringify(payload)
+        })
+    ).then((res: any) => {
+        const { status } = res;
+        if (status === STATUS.OK) {
+            return res.json().then((data: any) => {
+                const { multi, response } = data;
+                if (hooks.request_post !== null) {
+                    hooks.request_post(payload, response);
+                }
+
+                if (multi) {
+                    return response;
+                }
+
+                const { output } = payload;
+                const id = output.substr(0, output.lastIndexOf('.'));
+                return { [id]: response.props };
+            });
+        }
+        if (status === STATUS.PREVENT_UPDATE) {
+            return {};
+        }
+        throw res;
+    }, () => {
+        // fetch rejection - this means the request didn't return,
+        // we don't get here from 400/500 errors, only network
+        // errors or unresponsive servers.
+        throw new Error('Callback failed: the server did not respond.');
+    });
+}
+
+function inputsToDict(inputs_list: any) {
+    // Ported directly from _utils.py, inputs_to_dict
+    // takes an array of inputs (some inputs may be an array)
+    // returns an Object (map):
+    //  keys of the form `id.property` or `{"id": 0}.property`
+    //  values contain the property value
+    if (!inputs_list) {
+        return {};
+    }
+    const inputs: any = {};
+    for (let i = 0; i < inputs_list.length; i++) {
+        if (Array.isArray(inputs_list[i])) {
+            const inputsi = inputs_list[i];
+            for (let ii = 0; ii < inputsi.length; ii++) {
+                const id_str = `${stringifyId(inputsi[ii].id)}.${
+                    inputsi[ii].property
+                    }`;
+                inputs[id_str] = inputsi[ii].value ?? null;
+            }
+        } else {
+            const id_str = `${stringifyId(inputs_list[i].id)}.${
+                inputs_list[i].property
+                }`;
+            inputs[id_str] = inputs_list[i].value ?? null;
+        }
+    }
+    return inputs;
+}
 
 export function executeCallback(
     cb: ICallback,
@@ -248,152 +392,12 @@ export function executeCallback(
                     }
                     return null;
                 } else {
-                    handleServerside(payload)
+                    handleServerside(hooks, config, payload)
                         .then(data => resolve({ data, payload }))
                         .catch(error => resolve({ error, payload }));
                 }
             } catch (error) {
                 resolve({ error, payload: null });
-            }
-
-            function inputsToDict(inputs_list: any) {
-                // Ported directly from _utils.py, inputs_to_dict
-                // takes an array of inputs (some inputs may be an array)
-                // returns an Object (map):
-                //  keys of the form `id.property` or `{"id": 0}.property`
-                //  values contain the property value
-                if (!inputs_list) {
-                    return {};
-                }
-                const inputs: any = {};
-                for (let i = 0; i < inputs_list.length; i++) {
-                    if (Array.isArray(inputs_list[i])) {
-                        const inputsi = inputs_list[i];
-                        for (let ii = 0; ii < inputsi.length; ii++) {
-                            const id_str = `${stringifyId(inputsi[ii].id)}.${
-                                inputsi[ii].property
-                                }`;
-                            inputs[id_str] = inputsi[ii].value ?? null;
-                        }
-                    } else {
-                        const id_str = `${stringifyId(inputs_list[i].id)}.${
-                            inputs_list[i].property
-                            }`;
-                        inputs[id_str] = inputs_list[i].value ?? null;
-                    }
-                }
-                return inputs;
-            }
-
-            function handleClientside(clientside_function: any, payload: ICallbackPayload) {
-                const dc = ((window as any).dash_clientside = (window as any).dash_clientside || {});
-                if (!dc.no_update) {
-                    Object.defineProperty(dc, 'no_update', {
-                        value: { description: 'Return to prevent updating an Output.' },
-                        writable: false,
-                    });
-
-                    Object.defineProperty(dc, 'PreventUpdate', {
-                        value: { description: 'Throw to prevent updating all Outputs.' },
-                        writable: false,
-                    });
-                }
-
-                const { inputs, outputs, state } = payload;
-
-                let returnValue;
-
-                try {
-                    const { namespace, function_name } = clientside_function;
-                    let args = inputs.map(getVals);
-                    if (state) {
-                        args = concat(args, state.map(getVals));
-                    }
-
-                    // setup callback context
-                    const input_dict = inputsToDict(inputs);
-                    dc.callback_context = {};
-                    dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
-                        prop_id: prop_id,
-                        value: input_dict[prop_id],
-                    }));
-                    dc.callback_context.inputs_list = inputs;
-                    dc.callback_context.inputs = input_dict;
-                    dc.callback_context.states_list = state;
-                    dc.callback_context.states = inputsToDict(state);
-
-                    returnValue = dc[namespace][function_name](...args);
-                } catch (e) {
-                    if (e === dc.PreventUpdate) {
-                        return {};
-                    }
-                    throw e;
-                } finally {
-                    delete dc.callback_context;
-                }
-
-                if (typeof returnValue?.then === 'function') {
-                    throw new Error(
-                        'The clientside function returned a Promise. ' +
-                        'Promises are not supported in Dash clientside ' +
-                        'right now, but may be in the future.'
-                    );
-                }
-
-                const data: any = {};
-                zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
-                    zipIfArray(outi, reti).forEach(([outij, retij]) => {
-                        const { id, property } = outij;
-                        const idStr = stringifyId(id);
-                        const dataForId = (data[idStr] = data[idStr] || {});
-                        if (retij !== dc.no_update) {
-                            dataForId[property] = retij;
-                        }
-                    });
-                });
-                return data;
-            }
-
-            function handleServerside(payload: any): Promise<any> {
-                if (hooks.request_pre !== null) {
-                    hooks.request_pre(payload);
-                }
-
-                return fetch(
-                    `${urlBase(config)}_dash-update-component`,
-                    mergeDeepRight(config.fetch, {
-                        method: 'POST',
-                        headers: getCSRFHeader() as any,
-                        body: JSON.stringify(payload),
-                    })
-                ).then((res: any) => {
-                    const { status } = res;
-                    if (status === STATUS.OK) {
-                        return res.json().then((data: any) => {
-                            const { multi, response } = data;
-                            if (hooks.request_post !== null) {
-                                hooks.request_post(payload, response);
-                            }
-
-                            if (multi) {
-                                return response;
-                            }
-
-                            const { output } = payload;
-                            const id = output.substr(0, output.lastIndexOf('.'));
-                            return { [id]: response.props };
-                        });
-                    }
-                    if (status === STATUS.PREVENT_UPDATE) {
-                        return {};
-                    }
-                    throw res;
-                }, () => {
-                    // fetch rejection - this means the request didn't return,
-                    // we don't get here from 400/500 errors, only network
-                    // errors or unresponsive servers.
-                    throw new Error('Callback failed: the server did not respond.');
-                });
             }
         });
 

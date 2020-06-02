@@ -13,7 +13,7 @@ import {
 } from '../actions/callbacks';
 
 import {
-    IExecutingCallback,
+    IExecutingCallback
 } from '../types/callbacks';
 import { IStoreObserverDefinition } from '../StoreObserver';
 import { IStoreState } from '../store';
@@ -26,7 +26,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const {
             callbacks: {
                 executing
-            },
+            }
         } = getState();
 
         const [deferred, skippedOrReady] = partition(cb => cb.executionPromise instanceof Promise, executing);
@@ -37,7 +37,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             skippedOrReady.length ? addExecutedCallbacks(skippedOrReady.map(cb => assoc('executionResult', cb.executionPromise as any, cb))) : null
         ]));
 
-        deferred.forEach(async function (cb: IExecutingCallback) {
+        deferred.forEach(async (cb: IExecutingCallback) => {
             const result = await cb.executionPromise;
 
             // Check if it's been removed from the `watched` list since - on callback completion, another callback may be cancelled

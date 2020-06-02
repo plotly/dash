@@ -52,18 +52,18 @@ export function getCallbacksByInput(
         );
     } else {
         // wildcard version
-        const keys = Object.keys(id).sort();
-        const vals = props(keys, id);
-        const keyStr = keys.join(',');
+        const _keys = Object.keys(id).sort();
+        const vals = props(_keys, id);
+        const keyStr = _keys.join(',');
         const patterns: any[] = (graphs.inputPatterns[keyStr] || {})[prop];
         if (!patterns) {
             return [];
         }
         patterns.forEach(pattern => {
-            if (idMatch(keys, vals, pattern.values)) {
+            if (idMatch(_keys, vals, pattern.values)) {
                 pattern.callbacks.forEach(
                     addAllResolvedFromOutputs(
-                        resolveDeps(keys, vals, pattern.values),
+                        resolveDeps(_keys, vals, pattern.values),
                         paths,
                         matches
                     )
@@ -227,17 +227,17 @@ export const getUniqueIdentifier = ({
     map(combineIdAndProp, [
         ...inputs,
         ...outputs,
-        ...state,
+        ...state
     ]),
     Array.isArray(anyVals) ?
         anyVals :
         anyVals === '' ? [] : [anyVals]
     ).join(',');
 
-export function includeObservers(id: any, props: any, graphs: any, paths: any): ICallback[] {
+export function includeObservers(id: any, properties: any, graphs: any, paths: any): ICallback[] {
     return flatten(map(
         propName => getCallbacksByInput(graphs, paths, id, propName),
-        keys(props)
+        keys(properties)
     ));
 }
 
@@ -260,7 +260,7 @@ export const makeResolvedCallback = (
     getState: paths => callback.state.map(resolve(paths)),
     changedPropIds: {},
     initialCall: false,
-    requestedOutputs: {},
+    requestedOutputs: {}
 });
 
 export function pruneCallbacks<T extends ICallback>(callbacks: T[], paths: any): {
@@ -297,9 +297,9 @@ export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: strin
             const path = getPath(paths, idPattern);
             return path ? [{ id: idPattern, property, path }] : [];
         }
-        const keys = Object.keys(idPattern).sort();
-        const patternVals = props(keys, idPattern);
-        const keyStr = keys.join(',');
+        const _keys = Object.keys(idPattern).sort();
+        const patternVals = props(_keys, idPattern);
+        const keyStr = _keys.join(',');
         const keyPaths = paths.objs[keyStr];
         if (!keyPaths) {
             return [];
@@ -308,7 +308,7 @@ export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: strin
         keyPaths.forEach(({ values: vals, path }: any) => {
             if (
                 idMatch(
-                    keys,
+                    _keys,
                     vals,
                     patternVals,
                     refKeys,
@@ -316,7 +316,7 @@ export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: strin
                     refPatternVals
                 )
             ) {
-                result.push({ id: zipObj(keys, vals), property, path });
+                result.push({ id: zipObj(_keys, vals), property, path });
             }
         });
         return result;

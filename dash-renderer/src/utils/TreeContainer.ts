@@ -1,7 +1,7 @@
-import { path, type, has } from "ramda";
+import { path, type, has } from 'ramda';
 
 import Registry from '../registry';
-import { stringifyId } from "../actions/dependencies";
+import { stringifyId } from '../actions/dependencies';
 
 function isLoadingComponent(layout: any) {
     validateComponent(layout);
@@ -27,7 +27,7 @@ export function getLoadingState(componentLayout: any, componentPath: any, loadin
         return {
             is_loading: true,
             prop_name: idprop.property,
-            component_name: stringifyId(idprop.id),
+            component_name: stringifyId(idprop.id)
         };
     }
 
@@ -36,7 +36,7 @@ export function getLoadingState(componentLayout: any, componentPath: any, loadin
         return {
             is_loading: true,
             prop_name: idprops.property,
-            component_name: stringifyId(idprops.id),
+            component_name: stringifyId(idprops.id)
         };
     }
 
