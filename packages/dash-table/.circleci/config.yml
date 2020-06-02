@@ -107,8 +107,7 @@ jobs:
                     python -m venv venv || virtualenv venv
                     . venv/bin/activate
                     pip install -r dev-requirements.txt --quiet
-                    git clone --depth 1 git@github.com:plotly/dash.git dash-main
-                    pip install -e ./dash-main[dev] --quiet
+                    pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
 
             - run:
                 name: Run tests
@@ -175,6 +174,7 @@ jobs:
                 command: |
                     . venv/bin/activate
                     pip install -r dev-requirements.txt --quiet
+                    pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
 
             - run:
                 name: Run eslint
