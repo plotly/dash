@@ -10,7 +10,7 @@ jobs:
 
   artifacts:
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PYVERSION: python37
     steps:
@@ -27,7 +27,7 @@ jobs:
   lint-unit-37: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PYLINTRC: .pylintrc37
           PYVERSION: python37
@@ -64,7 +64,7 @@ jobs:
   lint-unit-36:
       <<: *lint-unit
       docker:
-        - image: circleci/python:3.6-stretch-node-browsers
+        - image: circleci/python:3.6.9-stretch-node-browsers
           environment:
             PYLINTRC: .pylintrc
             PYVERSION: python36
@@ -80,7 +80,7 @@ jobs:
   build-core-37: &build-core
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PYVERSION: python37
     steps:
@@ -115,7 +115,7 @@ jobs:
   build-core-36:
       <<: *build-core
       docker:
-        - image: circleci/python:3.6-stretch-node-browsers
+        - image: circleci/python:3.6.9-stretch-node-browsers
           environment:
             PYVERSION: python36
 
@@ -129,7 +129,7 @@ jobs:
   build-misc-37: &build-misc
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PYVERSION: python37
 
@@ -165,7 +165,7 @@ jobs:
   build-misc-36:
       <<: *build-misc
       docker:
-        - image: circleci/python:3.6-stretch-node-browsers
+        - image: circleci/python:3.6.9-stretch-node-browsers
           environment:
             PYVERSION: python36
 
@@ -322,7 +322,7 @@ jobs:
   test-37: &test
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
@@ -364,7 +364,7 @@ jobs:
   test-36:
       <<: *test
       docker:
-        - image: circleci/python:3.6-stretch-node-browsers
+        - image: circleci/python:3.6.9-stretch-node-browsers
           environment:
             PERCY_ENABLE: 0
             PYVERSION: python36
