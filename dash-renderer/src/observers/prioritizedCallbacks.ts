@@ -34,19 +34,7 @@ import {
 import { IStoreObserverDefinition } from '../StoreObserver';
 
 const sortPriority = (c1: ICallback, c2: ICallback): number => {
-    const lDiff = c2.priority.length - c1.priority.length;
-    if (lDiff) {
-        return lDiff;
-    }
-
-    for (let i = 0; i < c1.priority.length; ++i) {
-        const pDiff = c2.priority[i] - c1.priority[i];
-        if (pDiff) {
-            return pDiff;
-        }
-    }
-
-    return 0;
+    return c1.priority > c2.priority ? -1 : 1;
 }
 
 const observer: IStoreObserverDefinition<IStoreState> = {

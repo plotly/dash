@@ -81,12 +81,11 @@ export function getCallbacksByInput(
 }
 
 /*
- * Take a list of callbacks and follow them all forward, ie see if any of their
- * outputs are inputs of another callback. Any new callbacks get added to the
- * list. All that come after another get marked as blocked by that one, whether
- * they were in the initial list or not.
+ * Builds a tree of all callbacks that can be triggered by the provided callback.
+ * Uses the number of callbacks at each tree depth and the total depth of the tree
+ * to create a sortable priority hash.
  */
-export function getPriority(graphs: any, paths: any, callback: ICallback) {
+export function getPriority(graphs: any, paths: any, callback: ICallback): string {
     let callbacks: ICallback[] = [callback];
     let touchedOutputs: { [key: string]: boolean } = {};
     let priority: number[] = [];
@@ -123,7 +122,9 @@ export function getPriority(graphs: any, paths: any, callback: ICallback) {
         }
     }
 
-    return priority;
+    priority.unshift(priority.length);
+
+    return map(i => Math.min(i, 35).toString(36), priority).join('');
 }
 
 export const getReadyCallbacks = (
