@@ -12,14 +12,12 @@ import {
 } from '../types/callbacks';
 
 export enum CallbackActionType {
-    AddApplied = 'Callbacks.AddApplied',
     AddExecuted = 'Callbacks.AddExecuted',
     AddExecuting = 'Callbacks.AddExecuting',
     AddPrioritized = 'Callbacks.AddPrioritized',
     AddRequested = 'Callbacks.AddRequested',
     AddStored = 'Callbacks.AddStored',
     AddWatched = 'Callbacks.AddWatched',
-    RemoveApplied = 'Callbacks.RemoveApplied',
     RemoveExecuted = 'Callbacks.RemoveExecuted',
     RemoveExecuting = 'Callbacks.RemoveExecuting',
     RemovePrioritized = 'Callbacks.ReomvePrioritized',
@@ -76,14 +74,12 @@ const DEFAULT_STATE: ICallbacksState = {
 const transforms: {
     [key: string]: (a1: ICallback[], a2: ICallback[]) => ICallback[]
 } = {
-    [CallbackActionType.AddApplied]: concat,
     [CallbackActionType.AddExecuted]: concat,
     [CallbackActionType.AddExecuting]: concat,
     [CallbackActionType.AddPrioritized]: concat,
     [CallbackActionType.AddRequested]: concat,
     [CallbackActionType.AddStored]: concat,
     [CallbackActionType.AddWatched]: concat,
-    [CallbackActionType.RemoveApplied]: difference,
     [CallbackActionType.RemoveExecuted]: difference,
     [CallbackActionType.RemoveExecuting]: difference,
     [CallbackActionType.RemovePrioritized]: difference,
