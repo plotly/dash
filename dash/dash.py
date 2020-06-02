@@ -1338,14 +1338,19 @@ class Dash(object):
             _reload = self._hot_reload
             _reload.hash = generate_hash()
 
+            # find_loader should return None on __main__ but doesn't
+            # on some python versions https://bugs.python.org/issue14710
+            packages = [
+                pkgutil.find_loader(x)
+                for x in list(ComponentRegistry.registry) + ["dash_renderer"]
+                if x != "__main__"
+            ]
+
             component_packages_dist = [
                 os.path.dirname(package.path)
                 if hasattr(package, "path")
                 else package.filename
-                for package in (
-                    pkgutil.find_loader(x)
-                    for x in list(ComponentRegistry.registry) + ["dash_renderer"]
-                )
+                for package in packages
             ]
 
             _reload.watch_thread = threading.Thread(
