@@ -1093,7 +1093,7 @@ export function getWatchedKeys(id, newProps, graphs) {
  *   {callback, resolvedId, getOutputs, getInputs, getState, ...etc}
  *   See getCallbackByOutput for details.
  */
-export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
+export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
     const {outputsOnly, removedArrayInputsOnly, newPaths, chunkPath} = opts;
     const foundCbIds = {};
     const callbacks = [];

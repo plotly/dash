@@ -17,7 +17,7 @@ import {
     zipObj
 } from 'ramda';
 import { ICallback, ICallbackProperty, ICallbackDefinition, ILayoutCallbackProperty, ICallbackTemplate } from '../types/callbacks';
-import { addAllResolvedFromOutputs, splitIdAndProp, stringifyId, getCallbacksInLayout, isMultiValued, idMatch } from './dependencies';
+import { addAllResolvedFromOutputs, splitIdAndProp, stringifyId, getUnfilteredLayoutCallbacks, isMultiValued, idMatch } from './dependencies';
 import { getPath } from './paths';
 
 export const DIRECT = 2;
@@ -158,7 +158,7 @@ export const getLayoutCallbacks = (
     options: any
 ): ICallback[] => {
     let exclusions: string[] = [];
-    let callbacks = getCallbacksInLayout(
+    let callbacks = getUnfilteredLayoutCallbacks(
         graphs,
         paths,
         layout,
