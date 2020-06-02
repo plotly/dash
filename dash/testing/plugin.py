@@ -4,7 +4,12 @@ from .consts import SELENIUM_GRID_DEFAULT
 
 
 try:
-    from dash.testing.application_runners import ThreadedRunner, ProcessRunner, RRunner, JuliaRunner
+    from dash.testing.application_runners import (
+        ThreadedRunner,
+        ProcessRunner,
+        RRunner,
+        JuliaRunner,
+    )
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
 except ImportError:
