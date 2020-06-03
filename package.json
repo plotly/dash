@@ -24,8 +24,9 @@
     "lint": "run-s private::lint.*",
     "setup-tests.py": "run-s private::test.py.deploy-*",
     "setup-tests.R": "run-s private::test.R.deploy-*",
-    "test.integration": "run-s setup-tests.py private::test.integration-*",
-    "test.unit": "run-s private::test.unit-**"
+    "citest.integration": "run-s setup-tests.py private::test.integration-*",
+    "citest.unit": "run-s private::test.unit-**",
+    "test": "pytest && cd dash-renderer && npm run test"
   },
   "devDependencies": {
     "husky": "4.2.3"
