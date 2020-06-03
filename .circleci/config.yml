@@ -10,7 +10,7 @@ jobs:
 
   artifacts:
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PYVERSION: python37
     steps:
@@ -27,7 +27,7 @@ jobs:
   lint-unit-37: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PYLINTRC: .pylintrc37
           PYVERSION: python37
@@ -64,7 +64,7 @@ jobs:
   lint-unit-36:
       <<: *lint-unit
       docker:
-        - image: circleci/python:3.6-stretch-node-browsers
+        - image: circleci/python:3.6.9-stretch-node-browsers
           environment:
             PYLINTRC: .pylintrc
             PYVERSION: python36
@@ -80,7 +80,7 @@ jobs:
   build-core-37: &build-core
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PYVERSION: python37
     steps:
@@ -115,7 +115,7 @@ jobs:
   build-core-36:
       <<: *build-core
       docker:
-        - image: circleci/python:3.6-stretch-node-browsers
+        - image: circleci/python:3.6.9-stretch-node-browsers
           environment:
             PYVERSION: python36
 
@@ -129,7 +129,7 @@ jobs:
   build-misc-37: &build-misc
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PYVERSION: python37
 
@@ -165,7 +165,7 @@ jobs:
   build-misc-36:
       <<: *build-misc
       docker:
-        - image: circleci/python:3.6-stretch-node-browsers
+        - image: circleci/python:3.6.9-stretch-node-browsers
           environment:
             PYVERSION: python36
 
@@ -230,8 +230,8 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            git clone --depth 1 https://github.com/plotly/dash.git -b ${CIRCLE_BRANCH} dash-main
-            cd dash-main && pip install -e .[dev,testing] --progress-bar off && cd ..
+            npm ci
+            pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
             git clone --depth 1 https://github.com/plotly/dash-core-components.git
@@ -240,7 +240,7 @@ jobs:
             cd dash-html-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
             cd ../dash-core-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
             cd ../dash-table; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build); cd ..
-            
+
       - run:
           name: 🔧fix up dash metadata
           command: |
@@ -286,7 +286,7 @@ jobs:
             Rscript -e "message(devtools::check_failures(path = '${DHC_CHECK_DIR}'))"
             Rscript -e "message(devtools::check_failures(path = '${DCC_CHECK_DIR}'))"
             Rscript -e "message(devtools::check_failures(path = '${DT_CHECK_DIR}'))"
-            Rscript -e "message(devtools::check_failures(path = '${DASH_CHECK_DIR}'))"                                    
+            Rscript -e "message(devtools::check_failures(path = '${DASH_CHECK_DIR}'))"
             # warnings are errors; enable for stricter checks once CRAN submission finished
             # if grep -q -R "WARNING" "${DHC_CHECK_DIR}/00check.log"; then exit 1; fi
             # if grep -q -R "WARNING" "${DCC_CHECK_DIR}/00check.log"; then exit 1; fi
@@ -303,8 +303,7 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            cd dash-main/\@plotly/dash-generator-test-component-nested && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
-            cd dash-main/\@plotly/dash-generator-test-component-standard && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
+            npm run setup-tests.R
             export PATH=$PATH:/home/circleci/.local/bin/
             pytest --nopercyfinalize --junitxml=test-reports/dashr.xml dashR/tests/integration/dopsa/
       - store_artifacts:
@@ -317,13 +316,13 @@ jobs:
       - run:
           name: 🦔 percy finalize
           command: npx percy finalize --all
-          when: on_fail 
+          when: on_fail
 
 
   test-37: &test
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+      - image: circleci/python:3.7.6-stretch-node-browsers
         environment:
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
@@ -365,7 +364,7 @@ jobs:
   test-36:
       <<: *test
       docker:
-        - image: circleci/python:3.6-stretch-node-browsers
+        - image: circleci/python:3.6.9-stretch-node-browsers
           environment:
             PERCY_ENABLE: 0
             PYVERSION: python36
