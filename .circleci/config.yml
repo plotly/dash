@@ -230,8 +230,8 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            git clone --depth 1 https://github.com/plotly/dash.git -b ${CIRCLE_BRANCH} dash-main
-            cd dash-main && pip install -e .[dev,testing] --progress-bar off && cd ..
+            npm ci
+            pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
             git clone --depth 1 https://github.com/plotly/dash-core-components.git
@@ -303,8 +303,7 @@ jobs:
           command: |
             python -m venv venv
             . venv/bin/activate
-            cd dash-main/\@plotly/dash-generator-test-component-nested && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
-            cd dash-main/\@plotly/dash-generator-test-component-standard && npm ci && npm run build && sudo R CMD INSTALL . && cd ../../..
+            npm run setup-tests.R
             export PATH=$PATH:/home/circleci/.local/bin/
             pytest --nopercyfinalize --junitxml=test-reports/dashr.xml dashR/tests/integration/dopsa/
       - store_artifacts:
