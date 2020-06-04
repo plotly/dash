@@ -5,6 +5,7 @@ import {
     filter,
     flatten,
     groupBy,
+    includes,
     intersection,
     isEmpty,
     isNil,
@@ -49,10 +50,26 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         dispatch,
         getState
     }) => {
-        const { callbacks, callbacks: { prioritized, executing, watched, executed, stored }, paths } = getState();
+        const { callbacks, callbacks: { prioritized, executing, watched, stored }, paths } = getState();
         let { callbacks: { requested } } = getState();
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
+
+        /*
+            0. Prune circular callbacks that have completed the loop
+            - cb.callback included in cb.predecessors
+        */
+        const rCirculars = filter(
+            cb => includes(cb.callback, cb.predecessors ?? []),
+            requested
+        );
+
+        /*
+            TODO?
+            Clean up the `requested` list - during the dispatch phase,
+            circulars will be removed for real
+        */
+        requested = difference(requested, rCirculars);
 
         /*
             1. Remove duplicated `requested` callbacks - give precedence to newer callbacks over older ones
@@ -144,23 +161,71 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         */
         let readyCallbacks = getReadyCallbacks(requested, pendingCallbacks);
 
-        /*
-            If:
-            - there are `requested` callbacks
-            - no `requested` callback can be promoted to `prioritized`
-            - no callbacks are `prioritized`, `executing`, `watched` or `executed`
-            Then:
-            - the `requested` callbacks form a ciruclar dependency and can never be executed
-            - prune them out of `requested`
-        */
-        const rCircular = (
+        let oldBlocked: ICallback[] = [];
+        let newBlocked: ICallback[] = [];
+
+        /**
+         * If there is :
+         * - no ready callbacks
+         * - at least one requested callback
+         * - no additional pending callbacks
+         *
+         * can assume:
+         * - the requested callbacks are part of a circular dependency loop
+         *
+         * then recursively:
+         * - assume the first callback in the list is ready (the entry point for the loop)
+         * - check what callbacks are blocked / ready with the assumption
+         * - update the missing predecessors based on assumptions
+         * - continue until there are no remaining candidates
+         *
+         */
+        if (
             !readyCallbacks.length &&
-            !prioritized.length &&
-            !executing.length &&
-            !watched.length &&
-            !executed.length &&
-            requested.length
-        ) ? requested : [];
+            requested.length &&
+            requested.length === pendingCallbacks.length
+        ) {
+            let candidates = requested.slice(0);
+
+            while (candidates.length) {
+                // Assume 1st callback is ready and
+                // update candidates / readyCallbacks accordingly
+                const readyCallback = candidates[0];
+
+                readyCallbacks.push(readyCallback);
+                candidates = candidates.slice(1);
+
+                // Remaining candidates are not blocked by current assumptions
+                candidates = getReadyCallbacks(candidates, readyCallbacks);
+
+                // Blocked requests need to make sure they have the callback as a predecessor
+                const blockedByAssumptions = difference(candidates, candidates);
+
+                const modified = filter(
+                    cb => !cb.predecessors || !includes(readyCallback.callback, cb.predecessors),
+                    blockedByAssumptions
+                );
+
+                oldBlocked = concat(oldBlocked, modified);
+                newBlocked = concat(newBlocked, modified.map(cb => ({
+                    ...cb,
+                    predecessors: concat(cb.predecessors ?? [], [readyCallback.callback])
+                })));
+            }
+        }
+
+        /*
+            TODO?
+            Clean up the `requested` list - during the dispatch phase,
+            it will be updated for real
+        */
+        requested = concat(
+            difference(
+                requested,
+                oldBlocked
+            ),
+            newBlocked
+        );
 
         /*
             5. Prune callbacks that became irrelevant in their `executionGroup`
@@ -249,7 +314,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             wRemoved.length ? removeWatchedCallbacks(wRemoved) : null,
             wAdded.length ? addWatchedCallbacks(wAdded) : null,
             // Prune circular callbacks
-            rCircular.length ? removeRequestedCallbacks(rCircular) : null,
+            rCirculars.length ? removeRequestedCallbacks(rCirculars) : null,
+            // Prune circular assumptions
+            oldBlocked.length ? removeRequestedCallbacks(oldBlocked) : null,
+            newBlocked.length ? addRequestedCallbacks(newBlocked) : null,
             // Drop non-triggered initial callbacks
             dropped.length ? removeRequestedCallbacks(dropped) : null,
             // Promote callbacks

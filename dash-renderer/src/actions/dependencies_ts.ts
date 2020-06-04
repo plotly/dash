@@ -131,6 +131,11 @@ export const getReadyCallbacks = (
     candidates: ICallback[],
     callbacks: ICallback[] = candidates
 ): ICallback[] => {
+    // Skip if there's no candidates
+    if (!candidates.length) {
+        return [];
+    }
+
     // Find all outputs of all active callbacks
     const outputs = map(
         combineIdAndProp,

@@ -134,7 +134,7 @@ def test_rdmo004_multi_output_circular_dependencies(dash_duo):
     )
 
     # The new system does NOT trigger callbacks in circular dependencies
-    dash_duo.wait_for_text_to_equal("#c", "")
+    dash_duo.wait_for_text_to_equal("#c", "X")
 
     err_text = dash_duo.find_element("span.dash-fe-error__title").text
     assert err_text == "Circular Dependencies"

@@ -91,6 +91,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         let storedCallbacks: IStoredCallback[] = [];
 
         forEach(cb => {
+            const predecessors = concat(
+                cb.predecessors ?? [],
+                [cb.callback]
+            );
+
             const {
                 callback: {
                     clientside_function,
@@ -119,7 +124,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         flatten(map(
                             prop => getCallbacksByInput(graphs, oldPaths, parsedId, prop, true),
                             keys(props)
-                        ))
+                        )).map(rcb => ({
+                            ...rcb,
+                            predecessors
+                        }))
                     );
 
                     // New layout - trigger callbacks for that explicitly
@@ -137,7 +145,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             requestedCallbacks,
                             getLayoutCallbacks(graphs, paths, children, {
                                 chunkPath: oldChildrenPath
-                            })
+                            }).map(rcb => ({
+                                ...rcb,
+                                predecessors
+                            }))
                         );
 
                         // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
@@ -146,7 +157,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             requestedCallbacks,
                             getLayoutCallbacks(graphs, oldPaths, oldChildren, {
                                 removedArrayInputsOnly: true, newPaths: paths, chunkPath: oldChildrenPath
-                            })
+                            }).map(rcb => ({
+                                ...rcb,
+                                predecessors
+                            }))
                         );
                     }
 
@@ -162,7 +176,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
                         requestedCallbacks = concat(
                             requestedCallbacks,
-                            includeObservers(id, addedProps, currentGraphs, paths)
+                            includeObservers(id, addedProps, currentGraphs, paths).map(rcb => ({
+                                ...rcb,
+                                predecessors
+                            }))
                         );
                     }
                 }, Object.entries(data));

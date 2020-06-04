@@ -36,7 +36,8 @@ export interface ICallbackTemplate {
 }
 
 export interface ICallback extends ICallbackTemplate {
-    priority: string;
+    predecessors?: ICallbackDefinition[];
+    priority?: string;
 }
 
 export interface IExecutingCallback extends ICallback {
