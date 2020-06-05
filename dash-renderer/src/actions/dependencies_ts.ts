@@ -128,6 +128,7 @@ export function getPriority(graphs: any, paths: any, callback: ICallback): strin
 }
 
 export const getReadyCallbacks = (
+    paths: any,
     candidates: ICallback[],
     callbacks: ICallback[] = candidates
 ): ICallback[] => {
@@ -139,7 +140,11 @@ export const getReadyCallbacks = (
     // Find all outputs of all active callbacks
     const outputs = map(
         combineIdAndProp,
-        reduce<ICallback, any[]>((o, cb) => concat(o, cb.callback.outputs), [], callbacks)
+        reduce<ICallback, any[]>(
+            (o, cb) => concat(o, flatten(cb.getOutputs(paths))),
+            [],
+            callbacks
+        )
     );
 
     // Make `outputs` hash table for faster access
@@ -150,7 +155,7 @@ export const getReadyCallbacks = (
     return filter(
         cb => all(
             cbp => !outputsMap[combineIdAndProp(cbp)],
-            cb.callback.inputs
+            flatten(cb.getInputs(paths))
         ),
         candidates
     );

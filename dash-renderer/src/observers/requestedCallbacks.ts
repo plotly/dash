@@ -159,7 +159,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         /*
             4. Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
         */
-        let readyCallbacks = getReadyCallbacks(requested, pendingCallbacks);
+        let readyCallbacks = getReadyCallbacks(paths, requested, pendingCallbacks);
 
         let oldBlocked: ICallback[] = [];
         let newBlocked: ICallback[] = [];
@@ -196,7 +196,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 candidates = candidates.slice(1);
 
                 // Remaining candidates are not blocked by current assumptions
-                candidates = getReadyCallbacks(candidates, readyCallbacks);
+                candidates = getReadyCallbacks(paths, candidates, readyCallbacks);
 
                 // Blocked requests need to make sure they have the callback as a predecessor
                 const blockedByAssumptions = difference(candidates, candidates);
