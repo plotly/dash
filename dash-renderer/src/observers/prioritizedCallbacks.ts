@@ -1,12 +1,11 @@
 import {
     flatten,
     includes,
-    map,
     partition,
     pluck,
-    reduce,
     sort,
-    uniq
+    uniq,
+    forEach
 } from 'ramda';
 
 import { IStoreState } from '../store';
@@ -28,8 +27,7 @@ import isAppReady from '../actions/isAppReady';
 
 import {
     ICallback,
-    IExecutingCallback,
-    ICallbackProperty
+    IExecutingCallback
 } from '../types/callbacks';
 import { IStoreObserverDefinition } from '../StoreObserver';
 
@@ -53,12 +51,18 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         // Order prioritized callbacks based on depth and breadth of callback chain
         prioritized = sort(sortPriority, prioritized);
 
-        prioritized = prioritized.slice(0, available);
-        if (!prioritized.length) {
-            return;
-        }
+        // Divide between ready and waiting
+        const [ready, waiting] = partition(cb => isAppReady(
+            layout,
+            paths,
+            uniq(pluck('id', [
+                ...flatten(cb.getInputs(paths)),
+                ...flatten(cb.getState(paths))
+            ]))
+        ) === true, prioritized);
 
-        const callbacks: [ICallback, any][] = prioritized.map(cb => {
+        // Execute sync callbacks
+        const readyCallbacks: [ICallback, any][] = ready.map(cb => {
             const { getOutputs } = cb;
             const allOutputs = getOutputs(paths);
             const flatOutputs: any[] = flatten(allOutputs);
@@ -76,35 +80,57 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             return [cb, { allOutputs, allPropIds }];
         });
 
-        const ids = reduce((res, [cb]) => ([
-            ...res,
-            ...flatten(cb.getInputs(paths)),
-            ...flatten(cb.getState(paths))
-        ]), [] as ICallbackProperty[], callbacks);
-
-        /*
-            Make sure the app is ready to execute callbacks impacting `ids`
-        */
-        await isAppReady(layout, paths, uniq(pluck('id', ids)));
-
-        /*
-            Make sure to only execute callbacks that are still in the `prioritized` list (isAppReady is async - state could have changed)
-        */
-        const { callbacks: { prioritized: updatedPrioritized } } = getState();
-        const [remainingCallbacks] = partition(
-            ([cb]) => includes(cb, updatedPrioritized),
-            callbacks
-        );
-
-        const executingCallbacks: IExecutingCallback[] = remainingCallbacks.map(([cb, stash]) => {
+        const syncExecutingCallbacks: IExecutingCallback[] = readyCallbacks.map(([cb, stash]) => {
             return executeCallback(cb, config, hooks, paths, layout, stash);
         });
 
         dispatch(aggregateCallbacks([
-            remainingCallbacks.length ? removePrioritizedCallbacks(map(([cb]) => cb, remainingCallbacks)) : null,
-            executingCallbacks.length ? addExecutingCallbacks(executingCallbacks) : null
+            ready.length ? removePrioritizedCallbacks(ready) : null,
+            syncExecutingCallbacks.length ? addExecutingCallbacks(syncExecutingCallbacks) : null
         ]));
 
+        // Execute async callbacks
+        const asyncAvailable = available - syncExecutingCallbacks.length;
+
+        prioritized = prioritized.slice(0, asyncAvailable);
+        if (!prioritized.length) {
+            return;
+        }
+
+        forEach(async cb => {
+            const { getOutputs } = cb;
+            const allOutputs = getOutputs(paths);
+            const flatOutputs: any[] = flatten(allOutputs);
+            const allPropIds: any[] = [];
+
+            const reqOut: any = {};
+            flatOutputs.forEach(({ id, property }) => {
+                const idStr = stringifyId(id);
+                const idOut = (reqOut[idStr] = reqOut[idStr] || []);
+                idOut.push(property);
+                allPropIds.push(combineIdAndProp({ id: idStr, property }));
+            });
+            cb.requestedOutputs = reqOut;
+
+            // Make sure the app is ready to execute callbacks impacting `ids`
+            await isAppReady(layout, paths, uniq(pluck('id', [
+                ...flatten(cb.getInputs(paths)),
+                ...flatten(cb.getState(paths))
+            ])));
+
+            // Make
+            const { callbacks: { prioritized: updatedPrioritized } } = getState();
+            if (!includes(cb, updatedPrioritized)) {
+                return;
+            }
+
+            const executingCallback = executeCallback(cb, config, hooks, paths, layout, { allOutputs, allPropIds });
+
+            dispatch(aggregateCallbacks([
+                removePrioritizedCallbacks([cb]),
+                addExecutingCallbacks([executingCallback])
+            ]));
+        }, waiting);
     },
     inputs: ['callbacks.prioritized', 'callbacks.completed']
 };
