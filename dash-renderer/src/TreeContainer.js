@@ -112,7 +112,7 @@ class BaseTreeContainer extends Component {
         );
     }
 
-    setProps(newProps, forceOnEqual = false) {
+    setProps(newProps) {
         const {
             _dashprivate_graphs,
             _dashprivate_dispatch,
@@ -123,7 +123,7 @@ class BaseTreeContainer extends Component {
         const oldProps = this.getLayoutProps();
         const {id} = oldProps;
         const changedProps = pickBy(
-            (val, key) => forceOnEqual || !equals(val, oldProps[key]),
+            (val, key) => !equals(val, oldProps[key]),
             newProps
         );
         if (!isEmpty(changedProps)) {
