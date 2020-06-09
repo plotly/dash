@@ -40,6 +40,12 @@ export interface ICallback extends ICallbackTemplate {
     priority?: string;
 }
 
+export interface IPrioritizedCallback extends ICallback {
+    allOutputs: ILayoutCallbackProperty[][];
+    allPropIds: any[];
+    isReady?: Promise<any> | true;
+}
+
 export interface IExecutingCallback extends ICallback {
     executionPromise: Promise<CallbackResult> | CallbackResult | null;
 }

@@ -8,7 +8,8 @@ import {
     ICallback,
     IExecutedCallback,
     IExecutingCallback,
-    IStoredCallback
+    IStoredCallback,
+    IPrioritizedCallback
 } from '../types/callbacks';
 
 export enum CallbackActionType {
@@ -53,7 +54,7 @@ type CallbackAction =
 
 export interface ICallbacksState {
     requested: ICallback[];
-    prioritized: ICallback[];
+    prioritized: IPrioritizedCallback[];
     executing: IExecutingCallback[];
     watched: IExecutingCallback[];
     executed: IExecutedCallback[];
