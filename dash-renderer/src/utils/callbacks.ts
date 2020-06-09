@@ -1,17 +1,8 @@
-import { ICallbacksState } from '../reducers/callbacks';
+import { omit, values } from 'ramda';
 
-export const getPendingCallbacks = ({
-    executed,
-    executing,
-    blocked,
-    prioritized,
-    requested,
-    watched
-}: ICallbacksState) => [
-    ...requested,
-    ...prioritized,
-    ...blocked,
-    ...executing,
-    ...watched,
-    ...executed
-];
+import { ICallbacksState } from '../reducers/callbacks';
+import { ICallback } from '../types/callbacks';
+
+export const getPendingCallbacks = (state: ICallbacksState) => Array<ICallback>().concat(
+    ...values(omit(['stored', 'completed'], state))
+);
