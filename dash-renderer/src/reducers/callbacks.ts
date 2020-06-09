@@ -9,16 +9,20 @@ import {
     IExecutedCallback,
     IExecutingCallback,
     IStoredCallback,
-    IPrioritizedCallback
+    IPrioritizedCallback,
+    IBlockedCallback,
+    IWatchedCallback
 } from '../types/callbacks';
 
 export enum CallbackActionType {
+    AddBlocked = 'Callbacks.AddBlocked',
     AddExecuted = 'Callbacks.AddExecuted',
     AddExecuting = 'Callbacks.AddExecuting',
     AddPrioritized = 'Callbacks.AddPrioritized',
     AddRequested = 'Callbacks.AddRequested',
     AddStored = 'Callbacks.AddStored',
     AddWatched = 'Callbacks.AddWatched',
+    RemoveBlocked = 'Callbacks.RemoveBlocked',
     RemoveExecuted = 'Callbacks.RemoveExecuted',
     RemoveExecuting = 'Callbacks.RemoveExecuting',
     RemovePrioritized = 'Callbacks.ReomvePrioritized',
@@ -55,14 +59,16 @@ type CallbackAction =
 export interface ICallbacksState {
     requested: ICallback[];
     prioritized: IPrioritizedCallback[];
+    blocked: IBlockedCallback[];
     executing: IExecutingCallback[];
-    watched: IExecutingCallback[];
+    watched: IWatchedCallback[];
     executed: IExecutedCallback[];
     stored: IStoredCallback[];
     completed: number;
 }
 
 const DEFAULT_STATE: ICallbacksState = {
+    blocked: [],
     executed: [],
     executing: [],
     prioritized: [],
@@ -75,12 +81,14 @@ const DEFAULT_STATE: ICallbacksState = {
 const transforms: {
     [key: string]: (a1: ICallback[], a2: ICallback[]) => ICallback[]
 } = {
+    [CallbackActionType.AddBlocked]: concat,
     [CallbackActionType.AddExecuted]: concat,
     [CallbackActionType.AddExecuting]: concat,
     [CallbackActionType.AddPrioritized]: concat,
     [CallbackActionType.AddRequested]: concat,
     [CallbackActionType.AddStored]: concat,
     [CallbackActionType.AddWatched]: concat,
+    [CallbackActionType.RemoveBlocked]: difference,
     [CallbackActionType.RemoveExecuted]: difference,
     [CallbackActionType.RemoveExecuting]: difference,
     [CallbackActionType.RemovePrioritized]: difference,
@@ -92,12 +100,14 @@ const transforms: {
 const fields: {
     [key: string]: keyof Omit<ICallbacksState, 'completed'>
 } = {
+    [CallbackActionType.AddBlocked]: 'blocked',
     [CallbackActionType.AddExecuted]: 'executed',
     [CallbackActionType.AddExecuting]: 'executing',
     [CallbackActionType.AddPrioritized]: 'prioritized',
     [CallbackActionType.AddRequested]: 'requested',
     [CallbackActionType.AddStored]: 'stored',
     [CallbackActionType.AddWatched]: 'watched',
+    [CallbackActionType.RemoveBlocked]: 'blocked',
     [CallbackActionType.RemoveExecuted]: 'executed',
     [CallbackActionType.RemoveExecuting]: 'executing',
     [CallbackActionType.RemovePrioritized]: 'prioritized',

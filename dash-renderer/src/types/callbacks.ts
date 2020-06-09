@@ -31,7 +31,6 @@ export interface ICallbackTemplate {
     getInputs: (paths: any) => ILayoutCallbackProperty[][];
     getOutputs: (paths: any) => ILayoutCallbackProperty[][];
     getState: (paths: any) => ILayoutCallbackProperty[][];
-    requestedOutputs: { [key: string]: any };
     resolvedId: any;
 }
 
@@ -40,17 +39,27 @@ export interface ICallback extends ICallbackTemplate {
     priority?: string;
 }
 
+// tslint:disable-next-line:no-empty-interface
 export interface IPrioritizedCallback extends ICallback {
-    allOutputs: ILayoutCallbackProperty[][];
-    allPropIds: any[];
-    isReady?: Promise<any> | true;
+
 }
 
-export interface IExecutingCallback extends ICallback {
+export interface IBlockedCallback extends IPrioritizedCallback {
+    allOutputs: ILayoutCallbackProperty[][];
+    allPropIds: any[];
+    isReady: Promise<any> | true;
+}
+
+export interface IExecutingCallback extends IPrioritizedCallback {
     executionPromise: Promise<CallbackResult> | CallbackResult | null;
 }
 
-export interface IExecutedCallback extends IExecutingCallback {
+// tslint:disable-next-line:no-empty-interface
+export interface IWatchedCallback extends IExecutingCallback {
+
+}
+
+export interface IExecutedCallback extends IWatchedCallback {
     executionResult: CallbackResult | null;
 }
 

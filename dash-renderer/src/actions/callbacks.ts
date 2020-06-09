@@ -12,12 +12,15 @@ import {
 
 import { STATUS } from '../constants/constants';
 import { CallbackActionType, CallbackAggregateActionType } from '../reducers/callbacks';
-import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, ICallbackPayload, IStoredCallback } from '../types/callbacks';
+import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, ICallbackPayload, IStoredCallback, IBlockedCallback, IPrioritizedCallback } from '../types/callbacks';
 import { isMultiValued, stringifyId, isMultiOutputProp } from './dependencies';
 import { urlBase } from './utils';
 import { getCSRFHeader } from '.';
 import { createAction, Action } from 'redux-actions';
 
+export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
+    CallbackActionType.AddBlocked
+);
 export const addCompletedCallbacks = createAction<number>(
     CallbackAggregateActionType.AddCompleted
 );
@@ -39,6 +42,9 @@ export const addStoredCallbacks = createAction<IStoredCallback[]>(
 export const addWatchedCallbacks = createAction<IExecutingCallback[]>(CallbackActionType.AddWatched);
 export const removeExecutedCallbacks = createAction(
     CallbackActionType.RemoveExecuted
+);
+export const removeBlockedCallbacks = createAction<IBlockedCallback[]>(
+    CallbackActionType.RemoveBlocked
 );
 export const removeExecutingCallbacks = createAction<IExecutingCallback[]>(
     CallbackActionType.RemoveExecuting
@@ -322,7 +328,7 @@ function inputsToDict(inputs_list: any) {
 }
 
 export function executeCallback(
-    cb: ICallback,
+    cb: IPrioritizedCallback,
     config: any,
     hooks: any,
     paths: any,

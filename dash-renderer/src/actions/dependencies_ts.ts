@@ -269,8 +269,7 @@ export const makeResolvedCallback = (
     getInputs: paths => callback.inputs.map(resolve(paths)),
     getState: paths => callback.state.map(resolve(paths)),
     changedPropIds: {},
-    initialCall: false,
-    requestedOutputs: {}
+    initialCall: false
 });
 
 export function pruneCallbacks<T extends ICallback>(callbacks: T[], paths: any): {

@@ -1,22 +1,23 @@
 import {
+    find,
     flatten,
-    includes,
+    forEach,
     map,
     partition,
     pluck,
     sort,
-    uniq,
-    forEach
+    uniq
 } from 'ramda';
 
 import { IStoreState } from '../store';
 
 import {
-    aggregateCallbacks,
-    removePrioritizedCallbacks,
+    addBlockedCallbacks,
     addExecutingCallbacks,
+    aggregateCallbacks,
     executeCallback,
-    addPrioritizedCallbacks
+    removeBlockedCallbacks,
+    removePrioritizedCallbacks
 } from '../actions/callbacks';
 
 import { stringifyId } from '../actions/dependencies';
@@ -28,13 +29,35 @@ import {
 import isAppReady from '../actions/isAppReady';
 
 import {
+    IBlockedCallback,
     ICallback,
-    IExecutingCallback
+    ILayoutCallbackProperty,
+    IPrioritizedCallback
 } from '../types/callbacks';
 import { IStoreObserverDefinition } from '../StoreObserver';
 
 const sortPriority = (c1: ICallback, c2: ICallback): number => {
     return (c1.priority ?? '') > (c2.priority ?? '') ? -1 : 1;
+}
+
+const getStash = (cb: IPrioritizedCallback, paths: any): {
+    allOutputs: ILayoutCallbackProperty[][],
+    allPropIds: any[]
+} => {
+    const { getOutputs } = cb;
+    const allOutputs = getOutputs(paths);
+    const flatOutputs: any[] = flatten(allOutputs);
+    const allPropIds: any[] = [];
+
+    const reqOut: any = {};
+    flatOutputs.forEach(({ id, property }) => {
+        const idStr = stringifyId(id);
+        const idOut = (reqOut[idStr] = reqOut[idStr] || []);
+        idOut.push(property);
+        allPropIds.push(combineIdAndProp({ id: idStr, property }));
+    });
+
+    return { allOutputs, allPropIds };
 }
 
 const observer: IStoreObserverDefinition<IStoreState> = {
@@ -47,17 +70,14 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const available = Math.max(
             0,
-            12 - executing.length - watched.length - prioritized.filter(cb => cb.isReady).length
+            12 - executing.length - watched.length
         );
-
-        // Remove prioritized callbacks that are already waiting to move to `executing`
-        prioritized = prioritized.filter(cb => !cb.isReady);
 
         // Order prioritized callbacks based on depth and breadth of callback chain
         prioritized = sort(sortPriority, prioritized);
 
-        // Divide between ready and waiting
-        let [ready, waiting] = partition(cb => isAppReady(
+        // Divide between sync and async
+        const [syncCallbacks, asyncCallbacks] = partition(cb => isAppReady(
             layout,
             paths,
             uniq(pluck('id', [
@@ -66,91 +86,57 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             ]))
         ) === true, prioritized);
 
-        ready = ready.slice(0, available);
+        const pickedSyncCallbacks = syncCallbacks.slice(0, available);
+        const pickedAsyncCallbacks = asyncCallbacks.slice(0, available - pickedSyncCallbacks.length);
 
-        // Execute sync callbacks
-        const readyCallbacks: [ICallback, any][] = map(cb => {
-            const { getOutputs } = cb;
-            const allOutputs = getOutputs(paths);
-            const flatOutputs: any[] = flatten(allOutputs);
-            const allPropIds: any[] = [];
-
-            const reqOut: any = {};
-            flatOutputs.forEach(({ id, property }) => {
-                const idStr = stringifyId(id);
-                const idOut = (reqOut[idStr] = reqOut[idStr] || []);
-                idOut.push(property);
-                allPropIds.push(combineIdAndProp({ id: idStr, property }));
-            });
-            cb.requestedOutputs = reqOut;
-
-            return [cb, { allOutputs, allPropIds }];
-        }, ready);
-
-        const syncExecutingCallbacks: IExecutingCallback[] = readyCallbacks.map(([cb, stash]) => {
-            return executeCallback(cb, config, hooks, paths, layout, stash);
-        });
-
-        dispatch(aggregateCallbacks([
-            ready.length ? removePrioritizedCallbacks(ready) : null,
-            syncExecutingCallbacks.length ? addExecutingCallbacks(syncExecutingCallbacks) : null
-        ]));
-
-        // Execute async callbacks
-        const asyncAvailable = available - syncExecutingCallbacks.length;
-
-        waiting = waiting.slice(0, asyncAvailable);
-        if (!waiting.length) {
-            return;
+        if (pickedSyncCallbacks.length) {
+            dispatch(aggregateCallbacks([
+                removePrioritizedCallbacks(pickedSyncCallbacks),
+                addExecutingCallbacks(map(
+                    cb => executeCallback(cb, config, hooks, paths, layout, getStash(cb, paths)),
+                    pickedSyncCallbacks
+                ))
+            ]));
         }
 
-        dispatch(removePrioritizedCallbacks(waiting));
-
-        waiting = map(cb => {
-            const { getOutputs } = cb;
-            const allOutputs = getOutputs(paths);
-            const flatOutputs: any[] = flatten(allOutputs);
-            const allPropIds: any[] = [];
-
-            const reqOut: any = {};
-            flatOutputs.forEach(({ id, property }) => {
-                const idStr = stringifyId(id);
-                const idOut = (reqOut[idStr] = reqOut[idStr] || []);
-                idOut.push(property);
-                allPropIds.push(combineIdAndProp({ id: idStr, property }));
-            });
-
-            return {
-                ...cb,
-                allOutputs,
-                allPropIds,
-                isReady: isAppReady(layout, paths, uniq(pluck('id', [
-                    ...flatten(cb.getInputs(paths)),
-                    ...flatten(cb.getState(paths))
-                ]))),
-                requestedOutputs: reqOut
-            };
-        }, waiting);
-
-        dispatch(addPrioritizedCallbacks(waiting));
-
-        forEach(async cb => {
-            // Make sure the app is ready to execute callbacks impacting `ids`
-            await cb.isReady;
-
-            // Make
-            const { callbacks: { prioritized: updatedPrioritized } } = getState();
-            if (!includes(cb, updatedPrioritized)) {
-                return;
-            }
-
-            const executingCallback = executeCallback(cb, config, hooks, paths, layout, cb);
+        if (pickedAsyncCallbacks.length) {
+            const deffered = map<IPrioritizedCallback, IBlockedCallback>(
+                cb => ({
+                    ...cb,
+                    ...getStash(cb, paths),
+                    isReady: isAppReady(layout, paths, uniq(pluck('id', [
+                        ...flatten(cb.getInputs(paths)),
+                        ...flatten(cb.getState(paths))
+                    ])))
+                }),
+                pickedAsyncCallbacks
+            );
 
             dispatch(aggregateCallbacks([
-                removePrioritizedCallbacks([cb]),
-                addExecutingCallbacks([executingCallback])
+                removePrioritizedCallbacks(pickedAsyncCallbacks),
+                addBlockedCallbacks(deffered)
             ]));
-        }, waiting);
+
+            forEach(async cb => {
+                await cb.isReady;
+
+                const { callbacks: { blocked } } = getState();
+
+                // Check if it's been removed from the `blocked` list since - on callback completion, another callback may be cancelled
+                // Find the callback instance or one that matches its promise (eg. could have been pruned)
+                const currentCb = find(_cb => _cb === cb || _cb.isReady === cb.isReady, blocked);
+                if (!currentCb) {
+                    return;
+                }
+
+                const executingCallback = executeCallback(cb, config, hooks, paths, layout, cb);
+
+                dispatch(aggregateCallbacks([
+                    removeBlockedCallbacks([cb]),
+                    addExecutingCallbacks([executingCallback])
+                ]));
+            }, deffered);
+        }
     },
     inputs: ['callbacks.prioritized', 'callbacks.completed']
 };

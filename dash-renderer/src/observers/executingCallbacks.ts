@@ -1,20 +1,18 @@
 import {
-    partition,
     assoc,
-    find
+    find,
+    forEach,
+    partition
 } from 'ramda';
 
 import {
+    addExecutedCallbacks,
+    addWatchedCallbacks,
     aggregateCallbacks,
     removeExecutingCallbacks,
-    removeWatchedCallbacks,
-    addWatchedCallbacks,
-    addExecutedCallbacks
+    removeWatchedCallbacks
 } from '../actions/callbacks';
 
-import {
-    IExecutingCallback
-} from '../types/callbacks';
 import { IStoreObserverDefinition } from '../StoreObserver';
 import { IStoreState } from '../store';
 
@@ -37,12 +35,12 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             skippedOrReady.length ? addExecutedCallbacks(skippedOrReady.map(cb => assoc('executionResult', cb.executionPromise as any, cb))) : null
         ]));
 
-        deferred.forEach(async (cb: IExecutingCallback) => {
+        forEach(async cb => {
             const result = await cb.executionPromise;
 
-            // Check if it's been removed from the `watched` list since - on callback completion, another callback may be cancelled
             const { callbacks: { watched } } = getState();
 
+            // Check if it's been removed from the `watched` list since - on callback completion, another callback may be cancelled
             // Find the callback instance or one that matches its promise (eg. could have been pruned)
             const currentCb = find(_cb => _cb === cb || _cb.executionPromise === cb.executionPromise, watched);
             if (!currentCb) {
@@ -57,7 +55,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     executionResult: result
                 }])
             ]));
-        });
+        }, deferred);
     },
     inputs: ['callbacks.executing']
 };
