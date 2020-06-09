@@ -19,6 +19,8 @@ $ cd dash-renderer
 $ npm run build  # or `renderer build`
 # install dash-renderer for development
 $ pip install -e .
+# build and install components used in tests
+$ npm run setup-tests
 # you should see both dash and dash-renderer are pointed to local source repos
 $ pip list | grep dash
 ```

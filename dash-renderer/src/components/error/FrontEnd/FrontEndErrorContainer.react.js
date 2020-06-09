@@ -9,7 +9,8 @@ class FrontEndErrorContainer extends Component {
     }
 
     render() {
-        const errorsLength = this.props.errors.length;
+        const {errors, connected} = this.props;
+        const errorsLength = errors.length;
         if (errorsLength === 0) {
             return null;
         }
@@ -17,7 +18,7 @@ class FrontEndErrorContainer extends Component {
         const inAlertsTray = this.props.inAlertsTray;
         let cardClasses = 'dash-error-card dash-error-card--container';
 
-        const errorElements = this.props.errors.map((error, i) => {
+        const errorElements = errors.map((error, i) => {
             return <FrontEndError e={error} isListItem={true} key={i} />;
         });
         if (inAlertsTray) {
@@ -31,7 +32,7 @@ class FrontEndErrorContainer extends Component {
                         <strong className="test-devtools-error-count">
                             {errorsLength}
                         </strong>
-                        )
+                        ){connected ? null : '\u00a0 🚫 Server Unavailable'}
                     </div>
                 </div>
                 <div className="dash-error-card__list">{errorElements}</div>
@@ -42,6 +43,7 @@ class FrontEndErrorContainer extends Component {
 
 FrontEndErrorContainer.propTypes = {
     errors: PropTypes.array,
+    connected: PropTypes.bool,
     inAlertsTray: PropTypes.any,
 };
 

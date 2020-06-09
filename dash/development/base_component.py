@@ -293,11 +293,16 @@ class Component(with_metaclass(ComponentMeta, object)):
                     for p, t in i._traverse_with_paths():
                         yield "\n".join([list_path, p]), t
 
-    def __iter__(self):
-        """Yield IDs in the tree of children."""
+    def _traverse_ids(self):
+        """Yield components with IDs in the tree of children."""
         for t in self._traverse():
             if isinstance(t, Component) and getattr(t, "id", None) is not None:
-                yield t.id
+                yield t
+
+    def __iter__(self):
+        """Yield IDs in the tree of children."""
+        for t in self._traverse_ids():
+            yield t.id
 
     def __len__(self):
         """Return the number of items in the tree."""

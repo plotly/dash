@@ -13,7 +13,7 @@ import uuid
 from ._all_keywords import julia_keywords
 from ._py_components_generation import reorder_props
 
-#uuid of Dash Julia package. Used as base for component package uuid
+# uuid of Dash Julia package. Used as base for component package uuid
 jl_dash_uuid = "1b08a953-4be3-4667-9a23-3db579824955"
 
 # Declaring longer string templates as globals to improve
@@ -84,8 +84,7 @@ end
 jl_projecttoml_string = '''
 name = "{package_name}"
 uuid = "{package_uuid}"
-{authors}
-version = "{version}"
+{authors}version = "{version}"
 
 [deps]
 Dash = "{dash_uuid}"
@@ -105,9 +104,11 @@ jl_resource_tuple_string = '''Dash.Resource(
     type = :{type}
 )'''
 
+
 def jl_package_name(namestring):
     s = namestring.split("_")
     return "".join(w.capitalize() for w in s)
+
 
 def stringify_wildcards(wclist, no_symbol=False):
     if no_symbol:
@@ -153,10 +154,10 @@ def get_jl_prop_types(type_object):
     return dict(
         array=lambda: "Array",
         bool=lambda: "Bool",
-        number=lambda: "Float64",
+        number=lambda: "Real",
         string=lambda: "String",
         object=lambda: "Dict",
-        any=lambda: "Bool | Float64 | String | Dict | Array",
+        any=lambda: "Bool | Real | String | Dict | Array",
         element=lambda: "dash component",
         node=lambda: "a list of or a singular dash component, string or number",
         # React's PropTypes.oneOf
@@ -243,13 +244,7 @@ def get_jl_type(type_object):
     """
     js_type_name = type_object["name"]
     js_to_jl_types = get_jl_prop_types(type_object=type_object)
-    if (
-        "computed" in type_object
-        and type_object["computed"]
-        or type_object.get("type", "") == "function"
-    ):
-        return ""
-    elif js_type_name in js_to_jl_types:
+    if js_type_name in js_to_jl_types:
         prop_type = js_to_jl_types[js_type_name]()
         return prop_type
     return ""
@@ -300,8 +295,6 @@ Keyword arguments:\n{args}"""
     )
 
 
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-arguments
 def create_prop_docstring_jl(
     prop_name,
     type_object,
@@ -364,27 +357,27 @@ def format_fn_name(prefix, name):
     return name.lower()
 
 
-def generate_metadata_strings(resources, type):
-    def noting_or_string(v):
+def generate_metadata_strings(resources, metatype):
+    def nothing_or_string(v):
         return '"{}"'.format(v) if v else "nothing"
     return [jl_resource_tuple_string.format(
-        relative_package_path = noting_or_string(resource.get("relative_package_path", "")),
-        external_url = noting_or_string(resource.get("external_url", "")),
-        dynamic = str(resource.get("dynamic", 'nothing')).lower(),
-        type = type,
-        async_string = ":{}".format(str(resource.get("async")).lower())
-             if "async" in resource.keys()
-              else 'nothing'
+        relative_package_path=nothing_or_string(resource.get("relative_package_path", "")),
+        external_url=nothing_or_string(resource.get("external_url", "")),
+        dynamic=str(resource.get("dynamic", 'nothing')).lower(),
+        type=metatype,
+        async_string=":{}".format(str(resource.get("async")).lower())
+        if "async" in resource.keys()
+        else 'nothing'
     ) for resource in resources]
 
 
 def generate_package_file(project_shortname, components, pkg_data, prefix):
     package_name = jl_package_name(project_shortname)
-    
+
     sys.path.insert(0, os.getcwd())
     mod = importlib.import_module(project_shortname)
-    js_dist = getattr(mod, "_js_dist", []) 
-    css_dist = getattr(mod, "_css_dist", []) 
+    js_dist = getattr(mod, "_js_dist", [])
+    css_dist = getattr(mod, "_css_dist", [])
     project_ver = pkg_data.get("version")
 
     resources_dist = ",\n".join(
@@ -392,13 +385,13 @@ def generate_package_file(project_shortname, components, pkg_data, prefix):
     )
 
     package_string = jl_package_file_string.format(
-        package_name = package_name,
-        component_includes = "\n".join(
-            [jl_component_include_string.format(name = format_fn_name(prefix, comp_name)) for comp_name in components]
+        package_name=package_name,
+        component_includes="\n".join(
+            [jl_component_include_string.format(name=format_fn_name(prefix, comp_name)) for comp_name in components]
         ),
-        resources_dist = resources_dist,
-        version = project_ver,
-        project_shortname = project_shortname
+        resources_dist=resources_dist,
+        version=project_ver,
+        project_shortname=project_shortname
 
     )
     file_path = os.path.join("src", package_name + ".jl")
@@ -413,14 +406,14 @@ def generate_toml_file(project_shortname, pkg_data):
     u = uuid.UUID(jl_dash_uuid)
     package_uuid = uuid.UUID(hex=u.hex[:-12] + hex(hash(package_name))[-12:])
 
-    authors_string = 'authors = ["{}"]'.format(package_author) if package_author else ""
+    authors_string = 'authors = ["{}"]\n'.format(package_author) if package_author else ""
 
     toml_string = jl_projecttoml_string.format(
-        package_name = package_name,
-        package_uuid = package_uuid,
-        version = project_ver,
-        authors = authors_string,
-        dash_uuid = jl_dash_uuid
+        package_name=package_name,
+        package_uuid=package_uuid,
+        version=project_ver,
+        authors=authors_string,
+        dash_uuid=jl_dash_uuid
     )
     file_path = "Project.toml"
     with open(file_path, "w") as f:
@@ -523,6 +516,3 @@ def generate_module(
 
     generate_package_file(project_shortname, components, pkg_data, prefix)
     generate_toml_file(project_shortname, pkg_data)
-    
-
-    

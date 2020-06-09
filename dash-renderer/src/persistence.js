@@ -69,6 +69,7 @@ import {
 import {createAction} from 'redux-actions';
 
 import Registry from './registry';
+import {stringifyId} from './actions/dependencies';
 
 export const storePrefix = '_dash_persistence.';
 
@@ -270,7 +271,7 @@ const getTransform = (element, propName, propPart) =>
         : noopTransform;
 
 const getValsKey = (id, persistedProp, persistence) =>
-    `${id}.${persistedProp}.${JSON.stringify(persistence)}`;
+    `${stringifyId(id)}.${persistedProp}.${JSON.stringify(persistence)}`;
 
 const getProps = layout => {
     const {props, type, namespace} = layout;
