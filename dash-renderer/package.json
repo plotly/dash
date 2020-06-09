@@ -4,7 +4,7 @@
   "description": "render dash components in react",
   "main": "dash_renderer/dash_renderer.min.js",
   "scripts": {
-    "prepublishOnly": "rm -rf lib && babel src --out-dir lib --copy-files",
+    "prepublishOnly": "rm -rf lib && babel src --extensions=\".ts,.tsx,.js,.jsx\" --out-dir lib --copy-files",
     "private::format.js-eslint": "eslint --quiet --fix .",
     "private::format.js-prettier": "prettier --config .prettierrc --write \"src/**/*.js\"",
     "private::format.ts": "tslint --fix --project tsconfig.json --config tslint.json",
