@@ -60,6 +60,11 @@ const getStash = (cb: IPrioritizedCallback, paths: any): {
     return { allOutputs, allPropIds };
 }
 
+const getIds = (cb: ICallback, paths: any) => uniq(pluck('id', [
+    ...flatten(cb.getInputs(paths)),
+    ...flatten(cb.getState(paths))
+]));
+
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: async ({
         dispatch,
@@ -80,10 +85,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const [syncCallbacks, asyncCallbacks] = partition(cb => isAppReady(
             layout,
             paths,
-            uniq(pluck('id', [
-                ...flatten(cb.getInputs(paths)),
-                ...flatten(cb.getState(paths))
-            ]))
+            getIds(cb, paths)
         ) === true, prioritized);
 
         const pickedSyncCallbacks = syncCallbacks.slice(0, available);
@@ -104,10 +106,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 cb => ({
                     ...cb,
                     ...getStash(cb, paths),
-                    isReady: isAppReady(layout, paths, uniq(pluck('id', [
-                        ...flatten(cb.getInputs(paths)),
-                        ...flatten(cb.getState(paths))
-                    ])))
+                    isReady: isAppReady(layout, paths, getIds(cb, paths))
                 }),
                 pickedAsyncCallbacks
             );
