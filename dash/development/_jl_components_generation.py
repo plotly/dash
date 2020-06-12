@@ -13,6 +13,9 @@ import uuid
 from ._all_keywords import julia_keywords
 from ._py_components_generation import reorder_props
 
+# uuid of DashBase Julia package.
+jl_dash_base_uuid = "03207cf0-e2b3-4b91-9ca8-690cf0fb507e"
+
 # uuid of Dash Julia package. Used as base for component package uuid
 jl_dash_uuid = "1b08a953-4be3-4667-9a23-3db579824955"
 
@@ -23,43 +26,31 @@ jl_component_string = '''
 export {funcname}
 
 """
-    {funcname}(;kwargs...)
-    {funcname}(children::Any;kwargs...)
-    {funcname}(children_maker::Function;kwargs...)
+    {funcname}(;kwargs...){childrens_signatures}
 
 {docstring}
 """
 function {funcname}(; kwargs...)
-        available_props = Set(Symbol[{component_props}])
-        wild_props = Set(Symbol[{wildcard_symbols}])
-        wild_regs = r"^(?<prop>{wildcard_names})"
-
-        result = Component("{element_name}", "{module_name}", Dict{{Symbol, Any}}(), available_props, Set(Symbol[{wildcard_symbols}]))
-
-        for (prop, value) = pairs(kwargs)
-            m = match(wild_regs, string(prop))
-            if (length(wild_props) == 0 || isnothing(m)) && !(prop in available_props)
-                throw(ArgumentError("Invalid property $(string(prop)) for component " * "{funcname}"))
-            end
-
-            push!(result.props, prop => Front.to_dash(value))
-        end
-
-    return result
+        available_props = Symbol[{component_props}]
+        wild_props = Symbol[{wildcard_symbols}]
+        return Component("{funcname}", "{element_name}", "{module_name}", available_props, wild_props; kwargs...)
 end
-
-function {funcname}(children::Any; kwargs...)
-    result = {funcname}(;kwargs...)
-    push!(result.props, :children => Front.to_dash(children))
-    return result
-end
-
-{funcname}(children_maker::Function; kwargs...) = {funcname}(children_maker(); kwargs...)
+{childrens_definitions}
 '''  # noqa:E501
+
+jl_childrens_signatures = '''
+    {funcname}(children::Any;kwargs...)
+    {funcname}(children_maker::Function;kwargs...)
+'''
+
+jl_childrens_definitions = '''
+{funcname}(children::Any; kwargs...) = {funcname}(;kwargs..., children = children)
+{funcname}(children_maker::Function; kwargs...) = {funcname}(children_maker(); kwargs...)
+'''
 
 jl_package_file_string = '''
 module {package_name}
-using Dash
+using {base_package}
 
 const resources_path = realpath(joinpath( @__DIR__, "..", "deps"))
 const version = "{version}"
@@ -67,8 +58,8 @@ const version = "{version}"
 {component_includes}
 
 function __init__()
-    Dash.register_package(
-        Dash.ResourcePkg(
+    DashBase.register_package(
+        DashBase.ResourcePkg(
             "{project_shortname}",
             resources_path,
             version = version,
@@ -76,6 +67,7 @@ function __init__()
                 {resources_dist}
             ]
         )
+        
     )
 end
 end
@@ -87,16 +79,16 @@ uuid = "{package_uuid}"
 {authors}version = "{version}"
 
 [deps]
-Dash = "{dash_uuid}"
+{base_package} = "{dash_uuid}"
 
 [compact]
-julia = "1.1"
-Dash = ">=0.1"
+julia = "1.2"
+{base_package} = ">=0.1"
 '''
 
 jl_component_include_string = 'include("{name}.jl")'
 
-jl_resource_tuple_string = '''Dash.Resource(
+jl_resource_tuple_string = '''DashBase.Resource(
     relative_package_path = {relative_package_path},
     external_url = {external_url},
     dynamic = {dynamic},
@@ -104,6 +96,7 @@ jl_resource_tuple_string = '''Dash.Resource(
     type = :{type}
 )'''
 
+core_packages = ['dash_html_components', 'dash_core_components', 'dash_table']
 
 def jl_package_name(namestring):
     s = namestring.split("_")
@@ -370,6 +363,14 @@ def generate_metadata_strings(resources, metatype):
         else 'nothing'
     ) for resource in resources]
 
+def is_core_package(project_shortname):
+    return project_shortname in core_packages
+
+def base_package_name(project_shortname):
+    return "DashBase" if is_core_package(project_shortname) else "Dash"
+
+def base_package_uid(project_shortname):
+    return jl_dash_base_uuid if is_core_package(project_shortname) else jl_base_uuid
 
 def generate_package_file(project_shortname, components, pkg_data, prefix):
     package_name = jl_package_name(project_shortname)
@@ -391,7 +392,8 @@ def generate_package_file(project_shortname, components, pkg_data, prefix):
         ),
         resources_dist=resources_dist,
         version=project_ver,
-        project_shortname=project_shortname
+        project_shortname=project_shortname,
+        base_package=base_package_name(project_shortname)
 
     )
     file_path = os.path.join("src", package_name + ".jl")
@@ -413,7 +415,8 @@ def generate_toml_file(project_shortname, pkg_data):
         package_uuid=package_uuid,
         version=project_ver,
         authors=authors_string,
-        dash_uuid=jl_dash_uuid
+        base_package=base_package_name(project_shortname),
+        dash_uuid=base_package_uid(project_shortname),
     )
     file_path = "Project.toml"
     with open(file_path, "w") as f:
@@ -428,7 +431,7 @@ def generate_class_string(name, props, description, project_shortname, prefix):
 
     docstring = create_docstring_jl(
         component_name=name, props=filtered_props, description=description
-    ).replace("\r\n", "\n")
+    ).replace("\r\n", "\n").replace('$', '\$')
 
     wclist = get_wildcards_jl(props)
     default_paramtext = ""
@@ -451,6 +454,10 @@ def generate_class_string(name, props, description, project_shortname, prefix):
         for p in prop_keys
     )
 
+    has_children = "children" in prop_keys
+    funcname = format_fn_name(prefix, name)
+    childrens_signatures = jl_childrens_signatures.format(funcname=funcname) if has_children else "" 
+    childrens_definitions = jl_childrens_definitions.format(funcname=funcname) if has_children else "" 
     return jl_component_string.format(
         funcname=format_fn_name(prefix, name),
         docstring=docstring,
@@ -459,6 +466,8 @@ def generate_class_string(name, props, description, project_shortname, prefix):
         wildcard_names=stringify_wildcards(wclist, no_symbol=True),
         element_name=name,
         module_name=project_shortname,
+        childrens_signatures = childrens_signatures,
+        childrens_definitions = childrens_definitions
     )
 
 
