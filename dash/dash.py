@@ -252,6 +252,7 @@ class Dash(object):
         prevent_initial_callbacks=False,
         show_undo_redo=False,
         plugins=None,
+        update_title=True,
         **obsolete
     ):
         _validate.check_obsolete(obsolete)
