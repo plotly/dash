@@ -36,7 +36,19 @@ class DashPageMixin(object):
     def redux_state_rqs(self):
         return self.driver.execute_script(
             """
-            return !window.store.getState().isLoading;
+            var callbacksState =  Object.assign({}, window.store.getState().callbacks);
+            delete callbacksState.stored;
+            delete callbacksState.completed;
+
+            return Array.prototype.concat.apply([], Object.values(callbacksState));
+            """
+        )
+
+    @property
+    def redux_state_is_loading(self):
+        return self.driver.execute_script(
+            """
+            return window.store.getState().isLoading;
             """
         )
 

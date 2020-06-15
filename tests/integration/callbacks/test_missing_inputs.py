@@ -9,7 +9,7 @@ def wait_for_queue(dash_duo):
     # mostly for cases where no callbacks should fire:
     # just wait until we have the button and the queue is empty
     dash_duo.wait_for_text_to_equal("#btn", "click")
-    wait.until(lambda: dash_duo.redux_state_rqs, 3)
+    wait.until(lambda: not dash_duo.redux_state_is_loading, 3)
 
 
 def test_cbmi001_all_missing_inputs(dash_duo):
