@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - [#1237](https://github.com/plotly/dash/pull/1237) Closes [#920](https://github.com/plotly/dash/issues/920): Converts hot reload fetch failures into a server status indicator showing whether the latest fetch succeeded or failed. Callback fetch failures still appear as errors but have a clearer message.
+- [#1254](https://github.com/plotly/dash/pull/1254) Modifies the callback chain implementation and improves performance for apps with a lot of components
 
 ### Fixed
 - [#1255](https://github.com/plotly/dash/pull/1255) Hard hot reload targets only the current window, not the top - so if your app is in an iframe you will only reload the app

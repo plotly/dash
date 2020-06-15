@@ -11,7 +11,7 @@ class DocumentTitle extends Component {
     }
 
     UNSAFE_componentWillReceiveProps(props) {
-        if (props.pendingCallbacks.length) {
+        if (props.isLoading) {
             document.title = 'Updating...';
         } else {
             document.title = this.state.initialTitle;
@@ -28,9 +28,9 @@ class DocumentTitle extends Component {
 }
 
 DocumentTitle.propTypes = {
-    pendingCallbacks: PropTypes.array.isRequired,
+    isLoading: PropTypes.bool.isRequired,
 };
 
 export default connect(state => ({
-    pendingCallbacks: state.pendingCallbacks,
+    isLoading: state.isLoading,
 }))(DocumentTitle);

@@ -36,13 +36,33 @@ class DashPageMixin(object):
     def redux_state_rqs(self):
         return self.driver.execute_script(
             """
-            return window.store.getState().pendingCallbacks.map(function(cb) {
-                var out = {};
-                for (var key in cb) {
-                    if (typeof cb[key] !== 'function') { out[key] = cb[key]; }
-                }
-                return out;
-            })
+
+            // Check for legacy `pendingCallbacks` store prop (compatibility for Dash matrix testing)
+            var pendingCallbacks = window.store.getState().pendingCallbacks;
+            if (pendingCallbacks) {
+                return pendingCallbacks.map(function(cb) {
+                    var out = {};
+                    for (var key in cb) {
+                        if (typeof cb[key] !== 'function') { out[key] = cb[key]; }
+                    }
+                    return out;
+                });
+            }
+
+            // Otherwise, use the new `callbacks` store prop
+            var callbacksState =  Object.assign({}, window.store.getState().callbacks);
+            delete callbacksState.stored;
+            delete callbacksState.completed;
+
+            return Array.prototype.concat.apply([], Object.values(callbacksState));
+            """
+        )
+
+    @property
+    def redux_state_is_loading(self):
+        return self.driver.execute_script(
+            """
+            return window.store.getState().isLoading;
             """
         )
 
@@ -51,7 +71,7 @@ class DashPageMixin(object):
         return self.driver.execute_script("return window.store")
 
     def _wait_for_callbacks(self):
-        return not self.window_store or self.redux_state_rqs == []
+        return not self.window_store or self.redux_state_rqs
 
     def get_local_storage(self, store_id="local"):
         return self.driver.execute_script(

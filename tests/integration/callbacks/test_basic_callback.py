@@ -41,7 +41,7 @@ def test_cbsc001_simple_callback(dash_duo):
 
     assert call_count.value == 2 + len("hello world"), "initial count + each key stroke"
 
-    assert dash_duo.redux_state_rqs == []
+    assert not dash_duo.redux_state_is_loading
 
     assert dash_duo.get_logs() == []
 
@@ -133,7 +133,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
         "#sub-output-1", pad_input.attrs["value"] + "deadbeef"
     )
 
-    assert dash_duo.redux_state_rqs == [], "pendingCallbacks is empty"
+    assert not dash_duo.redux_state_is_loading, "loadingMap is empty"
 
     dash_duo.percy_snapshot(name="callback-generating-function-2")
     assert dash_duo.get_logs() == [], "console is clean"

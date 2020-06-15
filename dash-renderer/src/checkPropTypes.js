@@ -21,7 +21,7 @@ export default function checkPropTypes(
     values,
     location,
     componentName,
-    getStack
+    getStack = null
 ) {
     const errors = [];
     for (const typeSpecName in typeSpecs) {
