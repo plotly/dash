@@ -73,3 +73,7 @@ class MissingCallbackContextException(CallbackException):
 
 class UnsupportedRelativePath(CallbackException):
     pass
+
+
+class ProxyError(DashException):
+    pass
