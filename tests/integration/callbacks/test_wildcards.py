@@ -6,6 +6,7 @@ from selenium.webdriver.common.keys import Keys
 import dash_html_components as html
 import dash_core_components as dcc
 import dash
+from dash.testing import wait
 from dash.dependencies import Input, Output, State, ALL, ALLSMALLER, MATCH
 
 
@@ -229,7 +230,17 @@ def test_cbwc001_todo_app(content_callback, dash_duo):
     assert_count(0)
 
 
+fibonacci_count = 0
+fibonacci_sum_count = 0
+
+
 def fibonacci_app(clientside):
+    global fibonacci_count
+    global fibonacci_sum_count
+
+    fibonacci_count = 0
+    fibonacci_sum_count = 0
+
     # This app tests 2 things in particular:
     # - clientside callbacks work the same as server-side
     # - callbacks using ALLSMALLER as an input to MATCH of the exact same id/prop
@@ -275,12 +286,20 @@ def fibonacci_app(clientside):
             Output({"i": MATCH}, "children"), [Input({"i": ALLSMALLER}, "children")]
         )
         def sequence(prev):
+            global fibonacci_count
+            fibonacci_count = fibonacci_count + 1
+            print(fibonacci_count)
+
             if len(prev) < 2:
                 return len(prev)
             return int(prev[-1] or 0) + int(prev[-2] or 0)
 
         @app.callback(Output("sum", "children"), [Input({"i": ALL}, "children")])
         def show_sum(seq):
+            global fibonacci_sum_count
+            fibonacci_sum_count = fibonacci_sum_count + 1
+            print("fibonacci_sum_count: ", fibonacci_sum_count)
+
             return "{} elements, sum: {}".format(
                 len(seq), sum(int(v or 0) for v in seq)
             )
@@ -454,3 +473,46 @@ def test_cbwc004_layout_chunk_changed_props(dash_duo):
     trigger_text = 'triggered is Truthy with prop_ids {"index":1,"type":"input"}.value'
     dash_duo.wait_for_text_to_equal("#output-outer", trigger_text)
     dash_duo.wait_for_text_to_equal("#output-inner", trigger_text)
+
+
+def test_cbwc005_callbacks_count(dash_duo):
+    global fibonacci_count
+    global fibonacci_sum_count
+
+    app = fibonacci_app(False)
+    dash_duo.start_server(app)
+
+    wait.until(lambda: fibonacci_count == 4, 3)  # initial
+    wait.until(lambda: fibonacci_sum_count == 2, 3)  # initial + triggered
+
+    dash_duo.find_element("#n").send_keys(Keys.UP)  # 5
+    wait.until(lambda: fibonacci_count == 9, 3)
+    wait.until(lambda: fibonacci_sum_count == 3, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.UP)  # 6
+    wait.until(lambda: fibonacci_count == 15, 3)
+    wait.until(lambda: fibonacci_sum_count == 4, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 5
+    wait.until(lambda: fibonacci_count == 20, 3)
+    wait.until(lambda: fibonacci_sum_count == 5, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 4
+    wait.until(lambda: fibonacci_count == 24, 3)
+    wait.until(lambda: fibonacci_sum_count == 6, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 3
+    wait.until(lambda: fibonacci_count == 27, 3)
+    wait.until(lambda: fibonacci_sum_count == 7, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 2
+    wait.until(lambda: fibonacci_count == 29, 3)
+    wait.until(lambda: fibonacci_sum_count == 8, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 1
+    wait.until(lambda: fibonacci_count == 30, 3)
+    wait.until(lambda: fibonacci_sum_count == 9, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 0
+    wait.until(lambda: fibonacci_count == 30, 3)
+    wait.until(lambda: fibonacci_sum_count == 10, 3)
