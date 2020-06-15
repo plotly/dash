@@ -36,6 +36,20 @@ class DashPageMixin(object):
     def redux_state_rqs(self):
         return self.driver.execute_script(
             """
+
+            // Check for legacy `pendingCallbacks` store prop (compatibility for Dash matrix testing)
+            var pendingCallbacks = window.store.getState().pendingCallbacks;
+            if (pendingCallbacks) {
+                return pendingCallbacks.map(function(cb) {
+                    var out = {};
+                    for (var key in cb) {
+                        if (typeof cb[key] !== 'function') { out[key] = cb[key]; }
+                    }
+                    return out;
+                });
+            }
+
+            // Otherwise, use the new `callbacks` store prop
             var callbacksState =  Object.assign({}, window.store.getState().callbacks);
             delete callbacksState.stored;
             delete callbacksState.completed;
