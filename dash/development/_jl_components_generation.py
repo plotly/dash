@@ -26,7 +26,7 @@ jl_component_string = '''
 export {funcname}
 
 """
-    {funcname}(;kwargs...){childrens_signatures}
+    {funcname}(;kwargs...){children_signatures}
 
 {docstring}
 """
@@ -35,15 +35,15 @@ function {funcname}(; kwargs...)
         wild_props = Symbol[{wildcard_symbols}]
         return Component("{funcname}", "{element_name}", "{module_name}", available_props, wild_props; kwargs...)
 end
-{childrens_definitions}
+{children_definitions}
 '''  # noqa:E501
 
-jl_childrens_signatures = '''
+jl_children_signatures = '''
     {funcname}(children::Any;kwargs...)
     {funcname}(children_maker::Function;kwargs...)
 '''
 
-jl_childrens_definitions = '''
+jl_children_definitions = '''
 {funcname}(children::Any; kwargs...) = {funcname}(;kwargs..., children = children)
 {funcname}(children_maker::Function; kwargs...) = {funcname}(children_maker(); kwargs...)
 '''
@@ -456,8 +456,8 @@ def generate_class_string(name, props, description, project_shortname, prefix):
 
     has_children = "children" in prop_keys
     funcname = format_fn_name(prefix, name)
-    childrens_signatures = jl_childrens_signatures.format(funcname=funcname) if has_children else "" 
-    childrens_definitions = jl_childrens_definitions.format(funcname=funcname) if has_children else "" 
+    children_signatures = jl_children_signatures.format(funcname=funcname) if has_children else "" 
+    children_definitions = jl_children_definitions.format(funcname=funcname) if has_children else "" 
     return jl_component_string.format(
         funcname=format_fn_name(prefix, name),
         docstring=docstring,
@@ -466,8 +466,8 @@ def generate_class_string(name, props, description, project_shortname, prefix):
         wildcard_names=stringify_wildcards(wclist, no_symbol=True),
         element_name=name,
         module_name=project_shortname,
-        childrens_signatures = childrens_signatures,
-        childrens_definitions = childrens_definitions
+        children_signatures = children_signatures,
+        children_definitions = children_definitions
     )
 
 
