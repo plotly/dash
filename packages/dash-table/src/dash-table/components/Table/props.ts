@@ -271,7 +271,6 @@ export interface IState {
     activeMenu?: 'show/hide';
     applyFocus?: boolean;
     currentTooltip?: IUSerInterfaceTooltip;
-    forcedResizeOnly: boolean;
     rawFilterQuery: string;
     scrollbarWidth: number;
     uiCell?: IUserInterfaceCell;

@@ -39,6 +39,8 @@ import reconcile from 'dash-table/type/reconcile';
 
 import PageNavigation from 'dash-table/components/PageNavigation';
 
+type Refs = { [key: string]: HTMLElement };
+
 const DEFAULT_STYLE = {
     width: '100%'
 };
@@ -47,9 +49,6 @@ const INNER_STYLE = {
     minHeight: '100%',
     minWidth: '100%'
 };
-
-const WIDTH_EPSILON = 0.5;
-const MAX_WIDTH_ITERATIONS = 30;
 
 export default class ControlledTable extends PureComponent<ControlledTableProps> {
     private readonly menuRef = React.createRef<HTMLDivElement>();
@@ -96,7 +95,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             return;
         }
 
-        const { r1c1 } = this.refs as { [key: string]: HTMLElement };
+        const { r1c1 } = this.refs as Refs;
         let parent: any = r1c1.parentElement;
 
         if (uiViewport &&
@@ -150,7 +149,33 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     componentDidUpdate() {
         this.updateStylesheet();
         this.updateUiViewport();
-        this.handleResize();
+
+        const {
+            style_as_list_view,
+            style_cell,
+            style_cell_conditional,
+            style_data,
+            style_data_conditional,
+            style_filter,
+            style_filter_conditional,
+            style_header,
+            style_header_conditional,
+            style_table
+        } = this.props;
+
+        this.handleResizeIf(
+            style_as_list_view,
+            style_cell,
+            style_cell_conditional,
+            style_data,
+            style_data_conditional,
+            style_filter,
+            style_filter_conditional,
+            style_header,
+            style_header_conditional,
+            style_table
+        );
+
         this.handleDropdown();
         this.adjustTooltipPosition();
 
@@ -168,7 +193,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             return;
         }
 
-        const { r1c1 } = this.refs as { [key: string]: HTMLElement };
+        const { r1c1 } = this.refs as Refs;
         const contentTd = r1c1.querySelector('tr > td:first-of-type');
 
         if (!contentTd) {
@@ -225,119 +250,184 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         }
     }
 
-    forceHandleResize = () => this.handleResize(true);
+    private clearCellWidth(cell: HTMLElement) {
+        cell.style.width = '';
+        cell.style.minWidth = '';
+        cell.style.maxWidth = '';
+        cell.style.boxSizing = '';
+    }
 
-    handleResize = (force: boolean = false) => {
-        const {
-            fixed_columns,
-            fixed_rows,
-            forcedResizeOnly,
-            setState
-        } = this.props;
-
-        if (forcedResizeOnly && !force) {
+    private resetFragmentCells = (
+        fragment: HTMLElement
+    ) => {
+        const lastRowOfCells = fragment.querySelectorAll<HTMLElement>('table.cell-table > tbody > tr:last-of-type > *');
+        if (!lastRowOfCells.length) {
             return;
         }
 
-        if (!force) {
-            setState({ forcedResizeOnly: true });
+        Array.from(
+            lastRowOfCells
+        ).forEach(this.clearCellWidth);
+
+        const firstThs = Array.from(fragment.querySelectorAll('table.cell-table > tbody > tr > th:first-of-type'));
+        const trOfThs = firstThs.map(th => th.parentElement);
+
+        trOfThs.forEach(tr => {
+            const ths = Array.from<HTMLElement>(tr?.children as any);
+
+            if (!ths) {
+                return;
+            }
+
+            ths.forEach(this.clearCellWidth);
+        });
+    }
+
+    resizeFragmentCells = (
+        fragment: HTMLElement,
+        widths: number[]
+    ) => {
+        const lastRowOfCells = fragment.querySelectorAll<HTMLElement>('table.cell-table > tbody > tr:last-of-type > *');
+        if (!lastRowOfCells.length) {
+            return;
+        }
+
+        Array.from(
+            lastRowOfCells
+        ).forEach((c, i) => this.setCellWidth(c, widths[i]));
+
+        const firstThs = Array.from<HTMLElement>(fragment.querySelectorAll('table.cell-table > tbody > tr > th:first-of-type'));
+        const trOfThs = firstThs.map(th => th.parentElement);
+
+        trOfThs.forEach(tr => {
+            const ths = Array.from<HTMLElement>(tr?.children as any);
+
+            if (!ths) {
+                return;
+            }
+            if (ths.length === widths.length) {
+                ths.forEach((c, i) => this.setCellWidth(c, widths[i]));
+            } else {
+                ths.forEach(c => this.setCellWidth(c, 0));
+            }
+        });
+    }
+
+    resizeFragmentTable = (table: HTMLElement | null, width: string) => {
+        if (!table) {
+            return;
+        }
+
+        table.style.width = width;
+    }
+
+    isDisplayed = (el: HTMLElement) => getComputedStyle(el).display !== 'none';
+
+    forceHandleResize = () => this.handleResize();
+
+    handleResizeIf = memoizeOne((..._: any[]) => {
+        const { r0c0, r0c1, r1c0, r1c1 } = this.refs as Refs;
+
+        if (!this.isDisplayed(r1c1)) {
+            return;
+        }
+
+        r0c1.style.marginLeft = '';
+        r1c1.style.marginLeft = '';
+        r0c0.style.width = '';
+        r1c0.style.width = '';
+
+        [r0c0, r0c1, r1c0].forEach(rc => {
+            const table = rc.querySelector('table');
+            if (table) {
+                table.style.width = '';
+            }
+
+            this.resetFragmentCells(rc);
+        });
+
+        this.handleResize();
+    });
+
+    handleResize = (previousWidth: number = NaN, cycle: boolean = false) => {
+        const {
+            fixed_columns,
+            fixed_rows,
+            setState
+        } = this.props;
+
+        const { r1c1 } = this.refs as Refs;
+
+        if (!this.isDisplayed(r1c1)) {
+            return;
         }
 
         this.updateStylesheet();
 
         getScrollbarWidth().then((scrollbarWidth: number) => setState({ scrollbarWidth }));
 
-        const { r0c0, r0c1, r1c0, r1c1 } = this.refs as { [key: string]: HTMLElement };
+        const { r0c0, r0c1, r1c0 } = this.refs as Refs;
 
+        const r0c0Table = r0c0.querySelector('table');
+        const r0c1Table = r0c1.querySelector('table');
+        const r1c0Table = r1c0.querySelector('table');
+        const r1c1Table = r1c1.querySelector('table') as HTMLElement;
 
-        // Adjust [fixed columns/fixed rows combo] to fixed rows height
-        let trs = r0c1.querySelectorAll('tr');
-        Array.from(r0c0.querySelectorAll('tr')).forEach((tr, index) => {
-            const tr2 = trs[index];
+        const currentTableWidth = getComputedStyle(r1c1Table).width;
 
-            tr.style.height = `${tr2.clientHeight}px`;
-        });
-
-        // Adjust fixed columns headers to header's height
-        let trths = r1c1.querySelectorAll('tr > th:first-of-type');
-        Array.from(r1c0.querySelectorAll('tr > th:first-of-type')).forEach((th, index) => {
-            const tr2 = trths[index].parentElement as HTMLElement;
-            const tr = th.parentElement as HTMLElement;
-
-            tr.style.height = getComputedStyle(tr2).height;
-        });
-
-        if (fixed_columns) {
-            const r1c0Table = r1c0.querySelector('table') as HTMLElement;
-            const r1c1Table = r1c0.querySelector('table') as HTMLElement;
-
-            r1c0Table.style.width = getComputedStyle(r1c1Table).width;
-
-            const lastVisibleTd = r1c0.querySelector(`tr:first-of-type > *:nth-of-type(${fixed_columns})`);
-
-            let it = 0;
-            let currentWidth = r1c0.getBoundingClientRect().width;
-            let lastWidth = currentWidth;
-
-            do {
-                lastWidth = currentWidth
-
-                // Force first column containers width to match visible portion of table
-                if (lastVisibleTd) {
-                    const r1c0FragmentBounds = r1c0.getBoundingClientRect();
-                    const lastTdBounds = lastVisibleTd.getBoundingClientRect();
-                    currentWidth = lastTdBounds.right - r1c0FragmentBounds.left;
-
-                    const width = `${currentWidth}px`;
-
-                    r0c0.style.width = width;
-                    r1c0.style.width = width;
-                }
-
-                // Force second column containers width to match visible portion of table
-                const firstVisibleTd = r1c1.querySelector(`tr:first-of-type > *:nth-of-type(${fixed_columns + 1})`);
-                if (firstVisibleTd) {
-                    const r1c1FragmentBounds = r1c1.getBoundingClientRect();
-                    const firstTdBounds = firstVisibleTd.getBoundingClientRect();
-
-                    const width = firstTdBounds.left - r1c1FragmentBounds.left;
-                    r0c1.style.marginLeft = `-${width}px`;
-                    r0c1.style.marginRight = `${width}px`;
-                    r1c1.style.marginLeft = `-${width}px`;
-                    r1c1.style.marginRight = `${width}px`;
-                }
-
-                it++;
-            } while (
-                Math.abs(currentWidth - lastWidth) > WIDTH_EPSILON ||
-                it < MAX_WIDTH_ITERATIONS
-            )
+        if (!cycle) {
+            this.resizeFragmentTable(r0c0Table, currentTableWidth);
+            this.resizeFragmentTable(r0c1Table, currentTableWidth);
+            this.resizeFragmentTable(r1c0Table, currentTableWidth);
         }
 
         if (fixed_columns || fixed_rows) {
-            const r1c0CellWidths = Array.from(
-                r1c0.querySelectorAll('table.cell-table > tbody > tr:first-of-type > *')
-            ).map(c => c.getBoundingClientRect().width);
-
-            const r1c1CellWidths = Array.from(
+            const widths = Array.from(
                 r1c1.querySelectorAll('table.cell-table > tbody > tr:first-of-type > *')
             ).map(c => c.getBoundingClientRect().width);
 
-            Array.from<HTMLElement>(
-                r0c0.querySelectorAll('table.cell-table > tbody > tr:first-of-type > *')
-            ).forEach((c, i) => this.setCellWidth(c, r1c0CellWidths[i]));
+            if (!cycle) {
+                this.resizeFragmentCells(r0c0, widths);
+                this.resizeFragmentCells(r0c1, widths);
+                this.resizeFragmentCells(r1c0, widths);
+            }
+        }
 
-            Array.from<HTMLElement>(
-                r0c0.querySelectorAll('table.cell-table > tbody > tr:last-of-type > *')
-            ).forEach((c, i) => this.setCellWidth(c, r1c0CellWidths[i]));
+        if (fixed_columns) {
+            const lastFixedTd = r1c1.querySelector(`tr:first-of-type > *:nth-of-type(${fixed_columns})`);
+            if (lastFixedTd) {
+                const lastFixedTdBounds = lastFixedTd.getBoundingClientRect();
+                const lastFixedTdRight = lastFixedTdBounds.right - r1c1.getBoundingClientRect().left;
 
-            Array.from<HTMLElement>(
-                r0c1.querySelectorAll('table.cell-table > tbody > tr:first-of-type > *')
-            ).forEach((c, i) => this.setCellWidth(c, r1c1CellWidths[i]));
+                // Force first column containers width to match visible portion of table
+                r0c0.style.width = `${lastFixedTdRight}px`;
+                r1c0.style.width = `${lastFixedTdRight}px`;
 
-            Array.from<HTMLElement>(
-                r0c1.querySelectorAll('table.cell-table > tbody > tr:last-of-type > *')
-            ).forEach((c, i) => this.setCellWidth(c, r1c1CellWidths[i]));
+                if (!cycle) {
+                    // Force second column containers width to match visible portion of table
+                    const firstVisibleTd = r1c1.querySelector(`tr:first-of-type > *:nth-of-type(${fixed_columns + 1})`);
+                    if (firstVisibleTd) {
+                        const r1c1FragmentBounds = r1c1.getBoundingClientRect();
+                        const firstTdBounds = firstVisibleTd.getBoundingClientRect();
+
+                        const width = firstTdBounds.left - r1c1FragmentBounds.left;
+                        r0c1.style.marginLeft = `-${width}px`;
+                        r1c1.style.marginLeft = `-${width}px`;
+                    }
+                }
+            }
+        }
+
+        if (!cycle) {
+            const currentWidth = parseInt(currentTableWidth, 10);
+            const nextWidth = parseInt(getComputedStyle(r1c1Table).width, 10);
+
+            // If the table was resized and isn't in a cycle, re-run `handleResize`.
+            // If the final size is the same as the starting size from the previous iteration, do not
+            // resize the main table, instead just use as is, otherwise it will oscillate.
+            if (nextWidth !== currentWidth) {
+                this.handleResize(currentWidth, nextWidth === previousWidth);
+            }
         }
     }
 
@@ -699,17 +789,17 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     }
 
     handleDropdown = () => {
-        const { r1c1 } = this.refs as { [key: string]: HTMLElement };
+        const { r1c1 } = this.refs as Refs;
 
         dropdownHelper(r1c1.querySelector('.Select-menu-outer'));
     }
 
     onScroll = (ev: any) => {
-        const { r0c0, r0c1 } = this.refs as { [key: string]: HTMLElement };
+        const { r0c0, r0c1 } = this.refs as Refs;
 
         Logger.trace(`ControlledTable fragment scrolled to (left,top)=(${ev.target.scrollLeft},${ev.target.scrollTop})`);
 
-        const margin = parseFloat(ev.target.scrollLeft) + parseFloat(r0c0.style.width);
+        const margin = parseFloat(ev.target.scrollLeft) + (parseFloat(r0c0.style.width) || 0);
 
         r0c1.style.marginLeft = `${-margin}px`;
 
@@ -945,23 +1035,15 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         }
     }
 
-    private setCellWidth(cell: HTMLElement, width: number) {
-        cell.style.width = `${width}px`;
-        cell.style.minWidth = `${width}px`;
-        cell.style.maxWidth = `${width}px`;
-        cell.style.boxSizing = 'border-box';
-
-        /**
-         * Some browsers handle `th` and `td` size inconsistently.
-         * Checking the size delta and adjusting for it (different handling of padding and borders)
-         * allows the table to make sure all sections are correctly aligned.
-         */
-        const delta = cell.getBoundingClientRect().width - width;
-        if (delta) {
-            cell.style.width = `${width - delta}px`;
-            cell.style.minWidth = `${width - delta}px`;
-            cell.style.maxWidth = `${width - delta}px`;
+    private setCellWidth(cell: HTMLElement, width: string | number) {
+        if (typeof width === 'number') {
+            width = `${width}px`;
         }
+
+        cell.style.width = width;
+        cell.style.minWidth = width;
+        cell.style.maxWidth = width;
+        cell.style.boxSizing = 'border-box';
     }
 
     private get showToggleColumns(): boolean {

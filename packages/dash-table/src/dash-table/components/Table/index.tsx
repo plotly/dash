@@ -35,7 +35,6 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
         super(props);
 
         this.state = {
-            forcedResizeOnly: false,
             workFilter: {
                 value: props.filter_query,
                 map: this.filterMap(

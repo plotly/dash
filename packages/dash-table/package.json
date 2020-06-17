@@ -33,7 +33,7 @@
     "private::test.python": "python -m unittest tests/unit/format_test.py",
     "private::test.unit": "cypress run --browser chrome --spec 'tests/cypress/tests/unit/**/*'",
     "private::test.standalone": "cypress run --browser chrome --spec 'tests/cypress/tests/standalone/**/*'",
-    "build.watch": "webpack-dev-server --content-base dash_table --mode development --config webpack.dev.config.js",
+    "build.watch": "webpack-dev-server --disable-host-check --content-base dash_table --mode development --config webpack.dev.config.js",
     "build": "run-s private::build:js private::build:py",
     "postbuild": "es-check es5 dash_table/*.js",
     "format": "run-s private::format.*",
