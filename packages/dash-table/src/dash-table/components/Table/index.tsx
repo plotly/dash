@@ -20,15 +20,13 @@ import 'react-select/dist/react-select.css';
 import './Table.less';
 import './style';
 import './Dropdown.css';
-import { isEqual } from 'core/comparer';
 import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
 import derivedFilterMap from 'dash-table/derived/filter/map';
 
 import controlledPropsHelper from './controlledPropsHelper';
 import derivedPropsHelper from './derivedPropsHelper';
 import DOM from 'core/browser/DOM';
-
-const DERIVED_REGEX = /^derived_/;
+import shouldComponentUpdate from './shouldComponentUpdate';
 
 export default class Table extends Component<SanitizedAndDerivedProps, StandaloneState> {
     constructor(props: SanitizedAndDerivedProps) {
@@ -94,10 +92,7 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
         const props: any = this.props;
         const state: any = this.state;
 
-        return R.any(key =>
-            !DERIVED_REGEX.test(key) && props[key] !== nextProps[key],
-            R.keysIn(props)
-        ) || !isEqual(state, nextState);
+        return shouldComponentUpdate(props, nextProps, state, nextState);
     }
 
     render() {
@@ -159,3 +154,4 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
     private readonly controlledPropsHelper = controlledPropsHelper();
     private readonly updateDerivedProps = derivedPropsHelper();
 }
+

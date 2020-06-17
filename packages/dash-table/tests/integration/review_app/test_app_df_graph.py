@@ -152,5 +152,8 @@ def test_rapp002_df_graph(dash_duo):
     dash_duo.wait_for_element("#waitfor")
 
     dash_duo.wait_for_element("#{}".format(IDS["table"]))
+    dash_duo.wait_for_element("#pop svg")
+    dash_duo.wait_for_element("#lifeExp svg")
+    dash_duo.wait_for_element("#gdpPercap svg")
 
     dash_duo.percy_snapshot("rapp002 - loaded")
