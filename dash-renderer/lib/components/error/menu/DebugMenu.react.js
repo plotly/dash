@@ -7,25 +7,21 @@ exports.DebugMenu = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _ramda = require("ramda");
+var _propTypes = _interopRequireDefault(require("prop-types"));
 
 require("./DebugMenu.css");
 
-var _DebugIcon = _interopRequireDefault(require("../icons/DebugIcon.svg"));
-
-var _WhiteCloseIcon = _interopRequireDefault(require("../icons/WhiteCloseIcon.svg"));
-
 var _BellIcon = _interopRequireDefault(require("../icons/BellIcon.svg"));
 
-var _BellIconGrey = _interopRequireDefault(require("../icons/BellIconGrey.svg"));
+var _CheckIcon = _interopRequireDefault(require("../icons/CheckIcon.svg"));
+
+var _ClockIcon = _interopRequireDefault(require("../icons/ClockIcon.svg"));
+
+var _DebugIcon = _interopRequireDefault(require("../icons/DebugIcon.svg"));
 
 var _GraphIcon = _interopRequireDefault(require("../icons/GraphIcon.svg"));
 
-var _GraphIconGrey = _interopRequireDefault(require("../icons/GraphIconGrey.svg"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _DebugAlertContainer = require("./DebugAlertContainer.react");
+var _OffIcon = _interopRequireDefault(require("../icons/OffIcon.svg"));
 
 var _GlobalErrorOverlay = _interopRequireDefault(require("../GlobalErrorOverlay.react"));
 
@@ -55,6 +51,23 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+var classes = function classes(base, variant, variant2) {
+  return "".concat(base, " ").concat(base, "--").concat(variant) + (variant2 ? " ".concat(base, "--").concat(variant2) : '');
+};
+
+var buttonFactory = function buttonFactory(enabled, buttonVariant, toggle, _Icon, iconVariant, label) {
+  return _react["default"].createElement("div", {
+    className: "dash-debug-menu__button-container"
+  }, _react["default"].createElement("div", {
+    className: classes('dash-debug-menu__button', buttonVariant, enabled && 'enabled'),
+    onClick: toggle
+  }, _react["default"].createElement(_Icon, {
+    className: classes('dash-debug-menu__icon', iconVariant)
+  }), label ? _react["default"].createElement("label", {
+    className: "dash-debug-menu__button-label"
+  }, label) : null));
+};
+
 var DebugMenu = /*#__PURE__*/function (_Component) {
   _inherits(DebugMenu, _Component);
 
@@ -66,9 +79,8 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DebugMenu).call(this, props));
     _this.state = {
       opened: false,
-      alertsOpened: false,
       callbackGraphOpened: false,
-      toastsEnabled: true
+      errorsOpened: true
     };
     return _this;
   }
@@ -80,89 +92,62 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
 
       var _this$state = this.state,
           opened = _this$state.opened,
-          alertsOpened = _this$state.alertsOpened,
-          toastsEnabled = _this$state.toastsEnabled,
+          errorsOpened = _this$state.errorsOpened,
           callbackGraphOpened = _this$state.callbackGraphOpened;
       var _this$props = this.props,
           error = _this$props.error,
-          graphs = _this$props.graphs;
-      var menuClasses = opened ? 'dash-debug-menu dash-debug-menu--opened' : 'dash-debug-menu dash-debug-menu--closed';
+          graphs = _this$props.graphs,
+          hotReload = _this$props.hotReload;
+      var errCount = error.frontEnd.length + error.backEnd.length;
+      var connected = error.backEndConnected;
+
+      var toggleErrors = function toggleErrors() {
+        _this2.setState({
+          errorsOpened: !errorsOpened
+        });
+      };
+
+      var status = hotReload ? connected ? 'available' : 'unavailable' : 'cold';
+
+      var _StatusIcon = hotReload ? connected ? _CheckIcon["default"] : _OffIcon["default"] : _ClockIcon["default"];
+
       var menuContent = opened ? _react["default"].createElement("div", {
         className: "dash-debug-menu__content"
       }, callbackGraphOpened ? _react["default"].createElement(_CallbackGraphContainer.CallbackGraphContainer, {
         graphs: graphs
-      }) : null, error.frontEnd.length > 0 || error.backEnd.length > 0 ? _react["default"].createElement("div", {
-        className: "dash-debug-menu__button-container"
-      }, _react["default"].createElement(_DebugAlertContainer.DebugAlertContainer, {
-        errors: (0, _ramda.concat)(error.frontEnd, error.backEnd),
-        alertsOpened: alertsOpened,
-        onClick: function onClick() {
-          return _this2.setState({
-            alertsOpened: !alertsOpened
-          });
-        }
-      })) : null, _react["default"].createElement("div", {
-        className: "dash-debug-menu__button-container"
-      }, _react["default"].createElement("div", {
-        className: "dash-debug-menu__button ".concat(callbackGraphOpened ? 'dash-debug-menu__button--enabled' : ''),
-        onClick: function onClick() {
-          return _this2.setState({
-            callbackGraphOpened: !callbackGraphOpened
-          });
-        }
-      }, callbackGraphOpened ? _react["default"].createElement(_GraphIcon["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--graph"
-      }) : _react["default"].createElement(_GraphIconGrey["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--bell"
-      })), _react["default"].createElement("label", {
-        className: "dash-debug-menu__button-label"
-      }, "Callback Graph")), _react["default"].createElement("div", {
-        className: "dash-debug-menu__button-container"
-      }, _react["default"].createElement("div", {
-        className: "dash-debug-menu__button ".concat(toastsEnabled ? 'dash-debug-menu__button--enabled' : ''),
-        onClick: function onClick() {
-          return _this2.setState({
-            toastsEnabled: !toastsEnabled
-          });
-        }
-      }, toastsEnabled ? _react["default"].createElement(_BellIcon["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--bell"
-      }) : _react["default"].createElement(_BellIconGrey["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--bell"
-      })), _react["default"].createElement("label", {
-        className: "dash-debug-menu__button-label"
-      }, "Errors")), _react["default"].createElement("div", {
-        className: "dash-debug-menu__button-container"
-      }, _react["default"].createElement("div", {
-        className: "dash-debug-menu__button dash-debug-menu__button--small",
-        onClick: function onClick(e) {
-          e.stopPropagation();
-
-          _this2.setState({
-            opened: false
-          });
-        }
-      }, _react["default"].createElement(_WhiteCloseIcon["default"], {
-        className: "dash-debug-menu__icon--close"
-      })))) : _react["default"].createElement(_DebugIcon["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--debug"
+      }) : null, buttonFactory(callbackGraphOpened, 'callbacks', function () {
+        _this2.setState({
+          callbackGraphOpened: !callbackGraphOpened
+        });
+      }, _GraphIcon["default"], 'graph', 'Callbacks'), buttonFactory(errorsOpened, 'errors', toggleErrors, _BellIcon["default"], 'bell', errCount + ' Error' + (errCount === 1 ? '' : 's')), buttonFactory(false, status, null, _StatusIcon, 'indicator', 'Server')) : _react["default"].createElement("div", {
+        className: "dash-debug-menu__content"
       });
-      var alertsLabel = error.frontEnd.length + error.backEnd.length > 0 && !opened ? _react["default"].createElement("div", {
+      var alertsLabel = (errCount || !connected) && !opened ? _react["default"].createElement("div", {
         className: "dash-debug-alert-label"
       }, _react["default"].createElement("div", {
-        className: "dash-debug-alert"
-      }, "\uD83D\uDED1 \xA0", error.frontEnd.length + error.backEnd.length)) : null;
+        className: "dash-debug-alert",
+        onClick: toggleErrors
+      }, errCount ? _react["default"].createElement("div", {
+        className: "dash-debug-error-count"
+      }, '🛑 ' + errCount) : null, connected ? null : _react["default"].createElement("div", {
+        className: "dash-debug-disconnected"
+      }, "\uD83D\uDEAB"))) : null;
+      var openVariant = opened ? 'open' : 'closed';
       return _react["default"].createElement("div", null, alertsLabel, _react["default"].createElement("div", {
-        className: menuClasses,
+        className: classes('dash-debug-menu__outer', openVariant)
+      }, menuContent), _react["default"].createElement("div", {
+        className: classes('dash-debug-menu', openVariant),
         onClick: function onClick() {
-          return _this2.setState({
-            opened: true
+          _this2.setState({
+            opened: !opened
           });
         }
-      }, menuContent), _react["default"].createElement(_GlobalErrorOverlay["default"], {
+      }, _react["default"].createElement(_DebugIcon["default"], {
+        className: classes('dash-debug-menu__icon', 'debug')
+      })), _react["default"].createElement(_GlobalErrorOverlay["default"], {
         error: error,
-        visible: !((0, _ramda.isEmpty)(error.backEnd) && (0, _ramda.isEmpty)(error.frontEnd)),
-        toastsEnabled: toastsEnabled
+        visible: errCount > 0,
+        errorsOpened: errorsOpened
       }, this.props.children));
     }
   }]);
@@ -174,5 +159,6 @@ exports.DebugMenu = DebugMenu;
 DebugMenu.propTypes = {
   children: _propTypes["default"].object,
   error: _propTypes["default"].object,
-  graphs: _propTypes["default"].object
+  graphs: _propTypes["default"].object,
+  hotReload: _propTypes["default"].bool
 };

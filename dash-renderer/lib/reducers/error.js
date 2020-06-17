@@ -17,7 +17,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var initialError = {
   frontEnd: [],
-  backEnd: []
+  backEnd: [],
+  backEndConnected: true
 };
 
 function error() {
@@ -27,29 +28,41 @@ function error() {
   switch (action.type) {
     case 'ON_ERROR':
       {
-        // log errors to the console for stack tracing and so they're
+        var frontEnd = state.frontEnd,
+            backEnd = state.backEnd,
+            backEndConnected = state.backEndConnected; // log errors to the console for stack tracing and so they're
         // available even with debugging off
 
         /* eslint-disable-next-line no-console */
+
         console.error(action.payload.error);
 
         if (action.payload.type === 'frontEnd') {
           return {
             frontEnd: [(0, _ramda.mergeRight)(action.payload, {
               timestamp: new Date()
-            })].concat(_toConsumableArray(state.frontEnd)),
-            backEnd: state.backEnd
+            })].concat(_toConsumableArray(frontEnd)),
+            backEnd: backEnd,
+            backEndConnected: backEndConnected
           };
         } else if (action.payload.type === 'backEnd') {
           return {
-            frontEnd: state.frontEnd,
+            frontEnd: frontEnd,
             backEnd: [(0, _ramda.mergeRight)(action.payload, {
               timestamp: new Date()
-            })].concat(_toConsumableArray(state.backEnd))
+            })].concat(_toConsumableArray(backEnd)),
+            backEndConnected: backEndConnected
           };
         }
 
         return state;
+      }
+
+    case 'SET_CONNECTION_STATUS':
+      {
+        return (0, _ramda.mergeRight)(state, {
+          backEndConnected: action.payload
+        });
       }
 
     default:

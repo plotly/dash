@@ -16,6 +16,11 @@ const defaults = {
                 },
             },
             {
+                test: /\.ts(x?)$/,
+                exclude: /node_modules/,
+                use: ['babel-loader', 'ts-loader'],
+            },
+            {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader'],
             },
@@ -24,6 +29,9 @@ const defaults = {
                 use: ['@svgr/webpack'],
             }
         ]
+    },
+    resolve: {
+        extensions: ['.js', '.ts', '.tsx']
     }
 };
 

@@ -14,6 +14,8 @@ var _reduxActions = require("redux-actions");
 
 var _registry = _interopRequireDefault(require("./registry"));
 
+var _dependencies = require("./actions/dependencies");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
@@ -277,7 +279,7 @@ var getTransform = function getTransform(element, propName, propPart) {
 };
 
 var getValsKey = function getValsKey(id, persistedProp, persistence) {
-  return "".concat(id, ".").concat(persistedProp, ".").concat(JSON.stringify(persistence));
+  return "".concat((0, _dependencies.stringifyId)(id), ".").concat(persistedProp, ".").concat(JSON.stringify(persistence));
 };
 
 var getProps = function getProps(layout) {

@@ -14,7 +14,7 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function Loading(props) {
-  if (props.pendingCallbacks.length) {
+  if (props.isLoading) {
     return _react["default"].createElement("div", {
       className: "_dash-loading-callback"
     });
@@ -24,12 +24,12 @@ function Loading(props) {
 }
 
 Loading.propTypes = {
-  pendingCallbacks: _propTypes["default"].array.isRequired
+  isLoading: _propTypes["default"].bool.isRequired
 };
 
 var _default = (0, _reactRedux.connect)(function (state) {
   return {
-    pendingCallbacks: state.pendingCallbacks
+    isLoading: state.isLoading
   };
 })(Loading);
 

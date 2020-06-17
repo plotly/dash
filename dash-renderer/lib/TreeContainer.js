@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.AugmentedTreeContainer = void 0;
+exports["default"] = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -12,8 +12,6 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 var _registry = _interopRequireDefault(require("./registry"));
 
 var _exceptions = require("./exceptions");
-
-var _reactRedux = require("react-redux");
 
 var _ramda = require("ramda");
 
@@ -29,11 +27,21 @@ var _checkPropTypes = _interopRequireDefault(require("./checkPropTypes"));
 
 var _dependencies = require("./actions/dependencies");
 
+var _TreeContainer = require("./utils/TreeContainer");
+
+var _APIController = require("./APIController.react");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -53,6 +61,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -61,22 +71,8 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function validateComponent(componentDefinition) {
-  if ((0, _ramda.type)(componentDefinition) === 'Array') {
-    throw new Error('The children property of a component is a list of lists, instead ' + 'of just a list. ' + 'Check the component that has the following contents, ' + 'and remove one of the levels of nesting: \n' + JSON.stringify(componentDefinition, null, 2));
-  }
-
-  if ((0, _ramda.type)(componentDefinition) === 'Object' && !((0, _ramda.has)('namespace', componentDefinition) && (0, _ramda.has)('type', componentDefinition) && (0, _ramda.has)('props', componentDefinition))) {
-    throw new Error('An object was provided as `children` instead of a component, ' + 'string, or number (or list of those). ' + 'Check the children property that looks something like:\n' + JSON.stringify(componentDefinition, null, 2));
-  }
-}
-
-var createContainer = function createContainer(component, path) {
-  return (0, _isSimpleComponent["default"])(component) ? component : _react["default"].createElement(AugmentedTreeContainer, {
-    key: component && component.props && (0, _dependencies.stringifyId)(component.props.id),
-    _dashprivate_layout: component,
-    _dashprivate_path: path
-  });
+var NOT_LOADING = {
+  is_loading: false
 };
 
 function CheckedComponent(p) {
@@ -113,20 +109,40 @@ function createElement(element, props, extraProps, children) {
   return _react["default"].createElement(element, allProps, children);
 }
 
-var TreeContainer = /*#__PURE__*/function (_Component) {
-  _inherits(TreeContainer, _Component);
+var TreeContainer = (0, _react.memo)(function (props) {
+  return _react["default"].createElement(_APIController.DashContext.Consumer, null, function (context) {
+    return _react["default"].createElement(BaseTreeContainer, _extends({}, context.fn(), props, {
+      _dashprivate_path: JSON.parse(props._dashprivate_path)
+    }));
+  });
+});
 
-  function TreeContainer(props) {
+var BaseTreeContainer = /*#__PURE__*/function (_Component) {
+  _inherits(BaseTreeContainer, _Component);
+
+  function BaseTreeContainer(props) {
     var _this;
 
-    _classCallCheck(this, TreeContainer);
+    _classCallCheck(this, BaseTreeContainer);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(TreeContainer).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BaseTreeContainer).call(this, props));
     _this.setProps = _this.setProps.bind(_assertThisInitialized(_this));
     return _this;
   }
 
-  _createClass(TreeContainer, [{
+  _createClass(BaseTreeContainer, [{
+    key: "createContainer",
+    value: function createContainer(props, component, path) {
+      return (0, _isSimpleComponent["default"])(component) ? component : _react["default"].createElement(TreeContainer, {
+        key: component && component.props && (0, _dependencies.stringifyId)(component.props.id),
+        _dashprivate_error: props._dashprivate_error,
+        _dashprivate_layout: component,
+        _dashprivate_loadingState: (0, _TreeContainer.getLoadingState)(component, path, props._dashprivate_loadingMap),
+        _dashprivate_loadingStateHash: (0, _TreeContainer.getLoadingHash)(path, props._dashprivate_loadingMap),
+        _dashprivate_path: JSON.stringify(path)
+      });
+    }
+  }, {
     key: "setProps",
     value: function setProps(newProps) {
       var _this$props = this.props,
@@ -164,18 +180,23 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
   }, {
     key: "getChildren",
     value: function getChildren(components, path) {
+      var _this2 = this;
+
       if ((0, _ramda.isNil)(components)) {
         return null;
       }
 
       return Array.isArray(components) ? (0, _ramda.addIndex)(_ramda.map)(function (component, i) {
-        return createContainer(component, (0, _ramda.concat)(path, ['props', 'children', i]));
-      }, components) : createContainer(components, (0, _ramda.concat)(path, ['props', 'children']));
+        return _this2.createContainer(_this2.props, component, (0, _ramda.concat)(path, ['props', 'children', i]));
+      }, components) : this.createContainer(this.props, components, (0, _ramda.concat)(path, ['props', 'children']));
     }
   }, {
     key: "getComponent",
     value: function getComponent(_dashprivate_layout, children, loading_state, setProps) {
-      var _dashprivate_config = this.props._dashprivate_config;
+      var _this$props2 = this.props,
+          _dashprivate_config = _this$props2._dashprivate_config,
+          _dashprivate_dispatch = _this$props2._dashprivate_dispatch,
+          _dashprivate_error = _this$props2._dashprivate_error;
 
       if ((0, _ramda.isEmpty)(_dashprivate_layout)) {
         return null;
@@ -185,7 +206,7 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
         return _dashprivate_layout;
       }
 
-      validateComponent(_dashprivate_layout);
+      (0, _TreeContainer.validateComponent)(_dashprivate_layout);
 
       var element = _registry["default"].resolve(_dashprivate_layout);
 
@@ -199,13 +220,15 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
       }
 
       var extraProps = {
-        loading_state: loading_state,
+        loading_state: loading_state || NOT_LOADING,
         setProps: setProps
       };
       return _react["default"].createElement(_ComponentErrorBoundary["default"], {
         componentType: _dashprivate_layout.type,
         componentId: props.id,
-        key: props.id
+        key: props.id,
+        dispatch: _dashprivate_dispatch,
+        error: _dashprivate_error
       }, _dashprivate_config.props_check ? _react["default"].createElement(CheckedComponent, {
         children: children,
         element: element,
@@ -215,13 +238,6 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
       }) : createElement(element, props, extraProps, children));
     }
   }, {
-    key: "shouldComponentUpdate",
-    value: function shouldComponentUpdate(nextProps) {
-      var _dashprivate_layout = nextProps._dashprivate_layout,
-          _dashprivate_loadingState = nextProps._dashprivate_loadingState;
-      return _dashprivate_layout !== this.props._dashprivate_layout || _dashprivate_loadingState.is_loading !== this.props._dashprivate_loadingState.is_loading;
-    }
-  }, {
     key: "getLayoutProps",
     value: function getLayoutProps() {
       return (0, _ramda.propOr)({}, 'props', this.props._dashprivate_layout);
@@ -229,120 +245,32 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          _dashprivate_layout = _this$props2._dashprivate_layout,
-          _dashprivate_loadingState = _this$props2._dashprivate_loadingState,
-          _dashprivate_path = _this$props2._dashprivate_path;
+      var _this$props3 = this.props,
+          _dashprivate_layout = _this$props3._dashprivate_layout,
+          _dashprivate_loadingState = _this$props3._dashprivate_loadingState,
+          _dashprivate_path = _this$props3._dashprivate_path;
       var layoutProps = this.getLayoutProps();
       var children = this.getChildren(layoutProps.children, _dashprivate_path);
       return this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, this.setProps);
     }
   }]);
 
-  return TreeContainer;
+  return BaseTreeContainer;
 }(_react.Component);
 
 TreeContainer.propTypes = {
-  _dashprivate_graphs: _propTypes["default"].any,
-  _dashprivate_dispatch: _propTypes["default"].func,
+  _dashprivate_error: _propTypes["default"].any,
   _dashprivate_layout: _propTypes["default"].object,
-  _dashprivate_loadingState: _propTypes["default"].object,
-  _dashprivate_config: _propTypes["default"].object,
-  _dashprivate_path: _propTypes["default"].array
+  _dashprivate_loadingState: _propTypes["default"].oneOfType([_propTypes["default"].object, _propTypes["default"].bool]),
+  _dashprivate_loadingStateHash: _propTypes["default"].string,
+  _dashprivate_path: _propTypes["default"].string
 };
-
-function isLoadingComponent(layout) {
-  validateComponent(layout);
-  return _registry["default"].resolve(layout)._dashprivate_isLoadingComponent;
-}
-
-function getNestedIds(layout) {
-  var ids = [];
-  var queue = [layout];
-
-  while (queue.length) {
-    var elementLayout = queue.shift();
-    var props = elementLayout && elementLayout.props;
-
-    if (!props) {
-      continue;
-    }
-
-    var children = props.children,
-        id = props.id;
-
-    if (id) {
-      ids.push(id);
-    }
-
-    if (children) {
-      var filteredChildren = (0, _ramda.filter)(function (child) {
-        return !(0, _isSimpleComponent["default"])(child) && !isLoadingComponent(child);
-      }, Array.isArray(children) ? children : [children]);
-      queue.push.apply(queue, _toConsumableArray(filteredChildren));
-    }
-  }
-
-  return ids;
-}
-
-function getLoadingState(layout, pendingCallbacks) {
-  var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id && [layout.props.id];
-  var isLoading = false;
-  var loadingProp;
-  var loadingComponent;
-
-  if (pendingCallbacks && pendingCallbacks.length && ids && ids.length) {
-    var idStrs = ids.map(_dependencies.stringifyId);
-    pendingCallbacks.forEach(function (cb) {
-      var requestId = cb.requestId,
-          requestedOutputs = cb.requestedOutputs;
-
-      if (requestId === undefined) {
-        return;
-      }
-
-      idStrs.forEach(function (idStr) {
-        var props = requestedOutputs[idStr];
-
-        if (props) {
-          isLoading = true; // TODO: what about multiple loading components / props?
-
-          loadingComponent = idStr;
-          loadingProp = props[0];
-        }
-      });
-    });
-  } // Set loading state
-
-
-  return {
-    is_loading: isLoading,
-    prop_name: loadingProp,
-    component_name: loadingComponent
-  };
-}
-
-var AugmentedTreeContainer = (0, _reactRedux.connect)(function (state) {
-  return {
-    graphs: state.graphs,
-    pendingCallbacks: state.pendingCallbacks,
-    config: state.config
-  };
-}, function (dispatch) {
-  return {
-    dispatch: dispatch
-  };
-}, function (stateProps, dispatchProps, ownProps) {
-  return {
-    _dashprivate_graphs: stateProps.graphs,
-    _dashprivate_dispatch: dispatchProps.dispatch,
-    _dashprivate_layout: ownProps._dashprivate_layout,
-    _dashprivate_path: ownProps._dashprivate_path,
-    _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.pendingCallbacks),
-    _dashprivate_config: stateProps.config
-  };
-})(TreeContainer);
-exports.AugmentedTreeContainer = AugmentedTreeContainer;
-var _default = AugmentedTreeContainer;
+BaseTreeContainer.propTypes = _objectSpread({}, TreeContainer.propTypes, {
+  _dashprivate_config: _propTypes["default"].object,
+  _dashprivate_dispatch: _propTypes["default"].func,
+  _dashprivate_graphs: _propTypes["default"].any,
+  _dashprivate_loadingMap: _propTypes["default"].any,
+  _dashprivate_path: _propTypes["default"].array
+});
+var _default = TreeContainer;
 exports["default"] = _default;

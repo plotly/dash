@@ -3,27 +3,25 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.splitIdAndProp = splitIdAndProp;
 exports.parseIfWildcard = parseIfWildcard;
 exports.stringifyId = stringifyId;
 exports.validateCallbacksToLayout = validateCallbacksToLayout;
 exports.computeGraphs = computeGraphs;
-exports.setNewRequestId = setNewRequestId;
+exports.idMatch = idMatch;
 exports.isMultiValued = isMultiValued;
-exports.getCallbacksByInput = getCallbacksByInput;
+exports.addAllResolvedFromOutputs = addAllResolvedFromOutputs;
 exports.getWatchedKeys = getWatchedKeys;
-exports.getCallbacksInLayout = getCallbacksInLayout;
-exports.removePendingCallback = removePendingCallback;
-exports.findReadyCallbacks = findReadyCallbacks;
-exports.followForward = followForward;
-exports.mergePendingCallbacks = mergePendingCallbacks;
-exports.pruneRemovedCallbacks = pruneRemovedCallbacks;
-exports.combineIdAndProp = exports.isMultiOutputProp = void 0;
+exports.getUnfilteredLayoutCallbacks = getUnfilteredLayoutCallbacks;
+exports.isMultiOutputProp = void 0;
 
 var _dependencyGraph = require("dependency-graph");
 
 var _fastIsnumeric = _interopRequireDefault(require("fast-isnumeric"));
 
 var _ramda = require("ramda");
+
+var _dependencies_ts = require("./dependencies_ts");
 
 var _paths = require("./paths");
 
@@ -32,6 +30,12 @@ var _utils = require("./utils");
 var _registry = _interopRequireDefault(require("../registry"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -42,8 +46,6 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-var mergeMax = (0, _ramda.mergeWith)(Math.max);
 
 /*
  * If this update is for multiple outputs, then it has
@@ -133,18 +135,10 @@ function splitIdAndProp(idAndProp) {
 function parseIfWildcard(idStr) {
   return isWildcardId(idStr) ? parseWildcardId(idStr) : idStr;
 }
-
-var combineIdAndProp = function combineIdAndProp(_ref) {
-  var id = _ref.id,
-      property = _ref.property;
-  return "".concat(stringifyId(id), ".").concat(property);
-};
 /*
  * JSON.stringify - for the object form - but ensuring keys are sorted
  */
 
-
-exports.combineIdAndProp = combineIdAndProp;
 
 function stringifyId(id) {
   if (_typeof(id) !== 'object') {
@@ -255,17 +249,17 @@ function validateDependencies(parsedDependencies, dispatchError) {
       dispatchError('A callback is missing Outputs', ['Please provide an output for this callback:', JSON.stringify(dep, null, 2)]);
     }
 
-    var head = 'In the callback for output(s):\n  ' + outputs.map(combineIdAndProp).join('\n  ');
+    var head = 'In the callback for output(s):\n  ' + outputs.map(_dependencies_ts.combineIdAndProp).join('\n  ');
 
     if (!inputs.length) {
       dispatchError('A callback is missing Inputs', [head, 'there are no `Input` elements.', 'Without `Input` elements, it will never get called.', '', 'Subscribing to `Input` components will cause the', 'callback to be called whenever their values change.']);
     }
 
     var spec = [[outputs, 'Output'], [inputs, 'Input'], [state, 'State']];
-    spec.forEach(function (_ref2) {
-      var _ref3 = _slicedToArray(_ref2, 2),
-          args = _ref3[0],
-          cls = _ref3[1];
+    spec.forEach(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2),
+          args = _ref2[0],
+          cls = _ref2[1];
 
       if (cls === 'Output' && !hasOutputs) {
         // just a quirk of how we pass & parse outputs - if you don't
@@ -288,9 +282,9 @@ function validateDependencies(parsedDependencies, dispatchError) {
   });
 }
 
-function validateArg(_ref4, head, cls, i, dispatchError) {
-  var id = _ref4.id,
-      property = _ref4.property;
+function validateArg(_ref3, head, cls, i, dispatchError) {
+  var id = _ref3.id,
+      property = _ref3.property;
 
   if (typeof property !== 'string' || !property) {
     dispatchError('Callback property error', [head, "".concat(cls, "[").concat(i, "].property = ").concat(JSON.stringify(property)), 'but we expected `property` to be a non-empty string.']);
@@ -334,12 +328,12 @@ function validateArg(_ref4, head, cls, i, dispatchError) {
 function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
   var newOutputStrs = {};
   var newOutputObjs = [];
-  outputs.forEach(function (_ref5, i) {
-    var id = _ref5.id,
-        property = _ref5.property;
+  outputs.forEach(function (_ref4, i) {
+    var id = _ref4.id,
+        property = _ref4.property;
 
     if (typeof id === 'string') {
-      var idProp = combineIdAndProp({
+      var idProp = (0, _dependencies_ts.combineIdAndProp)({
         id: id,
         property: property
       });
@@ -360,9 +354,9 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
       var otherOverlap = selfOverlap || wildcardOverlap(idObj, outObjs);
 
       if (selfOverlap || otherOverlap) {
-        var _idProp = combineIdAndProp(idObj);
+        var _idProp = (0, _dependencies_ts.combineIdAndProp)(idObj);
 
-        var idProp2 = combineIdAndProp(selfOverlap || otherOverlap);
+        var idProp2 = (0, _dependencies_ts.combineIdAndProp)(selfOverlap || otherOverlap);
         dispatchError('Overlapping wildcard callback outputs', [head, "Output ".concat(i, " (").concat(_idProp, ")"), "overlaps another output (".concat(idProp2, ")"), "used in ".concat(selfOverlap ? 'this' : 'a different', " callback.")]);
       } else {
         newOutputObjs.push(idObj);
@@ -391,10 +385,10 @@ function findInOutOverlap(outputs, inputs, head, dispatchError) {
 
       if (typeof outId === 'string') {
         if (outId === inId) {
-          dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(combineIdAndProp(in_), ")"), "matches Output ".concat(outi, " (").concat(combineIdAndProp(out), ")")]);
+          dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat((0, _dependencies_ts.combineIdAndProp)(in_), ")"), "matches Output ".concat(outi, " (").concat((0, _dependencies_ts.combineIdAndProp)(out), ")")]);
         }
       } else if (wildcardOverlap(in_, [out])) {
-        dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(combineIdAndProp(in_), ")"), 'can match the same component(s) as', "Output ".concat(outi, " (").concat(combineIdAndProp(out), ")")]);
+        dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat((0, _dependencies_ts.combineIdAndProp)(in_), ")"), 'can match the same component(s) as', "Output ".concat(outi, " (").concat((0, _dependencies_ts.combineIdAndProp)(out), ")")]);
       }
     });
   });
@@ -406,13 +400,13 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
 
   outputs.forEach(function (out, i) {
     if (i && !(0, _ramda.equals)(findWildcardKeys(out.id).matchKeys, out0MatchKeys)) {
-      dispatchError('Mismatched `MATCH` wildcards across `Output`s', [head, "Output ".concat(i, " (").concat(combineIdAndProp(out), ")"), 'does not have MATCH wildcards on the same keys as', "Output 0 (".concat(combineIdAndProp(outputs[0]), ")."), 'MATCH wildcards must be on the same keys for all Outputs.', 'ALL wildcards need not match, only MATCH.']);
+      dispatchError('Mismatched `MATCH` wildcards across `Output`s', [head, "Output ".concat(i, " (").concat((0, _dependencies_ts.combineIdAndProp)(out), ")"), 'does not have MATCH wildcards on the same keys as', "Output 0 (".concat((0, _dependencies_ts.combineIdAndProp)(outputs[0]), ")."), 'MATCH wildcards must be on the same keys for all Outputs.', 'ALL wildcards need not match, only MATCH.']);
     }
   });
-  [[inputs, 'Input'], [state, 'State']].forEach(function (_ref6) {
-    var _ref7 = _slicedToArray(_ref6, 2),
-        args = _ref7[0],
-        cls = _ref7[1];
+  [[inputs, 'Input'], [state, 'State']].forEach(function (_ref5) {
+    var _ref6 = _slicedToArray(_ref5, 2),
+        args = _ref6[0],
+        cls = _ref6[1];
 
     args.forEach(function (arg, i) {
       var _findWildcardKeys2 = findWildcardKeys(arg.id),
@@ -424,16 +418,16 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
 
       if (diff.length) {
         diff.sort();
-        dispatchError('`Input` / `State` wildcards not in `Output`s', [head, "".concat(cls, " ").concat(i, " (").concat(combineIdAndProp(arg), ")"), "has MATCH or ALLSMALLER on key(s) ".concat(diff.join(', ')), "where Output 0 (".concat(combineIdAndProp(outputs[0]), ")"), 'does not have a MATCH wildcard. Inputs and State do not', 'need every MATCH from the Output(s), but they cannot have', 'extras beyond the Output(s).']);
+        dispatchError('`Input` / `State` wildcards not in `Output`s', [head, "".concat(cls, " ").concat(i, " (").concat((0, _dependencies_ts.combineIdAndProp)(arg), ")"), "has MATCH or ALLSMALLER on key(s) ".concat(diff.join(', ')), "where Output 0 (".concat((0, _dependencies_ts.combineIdAndProp)(outputs[0]), ")"), 'does not have a MATCH wildcard. Inputs and State do not', 'need every MATCH from the Output(s), but they cannot have', 'extras beyond the Output(s).']);
       }
     });
   });
 }
 
-var matchWildKeys = function matchWildKeys(_ref8) {
-  var _ref9 = _slicedToArray(_ref8, 2),
-      a = _ref9[0],
-      b = _ref9[1];
+var matchWildKeys = function matchWildKeys(_ref7) {
+  var _ref8 = _slicedToArray(_ref7, 2),
+      a = _ref8[0],
+      b = _ref8[1];
 
   var aWild = a && a.wild;
   var bWild = b && b.wild;
@@ -446,9 +440,9 @@ var matchWildKeys = function matchWildKeys(_ref8) {
   return a === b || aWild || bWild;
 };
 
-function wildcardOverlap(_ref10, objs) {
-  var id = _ref10.id,
-      property = _ref10.property;
+function wildcardOverlap(_ref9, objs) {
+  var id = _ref9.id,
+      property = _ref9.property;
   var idKeys = (0, _ramda.keys)(id).sort();
   var idVals = (0, _ramda.props)(idKeys, id);
   var _iteratorNormalCompletion = true;
@@ -505,9 +499,9 @@ function validateCallbacksToLayout(state_, dispatchError) {
       inputPatterns = graphs.inputPatterns;
 
   function tail(callbacks) {
-    return 'This ID was used in the callback(s) for Output(s):\n  ' + callbacks.map(function (_ref11) {
-      var outputs = _ref11.outputs;
-      return outputs.map(combineIdAndProp).join(', ');
+    return 'This ID was used in the callback(s) for Output(s):\n  ' + callbacks.map(function (_ref10) {
+      var outputs = _ref10.outputs;
+      return outputs.map(_dependencies_ts.combineIdAndProp).join(', ');
     }).join('\n  ');
   }
 
@@ -538,7 +532,7 @@ function validateCallbacksToLayout(state_, dispatchError) {
   }
 
   function validateIdPatternProp(id, property, cls, callbacks) {
-    resolveDeps()(paths)({
+    (0, _dependencies_ts.resolveDeps)()(paths)({
       id: id,
       property: property
     }).forEach(function (dep) {
@@ -560,9 +554,9 @@ function validateCallbacksToLayout(state_, dispatchError) {
 
     callbackIdsCheckedForState[output] = 1;
     var cls = 'State';
-    state.forEach(function (_ref12) {
-      var id = _ref12.id,
-          property = _ref12.property;
+    state.forEach(function (_ref11) {
+      var id = _ref11.id,
+          property = _ref11.property;
 
       if (typeof id === 'string') {
         var idPath = (0, _paths.getPath)(paths, id);
@@ -614,10 +608,10 @@ function validateCallbacksToLayout(state_, dispatchError) {
       var keyPatterns = patterns[keyStr];
 
       var _loop = function _loop(property) {
-        keyPatterns[property].forEach(function (_ref13) {
-          var keys = _ref13.keys,
-              values = _ref13.values,
-              callbacks = _ref13.callbacks;
+        keyPatterns[property].forEach(function (_ref12) {
+          var keys = _ref12.keys,
+              values = _ref12.values,
+              callbacks = _ref12.callbacks;
           var id = (0, _ramda.zipObj)(keys, values);
           validateIdPatternProp(id, property, cls, callbacks);
 
@@ -803,13 +797,13 @@ function computeGraphs(dependencies, dispatchError) {
         if (_typeof(inId) === 'object') {
           var inIdList = makeAllIds(inId, outIdFinal);
           inIdList.forEach(function (id) {
-            addInputToMulti(combineIdAndProp({
+            addInputToMulti((0, _dependencies_ts.combineIdAndProp)({
               id: id,
               property: property
             }), outIdProp);
           });
         } else {
-          addInputToMulti(combineIdAndProp(inObj), outIdProp);
+          addInputToMulti((0, _dependencies_ts.combineIdAndProp)(inObj), outIdProp);
         }
       });
     } // We'll continue to use dep.output as its id, but add outputs as well
@@ -837,14 +831,14 @@ function computeGraphs(dependencies, dispatchError) {
       if (_typeof(outId) === 'object') {
         var outIdList = makeAllIds(outId, {});
         outIdList.forEach(function (id) {
-          addOutputToMulti(id, combineIdAndProp({
+          addOutputToMulti(id, (0, _dependencies_ts.combineIdAndProp)({
             id: id,
             property: property
           }));
         });
         addPattern(outputPatterns, outId, property, finalDependency);
       } else {
-        addOutputToMulti({}, combineIdAndProp(outIdProp));
+        addOutputToMulti({}, (0, _dependencies_ts.combineIdAndProp)(outIdProp));
         addMap(outputMap, outId, property, finalDependency);
       }
     });
@@ -942,101 +936,14 @@ function getAnyVals(patternVals, vals) {
 
   return matches.length ? JSON.stringify(matches) : '';
 }
-
-function resolveDeps(refKeys, refVals, refPatternVals) {
-  return function (paths) {
-    return function (_ref14) {
-      var idPattern = _ref14.id,
-          property = _ref14.property;
-
-      if (typeof idPattern === 'string') {
-        var _path = (0, _paths.getPath)(paths, idPattern);
-
-        return _path ? [{
-          id: idPattern,
-          property: property,
-          path: _path
-        }] : [];
-      }
-
-      var keys = Object.keys(idPattern).sort();
-      var patternVals = (0, _ramda.props)(keys, idPattern);
-      var keyStr = keys.join(',');
-      var keyPaths = paths.objs[keyStr];
-
-      if (!keyPaths) {
-        return [];
-      }
-
-      var result = [];
-      keyPaths.forEach(function (_ref15) {
-        var vals = _ref15.values,
-            path = _ref15.path;
-
-        if (idMatch(keys, vals, patternVals, refKeys, refVals, refPatternVals)) {
-          result.push({
-            id: (0, _ramda.zipObj)(keys, vals),
-            property: property,
-            path: path
-          });
-        }
-      });
-      return result;
-    };
-  };
-}
-/*
- * Create a pending callback object. Includes the original callback definition,
- * its resolved ID (including the value of all MATCH wildcards),
- * accessors to find all inputs, outputs, and state involved in this
- * callback (lazy as not all users will want all of these),
- * placeholders for which other callbacks this one is blockedBy or blocking,
- * and a boolean for whether it has been dispatched yet.
- */
-
-
-var makeResolvedCallback = function makeResolvedCallback(callback, resolve, anyVals) {
-  return {
-    callback: callback,
-    anyVals: anyVals,
-    resolvedId: callback.output + anyVals,
-    getOutputs: function getOutputs(paths) {
-      return callback.outputs.map(resolve(paths));
-    },
-    getInputs: function getInputs(paths) {
-      return callback.inputs.map(resolve(paths));
-    },
-    getState: function getState(paths) {
-      return callback.state.map(resolve(paths));
-    },
-    blockedBy: {},
-    blocking: {},
-    changedPropIds: {},
-    initialCall: false,
-    requestId: 0,
-    requestedOutputs: {}
-  };
-};
-
-var DIRECT = 2;
-var INDIRECT = 1;
-var nextRequestId = 0;
-/*
- * Give a callback a new requestId.
- */
-
-function setNewRequestId(callback) {
-  nextRequestId++;
-  return (0, _ramda.assoc)('requestId', nextRequestId, callback);
-}
 /*
  * Does this item (input / output / state) support multiple values?
  * string IDs do not; wildcard IDs only do if they contain ALL or ALLSMALLER
  */
 
 
-function isMultiValued(_ref16) {
-  var id = _ref16.id;
+function isMultiValued(_ref13) {
+  var id = _ref13.id;
   return _typeof(id) === 'object' && (0, _ramda.any)(function (v) {
     return v.multi;
   }, (0, _ramda.values)(id));
@@ -1055,8 +962,6 @@ function isMultiValued(_ref16) {
  *         The result is a list of {id (string or object), property (string)}
  *     getInputs: same for inputs
  *     getState: same for state
- *     blockedBy: an object of {[resolvedId]: 1} blocking this callback
- *     blocking: an object of {[resolvedId]: 1} this callback is blocking
  *     changedPropIds: an object of {[idAndProp]: v} triggering this callback
  *         v = DIRECT (2): the prop was changed in the front end, so dependent
  *             callbacks *MUST* be executed.
@@ -1067,12 +972,6 @@ function isMultiValued(_ref16) {
  *         this value on page load or changing part of the layout.
  *         By default this is true for callbacks generated by
  *         getCallbackByOutput, false from getCallbacksByInput.
- *     requestId: integer: starts at 0. when this callback is dispatched it will
- *         get a unique requestId, but if it gets added again the requestId will
- *         be reset to 0, and we'll know to ignore the response of the first
- *         request.
- *     requestedOutputs: object of {[idStr]: [props]} listing all the props
- *         actually requested for update.
  * }
  */
 
@@ -1088,7 +987,7 @@ function getCallbackByOutput(graphs, paths, id, prop) {
 
     if (callbacks) {
       callback = callbacks[0];
-      resolve = resolveDeps();
+      resolve = (0, _dependencies_ts.resolveDeps)();
     }
   } else {
     // wildcard version
@@ -1106,7 +1005,7 @@ function getCallbackByOutput(graphs, paths, id, prop) {
 
         if (idMatch(_keys, vals, patternVals)) {
           callback = patterns[i].callbacks[0];
-          resolve = resolveDeps(_keys, vals, patternVals);
+          resolve = (0, _dependencies_ts.resolveDeps)(_keys, vals, patternVals);
           anyVals = getAnyVals(patternVals, vals);
           break;
         }
@@ -1118,16 +1017,16 @@ function getCallbackByOutput(graphs, paths, id, prop) {
     return false;
   }
 
-  return makeResolvedCallback(callback, resolve, anyVals);
+  return (0, _dependencies_ts.makeResolvedCallback)(callback, resolve, anyVals);
 }
 
 function addResolvedFromOutputs(callback, outPattern, outs, matches) {
   var out0Keys = Object.keys(outPattern.id).sort();
   var out0PatternVals = (0, _ramda.props)(out0Keys, outPattern.id);
-  outs.forEach(function (_ref17) {
-    var outId = _ref17.id;
+  outs.forEach(function (_ref14) {
+    var outId = _ref14.id;
     var outVals = (0, _ramda.props)(out0Keys, outId);
-    matches.push(makeResolvedCallback(callback, resolveDeps(out0Keys, outVals, out0PatternVals), getAnyVals(out0PatternVals, outVals)));
+    matches.push((0, _dependencies_ts.makeResolvedCallback)(callback, (0, _dependencies_ts.resolveDeps)(out0Keys, outVals, out0PatternVals), getAnyVals(out0PatternVals, outVals)));
   });
 }
 
@@ -1164,7 +1063,7 @@ function addAllResolvedFromOutputs(resolve, paths, matches) {
         });
       }
     } else {
-      var cb = makeResolvedCallback(callback, resolve, '');
+      var cb = (0, _dependencies_ts.makeResolvedCallback)(callback, resolve, '');
 
       if ((0, _ramda.flatten)(cb.getOutputs(paths)).length) {
         matches.push(cb);
@@ -1185,49 +1084,6 @@ function addAllResolvedFromOutputs(resolve, paths, matches) {
  * in one entry.
  */
 
-
-function getCallbacksByInput(graphs, paths, id, prop, changeType) {
-  var matches = [];
-  var idAndProp = combineIdAndProp({
-    id: id,
-    property: prop
-  });
-
-  if (typeof id === 'string') {
-    // standard id version
-    var callbacks = (graphs.inputMap[id] || {})[prop];
-
-    if (!callbacks) {
-      return [];
-    }
-
-    callbacks.forEach(addAllResolvedFromOutputs(resolveDeps(), paths, matches));
-  } else {
-    // wildcard version
-    var _keys2 = Object.keys(id).sort();
-
-    var vals = (0, _ramda.props)(_keys2, id);
-
-    var keyStr = _keys2.join(',');
-
-    var patterns = (graphs.inputPatterns[keyStr] || {})[prop];
-
-    if (!patterns) {
-      return [];
-    }
-
-    patterns.forEach(function (pattern) {
-      if (idMatch(_keys2, vals, pattern.values)) {
-        pattern.callbacks.forEach(addAllResolvedFromOutputs(resolveDeps(_keys2, vals, pattern.values), paths, matches));
-      }
-    });
-  }
-
-  matches.forEach(function (match) {
-    match.changedPropIds[idAndProp] = changeType || DIRECT;
-  });
-  return matches;
-}
 
 function getWatchedKeys(id, newProps, graphs) {
   if (!(id && graphs && newProps.length)) {
@@ -1278,7 +1134,7 @@ function getWatchedKeys(id, newProps, graphs) {
  */
 
 
-function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
+function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
   var outputsOnly = opts.outputsOnly,
       removedArrayInputsOnly = opts.removedArrayInputsOnly,
       newPaths = opts.newPaths,
@@ -1292,7 +1148,7 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
 
       if (foundIndex !== undefined) {
         var foundCb = callbacks[foundIndex];
-        foundCb.changedPropIds = mergeMax(foundCb.changedPropIds, callback.changedPropIds);
+        foundCb.changedPropIds = (0, _dependencies_ts.mergeMax)(foundCb.changedPropIds, callback.changedPropIds);
 
         if (callback.initialCall) {
           foundCb.initialCall = true;
@@ -1360,7 +1216,7 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
       }
 
       for (var _property in inIdCallbacks) {
-        getCallbacksByInput(graphs, paths, id, _property, INDIRECT).forEach(handleThisCallback);
+        (0, _dependencies_ts.getCallbacksByInput)(graphs, paths, id, _property, _dependencies_ts.INDIRECT).forEach(handleThisCallback);
       }
     }
   }
@@ -1376,242 +1232,10 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         handleOneId(id, !removedArrayInputsOnly && graphs.outputPatterns[keyStr], graphs.inputPatterns[keyStr]);
       }
     }
-  }); // We still need to follow these forward in order to capture blocks and,
-  // if based on a partial layout, any knock-on effects in the full layout.
-
-  var finalCallbacks = followForward(graphs, paths, callbacks); // Exception to the `initialCall` case of callbacks found by output:
-  // if *every* input to this callback is itself an output of another
-  // callback earlier in the chain, we remove the `initialCall` flag
-  // so that if all of those prior callbacks abort all of their outputs,
-  // this later callback never runs.
-  // See test inin003 "callback2 is never triggered, even on initial load"
-
-  finalCallbacks.forEach(function (cb) {
-    if (cb.initialCall && !(0, _ramda.isEmpty)(cb.blockedBy)) {
-      var inputs = (0, _ramda.flatten)(cb.getInputs(paths));
-      cb.initialCall = false;
-      inputs.forEach(function (i) {
-        var propId = combineIdAndProp(i);
-
-        if (cb.changedPropIds[propId]) {
-          cb.changedPropIds[propId] = INDIRECT;
-        } else {
-          cb.initialCall = true;
-        }
-      });
-    }
   });
-  return finalCallbacks;
-}
-
-function removePendingCallback(pendingCallbacks, paths, removeResolvedId, skippedProps) {
-  var finalPendingCallbacks = [];
-  pendingCallbacks.forEach(function (pending) {
-    var blockedBy = pending.blockedBy,
-        blocking = pending.blocking,
-        changedPropIds = pending.changedPropIds,
-        resolvedId = pending.resolvedId;
-
-    if (resolvedId !== removeResolvedId) {
-      finalPendingCallbacks.push((0, _ramda.mergeRight)(pending, {
-        blockedBy: (0, _ramda.dissoc)(removeResolvedId, blockedBy),
-        blocking: (0, _ramda.dissoc)(removeResolvedId, blocking),
-        changedPropIds: (0, _ramda.pickBy)(function (v, k) {
-          return v === DIRECT || !(0, _ramda.includes)(k, skippedProps);
-        }, changedPropIds)
-      }));
-    }
-  }); // If any callback no longer has any changed inputs, it shouldn't fire.
-  // This will repeat recursively until all unneeded callbacks are pruned
-
-  if (skippedProps.length) {
-    for (var i = 0; i < finalPendingCallbacks.length; i++) {
-      var cb = finalPendingCallbacks[i];
-
-      if (!cb.initialCall && (0, _ramda.isEmpty)(cb.changedPropIds)) {
-        return removePendingCallback(finalPendingCallbacks, paths, cb.resolvedId, (0, _ramda.flatten)(cb.getOutputs(paths)).map(combineIdAndProp));
-      }
-    }
-  }
-
-  return finalPendingCallbacks;
-}
-/*
- * Split the list of pending callbacks into ready (not blocked by any others)
- * and blocked. Sort the ready callbacks by how many each is blocking, on the
- * theory that the most important ones to dispatch are the ones with the most
- * others depending on them.
- */
-
-
-function findReadyCallbacks(pendingCallbacks) {
-  var _partition = (0, _ramda.partition)(function (pending) {
-    return (0, _ramda.isEmpty)(pending.blockedBy) && !pending.requestId;
-  }, pendingCallbacks),
-      _partition2 = _slicedToArray(_partition, 2),
-      readyCallbacks = _partition2[0],
-      blockedCallbacks = _partition2[1];
-
-  readyCallbacks.sort(function (a, b) {
-    return Object.keys(b.blocking).length - Object.keys(a.blocking).length;
-  });
-  return {
-    readyCallbacks: readyCallbacks,
-    blockedCallbacks: blockedCallbacks
-  };
-}
-
-function addBlock(callbacks, blockingId, blockedId) {
-  callbacks.forEach(function (_ref18) {
-    var blockedBy = _ref18.blockedBy,
-        blocking = _ref18.blocking,
-        resolvedId = _ref18.resolvedId;
-
-    if (resolvedId === blockingId || blocking[blockingId]) {
-      blocking[blockedId] = 1;
-    } else if (resolvedId === blockedId || blockedBy[blockedId]) {
-      blockedBy[blockingId] = 1;
-    }
-  });
-}
-
-function collectIds(callbacks) {
-  var allResolvedIds = {};
-  callbacks.forEach(function (_ref19, i) {
-    var resolvedId = _ref19.resolvedId;
-    allResolvedIds[resolvedId] = i;
-  });
-  return allResolvedIds;
-}
-/*
- * Take a list of callbacks and follow them all forward, ie see if any of their
- * outputs are inputs of another callback. Any new callbacks get added to the
- * list. All that come after another get marked as blocked by that one, whether
- * they were in the initial list or not.
- */
-
-
-function followForward(graphs, paths, callbacks_) {
-  var callbacks = (0, _ramda.clone)(callbacks_);
-  var allResolvedIds = collectIds(callbacks);
-  var i;
-  var callback;
-
-  var followOutput = function followOutput(_ref20) {
-    var id = _ref20.id,
-        property = _ref20.property;
-    var nextCBs = getCallbacksByInput(graphs, paths, id, property, INDIRECT);
-    nextCBs.forEach(function (nextCB) {
-      var existingIndex = allResolvedIds[nextCB.resolvedId];
-
-      if (existingIndex === undefined) {
-        existingIndex = callbacks.length;
-        callbacks.push(nextCB);
-        allResolvedIds[nextCB.resolvedId] = existingIndex;
-      } else {
-        var existingCB = callbacks[existingIndex];
-        existingCB.changedPropIds = mergeMax(existingCB.changedPropIds, nextCB.changedPropIds);
-      }
-
-      addBlock(callbacks, callback.resolvedId, nextCB.resolvedId);
+  return (0, _ramda.map)(function (cb) {
+    return _objectSpread({}, cb, {
+      priority: (0, _dependencies_ts.getPriority)(graphs, paths, cb)
     });
-  }; // Using a for loop instead of forEach because followOutput may extend the
-  // callbacks array, and we want to continue into these new elements.
-
-
-  for (i = 0; i < callbacks.length; i++) {
-    callback = callbacks[i];
-    var outputs = (0, _ramda.unnest)(callback.getOutputs(paths));
-    outputs.forEach(followOutput);
-  }
-
-  return callbacks;
-}
-
-function mergeAllBlockers(cb1, cb2) {
-  function mergeBlockers(a, b) {
-    if (cb1[a][cb2.resolvedId] && !cb2[b][cb1.resolvedId]) {
-      cb2[b][cb1.resolvedId] = cb1[a][cb2.resolvedId];
-      cb2[b] = mergeMax(cb1[b], cb2[b]);
-      cb1[a] = mergeMax(cb2[a], cb1[a]);
-    }
-  }
-
-  mergeBlockers('blockedBy', 'blocking');
-  mergeBlockers('blocking', 'blockedBy');
-}
-/*
- * Given two arrays of pending callbacks, merge them into one so that
- * each will only fire once, and any extra blockages from combining the lists
- * will be accounted for.
- */
-
-
-function mergePendingCallbacks(cb1, cb2) {
-  if (!cb2.length) {
-    return cb1;
-  }
-
-  if (!cb1.length) {
-    return cb2;
-  }
-
-  var finalCallbacks = (0, _ramda.clone)(cb1);
-  var callbacks2 = (0, _ramda.clone)(cb2);
-  var allResolvedIds = collectIds(finalCallbacks);
-  callbacks2.forEach(function (callback, i) {
-    var existingIndex = allResolvedIds[callback.resolvedId];
-
-    if (existingIndex !== undefined) {
-      finalCallbacks.forEach(function (finalCb) {
-        mergeAllBlockers(finalCb, callback);
-      });
-      callbacks2.slice(i + 1).forEach(function (cb2) {
-        mergeAllBlockers(cb2, callback);
-      });
-      finalCallbacks[existingIndex] = (0, _ramda.mergeDeepRight)(finalCallbacks[existingIndex], callback);
-    } else {
-      allResolvedIds[callback.resolvedId] = finalCallbacks.length;
-      finalCallbacks.push(callback);
-    }
-  });
-  return finalCallbacks;
-}
-/*
- * Remove callbacks whose outputs or changed inputs have been removed
- * from the layout
- */
-
-
-function pruneRemovedCallbacks(pendingCallbacks, paths) {
-  var removeIds = [];
-  var cleanedCallbacks = pendingCallbacks.map(function (callback) {
-    var changedPropIds = callback.changedPropIds,
-        getOutputs = callback.getOutputs,
-        resolvedId = callback.resolvedId;
-
-    if (!(0, _ramda.flatten)(getOutputs(paths)).length) {
-      removeIds.push(resolvedId);
-      return callback;
-    }
-
-    var omittedProps = false;
-    var newChangedProps = (0, _ramda.pickBy)(function (_, propId) {
-      if ((0, _paths.getPath)(paths, splitIdAndProp(propId).id)) {
-        return true;
-      }
-
-      omittedProps = true;
-      return false;
-    }, changedPropIds);
-    return omittedProps ? (0, _ramda.assoc)('changedPropIds', newChangedProps, callback) : callback;
-  });
-  removeIds.forEach(function (resolvedId) {
-    var cb = cleanedCallbacks.find((0, _ramda.propEq)('resolvedId', resolvedId));
-
-    if (cb) {
-      cleanedCallbacks = removePendingCallback(pendingCallbacks, paths, resolvedId, (0, _ramda.flatten)(cb.getOutputs(paths)).map(combineIdAndProp));
-    }
-  });
-  return cleanedCallbacks;
+  }, callbacks);
 }

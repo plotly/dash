@@ -3109,24 +3109,6 @@ module.exports = exports;
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/dist/cjs.js!./src/components/error/menu/DebugAlertContainer.css":
-/*!*************************************************************************************************!*\
-  !*** ./node_modules/css-loader/dist/cjs.js!./src/components/error/menu/DebugAlertContainer.css ***!
-  \*************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// Imports
-var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
-exports = ___CSS_LOADER_API_IMPORT___(false);
-// Module
-exports.push([module.i, ".dash-debug-alert-container {\n    box-sizing: border-box;\n    background: #f3f6fa;\n    border-radius: 2px;\n    padding: 8px;\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    transition: background-color 0.1s, border 0.1s;\n}\n.dash-debug-alert-container:hover {\n    cursor: pointer;\n}\n.dash-debug-alert-container--opened {\n    background-color: #119dff;\n    color: white;\n}\n.dash-debug-alert-container__icon {\n    width: 12px;\n    height: 12px;\n    margin-right: 4px;\n}\n.dash-debug-alert-container__icon--warning {\n    height: auto;\n}\n\n.dash-debug-alert {\n    display: flex;\n    align-items: center;\n    font-size: 10px;\n}\n\n.dash-debug-alert-label {\n    display: flex;\n    position: fixed;\n    bottom: 81px;\n    right: 29px;\n    z-index: 10001;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 32px;\n    background-color: white;\n    padding: 4px;\n}\n", ""]);
-// Exports
-module.exports = exports;
-
-
-/***/ }),
-
 /***/ "./node_modules/css-loader/dist/cjs.js!./src/components/error/menu/DebugMenu.css":
 /*!***************************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js!./src/components/error/menu/DebugMenu.css ***!
@@ -3138,7 +3120,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.i, ".dash-debug-menu {\n    transition: width 0.05s, background-color 0.1s;\n    position: fixed;\n    bottom: 35px;\n    right: 35px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    z-index: 10000;\n}\n.dash-debug-menu--closed {\n    background-color: #119dff;\n    border-radius: 100%;\n    width: 64px;\n    height: 64px;\n}\n.dash-debug-menu--opened {\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 4px;\n    padding: 12px 0px;\n    background-color: white;\n}\n\n.dash-debug-menu--closed:hover {\n    cursor: pointer;\n    background-color: #108de4;\n}\n\n.dash-debug-menu__icon {\n    width: 24px;\n    height: 28px;\n}\n.dash-debug-menu__icon--close {\n    width: 14px;\n    height: 14px;\n}\n.dash-debug-menu__icon--bell {\n    height: 24px;\n    width: 28px;\n}\n.dash-debug-menu__icon--debug {\n    height: 24px;\n    width: auto;\n}\n.dash-debug-menu__icon--graph {\n    height: 24px;\n}\n\n.dash-debug-menu__content {\n    display: flex;\n    width: 100%;\n    height: 100%;\n}\n\n.dash-debug-menu__button-container {\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    align-items: center;\n    width: 74px;\n    margin-left: 10px;\n}\n.dash-debug-menu__button-label {\n    color: #A2B1C6;\n    font-size: 10px;\n    margin-top: 4px;\n}\n\n.dash-debug-menu__button {\n    background-color: white;\n    border-radius: 100%;\n    border: 1px solid #B9C2CE;\n    width: 64px;\n    height: 64px;\n    font-size: 10px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    transition: background-color 0.2s;\n    color: black;\n}\n.dash-debug-menu__button--enabled {\n    background-color: #00CC96;\n    color: white;\n}\n.dash-debug-menu__button--small {\n    width: 32px;\n    height: 32px;\n    background-color: #B9C2CE;\n}\n.dash-debug-menu__button:hover {\n    cursor: pointer;\n    background-color: #f5f5f5;\n}\n.dash-debug-menu__button--small:hover {\n    background-color: #a1a9b5;\n}\n\n.dash-debug-menu__button--enabled:hover {\n    background-color: #03bb8a;\n}\n", ""]);
+exports.push([module.i, ".dash-debug-menu {\n    transition: 0.3s;\n    position: fixed;\n    bottom: 35px;\n    right: 35px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    z-index: 10001;\n    background-color: #119dff;\n    border-radius: 100%;\n    width: 64px;\n    height: 64px;\n    cursor: pointer;\n}\n.dash-debug-menu--open {\n    transform: rotate(-180deg);\n}\n\n.dash-debug-menu:hover {\n    background-color: #108de4;\n}\n\n.dash-debug-menu__icon {\n    width: auto;\n    height: 24px;\n}\n\n.dash-debug-menu__outer {\n    transition: 0.3s;\n    box-sizing: border-box;\n    position: fixed;\n    bottom: 27px;\n    right: 27px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    z-index: 10000;\n    height: 80px;\n    border-radius: 40px;\n    padding: 5px 78px 5px 5px;\n    background-color: #fff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n}\n.dash-debug-menu__outer--closed {\n    height: 60px;\n    width: 60px;\n    bottom: 37px;\n    right: 37px;\n    padding: 0;\n}\n\n.dash-debug-menu__content {\n    display: flex;\n    width: 100%;\n    height: 100%;\n}\n\n.dash-debug-menu__button-container {\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    align-items: center;\n    width: 74px;\n}\n\n.dash-debug-menu__button {\n    position: relative;\n    background-color: #B9C2CE;\n    border-radius: 100%;\n    width: 64px;\n    height: 64px;\n    font-size: 10px;\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    align-items: center;\n    transition: background-color 0.2s;\n    color: #fff;\n    cursor: pointer;\n}\n.dash-debug-menu__button:hover {\n    background-color: #a1a9b5;\n}\n.dash-debug-menu__button--enabled {\n    background-color: #00CC96;\n}\n.dash-debug-menu__button.dash-debug-menu__button--enabled:hover {\n    background-color: #03bb8a;\n}\n\n.dash-debug-menu__button-label {\n    cursor: inherit;\n}\n\n.dash-debug-menu__button::before {\n    visibility: hidden;\n    pointer-events: none;\n    position: absolute;\n    box-sizing: border-box;\n    bottom: 110%;\n    left: 50%;\n    margin-left: -60px;\n    padding: 7px;\n    width: 120px;\n    border-radius: 3px;\n    background-color: rgba(68,68,68,0.7);\n    color: #fff;\n    text-align: center;\n    font-size: 10px;\n    line-height: 1.2;\n}\n.dash-debug-menu__button:hover::before {\n    visibility: visible;\n}\n.dash-debug-menu__button--callbacks::before {\n    content: \"Toggle Callback Graph\";\n}\n.dash-debug-menu__button--errors::before {\n    content: \"Toggle Errors\";\n}\n.dash-debug-menu__button--available,\n.dash-debug-menu__button--available:hover {\n    background-color: #00CC96;\n    cursor: default;\n}\n.dash-debug-menu__button--available::before {\n    content: \"Server Available\";\n}\n.dash-debug-menu__button--unavailable,\n.dash-debug-menu__button--unavailable:hover {\n    background-color: #F1564E;\n    cursor: default;\n}\n.dash-debug-menu__button--unavailable::before {\n    content: \"Server Unavailable. Check if the process has halted or crashed.\";\n}\n.dash-debug-menu__button--cold,\n.dash-debug-menu__button--cold:hover {\n    background-color: #FDDA68;\n    cursor: default;\n}\n.dash-debug-menu__button--cold::before {\n    content: \"Hot Reload Disabled\";\n}\n\n.dash-debug-alert {\n    display: flex;\n    align-items: center;\n    font-size: 10px;\n}\n\n.dash-debug-alert-label {\n    display: flex;\n    position: fixed;\n    bottom: 81px;\n    right: 29px;\n    z-index: 10002;\n    cursor: pointer;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 32px;\n    background-color: white;\n    padding: 4px;\n}\n\n.dash-debug-error-count {\n    display: block;\n    margin: 0 3px;\n}\n\n.dash-debug-disconnected {\n    font-size: 14px;\n    margin-left: 3px;\n}\n", ""]);
 // Exports
 module.exports = exports;
 
@@ -32013,11 +31995,12 @@ if (!self.fetch) {
 /*!************************************!*\
   !*** ./src/APIController.react.js ***!
   \************************************/
-/*! exports provided: default */
+/*! exports provided: DashContext, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DashContext", function() { return DashContext; });
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "react");
@@ -32034,6 +32017,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./persistence */ "./src/persistence.js");
 /* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./reducers/constants */ "./src/reducers/constants.js");
 /* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./constants/constants */ "./src/constants/constants.js");
+/* harmony import */ var _utils_TreeContainer__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./utils/TreeContainer */ "./src/utils/TreeContainer.ts");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -32056,6 +32040,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
+
+var DashContext = Object(react__WEBPACK_IMPORTED_MODULE_2__["createContext"])({});
 /**
  * Fire off API calls for initialization
  * @param {*} props props
@@ -32063,6 +32049,14 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
  */
 
 var UnconnectedContainer = function UnconnectedContainer(props) {
+  var appLifecycle = props.appLifecycle,
+      config = props.config,
+      dependenciesRequest = props.dependenciesRequest,
+      error = props.error,
+      layoutRequest = props.layoutRequest,
+      layout = props.layout,
+      loadingMap = props.loadingMap;
+
   var _useState = Object(react__WEBPACK_IMPORTED_MODULE_2__["useState"])(false),
       _useState2 = _slicedToArray(_useState, 2),
       errorLoading = _useState2[0],
@@ -32075,6 +32069,18 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
   }
 
   var renderedTree = Object(react__WEBPACK_IMPORTED_MODULE_2__["useRef"])(false);
+  var propsRef = Object(react__WEBPACK_IMPORTED_MODULE_2__["useRef"])({});
+  propsRef.current = props;
+  var provider = Object(react__WEBPACK_IMPORTED_MODULE_2__["useRef"])({
+    fn: function fn() {
+      return {
+        _dashprivate_config: propsRef.current.config,
+        _dashprivate_dispatch: propsRef.current.dispatch,
+        _dashprivate_graphs: propsRef.current.graphs,
+        _dashprivate_loadingMap: propsRef.current.loadingMap
+      };
+    }
+  });
   Object(react__WEBPACK_IMPORTED_MODULE_2__["useEffect"])(storeEffect.bind(null, props, events, setErrorLoading));
   Object(react__WEBPACK_IMPORTED_MODULE_2__["useEffect"])(function () {
     if (renderedTree.current) {
@@ -32082,11 +32088,6 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
       events.current.emit('rendered');
     }
   });
-  var appLifecycle = props.appLifecycle,
-      dependenciesRequest = props.dependenciesRequest,
-      layoutRequest = props.layoutRequest,
-      layout = props.layout,
-      config = props.config;
   var content;
 
   if (layoutRequest.status && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["includes"])(layoutRequest.status, [_constants_constants__WEBPACK_IMPORTED_MODULE_13__["STATUS"].OK, 'loading'])) {
@@ -32099,10 +32100,15 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
     }, "Error loading dependencies");
   } else if (appLifecycle === Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_12__["getAppState"])('HYDRATED')) {
     renderedTree.current = true;
-    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_TreeContainer__WEBPACK_IMPORTED_MODULE_4__["default"], {
+    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(DashContext.Provider, {
+      value: provider.current
+    }, react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_TreeContainer__WEBPACK_IMPORTED_MODULE_4__["default"], {
+      _dashprivate_error: error,
       _dashprivate_layout: layout,
-      _dashprivate_path: []
-    });
+      _dashprivate_loadingState: Object(_utils_TreeContainer__WEBPACK_IMPORTED_MODULE_14__["getLoadingState"])(layout, [], loadingMap),
+      _dashprivate_loadingStateHash: Object(_utils_TreeContainer__WEBPACK_IMPORTED_MODULE_14__["getLoadingHash"])([], loadingMap),
+      _dashprivate_path: JSON.stringify([])
+    }));
   } else {
     content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
       className: "_dash-loading"
@@ -32169,6 +32175,7 @@ UnconnectedContainer.propTypes = {
   graphs: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
   layoutRequest: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
   layout: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
+  loadingMap: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.any,
   history: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.any,
   error: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object,
   config: prop_types__WEBPACK_IMPORTED_MODULE_3___default.a.object
@@ -32180,6 +32187,7 @@ function (state) {
     dependenciesRequest: state.dependenciesRequest,
     layoutRequest: state.layoutRequest,
     layout: state.layout,
+    loadingMap: state.loadingMap,
     graphs: state.graphs,
     history: state.history,
     error: state.error,
@@ -32314,42 +32322,42 @@ var AppContainer = Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(f
 
 /***/ }),
 
-/***/ "./src/AppProvider.react.js":
-/*!**********************************!*\
-  !*** ./src/AppProvider.react.js ***!
-  \**********************************/
+/***/ "./src/AppProvider.react.tsx":
+/*!***********************************!*\
+  !*** ./src/AppProvider.react.tsx ***!
+  \***********************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./store */ "./src/store.js");
-/* harmony import */ var _AppContainer_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AppContainer.react */ "./src/AppContainer.react.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! prop-types */ "prop-types");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! prop-types */ "prop-types");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store */ "./src/store.ts");
+/* harmony import */ var _AppContainer_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./AppContainer.react */ "./src/AppContainer.react.js");
 
 
 
 
 
-var store = Object(_store__WEBPACK_IMPORTED_MODULE_2__["default"])();
+var store = Object(_store__WEBPACK_IMPORTED_MODULE_3__["default"])();
 
 var AppProvider = function AppProvider(_ref) {
   var hooks = _ref.hooks;
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_redux__WEBPACK_IMPORTED_MODULE_1__["Provider"], {
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react_redux__WEBPACK_IMPORTED_MODULE_2__["Provider"], {
     store: store
-  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_AppContainer_react__WEBPACK_IMPORTED_MODULE_3__["default"], {
+  }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_AppContainer_react__WEBPACK_IMPORTED_MODULE_4__["default"], {
     hooks: hooks
   }));
 };
 
 AppProvider.propTypes = {
-  hooks: prop_types__WEBPACK_IMPORTED_MODULE_4___default.a.shape({
-    request_pre: prop_types__WEBPACK_IMPORTED_MODULE_4___default.a.func,
-    request_post: prop_types__WEBPACK_IMPORTED_MODULE_4___default.a.func
+  hooks: prop_types__WEBPACK_IMPORTED_MODULE_0___default.a.shape({
+    request_pre: prop_types__WEBPACK_IMPORTED_MODULE_0___default.a.func,
+    request_post: prop_types__WEBPACK_IMPORTED_MODULE_0___default.a.func
   })
 };
 AppProvider.defaultProps = {
@@ -32376,7 +32384,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "react-dom");
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_dom__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _AppProvider_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AppProvider.react */ "./src/AppProvider.react.js");
+/* harmony import */ var _AppProvider_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AppProvider.react */ "./src/AppProvider.react.tsx");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
@@ -32396,30 +32404,149 @@ var DashRenderer = function DashRenderer(hooks) {
 
 /***/ }),
 
-/***/ "./src/TreeContainer.js":
+/***/ "./src/StoreObserver.ts":
 /*!******************************!*\
-  !*** ./src/TreeContainer.js ***!
+  !*** ./src/StoreObserver.ts ***!
   \******************************/
-/*! exports provided: AugmentedTreeContainer, default */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AugmentedTreeContainer", function() { return AugmentedTreeContainer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return StoreObserver; });
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+
+
+var StoreObserver = function StoreObserver(store) {
+  var _this = this;
+
+  _classCallCheck(this, StoreObserver);
+
+  this._observers = [];
+
+  this.observe = function (observer, inputs) {
+    if (typeof observer === 'function') {
+      if (!Array.isArray(inputs)) {
+        throw new Error('inputs must be an array');
+      }
+
+      _this.add(observer, inputs);
+
+      return function () {
+        return _this.remove(observer);
+      };
+    } else {
+      _this.add(observer.observer, observer.inputs);
+
+      return function () {
+        return _this.remove(observer.observer);
+      };
+    }
+  };
+
+  this.setStore = function (store) {
+    _this.__finalize__();
+
+    _this.__init__(store);
+  };
+
+  this.__finalize__ = function () {
+    var _this$_unsubscribe;
+
+    return (_this$_unsubscribe = _this._unsubscribe) === null || _this$_unsubscribe === void 0 ? void 0 : _this$_unsubscribe.call(_this);
+  };
+
+  this.__init__ = function (store) {
+    _this._store = store;
+
+    if (store) {
+      _this._unsubscribe = store.subscribe(_this.notify);
+    }
+
+    Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (o) {
+      return o.lastState = null;
+    }, _this._observers);
+  };
+
+  this.add = function (observer, inputs) {
+    return _this._observers.push({
+      inputPaths: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (p) {
+        return p.split('.');
+      }, inputs),
+      lastState: null,
+      observer: observer,
+      triggered: false
+    });
+  };
+
+  this.notify = function () {
+    var store = _this._store;
+
+    if (!store) {
+      return;
+    }
+
+    var state = store.getState();
+    var triggered = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (o) {
+      return !o.triggered && Object(ramda__WEBPACK_IMPORTED_MODULE_0__["any"])(function (i) {
+        return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(i, state) !== Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(i, o.lastState);
+      }, o.inputPaths);
+    }, _this._observers);
+    Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (o) {
+      return o.triggered = true;
+    }, triggered);
+    Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (o) {
+      o.lastState = store.getState();
+      o.observer(store);
+      o.triggered = false;
+    }, triggered);
+  };
+
+  this.remove = function (observer) {
+    return _this._observers.splice(_this._observers.findIndex(function (o) {
+      return observer === o.observer;
+    }, _this._observers), 1);
+  };
+
+  this.__init__(store);
+};
+
+
+
+/***/ }),
+
+/***/ "./src/TreeContainer.js":
+/*!******************************!*\
+  !*** ./src/TreeContainer.js ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! prop-types */ "prop-types");
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./registry */ "./src/registry.js");
 /* harmony import */ var _exceptions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./exceptions */ "./src/exceptions.js");
-/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./actions */ "./src/actions/index.js");
-/* harmony import */ var _isSimpleComponent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./isSimpleComponent */ "./src/isSimpleComponent.js");
-/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./persistence */ "./src/persistence.js");
-/* harmony import */ var _components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/error/ComponentErrorBoundary.react */ "./src/components/error/ComponentErrorBoundary.react.js");
-/* harmony import */ var _checkPropTypes__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./checkPropTypes */ "./src/checkPropTypes.js");
-/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./actions/dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./actions */ "./src/actions/index.js");
+/* harmony import */ var _isSimpleComponent__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./isSimpleComponent */ "./src/isSimpleComponent.js");
+/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./persistence */ "./src/persistence.js");
+/* harmony import */ var _components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./components/error/ComponentErrorBoundary.react */ "./src/components/error/ComponentErrorBoundary.react.js");
+/* harmony import */ var _checkPropTypes__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./checkPropTypes */ "./src/checkPropTypes.js");
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./actions/dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _utils_TreeContainer__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./utils/TreeContainer */ "./src/utils/TreeContainer.ts");
+/* harmony import */ var _APIController_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./APIController.react */ "./src/APIController.react.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32437,6 +32564,8 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -32459,22 +32588,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 
-function validateComponent(componentDefinition) {
-  if (Object(ramda__WEBPACK_IMPORTED_MODULE_5__["type"])(componentDefinition) === 'Array') {
-    throw new Error('The children property of a component is a list of lists, instead ' + 'of just a list. ' + 'Check the component that has the following contents, ' + 'and remove one of the levels of nesting: \n' + JSON.stringify(componentDefinition, null, 2));
-  }
-
-  if (Object(ramda__WEBPACK_IMPORTED_MODULE_5__["type"])(componentDefinition) === 'Object' && !(Object(ramda__WEBPACK_IMPORTED_MODULE_5__["has"])('namespace', componentDefinition) && Object(ramda__WEBPACK_IMPORTED_MODULE_5__["has"])('type', componentDefinition) && Object(ramda__WEBPACK_IMPORTED_MODULE_5__["has"])('props', componentDefinition))) {
-    throw new Error('An object was provided as `children` instead of a component, ' + 'string, or number (or list of those). ' + 'Check the children property that looks something like:\n' + JSON.stringify(componentDefinition, null, 2));
-  }
-}
-
-var createContainer = function createContainer(component, path) {
-  return Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_7__["default"])(component) ? component : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(AugmentedTreeContainer, {
-    key: component && component.props && Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_11__["stringifyId"])(component.props.id),
-    _dashprivate_layout: component,
-    _dashprivate_path: path
-  });
+var NOT_LOADING = {
+  is_loading: false
 };
 
 function CheckedComponent(p) {
@@ -32483,7 +32598,7 @@ function CheckedComponent(p) {
       props = p.props,
       children = p.children,
       type = p.type;
-  var errorMessage = Object(_checkPropTypes__WEBPACK_IMPORTED_MODULE_10__["default"])(element.propTypes, props, 'component prop', element);
+  var errorMessage = Object(_checkPropTypes__WEBPACK_IMPORTED_MODULE_9__["default"])(element.propTypes, props, 'component prop', element);
 
   if (errorMessage) {
     Object(_exceptions__WEBPACK_IMPORTED_MODULE_3__["propTypeErrorHandler"])(errorMessage, props, type);
@@ -32502,7 +32617,7 @@ CheckedComponent.propTypes = {
 };
 
 function createElement(element, props, extraProps, children) {
-  var allProps = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["mergeRight"])(props, extraProps);
+  var allProps = Object(ramda__WEBPACK_IMPORTED_MODULE_4__["mergeRight"])(props, extraProps);
 
   if (Array.isArray(children)) {
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement.apply(react__WEBPACK_IMPORTED_MODULE_0___default.a, [element, allProps].concat(_toConsumableArray(children)));
@@ -32511,20 +32626,40 @@ function createElement(element, props, extraProps, children) {
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(element, allProps, children);
 }
 
-var TreeContainer = /*#__PURE__*/function (_Component) {
-  _inherits(TreeContainer, _Component);
+var TreeContainer = Object(react__WEBPACK_IMPORTED_MODULE_0__["memo"])(function (props) {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_APIController_react__WEBPACK_IMPORTED_MODULE_12__["DashContext"].Consumer, null, function (context) {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(BaseTreeContainer, _extends({}, context.fn(), props, {
+      _dashprivate_path: JSON.parse(props._dashprivate_path)
+    }));
+  });
+});
 
-  function TreeContainer(props) {
+var BaseTreeContainer = /*#__PURE__*/function (_Component) {
+  _inherits(BaseTreeContainer, _Component);
+
+  function BaseTreeContainer(props) {
     var _this;
 
-    _classCallCheck(this, TreeContainer);
+    _classCallCheck(this, BaseTreeContainer);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(TreeContainer).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BaseTreeContainer).call(this, props));
     _this.setProps = _this.setProps.bind(_assertThisInitialized(_this));
     return _this;
   }
 
-  _createClass(TreeContainer, [{
+  _createClass(BaseTreeContainer, [{
+    key: "createContainer",
+    value: function createContainer(props, component, path) {
+      return Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_6__["default"])(component) ? component : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(TreeContainer, {
+        key: component && component.props && Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_10__["stringifyId"])(component.props.id),
+        _dashprivate_error: props._dashprivate_error,
+        _dashprivate_layout: component,
+        _dashprivate_loadingState: Object(_utils_TreeContainer__WEBPACK_IMPORTED_MODULE_11__["getLoadingState"])(component, path, props._dashprivate_loadingMap),
+        _dashprivate_loadingStateHash: Object(_utils_TreeContainer__WEBPACK_IMPORTED_MODULE_11__["getLoadingHash"])(path, props._dashprivate_loadingMap),
+        _dashprivate_path: JSON.stringify(path)
+      });
+    }
+  }, {
     key: "setProps",
     value: function setProps(newProps) {
       var _this$props = this.props,
@@ -32534,27 +32669,27 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
           _dashprivate_layout = _this$props._dashprivate_layout;
       var oldProps = this.getLayoutProps();
       var id = oldProps.id;
-      var changedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["pickBy"])(function (val, key) {
-        return !Object(ramda__WEBPACK_IMPORTED_MODULE_5__["equals"])(val, oldProps[key]);
+      var changedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_4__["pickBy"])(function (val, key) {
+        return !Object(ramda__WEBPACK_IMPORTED_MODULE_4__["equals"])(val, oldProps[key]);
       }, newProps);
 
-      if (!Object(ramda__WEBPACK_IMPORTED_MODULE_5__["isEmpty"])(changedProps)) {
+      if (!Object(ramda__WEBPACK_IMPORTED_MODULE_4__["isEmpty"])(changedProps)) {
         // Identify the modified props that are required for callbacks
-        var watchedKeys = Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_11__["getWatchedKeys"])(id, Object(ramda__WEBPACK_IMPORTED_MODULE_5__["keys"])(changedProps), _dashprivate_graphs); // setProps here is triggered by the UI - record these changes
+        var watchedKeys = Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_10__["getWatchedKeys"])(id, Object(ramda__WEBPACK_IMPORTED_MODULE_4__["keys"])(changedProps), _dashprivate_graphs); // setProps here is triggered by the UI - record these changes
         // for persistence
 
-        Object(_persistence__WEBPACK_IMPORTED_MODULE_8__["recordUiEdit"])(_dashprivate_layout, newProps, _dashprivate_dispatch); // Always update this component's props
+        Object(_persistence__WEBPACK_IMPORTED_MODULE_7__["recordUiEdit"])(_dashprivate_layout, newProps, _dashprivate_dispatch); // Always update this component's props
 
-        _dashprivate_dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["updateProps"])({
+        _dashprivate_dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_5__["updateProps"])({
           props: changedProps,
           itempath: _dashprivate_path
         })); // Only dispatch changes to Dash if a watched prop changed
 
 
         if (watchedKeys.length) {
-          _dashprivate_dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_6__["notifyObservers"])({
+          _dashprivate_dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_5__["notifyObservers"])({
             id: id,
-            props: Object(ramda__WEBPACK_IMPORTED_MODULE_5__["pick"])(watchedKeys, changedProps)
+            props: Object(ramda__WEBPACK_IMPORTED_MODULE_4__["pick"])(watchedKeys, changedProps)
           }));
         }
       }
@@ -32562,46 +32697,53 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
   }, {
     key: "getChildren",
     value: function getChildren(components, path) {
-      if (Object(ramda__WEBPACK_IMPORTED_MODULE_5__["isNil"])(components)) {
+      var _this2 = this;
+
+      if (Object(ramda__WEBPACK_IMPORTED_MODULE_4__["isNil"])(components)) {
         return null;
       }
 
-      return Array.isArray(components) ? Object(ramda__WEBPACK_IMPORTED_MODULE_5__["addIndex"])(ramda__WEBPACK_IMPORTED_MODULE_5__["map"])(function (component, i) {
-        return createContainer(component, Object(ramda__WEBPACK_IMPORTED_MODULE_5__["concat"])(path, ['props', 'children', i]));
-      }, components) : createContainer(components, Object(ramda__WEBPACK_IMPORTED_MODULE_5__["concat"])(path, ['props', 'children']));
+      return Array.isArray(components) ? Object(ramda__WEBPACK_IMPORTED_MODULE_4__["addIndex"])(ramda__WEBPACK_IMPORTED_MODULE_4__["map"])(function (component, i) {
+        return _this2.createContainer(_this2.props, component, Object(ramda__WEBPACK_IMPORTED_MODULE_4__["concat"])(path, ['props', 'children', i]));
+      }, components) : this.createContainer(this.props, components, Object(ramda__WEBPACK_IMPORTED_MODULE_4__["concat"])(path, ['props', 'children']));
     }
   }, {
     key: "getComponent",
     value: function getComponent(_dashprivate_layout, children, loading_state, setProps) {
-      var _dashprivate_config = this.props._dashprivate_config;
+      var _this$props2 = this.props,
+          _dashprivate_config = _this$props2._dashprivate_config,
+          _dashprivate_dispatch = _this$props2._dashprivate_dispatch,
+          _dashprivate_error = _this$props2._dashprivate_error;
 
-      if (Object(ramda__WEBPACK_IMPORTED_MODULE_5__["isEmpty"])(_dashprivate_layout)) {
+      if (Object(ramda__WEBPACK_IMPORTED_MODULE_4__["isEmpty"])(_dashprivate_layout)) {
         return null;
       }
 
-      if (Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_7__["default"])(_dashprivate_layout)) {
+      if (Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_6__["default"])(_dashprivate_layout)) {
         return _dashprivate_layout;
       }
 
-      validateComponent(_dashprivate_layout);
+      Object(_utils_TreeContainer__WEBPACK_IMPORTED_MODULE_11__["validateComponent"])(_dashprivate_layout);
       var element = _registry__WEBPACK_IMPORTED_MODULE_2__["default"].resolve(_dashprivate_layout);
-      var props = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["dissoc"])('children', _dashprivate_layout.props);
+      var props = Object(ramda__WEBPACK_IMPORTED_MODULE_4__["dissoc"])('children', _dashprivate_layout.props);
 
-      if (Object(ramda__WEBPACK_IMPORTED_MODULE_5__["type"])(props.id) === 'Object') {
+      if (Object(ramda__WEBPACK_IMPORTED_MODULE_4__["type"])(props.id) === 'Object') {
         // Turn object ids (for wildcards) into unique strings.
         // Because of the `dissoc` above we're not mutating the layout,
         // just the id we pass on to the rendered component
-        props.id = Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_11__["stringifyId"])(props.id);
+        props.id = Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_10__["stringifyId"])(props.id);
       }
 
       var extraProps = {
-        loading_state: loading_state,
+        loading_state: loading_state || NOT_LOADING,
         setProps: setProps
       };
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_9__["default"], {
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_8__["default"], {
         componentType: _dashprivate_layout.type,
         componentId: props.id,
-        key: props.id
+        key: props.id,
+        dispatch: _dashprivate_dispatch,
+        error: _dashprivate_error
       }, _dashprivate_config.props_check ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(CheckedComponent, {
         children: children,
         element: element,
@@ -32611,135 +32753,41 @@ var TreeContainer = /*#__PURE__*/function (_Component) {
       }) : createElement(element, props, extraProps, children));
     }
   }, {
-    key: "shouldComponentUpdate",
-    value: function shouldComponentUpdate(nextProps) {
-      var _dashprivate_layout = nextProps._dashprivate_layout,
-          _dashprivate_loadingState = nextProps._dashprivate_loadingState;
-      return _dashprivate_layout !== this.props._dashprivate_layout || _dashprivate_loadingState.is_loading !== this.props._dashprivate_loadingState.is_loading;
-    }
-  }, {
     key: "getLayoutProps",
     value: function getLayoutProps() {
-      return Object(ramda__WEBPACK_IMPORTED_MODULE_5__["propOr"])({}, 'props', this.props._dashprivate_layout);
+      return Object(ramda__WEBPACK_IMPORTED_MODULE_4__["propOr"])({}, 'props', this.props._dashprivate_layout);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props2 = this.props,
-          _dashprivate_layout = _this$props2._dashprivate_layout,
-          _dashprivate_loadingState = _this$props2._dashprivate_loadingState,
-          _dashprivate_path = _this$props2._dashprivate_path;
+      var _this$props3 = this.props,
+          _dashprivate_layout = _this$props3._dashprivate_layout,
+          _dashprivate_loadingState = _this$props3._dashprivate_loadingState,
+          _dashprivate_path = _this$props3._dashprivate_path;
       var layoutProps = this.getLayoutProps();
       var children = this.getChildren(layoutProps.children, _dashprivate_path);
       return this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, this.setProps);
     }
   }]);
 
-  return TreeContainer;
+  return BaseTreeContainer;
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 
 TreeContainer.propTypes = {
-  _dashprivate_graphs: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
-  _dashprivate_dispatch: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func,
+  _dashprivate_error: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
   _dashprivate_layout: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
-  _dashprivate_loadingState: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
-  _dashprivate_config: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
-  _dashprivate_path: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.array
+  _dashprivate_loadingState: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.oneOfType([prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object, prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.bool]),
+  _dashprivate_loadingStateHash: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
+  _dashprivate_path: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string
 };
-
-function isLoadingComponent(layout) {
-  validateComponent(layout);
-  return _registry__WEBPACK_IMPORTED_MODULE_2__["default"].resolve(layout)._dashprivate_isLoadingComponent;
-}
-
-function getNestedIds(layout) {
-  var ids = [];
-  var queue = [layout];
-
-  while (queue.length) {
-    var elementLayout = queue.shift();
-    var props = elementLayout && elementLayout.props;
-
-    if (!props) {
-      continue;
-    }
-
-    var children = props.children,
-        id = props.id;
-
-    if (id) {
-      ids.push(id);
-    }
-
-    if (children) {
-      var filteredChildren = Object(ramda__WEBPACK_IMPORTED_MODULE_5__["filter"])(function (child) {
-        return !Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_7__["default"])(child) && !isLoadingComponent(child);
-      }, Array.isArray(children) ? children : [children]);
-      queue.push.apply(queue, _toConsumableArray(filteredChildren));
-    }
-  }
-
-  return ids;
-}
-
-function getLoadingState(layout, pendingCallbacks) {
-  var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id && [layout.props.id];
-  var isLoading = false;
-  var loadingProp;
-  var loadingComponent;
-
-  if (pendingCallbacks && pendingCallbacks.length && ids && ids.length) {
-    var idStrs = ids.map(_actions_dependencies__WEBPACK_IMPORTED_MODULE_11__["stringifyId"]);
-    pendingCallbacks.forEach(function (cb) {
-      var requestId = cb.requestId,
-          requestedOutputs = cb.requestedOutputs;
-
-      if (requestId === undefined) {
-        return;
-      }
-
-      idStrs.forEach(function (idStr) {
-        var props = requestedOutputs[idStr];
-
-        if (props) {
-          isLoading = true; // TODO: what about multiple loading components / props?
-
-          loadingComponent = idStr;
-          loadingProp = props[0];
-        }
-      });
-    });
-  } // Set loading state
-
-
-  return {
-    is_loading: isLoading,
-    prop_name: loadingProp,
-    component_name: loadingComponent
-  };
-}
-
-var AugmentedTreeContainer = Object(react_redux__WEBPACK_IMPORTED_MODULE_4__["connect"])(function (state) {
-  return {
-    graphs: state.graphs,
-    pendingCallbacks: state.pendingCallbacks,
-    config: state.config
-  };
-}, function (dispatch) {
-  return {
-    dispatch: dispatch
-  };
-}, function (stateProps, dispatchProps, ownProps) {
-  return {
-    _dashprivate_graphs: stateProps.graphs,
-    _dashprivate_dispatch: dispatchProps.dispatch,
-    _dashprivate_layout: ownProps._dashprivate_layout,
-    _dashprivate_path: ownProps._dashprivate_path,
-    _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.pendingCallbacks),
-    _dashprivate_config: stateProps.config
-  };
-})(TreeContainer);
-/* harmony default export */ __webpack_exports__["default"] = (AugmentedTreeContainer);
+BaseTreeContainer.propTypes = _objectSpread({}, TreeContainer.propTypes, {
+  _dashprivate_config: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  _dashprivate_dispatch: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func,
+  _dashprivate_graphs: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
+  _dashprivate_loadingMap: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
+  _dashprivate_path: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.array
+});
+/* harmony default export */ __webpack_exports__["default"] = (TreeContainer);
 
 /***/ }),
 
@@ -32785,8 +32833,20 @@ var request = {
 };
 function apiThunk(endpoint, method, store, id, body) {
   return function (dispatch, getState) {
-    var config = getState().config;
+    var _getState = getState(),
+        config = _getState.config;
+
     var url = "".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_2__["urlBase"])(config)).concat(endpoint);
+
+    function setConnectionStatus(connected) {
+      if (getState().error.backEndConnected !== connected) {
+        dispatch({
+          type: 'SET_CONNECTION_STATUS',
+          payload: connected
+        });
+      }
+    }
+
     dispatch({
       type: store,
       payload: {
@@ -32795,6 +32855,7 @@ function apiThunk(endpoint, method, store, id, body) {
       }
     });
     return request[method](url, config.fetch, body).then(function (res) {
+      setConnectionStatus(true);
       var contentType = res.headers.get('content-type');
 
       if (contentType && contentType.indexOf('application/json') !== -1) {
@@ -32819,11 +32880,459 @@ function apiThunk(endpoint, method, store, id, body) {
           status: res.status
         }
       });
+    }, function () {
+      // fetch rejection - this means the request didn't return,
+      // we don't get here from 400/500 errors, only network
+      // errors or unresponsive servers.
+      setConnectionStatus(false);
     })["catch"](function (err) {
       var message = 'Error from API call: ' + endpoint;
       Object(_actions__WEBPACK_IMPORTED_MODULE_1__["handleAsyncError"])(err, message, dispatch);
     });
   };
+}
+
+/***/ }),
+
+/***/ "./src/actions/callbacks.ts":
+/*!**********************************!*\
+  !*** ./src/actions/callbacks.ts ***!
+  \**********************************/
+/*! exports provided: addBlockedCallbacks, addCompletedCallbacks, addExecutedCallbacks, addExecutingCallbacks, addPrioritizedCallbacks, addRequestedCallbacks, addStoredCallbacks, addWatchedCallbacks, removeExecutedCallbacks, removeBlockedCallbacks, removeExecutingCallbacks, removePrioritizedCallbacks, removeRequestedCallbacks, removeStoredCallbacks, removeWatchedCallbacks, aggregateCallbacks, executeCallback */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addBlockedCallbacks", function() { return addBlockedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addCompletedCallbacks", function() { return addCompletedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addExecutedCallbacks", function() { return addExecutedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addExecutingCallbacks", function() { return addExecutingCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addPrioritizedCallbacks", function() { return addPrioritizedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addRequestedCallbacks", function() { return addRequestedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addStoredCallbacks", function() { return addStoredCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addWatchedCallbacks", function() { return addWatchedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeExecutedCallbacks", function() { return removeExecutedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeBlockedCallbacks", function() { return removeBlockedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeExecutingCallbacks", function() { return removeExecutingCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removePrioritizedCallbacks", function() { return removePrioritizedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeRequestedCallbacks", function() { return removeRequestedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeStoredCallbacks", function() { return removeStoredCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeWatchedCallbacks", function() { return removeWatchedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "aggregateCallbacks", function() { return aggregateCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "executeCallback", function() { return executeCallback; });
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
+/* harmony import */ var _reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../reducers/callbacks */ "./src/reducers/callbacks.ts");
+/* harmony import */ var _dependencies__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils */ "./src/actions/utils.js");
+/* harmony import */ var ___WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! . */ "./src/actions/index.js");
+/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/es/index.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+
+
+
+
+
+
+
+var addBlockedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].AddBlocked);
+var addCompletedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackAggregateActionType"].AddCompleted);
+var addExecutedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].AddExecuted);
+var addExecutingCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].AddExecuting);
+var addPrioritizedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].AddPrioritized);
+var addRequestedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].AddRequested);
+var addStoredCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].AddStored);
+var addWatchedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].AddWatched);
+var removeExecutedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].RemoveExecuted);
+var removeBlockedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].RemoveBlocked);
+var removeExecutingCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].RemoveExecuting);
+var removePrioritizedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].RemovePrioritized);
+var removeRequestedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].RemoveRequested);
+var removeStoredCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].RemoveStored);
+var removeWatchedCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackActionType"].RemoveWatched);
+var aggregateCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_6__["createAction"])(_reducers_callbacks__WEBPACK_IMPORTED_MODULE_2__["CallbackAggregateActionType"].Aggregate);
+
+function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
+  var msg = '';
+
+  if (Object(_dependencies__WEBPACK_IMPORTED_MODULE_3__["isMultiValued"])(spec)) {
+    return [idProps, msg];
+  }
+
+  if (idProps.length !== 1) {
+    if (!idProps.length) {
+      var isStr = typeof spec.id === 'string';
+      msg = 'A nonexistent object was used in an `' + depType + '` of a Dash callback. The id of this object is ' + (isStr ? '`' + spec.id + '`' : JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '')) + ' and the property is `' + spec.property + (isStr ? '`. The string ids in the current layout are: [' + Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(paths.strs).join(', ') + ']' : '`. The wildcard ids currently available are logged above.');
+    } else {
+      msg = 'Multiple objects were found for an `' + depType + '` of a callback that only takes one value. The id spec is ' + JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '') + ' and the property is `' + spec.property + '`. The objects we found are: ' + JSON.stringify(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), idProps));
+    }
+  }
+
+  return [idProps[0], msg];
+}
+
+function fillVals(paths, layout, cb, specs, depType) {
+  var allowAllMissing = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
+  var getter = depType === 'Input' ? cb.getInputs : cb.getState;
+  var errors = [];
+  var emptyMultiValues = 0;
+  var inputVals = getter(paths).map(function (inputList, i) {
+    var _unwrapIfNotMulti = unwrapIfNotMulti(paths, inputList.map(function (_ref) {
+      var id = _ref.id,
+          property = _ref.property,
+          path_ = _ref.path;
+      return {
+        id: id,
+        property: property,
+        value: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(path_, layout).props[property]
+      };
+    }), specs[i], cb.anyVals, depType),
+        _unwrapIfNotMulti2 = _slicedToArray(_unwrapIfNotMulti, 2),
+        inputs = _unwrapIfNotMulti2[0],
+        inputError = _unwrapIfNotMulti2[1];
+
+    if (Object(_dependencies__WEBPACK_IMPORTED_MODULE_3__["isMultiValued"])(specs[i]) && !inputs.length) {
+      emptyMultiValues++;
+    }
+
+    if (inputError) {
+      errors.push(inputError);
+    }
+
+    return inputs;
+  });
+
+  if (errors.length) {
+    if (allowAllMissing && errors.length + emptyMultiValues === inputVals.length) {
+      // We have at least one non-multivalued input, but all simple and
+      // multi-valued inputs are missing.
+      // (if all inputs are multivalued and all missing we still return
+      // them as normal, and fire the callback.)
+      return null;
+    } // If we get here we have some missing and some present inputs.
+    // Or all missing in a context that doesn't allow this.
+    // That's a real problem, so throw the first message as an error.
+
+
+    refErr(errors, paths);
+  }
+
+  return inputVals;
+}
+
+function refErr(errors, paths) {
+  var err = errors[0];
+
+  if (err.indexOf('logged above') !== -1) {
+    // Wildcard reference errors mention a list of wildcard specs logged
+    // TODO: unwrapped list of wildcard ids?
+    // eslint-disable-next-line no-console
+    console.error(paths.objs);
+  }
+
+  throw new ReferenceError(err);
+}
+
+var getVals = function getVals(input) {
+  return Array.isArray(input) ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pluck"])('value', input) : input.value;
+};
+
+var zipIfArray = function zipIfArray(a, b) {
+  return Array.isArray(a) ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["zip"])(a, b) : [[a, b]];
+};
+
+function handleClientside(clientside_function, payload) {
+  var _returnValue;
+
+  var dc = window.dash_clientside = window.dash_clientside || {};
+
+  if (!dc.no_update) {
+    Object.defineProperty(dc, 'no_update', {
+      value: {
+        description: 'Return to prevent updating an Output.'
+      },
+      writable: false
+    });
+    Object.defineProperty(dc, 'PreventUpdate', {
+      value: {
+        description: 'Throw to prevent updating all Outputs.'
+      },
+      writable: false
+    });
+  }
+
+  var inputs = payload.inputs,
+      outputs = payload.outputs,
+      state = payload.state;
+  var returnValue;
+
+  try {
+    var _dc$namespace;
+
+    var namespace = clientside_function.namespace,
+        function_name = clientside_function.function_name;
+    var args = inputs.map(getVals);
+
+    if (state) {
+      args = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(args, state.map(getVals));
+    } // setup callback context
+
+
+    var input_dict = inputsToDict(inputs);
+    dc.callback_context = {};
+    dc.callback_context.triggered = payload.changedPropIds.map(function (prop_id) {
+      return {
+        prop_id: prop_id,
+        value: input_dict[prop_id]
+      };
+    });
+    dc.callback_context.inputs_list = inputs;
+    dc.callback_context.inputs = input_dict;
+    dc.callback_context.states_list = state;
+    dc.callback_context.states = inputsToDict(state);
+    returnValue = (_dc$namespace = dc[namespace])[function_name].apply(_dc$namespace, _toConsumableArray(args));
+  } catch (e) {
+    if (e === dc.PreventUpdate) {
+      return {};
+    }
+
+    throw e;
+  } finally {
+    delete dc.callback_context;
+  }
+
+  if (typeof ((_returnValue = returnValue) === null || _returnValue === void 0 ? void 0 : _returnValue.then) === 'function') {
+    throw new Error('The clientside function returned a Promise. ' + 'Promises are not supported in Dash clientside ' + 'right now, but may be in the future.');
+  }
+
+  var data = {};
+  zipIfArray(outputs, returnValue).forEach(function (_ref2) {
+    var _ref3 = _slicedToArray(_ref2, 2),
+        outi = _ref3[0],
+        reti = _ref3[1];
+
+    zipIfArray(outi, reti).forEach(function (_ref4) {
+      var _ref5 = _slicedToArray(_ref4, 2),
+          outij = _ref5[0],
+          retij = _ref5[1];
+
+      var id = outij.id,
+          property = outij.property;
+      var idStr = Object(_dependencies__WEBPACK_IMPORTED_MODULE_3__["stringifyId"])(id);
+      var dataForId = data[idStr] = data[idStr] || {};
+
+      if (retij !== dc.no_update) {
+        dataForId[property] = retij;
+      }
+    });
+  });
+  return data;
+}
+
+function handleServerside(hooks, config, payload) {
+  if (hooks.request_pre !== null) {
+    hooks.request_pre(payload);
+  }
+
+  return fetch("".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_4__["urlBase"])(config), "_dash-update-component"), Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeDeepRight"])(config.fetch, {
+    method: 'POST',
+    headers: Object(___WEBPACK_IMPORTED_MODULE_5__["getCSRFHeader"])(),
+    body: JSON.stringify(payload)
+  })).then(function (res) {
+    var status = res.status;
+
+    if (status === _constants_constants__WEBPACK_IMPORTED_MODULE_1__["STATUS"].OK) {
+      return res.json().then(function (data) {
+        var multi = data.multi,
+            response = data.response;
+
+        if (hooks.request_post !== null) {
+          hooks.request_post(payload, response);
+        }
+
+        if (multi) {
+          return response;
+        }
+
+        var output = payload.output;
+        var id = output.substr(0, output.lastIndexOf('.'));
+        return _defineProperty({}, id, response.props);
+      });
+    }
+
+    if (status === _constants_constants__WEBPACK_IMPORTED_MODULE_1__["STATUS"].PREVENT_UPDATE) {
+      return {};
+    }
+
+    throw res;
+  }, function () {
+    // fetch rejection - this means the request didn't return,
+    // we don't get here from 400/500 errors, only network
+    // errors or unresponsive servers.
+    throw new Error('Callback failed: the server did not respond.');
+  });
+}
+
+function inputsToDict(inputs_list) {
+  // Ported directly from _utils.py, inputs_to_dict
+  // takes an array of inputs (some inputs may be an array)
+  // returns an Object (map):
+  //  keys of the form `id.property` or `{"id": 0}.property`
+  //  values contain the property value
+  if (!inputs_list) {
+    return {};
+  }
+
+  var inputs = {};
+
+  for (var i = 0; i < inputs_list.length; i++) {
+    if (Array.isArray(inputs_list[i])) {
+      var inputsi = inputs_list[i];
+
+      for (var ii = 0; ii < inputsi.length; ii++) {
+        var _inputsi$ii$value;
+
+        var id_str = "".concat(Object(_dependencies__WEBPACK_IMPORTED_MODULE_3__["stringifyId"])(inputsi[ii].id), ".").concat(inputsi[ii].property);
+        inputs[id_str] = (_inputsi$ii$value = inputsi[ii].value) !== null && _inputsi$ii$value !== void 0 ? _inputsi$ii$value : null;
+      }
+    } else {
+      var _inputs_list$i$value;
+
+      var _id_str = "".concat(Object(_dependencies__WEBPACK_IMPORTED_MODULE_3__["stringifyId"])(inputs_list[i].id), ".").concat(inputs_list[i].property);
+
+      inputs[_id_str] = (_inputs_list$i$value = inputs_list[i].value) !== null && _inputs_list$i$value !== void 0 ? _inputs_list$i$value : null;
+    }
+  }
+
+  return inputs;
+}
+
+function executeCallback(cb, config, hooks, paths, layout, _ref7) {
+  var allOutputs = _ref7.allOutputs;
+  var _cb$callback = cb.callback,
+      output = _cb$callback.output,
+      inputs = _cb$callback.inputs,
+      state = _cb$callback.state,
+      clientside_function = _cb$callback.clientside_function;
+
+  try {
+    var inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
+    /* Prevent callback if there's no inputs */
+
+    if (inVals === null) {
+      return _objectSpread({}, cb, {
+        executionPromise: null
+      });
+    }
+
+    var outputs = [];
+    var outputErrors = [];
+    allOutputs.forEach(function (out, i) {
+      var _unwrapIfNotMulti3 = unwrapIfNotMulti(paths, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), out), cb.callback.outputs[i], cb.anyVals, 'Output'),
+          _unwrapIfNotMulti4 = _slicedToArray(_unwrapIfNotMulti3, 2),
+          outi = _unwrapIfNotMulti4[0],
+          erri = _unwrapIfNotMulti4[1];
+
+      outputs.push(outi);
+
+      if (erri) {
+        outputErrors.push(erri);
+      }
+    });
+
+    if (outputErrors.length) {
+      if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(inVals).length) {
+        refErr(outputErrors, paths);
+      } // This case is all-empty multivalued wildcard inputs,
+      // which we would normally fire the callback for, except
+      // some outputs are missing. So instead we treat it like
+      // regular missing inputs and just silently prevent it.
+
+
+      return _objectSpread({}, cb, {
+        executionPromise: null
+      });
+    }
+
+    var __promise = new Promise(function (resolve) {
+      try {
+        var payload = {
+          output: output,
+          outputs: Object(_dependencies__WEBPACK_IMPORTED_MODULE_3__["isMultiOutputProp"])(output) ? outputs : outputs[0],
+          inputs: inVals,
+          changedPropIds: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(cb.changedPropIds),
+          state: cb.callback.state.length ? fillVals(paths, layout, cb, state, 'State') : undefined
+        };
+
+        if (clientside_function) {
+          try {
+            resolve({
+              data: handleClientside(clientside_function, payload),
+              payload: payload
+            });
+          } catch (error) {
+            resolve({
+              error: error,
+              payload: payload
+            });
+          }
+
+          return null;
+        } else {
+          handleServerside(hooks, config, payload).then(function (data) {
+            return resolve({
+              data: data,
+              payload: payload
+            });
+          })["catch"](function (error) {
+            return resolve({
+              error: error,
+              payload: payload
+            });
+          });
+        }
+      } catch (error) {
+        resolve({
+          error: error,
+          payload: null
+        });
+      }
+    });
+
+    var newCb = _objectSpread({}, cb, {
+      executionPromise: __promise
+    });
+
+    return newCb;
+  } catch (error) {
+    return _objectSpread({}, cb, {
+      executionPromise: {
+        error: error,
+        payload: null
+      }
+    });
+  }
 }
 
 /***/ }),
@@ -32863,35 +33372,37 @@ var getAction = function getAction(action) {
 /*!*************************************!*\
   !*** ./src/actions/dependencies.js ***!
   \*************************************/
-/*! exports provided: isMultiOutputProp, parseIfWildcard, combineIdAndProp, stringifyId, validateCallbacksToLayout, computeGraphs, setNewRequestId, isMultiValued, getCallbacksByInput, getWatchedKeys, getCallbacksInLayout, removePendingCallback, findReadyCallbacks, followForward, mergePendingCallbacks, pruneRemovedCallbacks */
+/*! exports provided: isMultiOutputProp, splitIdAndProp, parseIfWildcard, stringifyId, validateCallbacksToLayout, computeGraphs, idMatch, isMultiValued, addAllResolvedFromOutputs, getWatchedKeys, getUnfilteredLayoutCallbacks */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isMultiOutputProp", function() { return isMultiOutputProp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "splitIdAndProp", function() { return splitIdAndProp; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "parseIfWildcard", function() { return parseIfWildcard; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "combineIdAndProp", function() { return combineIdAndProp; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "stringifyId", function() { return stringifyId; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "validateCallbacksToLayout", function() { return validateCallbacksToLayout; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "computeGraphs", function() { return computeGraphs; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setNewRequestId", function() { return setNewRequestId; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "idMatch", function() { return idMatch; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isMultiValued", function() { return isMultiValued; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCallbacksByInput", function() { return getCallbacksByInput; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addAllResolvedFromOutputs", function() { return addAllResolvedFromOutputs; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getWatchedKeys", function() { return getWatchedKeys; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCallbacksInLayout", function() { return getCallbacksInLayout; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removePendingCallback", function() { return removePendingCallback; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findReadyCallbacks", function() { return findReadyCallbacks; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "followForward", function() { return followForward; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mergePendingCallbacks", function() { return mergePendingCallbacks; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "pruneRemovedCallbacks", function() { return pruneRemovedCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getUnfilteredLayoutCallbacks", function() { return getUnfilteredLayoutCallbacks; });
 /* harmony import */ var dependency_graph__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! dependency-graph */ "./node_modules/dependency-graph/lib/dep_graph.js");
 /* harmony import */ var dependency_graph__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dependency_graph__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var fast_isnumeric__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! fast-isnumeric */ "./node_modules/fast-isnumeric/index.js");
 /* harmony import */ var fast_isnumeric__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fast_isnumeric__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./paths */ "./src/actions/paths.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils */ "./src/actions/utils.js");
-/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../registry */ "./src/registry.js");
+/* harmony import */ var _dependencies_ts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./dependencies_ts */ "./src/actions/dependencies_ts.ts");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./paths */ "./src/actions/paths.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils */ "./src/actions/utils.js");
+/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../registry */ "./src/registry.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -32905,7 +33416,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
 
 
-var mergeMax = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["mergeWith"])(Math.max);
+
 
 
 
@@ -32992,15 +33503,9 @@ function splitIdAndProp(idAndProp) {
  * Check if this ID is a stringified object, and if so parse it to that object
  */
 
-
 function parseIfWildcard(idStr) {
   return isWildcardId(idStr) ? parseWildcardId(idStr) : idStr;
 }
-var combineIdAndProp = function combineIdAndProp(_ref) {
-  var id = _ref.id,
-      property = _ref.property;
-  return "".concat(stringifyId(id), ".").concat(property);
-};
 /*
  * JSON.stringify - for the object form - but ensuring keys are sorted
  */
@@ -33113,17 +33618,17 @@ function validateDependencies(parsedDependencies, dispatchError) {
       dispatchError('A callback is missing Outputs', ['Please provide an output for this callback:', JSON.stringify(dep, null, 2)]);
     }
 
-    var head = 'In the callback for output(s):\n  ' + outputs.map(combineIdAndProp).join('\n  ');
+    var head = 'In the callback for output(s):\n  ' + outputs.map(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"]).join('\n  ');
 
     if (!inputs.length) {
       dispatchError('A callback is missing Inputs', [head, 'there are no `Input` elements.', 'Without `Input` elements, it will never get called.', '', 'Subscribing to `Input` components will cause the', 'callback to be called whenever their values change.']);
     }
 
     var spec = [[outputs, 'Output'], [inputs, 'Input'], [state, 'State']];
-    spec.forEach(function (_ref2) {
-      var _ref3 = _slicedToArray(_ref2, 2),
-          args = _ref3[0],
-          cls = _ref3[1];
+    spec.forEach(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2),
+          args = _ref2[0],
+          cls = _ref2[1];
 
       if (cls === 'Output' && !hasOutputs) {
         // just a quirk of how we pass & parse outputs - if you don't
@@ -33146,9 +33651,9 @@ function validateDependencies(parsedDependencies, dispatchError) {
   });
 }
 
-function validateArg(_ref4, head, cls, i, dispatchError) {
-  var id = _ref4.id,
-      property = _ref4.property;
+function validateArg(_ref3, head, cls, i, dispatchError) {
+  var id = _ref3.id,
+      property = _ref3.property;
 
   if (typeof property !== 'string' || !property) {
     dispatchError('Callback property error', [head, "".concat(cls, "[").concat(i, "].property = ").concat(JSON.stringify(property)), 'but we expected `property` to be a non-empty string.']);
@@ -33192,12 +33697,12 @@ function validateArg(_ref4, head, cls, i, dispatchError) {
 function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
   var newOutputStrs = {};
   var newOutputObjs = [];
-  outputs.forEach(function (_ref5, i) {
-    var id = _ref5.id,
-        property = _ref5.property;
+  outputs.forEach(function (_ref4, i) {
+    var id = _ref4.id,
+        property = _ref4.property;
 
     if (typeof id === 'string') {
-      var idProp = combineIdAndProp({
+      var idProp = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])({
         id: id,
         property: property
       });
@@ -33218,9 +33723,9 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
       var otherOverlap = selfOverlap || wildcardOverlap(idObj, outObjs);
 
       if (selfOverlap || otherOverlap) {
-        var _idProp = combineIdAndProp(idObj);
+        var _idProp = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(idObj);
 
-        var idProp2 = combineIdAndProp(selfOverlap || otherOverlap);
+        var idProp2 = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(selfOverlap || otherOverlap);
         dispatchError('Overlapping wildcard callback outputs', [head, "Output ".concat(i, " (").concat(_idProp, ")"), "overlaps another output (".concat(idProp2, ")"), "used in ".concat(selfOverlap ? 'this' : 'a different', " callback.")]);
       } else {
         newOutputObjs.push(idObj);
@@ -33249,10 +33754,10 @@ function findInOutOverlap(outputs, inputs, head, dispatchError) {
 
       if (typeof outId === 'string') {
         if (outId === inId) {
-          dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(combineIdAndProp(in_), ")"), "matches Output ".concat(outi, " (").concat(combineIdAndProp(out), ")")]);
+          dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(in_), ")"), "matches Output ".concat(outi, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(out), ")")]);
         }
       } else if (wildcardOverlap(in_, [out])) {
-        dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(combineIdAndProp(in_), ")"), 'can match the same component(s) as', "Output ".concat(outi, " (").concat(combineIdAndProp(out), ")")]);
+        dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(in_), ")"), 'can match the same component(s) as', "Output ".concat(outi, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(out), ")")]);
       }
     });
   });
@@ -33264,13 +33769,13 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
 
   outputs.forEach(function (out, i) {
     if (i && !Object(ramda__WEBPACK_IMPORTED_MODULE_2__["equals"])(findWildcardKeys(out.id).matchKeys, out0MatchKeys)) {
-      dispatchError('Mismatched `MATCH` wildcards across `Output`s', [head, "Output ".concat(i, " (").concat(combineIdAndProp(out), ")"), 'does not have MATCH wildcards on the same keys as', "Output 0 (".concat(combineIdAndProp(outputs[0]), ")."), 'MATCH wildcards must be on the same keys for all Outputs.', 'ALL wildcards need not match, only MATCH.']);
+      dispatchError('Mismatched `MATCH` wildcards across `Output`s', [head, "Output ".concat(i, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(out), ")"), 'does not have MATCH wildcards on the same keys as', "Output 0 (".concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(outputs[0]), ")."), 'MATCH wildcards must be on the same keys for all Outputs.', 'ALL wildcards need not match, only MATCH.']);
     }
   });
-  [[inputs, 'Input'], [state, 'State']].forEach(function (_ref6) {
-    var _ref7 = _slicedToArray(_ref6, 2),
-        args = _ref7[0],
-        cls = _ref7[1];
+  [[inputs, 'Input'], [state, 'State']].forEach(function (_ref5) {
+    var _ref6 = _slicedToArray(_ref5, 2),
+        args = _ref6[0],
+        cls = _ref6[1];
 
     args.forEach(function (arg, i) {
       var _findWildcardKeys2 = findWildcardKeys(arg.id),
@@ -33282,16 +33787,16 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
 
       if (diff.length) {
         diff.sort();
-        dispatchError('`Input` / `State` wildcards not in `Output`s', [head, "".concat(cls, " ").concat(i, " (").concat(combineIdAndProp(arg), ")"), "has MATCH or ALLSMALLER on key(s) ".concat(diff.join(', ')), "where Output 0 (".concat(combineIdAndProp(outputs[0]), ")"), 'does not have a MATCH wildcard. Inputs and State do not', 'need every MATCH from the Output(s), but they cannot have', 'extras beyond the Output(s).']);
+        dispatchError('`Input` / `State` wildcards not in `Output`s', [head, "".concat(cls, " ").concat(i, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(arg), ")"), "has MATCH or ALLSMALLER on key(s) ".concat(diff.join(', ')), "where Output 0 (".concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(outputs[0]), ")"), 'does not have a MATCH wildcard. Inputs and State do not', 'need every MATCH from the Output(s), but they cannot have', 'extras beyond the Output(s).']);
       }
     });
   });
 }
 
-var matchWildKeys = function matchWildKeys(_ref8) {
-  var _ref9 = _slicedToArray(_ref8, 2),
-      a = _ref9[0],
-      b = _ref9[1];
+var matchWildKeys = function matchWildKeys(_ref7) {
+  var _ref8 = _slicedToArray(_ref7, 2),
+      a = _ref8[0],
+      b = _ref8[1];
 
   var aWild = a && a.wild;
   var bWild = b && b.wild;
@@ -33304,9 +33809,9 @@ var matchWildKeys = function matchWildKeys(_ref8) {
   return a === b || aWild || bWild;
 };
 
-function wildcardOverlap(_ref10, objs) {
-  var id = _ref10.id,
-      property = _ref10.property;
+function wildcardOverlap(_ref9, objs) {
+  var id = _ref9.id,
+      property = _ref9.property;
   var idKeys = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["keys"])(id).sort();
   var idVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(idKeys, id);
   var _iteratorNormalCompletion = true;
@@ -33351,7 +33856,7 @@ function validateCallbacksToLayout(state_, dispatchError) {
 
   if (validateIds && config.validation_layout) {
     layout = config.validation_layout;
-    paths = Object(_paths__WEBPACK_IMPORTED_MODULE_3__["computePaths"])(layout, [], null, paths_.events);
+    paths = Object(_paths__WEBPACK_IMPORTED_MODULE_4__["computePaths"])(layout, [], null, paths_.events);
   } else {
     layout = layout_;
     paths = paths_;
@@ -33363,9 +33868,9 @@ function validateCallbacksToLayout(state_, dispatchError) {
       inputPatterns = graphs.inputPatterns;
 
   function tail(callbacks) {
-    return 'This ID was used in the callback(s) for Output(s):\n  ' + callbacks.map(function (_ref11) {
-      var outputs = _ref11.outputs;
-      return outputs.map(combineIdAndProp).join(', ');
+    return 'This ID was used in the callback(s) for Output(s):\n  ' + callbacks.map(function (_ref10) {
+      var outputs = _ref10.outputs;
+      return outputs.map(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"]).join(', ');
     }).join('\n  ');
   }
 
@@ -33375,7 +33880,7 @@ function validateCallbacksToLayout(state_, dispatchError) {
 
   function validateProp(id, idPath, prop, cls, callbacks) {
     var component = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["path"])(idPath, layout);
-    var element = _registry__WEBPACK_IMPORTED_MODULE_5__["default"].resolve(component); // note: Flow components do not have propTypes, so we can't validate.
+    var element = _registry__WEBPACK_IMPORTED_MODULE_6__["default"].resolve(component); // note: Flow components do not have propTypes, so we can't validate.
 
     if (element && element.propTypes && !element.propTypes[prop]) {
       // look for wildcard props (ie data-* etc)
@@ -33394,7 +33899,7 @@ function validateCallbacksToLayout(state_, dispatchError) {
   }
 
   function validateIdPatternProp(id, property, cls, callbacks) {
-    resolveDeps()(paths)({
+    Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["resolveDeps"])()(paths)({
       id: id,
       property: property
     }).forEach(function (dep) {
@@ -33416,12 +33921,12 @@ function validateCallbacksToLayout(state_, dispatchError) {
 
     callbackIdsCheckedForState[output] = 1;
     var cls = 'State';
-    state.forEach(function (_ref12) {
-      var id = _ref12.id,
-          property = _ref12.property;
+    state.forEach(function (_ref11) {
+      var id = _ref11.id,
+          property = _ref11.property;
 
       if (typeof id === 'string') {
-        var idPath = Object(_paths__WEBPACK_IMPORTED_MODULE_3__["getPath"])(paths, id);
+        var idPath = Object(_paths__WEBPACK_IMPORTED_MODULE_4__["getPath"])(paths, id);
 
         if (!idPath) {
           if (validateIds) {
@@ -33441,7 +33946,7 @@ function validateCallbacksToLayout(state_, dispatchError) {
   function validateMap(map, cls, doState) {
     for (var id in map) {
       var idProps = map[id];
-      var idPath = Object(_paths__WEBPACK_IMPORTED_MODULE_3__["getPath"])(paths, id);
+      var idPath = Object(_paths__WEBPACK_IMPORTED_MODULE_4__["getPath"])(paths, id);
 
       if (!idPath) {
         if (validateIds) {
@@ -33470,10 +33975,10 @@ function validateCallbacksToLayout(state_, dispatchError) {
       var keyPatterns = patterns[keyStr];
 
       var _loop = function _loop(property) {
-        keyPatterns[property].forEach(function (_ref13) {
-          var keys = _ref13.keys,
-              values = _ref13.values,
-              callbacks = _ref13.callbacks;
+        keyPatterns[property].forEach(function (_ref12) {
+          var keys = _ref12.keys,
+              values = _ref12.values,
+              callbacks = _ref12.callbacks;
           var id = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["zipObj"])(keys, values);
           validateIdPatternProp(id, property, cls, callbacks);
 
@@ -33658,13 +34163,13 @@ function computeGraphs(dependencies, dispatchError) {
         if (_typeof(inId) === 'object') {
           var inIdList = makeAllIds(inId, outIdFinal);
           inIdList.forEach(function (id) {
-            addInputToMulti(combineIdAndProp({
+            addInputToMulti(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])({
               id: id,
               property: property
             }), outIdProp);
           });
         } else {
-          addInputToMulti(combineIdAndProp(inObj), outIdProp);
+          addInputToMulti(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(inObj), outIdProp);
         }
       });
     } // We'll continue to use dep.output as its id, but add outputs as well
@@ -33692,14 +34197,14 @@ function computeGraphs(dependencies, dispatchError) {
       if (_typeof(outId) === 'object') {
         var outIdList = makeAllIds(outId, {});
         outIdList.forEach(function (id) {
-          addOutputToMulti(id, combineIdAndProp({
+          addOutputToMulti(id, Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])({
             id: id,
             property: property
           }));
         });
         addPattern(outputPatterns, outId, property, finalDependency);
       } else {
-        addOutputToMulti({}, combineIdAndProp(outIdProp));
+        addOutputToMulti({}, Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(outIdProp));
         addMap(outputMap, outId, property, finalDependency);
       }
     });
@@ -33797,100 +34302,14 @@ function getAnyVals(patternVals, vals) {
 
   return matches.length ? JSON.stringify(matches) : '';
 }
-
-function resolveDeps(refKeys, refVals, refPatternVals) {
-  return function (paths) {
-    return function (_ref14) {
-      var idPattern = _ref14.id,
-          property = _ref14.property;
-
-      if (typeof idPattern === 'string') {
-        var _path = Object(_paths__WEBPACK_IMPORTED_MODULE_3__["getPath"])(paths, idPattern);
-
-        return _path ? [{
-          id: idPattern,
-          property: property,
-          path: _path
-        }] : [];
-      }
-
-      var keys = Object.keys(idPattern).sort();
-      var patternVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(keys, idPattern);
-      var keyStr = keys.join(',');
-      var keyPaths = paths.objs[keyStr];
-
-      if (!keyPaths) {
-        return [];
-      }
-
-      var result = [];
-      keyPaths.forEach(function (_ref15) {
-        var vals = _ref15.values,
-            path = _ref15.path;
-
-        if (idMatch(keys, vals, patternVals, refKeys, refVals, refPatternVals)) {
-          result.push({
-            id: Object(ramda__WEBPACK_IMPORTED_MODULE_2__["zipObj"])(keys, vals),
-            property: property,
-            path: path
-          });
-        }
-      });
-      return result;
-    };
-  };
-}
-/*
- * Create a pending callback object. Includes the original callback definition,
- * its resolved ID (including the value of all MATCH wildcards),
- * accessors to find all inputs, outputs, and state involved in this
- * callback (lazy as not all users will want all of these),
- * placeholders for which other callbacks this one is blockedBy or blocking,
- * and a boolean for whether it has been dispatched yet.
- */
-
-
-var makeResolvedCallback = function makeResolvedCallback(callback, resolve, anyVals) {
-  return {
-    callback: callback,
-    anyVals: anyVals,
-    resolvedId: callback.output + anyVals,
-    getOutputs: function getOutputs(paths) {
-      return callback.outputs.map(resolve(paths));
-    },
-    getInputs: function getInputs(paths) {
-      return callback.inputs.map(resolve(paths));
-    },
-    getState: function getState(paths) {
-      return callback.state.map(resolve(paths));
-    },
-    blockedBy: {},
-    blocking: {},
-    changedPropIds: {},
-    initialCall: false,
-    requestId: 0,
-    requestedOutputs: {}
-  };
-};
-
-var DIRECT = 2;
-var INDIRECT = 1;
-var nextRequestId = 0;
-/*
- * Give a callback a new requestId.
- */
-
-function setNewRequestId(callback) {
-  nextRequestId++;
-  return Object(ramda__WEBPACK_IMPORTED_MODULE_2__["assoc"])('requestId', nextRequestId, callback);
-}
 /*
  * Does this item (input / output / state) support multiple values?
  * string IDs do not; wildcard IDs only do if they contain ALL or ALLSMALLER
  */
 
-function isMultiValued(_ref16) {
-  var id = _ref16.id;
+
+function isMultiValued(_ref13) {
+  var id = _ref13.id;
   return _typeof(id) === 'object' && Object(ramda__WEBPACK_IMPORTED_MODULE_2__["any"])(function (v) {
     return v.multi;
   }, Object(ramda__WEBPACK_IMPORTED_MODULE_2__["values"])(id));
@@ -33909,8 +34328,6 @@ function isMultiValued(_ref16) {
  *         The result is a list of {id (string or object), property (string)}
  *     getInputs: same for inputs
  *     getState: same for state
- *     blockedBy: an object of {[resolvedId]: 1} blocking this callback
- *     blocking: an object of {[resolvedId]: 1} this callback is blocking
  *     changedPropIds: an object of {[idAndProp]: v} triggering this callback
  *         v = DIRECT (2): the prop was changed in the front end, so dependent
  *             callbacks *MUST* be executed.
@@ -33921,12 +34338,6 @@ function isMultiValued(_ref16) {
  *         this value on page load or changing part of the layout.
  *         By default this is true for callbacks generated by
  *         getCallbackByOutput, false from getCallbacksByInput.
- *     requestId: integer: starts at 0. when this callback is dispatched it will
- *         get a unique requestId, but if it gets added again the requestId will
- *         be reset to 0, and we'll know to ignore the response of the first
- *         request.
- *     requestedOutputs: object of {[idStr]: [props]} listing all the props
- *         actually requested for update.
  * }
  */
 
@@ -33941,7 +34352,7 @@ function getCallbackByOutput(graphs, paths, id, prop) {
 
     if (callbacks) {
       callback = callbacks[0];
-      resolve = resolveDeps();
+      resolve = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["resolveDeps"])();
     }
   } else {
     // wildcard version
@@ -33959,7 +34370,7 @@ function getCallbackByOutput(graphs, paths, id, prop) {
 
         if (idMatch(_keys, vals, patternVals)) {
           callback = patterns[i].callbacks[0];
-          resolve = resolveDeps(_keys, vals, patternVals);
+          resolve = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["resolveDeps"])(_keys, vals, patternVals);
           anyVals = getAnyVals(patternVals, vals);
           break;
         }
@@ -33971,16 +34382,16 @@ function getCallbackByOutput(graphs, paths, id, prop) {
     return false;
   }
 
-  return makeResolvedCallback(callback, resolve, anyVals);
+  return Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["makeResolvedCallback"])(callback, resolve, anyVals);
 }
 
 function addResolvedFromOutputs(callback, outPattern, outs, matches) {
   var out0Keys = Object.keys(outPattern.id).sort();
   var out0PatternVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(out0Keys, outPattern.id);
-  outs.forEach(function (_ref17) {
-    var outId = _ref17.id;
+  outs.forEach(function (_ref14) {
+    var outId = _ref14.id;
     var outVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(out0Keys, outId);
-    matches.push(makeResolvedCallback(callback, resolveDeps(out0Keys, outVals, out0PatternVals), getAnyVals(out0PatternVals, outVals)));
+    matches.push(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["makeResolvedCallback"])(callback, Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["resolveDeps"])(out0Keys, outVals, out0PatternVals), getAnyVals(out0PatternVals, outVals)));
   });
 }
 
@@ -34017,7 +34428,7 @@ function addAllResolvedFromOutputs(resolve, paths, matches) {
         });
       }
     } else {
-      var cb = makeResolvedCallback(callback, resolve, '');
+      var cb = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["makeResolvedCallback"])(callback, resolve, '');
 
       if (Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(paths)).length) {
         matches.push(cb);
@@ -34038,49 +34449,6 @@ function addAllResolvedFromOutputs(resolve, paths, matches) {
  * in one entry.
  */
 
-
-function getCallbacksByInput(graphs, paths, id, prop, changeType) {
-  var matches = [];
-  var idAndProp = combineIdAndProp({
-    id: id,
-    property: prop
-  });
-
-  if (typeof id === 'string') {
-    // standard id version
-    var callbacks = (graphs.inputMap[id] || {})[prop];
-
-    if (!callbacks) {
-      return [];
-    }
-
-    callbacks.forEach(addAllResolvedFromOutputs(resolveDeps(), paths, matches));
-  } else {
-    // wildcard version
-    var _keys2 = Object.keys(id).sort();
-
-    var vals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(_keys2, id);
-
-    var keyStr = _keys2.join(',');
-
-    var patterns = (graphs.inputPatterns[keyStr] || {})[prop];
-
-    if (!patterns) {
-      return [];
-    }
-
-    patterns.forEach(function (pattern) {
-      if (idMatch(_keys2, vals, pattern.values)) {
-        pattern.callbacks.forEach(addAllResolvedFromOutputs(resolveDeps(_keys2, vals, pattern.values), paths, matches));
-      }
-    });
-  }
-
-  matches.forEach(function (match) {
-    match.changedPropIds[idAndProp] = changeType || DIRECT;
-  });
-  return matches;
-}
 function getWatchedKeys(id, newProps, graphs) {
   if (!(id && graphs && newProps.length)) {
     return [];
@@ -34129,7 +34497,7 @@ function getWatchedKeys(id, newProps, graphs) {
  *   See getCallbackByOutput for details.
  */
 
-function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
+function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
   var outputsOnly = opts.outputsOnly,
       removedArrayInputsOnly = opts.removedArrayInputsOnly,
       newPaths = opts.newPaths,
@@ -34143,7 +34511,7 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
 
       if (foundIndex !== undefined) {
         var foundCb = callbacks[foundIndex];
-        foundCb.changedPropIds = mergeMax(foundCb.changedPropIds, callback.changedPropIds);
+        foundCb.changedPropIds = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["mergeMax"])(foundCb.changedPropIds, callback.changedPropIds);
 
         if (callback.initialCall) {
           foundCb.initialCall = true;
@@ -34211,12 +34579,12 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
       }
 
       for (var _property in inIdCallbacks) {
-        getCallbacksByInput(graphs, paths, id, _property, INDIRECT).forEach(handleThisCallback);
+        Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getCallbacksByInput"])(graphs, paths, id, _property, _dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["INDIRECT"]).forEach(handleThisCallback);
       }
     }
   }
 
-  Object(_utils__WEBPACK_IMPORTED_MODULE_4__["crawlLayout"])(layoutChunk, function (child) {
+  Object(_utils__WEBPACK_IMPORTED_MODULE_5__["crawlLayout"])(layoutChunk, function (child) {
     var id = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["path"])(['props', 'id'], child);
 
     if (id) {
@@ -34227,284 +34595,41 @@ function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         handleOneId(id, !removedArrayInputsOnly && graphs.outputPatterns[keyStr], graphs.inputPatterns[keyStr]);
       }
     }
-  }); // We still need to follow these forward in order to capture blocks and,
-  // if based on a partial layout, any knock-on effects in the full layout.
-
-  var finalCallbacks = followForward(graphs, paths, callbacks); // Exception to the `initialCall` case of callbacks found by output:
-  // if *every* input to this callback is itself an output of another
-  // callback earlier in the chain, we remove the `initialCall` flag
-  // so that if all of those prior callbacks abort all of their outputs,
-  // this later callback never runs.
-  // See test inin003 "callback2 is never triggered, even on initial load"
-
-  finalCallbacks.forEach(function (cb) {
-    if (cb.initialCall && !Object(ramda__WEBPACK_IMPORTED_MODULE_2__["isEmpty"])(cb.blockedBy)) {
-      var inputs = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getInputs(paths));
-      cb.initialCall = false;
-      inputs.forEach(function (i) {
-        var propId = combineIdAndProp(i);
-
-        if (cb.changedPropIds[propId]) {
-          cb.changedPropIds[propId] = INDIRECT;
-        } else {
-          cb.initialCall = true;
-        }
-      });
-    }
   });
-  return finalCallbacks;
-}
-function removePendingCallback(pendingCallbacks, paths, removeResolvedId, skippedProps) {
-  var finalPendingCallbacks = [];
-  pendingCallbacks.forEach(function (pending) {
-    var blockedBy = pending.blockedBy,
-        blocking = pending.blocking,
-        changedPropIds = pending.changedPropIds,
-        resolvedId = pending.resolvedId;
-
-    if (resolvedId !== removeResolvedId) {
-      finalPendingCallbacks.push(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["mergeRight"])(pending, {
-        blockedBy: Object(ramda__WEBPACK_IMPORTED_MODULE_2__["dissoc"])(removeResolvedId, blockedBy),
-        blocking: Object(ramda__WEBPACK_IMPORTED_MODULE_2__["dissoc"])(removeResolvedId, blocking),
-        changedPropIds: Object(ramda__WEBPACK_IMPORTED_MODULE_2__["pickBy"])(function (v, k) {
-          return v === DIRECT || !Object(ramda__WEBPACK_IMPORTED_MODULE_2__["includes"])(k, skippedProps);
-        }, changedPropIds)
-      }));
-    }
-  }); // If any callback no longer has any changed inputs, it shouldn't fire.
-  // This will repeat recursively until all unneeded callbacks are pruned
-
-  if (skippedProps.length) {
-    for (var i = 0; i < finalPendingCallbacks.length; i++) {
-      var cb = finalPendingCallbacks[i];
-
-      if (!cb.initialCall && Object(ramda__WEBPACK_IMPORTED_MODULE_2__["isEmpty"])(cb.changedPropIds)) {
-        return removePendingCallback(finalPendingCallbacks, paths, cb.resolvedId, Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(paths)).map(combineIdAndProp));
-      }
-    }
-  }
-
-  return finalPendingCallbacks;
-}
-/*
- * Split the list of pending callbacks into ready (not blocked by any others)
- * and blocked. Sort the ready callbacks by how many each is blocking, on the
- * theory that the most important ones to dispatch are the ones with the most
- * others depending on them.
- */
-
-function findReadyCallbacks(pendingCallbacks) {
-  var _partition = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["partition"])(function (pending) {
-    return Object(ramda__WEBPACK_IMPORTED_MODULE_2__["isEmpty"])(pending.blockedBy) && !pending.requestId;
-  }, pendingCallbacks),
-      _partition2 = _slicedToArray(_partition, 2),
-      readyCallbacks = _partition2[0],
-      blockedCallbacks = _partition2[1];
-
-  readyCallbacks.sort(function (a, b) {
-    return Object.keys(b.blocking).length - Object.keys(a.blocking).length;
-  });
-  return {
-    readyCallbacks: readyCallbacks,
-    blockedCallbacks: blockedCallbacks
-  };
-}
-
-function addBlock(callbacks, blockingId, blockedId) {
-  callbacks.forEach(function (_ref18) {
-    var blockedBy = _ref18.blockedBy,
-        blocking = _ref18.blocking,
-        resolvedId = _ref18.resolvedId;
-
-    if (resolvedId === blockingId || blocking[blockingId]) {
-      blocking[blockedId] = 1;
-    } else if (resolvedId === blockedId || blockedBy[blockedId]) {
-      blockedBy[blockingId] = 1;
-    }
-  });
-}
-
-function collectIds(callbacks) {
-  var allResolvedIds = {};
-  callbacks.forEach(function (_ref19, i) {
-    var resolvedId = _ref19.resolvedId;
-    allResolvedIds[resolvedId] = i;
-  });
-  return allResolvedIds;
-}
-/*
- * Take a list of callbacks and follow them all forward, ie see if any of their
- * outputs are inputs of another callback. Any new callbacks get added to the
- * list. All that come after another get marked as blocked by that one, whether
- * they were in the initial list or not.
- */
-
-
-function followForward(graphs, paths, callbacks_) {
-  var callbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["clone"])(callbacks_);
-  var allResolvedIds = collectIds(callbacks);
-  var i;
-  var callback;
-
-  var followOutput = function followOutput(_ref20) {
-    var id = _ref20.id,
-        property = _ref20.property;
-    var nextCBs = getCallbacksByInput(graphs, paths, id, property, INDIRECT);
-    nextCBs.forEach(function (nextCB) {
-      var existingIndex = allResolvedIds[nextCB.resolvedId];
-
-      if (existingIndex === undefined) {
-        existingIndex = callbacks.length;
-        callbacks.push(nextCB);
-        allResolvedIds[nextCB.resolvedId] = existingIndex;
-      } else {
-        var existingCB = callbacks[existingIndex];
-        existingCB.changedPropIds = mergeMax(existingCB.changedPropIds, nextCB.changedPropIds);
-      }
-
-      addBlock(callbacks, callback.resolvedId, nextCB.resolvedId);
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_2__["map"])(function (cb) {
+    return _objectSpread({}, cb, {
+      priority: Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getPriority"])(graphs, paths, cb)
     });
-  }; // Using a for loop instead of forEach because followOutput may extend the
-  // callbacks array, and we want to continue into these new elements.
-
-
-  for (i = 0; i < callbacks.length; i++) {
-    callback = callbacks[i];
-    var outputs = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["unnest"])(callback.getOutputs(paths));
-    outputs.forEach(followOutput);
-  }
-
-  return callbacks;
-}
-
-function mergeAllBlockers(cb1, cb2) {
-  function mergeBlockers(a, b) {
-    if (cb1[a][cb2.resolvedId] && !cb2[b][cb1.resolvedId]) {
-      cb2[b][cb1.resolvedId] = cb1[a][cb2.resolvedId];
-      cb2[b] = mergeMax(cb1[b], cb2[b]);
-      cb1[a] = mergeMax(cb2[a], cb1[a]);
-    }
-  }
-
-  mergeBlockers('blockedBy', 'blocking');
-  mergeBlockers('blocking', 'blockedBy');
-}
-/*
- * Given two arrays of pending callbacks, merge them into one so that
- * each will only fire once, and any extra blockages from combining the lists
- * will be accounted for.
- */
-
-
-function mergePendingCallbacks(cb1, cb2) {
-  if (!cb2.length) {
-    return cb1;
-  }
-
-  if (!cb1.length) {
-    return cb2;
-  }
-
-  var finalCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["clone"])(cb1);
-  var callbacks2 = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["clone"])(cb2);
-  var allResolvedIds = collectIds(finalCallbacks);
-  callbacks2.forEach(function (callback, i) {
-    var existingIndex = allResolvedIds[callback.resolvedId];
-
-    if (existingIndex !== undefined) {
-      finalCallbacks.forEach(function (finalCb) {
-        mergeAllBlockers(finalCb, callback);
-      });
-      callbacks2.slice(i + 1).forEach(function (cb2) {
-        mergeAllBlockers(cb2, callback);
-      });
-      finalCallbacks[existingIndex] = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["mergeDeepRight"])(finalCallbacks[existingIndex], callback);
-    } else {
-      allResolvedIds[callback.resolvedId] = finalCallbacks.length;
-      finalCallbacks.push(callback);
-    }
-  });
-  return finalCallbacks;
-}
-/*
- * Remove callbacks whose outputs or changed inputs have been removed
- * from the layout
- */
-
-function pruneRemovedCallbacks(pendingCallbacks, paths) {
-  var removeIds = [];
-  var cleanedCallbacks = pendingCallbacks.map(function (callback) {
-    var changedPropIds = callback.changedPropIds,
-        getOutputs = callback.getOutputs,
-        resolvedId = callback.resolvedId;
-
-    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(getOutputs(paths)).length) {
-      removeIds.push(resolvedId);
-      return callback;
-    }
-
-    var omittedProps = false;
-    var newChangedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["pickBy"])(function (_, propId) {
-      if (Object(_paths__WEBPACK_IMPORTED_MODULE_3__["getPath"])(paths, splitIdAndProp(propId).id)) {
-        return true;
-      }
-
-      omittedProps = true;
-      return false;
-    }, changedPropIds);
-    return omittedProps ? Object(ramda__WEBPACK_IMPORTED_MODULE_2__["assoc"])('changedPropIds', newChangedProps, callback) : callback;
-  });
-  removeIds.forEach(function (resolvedId) {
-    var cb = cleanedCallbacks.find(Object(ramda__WEBPACK_IMPORTED_MODULE_2__["propEq"])('resolvedId', resolvedId));
-
-    if (cb) {
-      cleanedCallbacks = removePendingCallback(pendingCallbacks, paths, resolvedId, Object(ramda__WEBPACK_IMPORTED_MODULE_2__["flatten"])(cb.getOutputs(paths)).map(combineIdAndProp));
-    }
-  });
-  return cleanedCallbacks;
+  }, callbacks);
 }
 
 /***/ }),
 
-/***/ "./src/actions/index.js":
-/*!******************************!*\
-  !*** ./src/actions/index.js ***!
-  \******************************/
-/*! exports provided: updateProps, setPendingCallbacks, setRequestQueue, setGraphs, setPaths, setAppLifecycle, setConfig, setHooks, setLayout, onError, dispatchError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError */
+/***/ "./src/actions/dependencies_ts.ts":
+/*!****************************************!*\
+  !*** ./src/actions/dependencies_ts.ts ***!
+  \****************************************/
+/*! exports provided: DIRECT, INDIRECT, mergeMax, combineIdAndProp, getCallbacksByInput, getPriority, getReadyCallbacks, getLayoutCallbacks, getUniqueIdentifier, includeObservers, makeResolvedCallback, pruneCallbacks, resolveDeps */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateProps", function() { return updateProps; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setPendingCallbacks", function() { return setPendingCallbacks; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRequestQueue", function() { return setRequestQueue; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setGraphs", function() { return setGraphs; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setPaths", function() { return setPaths; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setAppLifecycle", function() { return setAppLifecycle; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setConfig", function() { return setConfig; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setHooks", function() { return setHooks; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLayout", function() { return setLayout; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onError", function() { return onError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "dispatchError", function() { return dispatchError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hydrateInitialOutputs", function() { return hydrateInitialOutputs; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCSRFHeader", function() { return getCSRFHeader; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "redo", function() { return redo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "undo", function() { return undo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "revert", function() { return revert; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "notifyObservers", function() { return notifyObservers; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleAsyncError", function() { return handleAsyncError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DIRECT", function() { return DIRECT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "INDIRECT", function() { return INDIRECT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mergeMax", function() { return mergeMax; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "combineIdAndProp", function() { return combineIdAndProp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCallbacksByInput", function() { return getCallbacksByInput; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPriority", function() { return getPriority; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getReadyCallbacks", function() { return getReadyCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLayoutCallbacks", function() { return getLayoutCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getUniqueIdentifier", function() { return getUniqueIdentifier; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "includeObservers", function() { return includeObservers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeResolvedCallback", function() { return makeResolvedCallback; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "pruneCallbacks", function() { return pruneCallbacks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resolveDeps", function() { return resolveDeps; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/es/index.js");
-/* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../reducers/constants */ "./src/reducers/constants.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./constants */ "./src/actions/constants.js");
-/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! cookie */ "./node_modules/cookie/index.js");
-/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(cookie__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils */ "./src/actions/utils.js");
-/* harmony import */ var _dependencies__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./dependencies */ "./src/actions/dependencies.js");
-/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./paths */ "./src/actions/paths.js");
-/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
-/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../persistence */ "./src/persistence.js");
-/* harmony import */ var _isAppReady__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./isAppReady */ "./src/actions/isAppReady.js");
+/* harmony import */ var _dependencies__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./paths */ "./src/actions/paths.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -34512,6 +34637,10 @@ function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread n
 function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -34523,6 +34652,319 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+
+
+
+var DIRECT = 2;
+var INDIRECT = 1;
+var mergeMax = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeWith"])(Math.max);
+var combineIdAndProp = function combineIdAndProp(_ref) {
+  var id = _ref.id,
+      property = _ref.property;
+  return "".concat(Object(_dependencies__WEBPACK_IMPORTED_MODULE_1__["stringifyId"])(id), ".").concat(property);
+};
+function getCallbacksByInput(graphs, paths, id, prop, changeType) {
+  var withPriority = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
+  var matches = [];
+  var idAndProp = combineIdAndProp({
+    id: id,
+    property: prop
+  });
+
+  if (typeof id === 'string') {
+    // standard id version
+    var callbacks = (graphs.inputMap[id] || {})[prop];
+
+    if (!callbacks) {
+      return [];
+    }
+
+    callbacks.forEach(Object(_dependencies__WEBPACK_IMPORTED_MODULE_1__["addAllResolvedFromOutputs"])(resolveDeps(), paths, matches));
+  } else {
+    // wildcard version
+    var _keys = Object.keys(id).sort();
+
+    var vals = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["props"])(_keys, id);
+
+    var keyStr = _keys.join(',');
+
+    var patterns = (graphs.inputPatterns[keyStr] || {})[prop];
+
+    if (!patterns) {
+      return [];
+    }
+
+    patterns.forEach(function (pattern) {
+      if (Object(_dependencies__WEBPACK_IMPORTED_MODULE_1__["idMatch"])(_keys, vals, pattern.values)) {
+        pattern.callbacks.forEach(Object(_dependencies__WEBPACK_IMPORTED_MODULE_1__["addAllResolvedFromOutputs"])(resolveDeps(_keys, vals, pattern.values), paths, matches));
+      }
+    });
+  }
+
+  matches.forEach(function (match) {
+    match.changedPropIds[idAndProp] = changeType || DIRECT;
+
+    if (withPriority) {
+      match.priority = getPriority(graphs, paths, match);
+    }
+  });
+  return matches;
+}
+/*
+ * Builds a tree of all callbacks that can be triggered by the provided callback.
+ * Uses the number of callbacks at each tree depth and the total depth of the tree
+ * to create a sortable priority hash.
+ */
+
+function getPriority(graphs, paths, callback) {
+  var callbacks = [callback];
+  var touchedOutputs = {};
+  var priority = [];
+
+  while (callbacks.length) {
+    var outputs = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (o) {
+      return !touchedOutputs[combineIdAndProp(o)];
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
+      return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getOutputs(paths));
+    }, callbacks)));
+    touchedOutputs = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["reduce"])(function (touched, o) {
+      return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["assoc"])(combineIdAndProp(o), true, touched);
+    }, touchedOutputs, outputs);
+    callbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (_ref2) {
+      var id = _ref2.id,
+          property = _ref2.property;
+      return getCallbacksByInput(graphs, paths, id, property, INDIRECT, false);
+    }, outputs));
+
+    if (callbacks.length) {
+      priority.push(callbacks.length);
+    }
+  }
+
+  priority.unshift(priority.length);
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (i) {
+    return Math.min(i, 35).toString(36);
+  }, priority).join('');
+}
+var getReadyCallbacks = function getReadyCallbacks(paths, candidates) {
+  var callbacks = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : candidates;
+
+  // Skip if there's no candidates
+  if (!candidates.length) {
+    return [];
+  } // Find all outputs of all active callbacks
+
+
+  var outputs = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(combineIdAndProp, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["reduce"])(function (o, cb) {
+    return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(o, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getOutputs(paths)));
+  }, [], callbacks)); // Make `outputs` hash table for faster access
+
+  var outputsMap = {};
+  Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (output) {
+    return outputsMap[output] = true;
+  }, outputs); // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
+
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (cb) {
+    return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["all"])(function (cbp) {
+      return !outputsMap[combineIdAndProp(cbp)];
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getInputs(paths)));
+  }, candidates);
+};
+var getLayoutCallbacks = function getLayoutCallbacks(graphs, paths, layout, options) {
+  var exclusions = [];
+  var callbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_1__["getUnfilteredLayoutCallbacks"])(graphs, paths, layout, options);
+  /*
+      Remove from the initial callbacks those that are left with only excluded inputs.
+       Exclusion of inputs happens when:
+      - an input is missing
+      - an input in the initial callback chain depends only on excluded inputs
+       Further execlusion might happen after callbacks return with:
+      - PreventUpdate
+      - no_update
+  */
+
+  while (true) {
+    // Find callbacks for which all inputs are missing or in the exclusions
+    var _partition = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["partition"])(function (_ref3) {
+      var inputs = _ref3.callback.inputs,
+          getInputs = _ref3.getInputs;
+      return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["all"])(_dependencies__WEBPACK_IMPORTED_MODULE_1__["isMultiValued"], inputs) || !Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(combineIdAndProp, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(getInputs(paths))), exclusions));
+    }, callbacks),
+        _partition2 = _slicedToArray(_partition, 2),
+        included = _partition2[0],
+        excluded = _partition2[1]; // If there's no additional exclusions, break loop - callbacks have been cleaned
+
+
+    if (!excluded.length) {
+      break;
+    }
+
+    callbacks = included; // update exclusions with all additional excluded outputs
+
+    exclusions = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(exclusions, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(combineIdAndProp, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (_ref4) {
+      var getOutputs = _ref4.getOutputs;
+      return getOutputs(paths);
+    }, excluded))));
+  }
+  /*
+      Return all callbacks with an `executionGroup` to allow group-processing
+  */
+
+
+  var executionGroup = Math.random().toString(16);
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
+    return _objectSpread({}, cb, {
+      executionGroup: executionGroup
+    });
+  }, callbacks);
+};
+var getUniqueIdentifier = function getUniqueIdentifier(_ref5) {
+  var anyVals = _ref5.anyVals,
+      _ref5$callback = _ref5.callback,
+      inputs = _ref5$callback.inputs,
+      outputs = _ref5$callback.outputs,
+      state = _ref5$callback.state;
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(combineIdAndProp, [].concat(_toConsumableArray(inputs), _toConsumableArray(outputs), _toConsumableArray(state))), Array.isArray(anyVals) ? anyVals : anyVals === '' ? [] : [anyVals]).join(',');
+};
+function includeObservers(id, properties, graphs, paths) {
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (propName) {
+    return getCallbacksByInput(graphs, paths, id, propName);
+  }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(properties)));
+}
+/*
+ * Create a pending callback object. Includes the original callback definition,
+ * its resolved ID (including the value of all MATCH wildcards),
+ * accessors to find all inputs, outputs, and state involved in this
+ * callback (lazy as not all users will want all of these).
+ */
+
+var makeResolvedCallback = function makeResolvedCallback(callback, resolve, anyVals) {
+  return {
+    callback: callback,
+    anyVals: anyVals,
+    resolvedId: callback.output + anyVals,
+    getOutputs: function getOutputs(paths) {
+      return callback.outputs.map(resolve(paths));
+    },
+    getInputs: function getInputs(paths) {
+      return callback.inputs.map(resolve(paths));
+    },
+    getState: function getState(paths) {
+      return callback.state.map(resolve(paths));
+    },
+    changedPropIds: {},
+    initialCall: false
+  };
+};
+function pruneCallbacks(callbacks, paths) {
+  var _partition3 = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["partition"])(function (_ref6) {
+    var getOutputs = _ref6.getOutputs,
+        outputs = _ref6.callback.outputs;
+    return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(getOutputs(paths)).length === outputs.length;
+  }, callbacks),
+      _partition4 = _slicedToArray(_partition3, 2),
+      removed = _partition4[1];
+
+  var _partition5 = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["partition"])(function (_ref7) {
+    var getOutputs = _ref7.getOutputs;
+    return !Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(getOutputs(paths)).length;
+  }, removed),
+      _partition6 = _slicedToArray(_partition5, 2),
+      modified = _partition6[1];
+
+  var added = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
+    return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["assoc"])('changedPropIds', Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pickBy"])(function (_, propId) {
+      return Object(_paths__WEBPACK_IMPORTED_MODULE_2__["getPath"])(paths, Object(_dependencies__WEBPACK_IMPORTED_MODULE_1__["splitIdAndProp"])(propId).id);
+    }, cb.changedPropIds), cb);
+  }, modified);
+  return {
+    added: added,
+    removed: removed
+  };
+}
+function resolveDeps(refKeys, refVals, refPatternVals) {
+  return function (paths) {
+    return function (_ref8) {
+      var idPattern = _ref8.id,
+          property = _ref8.property;
+
+      if (typeof idPattern === 'string') {
+        var path = Object(_paths__WEBPACK_IMPORTED_MODULE_2__["getPath"])(paths, idPattern);
+        return path ? [{
+          id: idPattern,
+          property: property,
+          path: path
+        }] : [];
+      }
+
+      var _keys = Object.keys(idPattern).sort();
+
+      var patternVals = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["props"])(_keys, idPattern);
+
+      var keyStr = _keys.join(',');
+
+      var keyPaths = paths.objs[keyStr];
+
+      if (!keyPaths) {
+        return [];
+      }
+
+      var result = [];
+      keyPaths.forEach(function (_ref9) {
+        var vals = _ref9.values,
+            path = _ref9.path;
+
+        if (Object(_dependencies__WEBPACK_IMPORTED_MODULE_1__["idMatch"])(_keys, vals, patternVals, refKeys, refVals, refPatternVals)) {
+          result.push({
+            id: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["zipObj"])(_keys, vals),
+            property: property,
+            path: path
+          });
+        }
+      });
+      return result;
+    };
+  };
+}
+
+/***/ }),
+
+/***/ "./src/actions/index.js":
+/*!******************************!*\
+  !*** ./src/actions/index.js ***!
+  \******************************/
+/*! exports provided: onError, setAppLifecycle, setConfig, setGraphs, setHooks, setLayout, setPaths, setRequestQueue, updateProps, dispatchError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onError", function() { return onError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setAppLifecycle", function() { return setAppLifecycle; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setConfig", function() { return setConfig; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setGraphs", function() { return setGraphs; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setHooks", function() { return setHooks; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLayout", function() { return setLayout; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setPaths", function() { return setPaths; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRequestQueue", function() { return setRequestQueue; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateProps", function() { return updateProps; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "dispatchError", function() { return dispatchError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hydrateInitialOutputs", function() { return hydrateInitialOutputs; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCSRFHeader", function() { return getCSRFHeader; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "redo", function() { return redo; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "undo", function() { return undo; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "revert", function() { return revert; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "notifyObservers", function() { return notifyObservers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleAsyncError", function() { return handleAsyncError; });
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/es/index.js");
+/* harmony import */ var _callbacks__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./callbacks */ "./src/actions/callbacks.ts");
+/* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../reducers/constants */ "./src/reducers/constants.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/actions/constants.js");
+/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! cookie */ "./node_modules/cookie/index.js");
+/* harmony import */ var cookie__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(cookie__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _dependencies__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _dependencies_ts__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./dependencies_ts */ "./src/actions/dependencies_ts.ts");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./paths */ "./src/actions/paths.js");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
@@ -34536,18 +34978,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
-
-
-var updateProps = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('ON_PROP_CHANGE'));
-var setPendingCallbacks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('SET_PENDING_CALLBACKS');
-var setRequestQueue = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_REQUEST_QUEUE'));
-var setGraphs = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_GRAPHS'));
-var setPaths = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_PATHS'));
-var setAppLifecycle = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_APP_LIFECYCLE'));
-var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_CONFIG'));
-var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_HOOKS'));
-var setLayout = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('SET_LAYOUT'));
-var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_3__["getAction"])('ON_ERROR'));
+var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('ON_ERROR'));
+var setAppLifecycle = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_APP_LIFECYCLE'));
+var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_CONFIG'));
+var setGraphs = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_GRAPHS'));
+var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_HOOKS'));
+var setLayout = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_LAYOUT'));
+var setPaths = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_PATHS'));
+var setRequestQueue = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_REQUEST_QUEUE'));
+var updateProps = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('ON_PROP_CHANGE'));
 var dispatchError = function dispatchError(dispatch) {
   return function (message, lines) {
     return dispatch(onError({
@@ -34563,7 +35002,7 @@ function hydrateInitialOutputs() {
   return function (dispatch, getState) {
     Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["validateCallbacksToLayout"])(getState(), dispatchError(dispatch));
     triggerDefaultState(dispatch, getState);
-    dispatch(setAppLifecycle(Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_2__["getAppState"])('HYDRATED')));
+    dispatch(setAppLifecycle(Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_3__["getAppState"])('HYDRATED')));
   };
 }
 /* eslint-disable-next-line no-console */
@@ -34572,7 +35011,7 @@ var logWarningOnce = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["once"])(console.
 function getCSRFHeader() {
   try {
     return {
-      'X-CSRFToken': cookie__WEBPACK_IMPORTED_MODULE_4___default.a.parse(document.cookie)._csrf_token
+      'X-CSRFToken': cookie__WEBPACK_IMPORTED_MODULE_5___default.a.parse(document.cookie)._csrf_token
     };
   } catch (e) {
     logWarningOnce(e);
@@ -34599,10 +35038,9 @@ function triggerDefaultState(dispatch, getState) {
     }));
   }
 
-  var initialCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["getCallbacksInLayout"])(graphs, paths, layout, {
+  dispatch(Object(_callbacks__WEBPACK_IMPORTED_MODULE_2__["addRequestedCallbacks"])(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_7__["getLayoutCallbacks"])(graphs, paths, layout, {
     outputsOnly: true
-  });
-  dispatch(startCallbacks(initialCallbacks));
+  })));
 }
 
 var redo = moveHistory('REDO');
@@ -34624,7 +35062,7 @@ function moveHistory(changeType) {
     if (id) {
       // Update props
       dispatch(Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('UNDO_PROP_CHANGE')({
-        itempath: Object(_paths__WEBPACK_IMPORTED_MODULE_7__["getPath"])(paths, id),
+        itempath: Object(_paths__WEBPACK_IMPORTED_MODULE_8__["getPath"])(paths, id),
         props: props
       }));
       dispatch(notifyObservers({
@@ -34635,39 +35073,21 @@ function moveHistory(changeType) {
   };
 }
 
-function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
-  var msg = '';
-
-  if (Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["isMultiValued"])(spec)) {
-    return [idProps, msg];
-  }
-
-  if (idProps.length !== 1) {
-    if (!idProps.length) {
-      var isStr = typeof spec.id === 'string';
-      msg = 'A nonexistent object was used in an `' + depType + '` of a Dash callback. The id of this object is ' + (isStr ? '`' + spec.id + '`' : JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '')) + ' and the property is `' + spec.property + (isStr ? '`. The string ids in the current layout are: [' + Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(paths.strs).join(', ') + ']' : '`. The wildcard ids currently available are logged above.');
-    } else {
-      msg = 'Multiple objects were found for an `' + depType + '` of a callback that only takes one value. The id spec is ' + JSON.stringify(spec.id) + (anyVals ? ' with MATCH values ' + anyVals : '') + ' and the property is `' + spec.property + '`. The objects we found are: ' + JSON.stringify(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), idProps));
-    }
-  }
-
-  return [idProps[0], msg];
-}
-
-function startCallbacks(callbacks) {
+function notifyObservers(_ref2) {
+  var id = _ref2.id,
+      props = _ref2.props;
   return (/*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
+        var _getState3, graphs, paths;
+
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
-                return fireReadyCallbacks(dispatch, getState, callbacks);
+                _getState3 = getState(), graphs = _getState3.graphs, paths = _getState3.paths;
+                dispatch(Object(_callbacks__WEBPACK_IMPORTED_MODULE_2__["addRequestedCallbacks"])(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_7__["includeObservers"])(id, props, graphs, paths)));
 
               case 2:
-                return _context.abrupt("return", _context.sent);
-
-              case 3:
               case "end":
                 return _context.stop();
             }
@@ -34676,551 +35096,11 @@ function startCallbacks(callbacks) {
       }));
 
       return function (_x, _x2) {
-        return _ref2.apply(this, arguments);
+        return _ref3.apply(this, arguments);
       };
     }()
   );
 }
-
-function fireReadyCallbacks(_x3, _x4, _x5) {
-  return _fireReadyCallbacks.apply(this, arguments);
-}
-
-function _fireReadyCallbacks() {
-  _fireReadyCallbacks = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(dispatch, getState, callbacks) {
-    var _findReadyCallbacks, readyCallbacks, blockedCallbacks, _getState6, config, hooks, layout, paths, outputStash, requestedCallbacks, allCallbacks, ids, fireNext, hasClientSide, queue, done;
-
-    return regeneratorRuntime.wrap(function _callee3$(_context3) {
-      while (1) {
-        switch (_context3.prev = _context3.next) {
-          case 0:
-            fireNext = function _ref14() {
-              return fireReadyCallbacks(dispatch, getState, getState().pendingCallbacks);
-            };
-
-            _findReadyCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["findReadyCallbacks"])(callbacks), readyCallbacks = _findReadyCallbacks.readyCallbacks, blockedCallbacks = _findReadyCallbacks.blockedCallbacks;
-            _getState6 = getState(), config = _getState6.config, hooks = _getState6.hooks, layout = _getState6.layout, paths = _getState6.paths; // We want to calculate all the outputs only once, but we need them
-            // for pendingCallbacks which we're going to dispatch prior to
-            // initiating the queue. So first loop over readyCallbacks to
-            // generate the output lists, then dispatch pendingCallbacks,
-            // then loop again to fire off the requests.
-
-            outputStash = {};
-            requestedCallbacks = readyCallbacks.map(function (cb) {
-              var cbOut = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["setNewRequestId"])(cb);
-              var requestId = cbOut.requestId,
-                  getOutputs = cbOut.getOutputs;
-              var allOutputs = getOutputs(paths);
-              var flatOutputs = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(allOutputs);
-              var allPropIds = [];
-              var reqOut = {};
-              flatOutputs.forEach(function (_ref11) {
-                var id = _ref11.id,
-                    property = _ref11.property;
-                var idStr = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["stringifyId"])(id);
-                var idOut = reqOut[idStr] = reqOut[idStr] || [];
-                idOut.push(property);
-                allPropIds.push(Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["combineIdAndProp"])({
-                  id: idStr,
-                  property: property
-                }));
-              });
-              cbOut.requestedOutputs = reqOut;
-              outputStash[requestId] = {
-                allOutputs: allOutputs,
-                allPropIds: allPropIds
-              };
-              return cbOut;
-            });
-            allCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestedCallbacks, blockedCallbacks);
-            dispatch(setPendingCallbacks(allCallbacks));
-            ids = requestedCallbacks.map(function (cb) {
-              return [cb.getInputs(paths), cb.getState(paths)];
-            });
-            _context3.next = 10;
-            return Object(_isAppReady__WEBPACK_IMPORTED_MODULE_10__["default"])(layout, paths, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["uniq"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pluck"])('id', Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(ids))));
-
-          case 10:
-            hasClientSide = false;
-            queue = requestedCallbacks.map(function (cb) {
-              var _cb$callback = cb.callback,
-                  output = _cb$callback.output,
-                  inputs = _cb$callback.inputs,
-                  state = _cb$callback.state,
-                  clientside_function = _cb$callback.clientside_function;
-              var requestId = cb.requestId,
-                  resolvedId = cb.resolvedId;
-              var _outputStash$requestI = outputStash[requestId],
-                  allOutputs = _outputStash$requestI.allOutputs,
-                  allPropIds = _outputStash$requestI.allPropIds;
-              var payload;
-
-              try {
-                var inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
-
-                var preventCallback = function preventCallback() {
-                  removeCallbackFromPending(); // no server call here; for performance purposes pretend this is
-                  // a clientside callback and defer fireNext for the end
-                  // of the currently-ready callbacks.
-
-                  hasClientSide = true;
-                  return null;
-                };
-
-                if (inVals === null) {
-                  return preventCallback();
-                }
-
-                var outputs = [];
-                var outputErrors = [];
-                allOutputs.forEach(function (out, i) {
-                  var _unwrapIfNotMulti3 = unwrapIfNotMulti(paths, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pick"])(['id', 'property']), out), cb.callback.outputs[i], cb.anyVals, 'Output'),
-                      _unwrapIfNotMulti4 = _slicedToArray(_unwrapIfNotMulti3, 2),
-                      outi = _unwrapIfNotMulti4[0],
-                      erri = _unwrapIfNotMulti4[1];
-
-                  outputs.push(outi);
-
-                  if (erri) {
-                    outputErrors.push(erri);
-                  }
-                });
-
-                if (outputErrors.length) {
-                  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(inVals).length) {
-                    refErr(outputErrors, paths);
-                  } // This case is all-empty multivalued wildcard inputs,
-                  // which we would normally fire the callback for, except
-                  // some outputs are missing. So instead we treat it like
-                  // regular missing inputs and just silently prevent it.
-
-
-                  return preventCallback();
-                }
-
-                payload = {
-                  output: output,
-                  outputs: Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["isMultiOutputProp"])(output) ? outputs : outputs[0],
-                  inputs: inVals,
-                  changedPropIds: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(cb.changedPropIds)
-                };
-
-                if (cb.callback.state.length) {
-                  payload.state = fillVals(paths, layout, cb, state, 'State');
-                }
-              } catch (e) {
-                handleError(e);
-                return fireNext();
-              }
-
-              function updatePending(pendingCallbacks, skippedProps) {
-                var newPending = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["removePendingCallback"])(pendingCallbacks, getState().paths, resolvedId, skippedProps);
-                dispatch(setPendingCallbacks(newPending));
-              }
-
-              function handleData(data) {
-                var _getState7 = getState(),
-                    pendingCallbacks = _getState7.pendingCallbacks;
-
-                if (!requestIsActive(pendingCallbacks, resolvedId, requestId)) {
-                  return;
-                }
-
-                var updated = [];
-                Object.entries(data).forEach(function (_ref12) {
-                  var _ref13 = _slicedToArray(_ref12, 2),
-                      id = _ref13[0],
-                      props = _ref13[1];
-
-                  var parsedId = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["parseIfWildcard"])(id);
-
-                  var _getState8 = getState(),
-                      oldLayout = _getState8.layout,
-                      oldPaths = _getState8.paths;
-
-                  var appliedProps = doUpdateProps(dispatch, getState, parsedId, props);
-
-                  if (appliedProps) {
-                    // doUpdateProps can cause new callbacks to be added
-                    // via derived props - update pendingCallbacks
-                    // But we may also need to merge in other callbacks that
-                    // we found in an earlier interation of the data loop.
-                    var statePendingCallbacks = getState().pendingCallbacks;
-
-                    if (statePendingCallbacks !== pendingCallbacks) {
-                      pendingCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["mergePendingCallbacks"])(pendingCallbacks, statePendingCallbacks);
-                    }
-
-                    Object.keys(appliedProps).forEach(function (property) {
-                      updated.push(Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["combineIdAndProp"])({
-                        id: id,
-                        property: property
-                      }));
-                    });
-
-                    if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('children', appliedProps)) {
-                      var oldChildren = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(Object(_paths__WEBPACK_IMPORTED_MODULE_7__["getPath"])(oldPaths, parsedId), ['props', 'children']), oldLayout); // If components changed, need to update paths,
-                      // check if all pending callbacks are still
-                      // valid, and add all callbacks associated with
-                      // new components, either as inputs or outputs,
-                      // or components removed from ALL/ALLSMALLER inputs
-
-                      pendingCallbacks = updateChildPaths(dispatch, getState, pendingCallbacks, parsedId, appliedProps.children, oldChildren);
-                    } // persistence edge case: if you explicitly update the
-                    // persistence key, other props may change that require us
-                    // to fire additional callbacks
-
-
-                    var addedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pickBy"])(function (v, k) {
-                      return !(k in props);
-                    }, appliedProps);
-
-                    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(addedProps)) {
-                      var _getState9 = getState(),
-                          graphs = _getState9.graphs,
-                          _paths = _getState9.paths;
-
-                      pendingCallbacks = includeObservers(id, addedProps, graphs, _paths, pendingCallbacks);
-                    }
-                  }
-                });
-                updatePending(pendingCallbacks, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["without"])(updated, allPropIds));
-              }
-
-              function removeCallbackFromPending() {
-                var _getState10 = getState(),
-                    pendingCallbacks = _getState10.pendingCallbacks;
-
-                if (requestIsActive(pendingCallbacks, resolvedId, requestId)) {
-                  // Skip all prop updates from this callback, and remove
-                  // it from the pending list so callbacks it was blocking
-                  // that have other changed inputs will still fire.
-                  updatePending(pendingCallbacks, allPropIds);
-                }
-              }
-
-              function handleError(err) {
-                removeCallbackFromPending();
-                var outputs = payload ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_dependencies__WEBPACK_IMPORTED_MODULE_6__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])([payload.outputs])).join(', ') : output;
-                var message = "Callback error updating ".concat(outputs);
-
-                if (clientside_function) {
-                  var ns = clientside_function.namespace,
-                      fn = clientside_function.function_name;
-                  message += " via clientside function ".concat(ns, ".").concat(fn);
-                }
-
-                handleAsyncError(err, message, dispatch);
-              }
-
-              if (clientside_function) {
-                try {
-                  handleData(handleClientside(clientside_function, payload));
-                } catch (err) {
-                  handleError(err);
-                }
-
-                hasClientSide = true;
-                return null;
-              }
-
-              return handleServerside(config, payload, hooks).then(handleData)["catch"](handleError).then(fireNext);
-            });
-            done = Promise.all(queue);
-            return _context3.abrupt("return", hasClientSide ? fireNext().then(done) : done);
-
-          case 14:
-          case "end":
-            return _context3.stop();
-        }
-      }
-    }, _callee3);
-  }));
-  return _fireReadyCallbacks.apply(this, arguments);
-}
-
-function fillVals(paths, layout, cb, specs, depType, allowAllMissing) {
-  var getter = depType === 'Input' ? cb.getInputs : cb.getState;
-  var errors = [];
-  var emptyMultiValues = 0;
-  var inputVals = getter(paths).map(function (inputList, i) {
-    var _unwrapIfNotMulti = unwrapIfNotMulti(paths, inputList.map(function (_ref3) {
-      var id = _ref3.id,
-          property = _ref3.property,
-          path_ = _ref3.path;
-      return {
-        id: id,
-        property: property,
-        value: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(path_, layout).props[property]
-      };
-    }), specs[i], cb.anyVals, depType),
-        _unwrapIfNotMulti2 = _slicedToArray(_unwrapIfNotMulti, 2),
-        inputs = _unwrapIfNotMulti2[0],
-        inputError = _unwrapIfNotMulti2[1];
-
-    if (Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["isMultiValued"])(specs[i]) && !inputs.length) {
-      emptyMultiValues++;
-    }
-
-    if (inputError) {
-      errors.push(inputError);
-    }
-
-    return inputs;
-  });
-
-  if (errors.length) {
-    if (allowAllMissing && errors.length + emptyMultiValues === inputVals.length) {
-      // We have at least one non-multivalued input, but all simple and
-      // multi-valued inputs are missing.
-      // (if all inputs are multivalued and all missing we still return
-      // them as normal, and fire the callback.)
-      return null;
-    } // If we get here we have some missing and some present inputs.
-    // Or all missing in a context that doesn't allow this.
-    // That's a real problem, so throw the first message as an error.
-
-
-    refErr(errors, paths);
-  }
-
-  return inputVals;
-}
-
-function refErr(errors, paths) {
-  var err = errors[0];
-
-  if (err.indexOf('logged above') !== -1) {
-    // Wildcard reference errors mention a list of wildcard specs logged
-    // TODO: unwrapped list of wildcard ids?
-    // eslint-disable-next-line no-console
-    console.error(paths.objs);
-  }
-
-  throw new ReferenceError(err);
-}
-
-function handleServerside(config, payload, hooks) {
-  if (hooks.request_pre !== null) {
-    hooks.request_pre(payload);
-  }
-
-  return fetch("".concat(Object(_utils__WEBPACK_IMPORTED_MODULE_5__["urlBase"])(config), "_dash-update-component"), Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeDeepRight"])(config.fetch, {
-    method: 'POST',
-    headers: getCSRFHeader(),
-    body: JSON.stringify(payload)
-  })).then(function (res) {
-    var status = res.status;
-
-    if (status === _constants_constants__WEBPACK_IMPORTED_MODULE_8__["STATUS"].OK) {
-      return res.json().then(function (data) {
-        var multi = data.multi,
-            response = data.response;
-
-        if (hooks.request_post !== null) {
-          hooks.request_post(payload, response);
-        }
-
-        if (multi) {
-          return response;
-        }
-
-        var output = payload.output;
-        var id = output.substr(0, output.lastIndexOf('.'));
-        return _defineProperty({}, id, response.props);
-      });
-    }
-
-    if (status === _constants_constants__WEBPACK_IMPORTED_MODULE_8__["STATUS"].PREVENT_UPDATE) {
-      return {};
-    }
-
-    throw res;
-  });
-}
-
-var getVals = function getVals(input) {
-  return Array.isArray(input) ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pluck"])('value', input) : input.value;
-};
-
-var zipIfArray = function zipIfArray(a, b) {
-  return Array.isArray(a) ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["zip"])(a, b) : [[a, b]];
-};
-
-function handleClientside(clientside_function, payload) {
-  var dc = window.dash_clientside = window.dash_clientside || {};
-
-  if (!dc.no_update) {
-    Object.defineProperty(dc, 'no_update', {
-      value: {
-        description: 'Return to prevent updating an Output.'
-      },
-      writable: false
-    });
-    Object.defineProperty(dc, 'PreventUpdate', {
-      value: {
-        description: 'Throw to prevent updating all Outputs.'
-      },
-      writable: false
-    });
-  }
-
-  var inputs = payload.inputs,
-      outputs = payload.outputs,
-      state = payload.state;
-  var returnValue;
-
-  try {
-    var _dc$namespace;
-
-    var namespace = clientside_function.namespace,
-        function_name = clientside_function.function_name;
-    var args = inputs.map(getVals);
-
-    if (state) {
-      args = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(args, state.map(getVals));
-    }
-
-    returnValue = (_dc$namespace = dc[namespace])[function_name].apply(_dc$namespace, _toConsumableArray(args));
-  } catch (e) {
-    if (e === dc.PreventUpdate) {
-      return {};
-    }
-
-    throw e;
-  }
-
-  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(returnValue) === 'Promise') {
-    throw new Error('The clientside function returned a Promise. ' + 'Promises are not supported in Dash clientside ' + 'right now, but may be in the future.');
-  }
-
-  var data = {};
-  zipIfArray(outputs, returnValue).forEach(function (_ref5) {
-    var _ref6 = _slicedToArray(_ref5, 2),
-        outi = _ref6[0],
-        reti = _ref6[1];
-
-    zipIfArray(outi, reti).forEach(function (_ref7) {
-      var _ref8 = _slicedToArray(_ref7, 2),
-          outij = _ref8[0],
-          retij = _ref8[1];
-
-      var id = outij.id,
-          property = outij.property;
-      var idStr = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["stringifyId"])(id);
-      var dataForId = data[idStr] = data[idStr] || {};
-
-      if (retij !== dc.no_update) {
-        dataForId[property] = retij;
-      }
-    });
-  });
-  return data;
-}
-
-function requestIsActive(pendingCallbacks, resolvedId, requestId) {
-  var thisCallback = pendingCallbacks.find(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["propEq"])('resolvedId', resolvedId)); // could be inactivated if it was requested again, in which case it could
-  // potentially even have finished and been removed from the list
-
-  return thisCallback && thisCallback.requestId === requestId;
-}
-
-function doUpdateProps(dispatch, getState, id, updatedProps) {
-  var _getState3 = getState(),
-      layout = _getState3.layout,
-      paths = _getState3.paths;
-
-  var itempath = Object(_paths__WEBPACK_IMPORTED_MODULE_7__["getPath"])(paths, id);
-
-  if (!itempath) {
-    return false;
-  } // This is a callback-generated update.
-  // Check if this invalidates existing persisted prop values,
-  // or if persistence changed, whether this updates other props.
-
-
-  var updatedProps2 = Object(_persistence__WEBPACK_IMPORTED_MODULE_9__["prunePersistence"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(itempath, layout), updatedProps, dispatch); // In case the update contains whole components, see if any of
-  // those components have props to update to persist user edits.
-
-  var _applyPersistence = Object(_persistence__WEBPACK_IMPORTED_MODULE_9__["applyPersistence"])({
-    props: updatedProps2
-  }, dispatch),
-      props = _applyPersistence.props;
-
-  dispatch(updateProps({
-    itempath: itempath,
-    props: props,
-    source: 'response'
-  }));
-  return props;
-}
-
-function updateChildPaths(dispatch, getState, pendingCallbacks, id, children, oldChildren) {
-  var _getState4 = getState(),
-      oldPaths = _getState4.paths,
-      graphs = _getState4.graphs;
-
-  var childrenPath = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(Object(_paths__WEBPACK_IMPORTED_MODULE_7__["getPath"])(oldPaths, id), ['props', 'children']);
-  var paths = Object(_paths__WEBPACK_IMPORTED_MODULE_7__["computePaths"])(children, childrenPath, oldPaths);
-  dispatch(setPaths(paths));
-  var cleanedCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["pruneRemovedCallbacks"])(pendingCallbacks, paths);
-  var newCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["getCallbacksInLayout"])(graphs, paths, children, {
-    chunkPath: childrenPath
-  }); // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
-  // even due to the deletion of components
-
-  var deletedComponentCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["getCallbacksInLayout"])(graphs, oldPaths, oldChildren, {
-    removedArrayInputsOnly: true,
-    newPaths: paths,
-    chunkPath: childrenPath
-  });
-  var allNewCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["mergePendingCallbacks"])(newCallbacks, deletedComponentCallbacks);
-  return Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["mergePendingCallbacks"])(cleanedCallbacks, allNewCallbacks);
-}
-
-function notifyObservers(_ref9) {
-  var id = _ref9.id,
-      props = _ref9.props;
-  return (/*#__PURE__*/function () {
-      var _ref10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(dispatch, getState) {
-        var _getState5, graphs, paths, pendingCallbacks, finalCallbacks;
-
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _getState5 = getState(), graphs = _getState5.graphs, paths = _getState5.paths, pendingCallbacks = _getState5.pendingCallbacks;
-                finalCallbacks = includeObservers(id, props, graphs, paths, pendingCallbacks);
-                dispatch(startCallbacks(finalCallbacks));
-
-              case 3:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2);
-      }));
-
-      return function (_x6, _x7) {
-        return _ref10.apply(this, arguments);
-      };
-    }()
-  );
-}
-
-function includeObservers(id, props, graphs, paths, pendingCallbacks) {
-  var changedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(props);
-  var finalCallbacks = pendingCallbacks;
-  changedProps.forEach(function (propName) {
-    var newCBs = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["getCallbacksByInput"])(graphs, paths, id, propName);
-
-    if (newCBs.length) {
-      finalCallbacks = Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["mergePendingCallbacks"])(finalCallbacks, Object(_dependencies__WEBPACK_IMPORTED_MODULE_6__["followForward"])(graphs, paths, newCBs));
-    }
-  });
-  return finalCallbacks;
-}
-
 function handleAsyncError(err, message, dispatch) {
   // Handle html error responses
   if (err && typeof err.text === 'function') {
@@ -35302,6 +35182,42 @@ __webpack_require__.r(__webpack_exports__);
   });
   return promises.length ? Promise.all(promises) : true;
 });
+
+/***/ }),
+
+/***/ "./src/actions/isLoading.ts":
+/*!**********************************!*\
+  !*** ./src/actions/isLoading.ts ***!
+  \**********************************/
+/*! exports provided: setIsLoading */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setIsLoading", function() { return setIsLoading; });
+/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/es/index.js");
+/* harmony import */ var _reducers_isLoading__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../reducers/isLoading */ "./src/reducers/isLoading.ts");
+
+
+var setIsLoading = Object(redux_actions__WEBPACK_IMPORTED_MODULE_0__["createAction"])(_reducers_isLoading__WEBPACK_IMPORTED_MODULE_1__["IsLoadingActionType"].Set);
+
+/***/ }),
+
+/***/ "./src/actions/loadingMap.ts":
+/*!***********************************!*\
+  !*** ./src/actions/loadingMap.ts ***!
+  \***********************************/
+/*! exports provided: setLoadingMap */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLoadingMap", function() { return setLoadingMap; });
+/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/es/index.js");
+/* harmony import */ var _reducers_loadingMap__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../reducers/loadingMap */ "./src/reducers/loadingMap.ts");
+
+
+var setLoadingMap = Object(redux_actions__WEBPACK_IMPORTED_MODULE_0__["createAction"])(_reducers_loadingMap__WEBPACK_IMPORTED_MODULE_1__["LoadingMapActionType"].Set);
 
 /***/ }),
 
@@ -35570,7 +35486,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
  * @return {string} Any error messsage resulting from checking the types
  */
 
-function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
+function checkPropTypes(typeSpecs, values, location, componentName) {
+  var getStack = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
   var errors = [];
 
   for (var typeSpecName in typeSpecs) {
@@ -35662,7 +35579,7 @@ var DocumentTitle = /*#__PURE__*/function (_Component) {
   _createClass(DocumentTitle, [{
     key: "UNSAFE_componentWillReceiveProps",
     value: function UNSAFE_componentWillReceiveProps(props) {
-      if (props.pendingCallbacks.length) {
+      if (props.isLoading) {
         document.title = 'Updating...';
       } else {
         document.title = this.state.initialTitle;
@@ -35684,11 +35601,11 @@ var DocumentTitle = /*#__PURE__*/function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_1__["Component"]);
 
 DocumentTitle.propTypes = {
-  pendingCallbacks: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.array.isRequired
+  isLoading: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.bool.isRequired
 };
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(function (state) {
   return {
-    pendingCallbacks: state.pendingCallbacks
+    isLoading: state.isLoading
   };
 })(DocumentTitle));
 
@@ -35713,7 +35630,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function Loading(props) {
-  if (props.pendingCallbacks.length) {
+  if (props.isLoading) {
     return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
       className: "_dash-loading-callback"
     });
@@ -35723,11 +35640,11 @@ function Loading(props) {
 }
 
 Loading.propTypes = {
-  pendingCallbacks: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.array.isRequired
+  isLoading: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.bool.isRequired
 };
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(function (state) {
   return {
-    pendingCallbacks: state.pendingCallbacks
+    isLoading: state.isLoading
   };
 })(Loading));
 
@@ -35899,7 +35816,7 @@ var Reloader = /*#__PURE__*/function (_React$Component) {
             // Assets file have changed
             // or a component lib has been added/removed -
             // Must do a hard reload
-            window.top.location.reload();
+            window.location.reload();
           }
         } else {
           // Backend code changed - can do a soft reload in place
@@ -36252,13 +36169,11 @@ CallbackGraphContainer.propTypes = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! prop-types */ "prop-types");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var radium__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! radium */ "./node_modules/radium/es/index.js");
-/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! prop-types */ "prop-types");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -36281,17 +36196,15 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
+var ComponentErrorBoundary = /*#__PURE__*/function (_Component) {
+  _inherits(ComponentErrorBoundary, _Component);
 
-
-var UnconnectedComponentErrorBoundary = /*#__PURE__*/function (_Component) {
-  _inherits(UnconnectedComponentErrorBoundary, _Component);
-
-  function UnconnectedComponentErrorBoundary(props) {
+  function ComponentErrorBoundary(props) {
     var _this;
 
-    _classCallCheck(this, UnconnectedComponentErrorBoundary);
+    _classCallCheck(this, ComponentErrorBoundary);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(UnconnectedComponentErrorBoundary).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ComponentErrorBoundary).call(this, props));
     _this.state = {
       myID: props.componentId,
       oldChildren: null,
@@ -36300,17 +36213,17 @@ var UnconnectedComponentErrorBoundary = /*#__PURE__*/function (_Component) {
     return _this;
   }
 
-  _createClass(UnconnectedComponentErrorBoundary, [{
+  _createClass(ComponentErrorBoundary, [{
     key: "componentDidCatch",
     value: function componentDidCatch(error, info) {
       var dispatch = this.props.dispatch;
-      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_4__["onError"])({
+      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_2__["onError"])({
         myID: this.state.myID,
         type: 'frontEnd',
         error: error,
         info: info
       }));
-      dispatch(_actions__WEBPACK_IMPORTED_MODULE_4__["revert"]);
+      dispatch(_actions__WEBPACK_IMPORTED_MODULE_2__["revert"]);
     }
   }, {
     key: "componentDidUpdate",
@@ -36341,24 +36254,15 @@ var UnconnectedComponentErrorBoundary = /*#__PURE__*/function (_Component) {
     }
   }]);
 
-  return UnconnectedComponentErrorBoundary;
-}(react__WEBPACK_IMPORTED_MODULE_1__["Component"]);
+  return ComponentErrorBoundary;
+}(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 
-UnconnectedComponentErrorBoundary.propTypes = {
-  children: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object,
-  componentId: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.string,
-  error: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object,
-  dispatch: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.func
+ComponentErrorBoundary.propTypes = {
+  children: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  componentId: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
+  error: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  dispatch: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func
 };
-var ComponentErrorBoundary = Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(function (state) {
-  return {
-    error: state.error
-  };
-}, function (dispatch) {
-  return {
-    dispatch: dispatch
-  };
-})(Object(radium__WEBPACK_IMPORTED_MODULE_3__["default"])(UnconnectedComponentErrorBoundary));
 /* harmony default export */ __webpack_exports__["default"] = (ComponentErrorBoundary);
 
 /***/ }),
@@ -36642,7 +36546,10 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
   _createClass(FrontEndErrorContainer, [{
     key: "render",
     value: function render() {
-      var errorsLength = this.props.errors.length;
+      var _this$props = this.props,
+          errors = _this$props.errors,
+          connected = _this$props.connected;
+      var errorsLength = errors.length;
 
       if (errorsLength === 0) {
         return null;
@@ -36650,7 +36557,7 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
 
       var inAlertsTray = this.props.inAlertsTray;
       var cardClasses = 'dash-error-card dash-error-card--container';
-      var errorElements = this.props.errors.map(function (error, i) {
+      var errorElements = errors.map(function (error, i) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_FrontEndError_react__WEBPACK_IMPORTED_MODULE_3__["FrontEndError"], {
           e: error,
           isListItem: true,
@@ -36670,7 +36577,7 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
         className: "dash-error-card__message"
       }, "\uD83D\uDED1 Errors (", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("strong", {
         className: "test-devtools-error-count"
-      }, errorsLength), ")")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, errorsLength), ")", connected ? null : "\xA0 \uD83D\uDEAB Server Unavailable")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-error-card__list"
       }, errorElements));
     }
@@ -36681,6 +36588,7 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
 
 FrontEndErrorContainer.propTypes = {
   errors: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.array,
+  connected: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.bool,
   inAlertsTray: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.any
 };
 FrontEndErrorContainer.propTypes = {
@@ -36743,6 +36651,7 @@ var UnconnectedGlobalErrorContainer = /*#__PURE__*/function (_Component) {
     key: "render",
     value: function render() {
       var _this$props = this.props,
+          config = _this$props.config,
           error = _this$props.error,
           graphs = _this$props.graphs,
           children = _this$props.children;
@@ -36750,7 +36659,8 @@ var UnconnectedGlobalErrorContainer = /*#__PURE__*/function (_Component) {
         id: "_dash-global-error-container"
       }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_4__["DebugMenu"], {
         error: error,
-        graphs: graphs
+        graphs: graphs,
+        hotReload: Boolean(config.hot_reload)
       }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
         id: "_dash-app-content"
       }, children)));
@@ -36762,11 +36672,13 @@ var UnconnectedGlobalErrorContainer = /*#__PURE__*/function (_Component) {
 
 UnconnectedGlobalErrorContainer.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object,
+  config: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object,
   error: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object,
   graphs: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object
 };
 var GlobalErrorContainer = Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(function (state) {
   return {
+    config: state.config,
     error: state.error,
     graphs: state.graphs
   };
@@ -36863,13 +36775,14 @@ var GlobalErrorOverlay = /*#__PURE__*/function (_Component) {
       var _this$props = this.props,
           visible = _this$props.visible,
           error = _this$props.error,
-          toastsEnabled = _this$props.toastsEnabled;
+          errorsOpened = _this$props.errorsOpened;
       var frontEndErrors;
 
-      if (toastsEnabled) {
+      if (errorsOpened) {
         var errors = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["concat"])(error.frontEnd, error.backEnd);
         frontEndErrors = react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_FrontEnd_FrontEndErrorContainer_react__WEBPACK_IMPORTED_MODULE_4__["FrontEndErrorContainer"], {
-          errors: errors
+          errors: errors,
+          connected: error.backEndConnected
         });
       }
 
@@ -36889,7 +36802,7 @@ GlobalErrorOverlay.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
   visible: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.bool,
   error: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
-  toastsEnabled: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any
+  errorsOpened: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any
 };
 
 /***/ }),
@@ -36947,8 +36860,7 @@ var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("pat
 
 function SvgBellIcon(props) {
   return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
-    width: 28,
-    height: 27,
+    viewBox: "0 0 28 24",
     fill: "none"
   }, props), _ref);
 }
@@ -36957,10 +36869,10 @@ function SvgBellIcon(props) {
 
 /***/ }),
 
-/***/ "./src/components/error/icons/BellIconGrey.svg":
-/*!*****************************************************!*\
-  !*** ./src/components/error/icons/BellIconGrey.svg ***!
-  \*****************************************************/
+/***/ "./src/components/error/icons/CheckIcon.svg":
+/*!**************************************************!*\
+  !*** ./src/components/error/icons/CheckIcon.svg ***!
+  \**************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -36973,19 +36885,51 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
-  d: "M8.107 2.44L6.2.533C3 2.973.893 6.733.707 11h2.666a11.26 11.26 0 014.734-8.56zM24.627 11h2.666c-.2-4.267-2.306-8.027-5.493-10.467L19.907 2.44a11.327 11.327 0 014.72 8.56zM22 11.667c0-4.094-2.187-7.52-6-8.427V.333h-4V3.24c-3.827.907-6 4.32-6 8.427v6.666L3.333 21v1.333h21.333V21L22 18.333v-6.666zm-8 14.666c.187 0 .36-.013.533-.053a2.705 2.705 0 001.92-1.573c.134-.32.2-.667.2-1.04H11.32A2.686 2.686 0 0014 26.333z",
-  fill: "#B9C2CE"
+  d: "M15 12l8 8L39 4",
+  fill: "none",
+  stroke: "#fff",
+  strokeWidth: 4
 });
 
-function SvgBellIconGrey(props) {
+function SvgCheckIcon(props) {
   return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
-    width: 28,
-    height: 27,
-    fill: "none"
+    viewBox: "0 0 54 24"
   }, props), _ref);
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (SvgBellIconGrey);
+/* harmony default export */ __webpack_exports__["default"] = (SvgCheckIcon);
+
+/***/ }),
+
+/***/ "./src/components/error/icons/ClockIcon.svg":
+/*!**************************************************!*\
+  !*** ./src/components/error/icons/ClockIcon.svg ***!
+  \**************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+
+
+var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
+  d: "M27 0v22h22",
+  fill: "none",
+  stroke: "#fff",
+  strokeWidth: 4
+});
+
+function SvgClockIcon(props) {
+  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
+    viewBox: "0 0 54 24"
+  }, props), _ref);
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (SvgClockIcon);
 
 /***/ }),
 
@@ -37053,39 +36997,6 @@ function SvgDebugIcon(props) {
 
 /***/ }),
 
-/***/ "./src/components/error/icons/ErrorIconWhite.svg":
-/*!*******************************************************!*\
-  !*** ./src/components/error/icons/ErrorIconWhite.svg ***!
-  \*******************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-
-
-var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
-  fillRule: "evenodd",
-  clipRule: "evenodd",
-  d: "M0 4a4 4 0 118 0 4 4 0 11-8 0zm5.44 2L6 5.44 4.56 4 6 2.56 5.44 2 4 3.44 2.56 2 2 2.56 3.44 4 2 5.44l.56.56L4 4.56 5.44 6z",
-  fill: "#fff"
-});
-
-function SvgErrorIconWhite(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
-    viewBox: "0 0 8 8",
-    fill: "none"
-  }, props), _ref);
-}
-
-/* harmony default export */ __webpack_exports__["default"] = (SvgErrorIconWhite);
-
-/***/ }),
-
 /***/ "./src/components/error/icons/GraphIcon.svg":
 /*!**************************************************!*\
   !*** ./src/components/error/icons/GraphIcon.svg ***!
@@ -37118,10 +37029,10 @@ function SvgGraphIcon(props) {
 
 /***/ }),
 
-/***/ "./src/components/error/icons/GraphIconGrey.svg":
-/*!******************************************************!*\
-  !*** ./src/components/error/icons/GraphIconGrey.svg ***!
-  \******************************************************/
+/***/ "./src/components/error/icons/OffIcon.svg":
+/*!************************************************!*\
+  !*** ./src/components/error/icons/OffIcon.svg ***!
+  \************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -37134,158 +37045,18 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
-  d: "M18.103 17.005c-.908 0-1.756.302-2.362.905l-8.657-5.005c.06-.302.12-.543.12-.845 0-.301-.06-.543-.12-.844l8.537-4.944a3.644 3.644 0 002.482.964c1.998 0 3.633-1.628 3.633-3.618S20.1 0 18.103 0 14.47 1.628 14.47 3.618c0 .302.06.543.122.845L6.055 9.407a3.644 3.644 0 00-2.483-.965C1.574 8.442 0 10.071 0 12.06c0 1.99 1.635 3.618 3.633 3.618.968 0 1.816-.361 2.482-.964l8.598 5.005c-.061.24-.121.482-.121.784A3.507 3.507 0 0018.102 24a3.507 3.507 0 003.511-3.497 3.507 3.507 0 00-3.51-3.498z",
-  fill: "#B9C2CE"
+  d: "M18 2l18 18m0-18L18 20",
+  strokeWidth: 4,
+  stroke: "#fff"
 });
 
-function SvgGraphIconGrey(props) {
+function SvgOffIcon(props) {
   return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
-    width: 22,
-    height: 24,
-    fill: "none"
+    viewBox: "0 0 54 24"
   }, props), _ref);
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (SvgGraphIconGrey);
-
-/***/ }),
-
-/***/ "./src/components/error/icons/WhiteCloseIcon.svg":
-/*!*******************************************************!*\
-  !*** ./src/components/error/icons/WhiteCloseIcon.svg ***!
-  \*******************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-
-
-var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
-  d: "M1 1l12 12m0-12L1 13",
-  stroke: "#fff",
-  strokeWidth: 2
-});
-
-function SvgWhiteCloseIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
-    viewBox: "0 0 14 14",
-    fill: "none"
-  }, props), _ref);
-}
-
-/* harmony default export */ __webpack_exports__["default"] = (SvgWhiteCloseIcon);
-
-/***/ }),
-
-/***/ "./src/components/error/menu/DebugAlertContainer.css":
-/*!***********************************************************!*\
-  !*** ./src/components/error/menu/DebugAlertContainer.css ***!
-  \***********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var api = __webpack_require__(/*! ../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
-            var content = __webpack_require__(/*! !../../../../node_modules/css-loader/dist/cjs.js!./DebugAlertContainer.css */ "./node_modules/css-loader/dist/cjs.js!./src/components/error/menu/DebugAlertContainer.css");
-
-            content = content.__esModule ? content.default : content;
-
-            if (typeof content === 'string') {
-              content = [[module.i, content, '']];
-            }
-
-var options = {};
-
-options.insert = "head";
-options.singleton = false;
-
-var update = api(content, options);
-
-var exported = content.locals ? content.locals : {};
-
-
-
-module.exports = exported;
-
-/***/ }),
-
-/***/ "./src/components/error/menu/DebugAlertContainer.react.js":
-/*!****************************************************************!*\
-  !*** ./src/components/error/menu/DebugAlertContainer.react.js ***!
-  \****************************************************************/
-/*! exports provided: DebugAlertContainer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DebugAlertContainer", function() { return DebugAlertContainer; });
-/* harmony import */ var _DebugAlertContainer_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DebugAlertContainer.css */ "./src/components/error/menu/DebugAlertContainer.css");
-/* harmony import */ var _DebugAlertContainer_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_DebugAlertContainer_css__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! prop-types */ "prop-types");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _icons_ErrorIconWhite_svg__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../icons/ErrorIconWhite.svg */ "./src/components/error/icons/ErrorIconWhite.svg");
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-
-
-
-
-
-var DebugAlertContainer = /*#__PURE__*/function (_Component) {
-  _inherits(DebugAlertContainer, _Component);
-
-  function DebugAlertContainer(props) {
-    _classCallCheck(this, DebugAlertContainer);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(DebugAlertContainer).call(this, props));
-  }
-
-  _createClass(DebugAlertContainer, [{
-    key: "render",
-    value: function render() {
-      var alertsOpened = this.props.alertsOpened;
-      return React.createElement("div", {
-        className: "dash-debug-alert-container".concat(alertsOpened ? ' dash-debug-alert-container--opened' : ''),
-        onClick: this.props.onClick
-      }, React.createElement("div", {
-        className: "dash-debug-alert"
-      }, alertsOpened ? React.createElement(_icons_ErrorIconWhite_svg__WEBPACK_IMPORTED_MODULE_3__["default"], {
-        className: "dash-debug-alert-container__icon"
-      }) : '🛑 ', this.props.errors.length));
-    }
-  }]);
-
-  return DebugAlertContainer;
-}(react__WEBPACK_IMPORTED_MODULE_1__["Component"]);
-
-DebugAlertContainer.propTypes = {
-  errors: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.object,
-  alertsOpened: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.bool,
-  onClick: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.func
-};
-
+/* harmony default export */ __webpack_exports__["default"] = (SvgOffIcon);
 
 /***/ }),
 
@@ -37332,20 +37103,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DebugMenu", function() { return DebugMenu; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! prop-types */ "prop-types");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _DebugMenu_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DebugMenu.css */ "./src/components/error/menu/DebugMenu.css");
 /* harmony import */ var _DebugMenu_css__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_DebugMenu_css__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _icons_DebugIcon_svg__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../icons/DebugIcon.svg */ "./src/components/error/icons/DebugIcon.svg");
-/* harmony import */ var _icons_WhiteCloseIcon_svg__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../icons/WhiteCloseIcon.svg */ "./src/components/error/icons/WhiteCloseIcon.svg");
-/* harmony import */ var _icons_BellIcon_svg__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../icons/BellIcon.svg */ "./src/components/error/icons/BellIcon.svg");
-/* harmony import */ var _icons_BellIconGrey_svg__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../icons/BellIconGrey.svg */ "./src/components/error/icons/BellIconGrey.svg");
+/* harmony import */ var _icons_BellIcon_svg__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../icons/BellIcon.svg */ "./src/components/error/icons/BellIcon.svg");
+/* harmony import */ var _icons_CheckIcon_svg__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../icons/CheckIcon.svg */ "./src/components/error/icons/CheckIcon.svg");
+/* harmony import */ var _icons_ClockIcon_svg__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../icons/ClockIcon.svg */ "./src/components/error/icons/ClockIcon.svg");
+/* harmony import */ var _icons_DebugIcon_svg__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../icons/DebugIcon.svg */ "./src/components/error/icons/DebugIcon.svg");
 /* harmony import */ var _icons_GraphIcon_svg__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../icons/GraphIcon.svg */ "./src/components/error/icons/GraphIcon.svg");
-/* harmony import */ var _icons_GraphIconGrey_svg__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../icons/GraphIconGrey.svg */ "./src/components/error/icons/GraphIconGrey.svg");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! prop-types */ "prop-types");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_9__);
-/* harmony import */ var _DebugAlertContainer_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./DebugAlertContainer.react */ "./src/components/error/menu/DebugAlertContainer.react.js");
-/* harmony import */ var _GlobalErrorOverlay_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../GlobalErrorOverlay.react */ "./src/components/error/GlobalErrorOverlay.react.js");
-/* harmony import */ var _CallbackGraph_CallbackGraphContainer_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../CallbackGraph/CallbackGraphContainer.react */ "./src/components/error/CallbackGraph/CallbackGraphContainer.react.js");
+/* harmony import */ var _icons_OffIcon_svg__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../icons/OffIcon.svg */ "./src/components/error/icons/OffIcon.svg");
+/* harmony import */ var _GlobalErrorOverlay_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../GlobalErrorOverlay.react */ "./src/components/error/GlobalErrorOverlay.react.js");
+/* harmony import */ var _CallbackGraph_CallbackGraphContainer_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../CallbackGraph/CallbackGraphContainer.react */ "./src/components/error/CallbackGraph/CallbackGraphContainer.react.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -37376,7 +37145,22 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
+var classes = function classes(base, variant, variant2) {
+  return "".concat(base, " ").concat(base, "--").concat(variant) + (variant2 ? " ".concat(base, "--").concat(variant2) : '');
+};
 
+var buttonFactory = function buttonFactory(enabled, buttonVariant, toggle, _Icon, iconVariant, label) {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "dash-debug-menu__button-container"
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: classes('dash-debug-menu__button', buttonVariant, enabled && 'enabled'),
+    onClick: toggle
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Icon, {
+    className: classes('dash-debug-menu__icon', iconVariant)
+  }), label ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
+    className: "dash-debug-menu__button-label"
+  }, label) : null));
+};
 
 var DebugMenu = /*#__PURE__*/function (_Component) {
   _inherits(DebugMenu, _Component);
@@ -37389,9 +37173,8 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DebugMenu).call(this, props));
     _this.state = {
       opened: false,
-      alertsOpened: false,
       callbackGraphOpened: false,
-      toastsEnabled: true
+      errorsOpened: true
     };
     return _this;
   }
@@ -37403,89 +37186,62 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
 
       var _this$state = this.state,
           opened = _this$state.opened,
-          alertsOpened = _this$state.alertsOpened,
-          toastsEnabled = _this$state.toastsEnabled,
+          errorsOpened = _this$state.errorsOpened,
           callbackGraphOpened = _this$state.callbackGraphOpened;
       var _this$props = this.props,
           error = _this$props.error,
-          graphs = _this$props.graphs;
-      var menuClasses = opened ? 'dash-debug-menu dash-debug-menu--opened' : 'dash-debug-menu dash-debug-menu--closed';
+          graphs = _this$props.graphs,
+          hotReload = _this$props.hotReload;
+      var errCount = error.frontEnd.length + error.backEnd.length;
+      var connected = error.backEndConnected;
+
+      var toggleErrors = function toggleErrors() {
+        _this2.setState({
+          errorsOpened: !errorsOpened
+        });
+      };
+
+      var status = hotReload ? connected ? 'available' : 'unavailable' : 'cold';
+
+      var _StatusIcon = hotReload ? connected ? _icons_CheckIcon_svg__WEBPACK_IMPORTED_MODULE_4__["default"] : _icons_OffIcon_svg__WEBPACK_IMPORTED_MODULE_8__["default"] : _icons_ClockIcon_svg__WEBPACK_IMPORTED_MODULE_5__["default"];
+
       var menuContent = opened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-menu__content"
-      }, callbackGraphOpened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_CallbackGraph_CallbackGraphContainer_react__WEBPACK_IMPORTED_MODULE_12__["CallbackGraphContainer"], {
+      }, callbackGraphOpened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_CallbackGraph_CallbackGraphContainer_react__WEBPACK_IMPORTED_MODULE_10__["CallbackGraphContainer"], {
         graphs: graphs
-      }) : null, error.frontEnd.length > 0 || error.backEnd.length > 0 ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "dash-debug-menu__button-container"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_DebugAlertContainer_react__WEBPACK_IMPORTED_MODULE_10__["DebugAlertContainer"], {
-        errors: Object(ramda__WEBPACK_IMPORTED_MODULE_1__["concat"])(error.frontEnd, error.backEnd),
-        alertsOpened: alertsOpened,
-        onClick: function onClick() {
-          return _this2.setState({
-            alertsOpened: !alertsOpened
-          });
-        }
-      })) : null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "dash-debug-menu__button-container"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "dash-debug-menu__button ".concat(callbackGraphOpened ? 'dash-debug-menu__button--enabled' : ''),
-        onClick: function onClick() {
-          return _this2.setState({
-            callbackGraphOpened: !callbackGraphOpened
-          });
-        }
-      }, callbackGraphOpened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_icons_GraphIcon_svg__WEBPACK_IMPORTED_MODULE_7__["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--graph"
-      }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_icons_GraphIconGrey_svg__WEBPACK_IMPORTED_MODULE_8__["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--bell"
-      })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
-        className: "dash-debug-menu__button-label"
-      }, "Callback Graph")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "dash-debug-menu__button-container"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "dash-debug-menu__button ".concat(toastsEnabled ? 'dash-debug-menu__button--enabled' : ''),
-        onClick: function onClick() {
-          return _this2.setState({
-            toastsEnabled: !toastsEnabled
-          });
-        }
-      }, toastsEnabled ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_icons_BellIcon_svg__WEBPACK_IMPORTED_MODULE_5__["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--bell"
-      }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_icons_BellIconGrey_svg__WEBPACK_IMPORTED_MODULE_6__["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--bell"
-      })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
-        className: "dash-debug-menu__button-label"
-      }, "Errors")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "dash-debug-menu__button-container"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "dash-debug-menu__button dash-debug-menu__button--small",
-        onClick: function onClick(e) {
-          e.stopPropagation();
-
-          _this2.setState({
-            opened: false
-          });
-        }
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_icons_WhiteCloseIcon_svg__WEBPACK_IMPORTED_MODULE_4__["default"], {
-        className: "dash-debug-menu__icon--close"
-      })))) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_icons_DebugIcon_svg__WEBPACK_IMPORTED_MODULE_3__["default"], {
-        className: "dash-debug-menu__icon dash-debug-menu__icon--debug"
+      }) : null, buttonFactory(callbackGraphOpened, 'callbacks', function () {
+        _this2.setState({
+          callbackGraphOpened: !callbackGraphOpened
+        });
+      }, _icons_GraphIcon_svg__WEBPACK_IMPORTED_MODULE_7__["default"], 'graph', 'Callbacks'), buttonFactory(errorsOpened, 'errors', toggleErrors, _icons_BellIcon_svg__WEBPACK_IMPORTED_MODULE_3__["default"], 'bell', errCount + ' Error' + (errCount === 1 ? '' : 's')), buttonFactory(false, status, null, _StatusIcon, 'indicator', 'Server')) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "dash-debug-menu__content"
       });
-      var alertsLabel = error.frontEnd.length + error.backEnd.length > 0 && !opened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      var alertsLabel = (errCount || !connected) && !opened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-alert-label"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "dash-debug-alert"
-      }, "\uD83D\uDED1 \xA0", error.frontEnd.length + error.backEnd.length)) : null;
+        className: "dash-debug-alert",
+        onClick: toggleErrors
+      }, errCount ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "dash-debug-error-count"
+      }, '🛑 ' + errCount) : null, connected ? null : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "dash-debug-disconnected"
+      }, "\uD83D\uDEAB"))) : null;
+      var openVariant = opened ? 'open' : 'closed';
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, alertsLabel, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: menuClasses,
+        className: classes('dash-debug-menu__outer', openVariant)
+      }, menuContent), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: classes('dash-debug-menu', openVariant),
         onClick: function onClick() {
-          return _this2.setState({
-            opened: true
+          _this2.setState({
+            opened: !opened
           });
         }
-      }, menuContent), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_GlobalErrorOverlay_react__WEBPACK_IMPORTED_MODULE_11__["default"], {
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_icons_DebugIcon_svg__WEBPACK_IMPORTED_MODULE_6__["default"], {
+        className: classes('dash-debug-menu__icon', 'debug')
+      })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_GlobalErrorOverlay_react__WEBPACK_IMPORTED_MODULE_9__["default"], {
         error: error,
-        visible: !(Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(error.backEnd) && Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(error.frontEnd)),
-        toastsEnabled: toastsEnabled
+        visible: errCount > 0,
+        errorsOpened: errorsOpened
       }, this.props.children));
     }
   }]);
@@ -37494,9 +37250,10 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 
 DebugMenu.propTypes = {
-  children: prop_types__WEBPACK_IMPORTED_MODULE_9___default.a.object,
-  error: prop_types__WEBPACK_IMPORTED_MODULE_9___default.a.object,
-  graphs: prop_types__WEBPACK_IMPORTED_MODULE_9___default.a.object
+  children: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  error: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  graphs: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  hotReload: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.bool
 };
 
 
@@ -37698,6 +37455,928 @@ var SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
 
 /***/ }),
 
+/***/ "./src/observers/executedCallbacks.ts":
+/*!********************************************!*\
+  !*** ./src/observers/executedCallbacks.ts ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _actions_callbacks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/callbacks */ "./src/actions/callbacks.ts");
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../actions/dependencies_ts */ "./src/actions/dependencies_ts.ts");
+/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../actions */ "./src/actions/index.js");
+/* harmony import */ var _actions_paths__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../actions/paths */ "./src/actions/paths.js");
+/* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../persistence */ "./src/persistence.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+
+
+
+
+
+
+
+var observer = {
+  observer: function observer(_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+
+    var _getState = getState(),
+        executed = _getState.callbacks.executed;
+
+    function applyProps(id, updatedProps) {
+      var _getState2 = getState(),
+          layout = _getState2.layout,
+          paths = _getState2.paths;
+
+      var itempath = Object(_actions_paths__WEBPACK_IMPORTED_MODULE_5__["getPath"])(paths, id);
+
+      if (!itempath) {
+        return false;
+      } // This is a callback-generated update.
+      // Check if this invalidates existing persisted prop values,
+      // or if persistence changed, whether this updates other props.
+
+
+      updatedProps = Object(_persistence__WEBPACK_IMPORTED_MODULE_6__["prunePersistence"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(itempath, layout), updatedProps, dispatch); // In case the update contains whole components, see if any of
+      // those components have props to update to persist user edits.
+
+      var _applyPersistence = Object(_persistence__WEBPACK_IMPORTED_MODULE_6__["applyPersistence"])({
+        props: updatedProps
+      }, dispatch),
+          props = _applyPersistence.props;
+
+      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_4__["updateProps"])({
+        itempath: itempath,
+        props: props,
+        source: 'response'
+      }));
+      return props;
+    }
+
+    var requestedCallbacks = [];
+    var storedCallbacks = [];
+    Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (cb) {
+      var _cb$predecessors;
+
+      var predecessors = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])((_cb$predecessors = cb.predecessors) !== null && _cb$predecessors !== void 0 ? _cb$predecessors : [], [cb.callback]);
+      var _cb$callback = cb.callback,
+          clientside_function = _cb$callback.clientside_function,
+          output = _cb$callback.output,
+          executionResult = cb.executionResult;
+
+      if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isNil"])(executionResult)) {
+        return;
+      }
+
+      var data = executionResult.data,
+          error = executionResult.error,
+          payload = executionResult.payload;
+
+      if (data !== undefined) {
+        Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (_ref2) {
+          var _ref3 = _slicedToArray(_ref2, 2),
+              id = _ref3[0],
+              props = _ref3[1];
+
+          var parsedId = Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_2__["parseIfWildcard"])(id);
+
+          var _getState3 = getState(),
+              graphs = _getState3.graphs,
+              oldLayout = _getState3.layout,
+              oldPaths = _getState3.paths; // Components will trigger callbacks on their own as required (eg. derived)
+
+
+          var appliedProps = applyProps(parsedId, props); // Add callbacks for modified inputs
+
+          requestedCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestedCallbacks, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (prop) {
+            return Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getCallbacksByInput"])(graphs, oldPaths, parsedId, prop, true);
+          }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(props))).map(function (rcb) {
+            return _objectSpread({}, rcb, {
+              predecessors: predecessors
+            });
+          })); // New layout - trigger callbacks for that explicitly
+
+          if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('children', appliedProps)) {
+            var children = appliedProps.children;
+            var oldChildrenPath = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(Object(_actions_paths__WEBPACK_IMPORTED_MODULE_5__["getPath"])(oldPaths, parsedId), ['props', 'children']);
+            var oldChildren = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(oldChildrenPath, oldLayout);
+            var paths = Object(_actions_paths__WEBPACK_IMPORTED_MODULE_5__["computePaths"])(children, oldChildrenPath, oldPaths);
+            dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_4__["setPaths"])(paths)); // Get callbacks for new layout (w/ execution group)
+
+            requestedCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestedCallbacks, Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getLayoutCallbacks"])(graphs, paths, children, {
+              chunkPath: oldChildrenPath
+            }).map(function (rcb) {
+              return _objectSpread({}, rcb, {
+                predecessors: predecessors
+              });
+            })); // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
+            // even due to the deletion of components
+
+            requestedCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestedCallbacks, Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getLayoutCallbacks"])(graphs, oldPaths, oldChildren, {
+              removedArrayInputsOnly: true,
+              newPaths: paths,
+              chunkPath: oldChildrenPath
+            }).map(function (rcb) {
+              return _objectSpread({}, rcb, {
+                predecessors: predecessors
+              });
+            }));
+          } // persistence edge case: if you explicitly update the
+          // persistence key, other props may change that require us
+          // to fire additional callbacks
+
+
+          var addedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pickBy"])(function (_, k) {
+            return !(k in props);
+          }, appliedProps);
+
+          if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(addedProps)) {
+            var _getState4 = getState(),
+                currentGraphs = _getState4.graphs,
+                _paths = _getState4.paths;
+
+            requestedCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestedCallbacks, Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["includeObservers"])(id, addedProps, currentGraphs, _paths).map(function (rcb) {
+              return _objectSpread({}, rcb, {
+                predecessors: predecessors
+              });
+            }));
+          }
+        }, Object.entries(data)); // Add information about potentially updated outputs vs. updated outputs,
+        // this will be used to drop callbacks from execution groups when no output
+        // matching the downstream callback's inputs were modified
+
+        storedCallbacks.push(_objectSpread({}, cb, {
+          executionMeta: {
+            allProps: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getOutputs(getState().paths))),
+            updatedProps: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (_ref4) {
+              var _ref5 = _slicedToArray(_ref4, 2),
+                  id = _ref5[0],
+                  value = _ref5[1];
+
+              return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (property) {
+                return Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])({
+                  id: id,
+                  property: property
+                });
+              }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(value));
+            }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["toPairs"])(data)))
+          }
+        }));
+      }
+
+      if (error !== undefined) {
+        var outputs = payload ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])([payload.outputs])).join(', ') : output;
+        var message = "Callback error updating ".concat(outputs);
+
+        if (clientside_function) {
+          var ns = clientside_function.namespace,
+              fn = clientside_function.function_name;
+          message += " via clientside function ".concat(ns, ".").concat(fn);
+        }
+
+        Object(_actions__WEBPACK_IMPORTED_MODULE_4__["handleAsyncError"])(error, message, dispatch);
+        storedCallbacks.push(_objectSpread({}, cb, {
+          executionMeta: {
+            allProps: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getOutputs(getState().paths))),
+            updatedProps: []
+          }
+        }));
+      }
+    }, executed);
+    dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([executed.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeExecutedCallbacks"])(executed) : null, executed.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addCompletedCallbacks"])(executed.length) : null, storedCallbacks.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addStoredCallbacks"])(storedCallbacks) : null, requestedCallbacks.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addRequestedCallbacks"])(requestedCallbacks) : null]));
+  },
+  inputs: ['callbacks.executed']
+};
+/* harmony default export */ __webpack_exports__["default"] = (observer);
+
+/***/ }),
+
+/***/ "./src/observers/executingCallbacks.ts":
+/*!*********************************************!*\
+  !*** ./src/observers/executingCallbacks.ts ***!
+  \*********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _actions_callbacks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/callbacks */ "./src/actions/callbacks.ts");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+
+
+var observer = {
+  observer: function observer(_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+
+    var _getState = getState(),
+        executing = _getState.callbacks.executing;
+
+    var _partition = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["partition"])(function (cb) {
+      return cb.executionPromise instanceof Promise;
+    }, executing),
+        _partition2 = _slicedToArray(_partition, 2),
+        deferred = _partition2[0],
+        skippedOrReady = _partition2[1];
+
+    dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([executing.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeExecutingCallbacks"])(executing) : null, deferred.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addWatchedCallbacks"])(deferred) : null, skippedOrReady.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addExecutedCallbacks"])(skippedOrReady.map(function (cb) {
+      return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["assoc"])('executionResult', cb.executionPromise, cb);
+    })) : null]));
+    Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])( /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(cb) {
+        var result, _getState2, watched, currentCb;
+
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return cb.executionPromise;
+
+              case 2:
+                result = _context.sent;
+                _getState2 = getState(), watched = _getState2.callbacks.watched; // Check if it's been removed from the `watched` list since - on callback completion, another callback may be cancelled
+                // Find the callback instance or one that matches its promise (eg. could have been pruned)
+
+                currentCb = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["find"])(function (_cb) {
+                  return _cb === cb || _cb.executionPromise === cb.executionPromise;
+                }, watched);
+
+                if (currentCb) {
+                  _context.next = 7;
+                  break;
+                }
+
+                return _context.abrupt("return");
+
+              case 7:
+                // Otherwise move to `executed` and remove from `watched`
+                dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeWatchedCallbacks"])([currentCb]), Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addExecutedCallbacks"])([_objectSpread({}, currentCb, {
+                  executionResult: result
+                })])]));
+
+              case 8:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      return function (_x) {
+        return _ref2.apply(this, arguments);
+      };
+    }(), deferred);
+  },
+  inputs: ['callbacks.executing']
+};
+/* harmony default export */ __webpack_exports__["default"] = (observer);
+
+/***/ }),
+
+/***/ "./src/observers/isLoading.ts":
+/*!************************************!*\
+  !*** ./src/observers/isLoading.ts ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _utils_callbacks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/callbacks */ "./src/utils/callbacks.ts");
+/* harmony import */ var _actions_isLoading__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/isLoading */ "./src/actions/isLoading.ts");
+
+
+var observer = {
+  observer: function observer(_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+
+    var _getState = getState(),
+        callbacks = _getState.callbacks,
+        isLoading = _getState.isLoading;
+
+    var pendingCallbacks = Object(_utils_callbacks__WEBPACK_IMPORTED_MODULE_0__["getPendingCallbacks"])(callbacks);
+    var next = Boolean(pendingCallbacks.length);
+
+    if (isLoading !== next) {
+      dispatch(Object(_actions_isLoading__WEBPACK_IMPORTED_MODULE_1__["setIsLoading"])(next));
+    }
+  },
+  inputs: ['callbacks']
+};
+/* harmony default export */ __webpack_exports__["default"] = (observer);
+
+/***/ }),
+
+/***/ "./src/observers/loadingMap.ts":
+/*!*************************************!*\
+  !*** ./src/observers/loadingMap.ts ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _actions_loadingMap__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/loadingMap */ "./src/actions/loadingMap.ts");
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+
+
+var observer = {
+  observer: function observer(_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+
+    var _getState = getState(),
+        _getState$callbacks = _getState.callbacks,
+        executing = _getState$callbacks.executing,
+        watched = _getState$callbacks.watched,
+        executed = _getState$callbacks.executed,
+        loadingMap = _getState.loadingMap,
+        paths = _getState.paths;
+    /*
+        Get the path of all components impacted by callbacks
+        with states: executing, watched, executed.
+         For each path, keep track of all (id,prop) tuples that
+        are impacted for this node and nested nodes.
+    */
+
+
+    var loadingPaths = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
+      return cb.getOutputs(paths);
+    }, [].concat(_toConsumableArray(executing), _toConsumableArray(watched), _toConsumableArray(executed))));
+    var nextMap = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(loadingPaths) ? null : Object(ramda__WEBPACK_IMPORTED_MODULE_0__["reduce"])(function (res, path) {
+      var target = res;
+      var idprop = {
+        id: path.id,
+        property: path.property
+      }; // Assign all affected props for this path and nested paths
+
+      target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
+
+      target.__dashprivate__idprops__.push(idprop);
+
+      Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (p) {
+        var _target$p;
+
+        target = target[p] = ((_target$p = target[p]) !== null && _target$p !== void 0 ? _target$p : p === 'children') ? [] : {};
+        target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
+
+        target.__dashprivate__idprops__.push(idprop);
+      }, path.path); // Assign one affected prop for this path
+
+      target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || idprop;
+      return res;
+    }, {}, loadingPaths);
+
+    if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["equals"])(nextMap, loadingMap)) {
+      dispatch(Object(_actions_loadingMap__WEBPACK_IMPORTED_MODULE_1__["setLoadingMap"])(nextMap));
+    }
+  },
+  inputs: ['callbacks.executing', 'callbacks.watched', 'callbacks.executed']
+};
+/* harmony default export */ __webpack_exports__["default"] = (observer);
+
+/***/ }),
+
+/***/ "./src/observers/prioritizedCallbacks.ts":
+/*!***********************************************!*\
+  !*** ./src/observers/prioritizedCallbacks.ts ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _actions_callbacks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/callbacks */ "./src/actions/callbacks.ts");
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../actions/dependencies_ts */ "./src/actions/dependencies_ts.ts");
+/* harmony import */ var _actions_isAppReady__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../actions/isAppReady */ "./src/actions/isAppReady.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+
+
+
+
+
+
+var sortPriority = function sortPriority(c1, c2) {
+  var _c1$priority, _c2$priority;
+
+  return ((_c1$priority = c1.priority) !== null && _c1$priority !== void 0 ? _c1$priority : '') > ((_c2$priority = c2.priority) !== null && _c2$priority !== void 0 ? _c2$priority : '') ? -1 : 1;
+};
+
+var getStash = function getStash(cb, paths) {
+  var getOutputs = cb.getOutputs;
+  var allOutputs = getOutputs(paths);
+  var flatOutputs = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(allOutputs);
+  var allPropIds = [];
+  var reqOut = {};
+  flatOutputs.forEach(function (_ref) {
+    var id = _ref.id,
+        property = _ref.property;
+    var idStr = Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_2__["stringifyId"])(id);
+    var idOut = reqOut[idStr] = reqOut[idStr] || [];
+    idOut.push(property);
+    allPropIds.push(Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])({
+      id: idStr,
+      property: property
+    }));
+  });
+  return {
+    allOutputs: allOutputs,
+    allPropIds: allPropIds
+  };
+};
+
+var getIds = function getIds(cb, paths) {
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["uniq"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["pluck"])('id', [].concat(_toConsumableArray(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getInputs(paths))), _toConsumableArray(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getState(paths))))));
+};
+
+var observer = {
+  observer: function () {
+    var _observer = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(_ref2) {
+      var dispatch, getState, _getState, _getState$callbacks, executing, watched, config, hooks, layout, paths, _getState2, prioritized, available, _partition, _partition2, syncCallbacks, asyncCallbacks, pickedSyncCallbacks, pickedAsyncCallbacks, deffered;
+
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              dispatch = _ref2.dispatch, getState = _ref2.getState;
+              _getState = getState(), _getState$callbacks = _getState.callbacks, executing = _getState$callbacks.executing, watched = _getState$callbacks.watched, config = _getState.config, hooks = _getState.hooks, layout = _getState.layout, paths = _getState.paths;
+              _getState2 = getState(), prioritized = _getState2.callbacks.prioritized;
+              available = Math.max(0, 12 - executing.length - watched.length); // Order prioritized callbacks based on depth and breadth of callback chain
+
+              prioritized = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["sort"])(sortPriority, prioritized); // Divide between sync and async
+
+              _partition = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["partition"])(function (cb) {
+                return Object(_actions_isAppReady__WEBPACK_IMPORTED_MODULE_4__["default"])(layout, paths, getIds(cb, paths)) === true;
+              }, prioritized), _partition2 = _slicedToArray(_partition, 2), syncCallbacks = _partition2[0], asyncCallbacks = _partition2[1];
+              pickedSyncCallbacks = syncCallbacks.slice(0, available);
+              pickedAsyncCallbacks = asyncCallbacks.slice(0, available - pickedSyncCallbacks.length);
+
+              if (pickedSyncCallbacks.length) {
+                dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removePrioritizedCallbacks"])(pickedSyncCallbacks), Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addExecutingCallbacks"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
+                  return Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["executeCallback"])(cb, config, hooks, paths, layout, getStash(cb, paths));
+                }, pickedSyncCallbacks))]));
+              }
+
+              if (pickedAsyncCallbacks.length) {
+                deffered = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
+                  return _objectSpread({}, cb, {}, getStash(cb, paths), {
+                    isReady: Object(_actions_isAppReady__WEBPACK_IMPORTED_MODULE_4__["default"])(layout, paths, getIds(cb, paths))
+                  });
+                }, pickedAsyncCallbacks);
+                dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removePrioritizedCallbacks"])(pickedAsyncCallbacks), Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addBlockedCallbacks"])(deffered)]));
+                Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])( /*#__PURE__*/function () {
+                  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(cb) {
+                    var _getState3, blocked, currentCb, executingCallback;
+
+                    return regeneratorRuntime.wrap(function _callee$(_context) {
+                      while (1) {
+                        switch (_context.prev = _context.next) {
+                          case 0:
+                            _context.next = 2;
+                            return cb.isReady;
+
+                          case 2:
+                            _getState3 = getState(), blocked = _getState3.callbacks.blocked; // Check if it's been removed from the `blocked` list since - on callback completion, another callback may be cancelled
+                            // Find the callback instance or one that matches its promise (eg. could have been pruned)
+
+                            currentCb = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["find"])(function (_cb) {
+                              return _cb === cb || _cb.isReady === cb.isReady;
+                            }, blocked);
+
+                            if (currentCb) {
+                              _context.next = 6;
+                              break;
+                            }
+
+                            return _context.abrupt("return");
+
+                          case 6:
+                            executingCallback = Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["executeCallback"])(cb, config, hooks, paths, layout, cb);
+                            dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeBlockedCallbacks"])([cb]), Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addExecutingCallbacks"])([executingCallback])]));
+
+                          case 8:
+                          case "end":
+                            return _context.stop();
+                        }
+                      }
+                    }, _callee);
+                  }));
+
+                  return function (_x2) {
+                    return _ref3.apply(this, arguments);
+                  };
+                }(), deffered);
+              }
+
+            case 10:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2);
+    }));
+
+    function observer(_x) {
+      return _observer.apply(this, arguments);
+    }
+
+    return observer;
+  }(),
+  inputs: ['callbacks.prioritized', 'callbacks.completed']
+};
+/* harmony default export */ __webpack_exports__["default"] = (observer);
+
+/***/ }),
+
+/***/ "./src/observers/requestedCallbacks.ts":
+/*!*********************************************!*\
+  !*** ./src/observers/requestedCallbacks.ts ***!
+  \*********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _actions_callbacks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/callbacks */ "./src/actions/callbacks.ts");
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/dependencies */ "./src/actions/dependencies.js");
+/* harmony import */ var _actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../actions/dependencies_ts */ "./src/actions/dependencies_ts.ts");
+/* harmony import */ var _utils_callbacks__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/callbacks */ "./src/utils/callbacks.ts");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+
+
+
+var observer = {
+  observer: function observer(_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+
+    var _getState = getState(),
+        callbacks = _getState.callbacks,
+        _getState$callbacks = _getState.callbacks,
+        prioritized = _getState$callbacks.prioritized,
+        blocked = _getState$callbacks.blocked,
+        executing = _getState$callbacks.executing,
+        watched = _getState$callbacks.watched,
+        stored = _getState$callbacks.stored,
+        paths = _getState.paths;
+
+    var _getState2 = getState(),
+        requested = _getState2.callbacks.requested;
+
+    var pendingCallbacks = Object(_utils_callbacks__WEBPACK_IMPORTED_MODULE_4__["getPendingCallbacks"])(callbacks);
+    /*
+        0. Prune circular callbacks that have completed the loop
+        - cb.callback included in cb.predecessors
+    */
+
+    var rCirculars = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (cb) {
+      var _cb$predecessors;
+
+      return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(cb.callback, (_cb$predecessors = cb.predecessors) !== null && _cb$predecessors !== void 0 ? _cb$predecessors : []);
+    }, requested);
+    /*
+        TODO?
+        Clean up the `requested` list - during the dispatch phase,
+        circulars will be removed for real
+    */
+
+    requested = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(requested, rCirculars);
+    /*
+        1. Remove duplicated `requested` callbacks - give precedence to newer callbacks over older ones
+    */
+
+    /*
+        Extract all but the first callback from each IOS-key group
+        these callbacks are duplicates.
+    */
+
+    var rDuplicates = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (group) {
+      return group.slice(0, -1);
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["values"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["groupBy"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getUniqueIdentifier"], requested))));
+    /*
+        TODO?
+        Clean up the `requested` list - during the dispatch phase,
+        duplicates will be removed for real
+    */
+
+    requested = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(requested, rDuplicates);
+    /*
+        2. Remove duplicated `prioritized`, `executing` and `watching` callbacks
+    */
+
+    /*
+        Extract all but the first callback from each IOS-key group
+        these callbacks are `prioritized` and duplicates.
+    */
+
+    var pDuplicates = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (group) {
+      return group.slice(0, -1);
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["values"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["groupBy"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getUniqueIdentifier"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(prioritized, requested)))));
+    var bDuplicates = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (group) {
+      return group.slice(0, -1);
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["values"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["groupBy"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getUniqueIdentifier"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(blocked, requested)))));
+    var eDuplicates = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (group) {
+      return group.slice(0, -1);
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["values"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["groupBy"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getUniqueIdentifier"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(executing, requested)))));
+    var wDuplicates = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (group) {
+      return group.slice(0, -1);
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["values"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["groupBy"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getUniqueIdentifier"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(watched, requested)))));
+    /*
+        3. Modify or remove callbacks that are outputing to non-existing layout `id`.
+    */
+
+    var _pruneCallbacks = Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["pruneCallbacks"])(requested, paths),
+        rAdded = _pruneCallbacks.added,
+        rRemoved = _pruneCallbacks.removed;
+
+    var _pruneCallbacks2 = Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["pruneCallbacks"])(prioritized, paths),
+        pAdded = _pruneCallbacks2.added,
+        pRemoved = _pruneCallbacks2.removed;
+
+    var _pruneCallbacks3 = Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["pruneCallbacks"])(blocked, paths),
+        bAdded = _pruneCallbacks3.added,
+        bRemoved = _pruneCallbacks3.removed;
+
+    var _pruneCallbacks4 = Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["pruneCallbacks"])(executing, paths),
+        eAdded = _pruneCallbacks4.added,
+        eRemoved = _pruneCallbacks4.removed;
+
+    var _pruneCallbacks5 = Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["pruneCallbacks"])(watched, paths),
+        wAdded = _pruneCallbacks5.added,
+        wRemoved = _pruneCallbacks5.removed;
+    /*
+        TODO?
+        Clean up the `requested` list - during the dispatch phase,
+        it will be updated for real
+    */
+
+
+    requested = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(requested, rRemoved), rAdded);
+    /*
+        4. Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
+    */
+
+    var readyCallbacks = Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getReadyCallbacks"])(paths, requested, pendingCallbacks);
+    var oldBlocked = [];
+    var newBlocked = [];
+    /**
+     * If there is :
+     * - no ready callbacks
+     * - at least one requested callback
+     * - no additional pending callbacks
+     *
+     * can assume:
+     * - the requested callbacks are part of a circular dependency loop
+     *
+     * then recursively:
+     * - assume the first callback in the list is ready (the entry point for the loop)
+     * - check what callbacks are blocked / ready with the assumption
+     * - update the missing predecessors based on assumptions
+     * - continue until there are no remaining candidates
+     *
+     */
+
+    if (!readyCallbacks.length && requested.length && requested.length === pendingCallbacks.length) {
+      var candidates = requested.slice(0);
+
+      var _loop = function _loop() {
+        // Assume 1st callback is ready and
+        // update candidates / readyCallbacks accordingly
+        var readyCallback = candidates[0];
+        readyCallbacks.push(readyCallback);
+        candidates = candidates.slice(1); // Remaining candidates are not blocked by current assumptions
+
+        candidates = Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getReadyCallbacks"])(paths, candidates, readyCallbacks); // Blocked requests need to make sure they have the callback as a predecessor
+
+        var blockedByAssumptions = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(candidates, candidates);
+        var modified = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (cb) {
+          return !cb.predecessors || !Object(ramda__WEBPACK_IMPORTED_MODULE_0__["includes"])(readyCallback.callback, cb.predecessors);
+        }, blockedByAssumptions);
+        oldBlocked = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(oldBlocked, modified);
+        newBlocked = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(newBlocked, modified.map(function (cb) {
+          var _cb$predecessors2;
+
+          return _objectSpread({}, cb, {
+            predecessors: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])((_cb$predecessors2 = cb.predecessors) !== null && _cb$predecessors2 !== void 0 ? _cb$predecessors2 : [], [readyCallback.callback])
+          });
+        }));
+      };
+
+      while (candidates.length) {
+        _loop();
+      }
+    }
+    /*
+        TODO?
+        Clean up the `requested` list - during the dispatch phase,
+        it will be updated for real
+    */
+
+
+    requested = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(requested, oldBlocked), newBlocked);
+    /*
+        5. Prune callbacks that became irrelevant in their `executionGroup`
+    */
+    // Group by executionGroup, drop non-executionGroup callbacks
+    // those were not triggered by layout changes and don't have "strong" interdependency for
+    // callback chain completion
+
+    var pendingGroups = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["groupBy"])(function (cb) {
+      return cb.executionGroup;
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (cb) {
+      return !Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isNil"])(cb.executionGroup);
+    }, stored));
+    var dropped = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (cb) {
+      // If there is no `stored` callback for the group, no outputs were dropped -> `cb` is kept
+      if (!cb.executionGroup || !pendingGroups[cb.executionGroup] || !pendingGroups[cb.executionGroup].length) {
+        return false;
+      } // Get all intputs for `cb`
+
+
+      var inputs = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getInputs(paths))); // Get all the potentially updated props for the group so far
+
+      var allProps = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (gcb) {
+        return gcb.executionMeta.allProps;
+      }, pendingGroups[cb.executionGroup])); // Get all the updated props for the group so far
+
+      var updated = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (gcb) {
+        return gcb.executionMeta.updatedProps;
+      }, pendingGroups[cb.executionGroup])); // If there's no overlap between the updated props and the inputs,
+      // + there's no props that aren't covered by the potentially updated props,
+      // and not all inputs are multi valued
+      // -> drop `cb`
+
+      var res = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["intersection"])(inputs, updated)) && Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(inputs, allProps)) && !Object(ramda__WEBPACK_IMPORTED_MODULE_0__["all"])(_actions_dependencies__WEBPACK_IMPORTED_MODULE_2__["isMultiValued"], cb.callback.inputs);
+      return res;
+    }, readyCallbacks);
+    /*
+        TODO?
+        Clean up the `requested` list - during the dispatch phase,
+        it will be updated for real
+    */
+
+    requested = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(requested, dropped);
+    readyCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(readyCallbacks, dropped);
+    dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([// Clean up duplicated callbacks
+    rDuplicates.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeRequestedCallbacks"])(rDuplicates) : null, pDuplicates.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removePrioritizedCallbacks"])(pDuplicates) : null, bDuplicates.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeBlockedCallbacks"])(bDuplicates) : null, eDuplicates.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeExecutingCallbacks"])(eDuplicates) : null, wDuplicates.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeWatchedCallbacks"])(wDuplicates) : null, // Prune callbacks
+    rRemoved.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeRequestedCallbacks"])(rRemoved) : null, rAdded.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addRequestedCallbacks"])(rAdded) : null, pRemoved.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removePrioritizedCallbacks"])(pRemoved) : null, pAdded.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addPrioritizedCallbacks"])(pAdded) : null, bRemoved.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeBlockedCallbacks"])(bRemoved) : null, bAdded.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addBlockedCallbacks"])(bAdded) : null, eRemoved.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeExecutingCallbacks"])(eRemoved) : null, eAdded.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addExecutingCallbacks"])(eAdded) : null, wRemoved.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeWatchedCallbacks"])(wRemoved) : null, wAdded.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addWatchedCallbacks"])(wAdded) : null, // Prune circular callbacks
+    rCirculars.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeRequestedCallbacks"])(rCirculars) : null, // Prune circular assumptions
+    oldBlocked.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeRequestedCallbacks"])(oldBlocked) : null, newBlocked.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addRequestedCallbacks"])(newBlocked) : null, // Drop non-triggered initial callbacks
+    dropped.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeRequestedCallbacks"])(dropped) : null, // Promote callbacks
+    readyCallbacks.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeRequestedCallbacks"])(readyCallbacks) : null, readyCallbacks.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addPrioritizedCallbacks"])(readyCallbacks) : null]));
+  },
+  inputs: ['callbacks.requested', 'callbacks.completed']
+};
+/* harmony default export */ __webpack_exports__["default"] = (observer);
+
+/***/ }),
+
+/***/ "./src/observers/storedCallbacks.ts":
+/*!******************************************!*\
+  !*** ./src/observers/storedCallbacks.ts ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _actions_callbacks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/callbacks */ "./src/actions/callbacks.ts");
+/* harmony import */ var _utils_callbacks__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/callbacks */ "./src/utils/callbacks.ts");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+
+
+
+var observer = {
+  observer: function observer(_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+
+    var _getState = getState(),
+        callbacks = _getState.callbacks;
+
+    var pendingCallbacks = Object(_utils_callbacks__WEBPACK_IMPORTED_MODULE_2__["getPendingCallbacks"])(callbacks);
+
+    var _getState2 = getState(),
+        stored = _getState2.callbacks.stored;
+
+    var _partition = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["partition"])(function (cb) {
+      return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isNil"])(cb.executionGroup);
+    }, stored),
+        _partition2 = _slicedToArray(_partition, 2),
+        nullGroupCallbacks = _partition2[0],
+        groupCallbacks = _partition2[1];
+
+    var executionGroups = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["groupBy"])(function (cb) {
+      return cb.executionGroup;
+    }, groupCallbacks);
+    var pendingGroups = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["groupBy"])(function (cb) {
+      return cb.executionGroup;
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (cb) {
+      return !Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isNil"])(cb.executionGroup);
+    }, pendingCallbacks));
+    var dropped = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["reduce"])(function (res, _ref2) {
+      var _ref3 = _slicedToArray(_ref2, 2),
+          executionGroup = _ref3[0],
+          executionGroupCallbacks = _ref3[1];
+
+      return !pendingGroups[executionGroup] ? Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(res, executionGroupCallbacks) : res;
+    }, [], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["toPairs"])(executionGroups));
+    dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([nullGroupCallbacks.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeStoredCallbacks"])(nullGroupCallbacks) : null, dropped.length ? Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeStoredCallbacks"])(dropped) : null]));
+  },
+  inputs: ['callbacks.stored', 'callbacks.completed']
+};
+/* harmony default export */ __webpack_exports__["default"] = (observer);
+
+/***/ }),
+
 /***/ "./src/persistence.js":
 /*!****************************!*\
   !*** ./src/persistence.js ***!
@@ -37715,6 +38394,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/es/index.js");
 /* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./registry */ "./src/registry.js");
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./actions/dependencies */ "./src/actions/dependencies.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -37786,6 +38466,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  * prop before applying persistence is the same as it was before the user's
  * changes.
  */
+
 
 
 
@@ -38034,7 +38715,7 @@ var getTransform = function getTransform(element, propName, propPart) {
 };
 
 var getValsKey = function getValsKey(id, persistedProp, persistence) {
-  return "".concat(id, ".").concat(persistedProp, ".").concat(JSON.stringify(persistence));
+  return "".concat(Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_3__["stringifyId"])(id), ".").concat(persistedProp, ".").concat(JSON.stringify(persistence));
 };
 
 var getProps = function getProps(layout) {
@@ -38347,6 +39028,94 @@ function appLifecycle() {
 
 /***/ }),
 
+/***/ "./src/reducers/callbacks.ts":
+/*!***********************************!*\
+  !*** ./src/reducers/callbacks.ts ***!
+  \***********************************/
+/*! exports provided: CallbackActionType, CallbackAggregateActionType, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallbackActionType", function() { return CallbackActionType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallbackAggregateActionType", function() { return CallbackAggregateActionType; });
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+var _transforms, _fields;
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+var CallbackActionType;
+
+(function (CallbackActionType) {
+  CallbackActionType["AddBlocked"] = "Callbacks.AddBlocked";
+  CallbackActionType["AddExecuted"] = "Callbacks.AddExecuted";
+  CallbackActionType["AddExecuting"] = "Callbacks.AddExecuting";
+  CallbackActionType["AddPrioritized"] = "Callbacks.AddPrioritized";
+  CallbackActionType["AddRequested"] = "Callbacks.AddRequested";
+  CallbackActionType["AddStored"] = "Callbacks.AddStored";
+  CallbackActionType["AddWatched"] = "Callbacks.AddWatched";
+  CallbackActionType["RemoveBlocked"] = "Callbacks.RemoveBlocked";
+  CallbackActionType["RemoveExecuted"] = "Callbacks.RemoveExecuted";
+  CallbackActionType["RemoveExecuting"] = "Callbacks.RemoveExecuting";
+  CallbackActionType["RemovePrioritized"] = "Callbacks.ReomvePrioritized";
+  CallbackActionType["RemoveRequested"] = "Callbacks.RemoveRequested";
+  CallbackActionType["RemoveStored"] = "Callbacks.RemoveStored";
+  CallbackActionType["RemoveWatched"] = "Callbacks.RemoveWatched";
+})(CallbackActionType || (CallbackActionType = {}));
+
+var CallbackAggregateActionType;
+
+(function (CallbackAggregateActionType) {
+  CallbackAggregateActionType["AddCompleted"] = "Callbacks.Completed";
+  CallbackAggregateActionType["Aggregate"] = "Callbacks.Aggregate";
+})(CallbackAggregateActionType || (CallbackAggregateActionType = {}));
+
+var DEFAULT_STATE = {
+  blocked: [],
+  executed: [],
+  executing: [],
+  prioritized: [],
+  requested: [],
+  stored: [],
+  watched: [],
+  completed: 0
+};
+var transforms = (_transforms = {}, _defineProperty(_transforms, CallbackActionType.AddBlocked, ramda__WEBPACK_IMPORTED_MODULE_0__["concat"]), _defineProperty(_transforms, CallbackActionType.AddExecuted, ramda__WEBPACK_IMPORTED_MODULE_0__["concat"]), _defineProperty(_transforms, CallbackActionType.AddExecuting, ramda__WEBPACK_IMPORTED_MODULE_0__["concat"]), _defineProperty(_transforms, CallbackActionType.AddPrioritized, ramda__WEBPACK_IMPORTED_MODULE_0__["concat"]), _defineProperty(_transforms, CallbackActionType.AddRequested, ramda__WEBPACK_IMPORTED_MODULE_0__["concat"]), _defineProperty(_transforms, CallbackActionType.AddStored, ramda__WEBPACK_IMPORTED_MODULE_0__["concat"]), _defineProperty(_transforms, CallbackActionType.AddWatched, ramda__WEBPACK_IMPORTED_MODULE_0__["concat"]), _defineProperty(_transforms, CallbackActionType.RemoveBlocked, ramda__WEBPACK_IMPORTED_MODULE_0__["difference"]), _defineProperty(_transforms, CallbackActionType.RemoveExecuted, ramda__WEBPACK_IMPORTED_MODULE_0__["difference"]), _defineProperty(_transforms, CallbackActionType.RemoveExecuting, ramda__WEBPACK_IMPORTED_MODULE_0__["difference"]), _defineProperty(_transforms, CallbackActionType.RemovePrioritized, ramda__WEBPACK_IMPORTED_MODULE_0__["difference"]), _defineProperty(_transforms, CallbackActionType.RemoveRequested, ramda__WEBPACK_IMPORTED_MODULE_0__["difference"]), _defineProperty(_transforms, CallbackActionType.RemoveStored, ramda__WEBPACK_IMPORTED_MODULE_0__["difference"]), _defineProperty(_transforms, CallbackActionType.RemoveWatched, ramda__WEBPACK_IMPORTED_MODULE_0__["difference"]), _transforms);
+var fields = (_fields = {}, _defineProperty(_fields, CallbackActionType.AddBlocked, 'blocked'), _defineProperty(_fields, CallbackActionType.AddExecuted, 'executed'), _defineProperty(_fields, CallbackActionType.AddExecuting, 'executing'), _defineProperty(_fields, CallbackActionType.AddPrioritized, 'prioritized'), _defineProperty(_fields, CallbackActionType.AddRequested, 'requested'), _defineProperty(_fields, CallbackActionType.AddStored, 'stored'), _defineProperty(_fields, CallbackActionType.AddWatched, 'watched'), _defineProperty(_fields, CallbackActionType.RemoveBlocked, 'blocked'), _defineProperty(_fields, CallbackActionType.RemoveExecuted, 'executed'), _defineProperty(_fields, CallbackActionType.RemoveExecuting, 'executing'), _defineProperty(_fields, CallbackActionType.RemovePrioritized, 'prioritized'), _defineProperty(_fields, CallbackActionType.RemoveRequested, 'requested'), _defineProperty(_fields, CallbackActionType.RemoveStored, 'stored'), _defineProperty(_fields, CallbackActionType.RemoveWatched, 'watched'), _fields);
+
+var mutateCompleted = function mutateCompleted(state, action) {
+  return _objectSpread({}, state, {
+    completed: state.completed + action.payload
+  });
+};
+
+var mutateCallbacks = function mutateCallbacks(state, action) {
+  var transform = transforms[action.type];
+  var field = fields[action.type];
+  return !transform || !field || action.payload.length === 0 ? state : _objectSpread({}, state, _defineProperty({}, field, transform(state[field], action.payload)));
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (function () {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT_STATE;
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+  return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["reduce"])(function (s, a) {
+    if (a === null) {
+      return s;
+    } else if (a.type === CallbackAggregateActionType.AddCompleted) {
+      return mutateCompleted(s, a);
+    } else {
+      return mutateCallbacks(s, a);
+    }
+  }, state, action.type === CallbackAggregateActionType.Aggregate ? action.payload : [action]);
+});
+
+/***/ }),
+
 /***/ "./src/reducers/config.js":
 /*!********************************!*\
   !*** ./src/reducers/config.js ***!
@@ -38445,7 +39214,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var initialError = {
   frontEnd: [],
-  backEnd: []
+  backEnd: [],
+  backEndConnected: true
 };
 function error() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialError;
@@ -38454,29 +39224,41 @@ function error() {
   switch (action.type) {
     case 'ON_ERROR':
       {
-        // log errors to the console for stack tracing and so they're
+        var frontEnd = state.frontEnd,
+            backEnd = state.backEnd,
+            backEndConnected = state.backEndConnected; // log errors to the console for stack tracing and so they're
         // available even with debugging off
 
         /* eslint-disable-next-line no-console */
+
         console.error(action.payload.error);
 
         if (action.payload.type === 'frontEnd') {
           return {
             frontEnd: [Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeRight"])(action.payload, {
               timestamp: new Date()
-            })].concat(_toConsumableArray(state.frontEnd)),
-            backEnd: state.backEnd
+            })].concat(_toConsumableArray(frontEnd)),
+            backEnd: backEnd,
+            backEndConnected: backEndConnected
           };
         } else if (action.payload.type === 'backEnd') {
           return {
-            frontEnd: state.frontEnd,
+            frontEnd: frontEnd,
             backEnd: [Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeRight"])(action.payload, {
               timestamp: new Date()
-            })].concat(_toConsumableArray(state.backEnd))
+            })].concat(_toConsumableArray(backEnd)),
+            backEndConnected: backEndConnected
           };
         }
 
         return state;
+      }
+
+    case 'SET_CONNECTION_STATUS':
+      {
+        return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["mergeRight"])(state, {
+          backEndConnected: action.payload
+        });
       }
 
     default:
@@ -38602,6 +39384,31 @@ var customHooks = function customHooks() {
 
 /***/ }),
 
+/***/ "./src/reducers/isLoading.ts":
+/*!***********************************!*\
+  !*** ./src/reducers/isLoading.ts ***!
+  \***********************************/
+/*! exports provided: IsLoadingActionType, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IsLoadingActionType", function() { return IsLoadingActionType; });
+var IsLoadingActionType;
+
+(function (IsLoadingActionType) {
+  IsLoadingActionType["Set"] = "IsLoading.Set";
+})(IsLoadingActionType || (IsLoadingActionType = {}));
+
+var DEFAULT_STATE = true;
+/* harmony default export */ __webpack_exports__["default"] = (function () {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT_STATE;
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+  return action.type === IsLoadingActionType.Set ? action.payload : state;
+});
+
+/***/ }),
+
 /***/ "./src/reducers/layout.js":
 /*!********************************!*\
   !*** ./src/reducers/layout.js ***!
@@ -38636,6 +39443,31 @@ var layout = function layout() {
 
 /***/ }),
 
+/***/ "./src/reducers/loadingMap.ts":
+/*!************************************!*\
+  !*** ./src/reducers/loadingMap.ts ***!
+  \************************************/
+/*! exports provided: LoadingMapActionType, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LoadingMapActionType", function() { return LoadingMapActionType; });
+var LoadingMapActionType;
+
+(function (LoadingMapActionType) {
+  LoadingMapActionType["Set"] = "LoadingMap.Set";
+})(LoadingMapActionType || (LoadingMapActionType = {}));
+
+var DEFAULT_STATE = {};
+/* harmony default export */ __webpack_exports__["default"] = (function () {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT_STATE;
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+  return action.type === LoadingMapActionType.Set ? action.payload : state;
+});
+
+/***/ }),
+
 /***/ "./src/reducers/paths.js":
 /*!*******************************!*\
   !*** ./src/reducers/paths.js ***!
@@ -38667,32 +39499,6 @@ var paths = function paths() {
 
 /***/ }),
 
-/***/ "./src/reducers/pendingCallbacks.js":
-/*!******************************************!*\
-  !*** ./src/reducers/pendingCallbacks.js ***!
-  \******************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-var pendingCallbacks = function pendingCallbacks() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-  var action = arguments.length > 1 ? arguments[1] : undefined;
-
-  switch (action.type) {
-    case 'SET_PENDING_CALLBACKS':
-      return action.payload;
-
-    default:
-      return state;
-  }
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (pendingCallbacks);
-
-/***/ }),
-
 /***/ "./src/reducers/reducer.js":
 /*!*********************************!*\
   !*** ./src/reducers/reducer.js ***!
@@ -38706,17 +39512,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createReducer", function() { return createReducer; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
-/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/dependencies */ "./src/actions/dependencies.js");
-/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
-/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
-/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
-/* harmony import */ var _pendingCallbacks__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./pendingCallbacks */ "./src/reducers/pendingCallbacks.js");
-/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
-/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
-/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
+/* harmony import */ var _actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/dependencies_ts */ "./src/actions/dependencies_ts.ts");
+/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
+/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
+/* harmony import */ var _callbacks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./callbacks */ "./src/reducers/callbacks.ts");
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
+/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
+/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
+/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
 /* harmony import */ var _hooks__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
-/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
+/* harmony import */ var _isLoading__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./isLoading */ "./src/reducers/isLoading.ts");
+/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
+/* harmony import */ var _loadingMap__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./loadingMap */ "./src/reducers/loadingMap.ts");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -38738,22 +39546,26 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 
+
+
 var apiRequests = ['dependenciesRequest', 'layoutRequest', 'reloadRequest', 'loginRequest'];
 
 function mainReducer() {
   var parts = {
-    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_7__["default"],
-    layout: _layout__WEBPACK_IMPORTED_MODULE_3__["default"],
-    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_4__["default"],
-    paths: _paths__WEBPACK_IMPORTED_MODULE_5__["default"],
-    pendingCallbacks: _pendingCallbacks__WEBPACK_IMPORTED_MODULE_6__["default"],
-    config: _config__WEBPACK_IMPORTED_MODULE_12__["default"],
-    history: _history__WEBPACK_IMPORTED_MODULE_8__["default"],
-    error: _error__WEBPACK_IMPORTED_MODULE_9__["default"],
-    hooks: _hooks__WEBPACK_IMPORTED_MODULE_10__["default"]
+    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_4__["default"],
+    callbacks: _callbacks__WEBPACK_IMPORTED_MODULE_5__["default"],
+    config: _config__WEBPACK_IMPORTED_MODULE_6__["default"],
+    error: _error__WEBPACK_IMPORTED_MODULE_8__["default"],
+    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_7__["default"],
+    history: _history__WEBPACK_IMPORTED_MODULE_9__["default"],
+    hooks: _hooks__WEBPACK_IMPORTED_MODULE_10__["default"],
+    isLoading: _isLoading__WEBPACK_IMPORTED_MODULE_11__["default"],
+    layout: _layout__WEBPACK_IMPORTED_MODULE_12__["default"],
+    loadingMap: _loadingMap__WEBPACK_IMPORTED_MODULE_13__["default"],
+    paths: _paths__WEBPACK_IMPORTED_MODULE_14__["default"]
   };
   Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (r) {
-    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_11__["default"])(r);
+    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_3__["default"])(r);
   }, apiRequests);
   return Object(redux__WEBPACK_IMPORTED_MODULE_1__["combineReducers"])(parts);
 }
@@ -38775,7 +39587,7 @@ function getInputHistoryState(itempath, props, state) {
       props: {}
     };
     Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(props).forEach(function (propKey) {
-      if (Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_2__["getCallbacksByInput"])(graphs, paths, id, propKey).length) {
+      if (Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_2__["getCallbacksByInput"])(graphs, paths, id, propKey).length) {
         historyEntry.props[propKey] = idProps[propKey];
       }
     });
@@ -38887,22 +39699,57 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./src/store.js":
+/***/ "./src/store.ts":
 /*!**********************!*\
-  !*** ./src/store.js ***!
+  !*** ./src/store.ts ***!
   \**********************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
-/* harmony import */ var redux_thunk__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-thunk */ "./node_modules/redux-thunk/es/index.js");
-/* harmony import */ var _reducers_reducer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./reducers/reducer */ "./src/reducers/reducer.js");
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
+/* harmony import */ var redux_thunk__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! redux-thunk */ "./node_modules/redux-thunk/es/index.js");
+/* harmony import */ var _reducers_reducer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./reducers/reducer */ "./src/reducers/reducer.js");
+/* harmony import */ var _StoreObserver__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./StoreObserver */ "./src/StoreObserver.ts");
+/* harmony import */ var _observers_executedCallbacks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./observers/executedCallbacks */ "./src/observers/executedCallbacks.ts");
+/* harmony import */ var _observers_executingCallbacks__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./observers/executingCallbacks */ "./src/observers/executingCallbacks.ts");
+/* harmony import */ var _observers_isLoading__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./observers/isLoading */ "./src/observers/isLoading.ts");
+/* harmony import */ var _observers_loadingMap__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./observers/loadingMap */ "./src/observers/loadingMap.ts");
+/* harmony import */ var _observers_prioritizedCallbacks__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./observers/prioritizedCallbacks */ "./src/observers/prioritizedCallbacks.ts");
+/* harmony import */ var _observers_requestedCallbacks__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./observers/requestedCallbacks */ "./src/observers/requestedCallbacks.ts");
+/* harmony import */ var _observers_storedCallbacks__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./observers/storedCallbacks */ "./src/observers/storedCallbacks.ts");
+
+
+
+
+
+
+
+
+
 
 
 
 var store;
+var storeObserver = new _StoreObserver__WEBPACK_IMPORTED_MODULE_4__["default"]();
+var setObservers = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["once"])(function () {
+  var observe = storeObserver.observe;
+  observe(_observers_isLoading__WEBPACK_IMPORTED_MODULE_7__["default"]);
+  observe(_observers_loadingMap__WEBPACK_IMPORTED_MODULE_8__["default"]);
+  observe(_observers_requestedCallbacks__WEBPACK_IMPORTED_MODULE_10__["default"]);
+  observe(_observers_prioritizedCallbacks__WEBPACK_IMPORTED_MODULE_9__["default"]);
+  observe(_observers_executingCallbacks__WEBPACK_IMPORTED_MODULE_6__["default"]);
+  observe(_observers_executedCallbacks__WEBPACK_IMPORTED_MODULE_5__["default"]);
+  observe(_observers_storedCallbacks__WEBPACK_IMPORTED_MODULE_11__["default"]);
+});
+
+function createAppStore(reducer, middleware) {
+  store = Object(redux__WEBPACK_IMPORTED_MODULE_1__["createStore"])(reducer, middleware);
+  storeObserver.setStore(store);
+  setObservers();
+}
 /**
  * Initialize a Redux store with thunk, plus logging (only in development mode) middleware
  *
@@ -38912,21 +39759,22 @@ var store;
  *  An initialized redux store with middleware and possible hot reloading of reducers
  */
 
+
 var initializeStore = function initializeStore(reset) {
   if (store && !reset) {
     return store;
   }
 
-  var reducer = Object(_reducers_reducer__WEBPACK_IMPORTED_MODULE_2__["createReducer"])(); // eslint-disable-next-line no-process-env
+  var reducer = Object(_reducers_reducer__WEBPACK_IMPORTED_MODULE_3__["createReducer"])(); // eslint-disable-next-line no-process-env
 
   if (false) {} else {
     // only attach logger to middleware in non-production mode
     var reduxDTEC = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
 
     if (reduxDTEC) {
-      store = Object(redux__WEBPACK_IMPORTED_MODULE_0__["createStore"])(reducer, reduxDTEC(Object(redux__WEBPACK_IMPORTED_MODULE_0__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_1__["default"])));
+      createAppStore(reducer, reduxDTEC(Object(redux__WEBPACK_IMPORTED_MODULE_1__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_2__["default"])));
     } else {
-      store = Object(redux__WEBPACK_IMPORTED_MODULE_0__["createStore"])(reducer, Object(redux__WEBPACK_IMPORTED_MODULE_0__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_1__["default"]));
+      createAppStore(reducer, Object(redux__WEBPACK_IMPORTED_MODULE_1__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_2__["default"]));
     }
   }
 
@@ -38941,6 +39789,116 @@ var initializeStore = function initializeStore(reset) {
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (initializeStore);
+
+/***/ }),
+
+/***/ "./src/utils/TreeContainer.ts":
+/*!************************************!*\
+  !*** ./src/utils/TreeContainer.ts ***!
+  \************************************/
+/*! exports provided: getLoadingState, getLoadingHash, validateComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLoadingState", function() { return getLoadingState; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLoadingHash", function() { return getLoadingHash; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "validateComponent", function() { return validateComponent; });
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../registry */ "./src/registry.js");
+/* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/dependencies */ "./src/actions/dependencies.js");
+
+
+
+
+function isLoadingComponent(layout) {
+  validateComponent(layout);
+  return _registry__WEBPACK_IMPORTED_MODULE_1__["default"].resolve(layout)._dashprivate_isLoadingComponent;
+}
+
+var NULL_LOADING_STATE = false;
+function getLoadingState(componentLayout, componentPath, loadingMap) {
+  var _loadingFragment$__da;
+
+  if (!loadingMap) {
+    return NULL_LOADING_STATE;
+  }
+
+  var loadingFragment = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(componentPath, loadingMap); // Component and children are not loading if there's no loading fragment
+  // for the component's path in the layout.
+
+  if (!loadingFragment) {
+    return NULL_LOADING_STATE;
+  }
+
+  var idprop = loadingFragment.__dashprivate__idprop__;
+
+  if (idprop) {
+    return {
+      is_loading: true,
+      prop_name: idprop.property,
+      component_name: Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_2__["stringifyId"])(idprop.id)
+    };
+  }
+
+  var idprops = (_loadingFragment$__da = loadingFragment.__dashprivate__idprops__) === null || _loadingFragment$__da === void 0 ? void 0 : _loadingFragment$__da[0];
+
+  if (idprops && isLoadingComponent(componentLayout)) {
+    return {
+      is_loading: true,
+      prop_name: idprops.property,
+      component_name: Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_2__["stringifyId"])(idprops.id)
+    };
+  }
+
+  return NULL_LOADING_STATE;
+}
+var getLoadingHash = function getLoadingHash(componentPath, loadingMap) {
+  var _ref, _path;
+
+  return ((_ref = loadingMap && ((_path = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(componentPath, loadingMap)) === null || _path === void 0 ? void 0 : _path.__dashprivate__idprops__)) !== null && _ref !== void 0 ? _ref : []).map(function (_ref2) {
+    var id = _ref2.id,
+        property = _ref2.property;
+    return "".concat(id, ".").concat(property);
+  }).join(',');
+};
+function validateComponent(componentDefinition) {
+  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(componentDefinition) === 'Array') {
+    throw new Error('The children property of a component is a list of lists, instead ' + 'of just a list. ' + 'Check the component that has the following contents, ' + 'and remove one of the levels of nesting: \n' + JSON.stringify(componentDefinition, null, 2));
+  }
+
+  if (Object(ramda__WEBPACK_IMPORTED_MODULE_0__["type"])(componentDefinition) === 'Object' && !(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('namespace', componentDefinition) && Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('type', componentDefinition) && Object(ramda__WEBPACK_IMPORTED_MODULE_0__["has"])('props', componentDefinition))) {
+    throw new Error('An object was provided as `children` instead of a component, ' + 'string, or number (or list of those). ' + 'Check the children property that looks something like:\n' + JSON.stringify(componentDefinition, null, 2));
+  }
+}
+
+/***/ }),
+
+/***/ "./src/utils/callbacks.ts":
+/*!********************************!*\
+  !*** ./src/utils/callbacks.ts ***!
+  \********************************/
+/*! exports provided: getPendingCallbacks */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPendingCallbacks", function() { return getPendingCallbacks; });
+/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+
+var getPendingCallbacks = function getPendingCallbacks(state) {
+  var _Array;
+
+  return (_Array = Array()).concat.apply(_Array, _toConsumableArray(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["values"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["omit"])(['stored', 'completed'], state))));
+};
 
 /***/ }),
 

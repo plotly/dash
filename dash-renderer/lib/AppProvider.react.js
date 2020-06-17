@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
 var _react = _interopRequireDefault(require("react"));
 
 var _reactRedux = require("react-redux");
@@ -12,8 +14,6 @@ var _reactRedux = require("react-redux");
 var _store = _interopRequireDefault(require("./store"));
 
 var _AppContainer = _interopRequireDefault(require("./AppContainer.react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 

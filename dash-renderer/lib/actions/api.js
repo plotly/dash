@@ -37,8 +37,20 @@ var request = {
 
 function apiThunk(endpoint, method, store, id, body) {
   return function (dispatch, getState) {
-    var config = getState().config;
+    var _getState = getState(),
+        config = _getState.config;
+
     var url = "".concat((0, _utils.urlBase)(config)).concat(endpoint);
+
+    function setConnectionStatus(connected) {
+      if (getState().error.backEndConnected !== connected) {
+        dispatch({
+          type: 'SET_CONNECTION_STATUS',
+          payload: connected
+        });
+      }
+    }
+
     dispatch({
       type: store,
       payload: {
@@ -47,6 +59,7 @@ function apiThunk(endpoint, method, store, id, body) {
       }
     });
     return request[method](url, config.fetch, body).then(function (res) {
+      setConnectionStatus(true);
       var contentType = res.headers.get('content-type');
 
       if (contentType && contentType.indexOf('application/json') !== -1) {
@@ -71,6 +84,11 @@ function apiThunk(endpoint, method, store, id, body) {
           status: res.status
         }
       });
+    }, function () {
+      // fetch rejection - this means the request didn't return,
+      // we don't get here from 400/500 errors, only network
+      // errors or unresponsive servers.
+      setConnectionStatus(false);
     })["catch"](function (err) {
       var message = 'Error from API call: ' + endpoint;
       (0, _actions.handleAsyncError)(err, message, dispatch);

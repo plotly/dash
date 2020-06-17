@@ -54,13 +54,14 @@ var GlobalErrorOverlay = /*#__PURE__*/function (_Component) {
       var _this$props = this.props,
           visible = _this$props.visible,
           error = _this$props.error,
-          toastsEnabled = _this$props.toastsEnabled;
+          errorsOpened = _this$props.errorsOpened;
       var frontEndErrors;
 
-      if (toastsEnabled) {
+      if (errorsOpened) {
         var errors = (0, _ramda.concat)(error.frontEnd, error.backEnd);
         frontEndErrors = _react["default"].createElement(_FrontEndErrorContainer.FrontEndErrorContainer, {
-          errors: errors
+          errors: errors,
+          connected: error.backEndConnected
         });
       }
 
@@ -80,5 +81,5 @@ GlobalErrorOverlay.propTypes = {
   children: _propTypes["default"].object,
   visible: _propTypes["default"].bool,
   error: _propTypes["default"].object,
-  toastsEnabled: _propTypes["default"].any
+  errorsOpened: _propTypes["default"].any
 };

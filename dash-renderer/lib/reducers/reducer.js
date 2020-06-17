@@ -10,27 +10,31 @@ var _ramda = require("ramda");
 
 var _redux = require("redux");
 
-var _dependencies = require("../actions/dependencies");
-
-var _layout = _interopRequireDefault(require("./layout"));
-
-var _dependencyGraph = _interopRequireDefault(require("./dependencyGraph"));
-
-var _paths = _interopRequireDefault(require("./paths"));
-
-var _pendingCallbacks = _interopRequireDefault(require("./pendingCallbacks"));
-
-var _appLifecycle = _interopRequireDefault(require("./appLifecycle"));
-
-var _history = _interopRequireDefault(require("./history"));
-
-var _error = _interopRequireDefault(require("./error"));
-
-var _hooks = _interopRequireDefault(require("./hooks"));
+var _dependencies_ts = require("../actions/dependencies_ts");
 
 var _api = _interopRequireDefault(require("./api"));
 
+var _appLifecycle = _interopRequireDefault(require("./appLifecycle"));
+
+var _callbacks = _interopRequireDefault(require("./callbacks"));
+
 var _config = _interopRequireDefault(require("./config"));
+
+var _dependencyGraph = _interopRequireDefault(require("./dependencyGraph"));
+
+var _error = _interopRequireDefault(require("./error"));
+
+var _history = _interopRequireDefault(require("./history"));
+
+var _hooks = _interopRequireDefault(require("./hooks"));
+
+var _isLoading = _interopRequireDefault(require("./isLoading"));
+
+var _layout = _interopRequireDefault(require("./layout"));
+
+var _loadingMap = _interopRequireDefault(require("./loadingMap"));
+
+var _paths = _interopRequireDefault(require("./paths"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -48,14 +52,16 @@ exports.apiRequests = apiRequests;
 function mainReducer() {
   var parts = {
     appLifecycle: _appLifecycle["default"],
-    layout: _layout["default"],
-    graphs: _dependencyGraph["default"],
-    paths: _paths["default"],
-    pendingCallbacks: _pendingCallbacks["default"],
+    callbacks: _callbacks["default"],
     config: _config["default"],
-    history: _history["default"],
     error: _error["default"],
-    hooks: _hooks["default"]
+    graphs: _dependencyGraph["default"],
+    history: _history["default"],
+    hooks: _hooks["default"],
+    isLoading: _isLoading["default"],
+    layout: _layout["default"],
+    loadingMap: _loadingMap["default"],
+    paths: _paths["default"]
   };
   (0, _ramda.forEach)(function (r) {
     parts[r] = (0, _api["default"])(r);
@@ -80,7 +86,7 @@ function getInputHistoryState(itempath, props, state) {
       props: {}
     };
     (0, _ramda.keys)(props).forEach(function (propKey) {
-      if ((0, _dependencies.getCallbacksByInput)(graphs, paths, id, propKey).length) {
+      if ((0, _dependencies_ts.getCallbacksByInput)(graphs, paths, id, propKey).length) {
         historyEntry.props[propKey] = idProps[propKey];
       }
     });

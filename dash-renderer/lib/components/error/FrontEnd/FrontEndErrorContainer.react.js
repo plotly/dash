@@ -49,7 +49,10 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
   _createClass(FrontEndErrorContainer, [{
     key: "render",
     value: function render() {
-      var errorsLength = this.props.errors.length;
+      var _this$props = this.props,
+          errors = _this$props.errors,
+          connected = _this$props.connected;
+      var errorsLength = errors.length;
 
       if (errorsLength === 0) {
         return null;
@@ -57,7 +60,7 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
 
       var inAlertsTray = this.props.inAlertsTray;
       var cardClasses = 'dash-error-card dash-error-card--container';
-      var errorElements = this.props.errors.map(function (error, i) {
+      var errorElements = errors.map(function (error, i) {
         return _react["default"].createElement(_FrontEndError2.FrontEndError, {
           e: error,
           isListItem: true,
@@ -77,7 +80,7 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
         className: "dash-error-card__message"
       }, "\uD83D\uDED1 Errors (", _react["default"].createElement("strong", {
         className: "test-devtools-error-count"
-      }, errorsLength), ")")), _react["default"].createElement("div", {
+      }, errorsLength), ")", connected ? null : "\xA0 \uD83D\uDEAB Server Unavailable")), _react["default"].createElement("div", {
         className: "dash-error-card__list"
       }, errorElements));
     }
@@ -89,6 +92,7 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
 exports.FrontEndErrorContainer = FrontEndErrorContainer;
 FrontEndErrorContainer.propTypes = {
   errors: _propTypes["default"].array,
+  connected: _propTypes["default"].bool,
   inAlertsTray: _propTypes["default"].any
 };
 FrontEndErrorContainer.propTypes = {

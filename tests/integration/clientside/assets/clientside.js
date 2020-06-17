@@ -56,6 +56,30 @@ window.dash_clientside.clientside = {
                 resolve('foo');
             }, 1);
         });
-    }
+    },
 
-}
+    triggered_to_str: function(n_clicks0, n_clicks1) {
+        const triggered = dash_clientside.callback_context.triggered;
+        return triggered.map(t => `${t.prop_id} = ${t.value}`).join(', ');
+    },
+
+    inputs_to_str: function(n_clicks0, n_clicks1) {
+        const inputs = dash_clientside.callback_context.inputs;
+        const keys = Object.keys(inputs);
+        return keys.map(k => `${k} = ${inputs[k]}`).join(', ');
+    },
+
+    inputs_list_to_str: function(n_clicks0, n_clicks1) {
+        return JSON.stringify(dash_clientside.callback_context.inputs_list);
+    },
+
+    states_to_str: function(val0, val1, st0, st1) {
+        const states = dash_clientside.callback_context.states;
+        const keys = Object.keys(states);
+        return keys.map(k => `${k} = ${states[k]}`).join(', ');
+    },
+
+    states_list_to_str: function(val0, val1, st0, st1) {
+        return JSON.stringify(dash_clientside.callback_context.states_list);
+    }
+};

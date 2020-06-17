@@ -5,15 +5,50 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
+var _ramda = require("ramda");
+
 var _redux = require("redux");
 
 var _reduxThunk = _interopRequireDefault(require("redux-thunk"));
 
 var _reducer = require("./reducers/reducer");
 
+var _StoreObserver = _interopRequireDefault(require("./StoreObserver"));
+
+var _executedCallbacks = _interopRequireDefault(require("./observers/executedCallbacks"));
+
+var _executingCallbacks = _interopRequireDefault(require("./observers/executingCallbacks"));
+
+var _isLoading = _interopRequireDefault(require("./observers/isLoading"));
+
+var _loadingMap = _interopRequireDefault(require("./observers/loadingMap"));
+
+var _prioritizedCallbacks = _interopRequireDefault(require("./observers/prioritizedCallbacks"));
+
+var _requestedCallbacks = _interopRequireDefault(require("./observers/requestedCallbacks"));
+
+var _storedCallbacks = _interopRequireDefault(require("./observers/storedCallbacks"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var store;
+var storeObserver = new _StoreObserver["default"]();
+var setObservers = (0, _ramda.once)(function () {
+  var observe = storeObserver.observe;
+  observe(_isLoading["default"]);
+  observe(_loadingMap["default"]);
+  observe(_requestedCallbacks["default"]);
+  observe(_prioritizedCallbacks["default"]);
+  observe(_executingCallbacks["default"]);
+  observe(_executedCallbacks["default"]);
+  observe(_storedCallbacks["default"]);
+});
+
+function createAppStore(reducer, middleware) {
+  store = (0, _redux.createStore)(reducer, middleware);
+  storeObserver.setStore(store);
+  setObservers();
+}
 /**
  * Initialize a Redux store with thunk, plus logging (only in development mode) middleware
  *
@@ -23,6 +58,7 @@ var store;
  *  An initialized redux store with middleware and possible hot reloading of reducers
  */
 
+
 var initializeStore = function initializeStore(reset) {
   if (store && !reset) {
     return store;
@@ -31,15 +67,15 @@ var initializeStore = function initializeStore(reset) {
   var reducer = (0, _reducer.createReducer)(); // eslint-disable-next-line no-process-env
 
   if (process.env.NODE_ENV === 'production') {
-    store = (0, _redux.createStore)(reducer, (0, _redux.applyMiddleware)(_reduxThunk["default"]));
+    createAppStore(reducer, (0, _redux.applyMiddleware)(_reduxThunk["default"]));
   } else {
     // only attach logger to middleware in non-production mode
     var reduxDTEC = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
 
     if (reduxDTEC) {
-      store = (0, _redux.createStore)(reducer, reduxDTEC((0, _redux.applyMiddleware)(_reduxThunk["default"])));
+      createAppStore(reducer, reduxDTEC((0, _redux.applyMiddleware)(_reduxThunk["default"])));
     } else {
-      store = (0, _redux.createStore)(reducer, (0, _redux.applyMiddleware)(_reduxThunk["default"]));
+      createAppStore(reducer, (0, _redux.applyMiddleware)(_reduxThunk["default"]));
     }
   }
 

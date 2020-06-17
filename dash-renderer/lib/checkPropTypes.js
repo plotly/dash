@@ -21,7 +21,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
  * @param {?Function} getStack Returns the component stack.
  * @return {string} Any error messsage resulting from checking the types
  */
-function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
+function checkPropTypes(typeSpecs, values, location, componentName) {
+  var getStack = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
   var errors = [];
 
   for (var typeSpecName in typeSpecs) {

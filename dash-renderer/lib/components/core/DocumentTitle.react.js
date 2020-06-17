@@ -49,7 +49,7 @@ var DocumentTitle = /*#__PURE__*/function (_Component) {
   _createClass(DocumentTitle, [{
     key: "UNSAFE_componentWillReceiveProps",
     value: function UNSAFE_componentWillReceiveProps(props) {
-      if (props.pendingCallbacks.length) {
+      if (props.isLoading) {
         document.title = 'Updating...';
       } else {
         document.title = this.state.initialTitle;
@@ -71,12 +71,12 @@ var DocumentTitle = /*#__PURE__*/function (_Component) {
 }(_react.Component);
 
 DocumentTitle.propTypes = {
-  pendingCallbacks: _propTypes["default"].array.isRequired
+  isLoading: _propTypes["default"].bool.isRequired
 };
 
 var _default = (0, _reactRedux.connect)(function (state) {
   return {
-    pendingCallbacks: state.pendingCallbacks
+    isLoading: state.isLoading
   };
 })(DocumentTitle);
 

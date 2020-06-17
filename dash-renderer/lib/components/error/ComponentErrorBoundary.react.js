@@ -5,13 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _reactRedux = require("react-redux");
-
 var _react = require("react");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _radium = _interopRequireDefault(require("radium"));
 
 var _actions = require("../../actions");
 
@@ -35,15 +31,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var UnconnectedComponentErrorBoundary = /*#__PURE__*/function (_Component) {
-  _inherits(UnconnectedComponentErrorBoundary, _Component);
+var ComponentErrorBoundary = /*#__PURE__*/function (_Component) {
+  _inherits(ComponentErrorBoundary, _Component);
 
-  function UnconnectedComponentErrorBoundary(props) {
+  function ComponentErrorBoundary(props) {
     var _this;
 
-    _classCallCheck(this, UnconnectedComponentErrorBoundary);
+    _classCallCheck(this, ComponentErrorBoundary);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(UnconnectedComponentErrorBoundary).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ComponentErrorBoundary).call(this, props));
     _this.state = {
       myID: props.componentId,
       oldChildren: null,
@@ -52,7 +48,7 @@ var UnconnectedComponentErrorBoundary = /*#__PURE__*/function (_Component) {
     return _this;
   }
 
-  _createClass(UnconnectedComponentErrorBoundary, [{
+  _createClass(ComponentErrorBoundary, [{
     key: "componentDidCatch",
     value: function componentDidCatch(error, info) {
       var dispatch = this.props.dispatch;
@@ -93,23 +89,14 @@ var UnconnectedComponentErrorBoundary = /*#__PURE__*/function (_Component) {
     }
   }]);
 
-  return UnconnectedComponentErrorBoundary;
+  return ComponentErrorBoundary;
 }(_react.Component);
 
-UnconnectedComponentErrorBoundary.propTypes = {
+ComponentErrorBoundary.propTypes = {
   children: _propTypes["default"].object,
   componentId: _propTypes["default"].string,
   error: _propTypes["default"].object,
   dispatch: _propTypes["default"].func
 };
-var ComponentErrorBoundary = (0, _reactRedux.connect)(function (state) {
-  return {
-    error: state.error
-  };
-}, function (dispatch) {
-  return {
-    dispatch: dispatch
-  };
-})((0, _radium["default"])(UnconnectedComponentErrorBoundary));
 var _default = ComponentErrorBoundary;
 exports["default"] = _default;

@@ -5,7 +5,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = void 0;
+exports["default"] = exports.DashContext = void 0;
 
 var _reactRedux = require("react-redux");
 
@@ -35,6 +35,8 @@ var _constants = require("./reducers/constants");
 
 var _constants2 = require("./constants/constants");
 
+var _TreeContainer2 = require("./utils/TreeContainer");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -49,12 +51,24 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+var DashContext = (0, _react.createContext)({});
 /**
  * Fire off API calls for initialization
  * @param {*} props props
  * @returns {*} component
  */
+
+exports.DashContext = DashContext;
+
 var UnconnectedContainer = function UnconnectedContainer(props) {
+  var appLifecycle = props.appLifecycle,
+      config = props.config,
+      dependenciesRequest = props.dependenciesRequest,
+      error = props.error,
+      layoutRequest = props.layoutRequest,
+      layout = props.layout,
+      loadingMap = props.loadingMap;
+
   var _useState = (0, _react.useState)(false),
       _useState2 = _slicedToArray(_useState, 2),
       errorLoading = _useState2[0],
@@ -67,6 +81,18 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
   }
 
   var renderedTree = (0, _react.useRef)(false);
+  var propsRef = (0, _react.useRef)({});
+  propsRef.current = props;
+  var provider = (0, _react.useRef)({
+    fn: function fn() {
+      return {
+        _dashprivate_config: propsRef.current.config,
+        _dashprivate_dispatch: propsRef.current.dispatch,
+        _dashprivate_graphs: propsRef.current.graphs,
+        _dashprivate_loadingMap: propsRef.current.loadingMap
+      };
+    }
+  });
   (0, _react.useEffect)(storeEffect.bind(null, props, events, setErrorLoading));
   (0, _react.useEffect)(function () {
     if (renderedTree.current) {
@@ -74,11 +100,6 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
       events.current.emit('rendered');
     }
   });
-  var appLifecycle = props.appLifecycle,
-      dependenciesRequest = props.dependenciesRequest,
-      layoutRequest = props.layoutRequest,
-      layout = props.layout,
-      config = props.config;
   var content;
 
   if (layoutRequest.status && !(0, _ramda.includes)(layoutRequest.status, [_constants2.STATUS.OK, 'loading'])) {
@@ -91,10 +112,15 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
     }, "Error loading dependencies");
   } else if (appLifecycle === (0, _constants.getAppState)('HYDRATED')) {
     renderedTree.current = true;
-    content = _react["default"].createElement(_TreeContainer["default"], {
+    content = _react["default"].createElement(DashContext.Provider, {
+      value: provider.current
+    }, _react["default"].createElement(_TreeContainer["default"], {
+      _dashprivate_error: error,
       _dashprivate_layout: layout,
-      _dashprivate_path: []
-    });
+      _dashprivate_loadingState: (0, _TreeContainer2.getLoadingState)(layout, [], loadingMap),
+      _dashprivate_loadingStateHash: (0, _TreeContainer2.getLoadingHash)([], loadingMap),
+      _dashprivate_path: JSON.stringify([])
+    }));
   } else {
     content = _react["default"].createElement("div", {
       className: "_dash-loading"
@@ -161,6 +187,7 @@ UnconnectedContainer.propTypes = {
   graphs: _propTypes["default"].object,
   layoutRequest: _propTypes["default"].object,
   layout: _propTypes["default"].object,
+  loadingMap: _propTypes["default"].any,
   history: _propTypes["default"].any,
   error: _propTypes["default"].object,
   config: _propTypes["default"].object
@@ -172,6 +199,7 @@ function (state) {
     dependenciesRequest: state.dependenciesRequest,
     layoutRequest: state.layoutRequest,
     layout: state.layout,
+    loadingMap: state.loadingMap,
     graphs: state.graphs,
     history: state.history,
     error: state.error,
