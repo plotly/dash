@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [4.8.0] - 2020-06-17
 ### Added
 - [#787](https://github.com/plotly/dash-table/pull/787) Add `cell_selectable` property to allow/disallow cell selection
 
