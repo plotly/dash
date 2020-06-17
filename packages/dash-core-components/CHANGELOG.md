@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.10.1] - 2020-06-17
+### Updated
+- [#824](https://github.com/plotly/dash-core-components/pull/824)
+  - Upgraded plotly.js to [1.54.3](https://github.com/plotly/plotly.js/releases/tag/v1.54.3)
+    - Patch release [1.54.3](https://github.com/plotly/plotly.js/releases/tag/v1.54.3)
+    - Patch release [1.54.2](https://github.com/plotly/plotly.js/releases/tag/v1.54.2)
+
 ## [1.10.0] - 2020-05-05
 ### Changed
 - [#793](https://github.com/plotly/dash-core-components/pull/793) Added title key (i.e. HTML `title` attribute) to option dicts in `dcc.Dropdown` `options[]` list property.
