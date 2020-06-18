@@ -1612,7 +1612,4 @@ class Dash(object):
                 " in production, use a production WSGI server like gunicorn instead.\n"
             )
 
-        if not os.environ.get("FLASK_ENV"):
-            os.environ["FLASK_ENV"] = "development"
-
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
