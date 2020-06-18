@@ -71,7 +71,7 @@ class DashPageMixin(object):
         return self.driver.execute_script("return window.store")
 
     def _wait_for_callbacks(self):
-        return not self.window_store or self.redux_state_rqs
+        return (not self.window_store) or self.redux_state_rqs == []
 
     def get_local_storage(self, store_id="local"):
         return self.driver.execute_script(
