@@ -2,6 +2,9 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased] - 2020-06-18
+- [#1305](https://github.com/plotly/dash/issues/1305) Fix regression that causes crash when `FLASK_ENV` is modified during app execution
+
 ## [1.13.1] - 2020-06-17
 
 ## [1.13.0] - 2020-06-17
