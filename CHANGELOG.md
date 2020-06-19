@@ -2,6 +2,8 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.13.3] - 2020-06-19
+
 ## [1.13.2] - 2020-06-18
 ### Fixed
 - [#1305](https://github.com/plotly/dash/issues/1305)
