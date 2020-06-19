@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [4.8.1] - 2020-06-18
 ### Fixed
 - [#798](https://github.com/plotly/dash-table/pull/798) Fix a bug where headers are not aligned with columns after an update [#797](https://github.com/plotly/dash-table/issues/797)
 
