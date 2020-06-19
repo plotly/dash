@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixed
+- [#798](https://github.com/plotly/dash-table/pull/798) Fix a bug where headers are not aligned with columns after an update [#797](https://github.com/plotly/dash-table/issues/797)
+
 ## [4.8.0] - 2020-06-17
 ### Added
 - [#787](https://github.com/plotly/dash-table/pull/787) Add `cell_selectable` property to allow/disallow cell selection
@@ -14,7 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - [#785](https://github.com/plotly/dash-table/pull/785) Fix a bug where the table does not refresh correctly if a property was previously missing
 - [#793](https://github.com/plotly/dash-table/pull/793)
-    - Fix a bug where headers aren't aligned with columns with fixed_rows [#777](https://github.com/plotly/dash-table/issues/777)
+    - Fix a bug where headers are not aligned with columns with fixed_rows [#777](https://github.com/plotly/dash-table/issues/777)
     - Fix a regression where headers don't scroll horizontally with fixed_rows [#780](https://github.com/plotly/dash-table/issues/780)
 
 ## [4.7.0] - 2020-05-05

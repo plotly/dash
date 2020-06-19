@@ -1,8 +1,49 @@
 import dash
+import pytest
+
 from dash.dependencies import Input, Output
 from dash.testing import wait
 from dash_table import DataTable
 from dash_html_components import Button, Div
+
+base_props = dict(
+    columns=[
+        {"id": "_", "name": ["_", "_", "_"]},
+        {
+            "id": "a",
+            "name": [
+                "A-----------------VERY LONG",
+                "A-----------------VERY LONG",
+                "A-----------------VERY LONG",
+            ],
+        },
+        {
+            "id": "b",
+            "name": [
+                "A-----------------VERY LONG",
+                "A-----------------VERY LONG",
+                "B-----------------VERY LONG",
+            ],
+        },
+        {
+            "id": "c",
+            "name": [
+                "A-----------------VERY LONG---",
+                "B-----------------VERY LONG---------",
+                "C-----------------VERY LONG------------------",
+            ],
+        },
+    ],
+    data=[
+        {"_": 0, "a": 85, "b": 601, "c": 891},
+        {"_": 0, "a": 967, "b": 189, "c": 514},
+        {"_": 0, "a": 398, "b": 262, "c": 743},
+        {"_": 0, "a": 89, "b": 560, "c": 582},
+        {"_": 0, "a": 809, "b": 591, "c": 511},
+    ],
+    style_table=dict(width=500, minWidth=500, maxWidth=500, paddingBottom=10),
+    style_cell=dict(width="25%", minWidth="25%", maxWidth="25%"),
+)
 
 
 def cells_are_same_width(target, table):
@@ -174,49 +215,8 @@ def test_szng001_widths_on_style_change(test):
 
 
 def test_szng002_percentages_result_in_same_widths(test):
-    base_props = dict(
-        columns=[
-            {"id": "_", "name": ["_", "_", "_"]},
-            {
-                "id": "a",
-                "name": [
-                    "A-----------------VERY LONG",
-                    "A-----------------VERY LONG",
-                    "A-----------------VERY LONG",
-                ],
-            },
-            {
-                "id": "b",
-                "name": [
-                    "A-----------------VERY LONG",
-                    "A-----------------VERY LONG",
-                    "B-----------------VERY LONG",
-                ],
-            },
-            {
-                "id": "c",
-                "name": [
-                    "A-----------------VERY LONG---",
-                    "B-----------------VERY LONG---------",
-                    "C-----------------VERY LONG------------------",
-                ],
-            },
-        ],
-        data=[
-            {"_": 0, "a": 85, "b": 601, "c": 891},
-            {"_": 0, "a": 967, "b": 189, "c": 514},
-            {"_": 0, "a": 398, "b": 262, "c": 743},
-            {"_": 0, "a": 89, "b": 560, "c": 582},
-            {"_": 0, "a": 809, "b": 591, "c": 511},
-        ],
-        style_table=dict(width=500, minWidth=500, maxWidth=500, paddingBottom=10),
-        style_cell=dict(width="25%", minWidth="25%", maxWidth="25%"),
-    )
-
     _fixed_columns = [dict(headers=True, data=1), dict(headers=True)]
-
     _fixed_rows = [dict(headers=True, data=1), dict(headers=True)]
-
     _merge_duplicate_headers = [True, False]
 
     variations = []
@@ -248,3 +248,76 @@ def test_szng002_percentages_result_in_same_widths(test):
     for i in range(1, len(variations)):
         table = test.driver.find_element_by_css_selector("#table{}".format(i))
         cells_are_same_width(target, table)
+
+
+@pytest.mark.parametrize(
+    "fixed_columns",
+    [
+        # dict(),
+        dict(fixed_columns=dict(headers=True)),
+        dict(fixed_columns=dict(headers=True, data=1)),
+    ],
+)
+@pytest.mark.parametrize(
+    "fixed_rows",
+    [
+        # dict(),
+        dict(fixed_rows=dict(headers=True)),
+        dict(fixed_rows=dict(headers=True, data=1)),
+    ],
+)
+@pytest.mark.parametrize(
+    "merge_duplicate_headers",
+    [dict(merge_duplicate_headers=True), dict(merge_duplicate_headers=False)],
+)
+@pytest.mark.parametrize(
+    "callback_props",
+    [
+        dict(
+            data=[
+                {"_": 0, "a": 85, "b": 601, "c": 891},
+                {"_": 0, "a": 967, "b": 189, "c": 514},
+                {"_": 0, "a": 398, "b": 262, "c": 743},
+                {
+                    "_": "SOME VERY LONG VALUE",
+                    "a": "SOME VERY LONG VALUE 2",
+                    "b": "SOME VERY LONG VALUE 3",
+                    "c": "SOME VERY LONG VALUE 4",
+                },
+                {"_": 0, "a": 89, "b": 560, "c": 582},
+                {"_": 0, "a": 809, "b": 591, "c": 511},
+            ]
+        ),
+        dict(merge_duplicate_headers=True),
+        # dict(fixed_rows=dict(headers=True)),
+        # dict(fixed_columns=dict(headers=True)),
+        dict(fixed_columns=dict(headers=True), fixed_rows=dict(headers=True)),
+        dict(style_cell=dict(width=200, minWidth=200, maxWidth=200)),
+        dict(style_table=dict(width=500, minWidth=500, maxWidth=500)),
+    ],
+)
+def test_szng003_on_prop_change(
+    test, fixed_columns, fixed_rows, merge_duplicate_headers, callback_props
+):
+    props = {**base_props, **fixed_columns, **fixed_rows, **merge_duplicate_headers}
+
+    table = DataTable(**props, id="table")
+
+    app = dash.Dash(__name__)
+    app.layout = Div([Button(id="btn", children=["Update"]), table])
+
+    @app.callback(
+        [Output("table", key) for key in callback_props.keys()],
+        [Input("btn", "n_clicks")],
+        prevent_initial_call=True,
+    )
+    def callback(n_clicks):
+        return [callback_props.get(key) for key in callback_props.keys()]
+
+    test.start_server(app)
+
+    target = test.driver.find_element_by_css_selector("#table")
+    cells_are_same_width(target, target)
+
+    test.driver.find_element_by_css_selector("#btn").click()
+    cells_are_same_width(target, target)
