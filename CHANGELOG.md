@@ -4,7 +4,33 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [UNRELEASED]
 ### Changed
-- [#1180](https://github.com/plotly/dash/pull/1180) Single `Input` in callbacks doesn't need to be in a list
+- [#1180](https://github.com/plotly/dash/pull/1180) `Input`, `Output`, and `State` in callback definitions don't need to be in lists. You still need to provide `Output` items first, then `Input` items, then `State`, and the list form is still supported. In particular, if you want to return a single output item wrapped in a length-1 list, you should still wrap the `Output` in a list. This can be useful for procedurally-generated callbacks.
+
+## [1.13.3] - 2020-06-19
+
+## [1.13.2] - 2020-06-18
+### Fixed
+- [#1305](https://github.com/plotly/dash/issues/1305)
+    - Fix regression that causes crash when `FLASK_ENV` is modified during app execution
+    - Fix regression that caused tests using `_wait_for_callbacks` to fail
+
+## [1.13.1] - 2020-06-17
+
+## [1.13.0] - 2020-06-17
+### Added
+- [#1289](https://github.com/plotly/dash/pull/1289) Supports `DASH_PROXY` env var to tell `app.run_server` to report the correct URL to view your app, when it's being proxied. Throws an error if the proxy is incompatible with the host and port you've given the server.
+- [#1240](https://github.com/plotly/dash/pull/1240) Adds `callback_context` to clientside callbacks (e.g. `dash_clientside.callback_context.triggered`). Supports `triggered`, `inputs`, `inputs_list`, `states`, and `states_list`, all of which closely resemble their serverside cousins.
+
+### Changed
+- [#1237](https://github.com/plotly/dash/pull/1237) Closes [#920](https://github.com/plotly/dash/issues/920): Converts hot reload fetch failures into a server status indicator showing whether the latest fetch succeeded or failed. Callback fetch failures still appear as errors but have a clearer message.
+- [#1254](https://github.com/plotly/dash/pull/1254) Modifies the callback chain implementation and improves performance for apps with a lot of components
+
+### Fixed
+- [#1255](https://github.com/plotly/dash/pull/1255) Hard hot reload targets only the current window, not the top - so if your app is in an iframe you will only reload the app
+- [#1249](https://github.com/plotly/dash/pull/1249) Fixes [#919](https://github.com/plotly/dash/issues/919) so `dash.testing` is compatible with more `pytest` plugins, particularly `pytest-flake8` and `pytest-black`.
+- [#1248](https://github.com/plotly/dash/pull/1248) Fixes [#1245](https://github.com/plotly/dash/issues/1245), so you can use prop persistence with components that have dict IDs, ie for pattern-matching callbacks.
+- [#1185](https://github.com/plotly/dash/pull/1185) Sort asset directories, same as we sort files inside those directories. This way if you need your assets loaded in a certain order, you can add prefixes to subdirectory names and enforce that order.
+- [#1288](https://github.com/plotly/dash/pull/1288) Closes [#1285](https://github.com/plotly/dash/issues/1285): Debug=True should work in the __main__ module.
 
 ## [1.12.0] - 2020-05-05
 ### Added

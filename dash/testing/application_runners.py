@@ -221,6 +221,9 @@ class ProcessRunner(BaseDashRunner):
             try:
                 logger.info("proc.terminate with pid %s", self.proc.pid)
                 self.proc.terminate()
+                if self.tmp_app_path and os.path.exists(self.tmp_app_path):
+                    logger.debug("removing temporary app path %s", self.tmp_app_path)
+                    shutil.rmtree(self.tmp_app_path)
                 if utils.PY3:
                     # pylint:disable=no-member
                     _except = subprocess.TimeoutExpired
@@ -285,6 +288,24 @@ class RRunner(ProcessRunner):
                         break
             if cwd:
                 logger.info("RRunner inferred cwd from the Python call stack: %s", cwd)
+
+                # try copying all valid sub folders (i.e. assets) in cwd to tmp
+                # note that the R assets folder name can be any valid folder name
+                assets = [
+                    os.path.join(cwd, _)
+                    for _ in os.listdir(cwd)
+                    if not _.startswith("__") and os.path.isdir(os.path.join(cwd, _))
+                ]
+
+                for asset in assets:
+                    target = os.path.join(self.tmp_app_path, os.path.basename(asset))
+                    if os.path.exists(target):
+                        logger.debug("delete existing target %s", target)
+                        shutil.rmtree(target)
+                    logger.debug("copying %s => %s", asset, self.tmp_app_path)
+                    shutil.copytree(asset, target)
+                    logger.debug("copied with %s", os.listdir(target))
+
             else:
                 logger.warning(
                     "RRunner found no cwd in the Python call stack. "
@@ -293,23 +314,6 @@ class RRunner(ProcessRunner):
                     "dashr.run_server(app, cwd=os.path.dirname(__file__))"
                 )
 
-            # try copying all valid sub folders (i.e. assets) in cwd to tmp
-            # note that the R assets folder name can be any valid folder name
-            assets = [
-                os.path.join(cwd, _)
-                for _ in os.listdir(cwd)
-                if not _.startswith("__") and os.path.isdir(os.path.join(cwd, _))
-            ]
-
-            for asset in assets:
-                target = os.path.join(self.tmp_app_path, os.path.basename(asset))
-                if os.path.exists(target):
-                    logger.debug("delete existing target %s", target)
-                    shutil.rmtree(target)
-                logger.debug("copying %s => %s", asset, self.tmp_app_path)
-                shutil.copytree(asset, target)
-                logger.debug("copied with %s", os.listdir(target))
-
         logger.info("Run dashR app with Rscript => %s", app)
 
         args = shlex.split(
@@ -317,6 +321,106 @@ class RRunner(ProcessRunner):
             posix=not self.is_windows,
         )
         logger.debug("start dash process with %s", args)
+
+        try:
+            self.proc = subprocess.Popen(
+                args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=self.tmp_app_path if self.tmp_app_path else cwd,
+            )
+            # wait until server is able to answer http request
+            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+
+        except (OSError, ValueError):
+            logger.exception("process server has encountered an error")
+            self.started = False
+            return
+
+        self.started = True
+
+
+class JuliaRunner(ProcessRunner):
+    def __init__(self, keep_open=False, stop_timeout=3):
+        super(JuliaRunner, self).__init__(
+            keep_open=keep_open, stop_timeout=stop_timeout
+        )
+        self.proc = None
+
+    # pylint: disable=arguments-differ
+    def start(self, app, start_timeout=30, cwd=None):
+        """Start the server with subprocess and julia."""
+
+        if os.path.isfile(app) and os.path.exists(app):
+            # app is already a file in a dir - use that as cwd
+            if not cwd:
+                cwd = os.path.dirname(app)
+                logger.info("JuliaRunner inferred cwd from app path: %s", cwd)
+        else:
+            # app is a string chunk, we make a temporary folder to store app.jl
+            # and its relevants assets
+            self._tmp_app_path = os.path.join(
+                "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex
+            )
+            try:
+                os.mkdir(self.tmp_app_path)
+            except OSError:
+                logger.exception("cannot make temporary folder %s", self.tmp_app_path)
+            path = os.path.join(self.tmp_app_path, "app.jl")
+
+            logger.info("JuliaRunner start => app is Julia code chunk")
+            logger.info("make a temporary Julia file for execution => %s", path)
+            logger.debug("content of the Dash.jl app")
+            logger.debug("%s", app)
+
+            with open(path, "w") as fp:
+                fp.write(app)
+
+            app = path
+
+            # try to find the path to the calling script to use as cwd
+            if not cwd:
+                for entry in inspect.stack():
+                    if "/dash/testing/" not in entry[1].replace("\\", "/"):
+                        cwd = os.path.dirname(os.path.realpath(entry[1]))
+                        logger.warning("get cwd from inspect => %s", cwd)
+                        break
+            if cwd:
+                logger.info(
+                    "JuliaRunner inferred cwd from the Python call stack: %s", cwd
+                )
+
+                # try copying all valid sub folders (i.e. assets) in cwd to tmp
+                # note that the R assets folder name can be any valid folder name
+                assets = [
+                    os.path.join(cwd, _)
+                    for _ in os.listdir(cwd)
+                    if not _.startswith("__") and os.path.isdir(os.path.join(cwd, _))
+                ]
+
+                for asset in assets:
+                    target = os.path.join(self.tmp_app_path, os.path.basename(asset))
+                    if os.path.exists(target):
+                        logger.debug("delete existing target %s", target)
+                        shutil.rmtree(target)
+                    logger.debug("copying %s => %s", asset, self.tmp_app_path)
+                    shutil.copytree(asset, target)
+                    logger.debug("copied with %s", os.listdir(target))
+
+            else:
+                logger.warning(
+                    "JuliaRunner found no cwd in the Python call stack. "
+                    "You may wish to specify an explicit working directory "
+                    "using something like: "
+                    "dashjl.run_server(app, cwd=os.path.dirname(__file__))"
+                )
+
+        logger.info("Run Dash.jl app with julia => %s", app)
+
+        args = shlex.split(
+            "julia {}".format(os.path.realpath(app)), posix=not self.is_windows,
+        )
+        logger.debug("start Dash.jl process with %s", args)
 
         try:
             self.proc = subprocess.Popen(

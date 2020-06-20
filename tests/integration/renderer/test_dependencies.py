@@ -40,6 +40,6 @@ def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
 
     assert output_1_call_count.value == 2 and output_2_call_count.value == 0
 
-    assert dash_duo.redux_state_rqs == []
+    assert not dash_duo.redux_state_is_loading
 
     assert dash_duo.get_logs() == []

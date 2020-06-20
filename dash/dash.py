@@ -1,8 +1,6 @@
 from __future__ import print_function
 
-import itertools
 import os
-import random
 import sys
 import collections
 import importlib
@@ -14,6 +12,7 @@ import logging
 import mimetypes
 
 from functools import wraps
+from future.moves.urllib.parse import urlparse
 
 import flask
 from flask_compress import Compress
@@ -26,7 +25,7 @@ from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
 from .dependencies import Input, Output, State
 from .development.base_component import ComponentRegistry
-from .exceptions import PreventUpdate, InvalidResourceError
+from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
 from .version import __version__
 from ._configs import get_combined_config, pathname_configs
 from ._utils import (
@@ -1124,7 +1123,7 @@ class Dash(object):
         ignore_str = self.config.assets_ignore
         ignore_filter = re.compile(ignore_str) if ignore_str else None
 
-        for current, _, files in os.walk(walk_dir):
+        for current, _, files in sorted(os.walk(walk_dir)):
             if current == walk_dir:
                 base = ""
             else:
@@ -1390,20 +1389,26 @@ class Dash(object):
 
         if dev_tools.silence_routes_logging:
             logging.getLogger("werkzeug").setLevel(logging.ERROR)
-            self.logger.setLevel(logging.INFO)
+
+        self.logger.setLevel(logging.INFO)
 
         if dev_tools.hot_reload:
             _reload = self._hot_reload
             _reload.hash = generate_hash()
 
+            # find_loader should return None on __main__ but doesn't
+            # on some python versions https://bugs.python.org/issue14710
+            packages = [
+                pkgutil.find_loader(x)
+                for x in list(ComponentRegistry.registry) + ["dash_renderer"]
+                if x != "__main__"
+            ]
+
             component_packages_dist = [
                 os.path.dirname(package.path)
                 if hasattr(package, "path")
                 else package.filename
-                for package in (
-                    pkgutil.find_loader(x)
-                    for x in list(ComponentRegistry.registry) + ["dash_renderer"]
-                )
+                for package in packages
             ]
 
             _reload.watch_thread = threading.Thread(
@@ -1502,6 +1507,7 @@ class Dash(object):
         self,
         host=os.getenv("HOST", "127.0.0.1"),
         port=os.getenv("PORT", "8050"),
+        proxy=os.getenv("DASH_PROXY", None),
         debug=False,
         dev_tools_ui=None,
         dev_tools_props_check=None,
@@ -1527,6 +1533,14 @@ class Dash(object):
         :param port: Port used to serve the application
             env: ``PORT``
         :type port: int
+
+        :param proxy: If this application will be served to a different URL
+            via a proxy configured outside of Python, you can list it here
+            as a string of the form ``"{input}::{output}"``, for example:
+            ``"http://0.0.0.0:8050::https://my.domain.com"``
+            so that the startup message will display an accurate URL.
+            env: ``DASH_PROXY``
+        :type proxy: string
 
         :param debug: Set Flask debug mode and enable dev tools.
             env: ``DASH_DEBUG``
@@ -1608,25 +1622,52 @@ class Dash(object):
             ]
             raise
 
-        if self._dev_tools.silence_routes_logging:
-            # Since it's silenced, the address doesn't show anymore.
+        # so we only see the "Running on" message once with hot reloading
+        # https://stackoverflow.com/a/57231282/9188800
+        if os.getenv("WERKZEUG_RUN_MAIN") != "true":
             ssl_context = flask_run_options.get("ssl_context")
-            self.logger.info(
-                "Running on %s://%s:%s%s",
-                "https" if ssl_context else "http",
-                host,
-                port,
-                self.config.requests_pathname_prefix,
-            )
+            protocol = "https" if ssl_context else "http"
+            path = self.config.requests_pathname_prefix
 
-            # Generate a debugger pin and log it to the screen.
-            debugger_pin = os.environ["WERKZEUG_DEBUG_PIN"] = "-".join(
-                itertools.chain(
-                    "".join([str(random.randint(0, 9)) for _ in range(3)])
-                    for _ in range(3)
+            if proxy:
+                served_url, proxied_url = map(urlparse, proxy.split("::"))
+
+                def verify_url_part(served_part, url_part, part_name):
+                    if served_part != url_part:
+                        raise ProxyError(
+                            """
+                            {0}: {1} is incompatible with the proxy:
+                                {3}
+                            To see your app at {4},
+                            you must use {0}: {2}
+                        """.format(
+                                part_name,
+                                url_part,
+                                served_part,
+                                proxy,
+                                proxied_url.geturl(),
+                            )
+                        )
+
+                verify_url_part(served_url.scheme, protocol, "protocol")
+                verify_url_part(served_url.hostname, host, "host")
+                verify_url_part(served_url.port, port, "port")
+
+                display_url = (
+                    proxied_url.scheme,
+                    proxied_url.hostname,
+                    (":{}".format(proxied_url.port) if proxied_url.port else ""),
+                    path,
                 )
-            )
+            else:
+                display_url = (protocol, host, ":{}".format(port), path)
 
-            self.logger.info("Debugger PIN: %s", debugger_pin)
+            self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
+            self.logger.info(
+                " Warning: This is a development server. Do not use app.run_server"
+            )
+            self.logger.info(
+                " in production, use a production WSGI server like gunicorn instead.\n"
+            )
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)

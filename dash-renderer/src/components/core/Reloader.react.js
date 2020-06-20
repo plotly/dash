@@ -148,7 +148,7 @@ class Reloader extends React.Component {
                     // Assets file have changed
                     // or a component lib has been added/removed -
                     // Must do a hard reload
-                    window.top.location.reload();
+                    window.location.reload();
                 }
             } else {
                 // Backend code changed - can do a soft reload in place

@@ -185,7 +185,6 @@ def generate_class_string(name, props, project_shortname, prefix):
     props = reorder_props(props=props)
 
     prop_keys = list(props.keys())
-    prop_keys_wc = list(props.keys())
 
     wildcards = ""
     wildcard_declaration = ""
@@ -194,8 +193,8 @@ def generate_class_string(name, props, project_shortname, prefix):
     default_argtext = ""
     accepted_wildcards = ""
 
-    if any(key.endswith("-*") for key in prop_keys_wc):
-        accepted_wildcards = get_wildcards_r(prop_keys_wc)
+    if any(key.endswith("-*") for key in prop_keys):
+        accepted_wildcards = get_wildcards_r(prop_keys)
         wildcards = ", ..."
         wildcard_declaration = wildcard_template.format(
             accepted_wildcards.replace("-*", "")
@@ -380,15 +379,20 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     funcname = format_fn_name(prefix, name)
     file_name = funcname + ".Rd"
 
+    wildcards = ""
     default_argtext = ""
     item_text = ""
+    accepted_wildcards = ""
 
     # the return value of all Dash components should be the same,
     # in an abstract sense -- they produce a list
     value_text = "named list of JSON elements corresponding to React.js properties and their values"  # noqa:E501
 
     prop_keys = list(props.keys())
-    prop_keys_wc = list(props.keys())
+
+    if any(key.endswith("-*") for key in prop_keys):
+        accepted_wildcards = get_wildcards_r(prop_keys)
+        wildcards = ", ..."
 
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
@@ -413,9 +417,9 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     if "**Example Usage**" in description:
         description = description.split("**Example Usage**")[0].rstrip()
 
-    if any(key.endswith("-*") for key in prop_keys_wc):
-        default_argtext += ", ..."
-        item_text += wildcard_help_template.format(get_wildcards_r(prop_keys_wc))
+    if wildcards == ", ...":
+        default_argtext += wildcards
+        item_text += wildcard_help_template.format(accepted_wildcards)
 
     # in R, the online help viewer does not properly wrap lines for
     # the usage string -- we will hard wrap at 60 characters using
