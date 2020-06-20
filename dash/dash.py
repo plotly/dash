@@ -100,6 +100,7 @@ var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
 ns["{function_name}"] = {clientside_function};
 """
 
+
 def extract_callback_args(args, kwargs, name, type_):
     """Extract arguments for callback from a name and type"""
     print(args, kwargs)
@@ -109,9 +110,10 @@ def extract_callback_args(args, kwargs, name, type_):
             parameters.append(args.pop(0))
     return parameters
 
+
 def _handle_callback_args(*args, **kwargs):
     """Split args into outputs, inputs and states"""
-    prevent_initial_call = kwargs.get('prevent_initial_call', None)
+    prevent_initial_call = kwargs.get("prevent_initial_call", None)
     # flatten args
     args = [
         arg
@@ -122,13 +124,14 @@ def _handle_callback_args(*args, **kwargs):
             arg_or_list if isinstance(arg_or_list, (list, tuple)) else [arg_or_list]
         )
     ]
-    outputs = extract_callback_args(args, kwargs, 'output', Output)
-    inputs = extract_callback_args(args, kwargs, 'inputs', Input)
-    states = extract_callback_args(args, kwargs, 'state', State)
+    outputs = extract_callback_args(args, kwargs, "output", Output)
+    inputs = extract_callback_args(args, kwargs, "inputs", Input)
+    states = extract_callback_args(args, kwargs, "state", State)
 
     if args:
         raise TypeError(
-            "callback must received first all Outputs, then all Inputs, then all States")
+            "callback must received first all Outputs, then all Inputs, then all States"
+        )
     return [
         outputs,
         inputs,
@@ -860,9 +863,7 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(
-        self, output, inputs, state, prevent_initial_call
-    ):
+    def _insert_callback(self, output, inputs, state, prevent_initial_call):
         if prevent_initial_call is None:
             prevent_initial_call = self.config.prevent_initial_callbacks
 
@@ -998,22 +999,15 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        kwargs['prevent_initial_call'] = kwargs.get(
-            'prevent_initial_call', None)
-        output = kwargs.get('output', args[0])
+        kwargs["prevent_initial_call"] = kwargs.get("prevent_initial_call", None)
+        output = kwargs.get("output", args[0])
         # for backward compatibility, store whether first argument is a
         # list of only 1 Output
-        specified_output_list = (
-            isinstance(output, (list, tuple)) and len(output) == 1)
-        (
-            output,
-            inputs,
-            state,
-            prevent_initial_call,
-        ) = _handle_callback_args(*args, **kwargs)
-        callback_id = self._insert_callback(
-            output, inputs, state, prevent_initial_call
+        specified_output_list = isinstance(output, (list, tuple)) and len(output) == 1
+        (output, inputs, state, prevent_initial_call,) = _handle_callback_args(
+            *args, **kwargs
         )
+        callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
 
         def wrap_func(func):
             @wraps(func)
