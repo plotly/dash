@@ -23,7 +23,7 @@ import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
-from .dependencies import Input, Output, State
+from .dependencies import handle_callback_args
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
 from .version import __version__
@@ -99,45 +99,6 @@ var clientside = window.dash_clientside = window.dash_clientside || {{}};
 var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
 ns["{function_name}"] = {clientside_function};
 """
-
-
-def extract_callback_args(args, kwargs, name, type_):
-    """Extract arguments for callback from a name and type"""
-    print(args, kwargs)
-    parameters = kwargs.get(name, [])
-    if not parameters:
-        while args and isinstance(args[0], type_):
-            parameters.append(args.pop(0))
-    return parameters
-
-
-def _handle_callback_args(*args, **kwargs):
-    """Split args into outputs, inputs and states"""
-    prevent_initial_call = kwargs.get("prevent_initial_call", None)
-    # flatten args
-    args = [
-        arg
-        # for backward compatibility, one arg can be a list
-        for arg_or_list in args
-        # flatten args that are lists
-        for arg in (
-            arg_or_list if isinstance(arg_or_list, (list, tuple)) else [arg_or_list]
-        )
-    ]
-    outputs = extract_callback_args(args, kwargs, "output", Output)
-    inputs = extract_callback_args(args, kwargs, "inputs", Input)
-    states = extract_callback_args(args, kwargs, "state", State)
-
-    if args:
-        raise TypeError(
-            "callback must received first all Outputs, then all Inputs, then all States"
-        )
-    return [
-        outputs,
-        inputs,
-        states,
-        prevent_initial_call,
-    ]
 
 
 # pylint: disable=too-many-instance-attributes
@@ -955,7 +916,7 @@ class Dash(object):
             state,
             callback_args,
             prevent_initial_call,
-        ) = _handle_callback_args(args, kwargs)
+        ) = handle_callback_args(args, kwargs)
         self._insert_callback(output, inputs, state, callback_args)
 
         # If JS source is explicitly given, create a namespace and function
@@ -1004,7 +965,7 @@ class Dash(object):
         # for backward compatibility, store whether first argument is a
         # list of only 1 Output
         specified_output_list = isinstance(output, (list, tuple)) and len(output) == 1
-        (output, inputs, state, prevent_initial_call,) = _handle_callback_args(
+        (output, inputs, state, prevent_initial_call,) = handle_callback_args(
             *args, **kwargs
         )
         callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)

@@ -133,3 +133,42 @@ class ClientsideFunction:  # pylint: disable=too-few-public-methods
 
     def __repr__(self):
         return "ClientsideFunction({}, {})".format(self.namespace, self.function_name)
+
+
+def extract_callback_args(args, kwargs, name, type_):
+    """Extract arguments for callback from a name and type"""
+    print(args, kwargs)
+    parameters = kwargs.get(name, [])
+    if not parameters:
+        while args and isinstance(args[0], type_):
+            parameters.append(args.pop(0))
+    return parameters
+
+
+def handle_callback_args(*args, **kwargs):
+    """Split args into outputs, inputs and states"""
+    prevent_initial_call = kwargs.get("prevent_initial_call", None)
+    # flatten args
+    args = [
+        arg
+        # for backward compatibility, one arg can be a list
+        for arg_or_list in args
+        # flatten args that are lists
+        for arg in (
+            arg_or_list if isinstance(arg_or_list, (list, tuple)) else [arg_or_list]
+        )
+    ]
+    outputs = extract_callback_args(args, kwargs, "output", Output)
+    inputs = extract_callback_args(args, kwargs, "inputs", Input)
+    states = extract_callback_args(args, kwargs, "state", State)
+
+    if args:
+        raise TypeError(
+            "callback must received first all Outputs, then all Inputs, then all States"
+        )
+    return [
+        outputs,
+        inputs,
+        states,
+        prevent_initial_call,
+    ]
