@@ -137,7 +137,6 @@ class ClientsideFunction:  # pylint: disable=too-few-public-methods
 
 def extract_callback_args(args, kwargs, name, type_):
     """Extract arguments for callback from a name and type"""
-    print(args, kwargs)
     parameters = kwargs.get(name, [])
     if not parameters:
         while args and isinstance(args[0], type_):
@@ -145,26 +144,32 @@ def extract_callback_args(args, kwargs, name, type_):
     return parameters
 
 
-def handle_callback_args(*args, **kwargs):
+def handle_callback_args(args, kwargs):
     """Split args into outputs, inputs and states"""
     prevent_initial_call = kwargs.get("prevent_initial_call", None)
-    # flatten args
-    args = [
-        arg
-        # for backward compatibility, one arg can be a list
-        for arg_or_list in args
-        # flatten args that are lists
-        for arg in (
-            arg_or_list if isinstance(arg_or_list, (list, tuple)) else [arg_or_list]
-        )
-    ]
-    outputs = extract_callback_args(args, kwargs, "output", Output)
-    inputs = extract_callback_args(args, kwargs, "inputs", Input)
-    states = extract_callback_args(args, kwargs, "state", State)
+    if prevent_initial_call is None and len(args) and isinstance(args[-1], bool):
+        prevent_initial_call = args.pop()
 
-    if args:
+    # flatten args, to support the older syntax where outputs, inputs, and states
+    # each needed to be in their own list
+    flat_args = []
+    for arg in args:
+        flat_args += arg if isinstance(arg, (list, tuple)) else [arg]
+
+    outputs = extract_callback_args(flat_args, kwargs, "output", Output)
+    if len(outputs) == 1:
+        out0 = kwargs.get("output", args[0] if len(args) else None)
+        if not isinstance(out0, (list, tuple)):
+            outputs = outputs[0]
+
+    inputs = extract_callback_args(flat_args, kwargs, "inputs", Input)
+    states = extract_callback_args(flat_args, kwargs, "state", State)
+
+    if flat_args:
         raise TypeError(
-            "callback must received first all Outputs, then all Inputs, then all States"
+            "In a callback definition, you must provide all Outputs first,\n"
+            "then all Inputs, then all States. Trailing this we found:\n"
+            + repr(flat_args)
         )
     return [
         outputs,

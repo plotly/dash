@@ -910,14 +910,8 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        (
-            output,
-            inputs,
-            state,
-            callback_args,
-            prevent_initial_call,
-        ) = handle_callback_args(args, kwargs)
-        self._insert_callback(output, inputs, state, callback_args)
+        output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
+        self._insert_callback(output, inputs, state, prevent_initial_call)
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -948,27 +942,28 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def callback(self, *args, **kwargs):
+    def callback(self, *_args, **_kwargs):
         """
         Normally used as a decorator, `@app.callback` provides a server-side
-        callback relating the values of one or more `output` items to one or
-        more `input` items which will trigger the callback when they change,
-        and optionally `state` items which provide additional information but
+        callback relating the values of one or more `Output` items to one or
+        more `Input` items which will trigger the callback when they change,
+        and optionally `State` items which provide additional information but
         do not trigger the callback directly.
 
         The last, optional argument `prevent_initial_call` causes the callback
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
+
+
         """
-        kwargs["prevent_initial_call"] = kwargs.get("prevent_initial_call", None)
-        output = kwargs.get("output", args[0])
-        # for backward compatibility, store whether first argument is a
-        # list of only 1 Output
-        specified_output_list = isinstance(output, (list, tuple)) and len(output) == 1
-        (output, inputs, state, prevent_initial_call,) = handle_callback_args(
-            *args, **kwargs
-        )
+        # kwargs["prevent_initial_call"] = kwargs.get("prevent_initial_call", None)
+        # output = kwargs.get("output", args[0])
+        # # for backward compatibility, store whether first argument is a
+        # # list of only 1 Output
+        # specified_output_list = isinstance(output, (list, tuple)) and len(output) == 1
+        output, inputs, state, prevent_initial_call = handle_callback_args(_args, _kwargs)
         callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
+        multi = isinstance(output, (list, tuple))
 
         def wrap_func(func):
             @wraps(func)
@@ -983,8 +978,8 @@ class Dash(object):
 
                 # wrap single outputs so we can treat them all the same
                 # for validation and response creation
-                if len(output_spec) == 1 and not specified_output_list:
-                    output_value = [output_value]
+                if not multi:
+                    output_value, output_spec = [output_value], [output_spec]
 
                 _validate.validate_multi_return(output_spec, output_value, callback_id)
 
