@@ -1,7 +1,6 @@
 import {
     equals,
     flatten,
-    forEach,
     isEmpty,
     map,
     reduce
@@ -43,26 +42,22 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const nextMap: any = isEmpty(loadingPaths) ?
             null :
             reduce(
-                (res, path) => {
+                (res, {id, property, path}) => {
                     let target = res;
-                    const idprop = {
-                        id: path.id,
-                        property: path.property
-                    };
+                    const idprop = {id, property};
 
                     // Assign all affected props for this path and nested paths
                     target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
                     target.__dashprivate__idprops__.push(idprop);
 
-                    forEach(p => {
-                        target = (target[p] =
-                            target[p] ??
-                                p === 'children' ? [] : {}
-                        )
+                    path.forEach((p, i) => {
+                        target = (target[p] = target[p] ??
+                            (p === 'children' && typeof path[i + 1] === 'number' ? [] : {})
+                        );
 
                         target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
                         target.__dashprivate__idprops__.push(idprop);
-                    }, path.path);
+                    });
 
                     // Assign one affected prop for this path
                     target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || idprop;
