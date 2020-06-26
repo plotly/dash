@@ -29,14 +29,16 @@ commands:
     steps:
       - run:
           name: Create virtual environment in ./venv
-          command: python -m venv venv || ( sudo pip install --upgrade virtualenv --progress-bar off && virtualenv venv )
+          command: |
+            # Try Linux Python v3 | Linux Python v2 | Windows Python v3 | Windows Python v2
+            python -m venv venv || ( sudo pip install --upgrade virtualenv --progress-bar off && virtualenv venv ) || ( py -m venv venv ) || ( pip install --upgrade virtualenv --progress-bar off && virtualenv env )
 
   pip_install_all_requires_cmd:
     steps:
       - run:
           name: Install dash and all dependencies in requires*.txt
           command: |
-            source venv/bin/activate || source venv/Scrips/activate
+            source venv/bin/activate || source venv/Scripts/activate
             pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
 
   build_core_dev_requirements_cmd:
@@ -49,7 +51,12 @@ commands:
           command: |
             # dash-renderer needs to be installed in the virtual env in order to run the `renderer` tool
             source venv/bin/activate || source venv/Scripts/activate
-            cd dash-renderer && npm ci && npm run build:js && pip install -e . --no-cache-dir --progress-bar off && cd ..
+            cd dash-renderer && npm ci && npm run build:js
+
+            # Python <3.3 will not import dash_renderer without __init__.py. The `renderer` tool
+            # generates it, but both dash and dash_renderer must be installed for `renderer` tool
+            # to run. For now, create a blank __init__.py, `renderer` will clean and build
+            touch dash_renderer/__init__.py && pip install -e . --no-cache-dir --progress-bar off && cd ..
       - requires_install_restore_dash_cmd
 
   build_dash_renderer_cmd:
@@ -236,11 +243,14 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache_cmd
+      - attach_workspace:
+          at: ~/dash
+      - install_built_packages_cmd
       - requires_install_remove_dash_cmd
       - run:
           name: ️️🏗️ Build misc
           command: |
-              source venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
+              source venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off
 
               git clone --depth 1 https://github.com/noisycomputation/dash-core-components.git
               cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
