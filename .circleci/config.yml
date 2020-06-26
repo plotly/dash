@@ -49,7 +49,7 @@ commands:
           command: |
             # dash-renderer needs to be installed in the virtual env in order to run the `renderer` tool
             source venv/bin/activate || source venv/Scripts/activate
-            cd dash-renderer && npm ci && pip install -e . --no-cache-dir --progress-bar off && cd ..
+            cd dash-renderer && npm ci && npm run build:js && pip install -e . --no-cache-dir --progress-bar off && cd ..
       - requires_install_restore_dash_cmd
 
   build_dash_renderer_cmd:
