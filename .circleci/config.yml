@@ -78,36 +78,6 @@ commands:
               python setup.py sdist && mv dist/* packages/
               ls -la packages
 
-  build_dash_core_components_cmd:
-    steps:
-      - run:
-          name: ️️🏗️ Build dash-core-components
-          command: |
-              source venv/bin/activate || source venv/Scripts/activate
-              git clone --depth 1 https://github.com/noisycomputation/dash-core-components.git
-              cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
-              ls -la packages
-
-  build_dash_table_cmd:
-    steps:
-      - run:
-          name: ️️🏗️ Build dash-table
-          command: |
-              source venv/bin/activate || source venv/Scripts/activate
-              git clone --depth 1 https://github.com/plotly/dash-table.git
-              cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              ls -la packages
-
-  build_dash_html_components_cmd:
-    steps:
-      - run:
-          name: ️️🏗️ Build dash-html-components
-          command: |
-              source venv/bin/activate || source venv/Scripts/activate
-              git clone --depth 1 https://github.com/plotly/dash-html-components.git
-              cd dash-html-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              ls -la packages
-
   install_built_packages_cmd:
     steps:
       - run: rm -rf venv
@@ -252,7 +222,7 @@ jobs:
           command: |
               source venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off
 
-              git clone --depth 1 https://github.com/noisycomputation/dash-core-components.git
+              git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
 
               git clone --depth 1 https://github.com/plotly/dash-table.git
