@@ -13,7 +13,7 @@ class DocumentTitle extends Component {
     }
 
     UNSAFE_componentWillReceiveProps(props) {
-        if (props.pendingCallbacks.length) {
+        if (this.state.update_title && props.pendingCallbacks.length) {
             document.title = this.state.update_title;
         } else {
             document.title = this.state.initialTitle;
