@@ -508,6 +508,7 @@ class Dash(object):
             "props_check": self._dev_tools.props_check,
             "show_undo_redo": self.config.show_undo_redo,
             "suppress_callback_exceptions": self.config.suppress_callback_exceptions,
+            "update_title": self.config.update_title,
         }
         if self._dev_tools.hot_reload:
             config["hot_reload"] = {
