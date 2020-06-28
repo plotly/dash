@@ -252,7 +252,7 @@ class Dash(object):
         prevent_initial_callbacks=False,
         show_undo_redo=False,
         plugins=None,
-        update_title=True,
+        update_title="Updating...",
         **obsolete
     ):
         _validate.check_obsolete(obsolete)
@@ -300,6 +300,7 @@ class Dash(object):
             ),
             prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
+            update_title=update_title,
         )
         self.config.set_read_only(
             [
