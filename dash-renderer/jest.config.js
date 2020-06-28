@@ -85,7 +85,7 @@ module.exports = {
   // notifyMode: "always",
 
   // A preset that is used as a base for Jest's configuration
-  // preset: null,
+  preset: "ts-jest/presets/js-with-babel",
 
   // Run tests from one or more projects
   // projects: null,

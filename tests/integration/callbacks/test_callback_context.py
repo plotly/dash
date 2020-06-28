@@ -17,7 +17,7 @@ def test_cbcx001_modified_response(dash_duo):
 
     @app.callback(Output("output", "children"), [Input("input", "value")])
     def update_output(value):
-        callback_context.response.set_cookie("dash cookie", value + " - cookie")
+        callback_context.response.set_cookie("dash_cookie", value + " - cookie")
         return value + " - output"
 
     dash_duo.start_server(app)
@@ -27,7 +27,7 @@ def test_cbcx001_modified_response(dash_duo):
     input1.send_keys("cd")
 
     dash_duo.wait_for_text_to_equal("#output", "abcd - output")
-    cookie = dash_duo.driver.get_cookie("dash cookie")
+    cookie = dash_duo.driver.get_cookie("dash_cookie")
     # cookie gets json encoded
     assert cookie["value"] == '"abcd - cookie"'
 

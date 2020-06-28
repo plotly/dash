@@ -1608,10 +1608,11 @@ class Dash(object):
                 display_url = (protocol, host, ":{}".format(port), path)
 
             self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
-            self.logger.info(" Warning: This is a development server. Do not use app.run_server")
-            self.logger.info(" in production, use a production WSGI server like gunicorn instead.\n")
-
-        if not os.environ.get("FLASK_ENV"):
-            os.environ["FLASK_ENV"] = "development"
+            self.logger.info(
+                " Warning: This is a development server. Do not use app.run_server"
+            )
+            self.logger.info(
+                " in production, use a production WSGI server like gunicorn instead.\n"
+            )
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)

@@ -59,7 +59,7 @@ jobs:
           name: 🐍 Python Unit Tests & ☕ JS Unit Tests
           command: |
             . venv/bin/activate
-            npm run test.unit
+            npm run citest.unit
 
   lint-unit-36:
       <<: *lint-unit
@@ -72,7 +72,7 @@ jobs:
   lint-unit-27:
       <<: *lint-unit
       docker:
-        - image: circleci/python:2.7-stretch-node-browsers
+        - image: circleci/python:2.7.18-stretch-node-browsers
           environment:
             PYLINTRC: .pylintrc
             PYVERSION: python27
@@ -122,7 +122,7 @@ jobs:
   build-core-27:
       <<: *build-core
       docker:
-        - image: circleci/python:2.7-stretch-node-browsers
+        - image: circleci/python:2.7.18-stretch-node-browsers
           environment:
             PYVERSION: python27
 
@@ -172,7 +172,7 @@ jobs:
   build-misc-27:
       <<: *build-misc
       docker:
-        - image: circleci/python:2.7-stretch-node-browsers
+        - image: circleci/python:2.7.18-stretch-node-browsers
           environment:
             PYVERSION: python27
 
@@ -349,7 +349,7 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate
-            npm run test.integration
+            npm run citest.integration
       - store_artifacts:
           path: test-reports
       - store_test_results:
@@ -372,7 +372,7 @@ jobs:
   test-27:
       <<: *test
       docker:
-        - image: circleci/python:2.7-stretch-node-browsers
+        - image: circleci/python:2.7.18-stretch-node-browsers
           environment:
             PERCY_ENABLE: 0
             PYVERSION: python27
