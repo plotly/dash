@@ -3,7 +3,7 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
-### Fixed
+### Added
 - [#1315](https://github.com/plotly/dash/pull/1315) Add `update_title` parameter to set or disable the "Updating...." document title during updates. Closes [#856](https://github.com/plotly/dash/issues/856) and [#732](https://github.com/plotly/dash/issues/732)
 
 ## [1.13.4] - 2020-06-25 
