@@ -31,7 +31,7 @@ class DocumentTitle extends Component {
 
 DocumentTitle.propTypes = {
     isLoading: PropTypes.bool.isRequired,
-    update_title: PropTypes.string,
+    config: PropTypes.object,
 };
 
 export default connect(state => ({
