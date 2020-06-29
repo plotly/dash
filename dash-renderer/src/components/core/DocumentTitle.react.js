@@ -8,7 +8,7 @@ class DocumentTitle extends Component {
         const {update_title} = props.config;
         this.state = {
             initialTitle: document.title,
-            update_title: update_title,
+            update_title,
         };
     }
 
