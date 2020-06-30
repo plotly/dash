@@ -169,7 +169,7 @@ def test_rdls002_chained_loading_states(dash_duo):
     find_text({1: 1, 2: 1, 3: 1, 4: 1})
 
 
-def test_update_title_default(dash_duo):
+def test_rdls003_update_title_default(dash_duo):
     lock = Lock()
 
     app = dash.Dash(__name__)
@@ -196,7 +196,7 @@ def test_update_title_default(dash_duo):
         assert dash_duo.driver.title == "Updating..."
 
 
-def test_update_title_None(dash_duo):
+def test_rdls004_update_title_None(dash_duo):
     lock = Lock()
 
     app = dash.Dash(__name__, update_title=None)
@@ -223,7 +223,7 @@ def test_update_title_None(dash_duo):
         assert dash_duo.driver.title == "Dash"
 
 
-def test_update_title_empty(dash_duo):
+def test_rdls005_update_title_empty(dash_duo):
     lock = Lock()
 
     app = dash.Dash(__name__, update_title="")
@@ -250,7 +250,7 @@ def test_update_title_empty(dash_duo):
         assert dash_duo.driver.title == "Dash"
 
 
-def test_update_title_custom(dash_duo):
+def test_rdls006_update_title_custom(dash_duo):
     lock = Lock()
 
     app = dash.Dash(__name__, update_title="Hello World")
