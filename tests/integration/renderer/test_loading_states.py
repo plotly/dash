@@ -167,3 +167,111 @@ def test_rdls002_chained_loading_states(dash_duo):
 
     find_spinners()
     find_text({1: 1, 2: 1, 3: 1, 4: 1})
+
+
+def test_update_title_default(dash_duo):
+    lock = Lock()
+
+    app = dash.Dash(__name__)
+
+    app.layout = html.Div(
+        children=[
+            html.H3("Press button see document title updating"),
+            html.Div(id="output"),
+            html.Button("Update", id="button", n_clicks=0),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        [Input("button", "n_clicks")]
+    )
+    def update(n):
+        with lock:
+            return n
+
+    with lock:
+        dash_duo.start_server(app)
+        dash_duo.find_element("#button").click()
+        assert dash_duo.driver.title == "Updating..."
+
+
+def test_update_title_None(dash_duo):
+    lock = Lock()
+
+    app = dash.Dash(__name__, update_title=None)
+
+    app.layout = html.Div(
+        children=[
+            html.H3("Press button see document title updating"),
+            html.Div(id="output"),
+            html.Button("Update", id="button", n_clicks=0),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        [Input("button", "n_clicks")]
+    )
+    def update(n):
+        with lock:
+            return n
+
+    with lock:
+        dash_duo.start_server(app)
+        dash_duo.find_element("#button").click()
+        assert dash_duo.driver.title == "Dash"
+
+
+def test_update_title_empty(dash_duo):
+    lock = Lock()
+
+    app = dash.Dash(__name__, update_title="")
+
+    app.layout = html.Div(
+        children=[
+            html.H3("Press button see document title updating"),
+            html.Div(id="output"),
+            html.Button("Update", id="button", n_clicks=0),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        [Input("button", "n_clicks")]
+    )
+    def update(n):
+        with lock:
+            return n
+
+    with lock:
+        dash_duo.start_server(app)
+        dash_duo.find_element("#button").click()
+        assert dash_duo.driver.title == "Dash"
+
+
+def test_update_title_custom(dash_duo):
+    lock = Lock()
+
+    app = dash.Dash(__name__, update_title="Hello World")
+
+    app.layout = html.Div(
+        children=[
+            html.H3("Press button see document title updating"),
+            html.Div(id="output"),
+            html.Button("Update", id="button", n_clicks=0),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        [Input("button", "n_clicks")]
+    )
+    def update(n):
+        with lock:
+            return n
+
+    with lock:
+        dash_duo.start_server(app)
+        dash_duo.find_element("#button").click()
+        assert dash_duo.driver.title == "Hello World"
