@@ -1,7 +1,9 @@
 from multiprocessing import Lock
 
+import pytest
 import dash
 from dash.dependencies import Input, Output
+from dash.testing.wait import until
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -169,10 +171,18 @@ def test_rdls002_chained_loading_states(dash_duo):
     find_text({1: 1, 2: 1, 3: 1, 4: 1})
 
 
-def test_rdls003_update_title_default(dash_duo):
+@pytest.mark.parametrize(
+    "kwargs, expected_update_title",
+    [
+        ({}, "Updating..."),
+        ({"update_title": None}, "Dash"),
+        ({"update_title": ""}, "Dash"),
+        ({"update_title": "Hello World"}, "Hello World"),
+    ]
+)
+def test_rdls003_update_title(dash_duo, kwargs, expected_update_title):
+    app = dash.Dash("Dash", **kwargs)
     lock = Lock()
-
-    app = dash.Dash(__name__)
 
     app.layout = html.Div(
         children=[
@@ -188,90 +198,17 @@ def test_rdls003_update_title_default(dash_duo):
     )
     def update(n):
         with lock:
-            return n
+            # check for update-title while processing callback
+            until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
+        return n
 
     with lock:
         dash_duo.start_server(app)
-        dash_duo.find_element("#button").click()
-        assert dash_duo.driver.title == "Updating..."
+        # check for update-title on load
+        until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
 
-
-def test_rdls004_update_title_None(dash_duo):
-    lock = Lock()
-
-    app = dash.Dash(__name__, update_title=None)
-
-    app.layout = html.Div(
-        children=[
-            html.H3("Press button see document title updating"),
-            html.Div(id="output"),
-            html.Button("Update", id="button", n_clicks=0),
-        ]
-    )
-
-    @app.callback(
-        Output("output", "children"),
-        [Input("button", "n_clicks")]
-    )
-    def update(n):
-        with lock:
-            return n
+    # check for original title after loading
+    until(lambda: dash_duo.driver.title == "Dash", timeout=1)
 
     with lock:
-        dash_duo.start_server(app)
         dash_duo.find_element("#button").click()
-        assert dash_duo.driver.title == "Dash"
-
-
-def test_rdls005_update_title_empty(dash_duo):
-    lock = Lock()
-
-    app = dash.Dash(__name__, update_title="")
-
-    app.layout = html.Div(
-        children=[
-            html.H3("Press button see document title updating"),
-            html.Div(id="output"),
-            html.Button("Update", id="button", n_clicks=0),
-        ]
-    )
-
-    @app.callback(
-        Output("output", "children"),
-        [Input("button", "n_clicks")]
-    )
-    def update(n):
-        with lock:
-            return n
-
-    with lock:
-        dash_duo.start_server(app)
-        dash_duo.find_element("#button").click()
-        assert dash_duo.driver.title == "Dash"
-
-
-def test_rdls006_update_title_custom(dash_duo):
-    lock = Lock()
-
-    app = dash.Dash(__name__, update_title="Hello World")
-
-    app.layout = html.Div(
-        children=[
-            html.H3("Press button see document title updating"),
-            html.Div(id="output"),
-            html.Button("Update", id="button", n_clicks=0),
-        ]
-    )
-
-    @app.callback(
-        Output("output", "children"),
-        [Input("button", "n_clicks")]
-    )
-    def update(n):
-        with lock:
-            return n
-
-    with lock:
-        dash_duo.start_server(app)
-        dash_duo.find_element("#button").click()
-        assert dash_duo.driver.title == "Hello World"
