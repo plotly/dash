@@ -198,13 +198,11 @@ def test_rdls003_update_title(dash_duo, kwargs, expected_update_title):
     )
     def update(n):
         with lock:
-            # check for update-title while processing callback
-            until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
-        return n
+            return n
 
     with lock:
         dash_duo.start_server(app)
-        # check for update-title on load
+        # check for update-title during startup
         until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
 
     # check for original title after loading
@@ -212,3 +210,5 @@ def test_rdls003_update_title(dash_duo, kwargs, expected_update_title):
 
     with lock:
         dash_duo.find_element("#button").click()
+        # check for update-title while processing callback
+        until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
