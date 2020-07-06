@@ -127,7 +127,7 @@ class Browser(DashPageMixin):
 
     def percy_snapshot(self, name="", wait_for_callbacks=False):
         """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`.
-        It also combines the snapshot `name` with the python version.
+        It also combines the snapshot `name` with the Python version.
         """
         snapshot_name = "{} - py{}.{}".format(
             name, sys.version_info.major, sys.version_info.minor
