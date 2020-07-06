@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixed
+- [#1320](https://github.com/plotly/dash/pull/1320) Fix CHANGELOG entry. Remove unneeded blank lines from the README and CHANGELOG.
+
 ## [1.13.4] - 2020-06-25 
 ### Fixed
 - [#1310](https://github.com/plotly/dash/pull/1310) Fix a regression since 1.13.0 preventing more than one loading state from being shown at a time.
