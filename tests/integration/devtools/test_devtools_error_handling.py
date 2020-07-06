@@ -47,23 +47,23 @@ def test_dveh001_python_errors(dash_duo):
         dev_tools_hot_reload=False,
     )
 
-    dash_duo.percy_snapshot("devtools - python exception - start")
+    dash_duo.percy_snapshot("devtools - Python exception - start")
 
     dash_duo.find_element("#python").click()
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
-    dash_duo.percy_snapshot("devtools - python exception - closed")
+    dash_duo.percy_snapshot("devtools - Python exception - closed")
 
     dash_duo.find_element(".test-devtools-error-toggle").click()
-    dash_duo.percy_snapshot("devtools - python exception - open")
+    dash_duo.percy_snapshot("devtools - Python exception - open")
 
     dash_duo.find_element(".test-devtools-error-toggle").click()
     dash_duo.find_element("#python").click()
 
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "2")
-    dash_duo.percy_snapshot("devtools - python exception - 2 errors")
+    dash_duo.percy_snapshot("devtools - Python exception - 2 errors")
 
     dash_duo.find_element(".test-devtools-error-toggle").click()
-    dash_duo.percy_snapshot("devtools - python exception - 2 errors open")
+    dash_duo.percy_snapshot("devtools - Python exception - 2 errors open")
 
     # the top (first) error is the most recent one - ie from the second click
     error0 = get_error_html(dash_duo, 0)
@@ -135,7 +135,7 @@ def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
         if n_clicks == 1:
             raise PreventUpdate
         if n_clicks == 2:
-            raise Exception("An actual python exception")
+            raise Exception("An actual Python exception")
 
         return "button clicks: {}".format(n_clicks)
 
@@ -263,7 +263,7 @@ def test_dveh005_multiple_outputs(dash_duo):
 
     dash_duo.find_element("#multi-output").click()
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
-    dash_duo.percy_snapshot("devtools - multi output python exception - closed")
+    dash_duo.percy_snapshot("devtools - multi output Python exception - closed")
 
     dash_duo.find_element(".test-devtools-error-toggle").click()
-    dash_duo.percy_snapshot("devtools - multi output python exception - open")
+    dash_duo.percy_snapshot("devtools - multi output Python exception - open")

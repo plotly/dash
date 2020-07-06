@@ -45,7 +45,7 @@ As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and 
 5. `renderer build` runs 1, 2, 3, 4 in sequence as a complete build process from scratch.
 6. `renderer build local` runs the same order as in 5 and also generates source maps for debugging purposes. You also need to install dash-renderer with editable mode: `pip install -e .`.
 
-When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
+When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, Python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
 
 ## Python 2 And 3 Compatibility
 

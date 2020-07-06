@@ -296,7 +296,7 @@ clientside JavaScript callbacks via inline strings.
 ## [0.39.0] - 2019-03-04
 ### Added
 - [#436](https://github.com/plotly/dash/pull/436) Allow multiple outputs from a single callback.
-- [#367](https://github.com/plotly/dash/pull/367) Support custom javascript hooks to modify callback payloads and responses.
+- [#367](https://github.com/plotly/dash/pull/367) Support custom JavaScript hooks to modify callback payloads and responses.
 - [#623](https://github.com/plotly/dash/pull/623) Modify the flask response with custom cookies or headers, using `dash.callback_context.response`.
 - [renderer#93](https://github.com/plotly/dash-renderer/pull/93) Loading states API
 
@@ -333,7 +333,7 @@ clientside JavaScript callbacks via inline strings.
 - Bump dash-core-components version from 0.43.0 to [0.43.1](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0431---2019-02-11)
 
 ### Fixed
-- [#563](https://github.com/plotly/dash/pull/563) Fix collections.abc deprecation warning for python 3.8
+- [#563](https://github.com/plotly/dash/pull/563) Fix collections.abc deprecation warning for Python 3.8
 
 ## [0.36.0] - 2019-01-25
 ### Removed
@@ -512,7 +512,7 @@ clientside JavaScript callbacks via inline strings.
 ## 0.24.1 - 2018-08-10
 ### Fixed
 - Fix bug [#321](https://github.com/plotly/dash/issues/321) where importing Dash components with no props would result in an error.
-- Fix a bug in 0.23.1 where importing components with arguments that are python keywords could cause an error. In particular, this fixes `dash-html-components` with Python 3.7.
+- Fix a bug in 0.23.1 where importing components with arguments that are Python keywords could cause an error. In particular, this fixes `dash-html-components` with Python 3.7.
 
 ## 0.24.0 - 2018-08-10
 ### Added

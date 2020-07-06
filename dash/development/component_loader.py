@@ -62,12 +62,12 @@ def load_components(metadata_path, namespace="default_namespace"):
 
 def generate_classes(namespace, metadata_path="lib/metadata.json"):
     """Load React component metadata into a format Dash can parse, then create
-    python class files.
+    Python class files.
 
     Usage: generate_classes()
 
     Keyword arguments:
-    namespace -- name of the generated python package (also output dir)
+    namespace -- name of the generated Python package (also output dir)
 
     metadata_path -- a path to a JSON file created by
     [`react-docgen`](https://github.com/reactjs/react-docgen).
