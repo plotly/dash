@@ -182,7 +182,7 @@ export const getLayoutCallbacks = (
         - an input is missing
         - an input in the initial callback chain depends only on excluded inputs
 
-        Further execlusion might happen after callbacks return with:
+        Further exclusion might happen after callbacks return with:
         - PreventUpdate
         - no_update
     */

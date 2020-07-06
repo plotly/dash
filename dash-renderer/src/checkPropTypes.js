@@ -14,7 +14,7 @@ import ReactPropTypesSecret from 'prop-types/lib/ReactPropTypesSecret';
  * @param {string} location e.g. "prop", "context", "child context"
  * @param {string} componentName Name of the component for error messages.
  * @param {?Function} getStack Returns the component stack.
- * @return {string} Any error messsage resulting from checking the types
+ * @return {string} Any error message resulting from checking the types
  */
 export default function checkPropTypes(
     typeSpecs,

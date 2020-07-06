@@ -148,7 +148,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         )) as IExecutingCallback[];
 
         /*
-            3. Modify or remove callbacks that are outputing to non-existing layout `id`.
+            3. Modify or remove callbacks that are outputting to non-existing layout `id`.
         */
 
         const { added: rAdded, removed: rRemoved } = pruneCallbacks(requested, paths);
@@ -259,7 +259,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 return false;
             }
 
-            // Get all intputs for `cb`
+            // Get all inputs for `cb`
             const inputs = map(combineIdAndProp, flatten(cb.getInputs(paths)));
 
             // Get all the potentially updated props for the group so far
