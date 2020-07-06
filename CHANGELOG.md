@@ -70,7 +70,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.9.1] - 2020-02-27
 ### Added
-- [#1133](github.com/plotly/dash/pull/1133) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE
+- [#1133](https://github.com/plotly/dash/pull/1133) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE
 
 ## [1.9.0] - 2020-02-04
 ### Fixed
@@ -505,7 +505,6 @@ clientside JavaScript callbacks via inline strings.
 - `requests_pathname_prefix` must end with `routes_pathname_prefix`. If you supplied both `requests` and `routes` pathname before this update, make sure `requests_pathname_prefix` ends with the same value as `routes_pathname_prefix`.
 - `url_base_pathname` sets both `requests/routes` pathname, cannot supply it with either `requests` or `routes` pathname prefixes.
 
-
 ## 0.24.2 - 2018-08-13
 ### Fixed
 - [#320](https://github.com/plotly/dash/pull/320) Disallow duplicate component ids in the initial layout.
@@ -518,7 +517,6 @@ clientside JavaScript callbacks via inline strings.
 ## 0.24.0 - 2018-08-10
 ### Added
 - [#319](https://github.com/plotly/dash/pull/309) Add a modified time query string to assets included in the index in order to bust the cache.
-
 
 ## 0.23.1 - 2018-08-02
 ### Added
@@ -616,7 +614,6 @@ app = dash.Dash(...)
 ### Added
 - 🔧 Add two new `config` variables: `routes_pathname_prefix` and `requests_pathname_prefix` to provide more flexibility for API routing when Dash apps are run behind proxy servers. `routes_pathname_prefix` is a prefix applied to the backend routes and `requests_pathname_prefix` prefixed in requests made by Dash's front-end. `dash-renderer==0.8.0rc3` uses these endpoints.
 - [#112](https://github.com/plotly/dash/pull/112) 🔧 Add `id` to `KeyError` exceptions in components.
-
 
 ### Fixed
 - ✏️  Fix a typo in an exception.

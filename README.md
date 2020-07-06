@@ -8,7 +8,6 @@
 [![LGTM Alerts](https://img.shields.io/lgtm/alerts/g/plotly/dash.svg)](https://lgtm.com/projects/g/plotly/dash/alerts)
 [![LGTM Grade](https://img.shields.io/lgtm/grade/python/g/plotly/dash.svg)](https://lgtm.com/projects/g/plotly/dash/context:python)
 
-
 #### *Dash is a Python framework for building analytical web applications. No JavaScript required*.
 
 Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical Python code. Read our tutorial proudly crafted ❤️ by Dash itself.
@@ -18,7 +17,6 @@ Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dr
 - [Offline (PDF) Documentation](https://github.com/plotly/dash-docs/blob/master/pdf-docs/Dash_User_Guide_and_Documentation.pdf)
 
 - [Dash Docs on Heroku](http://dash-docs.herokuapp.com/) (for corporate network that cannot access plotly.com)
-
 
 ### App Samples
 
@@ -42,4 +40,3 @@ For companies with software budgets, Plotly offers
 See [https://plotly.com/dash/support](https://plotly.com/dash/support) for ways to get in touch.
 
 ![image](https://user-images.githubusercontent.com/1280389/30084008-9fbc68fc-925e-11e7-891c-18a9b8f6ac6b.png)
-
