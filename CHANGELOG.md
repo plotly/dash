@@ -1,8 +1,8 @@
 # Change Log for Dash
 All notable changes to `dash` will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/).
+This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.13.4] - 2020-06-25 
+## [1.13.4] - 2020-06-25
 ### Fixed
 - [#1310](https://github.com/plotly/dash/pull/1310) Fix a regression since 1.13.0 preventing more than one loading state from being shown at a time.
 
@@ -242,7 +242,7 @@ clientside JavaScript callbacks via inline strings.
   - Change `hot_reload_interval` from msec to seconds, for consistency with `hot_reload_watch_interval`
   - When called from `enable_dev_tools`, `debug=True` by default. It's still `False` by default from `run_server`.
 
-- ✨ [#744](https://github.com/plotly/dash/pull/744) Introducing Dash Testing (`dash.testing`) - read the full tutorial at http://dash.plotly.com/testing.
+- ✨ [#744](https://github.com/plotly/dash/pull/744) Introducing Dash Testing (`dash.testing`) - read the full tutorial at https://dash.plotly.com/testing.
 
 - [#753](https://github.com/plotly/dash/pull/753) `Component` no longer inherits `MutableMapping`, so `values`, `keys`, and more are no longer methods. Fixes an issue reported in [dcc#440](https://github.com/plotly/dash-core-components/issues/440) where components with certain prop names defined but not provided would cause a failure to render. During component generation we now disallow all props with leading underscores or matching a few remaining reserved words: `UNDEFINED`, `REQUIRED`, `to_plotly_json`, `available_properties`, and `available_wildcard_properties`.
 
