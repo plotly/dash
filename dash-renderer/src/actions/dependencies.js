@@ -41,14 +41,6 @@ import {crawlLayout} from './utils';
 
 import Registry from '../registry';
 
-/*
- * If this update is for multiple outputs, then it has
- * starting & trailing `..` and each propId pair is separated
- * by `...`, e.g.
- * "..output-1.value...output-2.value...output-3.value...output-4.value.."
- */
-export const isMultiOutputProp = idAndProp => idAndProp.startsWith('..');
-
 const ALL = {wild: 'ALL', multi: 1};
 const MATCH = {wild: 'MATCH'};
 const ALLSMALLER = {wild: 'ALLSMALLER', multi: 1, expand: 1};
@@ -78,16 +70,6 @@ function parseWildcardId(idStr) {
         val => (Array.isArray(val) && wildcards[val[0]]) || val,
         JSON.parse(idStr)
     );
-}
-
-/*
- * If this update is for multiple outputs, then it has
- * starting & trailing `..` and each propId pair is separated
- * by `...`, e.g.
- * "..output-1.value...output-2.value...output-3.value...output-4.value.."
- */
-function parseMultipleOutputs(outputIdAndProp) {
-    return outputIdAndProp.substr(2, outputIdAndProp.length - 4).split('...');
 }
 
 export function splitIdAndProp(idAndProp) {
@@ -615,11 +597,9 @@ export function computeGraphs(dependencies, dispatchError) {
 
     const fixIds = map(evolve({id: parseIfWildcard}));
     const parsedDependencies = map(dep => {
-        const {output} = dep;
-        const out = evolve({inputs: fixIds, state: fixIds}, dep);
-        out.outputs = map(
-            outi => assoc('out', true, splitIdAndProp(outi)),
-            isMultiOutputProp(output) ? parseMultipleOutputs(output) : [output]
+        const out = evolve(
+            {inputs: fixIds, outputs: fixIds, state: fixIds},
+            dep
         );
         return out;
     }, dependencies);

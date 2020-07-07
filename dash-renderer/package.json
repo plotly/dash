@@ -26,9 +26,11 @@
   "dependencies": {
     "@babel/polyfill": "7.8.7",
     "@plotly/dash-component-plugins": "^1.2.0",
+    "@types/mustache": "^4.0.1",
     "cookie": "^0.4.0",
     "dependency-graph": "^0.9.0",
     "fast-isnumeric": "^1.1.3",
+    "mustache": "^4.0.1",
     "prop-types": "15.7.2",
     "radium": "^0.26.0",
     "ramda": "^0.27.0",

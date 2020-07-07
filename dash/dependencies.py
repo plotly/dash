@@ -22,10 +22,15 @@ ALL = _Wildcard("ALL")
 ALLSMALLER = _Wildcard("ALLSMALLER")
 
 
+def Mutation(mutation, output):
+    return dict(__dashprivate_mutation=True, mutation=mutation, output=output)
+
+
 class DashDependency:  # pylint: disable=too-few-public-methods
-    def __init__(self, component_id, component_property):
+    def __init__(self, component_id, component_property, property_mutation=None):
         self.component_id = component_id
         self.component_property = component_property
+        self.property_mutation = property_mutation
 
     def __str__(self):
         return "{}.{}".format(self.component_id_str(), self.component_property)
@@ -49,7 +54,11 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         return i
 
     def to_dict(self):
-        return {"id": self.component_id_str(), "property": self.component_property}
+        return {
+            "id": self.component_id_str(),
+            "property": self.component_property,
+            "mutation": self.property_mutation,
+        }
 
     def __eq__(self, other):
         """

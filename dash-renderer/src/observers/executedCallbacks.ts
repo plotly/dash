@@ -19,7 +19,8 @@ import {
     addRequestedCallbacks,
     removeExecutedCallbacks,
     addCompletedCallbacks,
-    addStoredCallbacks
+    addStoredCallbacks,
+    mutateOutput
 } from '../actions/callbacks';
 
 import { parseIfWildcard } from '../actions/dependencies';
@@ -44,6 +45,37 @@ import {
     prunePersistence
 } from '../persistence';
 import { IStoreObserverDefinition } from '../StoreObserver';
+
+function mutateOutputProps(id: any, props: { [key: string]: any }, cb: ICallback, getState: () => IStoreState) {
+    const { layout, paths } = getState();
+    const itempath = getPath(paths, id);
+    if (!itempath) {
+        return props;
+    }
+
+    props = { ...props };
+
+    // mutate output props
+    forEach(key => {
+        // is the output a mutation object?
+        const customMutation = props[key].__dashprivate_mutation;
+
+        // use default mutation if there's no custom mutation on the output
+        const mutation = customMutation ?
+            props[key].mutation :
+            cb.callback.outputs.find(o => o.property === key)?.mutation;
+
+        const value = customMutation ?
+            props[key].output :
+            props[key];
+
+        const base = (path(itempath, layout) as any).props[key];
+
+        props[key] = mutateOutput(mutation, value, base);
+    }, keys(props));
+
+    return props;
+}
 
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: ({
@@ -112,6 +144,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
             if (data !== undefined) {
                 forEach(([id, props]: [any, { [key: string]: any }]) => {
+                    props = mutateOutputProps(id, props, cb, getState);
+
                     const parsedId = parseIfWildcard(id);
                     const { graphs, layout: oldLayout, paths: oldPaths } = getState();
 

@@ -1,3 +1,5 @@
+import Mustache from 'mustache';
+import * as R from 'ramda';
 import {
     concat,
     flatten,
@@ -13,7 +15,7 @@ import {
 import { STATUS } from '../constants/constants';
 import { CallbackActionType, CallbackAggregateActionType } from '../reducers/callbacks';
 import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, ICallbackPayload, IStoredCallback, IBlockedCallback, IPrioritizedCallback } from '../types/callbacks';
-import { isMultiValued, stringifyId, isMultiOutputProp } from './dependencies';
+import { isMultiValued, stringifyId } from './dependencies';
 import { urlBase } from './utils';
 import { getCSRFHeader } from '.';
 import { createAction, Action } from 'redux-actions';
@@ -114,6 +116,52 @@ function unwrapIfNotMulti(
     return [idProps[0], msg];
 }
 
+const getContext = (mutation: string) => {
+    return {};
+
+    // const variables: any[] = mutation.match(/{{{[^.]+[.][^.]+}}}/g) ?? [];
+
+    // return variables.reduce(
+    //     (c, v) => {
+    //         const [, id, property] = v.match(/{{{([^.]+)[.]([^.]+)}}}/)
+    //         c.store[id] = c.store[id] || {};
+    //         c.store[id][property] = `resolveStore('${id}', '${property}')`;
+
+    //         return c;
+    //     },
+    //     {}
+    // );
+}
+
+export function mutateInput(mutation: string | undefined, value: any) {
+    return mutateValue(mutation, ['R'], [R], value);
+}
+
+export function mutateOutput(mutation: string | undefined, value: any, base: any) {
+    return mutateValue(mutation, ['R', 'base'], [R, base], value);
+}
+
+export function mutateState(mutation: string | undefined, value: any) {
+    return mutateValue(mutation, ['R'], [R], value);
+}
+
+function mutateValue(mutation: string | undefined, paramKeys: string[], paramValues: any[], value: any) {
+    if (!mutation) {
+        return value;
+    }
+
+    // triple {{{ }}} don't get escaped by Mustache
+    mutation = mutation.replace(/{{/g, '{{{').replace(/}}/g, '}}}');
+
+    const template = Mustache.render(mutation, getContext(mutation));
+
+    const fn = new Function(...paramKeys, 'value', `return ${template}`);
+    console.log(fn);
+
+    // eval the function and provide additional variables from R
+    return fn(...paramValues, value);
+}
+
 function fillVals(
     paths: any,
     layout: any,
@@ -126,13 +174,16 @@ function fillVals(
     const errors: any[] = [];
     let emptyMultiValues = 0;
 
-    const inputVals = getter(paths).map((inputList: any, i: number) => {
+    const inputVals = getter(paths).map((inputList, i: number) => {
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
-            inputList.map(({ id, property, path: path_ }: any) => ({
+            inputList.map(({ id, mutation, property, path: path_ }: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property]
+                value: (depType === 'Input' ? mutateInput : mutateState)(
+                    mutation,
+                    (path(path_, layout) as any).props[property]
+                )
             })),
             specs[i],
             cb.anyVals,
@@ -382,7 +433,7 @@ export function executeCallback(
             try {
                 const payload: ICallbackPayload = {
                     output,
-                    outputs: isMultiOutputProp(output) ? outputs : outputs[0],
+                    outputs,
                     inputs: inVals,
                     changedPropIds: keys(cb.changedPropIds),
                     state: cb.callback.state.length ?
