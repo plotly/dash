@@ -15,7 +15,7 @@ import {
 import { STATUS } from '../constants/constants';
 import { CallbackActionType, CallbackAggregateActionType } from '../reducers/callbacks';
 import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, ICallbackPayload, IStoredCallback, IBlockedCallback, IPrioritizedCallback } from '../types/callbacks';
-import { isMultiValued, stringifyId } from './dependencies';
+import { isMultiValued, stringifyId, isMultiOutputProp } from './dependencies';
 import { urlBase } from './utils';
 import { getCSRFHeader } from '.';
 import { createAction, Action } from 'redux-actions';
@@ -116,7 +116,7 @@ function unwrapIfNotMulti(
     return [idProps[0], msg];
 }
 
-const getContext = (mutation: string) => {
+const getContext = (_mutation: string) => {
     return {};
 
     // const variables: any[] = mutation.match(/{{{[^.]+[.][^.]+}}}/g) ?? [];
@@ -155,11 +155,8 @@ function mutateValue(mutation: string | undefined, paramKeys: string[], paramVal
 
     const template = Mustache.render(mutation, getContext(mutation));
 
-    const fn = new Function(...paramKeys, 'value', `return ${template}`);
-    console.log(fn);
-
     // eval the function and provide additional variables from R
-    return fn(...paramValues, value);
+    return new Function(...paramKeys, 'value', `return ${template}`)(...paramValues, value);
 }
 
 function fillVals(
@@ -433,7 +430,7 @@ export function executeCallback(
             try {
                 const payload: ICallbackPayload = {
                     output,
-                    outputs,
+                    outputs: isMultiOutputProp(output) ? outputs : outputs[0],
                     inputs: inVals,
                     changedPropIds: keys(cb.changedPropIds),
                     state: cb.callback.state.length ?
