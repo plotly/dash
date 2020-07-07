@@ -1,4 +1,3 @@
-import Mustache from 'mustache';
 import * as R from 'ramda';
 import {
     concat,
@@ -116,23 +115,6 @@ function unwrapIfNotMulti(
     return [idProps[0], msg];
 }
 
-const getContext = (_mutation: string) => {
-    return {};
-
-    // const variables: any[] = mutation.match(/{{{[^.]+[.][^.]+}}}/g) ?? [];
-
-    // return variables.reduce(
-    //     (c, v) => {
-    //         const [, id, property] = v.match(/{{{([^.]+)[.]([^.]+)}}}/)
-    //         c.store[id] = c.store[id] || {};
-    //         c.store[id][property] = `resolveStore('${id}', '${property}')`;
-
-    //         return c;
-    //     },
-    //     {}
-    // );
-}
-
 export function mutateInput(mutation: string | undefined, value: any) {
     return mutateValue(mutation, ['R'], [R], value);
 }
@@ -150,13 +132,7 @@ function mutateValue(mutation: string | undefined, paramKeys: string[], paramVal
         return value;
     }
 
-    // triple {{{ }}} don't get escaped by Mustache
-    mutation = mutation.replace(/{{/g, '{{{').replace(/}}/g, '}}}');
-
-    const template = Mustache.render(mutation, getContext(mutation));
-
-    // eval the function and provide additional variables from R
-    return new Function(...paramKeys, 'value', `return ${template}`)(...paramValues, value);
+    return new Function(...paramKeys, 'value', `return ${mutation}`)(...paramValues, value);
 }
 
 function fillVals(
