@@ -119,7 +119,7 @@ demo/.*\.js
 demo/.*\.html
 demo/.*\.css
 
-# ignore python files/folders
+# ignore Python files/folders
 setup.py
 usage.py
 setup.py

@@ -25,7 +25,7 @@ export enum CallbackActionType {
     RemoveBlocked = 'Callbacks.RemoveBlocked',
     RemoveExecuted = 'Callbacks.RemoveExecuted',
     RemoveExecuting = 'Callbacks.RemoveExecuting',
-    RemovePrioritized = 'Callbacks.ReomvePrioritized',
+    RemovePrioritized = 'Callbacks.RemovePrioritized',
     RemoveRequested = 'Callbacks.RemoveRequested',
     RemoveStored = 'Callbacks.RemoveStored',
     RemoveWatched = 'Callbacks.RemoveWatched'

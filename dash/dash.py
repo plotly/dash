@@ -1342,7 +1342,7 @@ class Dash(object):
             _reload.hash = generate_hash()
 
             # find_loader should return None on __main__ but doesn't
-            # on some python versions https://bugs.python.org/issue14710
+            # on some Python versions https://bugs.python.org/issue14710
             packages = [
                 pkgutil.find_loader(x)
                 for x in list(ComponentRegistry.registry) + ["dash_renderer"]

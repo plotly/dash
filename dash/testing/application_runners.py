@@ -259,7 +259,7 @@ class RRunner(ProcessRunner):
                 logger.info("RRunner inferred cwd from app path: %s", cwd)
         else:
             # app is a string chunk, we make a temporary folder to store app.R
-            # and its relevants assets
+            # and its relevant assets
             self._tmp_app_path = os.path.join(
                 "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex
             )
@@ -358,7 +358,7 @@ class JuliaRunner(ProcessRunner):
                 logger.info("JuliaRunner inferred cwd from app path: %s", cwd)
         else:
             # app is a string chunk, we make a temporary folder to store app.jl
-            # and its relevants assets
+            # and its relevant assets
             self._tmp_app_path = os.path.join(
                 "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex
             )
