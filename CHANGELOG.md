@@ -116,7 +116,7 @@ These functions are particularly useful for apps deployed on Dash Enterprise whe
 ### Added
 - [#967](https://github.com/plotly/dash/pull/967) Add support for defining
 clientside JavaScript callbacks via inline strings.
-- [#1020](https://github.com/plotly/dash/pull/1020) Allow `visit_and_snapshot` API in `dash.testing.browser`  to stay on the page so you can run other checks.
+- [#1020](https://github.com/plotly/dash/pull/1020) Allow `visit_and_snapshot` API in `dash.testing.browser` to stay on the page so you can run other checks.
 
 ### Changed
 - [#1026](https://github.com/plotly/dash/pull/1026) Better error message when you forget to wrap multiple `children` in an array, and they get passed to other props.
@@ -580,8 +580,8 @@ app = dash.Dash(...)
 
 ## 0.19.0 - 2017-10-16
 ### Changed
-- 🔒  Remove CSRF protection measures. CSRF-style attacks are not relevant to Dash apps. Dash's API uses `POST` requests with content type `application/json` which are not susceptible to unwanted requests from 3rd party sites. See [#141](https://github.com/plotly/dash/issues/141).
-- 🔒  `app.server.secret_key` is no longer required since CSRF protection was removed. Setting `app.server.secret_key` was difficult to document and a very common source of confusion, so it's great that users won't get bitten by this anymore :tada:
+- 🔒 Remove CSRF protection measures. CSRF-style attacks are not relevant to Dash apps. Dash's API uses `POST` requests with content type `application/json` which are not susceptible to unwanted requests from 3rd party sites. See [#141](https://github.com/plotly/dash/issues/141).
+- 🔒 `app.server.secret_key` is no longer required since CSRF protection was removed. Setting `app.server.secret_key` was difficult to document and a very common source of confusion, so it's great that users won't get bitten by this anymore :tada:
 - 🐞 [renderer#22](https://github.com/plotly/dash-renderer/pull/22), [renderer#28](https://github.com/plotly/dash-renderer/pull/28) Previously, old requests could override new requests if their response was longer than the new one. This caused subtle bugs when apps are deployed on multiple processes or threads with component callbacks that update at varying rates like urls. Originally reported in [#133](https://github.com/plotly/dash/issues/133). This fix should also improve performance when many updates happen at once as outdated requests will get dropped instead of updating the UI. Performance issue with the first PR reported in [renderer#27](https://github.com/plotly/dash-renderer/issues/27) and fixed in the second PR.
 - [renderer#21](https://github.com/plotly/dash-renderer/pull/21) Fix an issue where a callback would be fired excessively. Previously, the callback would be called as many times as it had inputs. Now, it is called less.
 
@@ -607,8 +607,8 @@ app = dash.Dash(...)
 
 ## 0.18.0 - 2017-09-07
 ### Changed
-- 🔒  Remove the `/static/` folder and endpoint that is implicitly initialized by flask. This is too implicit for my comfort level: I worry that users will not be aware that their files in their `static` folder are accessible
-- ⚡️  Remove all API calls to the Plotly API (https://api.plotly.com/), the authentication endpoints and decorators, and the associated `filename`, `sharing` and `app_url` arguments. This was never documented or officially supported. Authentication has been moved to the [`dash-auth` package](https://github.com/plotly/dash-auth).
+- 🔒 Remove the `/static/` folder and endpoint that is implicitly initialized by flask. This is too implicit for my comfort level: I worry that users will not be aware that their files in their `static` folder are accessible
+- ⚡️ Remove all API calls to the Plotly API (https://api.plotly.com/), the authentication endpoints and decorators, and the associated `filename`, `sharing` and `app_url` arguments. This was never documented or officially supported. Authentication has been moved to the [`dash-auth` package](https://github.com/plotly/dash-auth).
 - [#107](https://github.com/plotly/dash/pull/107) ✏️ Sort prop names in exception messages.
 
 ### Added
@@ -616,12 +616,12 @@ app = dash.Dash(...)
 - [#112](https://github.com/plotly/dash/pull/112) 🔧 Add `id` to `KeyError` exceptions in components.
 
 ### Fixed
-- ✏️  Fix a typo in an exception.
+- ✏️ Fix a typo in an exception.
 - 🔧 Replaced all illegal characters in environment variables.
 
 ### 🔧 Maintenance
-- 📝  Update README.md
-- ✅  Fix CircleCI tests. Note that the [`dash-renderer`](https://github.com/plotly/dash-renderer) contains the bulk of the integration tests.
+- 📝 Update README.md
+- ✅ Fix CircleCI tests. Note that the [`dash-renderer`](https://github.com/plotly/dash-renderer) contains the bulk of the integration tests.
 - 💄 Flake8 fixes and tests (fixes [#99](https://github.com/plotly/dash/issues/99))
 - ✨ Add this CHANGELOG.md.
 

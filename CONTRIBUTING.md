@@ -51,7 +51,7 @@ When a change in renderer code doesn't reflect in your browser as expected, this
 
 Writing Python 2/3 compatible code might be a challenging task for contributors used to working on one particular version, especially new learners who start directly with Python 3.
 
-We use `python-future` as our tool to  mainly write Python 3 code and make it back-compatible to Python 2.7 (the only Python 2 version Dash supports). Please refer to [this list of idioms](https://python-future.org/compatible_idioms.html "https://python-future.org/compatible_idioms.html") for more details on working with `python-future`.
+We use `python-future` as our tool to mainly write Python 3 code and make it back-compatible to Python 2.7 (the only Python 2 version Dash supports). Please refer to [this list of idioms](https://python-future.org/compatible_idioms.html "https://python-future.org/compatible_idioms.html") for more details on working with `python-future`.
 
 ## Git
 
