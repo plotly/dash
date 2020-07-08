@@ -70,8 +70,8 @@ For pull request with notable file changes or a big feature development, we high
 
 Git command veterans might argue that a simple terminal and a cherry switch keyboard is the most elegant solution. But in general, a desktop tool makes the task easier.
 
-1. https://www.gitkraken.com/git-client
-2. https://desktop.github.com/
+1. <https://www.gitkraken.com/git-client>
+2. <https://desktop.github.com/>
 
 ### Emoji
 
