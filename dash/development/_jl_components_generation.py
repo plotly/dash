@@ -38,17 +38,17 @@ end
 {children_definitions}
 '''  # noqa:E501
 
-jl_children_signatures = '''
+jl_children_signatures = """
     {funcname}(children::Any;kwargs...)
     {funcname}(children_maker::Function;kwargs...)
-'''
+"""
 
-jl_children_definitions = '''
+jl_children_definitions = """
 {funcname}(children::Any; kwargs...) = {funcname}(;kwargs..., children = children)
 {funcname}(children_maker::Function; kwargs...) = {funcname}(children_maker(); kwargs...)
-'''
+"""
 
-jl_package_file_string = '''
+jl_package_file_string = """
 module {package_name}
 using {base_package}
 
@@ -67,13 +67,13 @@ function __init__()
                 {resources_dist}
             ]
         )
-        
+
     )
 end
 end
-'''
+"""
 
-jl_projecttoml_string = '''
+jl_projecttoml_string = """
 name = "{package_name}"
 uuid = "{package_uuid}"
 {authors}version = "{version}"
@@ -84,19 +84,20 @@ uuid = "{package_uuid}"
 [compact]
 julia = "1.2"
 {base_package} = ">=0.1"
-'''
+"""
 
 jl_component_include_string = 'include("{name}.jl")'
 
-jl_resource_tuple_string = '''DashBase.Resource(
+jl_resource_tuple_string = """DashBase.Resource(
     relative_package_path = {relative_package_path},
     external_url = {external_url},
     dynamic = {dynamic},
     async = {async_string},
     type = :{type}
-)'''
+)"""
 
-core_packages = ['dash_html_components', 'dash_core_components', 'dash_table']
+core_packages = ["dash_html_components", "dash_core_components", "dash_table"]
+
 
 def jl_package_name(namestring):
     s = namestring.split("_")
@@ -105,13 +106,9 @@ def jl_package_name(namestring):
 
 def stringify_wildcards(wclist, no_symbol=False):
     if no_symbol:
-        wcstring = "|".join(
-            '{}-'.format(item) for item in wclist
-        )
+        wcstring = "|".join("{}-".format(item) for item in wclist)
     else:
-        wcstring = ", ".join(
-            'Symbol("{}-")'.format(item) for item in wclist
-        )
+        wcstring = ", ".join('Symbol("{}-")'.format(item) for item in wclist)
     return wcstring
 
 
@@ -289,11 +286,7 @@ Keyword arguments:\n{args}"""
 
 
 def create_prop_docstring_jl(
-    prop_name,
-    type_object,
-    required,
-    description,
-    indent_num,
+    prop_name, type_object, required, description, indent_num,
 ):
     """
     Create the Dash component prop docstring
@@ -353,24 +346,34 @@ def format_fn_name(prefix, name):
 def generate_metadata_strings(resources, metatype):
     def nothing_or_string(v):
         return '"{}"'.format(v) if v else "nothing"
-    return [jl_resource_tuple_string.format(
-        relative_package_path=nothing_or_string(resource.get("relative_package_path", "")),
-        external_url=nothing_or_string(resource.get("external_url", "")),
-        dynamic=str(resource.get("dynamic", 'nothing')).lower(),
-        type=metatype,
-        async_string=":{}".format(str(resource.get("async")).lower())
-        if "async" in resource.keys()
-        else 'nothing'
-    ) for resource in resources]
+
+    return [
+        jl_resource_tuple_string.format(
+            relative_package_path=nothing_or_string(
+                resource.get("relative_package_path", "")
+            ),
+            external_url=nothing_or_string(resource.get("external_url", "")),
+            dynamic=str(resource.get("dynamic", "nothing")).lower(),
+            type=metatype,
+            async_string=":{}".format(str(resource.get("async")).lower())
+            if "async" in resource.keys()
+            else "nothing",
+        )
+        for resource in resources
+    ]
+
 
 def is_core_package(project_shortname):
     return project_shortname in core_packages
 
+
 def base_package_name(project_shortname):
     return "DashBase" if is_core_package(project_shortname) else "Dash"
 
+
 def base_package_uid(project_shortname):
-    return jl_dash_base_uuid if is_core_package(project_shortname) else jl_base_uuid
+    return jl_dash_base_uuid if is_core_package(project_shortname) else jl_dash_uuid
+
 
 def generate_package_file(project_shortname, components, pkg_data, prefix):
     package_name = jl_package_name(project_shortname)
@@ -382,24 +385,30 @@ def generate_package_file(project_shortname, components, pkg_data, prefix):
     project_ver = pkg_data.get("version")
 
     resources_dist = ",\n".join(
-        generate_metadata_strings(js_dist, "js") + generate_metadata_strings(css_dist, "css")
+        generate_metadata_strings(js_dist, "js")
+        + generate_metadata_strings(css_dist, "css")
     )
 
     package_string = jl_package_file_string.format(
         package_name=package_name,
         component_includes="\n".join(
-            [jl_component_include_string.format(name=format_fn_name(prefix, comp_name)) for comp_name in components]
+            [
+                jl_component_include_string.format(
+                    name=format_fn_name(prefix, comp_name)
+                )
+                for comp_name in components
+            ]
         ),
         resources_dist=resources_dist,
         version=project_ver,
         project_shortname=project_shortname,
-        base_package=base_package_name(project_shortname)
-
+        base_package=base_package_name(project_shortname),
     )
     file_path = os.path.join("src", package_name + ".jl")
     with open(file_path, "w") as f:
         f.write(package_string)
     print("Generated {}".format(file_path))
+
 
 def generate_toml_file(project_shortname, pkg_data):
     package_author = pkg_data.get("author", "")
@@ -408,7 +417,9 @@ def generate_toml_file(project_shortname, pkg_data):
     u = uuid.UUID(jl_dash_uuid)
     package_uuid = uuid.UUID(hex=u.hex[:-12] + hex(hash(package_name))[-12:])
 
-    authors_string = 'authors = ["{}"]\n'.format(package_author) if package_author else ""
+    authors_string = (
+        'authors = ["{}"]\n'.format(package_author) if package_author else ""
+    )
 
     toml_string = jl_projecttoml_string.format(
         package_name=package_name,
@@ -423,15 +434,20 @@ def generate_toml_file(project_shortname, pkg_data):
         f.write(toml_string)
     print("Generated {}".format(file_path))
 
+
 def generate_class_string(name, props, description, project_shortname, prefix):
     # Ensure props are ordered with children first
     filtered_props = reorder_props(filter_props(props))
 
     prop_keys = list(filtered_props.keys())
 
-    docstring = create_docstring_jl(
-        component_name=name, props=filtered_props, description=description
-    ).replace("\r\n", "\n").replace('$', '\$')
+    docstring = (
+        create_docstring_jl(
+            component_name=name, props=filtered_props, description=description
+        )
+        .replace("\r\n", "\n")
+        .replace("$", "\\$")
+    )
 
     wclist = get_wildcards_jl(props)
     default_paramtext = ""
@@ -449,15 +465,16 @@ def generate_class_string(name, props, description, project_shortname, prefix):
                 ).format(item, name)
             )
 
-    default_paramtext += ", ".join(
-        ":{}".format(p)
-        for p in prop_keys
-    )
+    default_paramtext += ", ".join(":{}".format(p) for p in prop_keys)
 
     has_children = "children" in prop_keys
     funcname = format_fn_name(prefix, name)
-    children_signatures = jl_children_signatures.format(funcname=funcname) if has_children else "" 
-    children_definitions = jl_children_definitions.format(funcname=funcname) if has_children else "" 
+    children_signatures = (
+        jl_children_signatures.format(funcname=funcname) if has_children else ""
+    )
+    children_definitions = (
+        jl_children_definitions.format(funcname=funcname) if has_children else ""
+    )
     return jl_component_string.format(
         funcname=format_fn_name(prefix, name),
         docstring=docstring,
@@ -466,21 +483,17 @@ def generate_class_string(name, props, description, project_shortname, prefix):
         wildcard_names=stringify_wildcards(wclist, no_symbol=True),
         element_name=name,
         module_name=project_shortname,
-        children_signatures = children_signatures,
-        children_definitions = children_definitions
+        children_signatures=children_signatures,
+        children_definitions=children_definitions,
     )
 
 
-def generate_struct_file(
-    name, props, description, project_shortname, prefix
-):
+def generate_struct_file(name, props, description, project_shortname, prefix):
     props = reorder_props(props=props)
     import_string = "# AUTO GENERATED FILE - DO NOT EDIT\n"
-    class_string = generate_class_string(name,
-                                         props,
-                                         description,
-                                         project_shortname,
-                                         prefix)
+    class_string = generate_class_string(
+        name, props, description, project_shortname, prefix
+    )
 
     file_name = format_fn_name(prefix, name) + ".jl"
 
@@ -494,12 +507,7 @@ def generate_struct_file(
 
 # pylint: disable=unused-argument
 def generate_module(
-    project_shortname,
-    components,
-    metadata,
-    pkg_data,
-    prefix,
-    **kwargs
+    project_shortname, components, metadata, pkg_data, prefix, **kwargs
 ):
     # the Julia source directory for the package won't exist on first call
     # create the Julia directory if it is missing
