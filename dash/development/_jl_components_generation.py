@@ -113,12 +113,7 @@ def stringify_wildcards(wclist, no_symbol=False):
 
 
 def get_wildcards_jl(props):
-    prop_keys = list(props.keys())
-    wildcards = []
-    for key in prop_keys:
-        if key.endswith("-*"):
-            wildcards.append(key.replace("-*", ""))
-    return wildcards
+    return [key.replace("-*", "") for key in props if key.endswith("-*")]
 
 
 def get_jl_prop_types(type_object):
@@ -126,7 +121,7 @@ def get_jl_prop_types(type_object):
 
     def shape_or_exact():
         return "lists containing elements {}.\n{}".format(
-            ", ".join("'{}'".format(t) for t in list(type_object["value"].keys())),
+            ", ".join("'{}'".format(t) for t in type_object["value"]),
             "Those elements have the following types:\n{}".format(
                 "\n".join(
                     create_prop_docstring_jl(
@@ -136,7 +131,7 @@ def get_jl_prop_types(type_object):
                         description=prop.get("description", ""),
                         indent_num=1,
                     )
-                    for prop_name, prop in list(type_object["value"].items())
+                    for prop_name, prop in type_object["value"].items()
                 )
             ),
         )
@@ -265,11 +260,8 @@ def create_docstring_jl(component_name, props, description):
     # Ensure props are ordered with children first
     props = reorder_props(props=props)
 
-    return (
-        """A{n} {name} component.\n{description}
-Keyword arguments:\n{args}"""
-    ).format(
-        n="n" if component_name[0].lower() in ["a", "e", "i", "o", "u"] else "",
+    return ("A{n} {name} component.\n{description}\nKeyword arguments:\n{args}").format(
+        n="n" if component_name[0].lower() in "aeiou" else "",
         name=component_name,
         description=description,
         args="\n".join(
@@ -280,7 +272,7 @@ Keyword arguments:\n{args}"""
                 description=prop["description"],
                 indent_num=0,
             )
-            for p, prop in list(filter_props(props).items())
+            for p, prop in filter_props(props).items()
         ),
     )
 
