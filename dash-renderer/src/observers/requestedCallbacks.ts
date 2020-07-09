@@ -34,7 +34,6 @@ import { isMultiValued } from '../actions/dependencies';
 import {
     combineIdAndProp,
     getReadyCallbacks,
-    getUniqueIdentifier,
     pruneCallbacks
 } from '../actions/dependencies_ts';
 
@@ -55,6 +54,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
     }) => {
         const { callbacks, callbacks: { prioritized, blocked, executing, watched, stored }, paths } = getState();
         let { callbacks: { requested } } = getState();
+
+        console.log('requestedCallbacks', requested);
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
@@ -85,10 +86,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const rDuplicates = flatten(map(
             group => group.slice(0, -1),
             values(
-                groupBy<ICallback>(
-                    getUniqueIdentifier,
-                    requested
-                )
+                groupBy<ICallback>(cb => cb.callback.output, requested)
             )
         ));
 
@@ -111,7 +109,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             group => group.slice(0, -1),
             values(
                 groupBy<ICallback>(
-                    getUniqueIdentifier,
+                    cb => cb.callback.output,
                     concat(prioritized, requested)
                 )
             )
@@ -121,7 +119,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             group => group.slice(0, -1),
             values(
                 groupBy<ICallback>(
-                    getUniqueIdentifier,
+                    cb => cb.callback.output,
                     concat(blocked, requested)
                 )
             )
@@ -131,7 +129,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             group => group.slice(0, -1),
             values(
                 groupBy<ICallback>(
-                    getUniqueIdentifier,
+                    cb => cb.callback.output,
                     concat(executing, requested)
                 )
             )
@@ -141,7 +139,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             group => group.slice(0, -1),
             values(
                 groupBy<ICallback>(
-                    getUniqueIdentifier,
+                    cb => cb.callback.output,
                     concat(watched, requested)
                 )
             )

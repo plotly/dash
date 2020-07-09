@@ -226,24 +226,6 @@ export const getLayoutCallbacks = (
     }), callbacks);
 }
 
-export const getUniqueIdentifier = ({
-    anyVals,
-    callback: {
-        inputs,
-        outputs,
-        state
-    }
-}: ICallback): string => concat(
-    map(combineIdAndProp, [
-        ...inputs,
-        ...outputs,
-        ...state
-    ]),
-    Array.isArray(anyVals) ?
-        anyVals :
-        anyVals === '' ? [] : [anyVals]
-    ).join(',');
-
 export function includeObservers(id: any, properties: any, graphs: any, paths: any): ICallback[] {
     return flatten(map(
         propName => getCallbacksByInput(graphs, paths, id, propName),
