@@ -46,6 +46,29 @@ import {
 } from '../persistence';
 import { IStoreObserverDefinition } from '../StoreObserver';
 
+function getMutation(cbMutation: string | true | undefined, outputProp: any) : string | undefined {
+    const { __dashprivate_mutation, mutation } = outputProp;
+
+    if (__dashprivate_mutation && typeof mutation !== 'string') {
+        throw Error(`Callback returned a mutation operation that isn't a string.`);
+    }
+
+    if (isNil(cbMutation)) {
+        return __dashprivate_mutation ? mutation : undefined;
+    }
+
+    if (cbMutation === true) {
+        if (!mutation) {
+            throw Error(`Callback returned a value but the callback does not allow non-mutation results`);
+        }
+
+        return mutation;
+    }
+
+    return __dashprivate_mutation ? mutation : cbMutation;
+
+}
+
 function mutateOutputProps(id: any, props: { [key: string]: any }, cb: ICallback, getState: () => IStoreState) {
     const { layout, paths } = getState();
     const itempath = getPath(paths, id);
@@ -53,26 +76,12 @@ function mutateOutputProps(id: any, props: { [key: string]: any }, cb: ICallback
         return props;
     }
 
-    props = { ...props };
-
     // mutate output props
-    forEach(key => {
-        // is the output a mutation object?
-        const customMutation = props[key].__dashprivate_mutation;
-
-        // use default mutation if there's no custom mutation on the output
-        const mutation = customMutation ?
-            props[key].mutation :
-            cb.callback.outputs.find(o => o.property === key)?.mutation;
-
-        const value = customMutation ?
-            props[key].output :
-            props[key];
-
-        const base = (path(itempath, layout) as any).props[key];
-
-        props[key] = mutateOutput(mutation, value, base);
-    }, keys(props));
+    forEach(key => props[key] = mutateOutput(
+        getMutation(cb.callback.outputs.find(o => o.property === key)?.mutation, props[key]),
+        props[key],
+        (path(itempath, layout) as any).props[key]
+    ), keys(props));
 
     return props;
 }

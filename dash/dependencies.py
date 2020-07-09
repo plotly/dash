@@ -30,6 +30,14 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     def __init__(self, component_id, component_property, property_mutation=None):
         self.component_id = component_id
         self.component_property = component_property
+
+        if (
+            property_mutation is not None
+            and property_mutation is not True
+            and not isinstance(property_mutation, str)
+        ):
+            raise ValueError("property_mutation must be a String, True or None.")
+
         self.property_mutation = property_mutation
 
     def __str__(self):

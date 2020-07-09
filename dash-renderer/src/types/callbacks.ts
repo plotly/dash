@@ -15,7 +15,7 @@ export interface ICallbackDefinition {
 
 export interface ICallbackProperty {
     id: CallbackId;
-    mutation?: string;
+    mutation?: string | true;
     property: string;
 }
 
