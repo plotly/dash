@@ -1,7 +1,9 @@
 from multiprocessing import Lock
 
+import pytest
 import dash
 from dash.dependencies import Input, Output
+from dash.testing.wait import until
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -167,3 +169,46 @@ def test_rdls002_chained_loading_states(dash_duo):
 
     find_spinners()
     find_text({1: 1, 2: 1, 3: 1, 4: 1})
+
+
+@pytest.mark.parametrize(
+    "kwargs, expected_update_title",
+    [
+        ({}, "Updating..."),
+        ({"update_title": None}, "Dash"),
+        ({"update_title": ""}, "Dash"),
+        ({"update_title": "Hello World"}, "Hello World"),
+    ]
+)
+def test_rdls003_update_title(dash_duo, kwargs, expected_update_title):
+    app = dash.Dash("Dash", **kwargs)
+    lock = Lock()
+
+    app.layout = html.Div(
+        children=[
+            html.H3("Press button see document title updating"),
+            html.Div(id="output"),
+            html.Button("Update", id="button", n_clicks=0),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        [Input("button", "n_clicks")]
+    )
+    def update(n):
+        with lock:
+            return n
+
+    with lock:
+        dash_duo.start_server(app)
+        # check for update-title during startup
+        until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
+
+    # check for original title after loading
+    until(lambda: dash_duo.driver.title == "Dash", timeout=1)
+
+    with lock:
+        dash_duo.find_element("#button").click()
+        # check for update-title while processing callback
+        until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
