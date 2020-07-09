@@ -1607,7 +1607,7 @@ class Dash(object):
             else:
                 display_url = (protocol, host, ":{}".format(port), path)
 
-            self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
+            self.logger.info("Dash is running on %s://%s%s%s\n" % display_url)
             self.logger.info(
                 " Warning: This is a development server. Do not use app.run_server"
             )
