@@ -1,4 +1,4 @@
-# keyword.kwlist for both python 2 and 3
+# keyword.kwlist for both Python 2 and 3
 python_keywords = {
     "False",
     "None",

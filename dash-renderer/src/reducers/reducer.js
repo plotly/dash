@@ -1,18 +1,20 @@
 import {forEach, isEmpty, keys, path} from 'ramda';
 import {combineReducers} from 'redux';
 
-import {getCallbacksByInput} from '../actions/dependencies';
+import {getCallbacksByInput} from '../actions/dependencies_ts';
 
-import layout from './layout';
-import graphs from './dependencyGraph';
-import paths from './paths';
-import pendingCallbacks from './pendingCallbacks';
-import appLifecycle from './appLifecycle';
-import history from './history';
-import error from './error';
-import hooks from './hooks';
 import createApiReducer from './api';
+import appLifecycle from './appLifecycle';
+import callbacks from './callbacks';
 import config from './config';
+import graphs from './dependencyGraph';
+import error from './error';
+import history from './history';
+import hooks from './hooks';
+import isLoading from './isLoading';
+import layout from './layout';
+import loadingMap from './loadingMap';
+import paths from './paths';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -24,14 +26,16 @@ export const apiRequests = [
 function mainReducer() {
     const parts = {
         appLifecycle,
-        layout,
-        graphs,
-        paths,
-        pendingCallbacks,
+        callbacks,
         config,
-        history,
         error,
+        graphs,
+        history,
         hooks,
+        isLoading,
+        layout,
+        loadingMap,
+        paths,
     };
     forEach(r => {
         parts[r] = createApiReducer(r);

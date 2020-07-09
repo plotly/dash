@@ -1,18 +1,40 @@
 # Change Log for Dash
 All notable changes to `dash` will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/).
+This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## Unreleased
 ### Added
+- [#1315](https://github.com/plotly/dash/pull/1315) Add `update_title` parameter to set or disable the "Updating...." document title during updates. Closes [#856](https://github.com/plotly/dash/issues/856) and [#732](https://github.com/plotly/dash/issues/732)
+
+## [1.13.4] - 2020-06-25
+### Fixed
+- [#1310](https://github.com/plotly/dash/pull/1310) Fix a regression since 1.13.0 preventing more than one loading state from being shown at a time.
+
+## [1.13.3] - 2020-06-19
+
+## [1.13.2] - 2020-06-18
+### Fixed
+- [#1305](https://github.com/plotly/dash/issues/1305)
+    - Fix regression that causes crash when `FLASK_ENV` is modified during app execution
+    - Fix regression that caused tests using `_wait_for_callbacks` to fail
+
+## [1.13.1] - 2020-06-17
+
+## [1.13.0] - 2020-06-17
+### Added
+- [#1289](https://github.com/plotly/dash/pull/1289) Supports `DASH_PROXY` env var to tell `app.run_server` to report the correct URL to view your app, when it's being proxied. Throws an error if the proxy is incompatible with the host and port you've given the server.
 - [#1240](https://github.com/plotly/dash/pull/1240) Adds `callback_context` to clientside callbacks (e.g. `dash_clientside.callback_context.triggered`). Supports `triggered`, `inputs`, `inputs_list`, `states`, and `states_list`, all of which closely resemble their serverside cousins.
 
 ### Changed
 - [#1237](https://github.com/plotly/dash/pull/1237) Closes [#920](https://github.com/plotly/dash/issues/920): Converts hot reload fetch failures into a server status indicator showing whether the latest fetch succeeded or failed. Callback fetch failures still appear as errors but have a clearer message.
+- [#1254](https://github.com/plotly/dash/pull/1254) Modifies the callback chain implementation and improves performance for apps with a lot of components
 
 ### Fixed
+- [#1255](https://github.com/plotly/dash/pull/1255) Hard hot reload targets only the current window, not the top - so if your app is in an iframe you will only reload the app
 - [#1249](https://github.com/plotly/dash/pull/1249) Fixes [#919](https://github.com/plotly/dash/issues/919) so `dash.testing` is compatible with more `pytest` plugins, particularly `pytest-flake8` and `pytest-black`.
 - [#1248](https://github.com/plotly/dash/pull/1248) Fixes [#1245](https://github.com/plotly/dash/issues/1245), so you can use prop persistence with components that have dict IDs, ie for pattern-matching callbacks.
 - [#1185](https://github.com/plotly/dash/pull/1185) Sort asset directories, same as we sort files inside those directories. This way if you need your assets loaded in a certain order, you can add prefixes to subdirectory names and enforce that order.
+- [#1288](https://github.com/plotly/dash/pull/1288) Closes [#1285](https://github.com/plotly/dash/issues/1285): Debug=True should work in the __main__ module.
 
 ## [1.12.0] - 2020-05-05
 ### Added
@@ -52,7 +74,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.9.1] - 2020-02-27
 ### Added
-- [#1133](github.com/plotly/dash/pull/1133) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE
+- [#1133](https://github.com/plotly/dash/pull/1133) Allow the `compress` config variable to be set with an environment variable with DASH_COMPRESS=FALSE
 
 ## [1.9.0] - 2020-02-04
 ### Fixed
@@ -98,7 +120,7 @@ These functions are particularly useful for apps deployed on Dash Enterprise whe
 ### Added
 - [#967](https://github.com/plotly/dash/pull/967) Add support for defining
 clientside JavaScript callbacks via inline strings.
-- [#1020](https://github.com/plotly/dash/pull/1020) Allow `visit_and_snapshot` API in `dash.testing.browser`  to stay on the page so you can run other checks.
+- [#1020](https://github.com/plotly/dash/pull/1020) Allow `visit_and_snapshot` API in `dash.testing.browser` to stay on the page so you can run other checks.
 
 ### Changed
 - [#1026](https://github.com/plotly/dash/pull/1026) Better error message when you forget to wrap multiple `children` in an array, and they get passed to other props.
@@ -224,7 +246,7 @@ clientside JavaScript callbacks via inline strings.
   - Change `hot_reload_interval` from msec to seconds, for consistency with `hot_reload_watch_interval`
   - When called from `enable_dev_tools`, `debug=True` by default. It's still `False` by default from `run_server`.
 
-- ✨ [#744](https://github.com/plotly/dash/pull/744) Introducing Dash Testing (`dash.testing`) - read the full tutorial at http://dash.plotly.com/testing.
+- ✨ [#744](https://github.com/plotly/dash/pull/744) Introducing Dash Testing (`dash.testing`) - read the full tutorial at <https://dash.plotly.com/testing>.
 
 - [#753](https://github.com/plotly/dash/pull/753) `Component` no longer inherits `MutableMapping`, so `values`, `keys`, and more are no longer methods. Fixes an issue reported in [dcc#440](https://github.com/plotly/dash-core-components/issues/440) where components with certain prop names defined but not provided would cause a failure to render. During component generation we now disallow all props with leading underscores or matching a few remaining reserved words: `UNDEFINED`, `REQUIRED`, `to_plotly_json`, `available_properties`, and `available_wildcard_properties`.
 
@@ -278,7 +300,7 @@ clientside JavaScript callbacks via inline strings.
 ## [0.39.0] - 2019-03-04
 ### Added
 - [#436](https://github.com/plotly/dash/pull/436) Allow multiple outputs from a single callback.
-- [#367](https://github.com/plotly/dash/pull/367) Support custom javascript hooks to modify callback payloads and responses.
+- [#367](https://github.com/plotly/dash/pull/367) Support custom JavaScript hooks to modify callback payloads and responses.
 - [#623](https://github.com/plotly/dash/pull/623) Modify the flask response with custom cookies or headers, using `dash.callback_context.response`.
 - [renderer#93](https://github.com/plotly/dash-renderer/pull/93) Loading states API
 
@@ -315,7 +337,7 @@ clientside JavaScript callbacks via inline strings.
 - Bump dash-core-components version from 0.43.0 to [0.43.1](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0431---2019-02-11)
 
 ### Fixed
-- [#563](https://github.com/plotly/dash/pull/563) Fix collections.abc deprecation warning for python 3.8
+- [#563](https://github.com/plotly/dash/pull/563) Fix collections.abc deprecation warning for Python 3.8
 
 ## [0.36.0] - 2019-01-25
 ### Removed
@@ -487,7 +509,6 @@ clientside JavaScript callbacks via inline strings.
 - `requests_pathname_prefix` must end with `routes_pathname_prefix`. If you supplied both `requests` and `routes` pathname before this update, make sure `requests_pathname_prefix` ends with the same value as `routes_pathname_prefix`.
 - `url_base_pathname` sets both `requests/routes` pathname, cannot supply it with either `requests` or `routes` pathname prefixes.
 
-
 ## 0.24.2 - 2018-08-13
 ### Fixed
 - [#320](https://github.com/plotly/dash/pull/320) Disallow duplicate component ids in the initial layout.
@@ -495,12 +516,11 @@ clientside JavaScript callbacks via inline strings.
 ## 0.24.1 - 2018-08-10
 ### Fixed
 - Fix bug [#321](https://github.com/plotly/dash/issues/321) where importing Dash components with no props would result in an error.
-- Fix a bug in 0.23.1 where importing components with arguments that are python keywords could cause an error. In particular, this fixes `dash-html-components` with Python 3.7.
+- Fix a bug in 0.23.1 where importing components with arguments that are Python keywords could cause an error. In particular, this fixes `dash-html-components` with Python 3.7.
 
 ## 0.24.0 - 2018-08-10
 ### Added
 - [#319](https://github.com/plotly/dash/pull/309) Add a modified time query string to assets included in the index in order to bust the cache.
-
 
 ## 0.23.1 - 2018-08-02
 ### Added
@@ -552,7 +572,7 @@ app = dash.Dash(...)
 
 ## 0.20.0 - 2018-01-19
 ### Added
-- [#190](https://github.com/plotly/dash/pull/190) `exceptions.PreventUpdate` can be raised inside a callback to prevent the callback from updating the app. See https://community.plotly.com/t/improving-handling-of-aborted-callbacks/7536/2.
+- [#190](https://github.com/plotly/dash/pull/190) `exceptions.PreventUpdate` can be raised inside a callback to prevent the callback from updating the app. See <https://community.plotly.com/t/improving-handling-of-aborted-callbacks/7536/2>.
 
 ### Removed
 - Removes logging from redux middleware from production build based on process.env.NODE_ENV.
@@ -564,8 +584,8 @@ app = dash.Dash(...)
 
 ## 0.19.0 - 2017-10-16
 ### Changed
-- 🔒  Remove CSRF protection measures. CSRF-style attacks are not relevant to Dash apps. Dash's API uses `POST` requests with content type `application/json` which are not susceptible to unwanted requests from 3rd party sites. See [#141](https://github.com/plotly/dash/issues/141).
-- 🔒  `app.server.secret_key` is no longer required since CSRF protection was removed. Setting `app.server.secret_key` was difficult to document and a very common source of confusion, so it's great that users won't get bitten by this anymore :tada:
+- 🔒 Remove CSRF protection measures. CSRF-style attacks are not relevant to Dash apps. Dash's API uses `POST` requests with content type `application/json` which are not susceptible to unwanted requests from 3rd party sites. See [#141](https://github.com/plotly/dash/issues/141).
+- 🔒 `app.server.secret_key` is no longer required since CSRF protection was removed. Setting `app.server.secret_key` was difficult to document and a very common source of confusion, so it's great that users won't get bitten by this anymore :tada:
 - 🐞 [renderer#22](https://github.com/plotly/dash-renderer/pull/22), [renderer#28](https://github.com/plotly/dash-renderer/pull/28) Previously, old requests could override new requests if their response was longer than the new one. This caused subtle bugs when apps are deployed on multiple processes or threads with component callbacks that update at varying rates like urls. Originally reported in [#133](https://github.com/plotly/dash/issues/133). This fix should also improve performance when many updates happen at once as outdated requests will get dropped instead of updating the UI. Performance issue with the first PR reported in [renderer#27](https://github.com/plotly/dash-renderer/issues/27) and fixed in the second PR.
 - [renderer#21](https://github.com/plotly/dash-renderer/pull/21) Fix an issue where a callback would be fired excessively. Previously, the callback would be called as many times as it had inputs. Now, it is called less.
 
@@ -576,9 +596,9 @@ app = dash.Dash(...)
 
 ### Fixed
 - Fix a bug from 0.18.2 that removed the ability for dash to serve the app on any route besides `/`.
-- Fix a bug from 0.18.0 with the new config variables when used in a multi-app setting, causing config to be shared across apps. Originally reported in https://community.plotly.com/t/flask-endpoint-error/5691/7
+- Fix a bug from 0.18.0 with the new config variables when used in a multi-app setting, causing config to be shared across apps. Originally reported in <https://community.plotly.com/t/flask-endpoint-error/5691/7>
 - Rename config setting `supress_callback_exceptions` to `suppress_callback_exceptions`. The original spelling is kept for backward compatibility.
-- 🐞 (renderer) Fix a bug where Dash would fire updates for each parent of a grandchild node that shared the same grandparent. Originally reported in https://community.plotly.com/t/specifying-dependency-tree-traversal/5080/5
+- 🐞 (renderer) Fix a bug where Dash would fire updates for each parent of a grandchild node that shared the same grandparent. Originally reported in <https://community.plotly.com/t/specifying-dependency-tree-traversal/5080/5>
 - 🐞 (renderer) Fix a bug where the document title that displays "Updating..." wouldn't change if the callback raised an Exception. Now it will be removed on any response, even a failure.
 
 ## 0.18.2 - 2017-09-07
@@ -591,22 +611,21 @@ app = dash.Dash(...)
 
 ## 0.18.0 - 2017-09-07
 ### Changed
-- 🔒  Remove the `/static/` folder and endpoint that is implicitly initialized by flask. This is too implicit for my comfort level: I worry that users will not be aware that their files in their `static` folder are accessible
-- ⚡️  Remove all API calls to the Plotly API (https://api.plotly.com/), the authentication endpoints and decorators, and the associated `filename`, `sharing` and `app_url` arguments. This was never documented or officially supported. Authentication has been moved to the [`dash-auth` package](https://github.com/plotly/dash-auth).
+- 🔒 Remove the `/static/` folder and endpoint that is implicitly initialized by flask. This is too implicit for my comfort level: I worry that users will not be aware that their files in their `static` folder are accessible
+- ⚡️ Remove all API calls to the Plotly API (<https://api.plotly.com/>), the authentication endpoints and decorators, and the associated `filename`, `sharing` and `app_url` arguments. This was never documented or officially supported. Authentication has been moved to the [`dash-auth` package](https://github.com/plotly/dash-auth).
 - [#107](https://github.com/plotly/dash/pull/107) ✏️ Sort prop names in exception messages.
 
 ### Added
 - 🔧 Add two new `config` variables: `routes_pathname_prefix` and `requests_pathname_prefix` to provide more flexibility for API routing when Dash apps are run behind proxy servers. `routes_pathname_prefix` is a prefix applied to the backend routes and `requests_pathname_prefix` prefixed in requests made by Dash's front-end. `dash-renderer==0.8.0rc3` uses these endpoints.
 - [#112](https://github.com/plotly/dash/pull/112) 🔧 Add `id` to `KeyError` exceptions in components.
 
-
 ### Fixed
-- ✏️  Fix a typo in an exception.
+- ✏️ Fix a typo in an exception.
 - 🔧 Replaced all illegal characters in environment variables.
 
 ### 🔧 Maintenance
-- 📝  Update README.md
-- ✅  Fix CircleCI tests. Note that the [`dash-renderer`](https://github.com/plotly/dash-renderer) contains the bulk of the integration tests.
+- 📝 Update README.md
+- ✅ Fix CircleCI tests. Note that the [`dash-renderer`](https://github.com/plotly/dash-renderer) contains the bulk of the integration tests.
 - 💄 Flake8 fixes and tests (fixes [#99](https://github.com/plotly/dash/issues/99))
 - ✨ Add this CHANGELOG.md.
 

@@ -119,7 +119,7 @@ demo/.*\.js
 demo/.*\.html
 demo/.*\.css
 
-# ignore python files/folders
+# ignore Python files/folders
 setup.py
 usage.py
 setup.py
@@ -220,9 +220,6 @@ def generate_class_string(name, props, project_shortname, prefix):
             )
 
     default_argtext += ", ".join("{}=NULL".format(p) for p in prop_keys)
-
-    if wildcards == ", ...":
-        default_argtext += ", ..."
 
     # pylint: disable=C0301
     default_paramtext += ", ".join(

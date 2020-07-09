@@ -222,8 +222,7 @@ class ProcessRunner(BaseDashRunner):
                 logger.info("proc.terminate with pid %s", self.proc.pid)
                 self.proc.terminate()
                 if self.tmp_app_path and os.path.exists(self.tmp_app_path):
-                    logger.debug("removing temporary app path %s",
-                                 self.tmp_app_path)
+                    logger.debug("removing temporary app path %s", self.tmp_app_path)
                     shutil.rmtree(self.tmp_app_path)
                 if utils.PY3:
                     # pylint:disable=no-member
@@ -260,7 +259,7 @@ class RRunner(ProcessRunner):
                 logger.info("RRunner inferred cwd from app path: %s", cwd)
         else:
             # app is a string chunk, we make a temporary folder to store app.R
-            # and its relevants assets
+            # and its relevant assets
             self._tmp_app_path = os.path.join(
                 "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex
             )
@@ -343,7 +342,9 @@ class RRunner(ProcessRunner):
 
 class JuliaRunner(ProcessRunner):
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(JuliaRunner, self).__init__(keep_open=keep_open, stop_timeout=stop_timeout)
+        super(JuliaRunner, self).__init__(
+            keep_open=keep_open, stop_timeout=stop_timeout
+        )
         self.proc = None
 
     # pylint: disable=arguments-differ
@@ -357,7 +358,7 @@ class JuliaRunner(ProcessRunner):
                 logger.info("JuliaRunner inferred cwd from app path: %s", cwd)
         else:
             # app is a string chunk, we make a temporary folder to store app.jl
-            # and its relevants assets
+            # and its relevant assets
             self._tmp_app_path = os.path.join(
                 "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex
             )
@@ -385,7 +386,9 @@ class JuliaRunner(ProcessRunner):
                         logger.warning("get cwd from inspect => %s", cwd)
                         break
             if cwd:
-                logger.info("JuliaRunner inferred cwd from the Python call stack: %s", cwd)
+                logger.info(
+                    "JuliaRunner inferred cwd from the Python call stack: %s", cwd
+                )
 
                 # try copying all valid sub folders (i.e. assets) in cwd to tmp
                 # note that the R assets folder name can be any valid folder name
@@ -415,8 +418,7 @@ class JuliaRunner(ProcessRunner):
         logger.info("Run Dash.jl app with julia => %s", app)
 
         args = shlex.split(
-            "julia {}".format(os.path.realpath(app)),
-            posix=not self.is_windows,
+            "julia {}".format(os.path.realpath(app)), posix=not self.is_windows,
         )
         logger.debug("start Dash.jl process with %s", args)
 

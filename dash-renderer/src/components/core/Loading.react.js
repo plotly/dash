@@ -3,16 +3,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 function Loading(props) {
-    if (props.pendingCallbacks.length) {
+    if (props.isLoading) {
         return <div className="_dash-loading-callback" />;
     }
     return null;
 }
 
 Loading.propTypes = {
-    pendingCallbacks: PropTypes.array.isRequired,
+    isLoading: PropTypes.bool.isRequired,
 };
 
 export default connect(state => ({
-    pendingCallbacks: state.pendingCallbacks,
+    isLoading: state.isLoading,
 }))(Loading);

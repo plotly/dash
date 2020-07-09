@@ -16,10 +16,13 @@ $ pip install -e .[testing,dev]  # in some shells you need \ to escape []
 $ cd dash-renderer
 # build renderer bundles, this will build all bundles from source code
 # the only true source of npm version is defined in package.json
+$ npm install
 $ npm run build  # or `renderer build`
 # install dash-renderer for development
 $ pip install -e .
 # build and install components used in tests
+$ cd .. # should be back in dash/ root directory
+$ npm install
 $ npm run setup-tests
 # you should see both dash and dash-renderer are pointed to local source repos
 $ pip list | grep dash
@@ -42,15 +45,13 @@ As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and 
 5. `renderer build` runs 1, 2, 3, 4 in sequence as a complete build process from scratch.
 6. `renderer build local` runs the same order as in 5 and also generates source maps for debugging purposes. You also need to install dash-renderer with editable mode: `pip install -e .`.
 
-When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
+When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, Python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
 
 ## Python 2 And 3 Compatibility
 
 Writing Python 2/3 compatible code might be a challenging task for contributors used to working on one particular version, especially new learners who start directly with Python 3.
 
-From the #892, we started to adopt `python-future` instead of `six` as our tool to better achieve the goal where we can mainly write Python 3 code and make it back-compatible in Python 2.7 (last Python 2 version Dash supports before it gets deprecated).
-
-Please refer to [this list of idioms](https://python-future.org/compatible_idioms.html "https://python-future.org/compatible_idioms.html") for more details on working with `python-future`.
+We use `python-future` as our tool to mainly write Python 3 code and make it back-compatible to Python 2.7 (the only Python 2 version Dash supports). Please refer to [this list of idioms](https://python-future.org/compatible_idioms.html "https://python-future.org/compatible_idioms.html") for more details on working with `python-future`.
 
 ## Git
 
@@ -69,8 +70,8 @@ For pull request with notable file changes or a big feature development, we high
 
 Git command veterans might argue that a simple terminal and a cherry switch keyboard is the most elegant solution. But in general, a desktop tool makes the task easier.
 
-1. https://www.gitkraken.com/git-client
-2. https://desktop.github.com/
+1. <https://www.gitkraken.com/git-client>
+2. <https://desktop.github.com/>
 
 ### Emoji
 
@@ -98,13 +99,15 @@ Emojis make the commit messages :cherry_blossom:. If you have no idea about what
 
 ### Coding Style
 
-We use both `flake8` and `pylint` for basic linting check, please refer to the relevant steps in `.circleci/config.yml`.
-
-Note that we also start using [`black`](https://black.readthedocs.io/en/stable/) as formatter during the test code migration.
+We use `flake8`, `pylint`, and [`black`](https://black.readthedocs.io/en/stable/) for linting. please refer to the relevant steps in `.circleci/config.yml`.
 
 ## Tests
 
-We started migrating to [pytest](https://docs.pytest.org/en/latest/) from `unittest` as our test automation framework. You will see more testing enhancements in the near future.
+Our tests use Google Chrome via Selenium. You will need to install [ChromeDriver](https://chromedriver.chromium.org/getting-started) matching the version of Chrome installed on your system. Here are some helpful tips for [Mac](https://www.kenst.com/2015/03/installing-chromedriver-on-mac-osx/) and [Windows](http://jonathansoma.com/lede/foundations-2018/classes/selenium/selenium-windows-install/).
+
+We use [pytest](https://docs.pytest.org/en/latest/) as our test automation framework, plus [jest](https://jestjs.io/) for a few renderer unit tests. You can `npm run test` to run them all, but this command simply runs `pytest` with no arguments, then `cd dash-renderer && npm run test` for the renderer unit tests.
+
+Most of the time, however, you will want to just run a few relevant tests and let CI run the whole suite. `pytest` lets you specify a directory or file to run tests from (eg `pytest tests/unit`) or a part of the test case name using `-k` - for example `pytest -k cbcx004` will run a single test, or `pytest -k cbcx` will run that whole file. See the [testing tutorial](https://dash.plotly.com/testing) to learn about the test case ID convention we use.
 
 ### Unit Tests
 
@@ -114,7 +117,7 @@ Note: *You might find out that we have more integration tests than unit tests in
 
 ### Integration Tests
 
-We introduced the `dash.testing` feature in [Dash 1.0](https://community.plotly.com/t/announcing-dash-testing/24868). It makes writing a Dash integration test much easier. Please read the [tutorial](http://dash.plotly.com/testing) and add relevant integration tests with any new features or bug fixes.
+We introduced the `dash.testing` feature in [Dash 1.0](https://community.plotly.com/t/announcing-dash-testing/24868). It makes writing a Dash integration test much easier. Please read the [tutorial](https://dash.plotly.com/testing) and add relevant integration tests with any new features or bug fixes.
 
 ## Financial Contributions
 
