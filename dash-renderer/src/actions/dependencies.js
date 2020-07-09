@@ -41,14 +41,6 @@ import {crawlLayout} from './utils';
 
 import Registry from '../registry';
 
-/*
- * If this update is for multiple outputs, then it has
- * starting & trailing `..` and each propId pair is separated
- * by `...`, e.g.
- * "..output-1.value...output-2.value...output-3.value...output-4.value.."
- */
-export const isMultiOutputProp = idAndProp => idAndProp.startsWith('..');
-
 const ALL = {wild: 'ALL', multi: 1};
 const MATCH = {wild: 'MATCH'};
 const ALLSMALLER = {wild: 'ALLSMALLER', multi: 1, expand: 1};
@@ -308,7 +300,12 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
 function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
     const newOutputStrs = {};
     const newOutputObjs = [];
-    outputs.forEach(({id, property}, i) => {
+    outputs.forEach(({id, mutation, property}, i) => {
+        // Callback outputs involving mutations don't count against duplicated outputs
+        if (mutation) {
+            return;
+        }
+
         if (typeof id === 'string') {
             const idProp = combineIdAndProp({id, property});
             if (newOutputStrs[idProp]) {

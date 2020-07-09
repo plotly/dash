@@ -38,7 +38,6 @@ from ._utils import (
     inputs_to_vals,
     interpolate_str,
     patch_collections_abc,
-    split_callback_id,
     stringify_id,
     strip_relative_path,
 )
@@ -829,7 +828,7 @@ class Dash(object):
 
         _validate.validate_callback(output, inputs, state)
         outputs = output if isinstance(output, list) else [output]
-        callback_id = create_callback_id(output)
+        callback_id = create_callback_id()
 
         callback_spec = {
             "output": callback_id,
@@ -1016,7 +1015,7 @@ class Dash(object):
         flask.g.inputs_list = inputs = body.get("inputs", [])
         flask.g.states_list = state = body.get("state", [])
         output = body["output"]
-        outputs_list = body.get("outputs") or split_callback_id(output)
+        outputs_list = body.get("outputs")
         flask.g.outputs_list = outputs_list
 
         flask.g.input_values = input_values = inputs_to_dict(inputs)

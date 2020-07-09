@@ -156,35 +156,14 @@ class AttributeDict(dict):
                 return value
 
 
-def create_callback_id(output):
-    if isinstance(output, (list, tuple)):
-        return "..{}..".format(
-            "...".join(
-                "{}.{}".format(
-                    # A single dot within a dict id key or value is OK
-                    # but in case of multiple dots together escape each dot
-                    # with `\` so we don't mistake it for multi-outputs
-                    x.component_id_str().replace(".", "\\."),
-                    x.component_property,
-                )
-                for x in output
-            )
-        )
-
-    return "{}.{}".format(
-        output.component_id_str().replace(".", "\\."), output.component_property
-    )
+__callback_id = 0
 
 
-# inverse of create_callback_id - should only be relevant if an old renderer is
-# hooked up to a new back end, which will only happen in special cases like
-# embedded
-def split_callback_id(callback_id):
-    if callback_id.startswith(".."):
-        return [split_callback_id(oi) for oi in callback_id[2:-2].split("...")]
-
-    id_, prop = callback_id.rsplit(".", 1)
-    return {"id": id_, "property": prop}
+def create_callback_id():
+    # pylint: disable=global-statement
+    global __callback_id
+    __callback_id = __callback_id + 1
+    return str(__callback_id)
 
 
 def stringify_id(id_):

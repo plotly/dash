@@ -14,7 +14,7 @@ import {
 import { STATUS } from '../constants/constants';
 import { CallbackActionType, CallbackAggregateActionType } from '../reducers/callbacks';
 import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, ICallbackPayload, IStoredCallback, IBlockedCallback, IPrioritizedCallback } from '../types/callbacks';
-import { isMultiValued, stringifyId, isMultiOutputProp } from './dependencies';
+import { isMultiValued, stringifyId } from './dependencies';
 import { urlBase } from './utils';
 import { getCSRFHeader } from '.';
 import { createAction, Action } from 'redux-actions';
@@ -406,7 +406,7 @@ export function executeCallback(
             try {
                 const payload: ICallbackPayload = {
                     output,
-                    outputs: isMultiOutputProp(output) ? outputs : outputs[0],
+                    outputs: outputs.length === 1 ? outputs[0] : outputs,
                     inputs: inVals,
                     changedPropIds: keys(cb.changedPropIds),
                     state: cb.callback.state.length ?
