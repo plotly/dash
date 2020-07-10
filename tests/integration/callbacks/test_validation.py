@@ -115,7 +115,7 @@ def test_cbva002_callback_return_validation():
 def test_cbva003_list_single_output(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
-        [html.Div("Hi", id="in"), html.Div(id="out1"), html.Div(id="out2"),]
+        [html.Div("Hi", id="in"), html.Div(id="out1"), html.Div(id="out2")]
     )
 
     @app.callback(Output("out1", "children"), Input("in", "children"))
