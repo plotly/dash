@@ -178,7 +178,7 @@ def test_rdls002_chained_loading_states(dash_duo):
         ({"update_title": None}, "Dash"),
         ({"update_title": ""}, "Dash"),
         ({"update_title": "Hello World"}, "Hello World"),
-    ]
+    ],
 )
 def test_rdls003_update_title(dash_duo, kwargs, expected_update_title):
     app = dash.Dash("Dash", **kwargs)
@@ -192,10 +192,7 @@ def test_rdls003_update_title(dash_duo, kwargs, expected_update_title):
         ]
     )
 
-    @app.callback(
-        Output("output", "children"),
-        [Input("button", "n_clicks")]
-    )
+    @app.callback(Output("output", "children"), [Input("button", "n_clicks")])
     def update(n):
         with lock:
             return n

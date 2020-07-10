@@ -959,7 +959,9 @@ class Dash(object):
 
 
         """
-        output, inputs, state, prevent_initial_call = handle_callback_args(_args, _kwargs)
+        output, inputs, state, prevent_initial_call = handle_callback_args(
+            _args, _kwargs
+        )
         callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
         multi = isinstance(output, (list, tuple))
 
