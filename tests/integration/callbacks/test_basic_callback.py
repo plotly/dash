@@ -344,7 +344,7 @@ def test_cbsc007_parallel_updates(refresh, dash_duo):
         dash_duo.wait_for_text_to_equal("#out", '[{"a": "/2:a"}] - /2')
 
 
-def test_cbsc008_wildcard_prop_callbacka(dash_duo):
+def test_cbsc008_wildcard_prop_callbacks(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
