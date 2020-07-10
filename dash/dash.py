@@ -959,11 +959,6 @@ class Dash(object):
 
 
         """
-        # kwargs["prevent_initial_call"] = kwargs.get("prevent_initial_call", None)
-        # output = kwargs.get("output", args[0])
-        # # for backward compatibility, store whether first argument is a
-        # # list of only 1 Output
-        # specified_output_list = isinstance(output, (list, tuple)) and len(output) == 1
         output, inputs, state, prevent_initial_call = handle_callback_args(_args, _kwargs)
         callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
         multi = isinstance(output, (list, tuple))
