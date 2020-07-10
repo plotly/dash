@@ -2,12 +2,35 @@ import collections
 import re
 
 from .development.base_component import Component
-from .dependencies import Input, Output, State
 from . import exceptions
 from ._utils import patch_collections_abc, _strings, stringify_id
 
 
-def validate_callback(output, inputs, state):
+def validate_callback(output, inputs, state, extra_args, types):
+    Input, Output, State = types
+    if extra_args:
+        if not isinstance(extra_args[0], (Output, Input, State)):
+            raise exceptions.IncorrectTypeException(
+                """
+                Callback arguments must be `Output`, `Input`, or `State` objects,
+                optionally wrapped in a list or tuple. We found (possibly after
+                unwrapping a list or tuple):
+                {}
+                """.format(
+                    repr(extra_args[0])
+                )
+            )
+
+        raise exceptions.IncorrectTypeException(
+            """
+            In a callback definition, you must provide all Outputs first,
+            "then all Inputs, then all States. Found this out of order:
+            {}
+            """.format(
+                repr(extra_args)
+            )
+        )
+
     is_multi = isinstance(output, (list, tuple))
 
     outputs = output if is_multi else [output]
@@ -17,27 +40,7 @@ def validate_callback(output, inputs, state):
 
 
 def validate_callback_args(args, cls):
-    name = cls.__name__
-    if not isinstance(args, (list, tuple)):
-        raise exceptions.IncorrectTypeException(
-            """
-            The {} argument `{}` must be a list or tuple of
-            `dash.dependencies.{}`s.
-            """.format(
-                name.lower(), str(args), name
-            )
-        )
-
     for arg in args:
-        if not isinstance(arg, cls):
-            raise exceptions.IncorrectTypeException(
-                """
-                The {} argument `{}` must be of type `dash.dependencies.{}`.
-                """.format(
-                    name.lower(), str(arg), name
-                )
-            )
-
         if not isinstance(getattr(arg, "component_property", None), _strings):
             raise exceptions.IncorrectTypeException(
                 """

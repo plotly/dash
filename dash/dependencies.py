@@ -1,5 +1,7 @@
 import json
 
+from ._validate import validate_callback
+
 
 class _Wildcard:  # pylint: disable=too-few-public-methods
     def __init__(self, name):
@@ -157,6 +159,7 @@ def handle_callback_args(args, kwargs):
         flat_args += arg if isinstance(arg, (list, tuple)) else [arg]
 
     outputs = extract_callback_args(flat_args, kwargs, "output", Output)
+    validate_outputs = outputs
     if len(outputs) == 1:
         out0 = kwargs.get("output", args[0] if args else None)
         if not isinstance(out0, (list, tuple)):
@@ -165,11 +168,7 @@ def handle_callback_args(args, kwargs):
     inputs = extract_callback_args(flat_args, kwargs, "inputs", Input)
     states = extract_callback_args(flat_args, kwargs, "state", State)
 
-    if flat_args:
-        raise TypeError(
-            "In a callback definition, you must provide all Outputs first,\n"
-            "then all Inputs, then all States. Trailing this we found:\n"
-            + repr(flat_args)
-        )
+    types = Input, Output, State
+    validate_callback(validate_outputs, inputs, states, flat_args, types)
 
     return outputs, inputs, states, prevent_initial_call
