@@ -342,3 +342,53 @@ def test_cbsc007_parallel_updates(refresh, dash_duo):
     if not refresh:
         dash_duo.find_element("#btn").click()
         dash_duo.wait_for_text_to_equal("#out", '[{"a": "/2:a"}] - /2')
+
+
+def test_cbsc008_wildcard_prop_callbacka(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value="initial value"),
+            html.Div(
+                html.Div(
+                    [
+                        1.5,
+                        None,
+                        "string",
+                        html.Div(
+                            id="output-1",
+                            **{"data-cb": "initial value", "aria-cb": "initial value"}
+                        ),
+                    ]
+                )
+            ),
+        ]
+    )
+
+    input_call_count = Value("i", 0)
+
+    @app.callback(Output("output-1", "data-cb"), [Input("input", "value")])
+    def update_data(value):
+        input_call_count.value += 1
+        return value
+
+    @app.callback(Output("output-1", "children"), [Input("output-1", "data-cb")])
+    def update_text(data):
+        return data
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#output-1", "initial value")
+    dash_duo.percy_snapshot(name="wildcard-callback-1")
+
+    input1 = dash_duo.find_element("#input")
+    dash_duo.clear_input(input1)
+    input1.send_keys("hello world")
+
+    dash_duo.wait_for_text_to_equal("#output-1", "hello world")
+    dash_duo.percy_snapshot(name="wildcard-callback-2")
+
+    # an initial call, one for clearing the input
+    # and one for each hello world character
+    assert input_call_count.value == 2 + len("hello world")
+
+    assert not dash_duo.get_logs()
