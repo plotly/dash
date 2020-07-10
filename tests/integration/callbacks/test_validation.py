@@ -110,3 +110,22 @@ def test_cbva002_callback_return_validation():
         ]
         multi2("aaa", outputs_list=outputs_list)
         pytest.fail("wrong-length list")
+
+
+def test_cbva003_list_single_output(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [html.Div("Hi", id="in"), html.Div(id="out1"), html.Div(id="out2"),]
+    )
+
+    @app.callback(Output("out1", "children"), Input("in", "children"))
+    def o1(i):
+        return "1: " + i
+
+    @app.callback([Output("out2", "children")], [Input("in", "children")])
+    def o2(i):
+        return ("2: " + i,)
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#out1", "1: Hi")
+    dash_duo.wait_for_text_to_equal("#out2", "2: Hi")
