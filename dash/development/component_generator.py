@@ -140,7 +140,7 @@ def cli():
         prog="dash-generate-components",
         formatter_class=_CombinedFormatter,
         description="Generate dash components by extracting the metadata "
-        "using react-docgen. Then map the metadata to python classes.",
+        "using react-docgen. Then map the metadata to Python classes.",
     )
     parser.add_argument("components_source", help="React components source directory.")
     parser.add_argument(

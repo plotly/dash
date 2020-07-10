@@ -111,7 +111,7 @@ def generate_class_string(typename, props, description, namespace):
 
 
 def generate_class_file(typename, props, description, namespace):
-    """Generate a python class file (.py) given a class string.
+    """Generate a Python class file (.py) given a class string.
 
     Parameters
     ----------
@@ -169,7 +169,7 @@ def generate_classes_files(project_shortname, metadata, *component_generators):
 
 
 def generate_class(typename, props, description, namespace):
-    """Generate a python class object given a class string.
+    """Generate a Python class object given a class string.
 
     Parameters
     ----------

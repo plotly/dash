@@ -253,6 +253,7 @@ class Dash(object):
         prevent_initial_callbacks=False,
         show_undo_redo=False,
         plugins=None,
+        update_title="Updating...",
         **obsolete
     ):
         _validate.check_obsolete(obsolete)
@@ -300,6 +301,7 @@ class Dash(object):
             ),
             prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
+            update_title=update_title,
         )
         self.config.set_read_only(
             [
@@ -507,6 +509,7 @@ class Dash(object):
             "props_check": self._dev_tools.props_check,
             "show_undo_redo": self.config.show_undo_redo,
             "suppress_callback_exceptions": self.config.suppress_callback_exceptions,
+            "update_title": self.config.update_title,
         }
         if self._dev_tools.hot_reload:
             config["hot_reload"] = {
@@ -1347,7 +1350,7 @@ class Dash(object):
             _reload.hash = generate_hash()
 
             # find_loader should return None on __main__ but doesn't
-            # on some python versions https://bugs.python.org/issue14710
+            # on some Python versions https://bugs.python.org/issue14710
             packages = [
                 pkgutil.find_loader(x)
                 for x in list(ComponentRegistry.registry) + ["dash_renderer"]
