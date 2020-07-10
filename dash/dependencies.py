@@ -147,7 +147,7 @@ def extract_callback_args(args, kwargs, name, type_):
 def handle_callback_args(args, kwargs):
     """Split args into outputs, inputs and states"""
     prevent_initial_call = kwargs.get("prevent_initial_call", None)
-    if prevent_initial_call is None and len(args) and isinstance(args[-1], bool):
+    if prevent_initial_call is None and args and isinstance(args[-1], bool):
         prevent_initial_call = args.pop()
 
     # flatten args, to support the older syntax where outputs, inputs, and states
@@ -158,7 +158,7 @@ def handle_callback_args(args, kwargs):
 
     outputs = extract_callback_args(flat_args, kwargs, "output", Output)
     if len(outputs) == 1:
-        out0 = kwargs.get("output", args[0] if len(args) else None)
+        out0 = kwargs.get("output", args[0] if args else None)
         if not isinstance(out0, (list, tuple)):
             outputs = outputs[0]
 
@@ -171,9 +171,5 @@ def handle_callback_args(args, kwargs):
             "then all Inputs, then all States. Trailing this we found:\n"
             + repr(flat_args)
         )
-    return [
-        outputs,
-        inputs,
-        states,
-        prevent_initial_call,
-    ]
+
+    return outputs, inputs, states, prevent_initial_call
