@@ -35,43 +35,43 @@ def validate_callback(output, inputs, state, extra_args, types):
 
     outputs = output if is_multi else [output]
 
-    for args, cls in [(outputs, Output), (inputs, Input), (state, State)]:
-        validate_callback_args(args, cls)
+    for args in [outputs, inputs, state]:
+        for arg in args:
+            validate_callback_arg(arg)
 
 
-def validate_callback_args(args, cls):
-    for arg in args:
-        if not isinstance(getattr(arg, "component_property", None), _strings):
-            raise exceptions.IncorrectTypeException(
-                """
-                component_property must be a string, found {!r}
-                """.format(
-                    arg.component_property
-                )
+def validate_callback_arg(arg):
+    if not isinstance(getattr(arg, "component_property", None), _strings):
+        raise exceptions.IncorrectTypeException(
+            """
+            component_property must be a string, found {!r}
+            """.format(
+                arg.component_property
             )
+        )
 
-        if hasattr(arg, "component_event"):
-            raise exceptions.NonExistentEventException(
-                """
-                Events have been removed.
-                Use the associated property instead.
-                """
+    if hasattr(arg, "component_event"):
+        raise exceptions.NonExistentEventException(
+            """
+            Events have been removed.
+            Use the associated property instead.
+            """
+        )
+
+    if isinstance(arg.component_id, dict):
+        validate_id_dict(arg)
+
+    elif isinstance(arg.component_id, _strings):
+        validate_id_string(arg)
+
+    else:
+        raise exceptions.IncorrectTypeException(
+            """
+            component_id must be a string or dict, found {!r}
+            """.format(
+                arg.component_id
             )
-
-        if isinstance(arg.component_id, dict):
-            validate_id_dict(arg)
-
-        elif isinstance(arg.component_id, _strings):
-            validate_id_string(arg)
-
-        else:
-            raise exceptions.IncorrectTypeException(
-                """
-                component_id must be a string or dict, found {!r}
-                """.format(
-                    arg.component_id
-                )
-            )
+        )
 
 
 def validate_id_dict(arg):
