@@ -51,17 +51,14 @@ def todo_app(content_callback):
     app.total_calls = Value("i", 0)
 
     @app.callback(
-        [Output("list-container", "children"), Output("new-item", "value")],
-        [
-            Input("add", "n_clicks"),
-            Input("new-item", "n_submit"),
-            Input("clear-done", "n_clicks"),
-        ],
-        [
-            State("new-item", "value"),
-            State({"item": ALL}, "children"),
-            State({"item": ALL, "action": "done"}, "value"),
-        ],
+        Output("list-container", "children"),
+        Output("new-item", "value"),
+        Input("add", "n_clicks"),
+        Input("new-item", "n_submit"),
+        Input("clear-done", "n_clicks"),
+        State("new-item", "value"),
+        State({"item": ALL}, "children"),
+        State({"item": ALL, "action": "done"}, "value"),
     )
     def edit_list(add, add2, clear, new_item, items, items_done):
         app.list_calls.value += 1
@@ -99,7 +96,7 @@ def todo_app(content_callback):
 
     @app.callback(
         Output({"item": MATCH}, "style"),
-        [Input({"item": MATCH, "action": "done"}, "value")],
+        Input({"item": MATCH, "action": "done"}, "value"),
     )
     def mark_done(done):
         app.style_calls.value += 1
@@ -107,10 +104,8 @@ def todo_app(content_callback):
 
     @app.callback(
         Output({"item": MATCH, "preceding": True}, "children"),
-        [
-            Input({"item": ALLSMALLER, "action": "done"}, "value"),
-            Input({"item": MATCH, "action": "done"}, "value"),
-        ],
+        Input({"item": ALLSMALLER, "action": "done"}, "value"),
+        Input({"item": MATCH, "action": "done"}, "value"),
     )
     def show_preceding(done_before, this_done):
         app.preceding_calls.value += 1
@@ -124,7 +119,7 @@ def todo_app(content_callback):
         return out
 
     @app.callback(
-        Output("totals", "children"), [Input({"item": ALL, "action": "done"}, "value")]
+        Output("totals", "children"), Input({"item": ALL, "action": "done"}, "value")
     )
     def show_totals(done):
         app.total_calls.value += 1
@@ -253,7 +248,7 @@ def fibonacci_app(clientside):
         ]
     )
 
-    @app.callback(Output("series", "children"), [Input("n", "value")])
+    @app.callback(Output("series", "children"), Input("n", "value"))
     def items(n):
         return [html.Div(id={"i": i}) for i in range(n)]
 
@@ -266,7 +261,7 @@ def fibonacci_app(clientside):
             }
             """,
             Output({"i": MATCH}, "children"),
-            [Input({"i": ALLSMALLER}, "children")],
+            Input({"i": ALLSMALLER}, "children"),
         )
 
         app.clientside_callback(
@@ -277,13 +272,13 @@ def fibonacci_app(clientside):
             }
             """,
             Output("sum", "children"),
-            [Input({"i": ALL}, "children")],
+            Input({"i": ALL}, "children"),
         )
 
     else:
 
         @app.callback(
-            Output({"i": MATCH}, "children"), [Input({"i": ALLSMALLER}, "children")]
+            Output({"i": MATCH}, "children"), Input({"i": ALLSMALLER}, "children")
         )
         def sequence(prev):
             global fibonacci_count
@@ -294,7 +289,7 @@ def fibonacci_app(clientside):
                 return len(prev)
             return int(prev[-1] or 0) + int(prev[-2] or 0)
 
-        @app.callback(Output("sum", "children"), [Input({"i": ALL}, "children")])
+        @app.callback(Output("sum", "children"), Input({"i": ALL}, "children"))
         def show_sum(seq):
             global fibonacci_sum_count
             fibonacci_sum_count = fibonacci_sum_count + 1
