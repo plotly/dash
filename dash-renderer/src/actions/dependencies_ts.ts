@@ -16,8 +16,8 @@ import {
     reduce,
     zipObj
 } from 'ramda';
-import { ICallback, ICallbackProperty, ICallbackDefinition, ILayoutCallbackProperty, ICallbackTemplate } from '../types/callbacks';
-import { addAllResolvedFromOutputs, splitIdAndProp, stringifyId, getUnfilteredLayoutCallbacks, isMultiValued, idMatch } from './dependencies';
+import { ICallback, ICallbackProperty, ICallbackDefinition, ILayoutCallbackProperty, ICallbackTemplate, CallbackId } from '../types/callbacks';
+import { addAllResolvedFromOutputs, splitIdAndProp, stringifyId, getUnfilteredLayoutCallbacks, isMultiValued, idMatch, wildcards } from './dependencies';
 import { getPath } from './paths';
 
 export const DIRECT = 2;
@@ -280,6 +280,31 @@ export function pruneCallbacks<T extends ICallback>(callbacks: T[], paths: any):
         added,
         removed
     };
+}
+
+/*
+ * If this ID is a wildcard, it is a stringified JSON object
+ * the "{" character is disallowed from regular string IDs
+ */
+const isWildcardId = (idStr: string) => idStr.startsWith('{');
+
+/*
+ * Turn stringified wildcard IDs into objects.
+ * Wildcards are encoded as single-item arrays containing the wildcard name
+ * as a string.
+ */
+function parseWildcardId(idStr: string): any {
+    return map(
+        val => (Array.isArray(val) && (wildcards as any)[val[0]]) || val,
+        JSON.parse(idStr)
+    );
+}
+
+/*
+ * Check if this ID is a stringified object, and if so parse it to that object
+ */
+export function parseIfWildcard(idStr: string): CallbackId {
+    return isWildcardId(idStr) ? parseWildcardId(idStr) : idStr;
 }
 
 export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: string) {

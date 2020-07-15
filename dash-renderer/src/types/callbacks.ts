@@ -1,4 +1,13 @@
-type CallbackId = string | { [key: string]: any }
+interface IWildcard {
+    wild: 'ALL' | 'ALLSMALLER' | 'MATCH';
+    [key: string]: any;
+}
+
+export interface IWildcardCallbackId {
+    [key: string]: string | number | IWildcard;
+}
+
+export type CallbackId = string | IWildcardCallbackId;
 
 export interface ICallbackDefinition {
     clientside_function?: {

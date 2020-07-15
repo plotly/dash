@@ -22,6 +22,7 @@ export interface IStoreObserver {
 
 export interface IStoreState {
     callbacks: ICallbacksState;
+    graphs: any;
     isLoading: IsLoadingState;
     loadingMap: LoadingMapState;
     [key: string]: any;

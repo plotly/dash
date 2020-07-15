@@ -8,12 +8,12 @@ import {
     dispatchError,
     hydrateInitialOutputs,
     onError,
-    setGraphs,
     setPaths,
     setLayout,
 } from './actions';
 import {computePaths} from './actions/paths';
-import {computeGraphs} from './actions/dependencies';
+import computeGraphs, {setGraph} from './actions/computeGraphs';
+import computeMaps from './actions/computeMaps';
 import apiThunk from './actions/api';
 import {EventEmitter} from './actions/utils';
 import {applyPersistence} from './persistence';
@@ -142,12 +142,13 @@ function storeEffect(props, events, setErrorLoading) {
         dispatch(apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest'));
     } else if (dependenciesRequest.status === STATUS.OK && isEmpty(graphs)) {
         dispatch(
-            setGraphs(
-                computeGraphs(
+            setGraph({
+                graphs: computeGraphs(
                     dependenciesRequest.content,
                     dispatchError(dispatch)
-                )
-            )
+                ),
+                ...computeMaps(dependenciesRequest.content),
+            })
         );
     }
 

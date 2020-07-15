@@ -23,13 +23,12 @@ import {
     mutateOutput
 } from '../actions/callbacks';
 
-import { parseIfWildcard } from '../actions/dependencies';
-
 import {
     combineIdAndProp,
     getCallbacksByInput,
     getLayoutCallbacks,
-    includeObservers
+    includeObservers,
+    parseIfWildcard
 } from '../actions/dependencies_ts';
 
 import {

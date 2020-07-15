@@ -7,7 +7,7 @@ import createApiReducer from './api';
 import appLifecycle from './appLifecycle';
 import callbacks from './callbacks';
 import config from './config';
-import graphs from './dependencyGraph';
+import graphs from './graphs';
 import error from './error';
 import history from './history';
 import hooks from './hooks';

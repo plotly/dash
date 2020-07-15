@@ -11,7 +11,6 @@ import {getPath} from './paths';
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
 export const setConfig = createAction(getAction('SET_CONFIG'));
-export const setGraphs = createAction(getAction('SET_GRAPHS'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setPaths = createAction(getAction('SET_PATHS'));
@@ -53,7 +52,7 @@ function triggerDefaultState(dispatch, getState) {
 
     // overallOrder will assert circular dependencies for multi output.
     try {
-        graphs.MultiGraph.overallOrder();
+        graphs.graphs.overallOrder();
     } catch (err) {
         dispatch(
             onError({
