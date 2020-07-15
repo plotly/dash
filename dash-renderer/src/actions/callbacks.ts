@@ -406,7 +406,7 @@ export function executeCallback(
             try {
                 const payload: ICallbackPayload = {
                     output,
-                    outputs: outputs.length === 1 ? outputs[0] : outputs,
+                    outputs: output.startsWith('..') ? outputs : outputs[0],
                     inputs: inVals,
                     changedPropIds: keys(cb.changedPropIds),
                     state: cb.callback.state.length ?

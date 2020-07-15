@@ -159,11 +159,16 @@ class AttributeDict(dict):
 __callback_id = 0
 
 
-def create_callback_id():
+def create_callback_id(output):
     # pylint: disable=global-statement
     global __callback_id
     __callback_id = __callback_id + 1
-    return str(__callback_id)
+
+    template = "..{}.." if isinstance(output, (list, tuple)) else "{}"
+
+    res = template.format(__callback_id)
+
+    return res
 
 
 def stringify_id(id_):

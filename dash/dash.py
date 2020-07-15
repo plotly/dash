@@ -828,7 +828,7 @@ class Dash(object):
 
         _validate.validate_callback(output, inputs, state)
         outputs = output if isinstance(output, list) else [output]
-        callback_id = create_callback_id()
+        callback_id = create_callback_id(output)
 
         callback_spec = {
             "output": callback_id,

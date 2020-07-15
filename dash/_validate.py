@@ -117,6 +117,7 @@ def validate_multi_return(outputs_list, output_value, callback_id):
             )
         )
 
+    print(len(output_value), outputs_list)
     if len(output_value) != len(outputs_list):
         raise exceptions.InvalidCallbackReturnValue(
             """
