@@ -827,7 +827,7 @@ class Dash(object):
             prevent_initial_call = self.config.prevent_initial_callbacks
 
         _validate.validate_callback(output, inputs, state)
-        outputs = output if isinstance(output, list) else [output]
+        outputs = output if isinstance(output, (list, tuple)) else [output]
         callback_id = create_callback_id(output)
 
         callback_spec = {
