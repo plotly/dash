@@ -46,6 +46,10 @@ import {
 import { IStoreObserverDefinition } from '../StoreObserver';
 
 function getMutation(cbMutation: string | true | undefined, outputProp: any) : string | undefined {
+    if (isNil(outputProp) || typeof outputProp !== 'object') {
+        return;
+    }
+
     const { __dashprivate_mutation, mutation } = outputProp;
 
     if (__dashprivate_mutation && typeof mutation !== 'string') {
@@ -175,6 +179,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     // New layout - trigger callbacks for that explicitly
                     if (has('children', appliedProps)) {
                         const { children } = appliedProps;
+                        console.log('executedCallbacks', 'children', children);
 
                         const oldChildrenPath: string[] = concat(getPath(oldPaths, parsedId) as string[], ['props', 'children']);
                         const oldChildren = path(oldChildrenPath, oldLayout);
