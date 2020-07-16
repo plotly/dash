@@ -779,7 +779,11 @@ export function computeGraphs(dependencies, dispatchError) {
             // Non-mutation callbacks trigger mutation callbacks
             if (!isMutation) {
                 outputs.forEach(outObj => {
-                    const { id: outId, mutation: outMutation, property: outProperty } = outObj;
+                    const {
+                        id: outId,
+                        mutation: outMutation,
+                        property: outProperty,
+                    } = outObj;
                     if (!outMutation) {
                         return;
                     }
@@ -788,7 +792,7 @@ export function computeGraphs(dependencies, dispatchError) {
                         const outIdList = makeAllIds(outId, outIdFinal);
                         outIdList.forEach(id => {
                             addInputToMulti(
-                                combineIdAndProp({ id, property: outProperty }),
+                                combineIdAndProp({id, property: outProperty}),
                                 outIdProp
                             );
                         });
@@ -816,12 +820,20 @@ export function computeGraphs(dependencies, dispatchError) {
             if (typeof outId === 'object') {
                 const outIdList = makeAllIds(outId, {});
                 outIdList.forEach(id => {
-                    addOutputToMulti(id, combineIdAndProp({id, property}), !!mutation);
+                    addOutputToMulti(
+                        id,
+                        combineIdAndProp({id, property}),
+                        Boolean(mutation)
+                    );
                 });
 
                 addPattern(outputPatterns, outId, property, finalDependency);
             } else {
-                addOutputToMulti({}, combineIdAndProp(outIdProp), !!mutation);
+                addOutputToMulti(
+                    {},
+                    combineIdAndProp(outIdProp),
+                    Boolean(mutation)
+                );
                 addMap(outputMap, outId, property, finalDependency);
             }
         });
