@@ -12,14 +12,18 @@ import {
     setLayout,
 } from './actions';
 import {computePaths} from './actions/paths';
-import computeGraphs, {setGraph} from './actions/computeGraphs';
-import computeMaps from './actions/computeMaps';
+import computeGraphs, {
+    setGraph,
+    getResolvedCallbacks,
+} from './actions/computeGraphs';
+import computeMaps, {validateDependencies} from './actions/computeMaps';
 import apiThunk from './actions/api';
 import {EventEmitter} from './actions/utils';
 import {applyPersistence} from './persistence';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
+import {DepGraph} from 'dependency-graph';
 
 export const DashContext = createContext({});
 
@@ -141,15 +145,34 @@ function storeEffect(props, events, setErrorLoading) {
     if (isEmpty(dependenciesRequest)) {
         dispatch(apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest'));
     } else if (dependenciesRequest.status === STATUS.OK && isEmpty(graphs)) {
-        dispatch(
-            setGraph({
-                graphs: computeGraphs(
-                    dependenciesRequest.content,
-                    dispatchError(dispatch)
-                ),
-                ...computeMaps(dependenciesRequest.content),
-            })
+        const resolvedCallbacks = getResolvedCallbacks(
+            dependenciesRequest.content
         );
+
+        const res = validateDependencies(
+            resolvedCallbacks,
+            dispatchError(dispatch)
+        )
+            ? {
+                  graphs: computeGraphs(
+                      dependenciesRequest.content,
+                      dispatchError(dispatch)
+                  ),
+                  ...computeMaps(
+                      dependenciesRequest.content,
+                      dispatchError(dispatch)
+                  ),
+              }
+            : {
+                  graphs: new DepGraph(),
+                  outputMap: {},
+                  inputMap: {},
+                  outputPatterns: {},
+                  inputPatterns: {},
+                  callbacks: resolvedCallbacks,
+              };
+
+        dispatch(setGraph(res));
     }
 
     if (

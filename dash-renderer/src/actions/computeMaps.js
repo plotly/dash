@@ -4,13 +4,11 @@ import {
     all,
     difference,
     equals,
-    evolve,
     findIndex,
     forEachObjIndexed,
     includes,
     isEmpty,
     keys,
-    map,
     mergeRight,
     props,
     zip,
@@ -23,25 +21,23 @@ import {
     idValSort,
     isMultiValued,
 } from './dependencies';
-import {combineIdAndProp, parseIfWildcard} from './dependencies_ts';
-
+import {combineIdAndProp} from './dependencies_ts';
 /*
  * Provide a value known to be before or after v, according to idValSort
  */
 const valBefore = v => (isNumeric(v) ? v - 1 : 0);
 const valAfter = v => (typeof v === 'string' ? v + 'z' : 'z');
 
-export default callbackDefinitions => {
+export default parsedDependencies => {
     const wildcardPlaceholders = {};
 
-    const fixIds = map(evolve({id: parseIfWildcard}));
-    const parsedDependencies = map(dep => {
-        const out = evolve(
-            {inputs: fixIds, outputs: fixIds, state: fixIds},
-            dep
-        );
-        return out;
-    }, callbackDefinitions);
+    const res = {
+        outputMap: {},
+        inputMap: {},
+        outputPatterns: {},
+        inputPatterns: {},
+        callbacks: parsedDependencies,
+    };
 
     /*
      * For regular ids, outputMap and inputMap are:
@@ -65,18 +61,6 @@ export default callbackDefinitions => {
      * keys is the same ordered list (just copied for convenience)
      * values is an array of explicit or wildcard values for each key in keys
      */
-    const outputMap = {};
-    const inputMap = {};
-    const outputPatterns = {};
-    const inputPatterns = {};
-
-    const finalGraphs = {
-        outputMap,
-        inputMap,
-        outputPatterns,
-        inputPatterns,
-        callbacks: parsedDependencies,
-    };
 
     parsedDependencies.forEach(dependency => {
         const {outputs, inputs} = dependency;
@@ -140,23 +124,28 @@ export default callbackDefinitions => {
         outputs.forEach(outIdProp => {
             const {id: outId, property} = outIdProp;
             if (typeof outId === 'object') {
-                addPattern(outputPatterns, outId, property, finalDependency);
+                addPattern(
+                    res.outputPatterns,
+                    outId,
+                    property,
+                    finalDependency
+                );
             } else {
-                addMap(outputMap, outId, property, finalDependency);
+                addMap(res.outputMap, outId, property, finalDependency);
             }
         });
 
         inputs.forEach(inputObject => {
             const {id: inId, property: inProp} = inputObject;
             if (typeof inId === 'object') {
-                addPattern(inputPatterns, inId, inProp, finalDependency);
+                addPattern(res.inputPatterns, inId, inProp, finalDependency);
             } else {
-                addMap(inputMap, inId, inProp, finalDependency);
+                addMap(res.inputMap, inId, inProp, finalDependency);
             }
         });
     });
 
-    return finalGraphs;
+    return res;
 };
 
 const idInvalidChars = ['.', '{'];
@@ -302,6 +291,10 @@ function findInOutOverlap(outputs, inputs, head, dispatchError) {
 }
 
 function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
+    if (!outputs.length) {
+        return;
+    }
+
     const {matchKeys: out0MatchKeys} = findWildcardKeys(outputs[0].id);
     outputs.forEach((out, i) => {
         if (i && !equals(findWildcardKeys(out.id).matchKeys, out0MatchKeys)) {
@@ -423,7 +416,7 @@ export function validateDependencies(parsedDependencies, dispatchError) {
     parsedDependencies.forEach(dep => {
         const {inputs, outputs, state} = dep;
         let hasOutputs = true;
-        if (outputs.length === 1 && !outputs[0].id && !outputs[0].property) {
+        if (!outputs.length) {
             hasOutputs = false;
             _dispatchError('A callback is missing Outputs', [
                 'Please provide an output for this callback:',
@@ -468,13 +461,13 @@ export function validateDependencies(parsedDependencies, dispatchError) {
                 ]);
             }
             args.forEach((idProp, i) => {
-                validateArg(idProp, head, cls, i, dispatchError);
+                validateArg(idProp, head, cls, i, _dispatchError);
             });
         });
 
-        findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs);
-        findInOutOverlap(outputs, inputs, head, dispatchError);
-        findMismatchedWildcards(outputs, inputs, state, head, dispatchError);
+        findDuplicateOutputs(outputs, head, _dispatchError, outStrs, outObjs);
+        findInOutOverlap(outputs, inputs, head, _dispatchError);
+        findMismatchedWildcards(outputs, inputs, state, head, _dispatchError);
     });
 
     return valid;

@@ -26,11 +26,9 @@ import { createAction } from 'redux-actions';
 
 import { DependencyGraphActionType } from '../reducers/graphs';
 import { ICallbackDefinition, ICallbackProperty, ILayoutCallbackProperty, IWildcardCallbackId } from '../types/callbacks';
-import { validateDependencies } from './computeMaps';
 // import { idValSort } from './dependencies';
 import { parseIfWildcard, combineIdAndProp } from './dependencies_ts';
 
-type DispatchError = (message: string, lines: string[]) => void;
 type IResolvedCallbackProperty = Omit<ICallbackProperty, 'id'> & Pick<ILayoutCallbackProperty, 'id'>;
 type IResolvedCallback = Omit<Omit<Omit<ICallbackDefinition, 'inputs'>, 'outputs'>, 'state'> & {
     inputs: IResolvedCallbackProperty[],
@@ -59,7 +57,7 @@ interface ICallbackMap {
 const fixId = evolve({ id: parseIfWildcard }) as (cbp: ICallbackProperty) => IResolvedCallbackProperty;
 const fixIds = map(fixId);
 
-const getResolvedCallbacks = map(evolve({
+export const getResolvedCallbacks = map(evolve({
     inputs: fixIds,
     outputs: fixIds,
     state: fixIds
@@ -129,16 +127,7 @@ const push = (
     value: [IResolvedCallback, IResolvedCallbackProperty]
 ) => (target[key] = target[key] || []).push(value);
 
-export default (
-    callbacks: ICallbackDefinition[],
-    dispatchError: DispatchError
-): DepGraph<any> => {
-    const resolvedCallbacks = getResolvedCallbacks(callbacks);
-
-    if (!validateDependencies(resolvedCallbacks, dispatchError)) {
-        return new DepGraph();
-    }
-
+export default (resolvedCallbacks: ICallbackDefinition[]): DepGraph<any> => {
     // const wildcardUsage = getWildcardUsage(resolvedCallbacks);
 
     const callbackMap: ICallbackMap = {
