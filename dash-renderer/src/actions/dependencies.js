@@ -80,16 +80,6 @@ function parseWildcardId(idStr) {
     );
 }
 
-/*
- * If this update is for multiple outputs, then it has
- * starting & trailing `..` and each propId pair is separated
- * by `...`, e.g.
- * "..output-1.value...output-2.value...output-3.value...output-4.value.."
- */
-function parseMultipleOutputs(outputIdAndProp) {
-    return outputIdAndProp.substr(2, outputIdAndProp.length - 4).split('...');
-}
-
 export function splitIdAndProp(idAndProp) {
     // since wildcard ids can have . in them but props can't,
     // look for the last . in the string and split there
@@ -614,15 +604,10 @@ export function computeGraphs(dependencies, dispatchError) {
     const wildcardPlaceholders = {};
 
     const fixIds = map(evolve({id: parseIfWildcard}));
-    const parsedDependencies = map(dep => {
-        const {output} = dep;
-        const out = evolve({inputs: fixIds, state: fixIds}, dep);
-        out.outputs = map(
-            outi => assoc('out', true, splitIdAndProp(outi)),
-            isMultiOutputProp(output) ? parseMultipleOutputs(output) : [output]
-        );
-        return out;
-    }, dependencies);
+    const parsedDependencies = map(
+        dep => evolve({inputs: fixIds, outputs: fixIds, state: fixIds}, dep),
+        dependencies
+    );
 
     let hasError = false;
     const wrappedDE = (message, lines) => {
