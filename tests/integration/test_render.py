@@ -872,10 +872,12 @@ class Tests(IntegrationTests):
         post_response = self.wait_for_element_by_css_selector(
             "#output-post-response"
         ).text
+
+        pre_payload_obj = json.loads(pre_payload)
+        del pre_payload_obj["output"]
         self.assertEqual(
-            json.loads(pre_payload),
+            pre_payload_obj,
             {
-                "output": "output-1.children",
                 "outputs": {"id": "output-1", "property": "children"},
                 "changedPropIds": ["input.value"],
                 "inputs": [
@@ -883,10 +885,11 @@ class Tests(IntegrationTests):
                 ],
             },
         )
+        post_payload_obj = json.loads(post_payload)
+        del post_payload_obj["output"]
         self.assertEqual(
-            json.loads(post_payload),
+            post_payload_obj,
             {
-                "output": "output-1.children",
                 "outputs": {"id": "output-1", "property": "children"},
                 "changedPropIds": ["input.value"],
                 "inputs": [
