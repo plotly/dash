@@ -759,7 +759,7 @@ export function computeGraphs(dependencies, dispatchError) {
             multiGraph.addDependency(inIdProp, outIdProp);
         }
 
-        function addOutputToMulti(outIdFinal, outIdProp, isMutation) {
+        function addOutputToMulti(outIdFinal, outIdProp) {
             multiGraph.addNode(outIdProp);
             inputs.forEach(inObj => {
                 const {id: inId, property} = inObj;
@@ -776,31 +776,31 @@ export function computeGraphs(dependencies, dispatchError) {
                 }
             });
 
-            // Non-mutation callbacks trigger mutation callbacks
-            if (!isMutation) {
-                outputs.forEach(outObj => {
-                    const {
-                        id: outId,
-                        mutation: outMutation,
-                        property: outProperty,
-                    } = outObj;
-                    if (!outMutation) {
-                        return;
-                    }
+            // // Non-mutation callbacks trigger mutation callbacks
+            // if (!isMutation) {
+            //     outputs.forEach(outObj => {
+            //         const {
+            //             id: outId,
+            //             mutation: outMutation,
+            //             property: outProperty,
+            //         } = outObj;
+            //         if (!outMutation) {
+            //             return;
+            //         }
 
-                    if (typeof outId === 'object') {
-                        const outIdList = makeAllIds(outId, outIdFinal);
-                        outIdList.forEach(id => {
-                            addInputToMulti(
-                                combineIdAndProp({id, property: outProperty}),
-                                outIdProp
-                            );
-                        });
-                    } else {
-                        addInputToMulti(combineIdAndProp(outObj), outIdProp);
-                    }
-                });
-            }
+            //         if (typeof outId === 'object') {
+            //             const outIdList = makeAllIds(outId, outIdFinal);
+            //             outIdList.forEach(id => {
+            //                 addInputToMulti(
+            //                     combineIdAndProp({id, property: outProperty}),
+            //                     outIdProp
+            //                 );
+            //             });
+            //         } else {
+            //             addInputToMulti(combineIdAndProp(outObj), outIdProp);
+            //         }
+            //     });
+            // }
         }
 
         // We'll continue to use dep.output as its id, but add outputs as well
@@ -816,24 +816,16 @@ export function computeGraphs(dependencies, dispatchError) {
         );
 
         outputs.forEach(outIdProp => {
-            const {id: outId, mutation, property} = outIdProp;
+            const {id: outId, property} = outIdProp;
             if (typeof outId === 'object') {
                 const outIdList = makeAllIds(outId, {});
                 outIdList.forEach(id => {
-                    addOutputToMulti(
-                        id,
-                        combineIdAndProp({id, property}),
-                        Boolean(mutation)
-                    );
+                    addOutputToMulti(id, combineIdAndProp({id, property}));
                 });
 
                 addPattern(outputPatterns, outId, property, finalDependency);
             } else {
-                addOutputToMulti(
-                    {},
-                    combineIdAndProp(outIdProp),
-                    Boolean(mutation)
-                );
+                addOutputToMulti({}, combineIdAndProp(outIdProp));
                 addMap(outputMap, outId, property, finalDependency);
             }
         });
