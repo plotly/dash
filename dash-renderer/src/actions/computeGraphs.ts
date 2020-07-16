@@ -133,7 +133,6 @@ export default (
     callbacks: ICallbackDefinition[],
     dispatchError: DispatchError
 ): DepGraph<any> => {
-    console.log('expComputeGraph > eval');
     const resolvedCallbacks = getResolvedCallbacks(callbacks);
 
     if (!validateDependencies(resolvedCallbacks, dispatchError)) {

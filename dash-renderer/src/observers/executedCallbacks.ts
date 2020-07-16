@@ -179,7 +179,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     // New layout - trigger callbacks for that explicitly
                     if (has('children', appliedProps)) {
                         const { children } = appliedProps;
-                        console.log('executedCallbacks', 'children', children);
 
                         const oldChildrenPath: string[] = concat(getPath(oldPaths, parsedId) as string[], ['props', 'children']);
                         const oldChildren = path(oldChildrenPath, oldLayout);

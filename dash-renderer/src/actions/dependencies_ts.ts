@@ -29,6 +29,11 @@ export const combineIdAndProp = ({
     property
 }: ICallbackProperty) => `${stringifyId(id)}.${property}`;
 
+const combineIdAndPropAndOutput = (output: string, {
+    id,
+    property
+}: ICallbackProperty) => `${output}${combineIdAndProp({ id, property })}`;
+
 export function getCallbacksByInput(
     graphs: any,
     paths: any,
@@ -232,6 +237,25 @@ export function includeObservers(id: any, properties: any, graphs: any, paths: a
         keys(properties)
     ));
 }
+
+export const getUniqueIdentifier = ({
+    anyVals,
+    callback: {
+        inputs,
+        output,
+        outputs,
+        state
+    }
+}: ICallback): string => concat(
+    map(combineIdAndPropAndOutput.bind(undefined, output), [
+        ...inputs,
+        ...outputs,
+        ...state
+    ]),
+    Array.isArray(anyVals) ?
+        anyVals :
+        anyVals === '' ? [] : [anyVals]
+).join(',');
 
 /*
  * Create a pending callback object. Includes the original callback definition,

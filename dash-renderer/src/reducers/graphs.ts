@@ -11,5 +11,5 @@ export default (
     state: any = {},
     action: IDependencyGraphAction
 ) => action.type === DependencyGraphActionType.Set ?
-        Boolean(console.log(action.payload)) || action.payload :
+        action.payload :
         state;
