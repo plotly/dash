@@ -38,7 +38,6 @@ from ._utils import (
     inputs_to_vals,
     interpolate_str,
     patch_collections_abc,
-    split_callback_id,
     stringify_id,
     strip_relative_path,
 )
@@ -831,9 +830,12 @@ class Dash(object):
             prevent_initial_call = self.config.prevent_initial_callbacks
 
         _validate.validate_callback(output, inputs, state)
+        outputs = output if isinstance(output, (list, tuple)) else [output]
         callback_id = create_callback_id(output)
+
         callback_spec = {
             "output": callback_id,
+            "outputs": [c.to_dict() for c in outputs],
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
             "clientside_function": None,
@@ -1016,7 +1018,7 @@ class Dash(object):
         flask.g.inputs_list = inputs = body.get("inputs", [])
         flask.g.states_list = state = body.get("state", [])
         output = body["output"]
-        outputs_list = body.get("outputs") or split_callback_id(output)
+        outputs_list = body.get("outputs")
         flask.g.outputs_list = outputs_list
 
         flask.g.input_values = input_values = inputs_to_dict(inputs)

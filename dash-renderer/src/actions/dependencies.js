@@ -759,7 +759,7 @@ export function computeGraphs(dependencies, dispatchError) {
             multiGraph.addDependency(inIdProp, outIdProp);
         }
 
-        function addOutputToMulti(outIdFinal, outIdProp) {
+        function addOutputToMulti(outIdFinal, outIdProp, isMutation) {
             multiGraph.addNode(outIdProp);
             inputs.forEach(inObj => {
                 const {id: inId, property} = inObj;
@@ -775,6 +775,28 @@ export function computeGraphs(dependencies, dispatchError) {
                     addInputToMulti(combineIdAndProp(inObj), outIdProp);
                 }
             });
+
+            // Non-mutation callbacks trigger mutation callbacks
+            if (!isMutation) {
+                outputs.forEach(outObj => {
+                    const { id: outId, mutation: outMutation, property: outProperty } = outObj;
+                    if (!outMutation) {
+                        return;
+                    }
+
+                    if (typeof outId === 'object') {
+                        const outIdList = makeAllIds(outId, outIdFinal);
+                        outIdList.forEach(id => {
+                            addInputToMulti(
+                                combineIdAndProp({ id, property: outProperty }),
+                                outIdProp
+                            );
+                        });
+                    } else {
+                        addInputToMulti(combineIdAndProp(outObj), outIdProp);
+                    }
+                });
+            }
         }
 
         // We'll continue to use dep.output as its id, but add outputs as well
@@ -790,16 +812,16 @@ export function computeGraphs(dependencies, dispatchError) {
         );
 
         outputs.forEach(outIdProp => {
-            const {id: outId, property} = outIdProp;
+            const {id: outId, mutation, property} = outIdProp;
             if (typeof outId === 'object') {
                 const outIdList = makeAllIds(outId, {});
                 outIdList.forEach(id => {
-                    addOutputToMulti(id, combineIdAndProp({id, property}));
+                    addOutputToMulti(id, combineIdAndProp({id, property}), !!mutation);
                 });
 
                 addPattern(outputPatterns, outId, property, finalDependency);
             } else {
-                addOutputToMulti({}, combineIdAndProp(outIdProp));
+                addOutputToMulti({}, combineIdAndProp(outIdProp), !!mutation);
                 addMap(outputMap, outId, property, finalDependency);
             }
         });
