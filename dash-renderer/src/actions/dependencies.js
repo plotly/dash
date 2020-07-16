@@ -179,7 +179,10 @@ function validateDependencies(parsedDependencies, dispatchError) {
     parsedDependencies.forEach(dep => {
         const {inputs, outputs, state} = dep;
         let hasOutputs = true;
-        if (outputs.length === 1 && !outputs[0].id && !outputs[0].property) {
+        if (
+            !outputs.length ||
+            (outputs.length === 1 && !outputs[0].id && !outputs[0].property)
+        ) {
             hasOutputs = false;
             dispatchError('A callback is missing Outputs', [
                 'Please provide an output for this callback:',
@@ -383,6 +386,10 @@ function findInOutOverlap(outputs, inputs, head, dispatchError) {
 }
 
 function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
+    if (!outputs.length) {
+        return;
+    }
+
     const {matchKeys: out0MatchKeys} = findWildcardKeys(outputs[0].id);
     outputs.forEach((out, i) => {
         if (i && !equals(findWildcardKeys(out.id).matchKeys, out0MatchKeys)) {
