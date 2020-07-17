@@ -42,7 +42,9 @@ def raise_(ex):
     raise ex
 
 
-@pytest.mark.parametrize("mutation", ["base + value", True])
+@pytest.mark.parametrize(
+    "mutation", ["function() { return base + value; }", "base + value", True]
+)
 @pytest.mark.parametrize(
     "process_clicks",
     [lambda n_clicks: no_update, lambda n_clicks: raise_(PreventUpdate)],

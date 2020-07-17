@@ -132,7 +132,9 @@ function mutateValue(mutation: string | undefined, paramKeys: string[], paramVal
         return value;
     }
 
-    return new Function(...paramKeys, 'value', `return ${mutation}`)(...paramValues, value);
+    const res = Function(...paramKeys, 'value', `return ${mutation}`)(...paramValues, value);
+
+    return typeof res === 'function' ? res() : res;
 }
 
 function fillVals(
