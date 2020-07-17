@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import {
     concat,
     flatten,
@@ -114,6 +115,26 @@ function unwrapIfNotMulti(
     return [idProps[0], msg];
 }
 
+export function mutateInput(mutation: string | undefined, value: any) {
+    return mutateValue(mutation, ['R'], [R], value);
+}
+
+export function mutateOutput(mutation: string | undefined, value: any, base: any) {
+    return mutateValue(mutation, ['R', 'base'], [R, base], value);
+}
+
+export function mutateState(mutation: string | undefined, value: any) {
+    return mutateValue(mutation, ['R'], [R], value);
+}
+
+function mutateValue(mutation: string | undefined, paramKeys: string[], paramValues: any[], value: any) {
+    if (!mutation) {
+        return value;
+    }
+
+    return new Function(...paramKeys, 'value', `return ${mutation}`)(...paramValues, value);
+}
+
 function fillVals(
     paths: any,
     layout: any,
@@ -126,13 +147,16 @@ function fillVals(
     const errors: any[] = [];
     let emptyMultiValues = 0;
 
-    const inputVals = getter(paths).map((inputList: any, i: number) => {
+    const inputVals = getter(paths).map((inputList, i: number) => {
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
-            inputList.map(({ id, property, path: path_ }: any) => ({
+            inputList.map(({ id, mutation, property, path: path_ }: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property]
+                value: (depType === 'Input' ? mutateInput : mutateState)(
+                    mutation,
+                    (path(path_, layout) as any).props[property]
+                )
             })),
             specs[i],
             cb.anyVals,

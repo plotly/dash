@@ -19,7 +19,8 @@ import {
     addRequestedCallbacks,
     removeExecutedCallbacks,
     addCompletedCallbacks,
-    addStoredCallbacks
+    addStoredCallbacks,
+    mutateOutput
 } from '../actions/callbacks';
 
 import { parseIfWildcard } from '../actions/dependencies';
@@ -44,6 +45,50 @@ import {
     prunePersistence
 } from '../persistence';
 import { IStoreObserverDefinition } from '../StoreObserver';
+
+function getMutation(cbMutation: string | true | undefined, outputProp: any) : string | undefined {
+    if (isNil(outputProp) || typeof outputProp !== 'object') {
+        return;
+    }
+
+    const { __dashprivate_mutation, mutation } = outputProp;
+
+    if (__dashprivate_mutation && typeof mutation !== 'string') {
+        throw Error(`Callback returned a mutation operation that isn't a string.`);
+    }
+
+    if (isNil(cbMutation)) {
+        return __dashprivate_mutation ? mutation : undefined;
+    }
+
+    if (cbMutation === true) {
+        if (!mutation) {
+            throw Error(`Callback returned a value but the callback does not allow non-mutation results`);
+        }
+
+        return mutation;
+    }
+
+    return __dashprivate_mutation ? mutation : cbMutation;
+
+}
+
+function mutateOutputProps(id: any, props: { [key: string]: any }, cb: ICallback, getState: () => IStoreState) {
+    const { layout, paths } = getState();
+    const itempath = getPath(paths, id);
+    if (!itempath) {
+        return props;
+    }
+
+    // mutate output props
+    forEach(key => props[key] = mutateOutput(
+        getMutation(cb.callback.outputs.find(o => o.property === key)?.mutation, props[key]),
+        props[key],
+        (path(itempath, layout) as any).props[key]
+    ), keys(props));
+
+    return props;
+}
 
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: ({
@@ -112,6 +157,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
             if (data !== undefined) {
                 forEach(([id, props]: [any, { [key: string]: any }]) => {
+                    props = mutateOutputProps(id, props, cb, getState);
+
                     const parsedId = parseIfWildcard(id);
                     const { graphs, layout: oldLayout, paths: oldPaths } = getState();
 
