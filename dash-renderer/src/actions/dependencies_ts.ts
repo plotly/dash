@@ -238,19 +238,22 @@ export const getUniqueIdentifier = ({
     anyVals,
     callback: {
         inputs,
+        output,
         outputs,
         state
     }
-}: ICallback): string => concat(
-    map(combineIdAndProp, [
+}: ICallback): string => [
+    output,
+    ...map(combineIdAndProp, [
         ...inputs,
         ...outputs,
         ...state
     ]),
-    Array.isArray(anyVals) ?
+    ...(Array.isArray(anyVals) ?
         anyVals :
         anyVals === '' ? [] : [anyVals]
-    ).join(',');
+    )
+].join(',');
 
 export function includeObservers(id: any, properties: any, graphs: any, paths: any): ICallback[] {
     return flatten(map(
@@ -309,10 +312,10 @@ export function pruneCallbacks<T extends ICallback>(callbacks: T[], paths: any):
 }
 
 export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: string) {
-    return (paths: any) => ({ id: idPattern, property }: ICallbackProperty) => {
+    return (paths: any) => ({ id: idPattern, mutation, property }: ICallbackProperty) => {
         if (typeof idPattern === 'string') {
             const path = getPath(paths, idPattern);
-            return path ? [{ id: idPattern, property, path }] : [];
+            return path ? [{ id: idPattern, mutation, property, path }] : [];
         }
         const _keys = Object.keys(idPattern).sort();
         const patternVals = props(_keys, idPattern);
@@ -333,7 +336,7 @@ export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: strin
                     refPatternVals
                 )
             ) {
-                result.push({ id: zipObj(_keys, vals), property, path });
+                result.push({ id: zipObj(_keys, vals), mutation, property, path });
             }
         });
         return result;

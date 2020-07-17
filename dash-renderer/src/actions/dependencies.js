@@ -14,6 +14,7 @@ import {
     includes,
     intersection,
     isEmpty,
+    isNil,
     keys,
     map,
     mergeRight,
@@ -311,7 +312,11 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
 function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
     const newOutputStrs = {};
     const newOutputObjs = [];
-    outputs.forEach(({id, property}, i) => {
+    outputs.forEach(({id, mutation, property}, i) => {
+        if (!isNil(mutation)) {
+            return;
+        }
+
         if (typeof id === 'string') {
             const idProp = combineIdAndProp({id, property});
             if (newOutputStrs[idProp]) {
