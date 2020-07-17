@@ -47,18 +47,26 @@ import {
 import { IStoreObserverDefinition } from '../StoreObserver';
 
 function getMutation(cbMutation: string | true | undefined, outputProp: any) : string | undefined {
-    if (isNil(outputProp) || typeof outputProp !== 'object') {
-        return;
+    const isMutation = outputProp?.__dashprivate_mutation;
+    const mutation = outputProp?.mutation;
+
+    // Error: `__dashprivate_mutation` must be nil or true
+    if (!isNil(isMutation) && isMutation !== true) {
+        throw Error(`Callback returned a mutation operation with property "__dashprivate_mutation" that isn't true.`);
     }
 
-    const { __dashprivate_mutation, mutation } = outputProp;
+    // Error: `mutation` must be a string
+    if (isMutation && typeof mutation !== 'string') {
+        throw Error(`Callback returned a mutation operation with property "mutation" that isn't a string.`);
+    }
 
-    if (__dashprivate_mutation && typeof mutation !== 'string') {
-        throw Error(`Callback returned a mutation operation that isn't a string.`);
+    // Error: Callback ouptut does not allow mutations but the output value is a mutation
+    if (isMutation && isNil(cbMutation)) {
+        throw Error(`Callback returned a mutation operation on a non-mutation callback property.`);
     }
 
     if (isNil(cbMutation)) {
-        return __dashprivate_mutation ? mutation : undefined;
+        return;
     }
 
     if (cbMutation === true) {
@@ -67,10 +75,13 @@ function getMutation(cbMutation: string | true | undefined, outputProp: any) : s
         }
 
         return mutation;
+    } else {
+        return isMutation ? mutation : cbMutation;
     }
+}
 
-    return __dashprivate_mutation ? mutation : cbMutation;
-
+function getValue(outputProp: any) {
+    return outputProp?.__dashprivate_mutation ? outputProp?.output : outputProp;
 }
 
 function mutateOutputProps(id: any, props: { [key: string]: any }, cb: ICallback, getState: () => IStoreState) {
@@ -81,11 +92,18 @@ function mutateOutputProps(id: any, props: { [key: string]: any }, cb: ICallback
     }
 
     // mutate output props
-    forEach(key => props[key] = mutateOutput(
-        getMutation(cb.callback.outputs.find(o => o.property === key)?.mutation, props[key]),
-        props[key],
-        (path(itempath, layout) as any).props[key]
-    ), keys(props));
+    forEach(key => {
+        const cbp = cb.callback.outputs.find(o => o.property === key);
+        if (!cbp) {
+            return;
+        }
+
+        props[key] = mutateOutput(
+            getMutation(cbp.mutation, props[key]),
+            getValue(props[key]),
+            (path(itempath, layout) as any).props[key]
+        )
+    }, keys(props));
 
     return props;
 }
