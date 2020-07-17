@@ -7,6 +7,7 @@ import {
     flatten,
     forEach,
     isEmpty,
+    isNil,
     keys,
     map,
     mergeWith,
@@ -132,30 +133,37 @@ export const getReadyCallbacks = (
     candidates: ICallback[],
     callbacks: ICallback[] = candidates
 ): ICallback[] => {
-    // Skip if there's no candidates
     if (!candidates.length) {
         return [];
     }
 
-    // Find all outputs of all active callbacks
-    const outputs = map(
-        combineIdAndProp,
-        reduce<ICallback, any[]>(
-            (o, cb) => concat(o, flatten(cb.getOutputs(paths))),
-            [],
-            callbacks
-        )
-    );
+    const outputs = flatten(map(cb => cb.getOutputs(paths), callbacks));
 
-    // Make `outputs` hash table for faster access
-    const outputsMap: { [key: string]: boolean } = {};
-    forEach(output => outputsMap[output] = true, outputs);
+    const [
+        resolvedStandardOutputs,
+        resolvedMutationOutputs
+    ] = map(map(combineIdAndProp), partition(output => isNil(output.mutation), outputs));
 
-    // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
+    // Make a map of all the standard outputs (to be used against mutation outputs)
+    const standardOutputsMap: { [key: string]: boolean } = {};
+    forEach(output => standardOutputsMap[output] = true, resolvedStandardOutputs);
+
+    // Make a map of all the outputs (standard+mutation) (to be used against inputs)
+    const outputsMap: { [key: string]: boolean } = { ...standardOutputsMap };
+    forEach(output => outputsMap[output] = true, resolvedMutationOutputs);
+
+    // Find `requested` callbacks that do not have:
+    // 1. an input depending on a listed output
+    // 2. a mutation output depending on a listed standard output
     return filter(
         cb => all(
-            cbp => !outputsMap[combineIdAndProp(cbp)],
-            flatten(cb.getInputs(paths))
+            // no input is in the outputs (both standard and mutation)
+            cbp => !outputsMap[cbp],
+            map<ILayoutCallbackProperty, string>(combineIdAndProp, flatten(cb.getInputs(paths)))
+        ) && all(
+            // no mutation output is also in the standard outputs
+            cbp => !standardOutputsMap[cbp],
+            map<ILayoutCallbackProperty, string>(combineIdAndProp, filter(output => !isNil(output.mutation), flatten(cb.getOutputs(paths))))
         ),
         candidates
     );
