@@ -4,7 +4,7 @@ import React, { CSSProperties } from 'react';
 import { matrixMap2, matrixMap3 } from 'core/math/matrixZipMap';
 import { arrayMap2 } from 'core/math/arrayZipMap';
 
-import { ICellFactoryProps } from 'dash-table/components/Table/props';
+import { ICellFactoryProps, IMarkdownOptions } from 'dash-table/components/Table/props';
 import derivedCellWrappers from 'dash-table/derived/cell/wrappers';
 import derivedCellContents from 'dash-table/derived/cell/contents';
 import derivedCellOperations from 'dash-table/derived/cell/operations';
@@ -14,6 +14,7 @@ import { derivedRelevantCellStyles } from 'dash-table/derived/style';
 import { IEdgesMatrices } from 'dash-table/derived/edges/type';
 import { memoizeOne } from 'core/memoizer';
 import memoizerCache from 'core/cache/memoizer';
+import Markdown from 'dash-table/utils/Markdown';
 
 export default class CellFactory {
 
@@ -33,6 +34,10 @@ export default class CellFactory {
         private readonly relevantStyles = derivedRelevantCellStyles()
     ) { }
 
+    private getMarkdown = memoizeOne((
+        options: IMarkdownOptions
+    ) => new Markdown(options));
+
     public createCells(dataEdges: IEdgesMatrices | undefined, dataOpEdges: IEdgesMatrices | undefined) {
         const {
             active_cell,
@@ -44,6 +49,7 @@ export default class CellFactory {
             id,
             is_focused,
             loading_state,
+            markdown_options,
             row_deletable,
             row_selectable,
             selected_cells,
@@ -121,13 +127,16 @@ export default class CellFactory {
             selected_cells
         );
 
+        const markdown = this.getMarkdown(markdown_options);
+
         const partialCellContents = this.cellContents.partialGet(
             visibleColumns,
             virtualized.data,
             virtualized.offset,
             !!is_focused,
             dropdowns,
-            loading_state
+            loading_state,
+            markdown
         );
 
         const cellContents = this.cellContents.get(
@@ -139,7 +148,8 @@ export default class CellFactory {
             virtualized.offset,
             !!is_focused,
             dropdowns,
-            loading_state
+            loading_state,
+            markdown
         );
 
         const ops = this.getDataOpCells(

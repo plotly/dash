@@ -2,7 +2,7 @@ import cssProperties from './cssProperties';
 
 export type StyleProperty = string | number;
 
-const toCamelCase = (fragments: string[]) => fragments.map((f, i) => i ?
+export const toCamelCase = (fragments: string[]) => fragments.map((f, i) => i ?
     f.charAt(0).toUpperCase() + f.substring(1) :
     f
 ).join('');

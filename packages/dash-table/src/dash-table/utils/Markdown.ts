@@ -1,21 +1,11 @@
 import { Remarkable } from 'remarkable';
+import objPropsToCamel from 'core/objPropsToCamel';
 import LazyLoader from 'dash-table/LazyLoader';
+import { IMarkdownOptions } from 'dash-table/components/Table/props';
 
 export default class Markdown {
 
-    static isReady: Promise<boolean> | true = new Promise<boolean>(resolve => {
-        Markdown.hljsResolve = resolve;
-    });
-
-    static render = (value: string) => {
-        return Markdown.md.render(value);
-    }
-
-    private static hljsResolve: () => any;
-
-    private static hljs: any;
-
-    private static readonly md: Remarkable = new Remarkable({
+    private readonly md: Remarkable = new Remarkable({
         highlight: (str: string, lang: string) => {
             if (Markdown.hljs) {
                 if (lang && Markdown.hljs.getLanguage(lang)) {
@@ -32,12 +22,28 @@ export default class Markdown {
             }
             return '';
         },
-        linkTarget:'_blank'
+        ...objPropsToCamel(this.options)
+    });
+
+    constructor(private readonly options: IMarkdownOptions) {
+
+    }
+
+    public render = (value: string) => this.md.render(value);
+
+    public static get isReady() {
+        return Markdown._isReady;
+    }
+
+    private static hljs: any;
+    private static hljsResolve: () => any;
+    private static _isReady: Promise<boolean> | true = new Promise<boolean>(resolve => {
+        Markdown.hljsResolve = resolve;
     });
 
     private static async loadhljs() {
         Markdown.hljs = await LazyLoader.hljs;
         Markdown.hljsResolve();
-        Markdown.isReady = true;
+        Markdown._isReady = true;
     }
 }

@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- [#808](https://github.com/plotly/dash-table/pull/808)Fix a regression introduced with [#787](https://github.com/plotly/dash-table/pull/787) making it impossible to open markdown links in the current tab.
+    - Adds a new `markdown_options` property that supports:
+        - `link_target` nested prop with values `_blank`, `_parent`, `_self`, `_top` or an arbitrary string (default: `_blank`)
+
 ### Fixed
 - [#806](https://github.com/plotly/dash-table/pull/806) Fix a bug where fixed rows a misaligned after navigating or editing cells [#803](https://github.com/plotly/dash-table/issues/803)
 

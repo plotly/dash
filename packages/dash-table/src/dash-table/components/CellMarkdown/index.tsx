@@ -11,14 +11,15 @@ interface IProps {
     active: boolean;
     applyFocus: boolean;
     className: string;
+    markdown: Markdown;
     value: any;
 }
 
 export default class CellMarkdown extends PureComponent<IProps, {}> {
 
-    getMarkdown = memoizeOne((value: string, _ready: any) => ({
+    getMarkdown = memoizeOne((value: any, md: Markdown, _ready: any) => ({
         dangerouslySetInnerHTML: {
-            __html: Markdown.render(String(value))
+            __html: md.render(String(value))
         }
     }));
 
@@ -41,13 +42,14 @@ export default class CellMarkdown extends PureComponent<IProps, {}> {
     render() {
         const {
             className,
+            markdown,
             value
         } = this.props;
 
         return (<div
             ref='el'
             className={[className, 'cell-markdown'].join(' ')}
-            {...this.getMarkdown(value, Markdown.isReady)}
+            {...this.getMarkdown(value, markdown, Markdown.isReady)}
         />);
     }
 

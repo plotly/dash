@@ -70,6 +70,10 @@ export const defaultProps = {
         data: 0
     },
 
+    markdown_options: {
+        link_target: '_blank'
+    },
+
     tooltip: {},
     tooltip_conditional: [],
     tooltip_data: [],
@@ -421,6 +425,24 @@ export const propTypes = {
         numerals: PropTypes.arrayOf(PropTypes.string),
         percent: PropTypes.string,
         separate_4digits: PropTypes.bool
+    }),
+
+    /**
+     * The `markdown_options` property allows customization of the markdown cells behavior.
+     *  'link_target': (default: '_blank') the link's behavior (_blank opens the link in a
+     * new tab, _parent opens the link in the parent frame, _self opens the link in the
+     * current tab, and _top opens the link in the top frame) or a string
+     */
+    markdown_options: PropTypes.exact({
+        link_target: PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.oneOf([
+                '_blank',
+                '_parent',
+                '_self',
+                '_top'
+            ])
+        ]).isRequired
     }),
 
     /**

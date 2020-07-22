@@ -21,6 +21,7 @@ import { memoizeOne } from 'core/memoizer';
 import getFormatter from 'dash-table/type/formatter';
 import { shallowClone } from 'core/math/matrixZipMap';
 import CellMarkdown from 'dash-table/components/CellMarkdown';
+import Markdown from 'dash-table/utils/Markdown';
 
 const mapData = R.addIndex<Datum, JSX.Element[]>(R.map);
 const mapRow = R.addIndex<IColumn, JSX.Element>(R.map);
@@ -68,7 +69,8 @@ class Contents {
         _offset: IViewportOffset,
         isFocused: boolean,
         dropdowns: (IDropdown | undefined)[][],
-        data_loading: boolean
+        data_loading: boolean,
+        markdown: Markdown
     ): JSX.Element[][] => {
         const formatters = R.map(getFormatter, columns);
 
@@ -84,7 +86,8 @@ class Contents {
                     rowIndex,
                     datum,
                     formatters,
-                    data_loading
+                    data_loading,
+                    markdown
                 ), columns), data);
     });
 
@@ -97,7 +100,8 @@ class Contents {
         offset: IViewportOffset,
         isFocused: boolean,
         dropdowns: (IDropdown | undefined)[][],
-        data_loading: boolean
+        data_loading: boolean,
+        markdown: Markdown
     ): JSX.Element[][] => {
         if (!activeCell) {
             return contents;
@@ -124,13 +128,26 @@ class Contents {
             iActive,
             data[i],
             formatters,
-            data_loading
+            data_loading,
+            markdown
         );
 
         return contents;
     });
 
-    private getContent(active: boolean, applyFocus: boolean, isFocused: boolean, column: IColumn, dropdown: IDropdown | undefined, columnIndex: number, rowIndex: number, datum: any, formatters: ((value: any) => any)[], data_loading: boolean) {
+    private getContent(
+        active: boolean,
+        applyFocus: boolean,
+        isFocused: boolean,
+        column: IColumn,
+        dropdown: IDropdown | undefined,
+        columnIndex: number,
+        rowIndex: number,
+        datum: any,
+        formatters: ((value: any) => any)[],
+        data_loading: boolean,
+        markdown: Markdown
+    ) {
 
         const className = [
             ...(active ? ['input-active'] : []),
@@ -139,7 +156,6 @@ class Contents {
         ].join(' ');
 
         const cellType = getCellType(active, column.editable, dropdown && dropdown.options, column.presentation, data_loading);
-
         switch (cellType) {
             case CellType.Dropdown:
                 return (<CellDropdown
@@ -170,6 +186,7 @@ class Contents {
                     active={active}
                     applyFocus={applyFocus}
                     className={className}
+                    markdown={markdown}
                     value={datum[column.id]}
                 />);
             case CellType.DropdownLabel:

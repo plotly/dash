@@ -155,6 +155,10 @@ export interface INumberLocale {
     separate_4digits?: boolean;
 }
 
+export interface IMarkdownOptions {
+    link_target: '_blank' | '_parent' | '_self' | '_top' | string;
+}
+
 export type NumberFormat = ({
     locale: INumberLocale;
     nully: any;
@@ -315,6 +319,7 @@ export interface IProps {
     hidden_columns?: string[];
     include_headers_on_copy_paste?: boolean;
     locale_format: INumberLocale;
+    markdown_options: IMarkdownOptions;
     merge_duplicate_headers?: boolean;
     fixed_columns?: Fixed;
     fixed_rows?: Fixed;
@@ -491,6 +496,7 @@ export interface ICellFactoryProps {
     id: string;
     is_focused?: boolean;
     loading_state: boolean;
+    markdown_options: IMarkdownOptions;
     paginator: IPaginator;
     row_deletable: boolean;
     row_selectable: Selection;
