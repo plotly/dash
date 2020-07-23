@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - [#806](https://github.com/plotly/dash-table/pull/806) Fix a bug where fixed rows a misaligned after navigating or editing cells [#803](https://github.com/plotly/dash-table/issues/803)
+- [#809](https://github.com/plotly/dash-table/pull/809) Fix a bug where a scrollbar flickers on table render [#801](https://github.com/plotly/dash-table/issues/801)
 
 ## [4.8.1] - 2020-06-19
 ### Fixed

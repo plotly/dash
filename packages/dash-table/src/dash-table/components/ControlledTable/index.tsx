@@ -308,6 +308,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
     forceHandleResize = () => this.handleResize();
 
+    getScrollbarWidthOnce = R.once(getScrollbarWidth);
+
     handleResizeIf = memoizeOne((..._: any[]) => {
         const { r0c0, r0c1, r1c0, r1c1 } = this.refs as Refs;
 
@@ -339,15 +341,13 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             setState
         } = this.props;
 
-        const { r1c1 } = this.refs as Refs;
+        const { r1, r1c1 } = this.refs as Refs;
 
         if (!this.isDisplayed(r1c1)) {
             return;
         }
 
-        this.updateStylesheet();
-
-        getScrollbarWidth().then((scrollbarWidth: number) => setState({ scrollbarWidth }));
+        this.getScrollbarWidthOnce(r1).then((scrollbarWidth: number) => setState({ scrollbarWidth }));
 
         const { r0c0, r0c1, r1c0 } = this.refs as Refs;
 
@@ -395,7 +395,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             const firstTdBounds = firstVisibleTd.getBoundingClientRect();
 
             const width = firstTdBounds.left - r1c1FragmentBounds.left;
-            const { r1 } = this.refs as Refs;
 
             r0c1.style.marginLeft = `-${width + r1.scrollLeft}px`;
             r1c1.style.marginLeft = `-${width}px`;

@@ -1,4 +1,4 @@
-export default (): Promise<number> => {
+export default (target: HTMLElement): Promise<number> => {
     const parent = document.createElement('div');
     parent.style.position = 'absolute';
     parent.style.visibility = 'hidden';
@@ -11,13 +11,13 @@ export default (): Promise<number> => {
     child.style.height = '100px';
 
     parent.appendChild(child);
-    document.body.appendChild(parent);
+    target.appendChild(parent);
 
     return new Promise<number>(resolve => {
         setTimeout(() => {
             const width = child.clientWidth - parent.clientWidth;
 
-            document.body.removeChild(parent);
+            target.removeChild(parent);
             resolve(width);
         }, 0);
     });
