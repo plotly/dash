@@ -1,0 +1,57 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "linterOptions": {
+        "exclude": [
+            ".config/**",
+            "cypress/**",
+            "inst/**",
+            "node_modules/**",
+            "@Types/**",
+            "venv/**",
+            "**/*.js"
+        ]
+    },
+    "rules": {
+        "array-type": false,
+        "arrow-parens": [true, "ban-single-arg-parens"],
+        "ban-types": false,
+        "eofline": true,
+        "max-classes-per-file": false,
+        "max-line-length": false,
+        "member-access": false,
+        "member-ordering": false,
+        "no-conditional-assignment": false,
+        "no-console": false,
+        "no-empty": false,
+        "no-unused-expression": [true, "allow-new"],
+        "object-literal-key-quotes": [true, "as-needed"],
+        "object-literal-sort-keys": false,
+        "object-literal-shorthand": false,
+        "one-line": [true,
+            "check-catch",
+            "check-finally",
+            "check-else",
+            "check-whitespace"
+        ],
+        "only-arrow-functions": [
+            true,
+            "allow-declarations",
+            "allow-named-functions"
+        ],
+        "ordered-imports": false,
+        "prefer-const": false,
+        "prefer-for-of": false,
+        "quotemark": [true, "single"],
+        "space-before-function-paren": [false, "always"],
+        "trailing-comma": [true, {
+            "singleline": "never",
+            "multiline": "never"
+        }],
+        "unified-signatures": false,
+        "variable-name": false
+    },
+    "rulesDirectory": []
+}

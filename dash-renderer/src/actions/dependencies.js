@@ -5,11 +5,10 @@ import {
     any,
     ap,
     assoc,
-    clone,
     difference,
-    dissoc,
     equals,
     evolve,
+    findIndex,
     flatten,
     forEachObjIndexed,
     includes,
@@ -17,25 +16,26 @@ import {
     isEmpty,
     keys,
     map,
-    mergeDeepRight,
     mergeRight,
-    mergeWith,
-    partition,
     path,
-    pickBy,
     pluck,
-    propEq,
     props,
     startsWith,
-    unnest,
     values,
     zip,
     zipObj,
 } from 'ramda';
 
-const mergeMax = mergeWith(Math.max);
-
-import {getPath} from './paths';
+import {
+    combineIdAndProp,
+    getCallbacksByInput,
+    getPriority,
+    INDIRECT,
+    mergeMax,
+    makeResolvedCallback,
+    resolveDeps,
+} from './dependencies_ts';
+import {computePaths, getPath} from './paths';
 
 import {crawlLayout} from './utils';
 
@@ -90,7 +90,7 @@ function parseMultipleOutputs(outputIdAndProp) {
     return outputIdAndProp.substr(2, outputIdAndProp.length - 4).split('...');
 }
 
-function splitIdAndProp(idAndProp) {
+export function splitIdAndProp(idAndProp) {
     // since wildcard ids can have . in them but props can't,
     // look for the last . in the string and split there
     const dotPos = idAndProp.lastIndexOf('.');
@@ -107,9 +107,6 @@ function splitIdAndProp(idAndProp) {
 export function parseIfWildcard(idStr) {
     return isWildcardId(idStr) ? parseWildcardId(idStr) : idStr;
 }
-
-export const combineIdAndProp = ({id, property}) =>
-    `${stringifyId(id)}.${property}`;
 
 /*
  * JSON.stringify - for the object form - but ensuring keys are sorted
@@ -396,12 +393,12 @@ function findInOutOverlap(outputs, inputs, head, dispatchError) {
 }
 
 function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
-    const {anyKeys: out0AnyKeys} = findWildcardKeys(outputs[0].id);
-    outputs.forEach((out, outi) => {
-        if (outi && !equals(findWildcardKeys(out.id).anyKeys, out0AnyKeys)) {
+    const {matchKeys: out0MatchKeys} = findWildcardKeys(outputs[0].id);
+    outputs.forEach((out, i) => {
+        if (i && !equals(findWildcardKeys(out.id).matchKeys, out0MatchKeys)) {
             dispatchError('Mismatched `MATCH` wildcards across `Output`s', [
                 head,
-                `Output ${outi} (${combineIdAndProp(out)})`,
+                `Output ${i} (${combineIdAndProp(out)})`,
                 'does not have MATCH wildcards on the same keys as',
                 `Output 0 (${combineIdAndProp(outputs[0])}).`,
                 'MATCH wildcards must be on the same keys for all Outputs.',
@@ -414,9 +411,9 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
         [state, 'State'],
     ].forEach(([args, cls]) => {
         args.forEach((arg, i) => {
-            const {anyKeys, allsmallerKeys} = findWildcardKeys(arg.id);
-            const allWildcardKeys = anyKeys.concat(allsmallerKeys);
-            const diff = difference(allWildcardKeys, out0AnyKeys);
+            const {matchKeys, allsmallerKeys} = findWildcardKeys(arg.id);
+            const allWildcardKeys = matchKeys.concat(allsmallerKeys);
+            const diff = difference(allWildcardKeys, out0MatchKeys);
             if (diff.length) {
                 diff.sort();
                 dispatchError('`Input` / `State` wildcards not in `Output`s', [
@@ -464,9 +461,17 @@ function wildcardOverlap({id, property}, objs) {
 }
 
 export function validateCallbacksToLayout(state_, dispatchError) {
-    const {config, graphs, layout, paths} = state_;
-    const {outputMap, inputMap, outputPatterns, inputPatterns} = graphs;
+    const {config, graphs, layout: layout_, paths: paths_} = state_;
     const validateIds = !config.suppress_callback_exceptions;
+    let layout, paths;
+    if (validateIds && config.validation_layout) {
+        layout = config.validation_layout;
+        paths = computePaths(layout, [], null, paths_.events);
+    } else {
+        layout = layout_;
+        paths = paths_;
+    }
+    const {outputMap, inputMap, outputPatterns, inputPatterns} = graphs;
 
     function tail(callbacks) {
         return (
@@ -631,7 +636,7 @@ export function computeGraphs(dependencies, dispatchError) {
      *   {[id]: {[prop]: [callback, ...]}}
      * where callbacks are the matching specs from the original
      * dependenciesRequest, but with outputs parsed to look like inputs,
-     * and a list anyKeys added if the outputs have MATCH wildcards.
+     * and a list matchKeys added if the outputs have MATCH wildcards.
      * For outputMap there should only ever be one callback per id/prop
      * but for inputMap there may be many.
      *
@@ -777,9 +782,10 @@ export function computeGraphs(dependencies, dispatchError) {
         // Also collect MATCH keys in the output (all outputs must share these)
         // and ALL keys in the first output (need not be shared but we'll use
         // the first output for calculations) for later convenience.
-        const {anyKeys, hasALL} = findWildcardKeys(outputs[0].id);
+        const {matchKeys} = findWildcardKeys(outputs[0].id);
+        const firstSingleOutput = findIndex(o => !isMultiValued(o.id), outputs);
         const finalDependency = mergeRight(
-            {hasALL, anyKeys, outputs},
+            {matchKeys, firstSingleOutput, outputs},
             dependency
         );
 
@@ -812,23 +818,20 @@ export function computeGraphs(dependencies, dispatchError) {
 }
 
 function findWildcardKeys(id) {
-    const anyKeys = [];
+    const matchKeys = [];
     const allsmallerKeys = [];
-    let hasALL = false;
     if (typeof id === 'object') {
         forEachObjIndexed((val, key) => {
             if (val === MATCH) {
-                anyKeys.push(key);
+                matchKeys.push(key);
             } else if (val === ALLSMALLER) {
                 allsmallerKeys.push(key);
-            } else if (val === ALL) {
-                hasALL = true;
             }
         }, id);
-        anyKeys.sort();
+        matchKeys.sort();
         allsmallerKeys.sort();
     }
-    return {anyKeys, allsmallerKeys, hasALL};
+    return {matchKeys, allsmallerKeys};
 }
 
 /*
@@ -839,7 +842,14 @@ function findWildcardKeys(id) {
  * Optionally, include another reference set of the same - to ensure the
  * correct matching of MATCH or ALLSMALLER between input and output items.
  */
-function idMatch(keys, vals, patternVals, refKeys, refVals, refPatternVals) {
+export function idMatch(
+    keys,
+    vals,
+    patternVals,
+    refKeys,
+    refVals,
+    refPatternVals
+) {
     for (let i = 0; i < keys.length; i++) {
         const val = vals[i];
         const patternVal = patternVals[i];
@@ -894,74 +904,6 @@ function getAnyVals(patternVals, vals) {
     return matches.length ? JSON.stringify(matches) : '';
 }
 
-function resolveDeps(refKeys, refVals, refPatternVals) {
-    return paths => ({id: idPattern, property}) => {
-        if (typeof idPattern === 'string') {
-            const path = getPath(paths, idPattern);
-            return path ? [{id: idPattern, property, path}] : [];
-        }
-        const keys = Object.keys(idPattern).sort();
-        const patternVals = props(keys, idPattern);
-        const keyStr = keys.join(',');
-        const keyPaths = paths.objs[keyStr];
-        if (!keyPaths) {
-            return [];
-        }
-        const result = [];
-        keyPaths.forEach(({values: vals, path}) => {
-            if (
-                idMatch(
-                    keys,
-                    vals,
-                    patternVals,
-                    refKeys,
-                    refVals,
-                    refPatternVals
-                )
-            ) {
-                result.push({id: zipObj(keys, vals), property, path});
-            }
-        });
-        return result;
-    };
-}
-
-/*
- * Create a pending callback object. Includes the original callback definition,
- * its resolved ID (including the value of all MATCH wildcards),
- * accessors to find all inputs, outputs, and state involved in this
- * callback (lazy as not all users will want all of these),
- * placeholders for which other callbacks this one is blockedBy or blocking,
- * and a boolean for whether it has been dispatched yet.
- */
-const makeResolvedCallback = (callback, resolve, anyVals) => ({
-    callback,
-    anyVals,
-    resolvedId: callback.output + anyVals,
-    getOutputs: paths => callback.outputs.map(resolve(paths)),
-    getInputs: paths => callback.inputs.map(resolve(paths)),
-    getState: paths => callback.state.map(resolve(paths)),
-    blockedBy: {},
-    blocking: {},
-    changedPropIds: {},
-    initialCall: false,
-    requestId: 0,
-    requestedOutputs: {},
-});
-
-const DIRECT = 2;
-const INDIRECT = 1;
-
-let nextRequestId = 0;
-
-/*
- * Give a callback a new requestId.
- */
-export function setNewRequestId(callback) {
-    nextRequestId++;
-    return assoc('requestId', nextRequestId, callback);
-}
-
 /*
  * Does this item (input / output / state) support multiple values?
  * string IDs do not; wildcard IDs only do if they contain ALL or ALLSMALLER
@@ -984,8 +926,6 @@ export function isMultiValued({id}) {
  *         The result is a list of {id (string or object), property (string)}
  *     getInputs: same for inputs
  *     getState: same for state
- *     blockedBy: an object of {[resolvedId]: 1} blocking this callback
- *     blocking: an object of {[resolvedId]: 1} this callback is blocking
  *     changedPropIds: an object of {[idAndProp]: v} triggering this callback
  *         v = DIRECT (2): the prop was changed in the front end, so dependent
  *             callbacks *MUST* be executed.
@@ -996,12 +936,6 @@ export function isMultiValued({id}) {
  *         this value on page load or changing part of the layout.
  *         By default this is true for callbacks generated by
  *         getCallbackByOutput, false from getCallbacksByInput.
- *     requestId: integer: starts at 0. when this callback is dispatched it will
- *         get a unique requestId, but if it gets added again the requestId will
- *         be reset to 0, and we'll know to ignore the response of the first
- *         request.
- *     requestedOutputs: object of {[idStr]: [props]} listing all the props
- *         actually requested for update.
  * }
  */
 function getCallbackByOutput(graphs, paths, id, prop) {
@@ -1040,31 +974,6 @@ function getCallbackByOutput(graphs, paths, id, prop) {
     return makeResolvedCallback(callback, resolve, anyVals);
 }
 
-/*
- * If there are ALL keys we need to reduce a set of outputs resolved
- * from an input to one item per combination of MATCH values.
- * That will give one result per callback invocation.
- */
-function reduceALLOuts(outs, anyKeys, hasALL) {
-    if (!hasALL) {
-        return outs;
-    }
-    if (!anyKeys.length) {
-        // If there's ALL but no MATCH, there's only one invocation
-        // of the callback, so just base it off the first output.
-        return [outs[0]];
-    }
-    const anySeen = {};
-    return outs.filter(i => {
-        const matchKeys = JSON.stringify(props(anyKeys, i.id));
-        if (!anySeen[matchKeys]) {
-            anySeen[matchKeys] = 1;
-            return true;
-        }
-        return false;
-    });
-}
-
 function addResolvedFromOutputs(callback, outPattern, outs, matches) {
     const out0Keys = Object.keys(outPattern.id).sort();
     const out0PatternVals = props(out0Keys, outPattern.id);
@@ -1080,6 +989,51 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
     });
 }
 
+export function addAllResolvedFromOutputs(resolve, paths, matches) {
+    return callback => {
+        const {matchKeys, firstSingleOutput, outputs} = callback;
+        if (matchKeys.length) {
+            const singleOutPattern = outputs[firstSingleOutput];
+            if (singleOutPattern) {
+                addResolvedFromOutputs(
+                    callback,
+                    singleOutPattern,
+                    resolve(paths)(singleOutPattern),
+                    matches
+                );
+            } else {
+                /*
+                 * If every output has ALL we need to reduce resolved set
+                 * to one item per combination of MATCH values.
+                 * That will give one result per callback invocation.
+                 */
+                const anySeen = {};
+                outputs.forEach(outPattern => {
+                    const outSet = resolve(paths)(outPattern).filter(i => {
+                        const matchStr = JSON.stringify(props(matchKeys, i.id));
+                        if (!anySeen[matchStr]) {
+                            anySeen[matchStr] = 1;
+                            return true;
+                        }
+                        return false;
+                    });
+                    addResolvedFromOutputs(
+                        callback,
+                        outPattern,
+                        outSet,
+                        matches
+                    );
+                });
+            }
+        } else {
+            const cb = makeResolvedCallback(callback, resolve, '');
+            if (flatten(cb.getOutputs(paths)).length) {
+                matches.push(cb);
+            }
+        }
+    };
+}
+
 /*
  * For a given id and prop find all callbacks it's an input of.
  *
@@ -1092,69 +1046,6 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
  * (with an MATCH corresponding to the input's ALLSMALLER) will only appear
  * in one entry.
  */
-export function getCallbacksByInput(graphs, paths, id, prop, changeType) {
-    const matches = [];
-    const idAndProp = combineIdAndProp({id, property: prop});
-
-    if (typeof id === 'string') {
-        // standard id version
-        const callbacks = (graphs.inputMap[id] || {})[prop];
-        if (!callbacks) {
-            return [];
-        }
-
-        const baseResolve = resolveDeps();
-        callbacks.forEach(callback => {
-            const {anyKeys, hasALL} = callback;
-            if (anyKeys) {
-                const out0Pattern = callback.outputs[0];
-                const out0Set = reduceALLOuts(
-                    baseResolve(paths)(out0Pattern),
-                    anyKeys,
-                    hasALL
-                );
-                addResolvedFromOutputs(callback, out0Pattern, out0Set, matches);
-            } else {
-                matches.push(makeResolvedCallback(callback, baseResolve, ''));
-            }
-        });
-    } else {
-        // wildcard version
-        const keys = Object.keys(id).sort();
-        const vals = props(keys, id);
-        const keyStr = keys.join(',');
-        const patterns = (graphs.inputPatterns[keyStr] || {})[prop];
-        if (!patterns) {
-            return [];
-        }
-        patterns.forEach(pattern => {
-            if (idMatch(keys, vals, pattern.values)) {
-                const resolve = resolveDeps(keys, vals, pattern.values);
-                pattern.callbacks.forEach(callback => {
-                    const out0Pattern = callback.outputs[0];
-                    const {anyKeys, hasALL} = callback;
-                    const out0Set = reduceALLOuts(
-                        resolve(paths)(out0Pattern),
-                        anyKeys,
-                        hasALL
-                    );
-
-                    addResolvedFromOutputs(
-                        callback,
-                        out0Pattern,
-                        out0Set,
-                        matches
-                    );
-                });
-            }
-        });
-    }
-    matches.forEach(match => {
-        match.changedPropIds[idAndProp] = changeType || DIRECT;
-    });
-    return matches;
-}
-
 export function getWatchedKeys(id, newProps, graphs) {
     if (!(id && graphs && newProps.length)) {
         return [];
@@ -1200,7 +1091,7 @@ export function getWatchedKeys(id, newProps, graphs) {
  *   {callback, resolvedId, getOutputs, getInputs, getState, ...etc}
  *   See getCallbackByOutput for details.
  */
-export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
+export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
     const {outputsOnly, removedArrayInputsOnly, newPaths, chunkPath} = opts;
     const foundCbIds = {};
     const callbacks = [];
@@ -1209,10 +1100,14 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         if (callback) {
             const foundIndex = foundCbIds[callback.resolvedId];
             if (foundIndex !== undefined) {
-                callbacks[foundIndex].changedPropIds = mergeMax(
-                    callbacks[foundIndex].changedPropIds,
+                const foundCb = callbacks[foundIndex];
+                foundCb.changedPropIds = mergeMax(
+                    foundCb.changedPropIds,
                     callback.changedPropIds
                 );
+                if (callback.initialCall) {
+                    foundCb.initialCall = true;
+                }
             } else {
                 foundCbIds[callback.resolvedId] = callbacks.length;
                 callbacks.push(callback);
@@ -1229,6 +1124,9 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
                 ) {
                     // This callback should trigger even with no changedProps,
                     // since the props that changed no longer exist.
+                    // We're kind of abusing the `initialCall` flag here, it's
+                    // more like a "final call" for the removed inputs, but
+                    // this case is not subject to `prevent_initial_call`.
                     if (flatten(cb.getOutputs(newPaths)).length) {
                         cb.initialCall = true;
                         cb.changedPropIds = {};
@@ -1246,10 +1144,13 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
                 const cb = getCallbackByOutput(graphs, paths, id, property);
                 if (cb) {
                     // callbacks found in the layout by output should always run
+                    // unless specifically requested not to.
                     // ie this is the initial call of this callback even if it's
                     // not the page initialization but just a new layout chunk
-                    cb.initialCall = true;
-                    addCallback(cb);
+                    if (!cb.callback.prevent_initial_call) {
+                        cb.initialCall = true;
+                        addCallback(cb);
+                    }
                 }
             }
         }
@@ -1261,14 +1162,13 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
             if (chunkPath) {
                 handleThisCallback = cb => {
                     if (
-                        all(
+                        !all(
                             startsWith(chunkPath),
                             pluck('path', flatten(cb.getOutputs(paths)))
                         )
                     ) {
-                        cb.changedPropIds = {};
+                        maybeAddCallback(cb);
                     }
-                    maybeAddCallback(cb);
                 };
             }
             for (const property in inIdCallbacks) {
@@ -1301,245 +1201,11 @@ export function getCallbacksInLayout(graphs, paths, layoutChunk, opts) {
         }
     });
 
-    // We still need to follow these forward in order to capture blocks and,
-    // if based on a partial layout, any knock-on effects in the full layout.
-    const finalCallbacks = followForward(graphs, paths, callbacks);
-
-    // Exception to the `initialCall` case of callbacks found by output:
-    // if *every* input to this callback is itself an output of another
-    // callback earlier in the chain, we remove the `initialCall` flag
-    // so that if all of those prior callbacks abort all of their outputs,
-    // this later callback never runs.
-    // See test inin003 "callback2 is never triggered, even on initial load"
-    finalCallbacks.forEach(cb => {
-        if (cb.initialCall && !isEmpty(cb.blockedBy)) {
-            const inputs = flatten(cb.getInputs(paths));
-            cb.initialCall = false;
-            inputs.forEach(i => {
-                const propId = combineIdAndProp(i);
-                if (cb.changedPropIds[propId]) {
-                    cb.changedPropIds[propId] = INDIRECT;
-                } else {
-                    cb.initialCall = true;
-                }
-            });
-        }
-    });
-
-    return finalCallbacks;
-}
-
-export function removePendingCallback(
-    pendingCallbacks,
-    paths,
-    removeResolvedId,
-    skippedProps
-) {
-    const finalPendingCallbacks = [];
-    pendingCallbacks.forEach(pending => {
-        const {blockedBy, blocking, changedPropIds, resolvedId} = pending;
-        if (resolvedId !== removeResolvedId) {
-            finalPendingCallbacks.push(
-                mergeRight(pending, {
-                    blockedBy: dissoc(removeResolvedId, blockedBy),
-                    blocking: dissoc(removeResolvedId, blocking),
-                    changedPropIds: pickBy(
-                        (v, k) => v === DIRECT || !includes(k, skippedProps),
-                        changedPropIds
-                    ),
-                })
-            );
-        }
-    });
-    // If any callback no longer has any changed inputs, it shouldn't fire.
-    // This will repeat recursively until all unneeded callbacks are pruned
-    if (skippedProps.length) {
-        for (let i = 0; i < finalPendingCallbacks.length; i++) {
-            const cb = finalPendingCallbacks[i];
-            if (!cb.initialCall && isEmpty(cb.changedPropIds)) {
-                return removePendingCallback(
-                    finalPendingCallbacks,
-                    paths,
-                    cb.resolvedId,
-                    flatten(cb.getOutputs(paths)).map(combineIdAndProp)
-                );
-            }
-        }
-    }
-    return finalPendingCallbacks;
-}
-
-/*
- * Split the list of pending callbacks into ready (not blocked by any others)
- * and blocked. Sort the ready callbacks by how many each is blocking, on the
- * theory that the most important ones to dispatch are the ones with the most
- * others depending on them.
- */
-export function findReadyCallbacks(pendingCallbacks) {
-    const [readyCallbacks, blockedCallbacks] = partition(
-        pending => isEmpty(pending.blockedBy) && !pending.requestId,
-        pendingCallbacks
+    return map(
+        cb => ({
+            ...cb,
+            priority: getPriority(graphs, paths, cb),
+        }),
+        callbacks
     );
-    readyCallbacks.sort((a, b) => {
-        return Object.keys(b.blocking).length - Object.keys(a.blocking).length;
-    });
-
-    return {readyCallbacks, blockedCallbacks};
-}
-
-function addBlock(callbacks, blockingId, blockedId) {
-    callbacks.forEach(({blockedBy, blocking, resolvedId}) => {
-        if (resolvedId === blockingId || blocking[blockingId]) {
-            blocking[blockedId] = 1;
-        } else if (resolvedId === blockedId || blockedBy[blockedId]) {
-            blockedBy[blockingId] = 1;
-        }
-    });
-}
-
-function collectIds(callbacks) {
-    const allResolvedIds = {};
-    callbacks.forEach(({resolvedId}, i) => {
-        allResolvedIds[resolvedId] = i;
-    });
-    return allResolvedIds;
-}
-
-/*
- * Take a list of callbacks and follow them all forward, ie see if any of their
- * outputs are inputs of another callback. Any new callbacks get added to the
- * list. All that come after another get marked as blocked by that one, whether
- * they were in the initial list or not.
- */
-export function followForward(graphs, paths, callbacks_) {
-    const callbacks = clone(callbacks_);
-    const allResolvedIds = collectIds(callbacks);
-    let i;
-    let callback;
-
-    const followOutput = ({id, property}) => {
-        const nextCBs = getCallbacksByInput(
-            graphs,
-            paths,
-            id,
-            property,
-            INDIRECT
-        );
-        nextCBs.forEach(nextCB => {
-            let existingIndex = allResolvedIds[nextCB.resolvedId];
-            if (existingIndex === undefined) {
-                existingIndex = callbacks.length;
-                callbacks.push(nextCB);
-                allResolvedIds[nextCB.resolvedId] = existingIndex;
-            } else {
-                const existingCB = callbacks[existingIndex];
-                existingCB.changedPropIds = mergeMax(
-                    existingCB.changedPropIds,
-                    nextCB.changedPropIds
-                );
-            }
-            addBlock(callbacks, callback.resolvedId, nextCB.resolvedId);
-        });
-    };
-
-    // Using a for loop instead of forEach because followOutput may extend the
-    // callbacks array, and we want to continue into these new elements.
-    for (i = 0; i < callbacks.length; i++) {
-        callback = callbacks[i];
-        const outputs = unnest(callback.getOutputs(paths));
-        outputs.forEach(followOutput);
-    }
-    return callbacks;
-}
-
-function mergeAllBlockers(cb1, cb2) {
-    function mergeBlockers(a, b) {
-        if (cb1[a][cb2.resolvedId] && !cb2[b][cb1.resolvedId]) {
-            cb2[b][cb1.resolvedId] = cb1[a][cb2.resolvedId];
-            cb2[b] = mergeMax(cb1[b], cb2[b]);
-            cb1[a] = mergeMax(cb2[a], cb1[a]);
-        }
-    }
-    mergeBlockers('blockedBy', 'blocking');
-    mergeBlockers('blocking', 'blockedBy');
-}
-
-/*
- * Given two arrays of pending callbacks, merge them into one so that
- * each will only fire once, and any extra blockages from combining the lists
- * will be accounted for.
- */
-export function mergePendingCallbacks(cb1, cb2) {
-    if (!cb2.length) {
-        return cb1;
-    }
-    if (!cb1.length) {
-        return cb2;
-    }
-    const finalCallbacks = clone(cb1);
-    const callbacks2 = clone(cb2);
-    const allResolvedIds = collectIds(finalCallbacks);
-
-    callbacks2.forEach((callback, i) => {
-        const existingIndex = allResolvedIds[callback.resolvedId];
-        if (existingIndex !== undefined) {
-            finalCallbacks.forEach(finalCb => {
-                mergeAllBlockers(finalCb, callback);
-            });
-            callbacks2.slice(i + 1).forEach(cb2 => {
-                mergeAllBlockers(cb2, callback);
-            });
-            finalCallbacks[existingIndex] = mergeDeepRight(
-                finalCallbacks[existingIndex],
-                callback
-            );
-        } else {
-            allResolvedIds[callback.resolvedId] = finalCallbacks.length;
-            finalCallbacks.push(callback);
-        }
-    });
-
-    return finalCallbacks;
-}
-
-/*
- * Remove callbacks whose outputs or changed inputs have been removed
- * from the layout
- */
-export function pruneRemovedCallbacks(pendingCallbacks, paths) {
-    const removeIds = [];
-    let cleanedCallbacks = pendingCallbacks.map(callback => {
-        const {changedPropIds, getOutputs, resolvedId} = callback;
-        if (!flatten(getOutputs(paths)).length) {
-            removeIds.push(resolvedId);
-            return callback;
-        }
-
-        let omittedProps = false;
-        const newChangedProps = pickBy((_, propId) => {
-            if (getPath(paths, splitIdAndProp(propId).id)) {
-                return true;
-            }
-            omittedProps = true;
-            return false;
-        }, changedPropIds);
-
-        return omittedProps
-            ? assoc('changedPropIds', newChangedProps, callback)
-            : callback;
-    });
-
-    removeIds.forEach(resolvedId => {
-        const cb = cleanedCallbacks.find(propEq('resolvedId', resolvedId));
-        if (cb) {
-            cleanedCallbacks = removePendingCallback(
-                pendingCallbacks,
-                paths,
-                resolvedId,
-                flatten(cb.getOutputs(paths)).map(combineIdAndProp)
-            );
-        }
-    });
-
-    return cleanedCallbacks;
 }

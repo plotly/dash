@@ -32,7 +32,7 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
     assert call_count.value == 4, "get called 4 times"
     assert dash_duo.find_element("#output").text == "3", "clicked button 3 times"
 
-    assert dash_duo.redux_state_rqs == []
+    assert not dash_duo.redux_state_is_loading
 
     dash_duo.percy_snapshot(
         name="test_callbacks_called_multiple_times_and_out_of_order"
@@ -262,3 +262,46 @@ def test_cbmt006_derived_props(dash_duo):
     dash_duo.wait_for_text_to_equal("#output", "1")
     dash_duo.find_element("#btn").click()
     dash_duo.wait_for_text_to_equal("#output", "2")
+
+
+def test_cbmt007_early_preventupdate_inputs_above_below(dash_duo):
+    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app.layout = html.Div(id="content")
+
+    @app.callback(Output("content", "children"), [Input("content", "style")])
+    def content(_):
+        return html.Div(
+            [
+                html.Div(42, id="above-in"),
+                html.Div(id="above-dummy"),
+                html.Hr(),
+                html.Div(0, id="above-out"),
+                html.Div(0, id="below-out"),
+                html.Hr(),
+                html.Div(id="below-dummy"),
+                html.Div(44, id="below-in"),
+            ]
+        )
+
+    # Create 4 callbacks - 2 above, 2 below.
+    for pos in ("above", "below"):
+
+        @app.callback(
+            Output("{}-dummy".format(pos), "children"),
+            [Input("{}-dummy".format(pos), "style")],
+        )
+        def dummy(_):
+            raise PreventUpdate
+
+        @app.callback(
+            Output("{}-out".format(pos), "children"),
+            [Input("{}-in".format(pos), "children")],
+        )
+        def out(v):
+            return v
+
+    dash_duo.start_server(app)
+
+    # as of https://github.com/plotly/dash/issues/1223, above-out would be 0
+    dash_duo.wait_for_text_to_equal("#above-out", "42")
+    dash_duo.wait_for_text_to_equal("#below-out", "44")
