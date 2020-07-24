@@ -175,13 +175,13 @@ def test_rdls002_chained_loading_states(dash_duo):
     "kwargs, expected_update_title, clientside_title",
     [
         ({}, "Updating...", False),
-        ({"update_title": None}, "Dash", False),  # fail
-        ({"update_title": ""}, "Dash", False),    # fail
+        ({"update_title": None}, "Dash", False),
+        ({"update_title": ""}, "Dash", False),
         ({"update_title": "Hello World"}, "Hello World", False),
-        ({}, "Updating...", True),            # fail
-        ({"update_title": None}, "Dash", True), # fail
-        ({"update_title": ""}, "Dash", True),   # fail
-        ({"update_title": "Hello World"}, "Hello World", True),  # fail
+        ({}, "Updating...", True),
+        ({"update_title": None}, "Dash", True),
+        ({"update_title": ""}, "Dash", True),
+        ({"update_title": "Hello World"}, "Hello World", True),
     ],
 )
 def test_rdls003_update_title(
