@@ -68,3 +68,38 @@ r_keywords = {
     "NA_character_",
     "...",
 }
+
+# This is a set of Julia reserved words that cannot be used as function
+# argument names.
+
+julia_keywords = {
+    "baremodule",
+    "begin",
+    "break",
+    "catch",
+    "const",
+    "continue",
+    "do",
+    "else",
+    "elseif",
+    "end",
+    "export",
+    "false",
+    "finally",
+    "for",
+    "function",
+    "global",
+    "if",
+    "import",
+    "let",
+    "local",
+    "macro",
+    "module",
+    "quote",
+    "return",
+    "struct",
+    "true",
+    "try",
+    "using",
+    "while",
+}
