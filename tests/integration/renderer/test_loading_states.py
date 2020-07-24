@@ -172,15 +172,21 @@ def test_rdls002_chained_loading_states(dash_duo):
 
 
 @pytest.mark.parametrize(
-    "kwargs, expected_update_title",
+    "kwargs, expected_update_title, clientside_title",
     [
-        ({}, "Updating..."),
-        ({"update_title": None}, "Dash"),
-        ({"update_title": ""}, "Dash"),
-        ({"update_title": "Hello World"}, "Hello World"),
-    ]
+        ({}, "Updating...", False),
+        ({"update_title": None}, "Dash", False),  # fail
+        ({"update_title": ""}, "Dash", False),    # fail
+        ({"update_title": "Hello World"}, "Hello World", False),
+        ({}, "Updating...", True),            # fail
+        ({"update_title": None}, "Dash", True), # fail
+        ({"update_title": ""}, "Dash", True),   # fail
+        ({"update_title": "Hello World"}, "Hello World", True),  # fail
+    ],
 )
-def test_rdls003_update_title(dash_duo, kwargs, expected_update_title):
+def test_rdls003_update_title(
+    dash_duo, kwargs, expected_update_title, clientside_title
+):
     app = dash.Dash("Dash", **kwargs)
     lock = Lock()
 
@@ -189,13 +195,23 @@ def test_rdls003_update_title(dash_duo, kwargs, expected_update_title):
             html.H3("Press button see document title updating"),
             html.Div(id="output"),
             html.Button("Update", id="button", n_clicks=0),
+            html.Button("Update Page", id="page", n_clicks=0),
+            html.Div(id="dummy"),
         ]
     )
+    if clientside_title:
+        app.clientside_callback(
+            """
+            function(n_clicks) {
+                document.title = 'Page ' + n_clicks;
+                return n_clicks;
+            }
+            """,
+            Output("dummy", "children"),
+            [Input("page", "n_clicks")],
+        )
 
-    @app.callback(
-        Output("output", "children"),
-        [Input("button", "n_clicks")]
-    )
+    @app.callback(Output("output", "children"), [Input("button", "n_clicks")])
     def update(n):
         with lock:
             return n
@@ -206,9 +222,22 @@ def test_rdls003_update_title(dash_duo, kwargs, expected_update_title):
         until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
 
     # check for original title after loading
-    until(lambda: dash_duo.driver.title == "Dash", timeout=1)
+    until(lambda: dash_duo.driver.title == "Page 0" if clientside_title else "Dash", timeout=1)
 
     with lock:
         dash_duo.find_element("#button").click()
         # check for update-title while processing callback
         until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
+
+    dash_duo.find_element("#page").click()
+    dash_duo.wait_for_text_to_equal("dummy", "1")
+    if clientside_title:
+        until(lambda: dash_duo.driver.title == "Page 1", timeout=1)
+    else:
+        until(lambda: dash_duo.driver.title == "Dash", timeout=1)
+
+    dash_duo.find_element("#button").click()
+    if clientside_title:
+        until(lambda: dash_duo.driver.title == "Page 2", timeout=1)
+    else:
+        until(lambda: dash_duo.driver.title == "Dash", timeout=1)
