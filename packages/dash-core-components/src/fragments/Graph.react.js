@@ -366,7 +366,10 @@ class PlotlyGraph extends Component {
     shouldComponentUpdate(nextProps) {
         return (
             this.props.id !== nextProps.id ||
-            JSON.stringify(this.props.style) !== JSON.stringify(nextProps.style)
+            JSON.stringify(this.props.style) !==
+                JSON.stringify(nextProps.style) ||
+            JSON.stringify(this.props.loading_state) !==
+                JSON.stringify(nextProps.loading_state)
         );
     }
 

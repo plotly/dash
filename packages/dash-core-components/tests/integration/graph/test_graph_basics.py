@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from multiprocessing import Value
+from multiprocessing import Value, Lock
 import numpy as np
 from time import sleep
 
@@ -133,5 +133,43 @@ def test_grbs003_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
     dash_dcc.start_server(app)
 
     dash_dcc.wait_for_element('#my-graph .main-svg')
+
+    assert not dash_dcc.get_logs()
+
+
+@pytest.mark.DCC837
+def test_grbs004_graph_loading_state_updates(dash_dcc):
+    lock = Lock()
+    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app.layout = html.Div([
+        html.H1(id='title', children='loading state updates'),
+        dcc.Graph(id='my-graph'),
+    ])
+
+    @app.callback(Output('my-graph', 'figure'), [Input('title', 'n_clicks')])
+    def update_graph(n_clicks):
+        values = [0, n_clicks]
+        ranges = [0, n_clicks]
+
+        with lock:
+            return {
+                'data': [{
+                    'x': ranges,
+                    'y': values,
+                    'line': {
+                        'shape': 'spline'
+                    }
+                }],
+            }
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element('#my-graph:not([data-dash-is-loading])')
+
+    with lock:
+        title = dash_dcc.wait_for_element('#title')
+        title.click()
+        dash_dcc.wait_for_element('#my-graph[data-dash-is-loading="true"]')
+
+    dash_dcc.wait_for_element('#my-graph:not([data-dash-is-loading])')
 
     assert not dash_dcc.get_logs()
