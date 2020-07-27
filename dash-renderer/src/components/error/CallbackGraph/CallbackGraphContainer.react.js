@@ -1,9 +1,11 @@
 import React, {useState, useMemo, useEffect} from 'react';
 import {useSelector} from 'react-redux'
-import PropTypes from 'prop-types';
-import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
 import JSONTree from 'react-json-tree'
+import {omit, path} from 'ramda';
+
+import {getPath} from '../../../actions/paths';
+import {stringifyId} from '../../../actions/dependencies';
 
 import './CallbackGraphContainer.css';
 import stylesheet from './CallbackGraphContainerStylesheet';
@@ -25,7 +27,7 @@ const cyLayout = {
   spacingFactor: 0.5
 };
 
-/**
+/*
  * Generates all the elements (nodes, edeges) for the dependency graph.
  */
 function generateElements(graphs, profile) {
@@ -35,25 +37,18 @@ function generateElements(graphs, profile) {
 
   function recordNode(id, property) {
 
-    const parentType = typeof id === 'object' ? 'wildcard' : 'component';
-    if (parentType === 'wildcard') {
-      id = Object.keys(id)
-                 .sort()
-                 .map(key => {
-                   const val = id[key];
-                   return `${key}: ${val && val.wild ? val.wild : val}`;
-                 });
-    }
+    const idStr = stringifyId(id);
+    const idType = typeof id === 'object' ? 'wildcard' : 'component';
 
-    const parent = `${id}`;
-    const child = `${id}.${property}`;
+    const parent = idStr;
+    const child = `${idStr}.${property}`;
 
     if (!consumed.includes(parent)) {
       consumed.push(parent);
       elements.push({data: {
-        id: parent,
-        label: id,
-        type: parentType
+        id: idStr,
+        label: idStr,
+        type: idType
       }});
     }
 
@@ -61,7 +56,7 @@ function generateElements(graphs, profile) {
       consumed.push(child);
       elements.push({data: {
         id: child,
-        label: `${property}`,
+        label: property,
         parent: parent,
         type: 'property'
       }});
@@ -119,7 +114,10 @@ function generateElements(graphs, profile) {
 
 }
 
-function CallbackGraphContainer(props) {
+// len('__dash_callback__.')
+const cbPrefixLen = 18;
+
+function CallbackGraphContainer() {
 
   // Grab items from the redux store.
   const paths = useSelector(state => state.paths);
@@ -142,25 +140,25 @@ function CallbackGraphContainer(props) {
 
   // Custom hook to make sure cytoscape is loaded.
   const useCytoscapeEffect = (effect, condition) => {
-    useEffect(() => {if (cytoscape) return effect(cytoscape)}, condition)
+    useEffect(() => {if (cytoscape) { effect(cytoscape); } }, condition)
   };
 
   // Adds callbacks once cyctoscape is intialized.
   useCytoscapeEffect((cy) => {
     cytoscape.on('tap', 'node', e => setSelected(e.target));
-    cytoscape.on('tap', e => { if (e.target === cy) setSelected(null); });
+    cytoscape.on('tap', e => { if (e.target === cy) { setSelected(null); } });
   }, [cytoscape]);
 
   // Set node classes on selected.
   useCytoscapeEffect((cy) => {
-    if (selected) return updateSelectedNode(cy, selected.data().id);
+    if (selected) { updateSelectedNode(cy, selected.data().id); }
   }, [selected]);
 
   // Flash classes when props change. Uses changed as a trigger. Also
   // flash all input edges originating from this node and highlight
   // the subtree that contains the selected node.
   useCytoscapeEffect((cy) => {
-    if (changed) return updateChangedProps(cy, changed.id, changed.props)
+    if (changed) { updateChangedProps(cy, changed.id, changed.props); }
   }, [changed]);
 
   // Update callbacks from profiling information.
@@ -176,7 +174,7 @@ function CallbackGraphContainer(props) {
   if (selected) {
 
     function getComponent(id) {
-      return paths[id].reduce((o, key) => o[key], layout)
+      return path(getPath(paths, id), layout);
     }
 
     function getPropValue(data) {
@@ -190,7 +188,7 @@ function CallbackGraphContainer(props) {
     switch(data.type) {
 
       case 'component': {
-        const {id, ...rest} = getComponent(data.id).props;
+        const rest = omit(['id'], getComponent(data.id).props);
         elementInfo = rest;
         elementName = data.id;
         break;
@@ -206,11 +204,10 @@ function CallbackGraphContainer(props) {
         elementName = data.label;
         elementInfo.language = data.lang;
 
-        // Remove uid and set profile. Note: len('__dash_callback__.') = 18
-        const callbackOutputId = data.id.slice(18);
+        // Remove uid and set profile.
+        const callbackOutputId = data.id.slice(cbPrefixLen);
         if (profile.callbacks.hasOwnProperty(callbackOutputId)) {
-          const {uid, ...rest} = profile.callbacks[callbackOutputId];
-          elementInfo.profile = rest;
+          elementInfo.profile = omit(['uid'], profile.callbacks[callbackOutputId]);
         } else {
           elementInfo.profile = {};
         }
@@ -223,6 +220,8 @@ function CallbackGraphContainer(props) {
         break;
       }
 
+      default:
+        console.log(data.type);
     }
 
   }
@@ -245,7 +244,7 @@ function CallbackGraphContainer(props) {
             labelRenderer={(keys) => (
               keys.length === 1 ? elementName : keys[0]
             )}
-            getItemString={(type, data, itemType, itemString) => (
+            getItemString={(type, data, itemType) => (
               <span>{itemType}</span>
             )}
             shouldExpandNode={(keyName, data, level) => level <= 1}

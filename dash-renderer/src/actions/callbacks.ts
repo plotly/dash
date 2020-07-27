@@ -292,35 +292,34 @@ function handleServerside(
             body
         })
     ).then((res: any) => {
-        const resources = {
-            __dash_server: 0,
-            __dash_client: Date.now() - requestTime,
-            __dash_upload: body.length,
-            __dash_download: res.headers.get("Content-Length"),
-        } as any;
+        if (config.ui) {
+            // Callback profiling - only relevant if we're showing the debug ui
+            const resources = {
+                __dash_server: 0,
+                __dash_client: Date.now() - requestTime,
+                __dash_upload: body.length,
+                __dash_download: Number(res.headers.get("Content-Length")),
+            } as any;
 
-        const timingHeaders = res.headers.get('Server-Timing') || '';
+            const timingHeaders = res.headers.get('Server-Timing') || '';
 
-        timingHeaders.split(',').forEach((header: any) => {
-            const name = header.split(';')[0];
-            const dur = header.match(/;dur=[0-9\.]+/);
+            timingHeaders.split(',').forEach((header: any) => {
+                const name = header.split(';')[0];
+                const dur = header.match(/;dur=[0-9\.]+/);
 
-            if (resources.hasOwnProperty(name)) {
-                throw new Error(`Duplicate Server-Timing resource "${name}".`);
-            }
+                if (dur) {
+                    resources[name] = Number(dur[0].slice(5));
+                }
 
-            if (dur) {
-                resources[name] = Number(dur[0].slice(5));
-            }
+            });
 
-        });
-
-        dispatch(
-            updateResourceUsage({
-                id: payload.output,
-                usage: resources
-            })
-        );
+            dispatch(
+                updateResourceUsage({
+                    id: payload.output,
+                    usage: resources
+                })
+            );
+        }
 
         const { status } = res;
         if (status === STATUS.OK) {
