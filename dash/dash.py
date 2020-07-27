@@ -227,6 +227,15 @@ class Dash(object):
         with a ``plug`` method, taking a single argument: this app, which will
         be called after the Flask server is attached.
     :type plugins: list of objects
+
+    :param title: Default ``Dash``. Configures the document.title
+    (the text that appears in a browser tab).
+
+    :param update_title: Default ``Updating...``. Configures the document.title
+    (the text that appears in a browser tab) text when a callback is being run.
+    Set to None or '' if you don't want the document.title to change or if you
+    want to control the document.title through a separate component or
+    clientside callback.
     """
 
     def __init__(
@@ -252,6 +261,7 @@ class Dash(object):
         prevent_initial_callbacks=False,
         show_undo_redo=False,
         plugins=None,
+        title='Dash',
         update_title="Updating...",
         **obsolete
     ):
@@ -320,6 +330,9 @@ class Dash(object):
             "Invalid config key. Some settings are only available "
             "via the Dash constructor"
         )
+
+        # keep title as a class property for backwards compatability
+        self.title = title
 
         # list of dependencies - this one is used by the back end for dispatching
         self.callback_map = {}
@@ -725,7 +738,6 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         renderer = self._generate_renderer()
-        title = getattr(self, "title", "Dash")
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
