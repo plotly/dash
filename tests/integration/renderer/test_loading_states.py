@@ -262,19 +262,18 @@ def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
             html.Div(id="final-output")
         ]
     )
-    if clientside_title:
-        app.clientside_callback(
-            """
-            function(n_clicks) {
-                if (n_clicks > 0) {
-                    document.title = 'Page ' + n_clicks;
-                }
-                return n_clicks;
+    app.clientside_callback(
+        """
+        function(n_clicks) {
+            if (n_clicks > 0) {
+                document.title = 'Page ' + n_clicks;
             }
-            """,
-            Output("page-output", "children"),
-            [Input("page-title", "n_clicks")],
-        )
+            return n_clicks;
+        }
+        """,
+        Output("page-output", "children"),
+        [Input("page-title", "n_clicks")],
+    )
 
     @app.callback(
         Output("final-output", "children"),
