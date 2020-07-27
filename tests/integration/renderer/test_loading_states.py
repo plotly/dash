@@ -230,7 +230,7 @@ def test_rdls003_update_title(
         until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
 
     dash_duo.find_element("#page").click()
-    dash_duo.wait_for_text_to_equal("dummy", "1")
+    dash_duo.wait_for_text_to_equal("#dummy", "1")
     if clientside_title:
         until(lambda: dash_duo.driver.title == "Page 1", timeout=1)
     else:
@@ -283,7 +283,7 @@ def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
             return n
 
     # check for original title after loading
-    dash_duo.wait_for_text_to_equal("final-output", "0")
+    dash_duo.wait_for_text_to_equal("#final-output", "0")
     until(lambda: dash_duo.driver.title == initial_title, timeout=1)
 
     with lock:
@@ -294,5 +294,5 @@ def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
         else:
             until(lambda: dash_duo.driver.title == 'Page 1', timeout=1)
 
-    dash_duo.wait_for_text_to_equal("final-output", "1")
+    dash_duo.wait_for_text_to_equal("#final-output", "1")
     until(lambda: dash_duo.driver.title == 'Page 1', timeout=1)
