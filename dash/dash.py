@@ -310,6 +310,7 @@ class Dash(object):
             ),
             prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
+            title=title,
             update_title=update_title,
         )
         self.config.set_read_only(
