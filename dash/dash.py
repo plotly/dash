@@ -741,7 +741,7 @@ class Dash(object):
         renderer = self._generate_renderer()
 
         # use self.title instead of app.config.title for backwards compatibility
-        title = self.title  
+        title = self.title
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
