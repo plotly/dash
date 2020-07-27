@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [4.9.0] - 2020-07-27
 ### Added
 - [#808](https://github.com/plotly/dash-table/pull/808)Fix a regression introduced with [#787](https://github.com/plotly/dash-table/pull/787) making it impossible to open markdown links in the current tab.
     - Adds a new `markdown_options` property that supports:
