@@ -13,13 +13,21 @@ class DocumentTitle extends Component {
     }
 
     UNSAFE_componentWillReceiveProps(props) {
+        if (!this.state.update_title) {
+            // Let callbacks or other components have full control over title
+            return;
+        }
         if (props.isLoading) {
             this.setState({title: document.title});
             if (this.state.update_title) {
                 document.title = this.state.update_title;
             }
         } else {
-            document.title = this.state.title;
+            if (document.title === this.state.update_title) {
+                document.title = this.state.title;
+            } else {
+                this.setState({title: document.title});
+            }
         }
     }
 
