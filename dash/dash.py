@@ -261,7 +261,7 @@ class Dash(object):
         prevent_initial_callbacks=False,
         show_undo_redo=False,
         plugins=None,
-        title='Dash',
+        title="Dash",
         update_title="Updating...",
         **obsolete
     ):

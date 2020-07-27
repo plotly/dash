@@ -318,9 +318,9 @@ def test_proxy_failure(mocker, empty_environ):
 
 def test_title():
     app = Dash()
-    assert '<title>Dash</title>' in app.index()
+    assert "<title>Dash</title>" in app.index()
     app = Dash()
-    app.title = 'Hello World'
-    assert '<title>Hello World</title>' in app.index()
-    app = Dash(title='Custom Title')
-    assert '<title>Custom Title</title>' in app.index()
+    app.title = "Hello World"
+    assert "<title>Hello World</title>" in app.index()
+    app = Dash(title="Custom Title")
+    assert "<title>Custom Title</title>" in app.index()

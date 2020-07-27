@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [1.14.0] - 2020-07-27
 ### Added
 - [#1343](https://github.com/plotly/dash/pull/1343) Add `title` parameter to set the
 document title. This is the recommended alternative to setting app.title or overriding

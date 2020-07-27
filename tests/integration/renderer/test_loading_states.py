@@ -224,13 +224,16 @@ def test_rdls003_update_title(
             until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
 
     # check for original title after loading
-    until(lambda: dash_duo.driver.title == "Page 0" if clientside_title else "Dash", timeout=1)
+    until(
+        lambda: dash_duo.driver.title == "Page 0" if clientside_title else "Dash",
+        timeout=1,
+    )
 
     with lock:
         dash_duo.find_element("#button").click()
         # check for update-title while processing callback
-        if clientside_title and not kwargs.get('update_title', True):
-            until(lambda: dash_duo.driver.title == 'Page 0', timeout=1)
+        if clientside_title and not kwargs.get("update_title", True):
+            until(lambda: dash_duo.driver.title == "Page 0", timeout=1)
         else:
             until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
 
@@ -249,22 +252,18 @@ def test_rdls003_update_title(
 
 
 @pytest.mark.parametrize(
-    "update_title",
-    [
-        None,
-        'Custom Update Title',
-    ],
+    "update_title", [None, "Custom Update Title"],
 )
 def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
-    initial_title = 'Initial Title'
+    initial_title = "Initial Title"
     app = dash.Dash("Dash", title=initial_title, update_title=update_title)
     lock = Lock()
 
     app.layout = html.Div(
         children=[
-            html.Button(id="page-title", n_clicks=0, children='Page Title'),
+            html.Button(id="page-title", n_clicks=0, children="Page Title"),
             html.Div(id="page-output"),
-            html.Div(id="final-output")
+            html.Div(id="final-output"),
         ]
     )
     app.clientside_callback(
@@ -281,8 +280,8 @@ def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
     )
 
     @app.callback(
-        Output("final-output", "children"),
-        [Input("page-output", "children")])
+        Output("final-output", "children"), [Input("page-output", "children")]
+    )
     def update(n):
         with lock:
             return n
@@ -298,7 +297,7 @@ def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
         if update_title:
             until(lambda: dash_duo.driver.title == update_title, timeout=1)
         else:
-            until(lambda: dash_duo.driver.title == 'Page 1', timeout=1)
+            until(lambda: dash_duo.driver.title == "Page 1", timeout=1)
 
     dash_duo.wait_for_text_to_equal("#final-output", "1")
-    until(lambda: dash_duo.driver.title == 'Page 1', timeout=1)
+    until(lambda: dash_duo.driver.title == "Page 1", timeout=1)
