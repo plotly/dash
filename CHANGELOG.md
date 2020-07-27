@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 ### Added
+- [#1343](https://github.com/plotly/dash/pull/1343) Add `title` parameter to set the
+document title. This is the recommended alternative to setting app.title or overriding
+the index HTML.
 - [#1315](https://github.com/plotly/dash/pull/1315) Add `update_title` parameter to set or disable the "Updating...." document title during updates. Closes [#856](https://github.com/plotly/dash/issues/856) and [#732](https://github.com/plotly/dash/issues/732)
 
 ## [1.13.4] - 2020-06-25
