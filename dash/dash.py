@@ -738,6 +738,7 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         renderer = self._generate_renderer()
+        title = self.config.title
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
