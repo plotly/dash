@@ -204,7 +204,7 @@ def test_rdls003_update_title(
             """
             function(n_clicks) {
                 document.title = 'Page ' + n_clicks;
-                return n_clicks;
+                return 'Page ' + n_clicks;
             }
             """,
             Output("dummy", "children"),
@@ -229,16 +229,16 @@ def test_rdls003_update_title(
         # check for update-title while processing callback
         until(lambda: dash_duo.driver.title == expected_update_title, timeout=1)
 
-    dash_duo.find_element("#page").click()
-    dash_duo.wait_for_text_to_equal("#dummy", "1")
+    if clientside_title:
+        dash_duo.find_element("#page").click()
+        dash_duo.wait_for_text_to_equal("#dummy", "Page 1")
+        until(lambda: dash_duo.driver.title == "Page 1", timeout=1)
+
+    # verify that when a separate callback runs, the page title gets restored
+    dash_duo.find_element("#button").click()
+    dash_duo.wait_for_text_to_equal("#output", "2")
     if clientside_title:
         until(lambda: dash_duo.driver.title == "Page 1", timeout=1)
-    else:
-        until(lambda: dash_duo.driver.title == "Dash", timeout=1)
-
-    dash_duo.find_element("#button").click()
-    if clientside_title:
-        until(lambda: dash_duo.driver.title == "Page 2", timeout=1)
     else:
         until(lambda: dash_duo.driver.title == "Dash", timeout=1)
 
