@@ -241,3 +241,59 @@ def test_rdls003_update_title(
         until(lambda: dash_duo.driver.title == "Page 2", timeout=1)
     else:
         until(lambda: dash_duo.driver.title == "Dash", timeout=1)
+
+
+@pytest.mark.parametrize(
+    "update_title",
+    [
+        (None,),
+        ('Custom Update Title',),
+    ],
+)
+def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
+    initial_title = 'Initial Title'
+    app = dash.Dash("Dash", title=initial_title, update_title=update_title)
+    lock = Lock()
+
+    app.layout = html.Div(
+        children=[
+            html.Button(id="page-title", n_clicks=0),
+            html.Div(id="page-output"),
+            html.Div(id="final-output")
+        ]
+    )
+    if clientside_title:
+        app.clientside_callback(
+            """
+            function(n_clicks) {
+                if (n_clicks > 0) {
+                    document.title = 'Page ' + n_clicks;
+                }
+                return n_clicks;
+            }
+            """,
+            Output("page-output", "children"),
+            [Input("page-title", "n_clicks")],
+        )
+
+    @app.callback(
+        Output("final-output", "children"),
+        [Input("page-output", "children")])
+    def update(n):
+        with lock:
+            return n
+
+    # check for original title after loading
+    dash_duo.wait_for_text_to_equal("final-output", "0")
+    until(lambda: dash_duo.driver.title == initial_title, timeout=1)
+
+    with lock:
+        dash_duo.find_element("#page-title").click()
+        # check for update-title while processing the serverside callback
+        if update_title:
+            until(lambda: dash_duo.driver.title == update_title, timeout=1)
+        else:
+            until(lambda: dash_duo.driver.title == 'Page 1', timeout=1)
+
+    dash_duo.wait_for_text_to_equal("final-output", "1")
+    until(lambda: dash_duo.driver.title == 'Page 1', timeout=1)
