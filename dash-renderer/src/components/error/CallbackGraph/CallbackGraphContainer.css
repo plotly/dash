@@ -29,3 +29,13 @@
     border: 2px solid #ccc;
     font-family: "Arial", sans-serif;
 }
+
+.dash-callback-dag--error {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    line-height: 2em;
+    font-family: "Arial", sans-serif;
+}

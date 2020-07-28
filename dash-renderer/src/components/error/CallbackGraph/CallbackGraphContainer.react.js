@@ -1,11 +1,13 @@
-import React, {useState, useMemo, useEffect} from 'react';
-import {useSelector} from 'react-redux'
+import React, {Component, useState, useMemo, useEffect} from 'react';
+import PropTypes from 'prop-types';
+import {connect, useSelector} from 'react-redux'
 import CytoscapeComponent from 'react-cytoscapejs';
 import JSONTree from 'react-json-tree'
 import {omit, path} from 'ramda';
 
 import {getPath} from '../../../actions/paths';
 import {stringifyId} from '../../../actions/dependencies';
+import {onError} from '../../../actions';
 
 import './CallbackGraphContainer.css';
 import stylesheet from './CallbackGraphContainerStylesheet';
@@ -117,7 +119,7 @@ function generateElements(graphs, profile) {
 // len('__dash_callback__.')
 const cbPrefixLen = 18;
 
-function CallbackGraphContainer() {
+function CallbackGraph() {
 
   // Grab items from the redux store.
   const paths = useSelector(state => state.paths);
@@ -258,6 +260,52 @@ function CallbackGraphContainer() {
 
 }
 
-CallbackGraphContainer.propTypes = {};
+CallbackGraph.propTypes = {};
+
+
+class UnconnectedCallbackGraphContainer extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(_) {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error, info) {
+        const {dispatch} = this.props;
+        dispatch(
+            onError({
+                myID: this.state.myID,
+                type: 'frontEnd',
+                error,
+                info,
+            })
+        );
+    }
+
+    render() {
+        return this.state.hasError ? (
+            <div className="dash-callback-dag--container">
+                <div className="dash-callback-dag--error">
+                    <div>Oops! The callback graph threw an error.</div>
+                    <div>Check the error list for details.</div>
+                </div>
+            </div>
+        ) : (
+            <CallbackGraph />
+        )
+    }
+}
+
+UnconnectedCallbackGraphContainer.propTypes = {
+    dispatch: PropTypes.func,
+};
+
+const CallbackGraphContainer = connect(
+    null,
+    dispatch => ({dispatch})
+)(UnconnectedCallbackGraphContainer);
 
 export {CallbackGraphContainer};
