@@ -1,5 +1,7 @@
 import {clone} from 'ramda';
 
+import {STATUS} from '../constants/constants';
+
 const defaultProfile = {
   count: 0,
   total: 0,
@@ -11,12 +13,14 @@ const defaultProfile = {
   },
   resources: {},
   status: {
-    current: null,
-    success: 0,
-    rejected: 0,
-    error: 0
+    latest: null
   }
 };
+
+const statusMap = {
+    [STATUS.OK]: 'SUCCESS',
+    [STATUS.PREVENT_UPDATE]: 'NO_UPDATE'
+}
 
 const defaultState = {
   updated: [],
@@ -32,7 +36,8 @@ const profile = (state = defaultState, action) => {
         // it watches all props, not just inputs.
         case 'UPDATE_RESOURCE_USAGE': {
 
-          const {id, usage} = action.payload;
+          const {id, usage, status} = action.payload;
+          const statusMapped = statusMap[status] || status;
           const {
             __dash_client,
             __dash_server,
@@ -62,6 +67,8 @@ const profile = (state = defaultState, action) => {
           cb.network.time += (__dash_client - __dash_server);
           cb.network.upload += __dash_upload;
           cb.network.download += __dash_download;
+          cb.status.latest = statusMapped;
+          cb.status[statusMapped] = (cb.status[statusMapped] || 0) + 1;
 
           for (const r in user) {
             if (user.hasOwnProperty(r)) {

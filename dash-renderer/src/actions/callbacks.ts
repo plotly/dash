@@ -203,6 +203,7 @@ function handleClientside(dispatch: any, clientside_function: any, payload: ICal
     const requestTime = Date.now();
 
     let returnValue;
+    let status: any = STATUS.OK;
 
     try {
         const { namespace, function_name } = clientside_function;
@@ -226,8 +227,10 @@ function handleClientside(dispatch: any, clientside_function: any, payload: ICal
         returnValue = dc[namespace][function_name](...args);
     } catch (e) {
         if (e === dc.PreventUpdate) {
+            status = STATUS.PREVENT_UPDATE;
             return {};
         }
+        status = STATUS.CLIENTSIDE_ERROR;
         throw e;
     } finally {
         delete dc.callback_context;
@@ -244,7 +247,8 @@ function handleClientside(dispatch: any, clientside_function: any, payload: ICal
         dispatch(
           updateResourceUsage({
             id: payload.output,
-            usage: resources
+            usage: resources,
+            status
           })
         );
     }
@@ -292,6 +296,8 @@ function handleServerside(
             body
         })
     ).then((res: any) => {
+        const { status } = res;
+
         if (config.ui) {
             // Callback profiling - only relevant if we're showing the debug ui
             const resources = {
@@ -316,12 +322,12 @@ function handleServerside(
             dispatch(
                 updateResourceUsage({
                     id: payload.output,
-                    usage: resources
+                    usage: resources,
+                    status
                 })
             );
         }
 
-        const { status } = res;
         if (status === STATUS.OK) {
             return res.json().then((data: any) => {
                 const { multi, response } = data;
@@ -346,6 +352,14 @@ function handleServerside(
         // fetch rejection - this means the request didn't return,
         // we don't get here from 400/500 errors, only network
         // errors or unresponsive servers.
+        if (config.ui) {
+            dispatch(
+                updateResourceUsage({
+                    id: payload.output,
+                    status: STATUS.NO_RESPONSE
+                })
+            )
+        }
         throw new Error('Callback failed: the server did not respond.');
     });
 }
