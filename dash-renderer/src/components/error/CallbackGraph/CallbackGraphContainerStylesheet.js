@@ -97,7 +97,7 @@ const stylesheet = [
     selector: 'node[type="wildcard"]',
     style: {
       'shape': 'rectangle',
-      'label': e => e.data('label').join('\n'),
+      'label': 'data(label)',
       'text-valign': 'center',
       'text-halign': 'right',
       'text-wrap': 'wrap',
