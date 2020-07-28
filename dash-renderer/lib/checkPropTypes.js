@@ -19,7 +19,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
  * @param {string} location e.g. "prop", "context", "child context"
  * @param {string} componentName Name of the component for error messages.
  * @param {?Function} getStack Returns the component stack.
- * @return {string} Any error messsage resulting from checking the types
+ * @return {string} Any error message resulting from checking the types
  */
 function checkPropTypes(typeSpecs, values, location, componentName) {
   var getStack = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;

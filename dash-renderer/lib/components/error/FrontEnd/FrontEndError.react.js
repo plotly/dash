@@ -31,25 +31,31 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 var FrontEndError = /*#__PURE__*/function (_Component) {
   _inherits(FrontEndError, _Component);
+
+  var _super = _createSuper(FrontEndError);
 
   function FrontEndError(props) {
     var _this;
 
     _classCallCheck(this, FrontEndError);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FrontEndError).call(this, props));
+    _this = _super.call(this, props);
     _this.state = {
       collapsed: _this.props.isListItem
     };
@@ -68,24 +74,24 @@ var FrontEndError = /*#__PURE__*/function (_Component) {
       var cardClasses = 'dash-error-card__content' + (inAlertsTray ? ' dash-error-card--alerts-tray' : '');
       /* eslint-disable no-inline-comments */
 
-      var errorHeader = React.createElement("div", {
+      var errorHeader = /*#__PURE__*/React.createElement("div", {
         className: "dash-fe-error-top test-devtools-error-toggle",
         onClick: function onClick() {
           return _this2.setState({
             collapsed: !collapsed
           });
         }
-      }, React.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error-top__group"
-      }, "\u26D1\uFE0F", React.createElement("span", {
+      }, "\u26D1\uFE0F", /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error__title"
-      }, e.error.message || 'Error')), React.createElement("span", {
+      }, e.error.message || 'Error')), /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error-top__group"
-      }, React.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error__timestamp percy-hide"
-      }, "".concat(e.timestamp.toLocaleTimeString())), React.createElement("span", {
+      }, "".concat(e.timestamp.toLocaleTimeString())), /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error__timestamp percy-show"
-      }, "00:00:00 PM"), React.createElement(_CollapseIcon["default"], {
+      }, "00:00:00 PM"), /*#__PURE__*/React.createElement(_CollapseIcon["default"], {
         className: "dash-fe-error__collapse ".concat(collapsed ? 'dash-fe-error__collapse--flipped' : ''),
         onClick: function onClick() {
           return _this2.setState({
@@ -95,11 +101,11 @@ var FrontEndError = /*#__PURE__*/function (_Component) {
       })));
       /* eslint-enable no-inline-comments */
 
-      return collapsed ? React.createElement("div", {
+      return collapsed ? /*#__PURE__*/React.createElement("div", {
         className: "dash-error-card__list-item"
-      }, errorHeader) : React.createElement("div", {
+      }, errorHeader) : /*#__PURE__*/React.createElement("div", {
         className: cardClasses
-      }, errorHeader, React.createElement(ErrorContent, {
+      }, errorHeader, /*#__PURE__*/React.createElement(ErrorContent, {
         error: e.error
       }));
     }
@@ -115,25 +121,25 @@ var MAX_MESSAGE_LENGTH = 40;
 function UnconnectedErrorContent(_ref) {
   var error = _ref.error,
       base = _ref.base;
-  return React.createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "error-container"
-  }, typeof error.message !== 'string' || error.message.length < MAX_MESSAGE_LENGTH ? null : React.createElement("div", {
+  }, typeof error.message !== 'string' || error.message.length < MAX_MESSAGE_LENGTH ? null : /*#__PURE__*/React.createElement("div", {
     className: "dash-fe-error__st"
-  }, React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "dash-fe-error__info dash-fe-error__curved"
-  }, error.message)), typeof error.stack !== 'string' ? null : React.createElement("div", {
+  }, error.message)), typeof error.stack !== 'string' ? null : /*#__PURE__*/React.createElement("div", {
     className: "dash-fe-error__st"
-  }, React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "dash-fe-error__info"
-  }, React.createElement("details", null, React.createElement("summary", null, React.createElement("i", null, "(This error originated from the built-in JavaScript code that runs Dash apps. Click to see the full stack trace or open your browser's console.)")), error.stack.split('\n').map(function (line, i) {
-    return React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, /*#__PURE__*/React.createElement("i", null, "(This error originated from the built-in JavaScript code that runs Dash apps. Click to see the full stack trace or open your browser's console.)")), error.stack.split('\n').map(function (line, i) {
+    return /*#__PURE__*/React.createElement("p", {
       key: i
     }, line);
-  })))), typeof error.html !== 'string' ? null : error.html.indexOf('<!DOCTYPE HTML') === 0 ? React.createElement("div", {
+  })))), typeof error.html !== 'string' ? null : error.html.indexOf('<!DOCTYPE HTML') === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "dash-be-error__st"
-  }, React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "dash-backend-error"
-  }, React.createElement("iframe", {
+  }, /*#__PURE__*/React.createElement("iframe", {
     srcDoc: error.html.replace('</head>', "<style type=\"text/css\">".concat(_werkzeugcss["default"], "</style></head>")).replace('="?__debugger__', "=\"".concat(base, "?__debugger__")),
     style: {
       /*
@@ -146,9 +152,9 @@ function UnconnectedErrorContent(_ref) {
       height: '75vh',
       border: 'none'
     }
-  }))) : React.createElement("div", {
+  }))) : /*#__PURE__*/React.createElement("div", {
     className: "dash-be-error__str"
-  }, React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "dash-backend-error"
   }, error.html)));
 }

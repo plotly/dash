@@ -19,7 +19,7 @@ var DashRenderer = function DashRenderer(hooks) {
   _classCallCheck(this, DashRenderer);
 
   // render Dash Renderer upon initialising!
-  _reactDom["default"].render(_react["default"].createElement(_AppProvider["default"], {
+  _reactDom["default"].render( /*#__PURE__*/_react["default"].createElement(_AppProvider["default"], {
     hooks: hooks
   }), document.getElementById('react-entry-point'));
 };

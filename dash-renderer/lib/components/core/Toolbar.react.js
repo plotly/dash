@@ -38,7 +38,7 @@ function UnconnectedToolbar(props) {
     }
   };
 
-  var undoLink = _react["default"].createElement("span", {
+  var undoLink = /*#__PURE__*/_react["default"].createElement("span", {
     key: "undoLink",
     style: (0, _ramda.mergeRight)({
       color: history.past.length ? '#0074D9' : 'grey',
@@ -47,15 +47,15 @@ function UnconnectedToolbar(props) {
     onClick: function onClick() {
       return dispatch(_index.undo);
     }
-  }, _react["default"].createElement("div", {
+  }, /*#__PURE__*/_react["default"].createElement("div", {
     style: (0, _ramda.mergeRight)({
       transform: 'rotate(270deg)'
     }, styles.iconStyle)
-  }, "\u21BA"), _react["default"].createElement("div", {
+  }, "\u21BA"), /*#__PURE__*/_react["default"].createElement("div", {
     style: styles.labelStyle
   }, "undo"));
 
-  var redoLink = _react["default"].createElement("span", {
+  var redoLink = /*#__PURE__*/_react["default"].createElement("span", {
     key: "redoLink",
     style: (0, _ramda.mergeRight)({
       color: history.future.length ? '#0074D9' : 'grey',
@@ -65,15 +65,15 @@ function UnconnectedToolbar(props) {
     onClick: function onClick() {
       return dispatch(_index.redo);
     }
-  }, _react["default"].createElement("div", {
+  }, /*#__PURE__*/_react["default"].createElement("div", {
     style: (0, _ramda.mergeRight)({
       transform: 'rotate(90deg)'
     }, styles.iconStyle)
-  }, "\u21BB"), _react["default"].createElement("div", {
+  }, "\u21BB"), /*#__PURE__*/_react["default"].createElement("div", {
     style: styles.labelStyle
   }, "redo"));
 
-  return _react["default"].createElement("div", {
+  return /*#__PURE__*/_react["default"].createElement("div", {
     className: "_dash-undo-redo",
     style: {
       position: 'fixed',
@@ -84,7 +84,7 @@ function UnconnectedToolbar(props) {
       zIndex: '9999',
       backgroundColor: 'rgba(255, 255, 255, 0.9)'
     }
-  }, _react["default"].createElement("div", {
+  }, /*#__PURE__*/_react["default"].createElement("div", {
     style: {
       position: 'relative'
     }

@@ -133,7 +133,7 @@ def validate_multi_return(outputs_list, output_value, callback_id):
             if not isinstance(vi, (list, tuple)):
                 raise exceptions.InvalidCallbackReturnValue(
                     """
-                    The callback {} ouput {} is a wildcard multi-output.
+                    The callback {} output {} is a wildcard multi-output.
                     Expected the output type to be a list or tuple but got:
                     {}.
                     output spec: {}

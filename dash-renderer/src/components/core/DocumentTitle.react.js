@@ -5,16 +5,29 @@ import PropTypes from 'prop-types';
 class DocumentTitle extends Component {
     constructor(props) {
         super(props);
+        const {update_title} = props.config;
         this.state = {
-            initialTitle: document.title,
+            title: document.title,
+            update_title,
         };
     }
 
     UNSAFE_componentWillReceiveProps(props) {
+        if (!this.state.update_title) {
+            // Let callbacks or other components have full control over title
+            return;
+        }
         if (props.isLoading) {
-            document.title = 'Updating...';
+            this.setState({title: document.title});
+            if (this.state.update_title) {
+                document.title = this.state.update_title;
+            }
         } else {
-            document.title = this.state.initialTitle;
+            if (document.title === this.state.update_title) {
+                document.title = this.state.title;
+            } else {
+                this.setState({title: document.title});
+            }
         }
     }
 
@@ -29,8 +42,10 @@ class DocumentTitle extends Component {
 
 DocumentTitle.propTypes = {
     isLoading: PropTypes.bool.isRequired,
+    config: PropTypes.shape({update_title: PropTypes.string}),
 };
 
 export default connect(state => ({
     isLoading: state.isLoading,
+    config: state.config,
 }))(DocumentTitle);

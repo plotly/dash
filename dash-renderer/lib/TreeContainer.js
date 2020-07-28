@@ -51,25 +51,33 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 var NOT_LOADING = {
   is_loading: false
@@ -103,15 +111,15 @@ function createElement(element, props, extraProps, children) {
   var allProps = (0, _ramda.mergeRight)(props, extraProps);
 
   if (Array.isArray(children)) {
-    return _react["default"].createElement.apply(_react["default"], [element, allProps].concat(_toConsumableArray(children)));
+    return /*#__PURE__*/_react["default"].createElement.apply(_react["default"], [element, allProps].concat(_toConsumableArray(children)));
   }
 
-  return _react["default"].createElement(element, allProps, children);
+  return /*#__PURE__*/_react["default"].createElement(element, allProps, children);
 }
 
-var TreeContainer = (0, _react.memo)(function (props) {
-  return _react["default"].createElement(_APIController.DashContext.Consumer, null, function (context) {
-    return _react["default"].createElement(BaseTreeContainer, _extends({}, context.fn(), props, {
+var TreeContainer = /*#__PURE__*/(0, _react.memo)(function (props) {
+  return /*#__PURE__*/_react["default"].createElement(_APIController.DashContext.Consumer, null, function (context) {
+    return /*#__PURE__*/_react["default"].createElement(BaseTreeContainer, _extends({}, context.fn(), props, {
       _dashprivate_path: JSON.parse(props._dashprivate_path)
     }));
   });
@@ -120,12 +128,14 @@ var TreeContainer = (0, _react.memo)(function (props) {
 var BaseTreeContainer = /*#__PURE__*/function (_Component) {
   _inherits(BaseTreeContainer, _Component);
 
+  var _super = _createSuper(BaseTreeContainer);
+
   function BaseTreeContainer(props) {
     var _this;
 
     _classCallCheck(this, BaseTreeContainer);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(BaseTreeContainer).call(this, props));
+    _this = _super.call(this, props);
     _this.setProps = _this.setProps.bind(_assertThisInitialized(_this));
     return _this;
   }
@@ -133,7 +143,7 @@ var BaseTreeContainer = /*#__PURE__*/function (_Component) {
   _createClass(BaseTreeContainer, [{
     key: "createContainer",
     value: function createContainer(props, component, path) {
-      return (0, _isSimpleComponent["default"])(component) ? component : _react["default"].createElement(TreeContainer, {
+      return (0, _isSimpleComponent["default"])(component) ? component : /*#__PURE__*/_react["default"].createElement(TreeContainer, {
         key: component && component.props && (0, _dependencies.stringifyId)(component.props.id),
         _dashprivate_error: props._dashprivate_error,
         _dashprivate_layout: component,
@@ -223,13 +233,13 @@ var BaseTreeContainer = /*#__PURE__*/function (_Component) {
         loading_state: loading_state || NOT_LOADING,
         setProps: setProps
       };
-      return _react["default"].createElement(_ComponentErrorBoundary["default"], {
+      return /*#__PURE__*/_react["default"].createElement(_ComponentErrorBoundary["default"], {
         componentType: _dashprivate_layout.type,
         componentId: props.id,
         key: props.id,
         dispatch: _dashprivate_dispatch,
         error: _dashprivate_error
-      }, _dashprivate_config.props_check ? _react["default"].createElement(CheckedComponent, {
+      }, _dashprivate_config.props_check ? /*#__PURE__*/_react["default"].createElement(CheckedComponent, {
         children: children,
         element: element,
         props: props,
@@ -265,7 +275,7 @@ TreeContainer.propTypes = {
   _dashprivate_loadingStateHash: _propTypes["default"].string,
   _dashprivate_path: _propTypes["default"].string
 };
-BaseTreeContainer.propTypes = _objectSpread({}, TreeContainer.propTypes, {
+BaseTreeContainer.propTypes = _objectSpread(_objectSpread({}, TreeContainer.propTypes), {}, {
   _dashprivate_config: _propTypes["default"].object,
   _dashprivate_dispatch: _propTypes["default"].func,
   _dashprivate_graphs: _propTypes["default"].any,

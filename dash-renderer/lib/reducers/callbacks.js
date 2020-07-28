@@ -29,7 +29,7 @@ exports.CallbackActionType = CallbackActionType;
   CallbackActionType["RemoveBlocked"] = "Callbacks.RemoveBlocked";
   CallbackActionType["RemoveExecuted"] = "Callbacks.RemoveExecuted";
   CallbackActionType["RemoveExecuting"] = "Callbacks.RemoveExecuting";
-  CallbackActionType["RemovePrioritized"] = "Callbacks.ReomvePrioritized";
+  CallbackActionType["RemovePrioritized"] = "Callbacks.RemovePrioritized";
   CallbackActionType["RemoveRequested"] = "Callbacks.RemoveRequested";
   CallbackActionType["RemoveStored"] = "Callbacks.RemoveStored";
   CallbackActionType["RemoveWatched"] = "Callbacks.RemoveWatched";
@@ -57,7 +57,7 @@ var transforms = (_transforms = {}, _defineProperty(_transforms, CallbackActionT
 var fields = (_fields = {}, _defineProperty(_fields, CallbackActionType.AddBlocked, 'blocked'), _defineProperty(_fields, CallbackActionType.AddExecuted, 'executed'), _defineProperty(_fields, CallbackActionType.AddExecuting, 'executing'), _defineProperty(_fields, CallbackActionType.AddPrioritized, 'prioritized'), _defineProperty(_fields, CallbackActionType.AddRequested, 'requested'), _defineProperty(_fields, CallbackActionType.AddStored, 'stored'), _defineProperty(_fields, CallbackActionType.AddWatched, 'watched'), _defineProperty(_fields, CallbackActionType.RemoveBlocked, 'blocked'), _defineProperty(_fields, CallbackActionType.RemoveExecuted, 'executed'), _defineProperty(_fields, CallbackActionType.RemoveExecuting, 'executing'), _defineProperty(_fields, CallbackActionType.RemovePrioritized, 'prioritized'), _defineProperty(_fields, CallbackActionType.RemoveRequested, 'requested'), _defineProperty(_fields, CallbackActionType.RemoveStored, 'stored'), _defineProperty(_fields, CallbackActionType.RemoveWatched, 'watched'), _fields);
 
 var mutateCompleted = function mutateCompleted(state, action) {
-  return _objectSpread({}, state, {
+  return _objectSpread(_objectSpread({}, state), {}, {
     completed: state.completed + action.payload
   });
 };
@@ -65,7 +65,7 @@ var mutateCompleted = function mutateCompleted(state, action) {
 var mutateCallbacks = function mutateCallbacks(state, action) {
   var transform = transforms[action.type];
   var field = fields[action.type];
-  return !transform || !field || action.payload.length === 0 ? state : _objectSpread({}, state, _defineProperty({}, field, transform(state[field], action.payload)));
+  return !transform || !field || action.payload.length === 0 ? state : _objectSpread(_objectSpread({}, state), {}, _defineProperty({}, field, transform(state[field], action.payload)));
 };
 
 var _default = function _default() {

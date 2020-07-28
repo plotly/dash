@@ -32018,11 +32018,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _reducers_constants__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./reducers/constants */ "./src/reducers/constants.js");
 /* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./constants/constants */ "./src/constants/constants.js");
 /* harmony import */ var _utils_TreeContainer__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./utils/TreeContainer */ "./src/utils/TreeContainer.ts");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -32041,7 +32045,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-var DashContext = Object(react__WEBPACK_IMPORTED_MODULE_2__["createContext"])({});
+var DashContext = /*#__PURE__*/Object(react__WEBPACK_IMPORTED_MODULE_2__["createContext"])({});
 /**
  * Fire off API calls for initialization
  * @param {*} props props
@@ -32091,18 +32095,18 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
   var content;
 
   if (layoutRequest.status && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["includes"])(layoutRequest.status, [_constants_constants__WEBPACK_IMPORTED_MODULE_13__["STATUS"].OK, 'loading'])) {
-    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+    content = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
       className: "_dash-error"
     }, "Error loading layout");
   } else if (errorLoading || dependenciesRequest.status && !Object(ramda__WEBPACK_IMPORTED_MODULE_1__["includes"])(dependenciesRequest.status, [_constants_constants__WEBPACK_IMPORTED_MODULE_13__["STATUS"].OK, 'loading'])) {
-    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+    content = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
       className: "_dash-error"
     }, "Error loading dependencies");
   } else if (appLifecycle === Object(_reducers_constants__WEBPACK_IMPORTED_MODULE_12__["getAppState"])('HYDRATED')) {
     renderedTree.current = true;
-    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(DashContext.Provider, {
+    content = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(DashContext.Provider, {
       value: provider.current
-    }, react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_TreeContainer__WEBPACK_IMPORTED_MODULE_4__["default"], {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_TreeContainer__WEBPACK_IMPORTED_MODULE_4__["default"], {
       _dashprivate_error: error,
       _dashprivate_layout: layout,
       _dashprivate_loadingState: Object(_utils_TreeContainer__WEBPACK_IMPORTED_MODULE_14__["getLoadingState"])(layout, [], loadingMap),
@@ -32110,12 +32114,12 @@ var UnconnectedContainer = function UnconnectedContainer(props) {
       _dashprivate_path: JSON.stringify([])
     }));
   } else {
-    content = react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
+    content = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("div", {
       className: "_dash-loading"
     }, "Loading...");
   }
 
-  return config && config.ui === true ? react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_components_error_GlobalErrorContainer_react__WEBPACK_IMPORTED_MODULE_5__["default"], null, content) : content;
+  return config && config.ui === true ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_components_error_GlobalErrorContainer_react__WEBPACK_IMPORTED_MODULE_5__["default"], null, content) : content;
 };
 
 function storeEffect(props, events, setErrorLoading) {
@@ -32231,15 +32235,19 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -32255,12 +32263,14 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 var UnconnectedAppContainer = /*#__PURE__*/function (_React$Component) {
   _inherits(UnconnectedAppContainer, _React$Component);
 
+  var _super = _createSuper(UnconnectedAppContainer);
+
   function UnconnectedAppContainer(props) {
     var _this;
 
     _classCallCheck(this, UnconnectedAppContainer);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(UnconnectedAppContainer).call(this, props));
+    _this = _super.call(this, props);
 
     if (props.hooks.request_pre !== null || props.hooks.request_post !== null) {
       props.dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_8__["setHooks"])(props.hooks));
@@ -32290,13 +32300,13 @@ var UnconnectedAppContainer = /*#__PURE__*/function (_React$Component) {
       var config = this.props.config;
 
       if (Object(ramda__WEBPACK_IMPORTED_MODULE_9__["type"])(config) === 'Null') {
-        return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
           className: "_dash-loading"
         }, "Loading...");
       }
 
       var show_undo_redo = config.show_undo_redo;
-      return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, show_undo_redo ? react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_core_Toolbar_react__WEBPACK_IMPORTED_MODULE_6__["default"], null) : null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_APIController_react__WEBPACK_IMPORTED_MODULE_3__["default"], null), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_core_DocumentTitle_react__WEBPACK_IMPORTED_MODULE_4__["default"], null), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_core_Loading_react__WEBPACK_IMPORTED_MODULE_5__["default"], null), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_core_Reloader_react__WEBPACK_IMPORTED_MODULE_7__["default"], null));
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, show_undo_redo ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_core_Toolbar_react__WEBPACK_IMPORTED_MODULE_6__["default"], null) : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_APIController_react__WEBPACK_IMPORTED_MODULE_3__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_core_DocumentTitle_react__WEBPACK_IMPORTED_MODULE_4__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_core_Loading_react__WEBPACK_IMPORTED_MODULE_5__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_core_Reloader_react__WEBPACK_IMPORTED_MODULE_7__["default"], null));
     }
   }]);
 
@@ -32347,9 +32357,9 @@ var store = Object(_store__WEBPACK_IMPORTED_MODULE_3__["default"])();
 
 var AppProvider = function AppProvider(_ref) {
   var hooks = _ref.hooks;
-  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react_redux__WEBPACK_IMPORTED_MODULE_2__["Provider"], {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react_redux__WEBPACK_IMPORTED_MODULE_2__["Provider"], {
     store: store
-  }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_AppContainer_react__WEBPACK_IMPORTED_MODULE_4__["default"], {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_AppContainer_react__WEBPACK_IMPORTED_MODULE_4__["default"], {
     hooks: hooks
   }));
 };
@@ -32395,7 +32405,7 @@ var DashRenderer = function DashRenderer(hooks) {
   _classCallCheck(this, DashRenderer);
 
   // render Dash Renderer upon initialising!
-  react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render(react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_AppProvider_react__WEBPACK_IMPORTED_MODULE_2__["default"], {
+  react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_AppProvider_react__WEBPACK_IMPORTED_MODULE_2__["default"], {
     hooks: hooks
   }), document.getElementById('react-entry-point'));
 };
@@ -32555,25 +32565,33 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 
 
@@ -32620,15 +32638,15 @@ function createElement(element, props, extraProps, children) {
   var allProps = Object(ramda__WEBPACK_IMPORTED_MODULE_4__["mergeRight"])(props, extraProps);
 
   if (Array.isArray(children)) {
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement.apply(react__WEBPACK_IMPORTED_MODULE_0___default.a, [element, allProps].concat(_toConsumableArray(children)));
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement.apply(react__WEBPACK_IMPORTED_MODULE_0___default.a, [element, allProps].concat(_toConsumableArray(children)));
   }
 
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(element, allProps, children);
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(element, allProps, children);
 }
 
-var TreeContainer = Object(react__WEBPACK_IMPORTED_MODULE_0__["memo"])(function (props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_APIController_react__WEBPACK_IMPORTED_MODULE_12__["DashContext"].Consumer, null, function (context) {
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(BaseTreeContainer, _extends({}, context.fn(), props, {
+var TreeContainer = /*#__PURE__*/Object(react__WEBPACK_IMPORTED_MODULE_0__["memo"])(function (props) {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_APIController_react__WEBPACK_IMPORTED_MODULE_12__["DashContext"].Consumer, null, function (context) {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(BaseTreeContainer, _extends({}, context.fn(), props, {
       _dashprivate_path: JSON.parse(props._dashprivate_path)
     }));
   });
@@ -32637,12 +32655,14 @@ var TreeContainer = Object(react__WEBPACK_IMPORTED_MODULE_0__["memo"])(function 
 var BaseTreeContainer = /*#__PURE__*/function (_Component) {
   _inherits(BaseTreeContainer, _Component);
 
+  var _super = _createSuper(BaseTreeContainer);
+
   function BaseTreeContainer(props) {
     var _this;
 
     _classCallCheck(this, BaseTreeContainer);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(BaseTreeContainer).call(this, props));
+    _this = _super.call(this, props);
     _this.setProps = _this.setProps.bind(_assertThisInitialized(_this));
     return _this;
   }
@@ -32650,7 +32670,7 @@ var BaseTreeContainer = /*#__PURE__*/function (_Component) {
   _createClass(BaseTreeContainer, [{
     key: "createContainer",
     value: function createContainer(props, component, path) {
-      return Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_6__["default"])(component) ? component : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(TreeContainer, {
+      return Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_6__["default"])(component) ? component : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(TreeContainer, {
         key: component && component.props && Object(_actions_dependencies__WEBPACK_IMPORTED_MODULE_10__["stringifyId"])(component.props.id),
         _dashprivate_error: props._dashprivate_error,
         _dashprivate_layout: component,
@@ -32738,13 +32758,13 @@ var BaseTreeContainer = /*#__PURE__*/function (_Component) {
         loading_state: loading_state || NOT_LOADING,
         setProps: setProps
       };
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_8__["default"], {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_8__["default"], {
         componentType: _dashprivate_layout.type,
         componentId: props.id,
         key: props.id,
         dispatch: _dashprivate_dispatch,
         error: _dashprivate_error
-      }, _dashprivate_config.props_check ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(CheckedComponent, {
+      }, _dashprivate_config.props_check ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(CheckedComponent, {
         children: children,
         element: element,
         props: props,
@@ -32780,7 +32800,7 @@ TreeContainer.propTypes = {
   _dashprivate_loadingStateHash: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
   _dashprivate_path: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string
 };
-BaseTreeContainer.propTypes = _objectSpread({}, TreeContainer.propTypes, {
+BaseTreeContainer.propTypes = _objectSpread(_objectSpread({}, TreeContainer.propTypes), {}, {
   _dashprivate_config: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
   _dashprivate_dispatch: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func,
   _dashprivate_graphs: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
@@ -32933,19 +32953,23 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -33241,7 +33265,7 @@ function executeCallback(cb, config, hooks, paths, layout, _ref7) {
     /* Prevent callback if there's no inputs */
 
     if (inVals === null) {
-      return _objectSpread({}, cb, {
+      return _objectSpread(_objectSpread({}, cb), {}, {
         executionPromise: null
       });
     }
@@ -33270,7 +33294,7 @@ function executeCallback(cb, config, hooks, paths, layout, _ref7) {
       // regular missing inputs and just silently prevent it.
 
 
-      return _objectSpread({}, cb, {
+      return _objectSpread(_objectSpread({}, cb), {}, {
         executionPromise: null
       });
     }
@@ -33320,13 +33344,13 @@ function executeCallback(cb, config, hooks, paths, layout, _ref7) {
       }
     });
 
-    var newCb = _objectSpread({}, cb, {
+    var newCb = _objectSpread(_objectSpread({}, cb), {}, {
       executionPromise: __promise
     });
 
     return newCb;
   } catch (error) {
-    return _objectSpread({}, cb, {
+    return _objectSpread(_objectSpread({}, cb), {}, {
       executionPromise: {
         error: error,
         payload: null
@@ -33403,11 +33427,17 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -33814,12 +33844,12 @@ function wildcardOverlap(_ref9, objs) {
       property = _ref9.property;
   var idKeys = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["keys"])(id).sort();
   var idVals = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["props"])(idKeys, id);
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
+
+  var _iterator = _createForOfIteratorHelper(objs),
+      _step;
 
   try {
-    for (var _iterator = objs[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
       var obj = _step.value;
       var id2 = obj.id,
           property2 = obj.property;
@@ -33829,18 +33859,9 @@ function wildcardOverlap(_ref9, objs) {
       }
     }
   } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
+    _iterator.e(err);
   } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-        _iterator["return"]();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
+    _iterator.f();
   }
 
   return false;
@@ -34597,7 +34618,7 @@ function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
     }
   });
   return Object(ramda__WEBPACK_IMPORTED_MODULE_2__["map"])(function (cb) {
-    return _objectSpread({}, cb, {
+    return _objectSpread(_objectSpread({}, cb), {}, {
       priority: Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getPriority"])(graphs, paths, cb)
     });
   }, callbacks);
@@ -34630,13 +34651,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var _dependencies__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dependencies */ "./src/actions/dependencies.js");
 /* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./paths */ "./src/actions/paths.js");
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -34644,11 +34665,15 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -34778,7 +34803,7 @@ var getLayoutCallbacks = function getLayoutCallbacks(graphs, paths, layout, opti
        Exclusion of inputs happens when:
       - an input is missing
       - an input in the initial callback chain depends only on excluded inputs
-       Further execlusion might happen after callbacks return with:
+       Further exclusion might happen after callbacks return with:
       - PreventUpdate
       - no_update
   */
@@ -34813,7 +34838,7 @@ var getLayoutCallbacks = function getLayoutCallbacks(graphs, paths, layout, opti
 
   var executionGroup = Math.random().toString(16);
   return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
-    return _objectSpread({}, cb, {
+    return _objectSpread(_objectSpread({}, cb), {}, {
       executionGroup: executionGroup
     });
   }, callbacks);
@@ -35076,30 +35101,29 @@ function moveHistory(changeType) {
 function notifyObservers(_ref2) {
   var id = _ref2.id,
       props = _ref2.props;
-  return (/*#__PURE__*/function () {
-      var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
-        var _getState3, graphs, paths;
+  return /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
+      var _getState3, graphs, paths;
 
-        return regeneratorRuntime.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _getState3 = getState(), graphs = _getState3.graphs, paths = _getState3.paths;
-                dispatch(Object(_callbacks__WEBPACK_IMPORTED_MODULE_2__["addRequestedCallbacks"])(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_7__["includeObservers"])(id, props, graphs, paths)));
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _getState3 = getState(), graphs = _getState3.graphs, paths = _getState3.paths;
+              dispatch(Object(_callbacks__WEBPACK_IMPORTED_MODULE_2__["addRequestedCallbacks"])(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_7__["includeObservers"])(id, props, graphs, paths)));
 
-              case 2:
-              case "end":
-                return _context.stop();
-            }
+            case 2:
+            case "end":
+              return _context.stop();
           }
-        }, _callee);
-      }));
+        }
+      }, _callee);
+    }));
 
-      return function (_x, _x2) {
-        return _ref3.apply(this, arguments);
-      };
-    }()
-  );
+    return function (_x, _x2) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
 }
 function handleAsyncError(err, message, dispatch) {
   // Handle html error responses
@@ -35483,7 +35507,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
  * @param {string} location e.g. "prop", "context", "child context"
  * @param {string} componentName Name of the component for error messages.
  * @param {?Function} getStack Returns the component stack.
- * @return {string} Any error messsage resulting from checking the types
+ * @return {string} Any error message resulting from checking the types
  */
 
 function checkPropTypes(typeSpecs, values, location, componentName) {
@@ -35547,15 +35571,19 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -35564,14 +35592,18 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 var DocumentTitle = /*#__PURE__*/function (_Component) {
   _inherits(DocumentTitle, _Component);
 
+  var _super = _createSuper(DocumentTitle);
+
   function DocumentTitle(props) {
     var _this;
 
     _classCallCheck(this, DocumentTitle);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DocumentTitle).call(this, props));
+    _this = _super.call(this, props);
+    var update_title = props.config.update_title;
     _this.state = {
-      initialTitle: document.title
+      title: document.title,
+      update_title: update_title
     };
     return _this;
   }
@@ -35579,10 +35611,27 @@ var DocumentTitle = /*#__PURE__*/function (_Component) {
   _createClass(DocumentTitle, [{
     key: "UNSAFE_componentWillReceiveProps",
     value: function UNSAFE_componentWillReceiveProps(props) {
+      if (!this.state.update_title) {
+        // Let callbacks or other components have full control over title
+        return;
+      }
+
       if (props.isLoading) {
-        document.title = 'Updating...';
+        this.setState({
+          title: document.title
+        });
+
+        if (this.state.update_title) {
+          document.title = this.state.update_title;
+        }
       } else {
-        document.title = this.state.initialTitle;
+        if (document.title === this.state.update_title) {
+          document.title = this.state.title;
+        } else {
+          this.setState({
+            title: document.title
+          });
+        }
       }
     }
   }, {
@@ -35601,11 +35650,15 @@ var DocumentTitle = /*#__PURE__*/function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_1__["Component"]);
 
 DocumentTitle.propTypes = {
-  isLoading: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.bool.isRequired
+  isLoading: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.bool.isRequired,
+  config: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.shape({
+    update_title: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.string
+  })
 };
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(function (state) {
   return {
-    isLoading: state.isLoading
+    isLoading: state.isLoading,
+    config: state.config
   };
 })(DocumentTitle));
 
@@ -35631,7 +35684,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function Loading(props) {
   if (props.isLoading) {
-    return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
       className: "_dash-loading-callback"
     });
   }
@@ -35668,21 +35721,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _actions_api__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../actions/api */ "./src/actions/api.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 
 
@@ -35693,12 +35756,14 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 var Reloader = /*#__PURE__*/function (_React$Component) {
   _inherits(Reloader, _React$Component);
 
+  var _super = _createSuper(Reloader);
+
   function Reloader(props) {
     var _this;
 
     _classCallCheck(this, Reloader);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Reloader).call(this, props));
+    _this = _super.call(this, props);
 
     if (props.config.hot_reload) {
       var _props$config$hot_rel = props.config.hot_reload,
@@ -35758,12 +35823,11 @@ var Reloader = /*#__PURE__*/function (_React$Component) {
           // Look if it was a css file.
           var was_css = false; // eslint-disable-next-line prefer-const
 
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
+          var _iterator = _createForOfIteratorHelper(reloadRequest.content.files),
+              _step;
 
           try {
-            for (var _iterator = reloadRequest.content.files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
               var a = _step.value;
 
               if (a.is_css) {
@@ -35798,18 +35862,9 @@ var Reloader = /*#__PURE__*/function (_React$Component) {
               }
             }
           } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
+            _iterator.e(err);
           } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-                _iterator["return"]();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
+            _iterator.f();
           }
 
           if (!was_css) {
@@ -35955,7 +36010,7 @@ function UnconnectedToolbar(props) {
       fontSize: 15
     }
   };
-  var undoLink = react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("span", {
+  var undoLink = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("span", {
     key: "undoLink",
     style: Object(ramda__WEBPACK_IMPORTED_MODULE_3__["mergeRight"])({
       color: history.past.length ? '#0074D9' : 'grey',
@@ -35964,14 +36019,14 @@ function UnconnectedToolbar(props) {
     onClick: function onClick() {
       return dispatch(_actions_index_js__WEBPACK_IMPORTED_MODULE_4__["undo"]);
     }
-  }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     style: Object(ramda__WEBPACK_IMPORTED_MODULE_3__["mergeRight"])({
       transform: 'rotate(270deg)'
     }, styles.iconStyle)
-  }, "\u21BA"), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+  }, "\u21BA"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     style: styles.labelStyle
   }, "undo"));
-  var redoLink = react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("span", {
+  var redoLink = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("span", {
     key: "redoLink",
     style: Object(ramda__WEBPACK_IMPORTED_MODULE_3__["mergeRight"])({
       color: history.future.length ? '#0074D9' : 'grey',
@@ -35981,14 +36036,14 @@ function UnconnectedToolbar(props) {
     onClick: function onClick() {
       return dispatch(_actions_index_js__WEBPACK_IMPORTED_MODULE_4__["redo"]);
     }
-  }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     style: Object(ramda__WEBPACK_IMPORTED_MODULE_3__["mergeRight"])({
       transform: 'rotate(90deg)'
     }, styles.iconStyle)
-  }, "\u21BB"), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+  }, "\u21BB"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     style: styles.labelStyle
   }, "redo"));
-  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     className: "_dash-undo-redo",
     style: {
       position: 'fixed',
@@ -35999,7 +36054,7 @@ function UnconnectedToolbar(props) {
       zIndex: '9999',
       backgroundColor: 'rgba(255, 255, 255, 0.9)'
     }
-  }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     style: {
       position: 'relative'
     }
@@ -36074,11 +36129,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var viz_js_full_render__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! viz.js/full.render */ "./node_modules/viz.js/full.render.js");
 /* harmony import */ var viz_js_full_render__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(viz_js_full_render__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../actions/dependencies */ "./src/actions/dependencies.js");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -36147,7 +36206,7 @@ var CallbackGraphContainer = function CallbackGraphContainer(_ref) {
       el.current.innerHTML = 'Error creating callback graph';
     });
   });
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "dash-callback-dag--container",
     ref: el
   });
@@ -36182,15 +36241,19 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -36199,12 +36262,14 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 var ComponentErrorBoundary = /*#__PURE__*/function (_Component) {
   _inherits(ComponentErrorBoundary, _Component);
 
+  var _super = _createSuper(ComponentErrorBoundary);
+
   function ComponentErrorBoundary(props) {
     var _this;
 
     _classCallCheck(this, ComponentErrorBoundary);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ComponentErrorBoundary).call(this, props));
+    _this = _super.call(this, props);
     _this.state = {
       myID: props.componentId,
       oldChildren: null,
@@ -36328,15 +36393,19 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -36350,12 +36419,14 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 var FrontEndError = /*#__PURE__*/function (_Component) {
   _inherits(FrontEndError, _Component);
 
+  var _super = _createSuper(FrontEndError);
+
   function FrontEndError(props) {
     var _this;
 
     _classCallCheck(this, FrontEndError);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FrontEndError).call(this, props));
+    _this = _super.call(this, props);
     _this.state = {
       collapsed: _this.props.isListItem
     };
@@ -36374,24 +36445,24 @@ var FrontEndError = /*#__PURE__*/function (_Component) {
       var cardClasses = 'dash-error-card__content' + (inAlertsTray ? ' dash-error-card--alerts-tray' : '');
       /* eslint-disable no-inline-comments */
 
-      var errorHeader = React.createElement("div", {
+      var errorHeader = /*#__PURE__*/React.createElement("div", {
         className: "dash-fe-error-top test-devtools-error-toggle",
         onClick: function onClick() {
           return _this2.setState({
             collapsed: !collapsed
           });
         }
-      }, React.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error-top__group"
-      }, "\u26D1\uFE0F", React.createElement("span", {
+      }, "\u26D1\uFE0F", /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error__title"
-      }, e.error.message || 'Error')), React.createElement("span", {
+      }, e.error.message || 'Error')), /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error-top__group"
-      }, React.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error__timestamp percy-hide"
-      }, "".concat(e.timestamp.toLocaleTimeString())), React.createElement("span", {
+      }, "".concat(e.timestamp.toLocaleTimeString())), /*#__PURE__*/React.createElement("span", {
         className: "dash-fe-error__timestamp percy-show"
-      }, "00:00:00 PM"), React.createElement(_icons_CollapseIcon_svg__WEBPACK_IMPORTED_MODULE_3__["default"], {
+      }, "00:00:00 PM"), /*#__PURE__*/React.createElement(_icons_CollapseIcon_svg__WEBPACK_IMPORTED_MODULE_3__["default"], {
         className: "dash-fe-error__collapse ".concat(collapsed ? 'dash-fe-error__collapse--flipped' : ''),
         onClick: function onClick() {
           return _this2.setState({
@@ -36401,11 +36472,11 @@ var FrontEndError = /*#__PURE__*/function (_Component) {
       })));
       /* eslint-enable no-inline-comments */
 
-      return collapsed ? React.createElement("div", {
+      return collapsed ? /*#__PURE__*/React.createElement("div", {
         className: "dash-error-card__list-item"
-      }, errorHeader) : React.createElement("div", {
+      }, errorHeader) : /*#__PURE__*/React.createElement("div", {
         className: cardClasses
-      }, errorHeader, React.createElement(ErrorContent, {
+      }, errorHeader, /*#__PURE__*/React.createElement(ErrorContent, {
         error: e.error
       }));
     }
@@ -36420,25 +36491,25 @@ var MAX_MESSAGE_LENGTH = 40;
 function UnconnectedErrorContent(_ref) {
   var error = _ref.error,
       base = _ref.base;
-  return React.createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "error-container"
-  }, typeof error.message !== 'string' || error.message.length < MAX_MESSAGE_LENGTH ? null : React.createElement("div", {
+  }, typeof error.message !== 'string' || error.message.length < MAX_MESSAGE_LENGTH ? null : /*#__PURE__*/React.createElement("div", {
     className: "dash-fe-error__st"
-  }, React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "dash-fe-error__info dash-fe-error__curved"
-  }, error.message)), typeof error.stack !== 'string' ? null : React.createElement("div", {
+  }, error.message)), typeof error.stack !== 'string' ? null : /*#__PURE__*/React.createElement("div", {
     className: "dash-fe-error__st"
-  }, React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "dash-fe-error__info"
-  }, React.createElement("details", null, React.createElement("summary", null, React.createElement("i", null, "(This error originated from the built-in JavaScript code that runs Dash apps. Click to see the full stack trace or open your browser's console.)")), error.stack.split('\n').map(function (line, i) {
-    return React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("details", null, /*#__PURE__*/React.createElement("summary", null, /*#__PURE__*/React.createElement("i", null, "(This error originated from the built-in JavaScript code that runs Dash apps. Click to see the full stack trace or open your browser's console.)")), error.stack.split('\n').map(function (line, i) {
+    return /*#__PURE__*/React.createElement("p", {
       key: i
     }, line);
-  })))), typeof error.html !== 'string' ? null : error.html.indexOf('<!DOCTYPE HTML') === 0 ? React.createElement("div", {
+  })))), typeof error.html !== 'string' ? null : error.html.indexOf('<!DOCTYPE HTML') === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "dash-be-error__st"
-  }, React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "dash-backend-error"
-  }, React.createElement("iframe", {
+  }, /*#__PURE__*/React.createElement("iframe", {
     srcDoc: error.html.replace('</head>', "<style type=\"text/css\">".concat(_werkzeugcss__WEBPACK_IMPORTED_MODULE_7__["default"], "</style></head>")).replace('="?__debugger__', "=\"".concat(base, "?__debugger__")),
     style: {
       /*
@@ -36451,9 +36522,9 @@ function UnconnectedErrorContent(_ref) {
       height: '75vh',
       border: 'none'
     }
-  }))) : React.createElement("div", {
+  }))) : /*#__PURE__*/React.createElement("div", {
     className: "dash-be-error__str"
-  }, React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "dash-backend-error"
   }, error.html)));
 }
@@ -36519,15 +36590,19 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -36537,10 +36612,12 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
   _inherits(FrontEndErrorContainer, _Component);
 
+  var _super = _createSuper(FrontEndErrorContainer);
+
   function FrontEndErrorContainer(props) {
     _classCallCheck(this, FrontEndErrorContainer);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(FrontEndErrorContainer).call(this, props));
+    return _super.call(this, props);
   }
 
   _createClass(FrontEndErrorContainer, [{
@@ -36558,7 +36635,7 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
       var inAlertsTray = this.props.inAlertsTray;
       var cardClasses = 'dash-error-card dash-error-card--container';
       var errorElements = errors.map(function (error, i) {
-        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_FrontEndError_react__WEBPACK_IMPORTED_MODULE_3__["FrontEndError"], {
+        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_FrontEndError_react__WEBPACK_IMPORTED_MODULE_3__["FrontEndError"], {
           e: error,
           isListItem: true,
           key: i
@@ -36569,15 +36646,15 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
         cardClasses += ' dash-error-card--alerts-tray';
       }
 
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: cardClasses
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-error-card__topbar"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-error-card__message"
-      }, "\uD83D\uDED1 Errors (", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("strong", {
+      }, "\uD83D\uDED1 Errors (", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("strong", {
         className: "test-devtools-error-count"
-      }, errorsLength), ")", connected ? null : "\xA0 \uD83D\uDEAB Server Unavailable")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, errorsLength), ")", connected ? null : "\xA0 \uD83D\uDEAB Server Unavailable")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-error-card__list"
       }, errorElements));
     }
@@ -36622,15 +36699,19 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -36641,10 +36722,12 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 var UnconnectedGlobalErrorContainer = /*#__PURE__*/function (_Component) {
   _inherits(UnconnectedGlobalErrorContainer, _Component);
 
+  var _super = _createSuper(UnconnectedGlobalErrorContainer);
+
   function UnconnectedGlobalErrorContainer(props) {
     _classCallCheck(this, UnconnectedGlobalErrorContainer);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(UnconnectedGlobalErrorContainer).call(this, props));
+    return _super.call(this, props);
   }
 
   _createClass(UnconnectedGlobalErrorContainer, [{
@@ -36655,13 +36738,13 @@ var UnconnectedGlobalErrorContainer = /*#__PURE__*/function (_Component) {
           error = _this$props.error,
           graphs = _this$props.graphs,
           children = _this$props.children;
-      return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
         id: "_dash-global-error-container"
-      }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_4__["DebugMenu"], {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_4__["DebugMenu"], {
         error: error,
         graphs: graphs,
         hotReload: Boolean(config.hot_reload)
-      }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
         id: "_dash-app-content"
       }, children)));
     }
@@ -36744,15 +36827,19 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -36763,10 +36850,12 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 var GlobalErrorOverlay = /*#__PURE__*/function (_Component) {
   _inherits(GlobalErrorOverlay, _Component);
 
+  var _super = _createSuper(GlobalErrorOverlay);
+
   function GlobalErrorOverlay(props) {
     _classCallCheck(this, GlobalErrorOverlay);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(GlobalErrorOverlay).call(this, props));
+    return _super.call(this, props);
   }
 
   _createClass(GlobalErrorOverlay, [{
@@ -36780,15 +36869,15 @@ var GlobalErrorOverlay = /*#__PURE__*/function (_Component) {
 
       if (errorsOpened) {
         var errors = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["concat"])(error.frontEnd, error.backEnd);
-        frontEndErrors = react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_FrontEnd_FrontEndErrorContainer_react__WEBPACK_IMPORTED_MODULE_4__["FrontEndErrorContainer"], {
+        frontEndErrors = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_FrontEnd_FrontEndErrorContainer_react__WEBPACK_IMPORTED_MODULE_4__["FrontEndErrorContainer"], {
           errors: errors,
           connected: error.backEndConnected
         });
       }
 
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, this.props.children), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, this.props.children), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-error-menu"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: visible ? 'dash-fe-errors' : ''
       }, frontEndErrors)));
     }
@@ -36853,13 +36942,17 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
-var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
+var _ref =
+/*#__PURE__*/
+
+/*#__PURE__*/
+react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
   d: "M8.107 2.44L6.2.533C3 2.973.893 6.733.707 11h2.666a11.26 11.26 0 014.734-8.56zM24.627 11h2.666c-.2-4.267-2.306-8.027-5.493-10.467L19.907 2.44a11.327 11.327 0 014.72 8.56zM22 11.667c0-4.094-2.187-7.52-6-8.427V.333h-4V3.24c-3.827.907-6 4.32-6 8.427v6.666L3.333 21v1.333h21.333V21L22 18.333v-6.666zm-8 14.666c.187 0 .36-.013.533-.053a2.705 2.705 0 001.92-1.573c.134-.32.2-.667.2-1.04H11.32A2.686 2.686 0 0014 26.333z",
   fill: "#fff"
 });
 
 function SvgBellIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
     viewBox: "0 0 28 24",
     fill: "none"
   }, props), _ref);
@@ -36884,7 +36977,11 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
-var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
+var _ref =
+/*#__PURE__*/
+
+/*#__PURE__*/
+react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
   d: "M15 12l8 8L39 4",
   fill: "none",
   stroke: "#fff",
@@ -36892,7 +36989,7 @@ var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("pat
 });
 
 function SvgCheckIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
     viewBox: "0 0 54 24"
   }, props), _ref);
 }
@@ -36916,7 +37013,11 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
-var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
+var _ref =
+/*#__PURE__*/
+
+/*#__PURE__*/
+react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
   d: "M27 0v22h22",
   fill: "none",
   stroke: "#fff",
@@ -36924,7 +37025,7 @@ var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("pat
 });
 
 function SvgClockIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
     viewBox: "0 0 54 24"
   }, props), _ref);
 }
@@ -36948,13 +37049,17 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
-var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
+var _ref =
+/*#__PURE__*/
+
+/*#__PURE__*/
+react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
   d: "M1 1l4 4 4-4",
   stroke: "#A2B1C6"
 });
 
 function SvgCollapseIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
     width: 10,
     height: 6,
     fill: "none"
@@ -36980,13 +37085,17 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
-var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
+var _ref =
+/*#__PURE__*/
+
+/*#__PURE__*/
+react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
   d: "M14.85 21.197L5.616 12l9.225-9.197L12.028 0 0 12l12.037 12 2.813-2.803zm12.3 0L36.375 12 27.15 2.803 29.963 0 42 12 29.962 24l-2.812-2.803z",
   fill: "#fff"
 });
 
 function SvgDebugIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
     width: 42,
     height: 24,
     fill: "none"
@@ -37012,13 +37121,17 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
-var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
+var _ref =
+/*#__PURE__*/
+
+/*#__PURE__*/
+react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
   d: "M18.103 17.005c-.908 0-1.756.302-2.362.905l-8.657-5.005c.06-.302.12-.543.12-.845 0-.301-.06-.543-.12-.844l8.537-4.944a3.644 3.644 0 002.482.964c1.998 0 3.633-1.628 3.633-3.618S20.1 0 18.103 0 14.47 1.628 14.47 3.618c0 .302.06.543.122.845L6.055 9.407a3.644 3.644 0 00-2.483-.965C1.574 8.442 0 10.071 0 12.06c0 1.99 1.635 3.618 3.633 3.618.968 0 1.816-.361 2.482-.964l8.598 5.005c-.061.24-.121.482-.121.784A3.507 3.507 0 0018.102 24a3.507 3.507 0 003.511-3.497 3.507 3.507 0 00-3.51-3.498z",
   fill: "#fff"
 });
 
 function SvgGraphIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
     width: 22,
     height: 24,
     fill: "none"
@@ -37044,14 +37157,18 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
-var _ref = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
+var _ref =
+/*#__PURE__*/
+
+/*#__PURE__*/
+react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("path", {
   d: "M18 2l18 18m0-18L18 20",
   strokeWidth: 4,
   stroke: "#fff"
 });
 
 function SvgOffIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", _extends({
     viewBox: "0 0 54 24"
   }, props), _ref);
 }
@@ -37123,15 +37240,19 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 
 
@@ -37150,14 +37271,14 @@ var classes = function classes(base, variant, variant2) {
 };
 
 var buttonFactory = function buttonFactory(enabled, buttonVariant, toggle, _Icon, iconVariant, label) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "dash-debug-menu__button-container"
-  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: classes('dash-debug-menu__button', buttonVariant, enabled && 'enabled'),
     onClick: toggle
-  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Icon, {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Icon, {
     className: classes('dash-debug-menu__icon', iconVariant)
-  }), label ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
+  }), label ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
     className: "dash-debug-menu__button-label"
   }, label) : null));
 };
@@ -37165,12 +37286,14 @@ var buttonFactory = function buttonFactory(enabled, buttonVariant, toggle, _Icon
 var DebugMenu = /*#__PURE__*/function (_Component) {
   _inherits(DebugMenu, _Component);
 
+  var _super = _createSuper(DebugMenu);
+
   function DebugMenu(props) {
     var _this;
 
     _classCallCheck(this, DebugMenu);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DebugMenu).call(this, props));
+    _this = _super.call(this, props);
     _this.state = {
       opened: false,
       callbackGraphOpened: false,
@@ -37205,40 +37328,40 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
 
       var _StatusIcon = hotReload ? connected ? _icons_CheckIcon_svg__WEBPACK_IMPORTED_MODULE_4__["default"] : _icons_OffIcon_svg__WEBPACK_IMPORTED_MODULE_8__["default"] : _icons_ClockIcon_svg__WEBPACK_IMPORTED_MODULE_5__["default"];
 
-      var menuContent = opened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      var menuContent = opened ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-menu__content"
-      }, callbackGraphOpened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_CallbackGraph_CallbackGraphContainer_react__WEBPACK_IMPORTED_MODULE_10__["CallbackGraphContainer"], {
+      }, callbackGraphOpened ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_CallbackGraph_CallbackGraphContainer_react__WEBPACK_IMPORTED_MODULE_10__["CallbackGraphContainer"], {
         graphs: graphs
       }) : null, buttonFactory(callbackGraphOpened, 'callbacks', function () {
         _this2.setState({
           callbackGraphOpened: !callbackGraphOpened
         });
-      }, _icons_GraphIcon_svg__WEBPACK_IMPORTED_MODULE_7__["default"], 'graph', 'Callbacks'), buttonFactory(errorsOpened, 'errors', toggleErrors, _icons_BellIcon_svg__WEBPACK_IMPORTED_MODULE_3__["default"], 'bell', errCount + ' Error' + (errCount === 1 ? '' : 's')), buttonFactory(false, status, null, _StatusIcon, 'indicator', 'Server')) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, _icons_GraphIcon_svg__WEBPACK_IMPORTED_MODULE_7__["default"], 'graph', 'Callbacks'), buttonFactory(errorsOpened, 'errors', toggleErrors, _icons_BellIcon_svg__WEBPACK_IMPORTED_MODULE_3__["default"], 'bell', errCount + ' Error' + (errCount === 1 ? '' : 's')), buttonFactory(false, status, null, _StatusIcon, 'indicator', 'Server')) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-menu__content"
       });
-      var alertsLabel = (errCount || !connected) && !opened ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      var alertsLabel = (errCount || !connected) && !opened ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-alert-label"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-alert",
         onClick: toggleErrors
-      }, errCount ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, errCount ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-error-count"
-      }, '🛑 ' + errCount) : null, connected ? null : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, '🛑 ' + errCount) : null, connected ? null : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-debug-disconnected"
       }, "\uD83D\uDEAB"))) : null;
       var openVariant = opened ? 'open' : 'closed';
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, alertsLabel, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, alertsLabel, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: classes('dash-debug-menu__outer', openVariant)
-      }, menuContent), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, menuContent), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: classes('dash-debug-menu', openVariant),
         onClick: function onClick() {
           _this2.setState({
             opened: !opened
           });
         }
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_icons_DebugIcon_svg__WEBPACK_IMPORTED_MODULE_6__["default"], {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_icons_DebugIcon_svg__WEBPACK_IMPORTED_MODULE_6__["default"], {
         className: classes('dash-debug-menu__icon', 'debug')
-      })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_GlobalErrorOverlay_react__WEBPACK_IMPORTED_MODULE_9__["default"], {
+      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_GlobalErrorOverlay_react__WEBPACK_IMPORTED_MODULE_9__["default"], {
         error: error,
         visible: errCount > 0,
         errorsOpened: errorsOpened
@@ -37477,11 +37600,15 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -37568,7 +37695,7 @@ var observer = {
           requestedCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestedCallbacks, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (prop) {
             return Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getCallbacksByInput"])(graphs, oldPaths, parsedId, prop, true);
           }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["keys"])(props))).map(function (rcb) {
-            return _objectSpread({}, rcb, {
+            return _objectSpread(_objectSpread({}, rcb), {}, {
               predecessors: predecessors
             });
           })); // New layout - trigger callbacks for that explicitly
@@ -37583,7 +37710,7 @@ var observer = {
             requestedCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestedCallbacks, Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getLayoutCallbacks"])(graphs, paths, children, {
               chunkPath: oldChildrenPath
             }).map(function (rcb) {
-              return _objectSpread({}, rcb, {
+              return _objectSpread(_objectSpread({}, rcb), {}, {
                 predecessors: predecessors
               });
             })); // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
@@ -37594,7 +37721,7 @@ var observer = {
               newPaths: paths,
               chunkPath: oldChildrenPath
             }).map(function (rcb) {
-              return _objectSpread({}, rcb, {
+              return _objectSpread(_objectSpread({}, rcb), {}, {
                 predecessors: predecessors
               });
             }));
@@ -37613,7 +37740,7 @@ var observer = {
                 _paths = _getState4.paths;
 
             requestedCallbacks = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(requestedCallbacks, Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["includeObservers"])(id, addedProps, currentGraphs, _paths).map(function (rcb) {
-              return _objectSpread({}, rcb, {
+              return _objectSpread(_objectSpread({}, rcb), {}, {
                 predecessors: predecessors
               });
             }));
@@ -37622,7 +37749,7 @@ var observer = {
         // this will be used to drop callbacks from execution groups when no output
         // matching the downstream callback's inputs were modified
 
-        storedCallbacks.push(_objectSpread({}, cb, {
+        storedCallbacks.push(_objectSpread(_objectSpread({}, cb), {}, {
           executionMeta: {
             allProps: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getOutputs(getState().paths))),
             updatedProps: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (_ref4) {
@@ -37652,7 +37779,7 @@ var observer = {
         }
 
         Object(_actions__WEBPACK_IMPORTED_MODULE_4__["handleAsyncError"])(error, message, dispatch);
-        storedCallbacks.push(_objectSpread({}, cb, {
+        storedCallbacks.push(_objectSpread(_objectSpread({}, cb), {}, {
           executionMeta: {
             allProps: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getOutputs(getState().paths))),
             updatedProps: []
@@ -37689,11 +37816,15 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -37746,7 +37877,7 @@ var observer = {
 
               case 7:
                 // Otherwise move to `executed` and remove from `watched`
-                dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeWatchedCallbacks"])([currentCb]), Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addExecutedCallbacks"])([_objectSpread({}, currentCb, {
+                dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removeWatchedCallbacks"])([currentCb]), Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addExecutedCallbacks"])([_objectSpread(_objectSpread({}, currentCb), {}, {
                   executionResult: result
                 })])]));
 
@@ -37815,13 +37946,17 @@ var observer = {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var _actions_loadingMap__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/loadingMap */ "./src/actions/loadingMap.ts");
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 
 
@@ -37848,25 +37983,28 @@ var observer = {
     var loadingPaths = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
       return cb.getOutputs(paths);
     }, [].concat(_toConsumableArray(executing), _toConsumableArray(watched), _toConsumableArray(executed))));
-    var nextMap = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(loadingPaths) ? null : Object(ramda__WEBPACK_IMPORTED_MODULE_0__["reduce"])(function (res, path) {
+    var nextMap = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(loadingPaths) ? null : Object(ramda__WEBPACK_IMPORTED_MODULE_0__["reduce"])(function (res, _ref2) {
+      var id = _ref2.id,
+          property = _ref2.property,
+          path = _ref2.path;
       var target = res;
       var idprop = {
-        id: path.id,
-        property: path.property
+        id: id,
+        property: property
       }; // Assign all affected props for this path and nested paths
 
       target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
 
       target.__dashprivate__idprops__.push(idprop);
 
-      Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (p) {
+      path.forEach(function (p, i) {
         var _target$p;
 
-        target = target[p] = ((_target$p = target[p]) !== null && _target$p !== void 0 ? _target$p : p === 'children') ? [] : {};
+        target = target[p] = (_target$p = target[p]) !== null && _target$p !== void 0 ? _target$p : p === 'children' && typeof path[i + 1] === 'number' ? [] : {};
         target.__dashprivate__idprops__ = target.__dashprivate__idprops__ || [];
 
         target.__dashprivate__idprops__.push(idprop);
-      }, path.path); // Assign one affected prop for this path
+      }); // Assign one affected prop for this path
 
       target.__dashprivate__idprop__ = target.__dashprivate__idprop__ || idprop;
       return res;
@@ -37902,11 +38040,11 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -37914,13 +38052,17 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 
 
@@ -37991,7 +38133,7 @@ var observer = {
 
               if (pickedAsyncCallbacks.length) {
                 deffered = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
-                  return _objectSpread({}, cb, {}, getStash(cb, paths), {
+                  return _objectSpread(_objectSpread(_objectSpread({}, cb), getStash(cb, paths)), {}, {
                     isReady: Object(_actions_isAppReady__WEBPACK_IMPORTED_MODULE_4__["default"])(layout, paths, getIds(cb, paths))
                   });
                 }, pickedAsyncCallbacks);
@@ -38162,7 +38304,7 @@ var observer = {
       return group.slice(0, -1);
     }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["values"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["groupBy"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["getUniqueIdentifier"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(watched, requested)))));
     /*
-        3. Modify or remove callbacks that are outputing to non-existing layout `id`.
+        3. Modify or remove callbacks that are outputting to non-existing layout `id`.
     */
 
     var _pruneCallbacks = Object(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["pruneCallbacks"])(requested, paths),
@@ -38236,7 +38378,7 @@ var observer = {
         newBlocked = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])(newBlocked, modified.map(function (cb) {
           var _cb$predecessors2;
 
-          return _objectSpread({}, cb, {
+          return _objectSpread(_objectSpread({}, cb), {}, {
             predecessors: Object(ramda__WEBPACK_IMPORTED_MODULE_0__["concat"])((_cb$predecessors2 = cb.predecessors) !== null && _cb$predecessors2 !== void 0 ? _cb$predecessors2 : [], [readyCallback.callback])
           });
         }));
@@ -38270,7 +38412,7 @@ var observer = {
       // If there is no `stored` callback for the group, no outputs were dropped -> `cb` is kept
       if (!cb.executionGroup || !pendingGroups[cb.executionGroup] || !pendingGroups[cb.executionGroup].length) {
         return false;
-      } // Get all intputs for `cb`
+      } // Get all inputs for `cb`
 
 
       var inputs = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(_actions_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"], Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getInputs(paths))); // Get all the potentially updated props for the group so far
@@ -38323,11 +38465,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var _actions_callbacks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/callbacks */ "./src/actions/callbacks.ts");
 /* harmony import */ var _utils_callbacks__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/callbacks */ "./src/utils/callbacks.ts");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -38395,11 +38541,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/es/index.js");
 /* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./registry */ "./src/registry.js");
 /* harmony import */ var _actions_dependencies__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./actions/dependencies */ "./src/actions/dependencies.js");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -39062,7 +39212,7 @@ var CallbackActionType;
   CallbackActionType["RemoveBlocked"] = "Callbacks.RemoveBlocked";
   CallbackActionType["RemoveExecuted"] = "Callbacks.RemoveExecuted";
   CallbackActionType["RemoveExecuting"] = "Callbacks.RemoveExecuting";
-  CallbackActionType["RemovePrioritized"] = "Callbacks.ReomvePrioritized";
+  CallbackActionType["RemovePrioritized"] = "Callbacks.RemovePrioritized";
   CallbackActionType["RemoveRequested"] = "Callbacks.RemoveRequested";
   CallbackActionType["RemoveStored"] = "Callbacks.RemoveStored";
   CallbackActionType["RemoveWatched"] = "Callbacks.RemoveWatched";
@@ -39089,7 +39239,7 @@ var transforms = (_transforms = {}, _defineProperty(_transforms, CallbackActionT
 var fields = (_fields = {}, _defineProperty(_fields, CallbackActionType.AddBlocked, 'blocked'), _defineProperty(_fields, CallbackActionType.AddExecuted, 'executed'), _defineProperty(_fields, CallbackActionType.AddExecuting, 'executing'), _defineProperty(_fields, CallbackActionType.AddPrioritized, 'prioritized'), _defineProperty(_fields, CallbackActionType.AddRequested, 'requested'), _defineProperty(_fields, CallbackActionType.AddStored, 'stored'), _defineProperty(_fields, CallbackActionType.AddWatched, 'watched'), _defineProperty(_fields, CallbackActionType.RemoveBlocked, 'blocked'), _defineProperty(_fields, CallbackActionType.RemoveExecuted, 'executed'), _defineProperty(_fields, CallbackActionType.RemoveExecuting, 'executing'), _defineProperty(_fields, CallbackActionType.RemovePrioritized, 'prioritized'), _defineProperty(_fields, CallbackActionType.RemoveRequested, 'requested'), _defineProperty(_fields, CallbackActionType.RemoveStored, 'stored'), _defineProperty(_fields, CallbackActionType.RemoveWatched, 'watched'), _fields);
 
 var mutateCompleted = function mutateCompleted(state, action) {
-  return _objectSpread({}, state, {
+  return _objectSpread(_objectSpread({}, state), {}, {
     completed: state.completed + action.payload
   });
 };
@@ -39097,7 +39247,7 @@ var mutateCompleted = function mutateCompleted(state, action) {
 var mutateCallbacks = function mutateCallbacks(state, action) {
   var transform = transforms[action.type];
   var field = fields[action.type];
-  return !transform || !field || action.payload.length === 0 ? state : _objectSpread({}, state, _defineProperty({}, field, transform(state[field], action.payload)));
+  return !transform || !field || action.payload.length === 0 ? state : _objectSpread(_objectSpread({}, state), {}, _defineProperty({}, field, transform(state[field], action.payload)));
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (function () {
@@ -39203,13 +39353,17 @@ var graphs = function graphs() {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return error; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 
 var initialError = {
@@ -39279,13 +39433,17 @@ function error() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 var initialHistory = {
   past: [],
@@ -39525,13 +39683,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
 /* harmony import */ var _loadingMap__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./loadingMap */ "./src/reducers/loadingMap.ts");
 /* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 
 
@@ -39885,13 +40047,17 @@ function validateComponent(componentDefinition) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPendingCallbacks", function() { return getPendingCallbacks; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 
 var getPendingCallbacks = function getPendingCallbacks(state) {

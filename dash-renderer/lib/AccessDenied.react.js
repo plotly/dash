@@ -30,13 +30,13 @@ function AccessDenied(props) {
   var config = props.config;
   var fid = config.fid;
   var owner_username = fid.split(':')[0];
-  return _react["default"].createElement("div", {
+  return /*#__PURE__*/_react["default"].createElement("div", {
     style: (0, _ramda.mergeRight)(styles.base.html, styles.base.container)
-  }, _react["default"].createElement("div", {
+  }, /*#__PURE__*/_react["default"].createElement("div", {
     style: styles.base.h2
-  }, "Access Denied"), _react["default"].createElement("div", {
+  }, "Access Denied"), /*#__PURE__*/_react["default"].createElement("div", {
     style: styles.base.h4
-  }, "Uh oh! You don't have access to this Dash app."), _react["default"].createElement("div", null, "This app is owned by ", owner_username, ". Reach out to", owner_username, " to grant you access to this app and then try refreshing the app."), _react["default"].createElement("br", null), _react["default"].createElement("a", {
+  }, "Uh oh! You don't have access to this Dash app."), /*#__PURE__*/_react["default"].createElement("div", null, "This app is owned by ", owner_username, ". Reach out to", owner_username, " to grant you access to this app and then try refreshing the app."), /*#__PURE__*/_react["default"].createElement("br", null), /*#__PURE__*/_react["default"].createElement("a", {
     style: styles.base.a,
     onClick: function onClick() {
       try {

@@ -98,7 +98,7 @@ var observer = {
       return group.slice(0, -1);
     }, (0, _ramda.values)((0, _ramda.groupBy)(_dependencies_ts.getUniqueIdentifier, (0, _ramda.concat)(watched, requested)))));
     /*
-        3. Modify or remove callbacks that are outputing to non-existing layout `id`.
+        3. Modify or remove callbacks that are outputting to non-existing layout `id`.
     */
 
     var _pruneCallbacks = (0, _dependencies_ts.pruneCallbacks)(requested, paths),
@@ -172,7 +172,7 @@ var observer = {
         newBlocked = (0, _ramda.concat)(newBlocked, modified.map(function (cb) {
           var _cb$predecessors2;
 
-          return _objectSpread({}, cb, {
+          return _objectSpread(_objectSpread({}, cb), {}, {
             predecessors: (0, _ramda.concat)((_cb$predecessors2 = cb.predecessors) !== null && _cb$predecessors2 !== void 0 ? _cb$predecessors2 : [], [readyCallback.callback])
           });
         }));
@@ -206,7 +206,7 @@ var observer = {
       // If there is no `stored` callback for the group, no outputs were dropped -> `cb` is kept
       if (!cb.executionGroup || !pendingGroups[cb.executionGroup] || !pendingGroups[cb.executionGroup].length) {
         return false;
-      } // Get all intputs for `cb`
+      } // Get all inputs for `cb`
 
 
       var inputs = (0, _ramda.map)(_dependencies_ts.combineIdAndProp, (0, _ramda.flatten)(cb.getInputs(paths))); // Get all the potentially updated props for the group so far

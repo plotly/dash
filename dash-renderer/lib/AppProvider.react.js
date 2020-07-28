@@ -21,9 +21,9 @@ var store = (0, _store["default"])();
 
 var AppProvider = function AppProvider(_ref) {
   var hooks = _ref.hooks;
-  return _react["default"].createElement(_reactRedux.Provider, {
+  return /*#__PURE__*/_react["default"].createElement(_reactRedux.Provider, {
     store: store
-  }, _react["default"].createElement(_AppContainer["default"], {
+  }, /*#__PURE__*/_react["default"].createElement(_AppContainer["default"], {
     hooks: hooks
   }));
 };

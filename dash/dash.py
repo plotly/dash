@@ -227,6 +227,15 @@ class Dash(object):
         with a ``plug`` method, taking a single argument: this app, which will
         be called after the Flask server is attached.
     :type plugins: list of objects
+
+    :param title: Default ``Dash``. Configures the document.title
+    (the text that appears in a browser tab).
+
+    :param update_title: Default ``Updating...``. Configures the document.title
+    (the text that appears in a browser tab) text when a callback is being run.
+    Set to None or '' if you don't want the document.title to change or if you
+    want to control the document.title through a separate component or
+    clientside callback.
     """
 
     def __init__(
@@ -252,6 +261,8 @@ class Dash(object):
         prevent_initial_callbacks=False,
         show_undo_redo=False,
         plugins=None,
+        title="Dash",
+        update_title="Updating...",
         **obsolete
     ):
         _validate.check_obsolete(obsolete)
@@ -299,6 +310,8 @@ class Dash(object):
             ),
             prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
+            title=title,
+            update_title=update_title,
         )
         self.config.set_read_only(
             [
@@ -318,6 +331,9 @@ class Dash(object):
             "Invalid config key. Some settings are only available "
             "via the Dash constructor"
         )
+
+        # keep title as a class property for backwards compatability
+        self.title = title
 
         # list of dependencies - this one is used by the back end for dispatching
         self.callback_map = {}
@@ -506,6 +522,7 @@ class Dash(object):
             "props_check": self._dev_tools.props_check,
             "show_undo_redo": self.config.show_undo_redo,
             "suppress_callback_exceptions": self.config.suppress_callback_exceptions,
+            "update_title": self.config.update_title,
         }
         if self._dev_tools.hot_reload:
             config["hot_reload"] = {
@@ -722,7 +739,9 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         renderer = self._generate_renderer()
-        title = getattr(self, "title", "Dash")
+
+        # use self.title instead of app.config.title for backwards compatibility
+        title = self.title
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
@@ -1339,7 +1358,7 @@ class Dash(object):
             _reload.hash = generate_hash()
 
             # find_loader should return None on __main__ but doesn't
-            # on some python versions https://bugs.python.org/issue14710
+            # on some Python versions https://bugs.python.org/issue14710
             packages = [
                 pkgutil.find_loader(x)
                 for x in list(ComponentRegistry.registry) + ["dash_renderer"]

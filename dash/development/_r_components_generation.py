@@ -119,7 +119,7 @@ demo/.*\.js
 demo/.*\.html
 demo/.*\.css
 
-# ignore python files/folders
+# ignore Python files/folders
 setup.py
 usage.py
 setup.py
@@ -846,7 +846,7 @@ def get_r_prop_types(type_object):
 
     def shape_or_exact():
         return "lists containing elements {}.\n{}".format(
-            ", ".join("'{}'".format(t) for t in list(type_object["value"].keys())),
+            ", ".join("'{}'".format(t) for t in type_object["value"]),
             "Those elements have the following types:\n{}".format(
                 "\n".join(
                     create_prop_docstring_r(
@@ -856,7 +856,7 @@ def get_r_prop_types(type_object):
                         description=prop.get("description", ""),
                         indent_num=1,
                     )
-                    for prop_name, prop in list(type_object["value"].items())
+                    for prop_name, prop in type_object["value"].items()
                 )
             ),
         )

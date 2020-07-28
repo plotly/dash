@@ -25,11 +25,15 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -109,7 +113,7 @@ var observer = {
           requestedCallbacks = (0, _ramda.concat)(requestedCallbacks, (0, _ramda.flatten)((0, _ramda.map)(function (prop) {
             return (0, _dependencies_ts.getCallbacksByInput)(graphs, oldPaths, parsedId, prop, true);
           }, (0, _ramda.keys)(props))).map(function (rcb) {
-            return _objectSpread({}, rcb, {
+            return _objectSpread(_objectSpread({}, rcb), {}, {
               predecessors: predecessors
             });
           })); // New layout - trigger callbacks for that explicitly
@@ -124,7 +128,7 @@ var observer = {
             requestedCallbacks = (0, _ramda.concat)(requestedCallbacks, (0, _dependencies_ts.getLayoutCallbacks)(graphs, paths, children, {
               chunkPath: oldChildrenPath
             }).map(function (rcb) {
-              return _objectSpread({}, rcb, {
+              return _objectSpread(_objectSpread({}, rcb), {}, {
                 predecessors: predecessors
               });
             })); // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
@@ -135,7 +139,7 @@ var observer = {
               newPaths: paths,
               chunkPath: oldChildrenPath
             }).map(function (rcb) {
-              return _objectSpread({}, rcb, {
+              return _objectSpread(_objectSpread({}, rcb), {}, {
                 predecessors: predecessors
               });
             }));
@@ -154,7 +158,7 @@ var observer = {
                 _paths = _getState4.paths;
 
             requestedCallbacks = (0, _ramda.concat)(requestedCallbacks, (0, _dependencies_ts.includeObservers)(id, addedProps, currentGraphs, _paths).map(function (rcb) {
-              return _objectSpread({}, rcb, {
+              return _objectSpread(_objectSpread({}, rcb), {}, {
                 predecessors: predecessors
               });
             }));
@@ -163,7 +167,7 @@ var observer = {
         // this will be used to drop callbacks from execution groups when no output
         // matching the downstream callback's inputs were modified
 
-        storedCallbacks.push(_objectSpread({}, cb, {
+        storedCallbacks.push(_objectSpread(_objectSpread({}, cb), {}, {
           executionMeta: {
             allProps: (0, _ramda.map)(_dependencies_ts.combineIdAndProp, (0, _ramda.flatten)(cb.getOutputs(getState().paths))),
             updatedProps: (0, _ramda.flatten)((0, _ramda.map)(function (_ref4) {
@@ -193,7 +197,7 @@ var observer = {
         }
 
         (0, _actions.handleAsyncError)(error, message, dispatch);
-        storedCallbacks.push(_objectSpread({}, cb, {
+        storedCallbacks.push(_objectSpread(_objectSpread({}, cb), {}, {
           executionMeta: {
             allProps: (0, _ramda.map)(_dependencies_ts.combineIdAndProp, (0, _ramda.flatten)(cb.getOutputs(getState().paths))),
             updatedProps: []

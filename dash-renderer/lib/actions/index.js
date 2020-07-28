@@ -149,30 +149,29 @@ function moveHistory(changeType) {
 function notifyObservers(_ref2) {
   var id = _ref2.id,
       props = _ref2.props;
-  return (/*#__PURE__*/function () {
-      var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
-        var _getState3, graphs, paths;
+  return /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
+      var _getState3, graphs, paths;
 
-        return regeneratorRuntime.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _getState3 = getState(), graphs = _getState3.graphs, paths = _getState3.paths;
-                dispatch((0, _callbacks.addRequestedCallbacks)((0, _dependencies_ts.includeObservers)(id, props, graphs, paths)));
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _getState3 = getState(), graphs = _getState3.graphs, paths = _getState3.paths;
+              dispatch((0, _callbacks.addRequestedCallbacks)((0, _dependencies_ts.includeObservers)(id, props, graphs, paths)));
 
-              case 2:
-              case "end":
-                return _context.stop();
-            }
+            case 2:
+            case "end":
+              return _context.stop();
           }
-        }, _callee);
-      }));
+        }
+      }, _callee);
+    }));
 
-      return function (_x, _x2) {
-        return _ref3.apply(this, arguments);
-      };
-    }()
-  );
+    return function (_x, _x2) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
 }
 
 function handleAsyncError(err, message, dispatch) {

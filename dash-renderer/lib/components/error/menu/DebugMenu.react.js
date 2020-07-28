@@ -41,29 +41,33 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 var classes = function classes(base, variant, variant2) {
   return "".concat(base, " ").concat(base, "--").concat(variant) + (variant2 ? " ".concat(base, "--").concat(variant2) : '');
 };
 
 var buttonFactory = function buttonFactory(enabled, buttonVariant, toggle, _Icon, iconVariant, label) {
-  return _react["default"].createElement("div", {
+  return /*#__PURE__*/_react["default"].createElement("div", {
     className: "dash-debug-menu__button-container"
-  }, _react["default"].createElement("div", {
+  }, /*#__PURE__*/_react["default"].createElement("div", {
     className: classes('dash-debug-menu__button', buttonVariant, enabled && 'enabled'),
     onClick: toggle
-  }, _react["default"].createElement(_Icon, {
+  }, /*#__PURE__*/_react["default"].createElement(_Icon, {
     className: classes('dash-debug-menu__icon', iconVariant)
-  }), label ? _react["default"].createElement("label", {
+  }), label ? /*#__PURE__*/_react["default"].createElement("label", {
     className: "dash-debug-menu__button-label"
   }, label) : null));
 };
@@ -71,12 +75,14 @@ var buttonFactory = function buttonFactory(enabled, buttonVariant, toggle, _Icon
 var DebugMenu = /*#__PURE__*/function (_Component) {
   _inherits(DebugMenu, _Component);
 
+  var _super = _createSuper(DebugMenu);
+
   function DebugMenu(props) {
     var _this;
 
     _classCallCheck(this, DebugMenu);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DebugMenu).call(this, props));
+    _this = _super.call(this, props);
     _this.state = {
       opened: false,
       callbackGraphOpened: false,
@@ -111,40 +117,40 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
 
       var _StatusIcon = hotReload ? connected ? _CheckIcon["default"] : _OffIcon["default"] : _ClockIcon["default"];
 
-      var menuContent = opened ? _react["default"].createElement("div", {
+      var menuContent = opened ? /*#__PURE__*/_react["default"].createElement("div", {
         className: "dash-debug-menu__content"
-      }, callbackGraphOpened ? _react["default"].createElement(_CallbackGraphContainer.CallbackGraphContainer, {
+      }, callbackGraphOpened ? /*#__PURE__*/_react["default"].createElement(_CallbackGraphContainer.CallbackGraphContainer, {
         graphs: graphs
       }) : null, buttonFactory(callbackGraphOpened, 'callbacks', function () {
         _this2.setState({
           callbackGraphOpened: !callbackGraphOpened
         });
-      }, _GraphIcon["default"], 'graph', 'Callbacks'), buttonFactory(errorsOpened, 'errors', toggleErrors, _BellIcon["default"], 'bell', errCount + ' Error' + (errCount === 1 ? '' : 's')), buttonFactory(false, status, null, _StatusIcon, 'indicator', 'Server')) : _react["default"].createElement("div", {
+      }, _GraphIcon["default"], 'graph', 'Callbacks'), buttonFactory(errorsOpened, 'errors', toggleErrors, _BellIcon["default"], 'bell', errCount + ' Error' + (errCount === 1 ? '' : 's')), buttonFactory(false, status, null, _StatusIcon, 'indicator', 'Server')) : /*#__PURE__*/_react["default"].createElement("div", {
         className: "dash-debug-menu__content"
       });
-      var alertsLabel = (errCount || !connected) && !opened ? _react["default"].createElement("div", {
+      var alertsLabel = (errCount || !connected) && !opened ? /*#__PURE__*/_react["default"].createElement("div", {
         className: "dash-debug-alert-label"
-      }, _react["default"].createElement("div", {
+      }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "dash-debug-alert",
         onClick: toggleErrors
-      }, errCount ? _react["default"].createElement("div", {
+      }, errCount ? /*#__PURE__*/_react["default"].createElement("div", {
         className: "dash-debug-error-count"
-      }, '🛑 ' + errCount) : null, connected ? null : _react["default"].createElement("div", {
+      }, '🛑 ' + errCount) : null, connected ? null : /*#__PURE__*/_react["default"].createElement("div", {
         className: "dash-debug-disconnected"
       }, "\uD83D\uDEAB"))) : null;
       var openVariant = opened ? 'open' : 'closed';
-      return _react["default"].createElement("div", null, alertsLabel, _react["default"].createElement("div", {
+      return /*#__PURE__*/_react["default"].createElement("div", null, alertsLabel, /*#__PURE__*/_react["default"].createElement("div", {
         className: classes('dash-debug-menu__outer', openVariant)
-      }, menuContent), _react["default"].createElement("div", {
+      }, menuContent), /*#__PURE__*/_react["default"].createElement("div", {
         className: classes('dash-debug-menu', openVariant),
         onClick: function onClick() {
           _this2.setState({
             opened: !opened
           });
         }
-      }, _react["default"].createElement(_DebugIcon["default"], {
+      }, /*#__PURE__*/_react["default"].createElement(_DebugIcon["default"], {
         className: classes('dash-debug-menu__icon', 'debug')
-      })), _react["default"].createElement(_GlobalErrorOverlay["default"], {
+      })), /*#__PURE__*/_react["default"].createElement(_GlobalErrorOverlay["default"], {
         error: error,
         visible: errCount > 0,
         errorsOpened: errorsOpened
