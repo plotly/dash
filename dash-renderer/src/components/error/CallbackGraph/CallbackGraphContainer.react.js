@@ -183,11 +183,19 @@ function CallbackGraph() {
   // Generate the element introspection data.
   let elementName = '';
   let elementInfo = {};
+  let hasPatterns = false;
 
   if (selected) {
 
     function getComponent(id) {
-      return path(getPath(paths, id), layout);
+        // for now ignore pattern-matching IDs
+        // to do better we may need to store the *actual* IDs used for each
+        // callback invocation, since they need not match what's on the page now.
+        if (id.charAt(0) === '{') {
+            hasPatterns = true;
+            return undefined;
+        }
+        return path(getPath(paths, id), layout);
     }
 
     function getPropValue(data) {
@@ -201,7 +209,7 @@ function CallbackGraph() {
     switch(data.type) {
 
       case 'component': {
-        const rest = omit(['id'], getComponent(data.id).props);
+        const rest = omit(['id'], getComponent(data.id)?.props);
         elementInfo = rest;
         elementName = data.id;
         break;
@@ -250,6 +258,7 @@ function CallbackGraph() {
         />
       { selected ?
         <div className="dash-callback-dag--info">
+          {hasPatterns ? <div>Info isn't supported for pattern-matching IDs at this time</div> : null}
           <JSONTree
             data={elementInfo}
             theme="summerfruit"
