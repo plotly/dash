@@ -30,7 +30,7 @@
     font-family: "Arial", sans-serif;
 }
 
-.dash-callback-dag--error {
+.dash-callback-dag--message {
     display: flex;
     flex-direction: column;
     justify-content: center;

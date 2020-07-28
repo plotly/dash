@@ -76,7 +76,7 @@ function generateElements(graphs, profile) {
     }});
   }
 
-  graphs.callbacks.map((callback, i) => {
+  (graphs.callbacks || []).map((callback, i) => {
 
       const cb = `__dash_callback__.${callback.output}`;
       const cbProfile = profile.callbacks[callback.output] || {};
@@ -127,8 +127,7 @@ function CallbackGraph() {
   const graphs = useSelector(state => state.graphs);
   const profile = useSelector(state => state.profile);
   const changed = useSelector(state => state.changed);
-
-  console.log(paths, layout, graphs, profile);
+  const lifecycleState = useSelector(state => state.appLifecycle);
 
   // Keep track of cytoscape reference and user selected items.
   const [selected, setSelected] = useState(null);
@@ -167,6 +166,18 @@ function CallbackGraph() {
   useCytoscapeEffect((cy) => profile.updated.forEach(cb => (
     updateCallback(cy, cb, profile.callbacks[cb])
   )), [profile.updated]);
+
+  if (lifecycleState !== 'HYDRATED') {
+      // If we get here too early - most likely during hot reloading - then
+      // we need to bail out and wait for the full state to be available
+      return (
+          <div className="dash-callback-dag--container">
+              <div className="dash-callback-dag--message">
+                  <div>Waiting for app to be ready...</div>
+              </div>
+          </div>
+      );
+  }
 
   // FIXME: Move to a new component?
   // Generate the element introspection data.
@@ -228,7 +239,6 @@ function CallbackGraph() {
 
   }
 
-  // We now have all the elements. Render.
   return (
       <div className="dash-callback-dag--container">
         <CytoscapeComponent
@@ -288,7 +298,7 @@ class UnconnectedCallbackGraphContainer extends Component {
     render() {
         return this.state.hasError ? (
             <div className="dash-callback-dag--container">
-                <div className="dash-callback-dag--error">
+                <div className="dash-callback-dag--message">
                     <div>Oops! The callback graph threw an error.</div>
                     <div>Check the error list for details.</div>
                 </div>
