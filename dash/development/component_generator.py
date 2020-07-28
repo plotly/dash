@@ -48,7 +48,7 @@ def generate_components(
     rdepends="",
     rimports="",
     rsuggests="",
-    jlprefix=None
+    jlprefix=None,
 ):
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
@@ -138,13 +138,7 @@ def generate_components(
         )
 
     if jlprefix is not None:
-        generate_module(
-            project_shortname,
-            components,
-            metadata,
-            pkg_data,
-            jlprefix
-        )
+        generate_module(project_shortname, components, metadata, pkg_data, jlprefix)
 
 
 def safe_json_loads(s):

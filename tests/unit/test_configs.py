@@ -314,3 +314,13 @@ def test_proxy_failure(mocker, empty_environ):
         )
     assert "port: 8055 is incompatible with the proxy" in excinfo.exconly()
     assert "you must use port: 8155" in excinfo.exconly()
+
+
+def test_title():
+    app = Dash()
+    assert "<title>Dash</title>" in app.index()
+    app = Dash()
+    app.title = "Hello World"
+    assert "<title>Hello World</title>" in app.index()
+    app = Dash(title="Custom Title")
+    assert "<title>Custom Title</title>" in app.index()

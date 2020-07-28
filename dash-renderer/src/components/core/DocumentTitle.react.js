@@ -7,16 +7,27 @@ class DocumentTitle extends Component {
         super(props);
         const {update_title} = props.config;
         this.state = {
-            initialTitle: document.title,
+            title: document.title,
             update_title,
         };
     }
 
     UNSAFE_componentWillReceiveProps(props) {
-        if (this.state.update_title && props.isLoading) {
-            document.title = this.state.update_title;
+        if (!this.state.update_title) {
+            // Let callbacks or other components have full control over title
+            return;
+        }
+        if (props.isLoading) {
+            this.setState({title: document.title});
+            if (this.state.update_title) {
+                document.title = this.state.update_title;
+            }
         } else {
-            document.title = this.state.initialTitle;
+            if (document.title === this.state.update_title) {
+                document.title = this.state.title;
+            } else {
+                this.setState({title: document.title});
+            }
         }
     }
 
