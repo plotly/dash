@@ -9,12 +9,12 @@ import {STATUS} from '../../../constants/constants';
  * @returns {Object} - Object contaiing the edges, sorted by type.
  */
 export function getEdgeTypes(node) {
-  const elements = node.connectedEdges();
-  return {
-    input: elements.filter('[type = "input"]'),
-    state: elements.filter('[type = "state"]'),
-    output: elements.filter('[type = "output"]')
-  };
+    const elements = node.connectedEdges();
+    return {
+        input: elements.filter('[type = "input"]'),
+        state: elements.filter('[type = "state"]'),
+        output: elements.filter('[type = "output"]'),
+    };
 }
 
 /**
@@ -24,60 +24,63 @@ export function getEdgeTypes(node) {
  *
  * @param {Object} cy - Reference to the cytoscape instance.
  * @param {String} id - The id of the selected node.
+ * @returns {function} - cleanup function, for useEffect hook
  */
 export function updateSelectedNode(cy, id) {
-  if (id) {
-    const node = cy.getElementById(id);
+    if (id) {
+        const node = cy.getElementById(id);
 
-    // Center the node and highlght it.
+        // Center the node and highlght it.
 
-    cy.center(node);
-    node.addClass("selected-node");
+        cy.center(node);
+        node.addClass('selected-node');
 
-    // Find the subtree that the node belongs to. A subtree contains
-    // all all ancestors and descendents that are connected via Inputs
-    // or Outputs (but not State).
+        // Find the subtree that the node belongs to. A subtree contains
+        // all all ancestors and descendents that are connected via Inputs
+        // or Outputs (but not State).
 
-    // WARNING: No cycle detection!
+        // WARNING: No cycle detection!
 
-    function ascend(node, collection) {
-      // FIXME: Should we include State parents but non-recursively?
-      const type = node.data().type === 'callback' ? 'input' : 'output';
-      const edges = getEdgeTypes(node)[type];
-      const parents = edges.sources();
-      collection.merge(edges);
-      collection.merge(parents);
-      if (node.data().type === 'property')
-        collection.merge(node.ancestors());
-      parents.forEach(node => ascend(node, collection));
+        function ascend(node, collection) {
+            // FIXME: Should we include State parents but non-recursively?
+            const type = node.data().type === 'callback' ? 'input' : 'output';
+            const edges = getEdgeTypes(node)[type];
+            const parents = edges.sources();
+            collection.merge(edges);
+            collection.merge(parents);
+            if (node.data().type === 'property') {
+                collection.merge(node.ancestors());
+            }
+            parents.forEach(node => ascend(node, collection));
+        }
+
+        function descend(node, collection) {
+            const type = node.data().type === 'callback' ? 'output' : 'input';
+            const edges = getEdgeTypes(node)[type];
+            const children = edges.targets();
+            collection.merge(edges);
+            collection.merge(children);
+            if (node.data().type === 'property') {
+                collection.merge(node.ancestors());
+            }
+            children.forEach(node => descend(node, collection));
+        }
+
+        const subtree = cy.collection();
+        subtree.merge(node);
+        ascend(node, subtree);
+        descend(node, subtree);
+
+        const other = subtree.absoluteComplement();
+        other.addClass('inactive');
+
+        return () => {
+            node.removeClass('selected-node');
+            other.removeClass('inactive');
+        };
     }
-
-    function descend(node, collection) {
-      const type = node.data().type === 'callback' ? 'output' : 'input';
-      const edges = getEdgeTypes(node)[type];
-      const children = edges.targets();
-      collection.merge(edges);
-      collection.merge(children);
-      if (node.data().type === 'property')
-        collection.merge(node.ancestors());
-      children.forEach(node => descend(node, collection));
-    }
-
-    const subtree = cy.collection();
-    subtree.merge(node);
-    ascend(node, subtree);
-    descend(node, subtree);
-
-    const other = subtree.absoluteComplement();
-    other.addClass('inactive');
-
-    return () => {
-      node.removeClass("selected-node");
-      other.removeClass("inactive");
-    }
-
-  }
-};
+    return undefined;
+}
 
 /**
  * updateChangedProp
@@ -88,16 +91,16 @@ export function updateSelectedNode(cy, id) {
  * @param {String} id - The component id which updated.
  * @param {Object} props - The props that updated.
  * @param {Number} flashTime - The time to flash classes for in ms.
+ * @returns {undefined}
  */
 export function updateChangedProps(cy, id, props, flashTime = 500) {
-  Object.keys(props)
-        .forEach(prop => {
-          const node = cy.getElementById(`${id}.${prop}`);
-          node.flashClass('prop-changed', flashTime);
-          node.edgesTo('*')
-              .filter('[type = "input"]')
-              .flashClass('triggered', flashTime);
-        });
+    Object.keys(props).forEach(prop => {
+        const node = cy.getElementById(`${id}.${prop}`);
+        node.flashClass('prop-changed', flashTime);
+        node.edgesTo('*')
+            .filter('[type = "input"]')
+            .flashClass('triggered', flashTime);
+    });
 }
 
 /**
@@ -112,42 +115,47 @@ export function updateChangedProps(cy, id, props, flashTime = 500) {
  * @param {String} id - The id of the callback (i.e., it's output identifier)
  * @param {Object} profile - The callback profiling infomration.
  * @param {Number} flashTime - The time to flash classes for in ms.
+ * @returns {undefined}
  */
 export function updateCallback(cy, id, profile, flashTime = 500) {
+    const node = cy.getElementById(`__dash_callback__.${id}`);
+    const {callCount, totalTime, status} = profile;
 
-  const node = cy.getElementById(`__dash_callback__.${id}`);
-  const {callCount, totalTime, status} = profile;
+    // Update data.
+    const avgTime = callCount > 0 ? totalTime / callCount : 0;
+    node.data('count', callCount);
+    node.data('time', Math.round(avgTime));
 
-  // Update data.
-  const avgTime = callCount > 0 ? totalTime/callCount : 0;
-  node.data('count', callCount);
-  node.data('time', Math.round(avgTime));
+    // Either flash the classes OR maintain it for long callbacks.
+    if (status.current === 'loading') {
+        node.data('loadingSet', Date.now());
+        node.addClass('callback-loading');
+    } else if (node.hasClass('callback-loading')) {
+        const timeLeft = node.data('loadingSet') + flashTime - Date.now();
+        setTimeout(
+            () => node.removeClass('callback-loading'),
+            Math.max(timeLeft, 0)
+        );
+    }
 
-  // Either flash the classes OR maintain it for long callbacks.
-  if (status.current === 'loading') {
-    node.data('loadingSet', Date.now());
-    node.addClass('callback-loading');
-  } else if (node.hasClass('callback-loading')) {
-    const timeLeft = (node.data('loadingSet') + flashTime) - Date.now();
-    setTimeout(() => node.removeClass('callback-loading'), Math.max(timeLeft, 0));
-  }
+    if (
+        status.current !== 'loading' &&
+        status.current !== STATUS.OK &&
+        status.current !== STATUS.PREVENT_UPDATE
+    ) {
+        node.data('errorSet', Date.now());
+        node.addClass('callback-error');
+    } else if (node.hasClass('callback-error')) {
+        const timeLeft = node.data('errorSet') + flashTime - Date.now();
+        setTimeout(
+            () => node.removeClass('callback-error'),
+            Math.max(timeLeft, 0)
+        );
+    }
 
-  if (
-    status.current !== 'loading' &&
-    status.current !== STATUS.OK &&
-    status.current !== STATUS.PREVENT_UPDATE
-  ) {
-    node.data('errorSet', Date.now());
-    node.addClass('callback-error');
-  } else if (node.hasClass('callback-error')) {
-    const timeLeft = (node.data('errorSet') + flashTime) - Date.now();
-    setTimeout(() => node.removeClass('callback-error'), Math.max(timeLeft, 0));
-  }
-
-  // FIXME: This will flash branches that return no_update!!
-  // If the callback resolved properly, flash the outputs.
-  if (status.current === STATUS.OK) {
-    node.edgesTo('*').flashClass('triggered', flashTime);
-  }
-
-};
+    // FIXME: This will flash branches that return no_update!!
+    // If the callback resolved properly, flash the outputs.
+    if (status.current === STATUS.OK) {
+        node.edgesTo('*').flashClass('triggered', flashTime);
+    }
+}

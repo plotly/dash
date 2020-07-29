@@ -53,7 +53,7 @@ class DebugMenu extends Component {
     }
     render() {
         const {opened, errorsOpened, callbackGraphOpened} = this.state;
-        const {error, graphs, hotReload} = this.props;
+        const {error, hotReload} = this.props;
 
         const errCount = error.frontEnd.length + error.backEnd.length;
         const connected = error.backEndConnected;
@@ -75,9 +75,7 @@ class DebugMenu extends Component {
 
         const menuContent = opened ? (
             <div className="dash-debug-menu__content">
-                {callbackGraphOpened ? (
-                    <CallbackGraphContainer/>
-                ) : null}
+                {callbackGraphOpened ? <CallbackGraphContainer /> : null}
                 {buttonFactory(
                     callbackGraphOpened,
                     'callbacks',
@@ -160,7 +158,6 @@ class DebugMenu extends Component {
 DebugMenu.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
-    graphs: PropTypes.object,
     hotReload: PropTypes.bool,
 };
 

@@ -72,7 +72,7 @@ function recordHistory(reducer) {
 
             // changed flags all prop changes.
             if (id) {
-              state.changed = {id, props};
+                state.changed = {id, props};
             }
 
             // history records all prop changes that are inputs.
@@ -80,7 +80,6 @@ function recordHistory(reducer) {
             if (historyEntry && !isEmpty(historyEntry.props)) {
                 state.history.present = historyEntry;
             }
-
         }
 
         const nextState = reducer(state, action);

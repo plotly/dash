@@ -1,15 +1,13 @@
 const initialChange = {
     id: null,
-    props: {}
+    props: {},
 };
 
-function changed(state = initialChange, action) {
-
-  // This is empty just to initialize the store. Changes
-  // are actually recorded in reducer.js so that we can
-  // resolve paths to id.
-  return state;
-
+function changed(state = initialChange) {
+    // This is empty just to initialize the store. Changes
+    // are actually recorded in reducer.js so that we can
+    // resolve paths to id.
+    return state;
 }
 
 export default changed;
