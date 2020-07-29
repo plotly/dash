@@ -138,11 +138,10 @@ function CallbackGraph() {
 
     // Custom hook to make sure cytoscape is loaded.
     const useCytoscapeEffect = (effect, condition) => {
-        useEffect(() => {
-            if (cytoscape) {
-                effect(cytoscape);
-            }
-        }, condition);
+        useEffect(
+            () => (cytoscape && effect(cytoscape)) || undefined,
+            condition
+        );
     };
 
     // Adds callbacks once cyctoscape is intialized.
@@ -160,11 +159,7 @@ function CallbackGraph() {
 
     // Set node classes on selected.
     useCytoscapeEffect(
-        cy => {
-            if (selected) {
-                updateSelectedNode(cy, selected.data().id);
-            }
-        },
+        cy => selected && updateSelectedNode(cy, selected.data().id),
         [selected]
     );
 
@@ -172,11 +167,7 @@ function CallbackGraph() {
     // flash all input edges originating from this node and highlight
     // the subtree that contains the selected node.
     useCytoscapeEffect(
-        cy => {
-            if (changed) {
-                updateChangedProps(cy, changed.id, changed.props);
-            }
-        },
+        cy => changed && updateChangedProps(cy, changed.id, changed.props),
         [changed]
     );
 
