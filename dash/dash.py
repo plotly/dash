@@ -420,9 +420,31 @@ class Dash(object):
 
         self.server.before_first_request(self._setup_server)
 
-        self.server.before_request(self._before_request)
+        def _before_request():
+            flask.g.timing_information = {
+                "__dash_server": {"dur": time.time(), "desc": None}
+            }
 
-        self.server.after_request(self._after_request)
+        def _after_request(response):
+            dash_total = flask.g.timing_information["__dash_server"]
+            dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+
+            for name, info in flask.g.timing_information.items():
+
+                value = name
+                if "desc" in info and info["desc"] is not None:
+                    value = value + ';desc="{}"'.format(info["desc"])
+
+                if "dur" in info and info["dur"] is not None:
+                    value = value + ";dur={}".format(info["dur"])
+
+                response.headers.add("Server-Timing", value)
+
+            return response
+
+        self.server.before_request(_before_request)
+
+        self.server.after_request(_after_request)
 
         # add a handler for components suites errors to return 404
         self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
@@ -1073,28 +1095,6 @@ class Dash(object):
 
         self._generate_scripts_html()
         self._generate_css_dist_html()
-
-    def _before_request(self):
-        flask.g.timing_information = {
-            "__dash_server": {"dur": time.time(), "desc": None}
-        }
-
-    def _after_request(self, response):
-        dash_total = flask.g.timing_information["__dash_server"]
-        dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
-
-        for name, info in flask.g.timing_information.items():
-
-            value = name
-            if "desc" in info and info["desc"] is not None:
-                value = value + ';desc="{}"'.format(info["desc"])
-
-            if "dur" in info and info["dur"] is not None:
-                value = value + ";dur={}".format(info["dur"])
-
-            response.headers.add("Server-Timing", value)
-
-        return response
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}

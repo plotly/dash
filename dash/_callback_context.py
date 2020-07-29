@@ -72,8 +72,9 @@ class CallbackContext:
     def response(self):
         return getattr(flask.g, "dash_response")
 
+    @staticmethod
     @has_context
-    def record_timing(self, name, duration=None, description=None):
+    def record_timing(name, duration=None, description=None):
         """Records timing information for a server resource.
 
         :param name: The name of the resource.
