@@ -1076,23 +1076,23 @@ class Dash(object):
 
     def _before_request(self):
         flask.g.timing_information = {
-            '__dash_server': {'dur': time.time(), 'desc': None}
+            "__dash_server": {"dur": time.time(), "desc": None}
         }
 
     def _after_request(self, response):
-        dash_total = flask.g.timing_information['__dash_server']
-        dash_total['dur'] = round((time.time() - dash_total['dur']) * 1000)
+        dash_total = flask.g.timing_information["__dash_server"]
+        dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
 
         for name, info in flask.g.timing_information.items():
 
             value = name
-            if 'desc' in info and info['desc'] is not None:
-                value = value + ';desc="{}"'.format(info['desc'])
+            if "desc" in info and info["desc"] is not None:
+                value = value + ';desc="{}"'.format(info["desc"])
 
-            if 'dur' in info and info['dur'] is not None:
-                value = value + ';dur={}'.format(info['dur'])
+            if "dur" in info and info["dur"] is not None:
+                value = value + ";dur={}".format(info["dur"])
 
-            response.headers.add('Server-Timing', value)
+            response.headers.add("Server-Timing", value)
 
         return response
 

@@ -86,16 +86,14 @@ class CallbackContext:
         :param description: A description of the resource.
         :type description: string or None
         """
-        timing_information = getattr(flask.g, 'timing_information', {})
+        timing_information = getattr(flask.g, "timing_information", {})
 
         if name in timing_information:
             raise KeyError('Duplicate resource name "{}" found.'.format(name))
 
-        timing_information[name] = {
-            'dur': round(duration*1000),
-            'desc': description
-        }
+        timing_information[name] = {"dur": round(duration * 1000), "desc": description}
 
-        setattr(flask.g, 'timing_information', timing_information)
+        setattr(flask.g, "timing_information", timing_information)
+
 
 callback_context = CallbackContext()
