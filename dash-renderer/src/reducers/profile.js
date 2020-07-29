@@ -14,23 +14,22 @@ const defaultProfile = {
     resources: {},
     status: {
         latest: null,
-    }
+    },
 };
 
 const statusMap = {
     [STATUS.OK]: 'SUCCESS',
-    [STATUS.PREVENT_UPDATE]: 'NO_UPDATE'
-}
+    [STATUS.PREVENT_UPDATE]: 'NO_UPDATE',
+};
 
 const defaultState = {
     updated: [],
     resources: {},
-    callbacks: {}
+    callbacks: {},
 };
 
 const profile = (state = defaultState, action) => {
     if (action.type === 'UPDATE_RESOURCE_USAGE') {
-
         // Keep a record of the most recent change. This
         // is subtly different from history.present becasue
         // it watches all props, not just inputs.
@@ -44,15 +43,15 @@ const profile = (state = defaultState, action) => {
             ...user
         } = usage;
 
-
         // Keep track of the callback that actually changed.
         const newState = {
             updated: [id],
             resources: state.resources,
-            callbacks: state.callbacks
+            callbacks: state.callbacks,
         };
 
-        newState.callbacks[id] = newState.callbacks[id] || clone(defaultProfile);
+        newState.callbacks[id] =
+            newState.callbacks[id] || clone(defaultProfile);
 
         const cb = newState.callbacks[id];
         const cbResources = cb.resources;
@@ -62,7 +61,7 @@ const profile = (state = defaultState, action) => {
         cb.count += 1;
         cb.total += __dash_client;
         cb.compute += __dash_server;
-        cb.network.time += (__dash_client - __dash_server);
+        cb.network.time += __dash_client - __dash_server;
         cb.network.upload += __dash_upload;
         cb.network.download += __dash_download;
         cb.status.latest = statusMapped;

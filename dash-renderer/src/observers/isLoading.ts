@@ -1,18 +1,11 @@
-import { IStoreObserverDefinition } from '../StoreObserver';
-import { IStoreState } from '../store';
-import { getPendingCallbacks } from '../utils/callbacks';
-import { setIsLoading } from '../actions/isLoading';
-
+import {IStoreObserverDefinition} from '../StoreObserver';
+import {IStoreState} from '../store';
+import {getPendingCallbacks} from '../utils/callbacks';
+import {setIsLoading} from '../actions/isLoading';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
-    observer: ({
-        dispatch,
-        getState
-    }) => {
-        const {
-            callbacks,
-            isLoading
-        } = getState();
+    observer: ({dispatch, getState}) => {
+        const {callbacks, isLoading} = getState();
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
@@ -22,7 +15,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             dispatch(setIsLoading(next));
         }
     },
-    inputs: ['callbacks']
+    inputs: ['callbacks'],
 };
 
 export default observer;

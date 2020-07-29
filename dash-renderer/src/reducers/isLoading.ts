@@ -1,5 +1,5 @@
 export enum IsLoadingActionType {
-    Set = 'IsLoading.Set'
+    Set = 'IsLoading.Set',
 }
 
 export interface ILoadingMapAction {
@@ -8,15 +8,11 @@ export interface ILoadingMapAction {
 }
 
 type IsLoadingState = boolean;
-export {
-    IsLoadingState
-};
+export {IsLoadingState};
 
 const DEFAULT_STATE: IsLoadingState = true;
 
 export default (
     state: IsLoadingState = DEFAULT_STATE,
     action: ILoadingMapAction
-) => action.type === IsLoadingActionType.Set ?
-        action.payload :
-        state;
+) => (action.type === IsLoadingActionType.Set ? action.payload : state);

@@ -1,15 +1,6 @@
-import {
-    find,
-    flatten,
-    forEach,
-    map,
-    partition,
-    pluck,
-    sort,
-    uniq
-} from 'ramda';
+import {find, flatten, forEach, map, partition, pluck, sort, uniq} from 'ramda';
 
-import { IStoreState } from '../store';
+import {IStoreState} from '../store';
 
 import {
     addBlockedCallbacks,
@@ -17,14 +8,12 @@ import {
     aggregateCallbacks,
     executeCallback,
     removeBlockedCallbacks,
-    removePrioritizedCallbacks
+    removePrioritizedCallbacks,
 } from '../actions/callbacks';
 
-import { stringifyId } from '../actions/dependencies';
+import {stringifyId} from '../actions/dependencies';
 
-import {
-    combineIdAndProp
-} from '../actions/dependencies_ts';
+import {combineIdAndProp} from '../actions/dependencies_ts';
 
 import isAppReady from '../actions/isAppReady';
 
@@ -32,73 +21,96 @@ import {
     IBlockedCallback,
     ICallback,
     ILayoutCallbackProperty,
-    IPrioritizedCallback
+    IPrioritizedCallback,
 } from '../types/callbacks';
-import { IStoreObserverDefinition } from '../StoreObserver';
+import {IStoreObserverDefinition} from '../StoreObserver';
 
 const sortPriority = (c1: ICallback, c2: ICallback): number => {
     return (c1.priority ?? '') > (c2.priority ?? '') ? -1 : 1;
-}
+};
 
-const getStash = (cb: IPrioritizedCallback, paths: any): {
-    allOutputs: ILayoutCallbackProperty[][],
-    allPropIds: any[]
+const getStash = (
+    cb: IPrioritizedCallback,
+    paths: any
+): {
+    allOutputs: ILayoutCallbackProperty[][];
+    allPropIds: any[];
 } => {
-    const { getOutputs } = cb;
+    const {getOutputs} = cb;
     const allOutputs = getOutputs(paths);
     const flatOutputs: any[] = flatten(allOutputs);
     const allPropIds: any[] = [];
 
     const reqOut: any = {};
-    flatOutputs.forEach(({ id, property }) => {
+    flatOutputs.forEach(({id, property}) => {
         const idStr = stringifyId(id);
         const idOut = (reqOut[idStr] = reqOut[idStr] || []);
         idOut.push(property);
-        allPropIds.push(combineIdAndProp({ id: idStr, property }));
+        allPropIds.push(combineIdAndProp({id: idStr, property}));
     });
 
-    return { allOutputs, allPropIds };
-}
+    return {allOutputs, allPropIds};
+};
 
-const getIds = (cb: ICallback, paths: any) => uniq(pluck('id', [
-    ...flatten(cb.getInputs(paths)),
-    ...flatten(cb.getState(paths))
-]));
+const getIds = (cb: ICallback, paths: any) =>
+    uniq(
+        pluck('id', [
+            ...flatten(cb.getInputs(paths)),
+            ...flatten(cb.getState(paths)),
+        ])
+    );
 
 const observer: IStoreObserverDefinition<IStoreState> = {
-    observer: async ({
-        dispatch,
-        getState
-    }) => {
-        const { callbacks: { executing, watched }, config, hooks, layout, paths } = getState();
-        let { callbacks: { prioritized } } = getState();
+    observer: async ({dispatch, getState}) => {
+        const {
+            callbacks: {executing, watched},
+            config,
+            hooks,
+            layout,
+            paths,
+        } = getState();
+        let {
+            callbacks: {prioritized},
+        } = getState();
 
-        const available = Math.max(
-            0,
-            12 - executing.length - watched.length
-        );
+        const available = Math.max(0, 12 - executing.length - watched.length);
 
         // Order prioritized callbacks based on depth and breadth of callback chain
         prioritized = sort(sortPriority, prioritized);
 
         // Divide between sync and async
-        const [syncCallbacks, asyncCallbacks] = partition(cb => isAppReady(
-            layout,
-            paths,
-            getIds(cb, paths)
-        ) === true, prioritized);
+        const [syncCallbacks, asyncCallbacks] = partition(
+            cb => isAppReady(layout, paths, getIds(cb, paths)) === true,
+            prioritized
+        );
 
         const pickedSyncCallbacks = syncCallbacks.slice(0, available);
-        const pickedAsyncCallbacks = asyncCallbacks.slice(0, available - pickedSyncCallbacks.length);
+        const pickedAsyncCallbacks = asyncCallbacks.slice(
+            0,
+            available - pickedSyncCallbacks.length
+        );
 
         if (pickedSyncCallbacks.length) {
-            dispatch(aggregateCallbacks([
-                removePrioritizedCallbacks(pickedSyncCallbacks),
-                addExecutingCallbacks(map(
-                    cb => executeCallback(cb, config, hooks, paths, layout, getStash(cb, paths), dispatch),
-                    pickedSyncCallbacks
-                ))
-            ]));
+            dispatch(
+                aggregateCallbacks([
+                    removePrioritizedCallbacks(pickedSyncCallbacks),
+                    addExecutingCallbacks(
+                        map(
+                            cb =>
+                                executeCallback(
+                                    cb,
+                                    config,
+                                    hooks,
+                                    paths,
+                                    layout,
+                                    getStash(cb, paths),
+                                    dispatch
+                                ),
+                            pickedSyncCallbacks
+                        )
+                    ),
+                ])
+            );
         }
 
         if (pickedAsyncCallbacks.length) {
@@ -106,38 +118,57 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 cb => ({
                     ...cb,
                     ...getStash(cb, paths),
-                    isReady: isAppReady(layout, paths, getIds(cb, paths))
+                    isReady: isAppReady(layout, paths, getIds(cb, paths)),
                 }),
                 pickedAsyncCallbacks
             );
 
-            dispatch(aggregateCallbacks([
-                removePrioritizedCallbacks(pickedAsyncCallbacks),
-                addBlockedCallbacks(deffered)
-            ]));
+            dispatch(
+                aggregateCallbacks([
+                    removePrioritizedCallbacks(pickedAsyncCallbacks),
+                    addBlockedCallbacks(deffered),
+                ])
+            );
 
             forEach(async cb => {
                 await cb.isReady;
 
-                const { callbacks: { blocked } } = getState();
+                const {
+                    callbacks: {blocked},
+                } = getState();
 
-                // Check if it's been removed from the `blocked` list since - on callback completion, another callback may be cancelled
-                // Find the callback instance or one that matches its promise (eg. could have been pruned)
-                const currentCb = find(_cb => _cb === cb || _cb.isReady === cb.isReady, blocked);
+                // Check if it's been removed from the `blocked` list since - on
+                // callback completion, another callback may be cancelled
+                // Find the callback instance or one that matches its promise
+                // (eg. could have been pruned)
+                const currentCb = find(
+                    _cb => _cb === cb || _cb.isReady === cb.isReady,
+                    blocked
+                );
                 if (!currentCb) {
                     return;
                 }
 
-                const executingCallback = executeCallback(cb, config, hooks, paths, layout, cb, dispatch);
+                const executingCallback = executeCallback(
+                    cb,
+                    config,
+                    hooks,
+                    paths,
+                    layout,
+                    cb,
+                    dispatch
+                );
 
-                dispatch(aggregateCallbacks([
-                    removeBlockedCallbacks([cb]),
-                    addExecutingCallbacks([executingCallback])
-                ]));
+                dispatch(
+                    aggregateCallbacks([
+                        removeBlockedCallbacks([cb]),
+                        addExecutingCallbacks([executingCallback]),
+                    ])
+                );
             }, deffered);
         }
     },
-    inputs: ['callbacks.prioritized', 'callbacks.completed']
+    inputs: ['callbacks.prioritized', 'callbacks.completed'],
 };
 
 export default observer;

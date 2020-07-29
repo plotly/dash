@@ -7,16 +7,28 @@ import {
     path,
     pick,
     pluck,
-    zip
+    zip,
 } from 'ramda';
 
-import { STATUS } from '../constants/constants';
-import { CallbackActionType, CallbackAggregateActionType } from '../reducers/callbacks';
-import { CallbackResult, ICallback, IExecutedCallback, IExecutingCallback, ICallbackPayload, IStoredCallback, IBlockedCallback, IPrioritizedCallback } from '../types/callbacks';
-import { isMultiValued, stringifyId, isMultiOutputProp } from './dependencies';
-import { urlBase } from './utils';
-import { getCSRFHeader } from '.';
-import { createAction, Action } from 'redux-actions';
+import {STATUS} from '../constants/constants';
+import {
+    CallbackActionType,
+    CallbackAggregateActionType,
+} from '../reducers/callbacks';
+import {
+    CallbackResult,
+    ICallback,
+    IExecutedCallback,
+    IExecutingCallback,
+    ICallbackPayload,
+    IStoredCallback,
+    IBlockedCallback,
+    IPrioritizedCallback,
+} from '../types/callbacks';
+import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
+import {urlBase} from './utils';
+import {getCSRFHeader} from '.';
+import {createAction, Action} from 'redux-actions';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -39,7 +51,9 @@ export const addRequestedCallbacks = createAction<ICallback[]>(
 export const addStoredCallbacks = createAction<IStoredCallback[]>(
     CallbackActionType.AddStored
 );
-export const addWatchedCallbacks = createAction<IExecutingCallback[]>(CallbackActionType.AddWatched);
+export const addWatchedCallbacks = createAction<IExecutingCallback[]>(
+    CallbackActionType.AddWatched
+);
 export const removeExecutedCallbacks = createAction(
     CallbackActionType.RemoveExecuted
 );
@@ -61,11 +75,9 @@ export const removeStoredCallbacks = createAction<IStoredCallback[]>(
 export const removeWatchedCallbacks = createAction<IExecutingCallback[]>(
     CallbackActionType.RemoveWatched
 );
-export const aggregateCallbacks = createAction<(
-    Action<ICallback[]> |
-    Action<number> |
-    null
-)[]>(CallbackAggregateActionType.Aggregate);
+export const aggregateCallbacks = createAction<
+    (Action<ICallback[]> | Action<number> | null)[]
+>(CallbackAggregateActionType.Aggregate);
 
 const updateResourceUsage = createAction('UPDATE_RESOURCE_USAGE');
 
@@ -92,13 +104,13 @@ function unwrapIfNotMulti(
                 (isStr
                     ? '`' + spec.id + '`'
                     : JSON.stringify(spec.id) +
-                    (anyVals ? ' with MATCH values ' + anyVals : '')) +
+                      (anyVals ? ' with MATCH values ' + anyVals : '')) +
                 ' and the property is `' +
                 spec.property +
                 (isStr
                     ? '`. The string ids in the current layout are: [' +
-                    keys(paths.strs).join(', ') +
-                    ']'
+                      keys(paths.strs).join(', ') +
+                      ']'
                     : '`. The wildcard ids currently available are logged above.');
         } else {
             msg =
@@ -131,10 +143,10 @@ function fillVals(
     const inputVals = getter(paths).map((inputList: any, i: number) => {
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
-            inputList.map(({ id, property, path: path_ }: any) => ({
+            inputList.map(({id, property, path: path_}: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property]
+                value: (path(path_, layout) as any).props[property],
             })),
             specs[i],
             cb.anyVals,
@@ -183,30 +195,36 @@ function refErr(errors: any, paths: any) {
 const getVals = (input: any) =>
     Array.isArray(input) ? pluck('value', input) : input.value;
 
-const zipIfArray = (a: any, b: any) => (Array.isArray(a) ? zip(a, b) : [[a, b]]);
+const zipIfArray = (a: any, b: any) =>
+    Array.isArray(a) ? zip(a, b) : [[a, b]];
 
-function handleClientside(dispatch: any, clientside_function: any, payload: ICallbackPayload) {
-    const dc = ((window as any).dash_clientside = (window as any).dash_clientside || {});
+function handleClientside(
+    dispatch: any,
+    clientside_function: any,
+    payload: ICallbackPayload
+) {
+    const dc = ((window as any).dash_clientside =
+        (window as any).dash_clientside || {});
     if (!dc.no_update) {
         Object.defineProperty(dc, 'no_update', {
-            value: { description: 'Return to prevent updating an Output.' },
-            writable: false
+            value: {description: 'Return to prevent updating an Output.'},
+            writable: false,
         });
 
         Object.defineProperty(dc, 'PreventUpdate', {
-            value: { description: 'Throw to prevent updating all Outputs.' },
-            writable: false
+            value: {description: 'Throw to prevent updating all Outputs.'},
+            writable: false,
         });
     }
 
-    const { inputs, outputs, state } = payload;
+    const {inputs, outputs, state} = payload;
     const requestTime = Date.now();
 
     let returnValue;
     let status: any = STATUS.OK;
 
     try {
-        const { namespace, function_name } = clientside_function;
+        const {namespace, function_name} = clientside_function;
         let args = inputs.map(getVals);
         if (state) {
             args = concat(args, state.map(getVals));
@@ -217,7 +235,7 @@ function handleClientside(dispatch: any, clientside_function: any, payload: ICal
         dc.callback_context = {};
         dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
             prop_id: prop_id,
-            value: input_dict[prop_id]
+            value: input_dict[prop_id],
         }));
         dc.callback_context.inputs_list = inputs;
         dc.callback_context.inputs = input_dict;
@@ -241,30 +259,30 @@ function handleClientside(dispatch: any, clientside_function: any, payload: ICal
             __dash_server: totalTime,
             __dash_client: totalTime,
             __dash_upload: 0,
-            __dash_download: 0
+            __dash_download: 0,
         };
 
         dispatch(
-          updateResourceUsage({
-            id: payload.output,
-            usage: resources,
-            status
-          })
+            updateResourceUsage({
+                id: payload.output,
+                usage: resources,
+                status,
+            })
         );
     }
 
     if (typeof returnValue?.then === 'function') {
         throw new Error(
             'The clientside function returned a Promise. ' +
-            'Promises are not supported in Dash clientside ' +
-            'right now, but may be in the future.'
+                'Promises are not supported in Dash clientside ' +
+                'right now, but may be in the future.'
         );
     }
 
     const data: any = {};
     zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
         zipIfArray(outi, reti).forEach(([outij, retij]) => {
-            const { id, property } = outij;
+            const {id, property} = outij;
             const idStr = stringifyId(id);
             const dataForId = (data[idStr] = data[idStr] || {});
             if (retij !== dc.no_update) {
@@ -293,75 +311,77 @@ function handleServerside(
         mergeDeepRight(config.fetch, {
             method: 'POST',
             headers: getCSRFHeader() as any,
-            body
+            body,
         })
-    ).then((res: any) => {
-        const { status } = res;
+    ).then(
+        (res: any) => {
+            const {status} = res;
 
-        if (config.ui) {
-            // Callback profiling - only relevant if we're showing the debug ui
-            const resources = {
-                __dash_server: 0,
-                __dash_client: Date.now() - requestTime,
-                __dash_upload: body.length,
-                __dash_download: Number(res.headers.get("Content-Length")),
-            } as any;
+            if (config.ui) {
+                // Callback profiling - only relevant if we're showing the debug ui
+                const resources = {
+                    __dash_server: 0,
+                    __dash_client: Date.now() - requestTime,
+                    __dash_upload: body.length,
+                    __dash_download: Number(res.headers.get('Content-Length')),
+                } as any;
 
-            const timingHeaders = res.headers.get('Server-Timing') || '';
+                const timingHeaders = res.headers.get('Server-Timing') || '';
 
-            timingHeaders.split(',').forEach((header: any) => {
-                const name = header.split(';')[0];
-                const dur = header.match(/;dur=[0-9\.]+/);
+                timingHeaders.split(',').forEach((header: any) => {
+                    const name = header.split(';')[0];
+                    const dur = header.match(/;dur=[0-9\.]+/);
 
-                if (dur) {
-                    resources[name] = Number(dur[0].slice(5));
-                }
+                    if (dur) {
+                        resources[name] = Number(dur[0].slice(5));
+                    }
+                });
 
-            });
+                dispatch(
+                    updateResourceUsage({
+                        id: payload.output,
+                        usage: resources,
+                        status,
+                    })
+                );
+            }
 
-            dispatch(
-                updateResourceUsage({
-                    id: payload.output,
-                    usage: resources,
-                    status
-                })
-            );
+            if (status === STATUS.OK) {
+                return res.json().then((data: any) => {
+                    const {multi, response} = data;
+                    if (hooks.request_post !== null) {
+                        hooks.request_post(payload, response);
+                    }
+
+                    if (multi) {
+                        return response;
+                    }
+
+                    const {output} = payload;
+                    const id = output.substr(0, output.lastIndexOf('.'));
+                    return {[id]: response.props};
+                });
+            }
+            if (status === STATUS.PREVENT_UPDATE) {
+                return {};
+            }
+            throw res;
+        },
+        () => {
+            // fetch rejection - this means the request didn't return,
+            // we don't get here from 400/500 errors, only network
+            // errors or unresponsive servers.
+            if (config.ui) {
+                dispatch(
+                    updateResourceUsage({
+                        id: payload.output,
+                        status: STATUS.NO_RESPONSE,
+                    })
+                );
+            }
+            throw new Error('Callback failed: the server did not respond.');
         }
-
-        if (status === STATUS.OK) {
-            return res.json().then((data: any) => {
-                const { multi, response } = data;
-                if (hooks.request_post !== null) {
-                    hooks.request_post(payload, response);
-                }
-
-                if (multi) {
-                    return response;
-                }
-
-                const { output } = payload;
-                const id = output.substr(0, output.lastIndexOf('.'));
-                return { [id]: response.props };
-            });
-        }
-        if (status === STATUS.PREVENT_UPDATE) {
-            return {};
-        }
-        throw res;
-    }, () => {
-        // fetch rejection - this means the request didn't return,
-        // we don't get here from 400/500 errors, only network
-        // errors or unresponsive servers.
-        if (config.ui) {
-            dispatch(
-                updateResourceUsage({
-                    id: payload.output,
-                    status: STATUS.NO_RESPONSE
-                })
-            )
-        }
-        throw new Error('Callback failed: the server did not respond.');
-    });
+    );
 }
 
 function inputsToDict(inputs_list: any) {
@@ -380,13 +400,13 @@ function inputsToDict(inputs_list: any) {
             for (let ii = 0; ii < inputsi.length; ii++) {
                 const id_str = `${stringifyId(inputsi[ii].id)}.${
                     inputsi[ii].property
-                    }`;
+                }`;
                 inputs[id_str] = inputsi[ii].value ?? null;
             }
         } else {
             const id_str = `${stringifyId(inputs_list[i].id)}.${
                 inputs_list[i].property
-                }`;
+            }`;
             inputs[id_str] = inputs_list[i].value ?? null;
         }
     }
@@ -399,10 +419,10 @@ export function executeCallback(
     hooks: any,
     paths: any,
     layout: any,
-    { allOutputs }: any,
+    {allOutputs}: any,
     dispatch: any
 ): IExecutingCallback {
-    const { output, inputs, state, clientside_function } = cb.callback;
+    const {output, inputs, state, clientside_function} = cb.callback;
 
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
@@ -411,7 +431,7 @@ export function executeCallback(
         if (inVals === null) {
             return {
                 ...cb,
-                executionPromise: null
+                executionPromise: null,
             };
         }
 
@@ -441,7 +461,7 @@ export function executeCallback(
             // regular missing inputs and just silently prevent it.
             return {
                 ...cb,
-                executionPromise: null
+                executionPromise: null,
             };
         }
 
@@ -452,38 +472,45 @@ export function executeCallback(
                     outputs: isMultiOutputProp(output) ? outputs : outputs[0],
                     inputs: inVals,
                     changedPropIds: keys(cb.changedPropIds),
-                    state: cb.callback.state.length ?
-                        fillVals(paths, layout, cb, state, 'State') :
-                        undefined
+                    state: cb.callback.state.length
+                        ? fillVals(paths, layout, cb, state, 'State')
+                        : undefined,
                 };
 
                 if (clientside_function) {
                     try {
-                        resolve({ data: handleClientside(dispatch, clientside_function, payload), payload });
+                        resolve({
+                            data: handleClientside(
+                                dispatch,
+                                clientside_function,
+                                payload
+                            ),
+                            payload,
+                        });
                     } catch (error) {
-                        resolve({ error, payload });
+                        resolve({error, payload});
                     }
                     return null;
                 } else {
                     handleServerside(dispatch, hooks, config, payload)
-                        .then(data => resolve({ data, payload }))
-                        .catch(error => resolve({ error, payload }));
+                        .then(data => resolve({data, payload}))
+                        .catch(error => resolve({error, payload}));
                 }
             } catch (error) {
-                resolve({ error, payload: null });
+                resolve({error, payload: null});
             }
         });
 
         const newCb = {
             ...cb,
-            executionPromise: __promise
+            executionPromise: __promise,
         };
 
         return newCb;
     } catch (error) {
         return {
             ...cb,
-            executionPromise: { error, payload: null }
+            executionPromise: {error, payload: null},
         };
     }
 }
