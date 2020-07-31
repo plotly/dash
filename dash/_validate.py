@@ -7,6 +7,10 @@ from ._utils import patch_collections_abc, _strings, stringify_id
 
 
 def validate_callback(output, inputs, state, extra_args, types):
+    is_multi = isinstance(output, (list, tuple))
+
+    outputs = output if is_multi else [output]
+
     Input, Output, State = types
     if extra_args:
         if not isinstance(extra_args[0], (Output, Input, State)):
@@ -24,16 +28,15 @@ def validate_callback(output, inputs, state, extra_args, types):
         raise exceptions.IncorrectTypeException(
             """
             In a callback definition, you must provide all Outputs first,
-            "then all Inputs, then all States. Found this out of order:
+            then all Inputs, then all States. After this item:
+            {}
+            we found this item next:
             {}
             """.format(
-                repr(extra_args)
+                repr((outputs + inputs + state)[-1]),
+                repr(extra_args[0])
             )
         )
-
-    is_multi = isinstance(output, (list, tuple))
-
-    outputs = output if is_multi else [output]
 
     for args in [outputs, inputs, state]:
         for arg in args:
