@@ -33,8 +33,7 @@ def validate_callback(output, inputs, state, extra_args, types):
             we found this item next:
             {}
             """.format(
-                repr((outputs + inputs + state)[-1]),
-                repr(extra_args[0])
+                repr((outputs + inputs + state)[-1]), repr(extra_args[0])
             )
         )
 
