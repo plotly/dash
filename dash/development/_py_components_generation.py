@@ -225,11 +225,9 @@ def create_docstring(component_name, props, description):
     props = reorder_props(props=props)
 
     return (
-        """A{n} {name} component.\n{description}
-
-Keyword arguments:\n{args}"""
+        "A{n} {name} component.\n{description}\n\nKeyword arguments:\n{args}"
     ).format(
-        n="n" if component_name[0].lower() in ["a", "e", "i", "o", "u"] else "",
+        n="n" if component_name[0].lower() in "aeiou" else "",
         name=component_name,
         description=description,
         args="\n".join(
@@ -242,7 +240,7 @@ Keyword arguments:\n{args}"""
                 indent_num=0,
                 is_flow_type="flowType" in prop and "type" not in prop,
             )
-            for p, prop in list(filter_props(props).items())
+            for p, prop in filter_props(props).items()
         ),
     )
 

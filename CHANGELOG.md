@@ -3,11 +3,15 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
-### Added
-- [#1315](https://github.com/plotly/dash/pull/1315) Add `update_title` parameter to set or disable the "Updating...." document title during updates. Closes [#856](https://github.com/plotly/dash/issues/856) and [#732](https://github.com/plotly/dash/issues/732)
-
 ### Changed
 - [#1180](https://github.com/plotly/dash/pull/1180) `Input`, `Output`, and `State` in callback definitions don't need to be in lists. You still need to provide `Output` items first, then `Input` items, then `State`, and the list form is still supported. In particular, if you want to return a single output item wrapped in a length-1 list, you should still wrap the `Output` in a list. This can be useful for procedurally-generated callbacks.
+
+## [1.14.0] - 2020-07-27
+### Added
+- [#1343](https://github.com/plotly/dash/pull/1343) Add `title` parameter to set the
+document title. This is the recommended alternative to setting app.title or overriding
+the index HTML.
+- [#1315](https://github.com/plotly/dash/pull/1315) Add `update_title` parameter to set or disable the "Updating...." document title during updates. Closes [#856](https://github.com/plotly/dash/issues/856) and [#732](https://github.com/plotly/dash/issues/732)
 
 ## [1.13.4] - 2020-06-25
 ### Fixed

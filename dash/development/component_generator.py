@@ -18,6 +18,8 @@ from ._r_components_generation import generate_exports
 from ._py_components_generation import generate_class_file
 from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
+from ._jl_components_generation import generate_struct_file
+from ._jl_components_generation import generate_module
 
 
 reserved_words = [
@@ -46,6 +48,7 @@ def generate_components(
     rdepends="",
     rimports="",
     rsuggests="",
+    jlprefix=None,
 ):
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
@@ -91,6 +94,10 @@ def generate_components(
 
     generator_methods = [generate_class_file]
 
+    if rprefix is not None or jlprefix is not None:
+        with open("package.json", "r") as f:
+            pkg_data = safe_json_loads(f.read())
+
     if rprefix is not None:
         if not os.path.exists("man"):
             os.makedirs("man")
@@ -101,10 +108,13 @@ def generate_components(
                 rpkg_data = yaml.safe_load(yamldata)
         else:
             rpkg_data = None
-        with open("package.json", "r") as f:
-            pkg_data = safe_json_loads(f.read())
         generator_methods.append(
             functools.partial(write_class_file, prefix=rprefix, rpkg_data=rpkg_data)
+        )
+
+    if jlprefix is not None:
+        generator_methods.append(
+            functools.partial(generate_struct_file, prefix=jlprefix)
         )
 
     components = generate_classes_files(project_shortname, metadata, *generator_methods)
@@ -126,6 +136,9 @@ def generate_components(
             rimports,
             rsuggests,
         )
+
+    if jlprefix is not None:
+        generate_module(project_shortname, components, metadata, pkg_data, jlprefix)
 
 
 def safe_json_loads(s):
@@ -181,6 +194,11 @@ def cli():
         help="Specify a comma-separated list of R packages to be "
         "inserted into the Suggests field of the DESCRIPTION file.",
     )
+    parser.add_argument(
+        "--jl-prefix",
+        help="Specify a prefix for Dash for R component names, write "
+        "components to R dir, create R package.",
+    )
 
     args = parser.parse_args()
     generate_components(
@@ -192,6 +210,7 @@ def cli():
         rdepends=args.r_depends,
         rimports=args.r_imports,
         rsuggests=args.r_suggests,
+        jlprefix=args.jl_prefix,
     )
 
 
@@ -201,9 +220,9 @@ def byteify(input_object):
         return OrderedDict(
             [(byteify(key), byteify(value)) for key, value in input_object.iteritems()]
         )
-    elif isinstance(input_object, list):
+    if isinstance(input_object, list):
         return [byteify(element) for element in input_object]
-    elif isinstance(input_object, unicode):  # noqa:F821
+    if isinstance(input_object, unicode):  # noqa:F821
         return input_object.encode("utf-8")
     return input_object
 
