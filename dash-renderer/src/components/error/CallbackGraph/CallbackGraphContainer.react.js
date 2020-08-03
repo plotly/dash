@@ -82,15 +82,15 @@ function generateElements(graphs, profile) {
     (graphs.callbacks || []).map((callback, i) => {
         const cb = `__dash_callback__.${callback.output}`;
         const cbProfile = profile.callbacks[callback.output] || {};
-        const count = cbProfile.callCount || 0;
-        const time = cbProfile.totalTime || 0;
+        const count = cbProfile.count || 0;
+        const time = cbProfile.total || 0;
 
         elements.push({
             data: {
                 id: cb,
                 label: `callback.${i}`,
                 type: 'callback',
-                lang: callback.clientside_function ? 'javascript' : 'python',
+                mode: callback.clientside_function ? 'client' : 'server',
                 count: count,
                 time: count > 0 ? Math.round(time / count) : 0,
                 loadingSet: Date.now(),
@@ -238,7 +238,7 @@ function CallbackGraph() {
             // callback
             default: {
                 elementName = data.label;
-                elementInfo.language = data.lang;
+                elementInfo.type = data.mode;
 
                 // Remove uid and set profile.
                 const callbackOutputId = data.id.slice(cbPrefixLen);

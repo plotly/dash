@@ -63,18 +63,16 @@ const stylesheet = [
     },
 
     {
-        selector: 'node[type="callback"][lang="javascript"]',
+        selector: 'node[type="callback"][mode="client"]',
         style: {
-            // 'content': 'JS',
             color: '#323330',
             'background-color': '#F0DB4F',
         },
     },
 
     {
-        selector: 'node[type="callback"][lang="python"]',
+        selector: 'node[type="callback"][mode="server"]',
         style: {
-            // 'content': 'PY',
             color: '#323330',
             'background-color': '#00CC96',
         },
