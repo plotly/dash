@@ -420,32 +420,6 @@ class Dash(object):
 
         self.server.before_first_request(self._setup_server)
 
-        def _before_request():
-            flask.g.timing_information = {
-                "__dash_server": {"dur": time.time(), "desc": None}
-            }
-
-        def _after_request(response):
-            dash_total = flask.g.timing_information["__dash_server"]
-            dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
-
-            for name, info in flask.g.timing_information.items():
-
-                value = name
-                if "desc" in info and info["desc"] is not None:
-                    value = value + ';desc="{}"'.format(info["desc"])
-
-                if "dur" in info and info["dur"] is not None:
-                    value = value + ";dur={}".format(info["dur"])
-
-                response.headers.add("Server-Timing", value)
-
-            return response
-
-        self.server.before_request(_before_request)
-
-        self.server.after_request(_after_request)
-
         # add a handler for components suites errors to return 404
         self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
 
@@ -1424,6 +1398,33 @@ class Dash(object):
                         skip = int((i + 1) / 2)
                         break
                 return get_current_traceback(skip=skip).render_full(), 500
+
+        if debug and dev_tools.ui:
+            def _before_request():
+                flask.g.timing_information = {
+                    "__dash_server": {"dur": time.time(), "desc": None}
+                }
+
+            def _after_request(response):
+                dash_total = flask.g.timing_information["__dash_server"]
+                dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+
+                for name, info in flask.g.timing_information.items():
+
+                    value = name
+                    if info.get("desc") is not None:
+                        value += ';desc="{}"'.format(info["desc"])
+
+                    if info.get("dur") is not None:
+                        value += ";dur={}".format(info["dur"])
+
+                    response.headers.add("Server-Timing", value)
+
+                return response
+
+            self.server.before_request(_before_request)
+
+            self.server.after_request(_after_request)
 
         if (
             debug
