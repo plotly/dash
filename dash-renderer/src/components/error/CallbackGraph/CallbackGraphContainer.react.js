@@ -1,7 +1,9 @@
 import React, {Component, useState, useMemo, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {connect, useSelector} from 'react-redux';
+import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
+import Dagre from 'cytoscape-dagre';
 import JSONTree from 'react-json-tree';
 import {keys, omit, path} from 'ramda';
 
@@ -18,16 +20,7 @@ import {
     updateCallback,
 } from './CallbackGraphEffects';
 
-// Set the layout method.
-// NOTE: dagre should be nicer for DAG, but even with manual
-//       cycle pruning, it gives terrible results with State.
-const cyLayout = {
-    name: 'breadthfirst',
-    directed: true,
-    padding: 20,
-    grid: true,
-    spacingFactor: 0.5,
-};
+Cytoscape.use(Dagre);
 
 /*
  * Generates all the elements (nodes, edeges) for the dependency graph.
@@ -144,6 +137,19 @@ function CallbackGraph() {
         );
     };
 
+    function setPresetLayout({cy}) {
+        const positions = {};
+        cy.nodes().each(n => { positions[n.id()] = n.position(); });
+        profile.graphLayout = {
+            name: 'preset',
+            fit: false,
+            positions,
+            zoom: cy.zoom(),
+            pan: cy.pan(),
+        }
+    }
+
+
     // Adds callbacks once cyctoscape is intialized.
     useCytoscapeEffect(
         cy => {
@@ -153,6 +159,9 @@ function CallbackGraph() {
                     setSelected(null);
                 }
             });
+            cytoscape.on('zoom', setPresetLayout);
+            cytoscape.on('pan', setPresetLayout);
+            cytoscape.nodes().on('position', setPresetLayout);
         },
         [cytoscape]
     );
@@ -283,13 +292,23 @@ function CallbackGraph() {
         }
     }
 
+    const {graphLayout} = profile;
+    const cyLayout = graphLayout || {
+        name: 'dagre',
+        padding: 10,
+        spacingFactor: 0.8,
+        // after initial layout, just use this again on later draws
+        // but we'll also save the layout whenever users interact with it
+        ready: setPresetLayout,
+    }
+
     return (
         <div className="dash-callback-dag--container">
             <CytoscapeComponent
                 style={{width: '100%', height: '100%'}}
                 cy={setCytoscape}
                 elements={elements}
-                layout={window.layout || cyLayout}
+                layout={cyLayout}
                 stylesheet={stylesheet}
             />
             {selected ? (
