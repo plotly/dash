@@ -207,7 +207,8 @@ function CallbackGraph() {
                 hasPatterns = true;
                 return undefined;
             }
-            return path(getPath(paths, id), layout);
+            const idPath = getPath(paths, id);
+            return idPath ? path(idPath, layout) : undefined;
         }
 
         function getPropValue(data) {
