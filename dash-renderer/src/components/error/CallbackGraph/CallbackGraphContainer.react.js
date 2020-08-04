@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {connect, useSelector} from 'react-redux';
 import CytoscapeComponent from 'react-cytoscapejs';
 import JSONTree from 'react-json-tree';
-import {omit, path} from 'ramda';
+import {keys, omit, path} from 'ramda';
 
 import {getPath} from '../../../actions/paths';
 import {stringifyId} from '../../../actions/dependencies';
@@ -215,10 +215,19 @@ function CallbackGraph() {
             return parent ? parent.props[data.label] : undefined;
         }
 
-        const reducer = (o, e) => ({
-            ...o,
-            [e.data().id]: getPropValue(e.data()),
-        });
+        function reduceStatus(status) {
+            if (keys(status).length === 2) {
+                return status.latest;
+            }
+            return status;
+        }
+
+        function reduceProps(idProps) {
+            return idProps.reduce((o, e) => ({
+                ...o,
+                [e.data().id]: getPropValue(e.data()),
+            }), {});
+        }
         const data = selected.data();
 
         switch (data.type) {
@@ -237,26 +246,38 @@ function CallbackGraph() {
 
             // callback
             default: {
-                elementName = data.label;
                 elementInfo.type = data.mode;
 
                 // Remove uid and set profile.
                 const callbackOutputId = data.id.slice(cbPrefixLen);
-                if (profile.callbacks.hasOwnProperty(callbackOutputId)) {
-                    elementInfo.profile = omit(
-                        ['uid'],
-                        profile.callbacks[callbackOutputId]
-                    );
+                elementName = callbackOutputId.replace(/(^\.\.|\.\.$)/g, '');
+                const cbProfile = profile.callbacks[callbackOutputId];
+                if (cbProfile) {
+                    const {count, status, network, resources, total, compute} = cbProfile;
+                    elementInfo['call count'] = count;
+                    elementInfo.status = reduceStatus(status);
+                    const timing = elementInfo['timing (total milliseconds)'] = {
+                        total,
+                        compute,
+                    };
+                    if (data.mode === 'server') {
+                        timing.network = network.time;
+                        elementInfo['data transfer (total bytes)'] = {
+                            download: network.download,
+                            upload: network.upload,
+                        }
+                    }
+                    for (const key in resources) {
+                        timing['user: ' + key] = resources[key];
+                    }
                 } else {
-                    elementInfo.profile = {};
+                    elementInfo.callCount = 0;
                 }
 
                 const edges = getEdgeTypes(selected);
-                elementInfo.inputs = edges.input.sources().reduce(reducer, {});
-                elementInfo.states = edges.state.sources().reduce(reducer, {});
-                elementInfo.outputs = edges.output
-                    .targets()
-                    .reduce(reducer, {});
+                elementInfo.outputs = reduceProps(edges.output.targets());
+                elementInfo.inputs = reduceProps(edges.input.sources());
+                elementInfo.states = reduceProps(edges.state.sources());
             }
         }
     }
@@ -287,7 +308,7 @@ function CallbackGraph() {
                         getItemString={(type, data, itemType) => (
                             <span>{itemType}</span>
                         )}
-                        shouldExpandNode={(keyName, data, level) => level <= 1}
+                        shouldExpandNode={(keyName, data, level) => level < 1}
                     />
                 </div>
             ) : null}

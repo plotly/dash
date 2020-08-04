@@ -1,4 +1,4 @@
-import {STATUS} from '../../../constants/constants';
+import {STATUS, STATUSMAP} from '../../../constants/constants';
 
 /**
  * getEdgeTypes
@@ -119,15 +119,16 @@ export function updateChangedProps(cy, id, props, flashTime = 500) {
  */
 export function updateCallback(cy, id, profile, flashTime = 500) {
     const node = cy.getElementById(`__dash_callback__.${id}`);
-    const {callCount, totalTime, status} = profile;
+    const {count, total, status} = profile;
+    const {latest} = status;
 
     // Update data.
-    const avgTime = callCount > 0 ? totalTime / callCount : 0;
-    node.data('count', callCount);
+    const avgTime = count > 0 ? total / count : 0;
+    node.data('count', count);
     node.data('time', Math.round(avgTime));
 
     // Either flash the classes OR maintain it for long callbacks.
-    if (status.current === 'loading') {
+    if (latest === 'loading') {
         node.data('loadingSet', Date.now());
         node.addClass('callback-loading');
     } else if (node.hasClass('callback-loading')) {
@@ -139,9 +140,9 @@ export function updateCallback(cy, id, profile, flashTime = 500) {
     }
 
     if (
-        status.current !== 'loading' &&
-        status.current !== STATUS.OK &&
-        status.current !== STATUS.PREVENT_UPDATE
+        latest !== 'loading' &&
+        latest !== STATUSMAP[STATUS.OK] &&
+        latest !== STATUSMAP[STATUS.PREVENT_UPDATE]
     ) {
         node.data('errorSet', Date.now());
         node.addClass('callback-error');
@@ -155,7 +156,7 @@ export function updateCallback(cy, id, profile, flashTime = 500) {
 
     // FIXME: This will flash branches that return no_update!!
     // If the callback resolved properly, flash the outputs.
-    if (status.current === STATUS.OK) {
+    if (latest === STATUSMAP[STATUS.OK]) {
         node.edgesTo('*').flashClass('triggered', flashTime);
     }
 }

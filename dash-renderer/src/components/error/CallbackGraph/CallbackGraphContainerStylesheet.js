@@ -11,7 +11,6 @@ const stylesheet = [
         selector: 'edge',
         style: {
             width: 2,
-            label: 'data(label)',
             'line-color': '#888888',
             'target-arrow-color': '#888888',
             'target-arrow-shape': 'triangle',
@@ -22,6 +21,14 @@ const stylesheet = [
             'transition-property': 'line-color, target-arrow-color',
             'transition-duration': '0.25s',
             'transition-timing-function': 'ease-in-out-sine',
+        },
+    },
+
+    {
+        selector: 'edge[type="output"]',
+        style: {
+            'line-color': '#0080D0',
+            'target-arrow-color': '#0080D0',
         },
     },
 
@@ -52,11 +59,10 @@ const stylesheet = [
     {
         selector: 'node[type="callback"]',
         style: {
-            width: 20,
-            height: 20,
-            shape: 'ellipse',
+            width: 35,
+            height: 25,
+            shape: 'round-rectangle',
             label: e => `${e.data().count}\n${e.data().time} ms`,
-            'font-size': 8,
             'text-wrap': 'wrap',
             'text-justification': 'center',
         },
@@ -82,23 +88,11 @@ const stylesheet = [
         selector: 'node[type="component"], node[type="wildcard"]',
         style: {
             width: 'label',
-            height: 'label',
+            // height: 'label',
             shape: 'rectangle',
-            content: 'data(label)',
+            content: e => e.data().label.replace(/\"/g, ''),
             'text-valign': 'top',
             'background-color': '#B9C2CE',
-        },
-    },
-
-    {
-        selector: 'node[type="wildcard"]',
-        style: {
-            shape: 'rectangle',
-            label: 'data(label)',
-            'text-valign': 'center',
-            'text-halign': 'right',
-            'text-wrap': 'wrap',
-            'text-justification': 'left',
         },
     },
 

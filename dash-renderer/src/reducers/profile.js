@@ -1,6 +1,6 @@
 import {clone} from 'ramda';
 
-import {STATUS} from '../constants/constants';
+import {STATUSMAP} from '../constants/constants';
 
 const defaultProfile = {
     count: 0,
@@ -17,11 +17,6 @@ const defaultProfile = {
     },
 };
 
-const statusMap = {
-    [STATUS.OK]: 'SUCCESS',
-    [STATUS.PREVENT_UPDATE]: 'NO_UPDATE',
-};
-
 const defaultState = {
     updated: [],
     resources: {},
@@ -34,7 +29,7 @@ const profile = (state = defaultState, action) => {
         // is subtly different from history.present becasue
         // it watches all props, not just inputs.
         const {id, usage, status} = action.payload;
-        const statusMapped = statusMap[status] || status;
+        const statusMapped = STATUSMAP[status] || status;
 
         // Keep track of the callback that actually changed.
         const newState = {

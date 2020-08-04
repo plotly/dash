@@ -7,3 +7,8 @@ export const STATUS = {
     CLIENTSIDE_ERROR: 'CLIENTSIDE_ERROR',
     NO_RESPONSE: 'NO_RESPONSE',
 };
+
+export const STATUSMAP = {
+    [STATUS.OK]: 'SUCCESS',
+    [STATUS.PREVENT_UPDATE]: 'NO_UPDATE',
+};
