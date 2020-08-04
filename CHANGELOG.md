@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+### Added
+- [#1355](https://github.com/plotly/dash/pull/1355) Removed redundant log message and consolidated logger initialization. You can now control the log level - for example suppress informational messages from Dash with `app.logger.setLevel(logging.WARNING)`.
+
 ## [1.14.0] - 2020-07-27
 ### Added
 - [#1343](https://github.com/plotly/dash/pull/1343) Add `title` parameter to set the

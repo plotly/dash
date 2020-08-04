@@ -385,6 +385,8 @@ class Dash(object):
         if self.server is not None:
             self.init_app()
 
+        self.logger.setLevel(logging.INFO)
+
     def init_app(self, app=None):
         """Initialize the parts of Dash that require a flask app."""
         config = self.config
@@ -1351,8 +1353,6 @@ class Dash(object):
         if dev_tools.silence_routes_logging:
             logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
-        self.logger.setLevel(logging.INFO)
-
         if dev_tools.hot_reload:
             _reload = self._hot_reload
             _reload.hash = generate_hash()
@@ -1624,11 +1624,5 @@ class Dash(object):
                 display_url = (protocol, host, ":{}".format(port), path)
 
             self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
-            self.logger.info(
-                " Warning: This is a development server. Do not use app.run_server"
-            )
-            self.logger.info(
-                " in production, use a production WSGI server like gunicorn instead.\n"
-            )
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
