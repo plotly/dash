@@ -139,16 +139,17 @@ function CallbackGraph() {
 
     function setPresetLayout({cy}) {
         const positions = {};
-        cy.nodes().each(n => { positions[n.id()] = n.position(); });
+        cy.nodes().each(n => {
+            positions[n.id()] = n.position();
+        });
         profile.graphLayout = {
             name: 'preset',
             fit: false,
             positions,
             zoom: cy.zoom(),
             pan: cy.pan(),
-        }
+        };
     }
-
 
     // Adds callbacks once cyctoscape is intialized.
     useCytoscapeEffect(
@@ -233,10 +234,13 @@ function CallbackGraph() {
         }
 
         function reduceProps(idProps) {
-            return idProps.reduce((o, e) => ({
-                ...o,
-                [e.data().id]: getPropValue(e.data()),
-            }), {});
+            return idProps.reduce(
+                (o, e) => ({
+                    ...o,
+                    [e.data().id]: getPropValue(e.data()),
+                }),
+                {}
+            );
         }
         const data = selected.data();
 
@@ -263,19 +267,28 @@ function CallbackGraph() {
                 elementName = callbackOutputId.replace(/(^\.\.|\.\.$)/g, '');
                 const cbProfile = profile.callbacks[callbackOutputId];
                 if (cbProfile) {
-                    const {count, status, network, resources, total, compute} = cbProfile;
-                    elementInfo['call count'] = count;
-                    elementInfo.status = reduceStatus(status);
-                    const timing = elementInfo['timing (total milliseconds)'] = {
+                    const {
+                        count,
+                        status,
+                        network,
+                        resources,
                         total,
                         compute,
-                    };
+                    } = cbProfile;
+                    elementInfo['call count'] = count;
+                    elementInfo.status = reduceStatus(status);
+                    const timing = (elementInfo[
+                        'timing (total milliseconds)'
+                    ] = {
+                        total,
+                        compute,
+                    });
                     if (data.mode === 'server') {
                         timing.network = network.time;
                         elementInfo['data transfer (total bytes)'] = {
                             download: network.download,
                             upload: network.upload,
-                        }
+                        };
                     }
                     for (const key in resources) {
                         timing['user: ' + key] = resources[key];
@@ -300,7 +313,7 @@ function CallbackGraph() {
         // after initial layout, just use this again on later draws
         // but we'll also save the layout whenever users interact with it
         ready: setPresetLayout,
-    }
+    };
 
     return (
         <div className="dash-callback-dag--container">
