@@ -1,4 +1,5 @@
 import os
+import logging
 
 import pytest
 from flask import Flask
@@ -256,15 +257,25 @@ def test_port_env_fail_range(empty_environ):
     )
 
 
-def test_no_proxy_success(mocker, caplog, empty_environ):
+@pytest.mark.parametrize(
+    "setlevel_warning", [False, True],
+)
+def test_no_proxy_success(mocker, caplog, empty_environ, setlevel_warning):
     app = Dash()
+
+    if setlevel_warning:
+        app.logger.setLevel(logging.WARNING)
 
     # mock out the run method so we don't actually start listening forever
     mocker.patch.object(app.server, "run")
 
     app.run_server(port=8787)
 
-    assert "Dash is running on http://127.0.0.1:8787/\n" in caplog.text
+    STARTUP_MESSAGE = "Dash is running on http://127.0.0.1:8787/\n"
+    if setlevel_warning:
+        assert caplog.text is None or STARTUP_MESSAGE not in caplog.text
+    else:
+        assert STARTUP_MESSAGE in caplog.text
 
 
 @pytest.mark.parametrize(
