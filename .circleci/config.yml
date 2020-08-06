@@ -244,7 +244,7 @@ jobs:
       - run:
           name: 🔧fix up dash metadata
           command: |
-              sudo Rscript -e 'dash_desc <- read.dcf("dashR/DESCRIPTION"); dt_version <- read.dcf("dash-table/DESCRIPTION")[,"Version"]; dcc_version <- read.dcf("dash-core-components/DESCRIPTION")[,"Version"]; dhc_version <- read.dcf("dash-html-components/DESCRIPTION")[,"Version"]; imports <- dash_desc[,"Imports"][[1]]; imports <- gsub("((?<=dashHtmlComponents )(\\\\(.*?\\\\)))", paste0("(= ", dhc_version, ")"), imports, perl = TRUE); imports <- gsub("((?<=dashCoreComponents )(\\\\(.*?\\\\)))", paste0("(= ", dcc_version, ")"), imports, perl = TRUE); imports <- gsub("((?<=dashTable )(\\\\(.*?\\\\)))", paste0("(= ", dt_version, ")"), imports, perl = TRUE); dash_desc[,"Imports"][[1]] <- imports; dhc_hash <- system("cd dash-html-components; git rev-parse HEAD | tr -d '\''\n'\''", intern=TRUE); dcc_hash <- system("cd dash-core-components; git rev-parse HEAD | tr -d '\''\n'\''", intern=TRUE); dt_hash <- system("cd dash-table; git rev-parse HEAD | tr -d '\''\n'\''", intern=TRUE); remotes <- dash_desc[,"Remotes"][[1]];  remotes <- gsub("((?<=plotly\\\\/dash-html-components@)([a-zA-Z0-9]+))", dhc_hash, remotes, perl=TRUE); remotes <- gsub("((?<=plotly\\\\/dash-core-components@)([a-zA-Z0-9]+))", dcc_hash, remotes, perl=TRUE); remotes <- gsub("((?<=plotly\\\\/dash-table@)([a-zA-Z0-9]+))", dt_hash, remotes, perl=TRUE); dash_desc[,"Remotes"][[1]] <- remotes; write.dcf(dash_desc, "dashR/DESCRIPTION")'
+            sudo Rscript dashR/tests/circleci/fixup_metadata.R
 
       - run:
           name: 🎛 set environment variables
@@ -287,7 +287,7 @@ jobs:
             Rscript -e "message(devtools::check_failures(path = '${DCC_CHECK_DIR}'))"
             Rscript -e "message(devtools::check_failures(path = '${DT_CHECK_DIR}'))"
             Rscript -e "message(devtools::check_failures(path = '${DASH_CHECK_DIR}'))"
-            # warnings are errors; enable for stricter checks once CRAN submission finished
+            # warnings are errors; enabled for stricter CRAN checks, disable if noisy
             # if grep -q -R "WARNING" "${DHC_CHECK_DIR}/00check.log"; then exit 1; fi
             # if grep -q -R "WARNING" "${DCC_CHECK_DIR}/00check.log"; then exit 1; fi
             # if grep -q -R "WARNING" "${DT_CHECK_DIR}/00check.log"; then exit 1; fi
@@ -296,6 +296,8 @@ jobs:
       - run:
           name: 🔎 run unit tests
           command: |
+              # unfortunately testthat does not and will not support returning a status
+              # code other than success, even when tests fail -- this is a workaround
               sudo Rscript -e 'res=devtools::test("dashR/tests/", reporter=default_reporter());df=as.data.frame(res);if(sum(df$failed) > 0 || any(df$error)) {q(status=1)}'
 
       - run:
