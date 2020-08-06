@@ -201,6 +201,7 @@ const zipIfArray = (a: any, b: any) =>
 function handleClientside(
     dispatch: any,
     clientside_function: any,
+    config: any,
     payload: ICallbackPayload
 ) {
     const dc = ((window as any).dash_clientside =
@@ -220,7 +221,9 @@ function handleClientside(
     const {inputs, outputs, state} = payload;
     const requestTime = Date.now();
 
-    let returnValue;
+    const inputDict = inputsToDict(inputs);
+    const stateDict = inputsToDict(state);
+    const result: any = {};
     let status: any = STATUS.OK;
 
     try {
@@ -231,25 +234,43 @@ function handleClientside(
         }
 
         // setup callback context
-        const input_dict = inputsToDict(inputs);
         dc.callback_context = {};
         dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
             prop_id: prop_id,
-            value: input_dict[prop_id],
+            value: inputDict[prop_id],
         }));
         dc.callback_context.inputs_list = inputs;
-        dc.callback_context.inputs = input_dict;
+        dc.callback_context.inputs = inputDict;
         dc.callback_context.states_list = state;
-        dc.callback_context.states = inputsToDict(state);
+        dc.callback_context.states = stateDict;
 
-        returnValue = dc[namespace][function_name](...args);
+        const returnValue = dc[namespace][function_name](...args);
+
+        if (typeof returnValue?.then === 'function') {
+            throw new Error(
+                'The clientside function returned a Promise. ' +
+                    'Promises are not supported in Dash clientside ' +
+                    'right now, but may be in the future.'
+            );
+        }
+
+        zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
+            zipIfArray(outi, reti).forEach(([outij, retij]) => {
+                const {id, property} = outij;
+                const idStr = stringifyId(id);
+                const dataForId = (result[idStr] = result[idStr] || {});
+                if (retij !== dc.no_update) {
+                    dataForId[property] = retij;
+                }
+            });
+        });
     } catch (e) {
         if (e === dc.PreventUpdate) {
             status = STATUS.PREVENT_UPDATE;
-            return {};
+        } else {
+            status = STATUS.CLIENTSIDE_ERROR;
+            throw e;
         }
-        status = STATUS.CLIENTSIDE_ERROR;
-        throw e;
     } finally {
         delete dc.callback_context;
 
@@ -262,35 +283,21 @@ function handleClientside(
             __dash_download: 0,
         };
 
-        dispatch(
-            updateResourceUsage({
-                id: payload.output,
-                usage: resources,
-                status,
-            })
-        );
+        if (config.ui) {
+            dispatch(
+                updateResourceUsage({
+                    id: payload.output,
+                    usage: resources,
+                    status,
+                    result,
+                    inputs,
+                    state,
+                })
+            );
+        }
     }
 
-    if (typeof returnValue?.then === 'function') {
-        throw new Error(
-            'The clientside function returned a Promise. ' +
-                'Promises are not supported in Dash clientside ' +
-                'right now, but may be in the future.'
-        );
-    }
-
-    const data: any = {};
-    zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
-        zipIfArray(outi, reti).forEach(([outij, retij]) => {
-            const {id, property} = outij;
-            const idStr = stringifyId(id);
-            const dataForId = (data[idStr] = data[idStr] || {});
-            if (retij !== dc.no_update) {
-                dataForId[property] = retij;
-            }
-        });
-    });
-    return data;
+    return result;
 }
 
 function handleServerside(
@@ -317,33 +324,41 @@ function handleServerside(
         (res: any) => {
             const {status} = res;
 
-            if (config.ui) {
-                // Callback profiling - only relevant if we're showing the debug ui
-                const resources = {
-                    __dash_server: 0,
-                    __dash_client: Date.now() - requestTime,
-                    __dash_upload: body.length,
-                    __dash_download: Number(res.headers.get('Content-Length')),
-                } as any;
+            function recordProfile(result: any) {
+                if (config.ui) {
+                    // Callback profiling - only relevant if we're showing the debug ui
+                    const resources = {
+                        __dash_server: 0,
+                        __dash_client: Date.now() - requestTime,
+                        __dash_upload: body.length,
+                        __dash_download: Number(
+                            res.headers.get('Content-Length')
+                        ),
+                    } as any;
 
-                const timingHeaders = res.headers.get('Server-Timing') || '';
+                    const timingHeaders =
+                        res.headers.get('Server-Timing') || '';
 
-                timingHeaders.split(',').forEach((header: any) => {
-                    const name = header.split(';')[0];
-                    const dur = header.match(/;dur=[0-9\.]+/);
+                    timingHeaders.split(',').forEach((header: any) => {
+                        const name = header.split(';')[0];
+                        const dur = header.match(/;dur=[0-9\.]+/);
 
-                    if (dur) {
-                        resources[name] = Number(dur[0].slice(5));
-                    }
-                });
+                        if (dur) {
+                            resources[name] = Number(dur[0].slice(5));
+                        }
+                    });
 
-                dispatch(
-                    updateResourceUsage({
-                        id: payload.output,
-                        usage: resources,
-                        status,
-                    })
-                );
+                    dispatch(
+                        updateResourceUsage({
+                            id: payload.output,
+                            usage: resources,
+                            status,
+                            result,
+                            inputs: payload.inputs,
+                            state: payload.state,
+                        })
+                    );
+                }
             }
 
             if (status === STATUS.OK) {
@@ -353,16 +368,21 @@ function handleServerside(
                         hooks.request_post(payload, response);
                     }
 
+                    let result;
                     if (multi) {
-                        return response;
+                        result = response;
+                    } else {
+                        const {output} = payload;
+                        const id = output.substr(0, output.lastIndexOf('.'));
+                        result = {[id]: response.props};
                     }
 
-                    const {output} = payload;
-                    const id = output.substr(0, output.lastIndexOf('.'));
-                    return {[id]: response.props};
+                    recordProfile(result);
+                    return result;
                 });
             }
             if (status === STATUS.PREVENT_UPDATE) {
+                recordProfile({});
                 return {};
             }
             throw res;
@@ -376,6 +396,9 @@ function handleServerside(
                     updateResourceUsage({
                         id: payload.output,
                         status: STATUS.NO_RESPONSE,
+                        result: {},
+                        inputs: payload.inputs,
+                        state: payload.state,
                     })
                 );
             }
@@ -483,6 +506,7 @@ export function executeCallback(
                             data: handleClientside(
                                 dispatch,
                                 clientside_function,
+                                config,
                                 payload
                             ),
                             payload,

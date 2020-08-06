@@ -14,7 +14,6 @@ import {onError} from '../../../actions';
 import './CallbackGraphContainer.css';
 import stylesheet from './CallbackGraphContainerStylesheet';
 import {
-    getEdgeTypes,
     updateSelectedNode,
     updateChangedProps,
     updateCallback,
@@ -108,6 +107,35 @@ function generateElements(graphs, profile) {
     });
 
     return elements;
+}
+
+function reduceStatus(status) {
+    if (keys(status).length === 2) {
+        return status.latest;
+    }
+    return status;
+}
+
+function flattenOutputs(res) {
+    const outputs = {};
+    for (const idStr in res) {
+        for (const prop in res[idStr]) {
+            outputs[idStr + '.' + prop] = res[idStr][prop];
+        }
+    }
+    return outputs;
+}
+
+function flattenInputs(inArray, final) {
+    (inArray || []).forEach(inItem => {
+        if (Array.isArray(inItem)) {
+            flattenInputs(inItem, final);
+        } else {
+            const {id, property, value} = inItem;
+            final[stringifyId(id) + '.' + property] = value;
+        }
+    });
+    return final;
 }
 
 // len('__dash_callback__.')
@@ -226,22 +254,6 @@ function CallbackGraph() {
             return parent ? parent.props[data.label] : undefined;
         }
 
-        function reduceStatus(status) {
-            if (keys(status).length === 2) {
-                return status.latest;
-            }
-            return status;
-        }
-
-        function reduceProps(idProps) {
-            return idProps.reduce(
-                (o, e) => ({
-                    ...o,
-                    [e.data().id]: getPropValue(e.data()),
-                }),
-                {}
-            );
-        }
         const data = selected.data();
 
         switch (data.type) {
@@ -274,6 +286,9 @@ function CallbackGraph() {
                         resources,
                         total,
                         compute,
+                        result,
+                        inputs,
+                        state,
                     } = cbProfile;
                     elementInfo['call count'] = count;
                     elementInfo.status = reduceStatus(status);
@@ -293,14 +308,13 @@ function CallbackGraph() {
                     for (const key in resources) {
                         timing['user: ' + key] = resources[key];
                     }
+
+                    elementInfo.outputs = flattenOutputs(result);
+                    elementInfo.inputs = flattenInputs(inputs, {});
+                    elementInfo.state = flattenInputs(state, {});
                 } else {
                     elementInfo.callCount = 0;
                 }
-
-                const edges = getEdgeTypes(selected);
-                elementInfo.outputs = reduceProps(edges.output.targets());
-                elementInfo.inputs = reduceProps(edges.input.sources());
-                elementInfo.states = reduceProps(edges.state.sources());
             }
         }
     }

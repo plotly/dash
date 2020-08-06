@@ -15,6 +15,7 @@ const defaultProfile = {
     status: {
         latest: null,
     },
+    result: {},
 };
 
 const defaultState = {
@@ -45,10 +46,13 @@ const profile = (state = defaultState, action) => {
         const cbResources = cb.resources;
         const totalResources = newState.resources;
 
-        // Update resource usage.
+        // Update resource usage & params.
         cb.count += 1;
         cb.status.latest = statusMapped;
         cb.status[statusMapped] = (cb.status[statusMapped] || 0) + 1;
+        cb.result = action.payload.result;
+        cb.inputs = action.payload.inputs;
+        cb.state = action.payload.state;
 
         if (usage) {
             const {

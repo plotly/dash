@@ -8,7 +8,7 @@ import {STATUS, STATUSMAP} from '../../../constants/constants';
  * @param {Object} node - Cytoscape node.
  * @returns {Object} - Object contaiing the edges, sorted by type.
  */
-export function getEdgeTypes(node) {
+function getEdgeTypes(node) {
     const elements = node.connectedEdges();
     return {
         input: elements.filter('[type = "input"]'),
