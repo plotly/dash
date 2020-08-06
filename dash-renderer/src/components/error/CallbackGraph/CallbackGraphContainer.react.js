@@ -290,30 +290,33 @@ function CallbackGraph() {
                         inputs,
                         state,
                     } = cbProfile;
+
+                    const avg = v => Math.round(v / (count || 1));
+
                     elementInfo['call count'] = count;
                     elementInfo.status = reduceStatus(status);
-                    const timing = (elementInfo[
-                        'timing (total milliseconds)'
-                    ] = {
-                        total,
-                        compute,
+
+                    const timing = (elementInfo['time (avg milliseconds)'] = {
+                        total: avg(total),
+                        compute: avg(compute),
                     });
                     if (data.mode === 'server') {
-                        timing.network = network.time;
-                        elementInfo['data transfer (total bytes)'] = {
-                            download: network.download,
-                            upload: network.upload,
+                        timing.network = avg(network.time);
+
+                        elementInfo['data transfer (avg bytes)'] = {
+                            download: avg(network.download),
+                            upload: avg(network.upload),
                         };
                     }
                     for (const key in resources) {
-                        timing['user: ' + key] = resources[key];
+                        timing['user: ' + key] = avg(resources[key]);
                     }
 
                     elementInfo.outputs = flattenOutputs(result);
                     elementInfo.inputs = flattenInputs(inputs, {});
                     elementInfo.state = flattenInputs(state, {});
                 } else {
-                    elementInfo.callCount = 0;
+                    elementInfo['call count'] = 0;
                 }
             }
         }
