@@ -11,7 +11,7 @@ class GlobalErrorContainer extends Component {
 }
 
 GlobalErrorContainer.propTypes = {
-    children: PropTypes.object,
+    children: PropTypes.object
 };
 
 export default GlobalErrorContainer;

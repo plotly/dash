@@ -22,12 +22,12 @@ export const dispatchError = dispatch => (message, lines) =>
     dispatch(
         onError({
             type: 'backEnd',
-            error: {message, html: lines.join('\n')},
+            error: {message, html: lines.join('\n')}
         })
     );
 
 export function hydrateInitialOutputs() {
-    return function(dispatch, getState) {
+    return function (dispatch, getState) {
         validateCallbacksToLayout(getState(), dispatchError(dispatch));
         triggerDefaultState(dispatch, getState);
         dispatch(setAppLifecycle(getAppState('HYDRATED')));
@@ -40,7 +40,7 @@ const logWarningOnce = once(console.warn);
 export function getCSRFHeader() {
     try {
         return {
-            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
         };
     } catch (e) {
         logWarningOnce(e);
@@ -60,8 +60,8 @@ function triggerDefaultState(dispatch, getState) {
                 type: 'backEnd',
                 error: {
                     message: 'Circular Dependencies',
-                    html: err.toString(),
-                },
+                    html: err.toString()
+                }
             })
         );
     }
@@ -69,7 +69,7 @@ function triggerDefaultState(dispatch, getState) {
     dispatch(
         addRequestedCallbacks(
             getLayoutCallbacks(graphs, paths, layout, {
-                outputsOnly: true,
+                outputsOnly: true
             })
         )
     );
@@ -80,7 +80,7 @@ export const undo = moveHistory('UNDO');
 export const revert = moveHistory('REVERT');
 
 function moveHistory(changeType) {
-    return function(dispatch, getState) {
+    return function (dispatch, getState) {
         const {history, paths} = getState();
         dispatch(createAction(changeType)());
         const {id, props} =
@@ -92,7 +92,7 @@ function moveHistory(changeType) {
             dispatch(
                 createAction('UNDO_PROP_CHANGE')({
                     itempath: getPath(paths, id),
-                    props,
+                    props
                 })
             );
 
@@ -102,7 +102,7 @@ function moveHistory(changeType) {
 }
 
 export function notifyObservers({id, props}) {
-    return async function(dispatch, getState) {
+    return async function (dispatch, getState) {
         const {graphs, paths} = getState();
         dispatch(
             addRequestedCallbacks(includeObservers(id, props, graphs, paths))

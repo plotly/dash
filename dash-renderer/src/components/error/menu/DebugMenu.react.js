@@ -48,7 +48,7 @@ class DebugMenu extends Component {
         this.state = {
             opened: false,
             callbackGraphOpened: false,
-            errorsOpened: true,
+            errorsOpened: true
         };
     }
     render() {
@@ -83,7 +83,7 @@ class DebugMenu extends Component {
                     'callbacks',
                     () => {
                         this.setState({
-                            callbackGraphOpened: !callbackGraphOpened,
+                            callbackGraphOpened: !callbackGraphOpened
                         });
                     },
                     GraphIcon,
@@ -161,7 +161,7 @@ DebugMenu.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
     graphs: PropTypes.object,
-    hotReload: PropTypes.bool,
+    hotReload: PropTypes.bool
 };
 
 export {DebugMenu};

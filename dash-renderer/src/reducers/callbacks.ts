@@ -1,8 +1,4 @@
-import {
-    concat,
-    difference,
-    reduce
-} from 'ramda';
+import {concat, difference, reduce} from 'ramda';
 
 import {
     ICallback,
@@ -37,8 +33,8 @@ export enum CallbackAggregateActionType {
 }
 
 export interface IAggregateAction {
-    type: CallbackAggregateActionType.Aggregate,
-    payload: (ICallbackAction | ICompletedAction | null)[]
+    type: CallbackAggregateActionType.Aggregate;
+    payload: (ICallbackAction | ICompletedAction | null)[];
 }
 
 export interface ICallbackAction {
@@ -47,14 +43,11 @@ export interface ICallbackAction {
 }
 
 export interface ICompletedAction {
-    type: CallbackAggregateActionType.AddCompleted,
-    payload: number
+    type: CallbackAggregateActionType.AddCompleted;
+    payload: number;
 }
 
-type CallbackAction =
-    IAggregateAction |
-    ICallbackAction |
-    ICompletedAction;
+type CallbackAction = IAggregateAction | ICallbackAction | ICompletedAction;
 
 export interface ICallbacksState {
     requested: ICallback[];
@@ -79,7 +72,7 @@ const DEFAULT_STATE: ICallbacksState = {
 };
 
 const transforms: {
-    [key: string]: (a1: ICallback[], a2: ICallback[]) => ICallback[]
+    [key: string]: (a1: ICallback[], a2: ICallback[]) => ICallback[];
 } = {
     [CallbackActionType.AddBlocked]: concat,
     [CallbackActionType.AddExecuted]: concat,
@@ -98,7 +91,7 @@ const transforms: {
 };
 
 const fields: {
-    [key: string]: keyof Omit<ICallbacksState, 'completed'>
+    [key: string]: keyof Omit<ICallbacksState, 'completed'>;
 } = {
     [CallbackActionType.AddBlocked]: 'blocked',
     [CallbackActionType.AddExecuted]: 'executed',
@@ -114,41 +107,41 @@ const fields: {
     [CallbackActionType.RemoveRequested]: 'requested',
     [CallbackActionType.RemoveStored]: 'stored',
     [CallbackActionType.RemoveWatched]: 'watched'
-}
+};
 
-const mutateCompleted = (
-    state: ICallbacksState,
-    action: ICompletedAction
-) => ({ ...state, completed: state.completed + action.payload });
+const mutateCompleted = (state: ICallbacksState, action: ICompletedAction) => ({
+    ...state,
+    completed: state.completed + action.payload
+});
 
-const mutateCallbacks = (
-    state: ICallbacksState,
-    action: ICallbackAction
-) => {
+const mutateCallbacks = (state: ICallbacksState, action: ICallbackAction) => {
     const transform = transforms[action.type];
     const field = fields[action.type];
 
-    return (!transform || !field || action.payload.length === 0) ?
-        state : {
-            ...state,
-            [field]: transform(state[field], action.payload)
-        };
-}
-
-
+    return !transform || !field || action.payload.length === 0
+        ? state
+        : {
+              ...state,
+              [field]: transform(state[field], action.payload)
+          };
+};
 
 export default (
     state: ICallbacksState = DEFAULT_STATE,
     action: CallbackAction
-) => reduce((s, a) => {
-    if (a === null) {
-        return s;
-    } else if (a.type === CallbackAggregateActionType.AddCompleted) {
-        return mutateCompleted(s, a);
-    } else {
-        return mutateCallbacks(s, a);
-    }
-}, state, action.type === CallbackAggregateActionType.Aggregate ?
-    action.payload :
-    [action]
-);
+) =>
+    reduce(
+        (s, a) => {
+            if (a === null) {
+                return s;
+            } else if (a.type === CallbackAggregateActionType.AddCompleted) {
+                return mutateCompleted(s, a);
+            } else {
+                return mutateCallbacks(s, a);
+            }
+        },
+        state,
+        action.type === CallbackAggregateActionType.Aggregate
+            ? action.payload
+            : [action]
+    );

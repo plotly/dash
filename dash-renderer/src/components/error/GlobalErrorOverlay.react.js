@@ -41,5 +41,5 @@ GlobalErrorOverlay.propTypes = {
     children: PropTypes.object,
     visible: PropTypes.bool,
     error: PropTypes.object,
-    errorsOpened: PropTypes.any,
+    errorsOpened: PropTypes.any
 };

@@ -13,7 +13,7 @@ import {
     values
 } from 'ramda';
 
-import { IStoreState } from '../store';
+import {IStoreState} from '../store';
 
 import {
     aggregateCallbacks,
@@ -29,7 +29,7 @@ import {
     addBlockedCallbacks
 } from '../actions/callbacks';
 
-import { isMultiValued } from '../actions/dependencies';
+import {isMultiValued} from '../actions/dependencies';
 
 import {
     combineIdAndProp,
@@ -45,16 +45,19 @@ import {
     IBlockedCallback
 } from '../types/callbacks';
 
-import { getPendingCallbacks } from '../utils/callbacks';
-import { IStoreObserverDefinition } from '../StoreObserver';
+import {getPendingCallbacks} from '../utils/callbacks';
+import {IStoreObserverDefinition} from '../StoreObserver';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
-    observer: ({
-        dispatch,
-        getState
-    }) => {
-        const { callbacks, callbacks: { prioritized, blocked, executing, watched, stored }, paths } = getState();
-        let { callbacks: { requested } } = getState();
+    observer: ({dispatch, getState}) => {
+        const {
+            callbacks,
+            callbacks: {prioritized, blocked, executing, watched, stored},
+            paths
+        } = getState();
+        let {
+            callbacks: {requested}
+        } = getState();
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
@@ -82,15 +85,12 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             Extract all but the first callback from each IOS-key group
             these callbacks are duplicates.
         */
-        const rDuplicates = flatten(map(
-            group => group.slice(0, -1),
-            values(
-                groupBy<ICallback>(
-                    getUniqueIdentifier,
-                    requested
-                )
+        const rDuplicates = flatten(
+            map(
+                group => group.slice(0, -1),
+                values(groupBy<ICallback>(getUniqueIdentifier, requested))
             )
-        ));
+        );
 
         /*
             TODO?
@@ -107,73 +107,94 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             Extract all but the first callback from each IOS-key group
             these callbacks are `prioritized` and duplicates.
         */
-        const pDuplicates = flatten(map(
-            group => group.slice(0, -1),
-            values(
-                groupBy<ICallback>(
-                    getUniqueIdentifier,
-                    concat(prioritized, requested)
+        const pDuplicates = flatten(
+            map(
+                group => group.slice(0, -1),
+                values(
+                    groupBy<ICallback>(
+                        getUniqueIdentifier,
+                        concat(prioritized, requested)
+                    )
                 )
             )
-        ));
+        );
 
-        const bDuplicates = flatten(map(
-            group => group.slice(0, -1),
-            values(
-                groupBy<ICallback>(
-                    getUniqueIdentifier,
-                    concat(blocked, requested)
+        const bDuplicates = flatten(
+            map(
+                group => group.slice(0, -1),
+                values(
+                    groupBy<ICallback>(
+                        getUniqueIdentifier,
+                        concat(blocked, requested)
+                    )
                 )
             )
-        )) as IBlockedCallback[];
+        ) as IBlockedCallback[];
 
-        const eDuplicates = flatten(map(
-            group => group.slice(0, -1),
-            values(
-                groupBy<ICallback>(
-                    getUniqueIdentifier,
-                    concat(executing, requested)
+        const eDuplicates = flatten(
+            map(
+                group => group.slice(0, -1),
+                values(
+                    groupBy<ICallback>(
+                        getUniqueIdentifier,
+                        concat(executing, requested)
+                    )
                 )
             )
-        )) as IExecutingCallback[];
+        ) as IExecutingCallback[];
 
-        const wDuplicates = flatten(map(
-            group => group.slice(0, -1),
-            values(
-                groupBy<ICallback>(
-                    getUniqueIdentifier,
-                    concat(watched, requested)
+        const wDuplicates = flatten(
+            map(
+                group => group.slice(0, -1),
+                values(
+                    groupBy<ICallback>(
+                        getUniqueIdentifier,
+                        concat(watched, requested)
+                    )
                 )
             )
-        )) as IExecutingCallback[];
+        ) as IExecutingCallback[];
 
         /*
             3. Modify or remove callbacks that are outputting to non-existing layout `id`.
         */
 
-        const { added: rAdded, removed: rRemoved } = pruneCallbacks(requested, paths);
-        const { added: pAdded, removed: pRemoved } = pruneCallbacks(prioritized, paths);
-        const { added: bAdded, removed: bRemoved } = pruneCallbacks(blocked, paths);
-        const { added: eAdded, removed: eRemoved } = pruneCallbacks(executing, paths);
-        const { added: wAdded, removed: wRemoved } = pruneCallbacks(watched, paths);
+        const {added: rAdded, removed: rRemoved} = pruneCallbacks(
+            requested,
+            paths
+        );
+        const {added: pAdded, removed: pRemoved} = pruneCallbacks(
+            prioritized,
+            paths
+        );
+        const {added: bAdded, removed: bRemoved} = pruneCallbacks(
+            blocked,
+            paths
+        );
+        const {added: eAdded, removed: eRemoved} = pruneCallbacks(
+            executing,
+            paths
+        );
+        const {added: wAdded, removed: wRemoved} = pruneCallbacks(
+            watched,
+            paths
+        );
 
         /*
             TODO?
             Clean up the `requested` list - during the dispatch phase,
             it will be updated for real
         */
-        requested = concat(
-            difference(
-                requested,
-                rRemoved
-            ),
-            rAdded
-        );
+        requested = concat(difference(requested, rRemoved), rAdded);
 
         /*
             4. Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
         */
-        let readyCallbacks = getReadyCallbacks(paths, requested, pendingCallbacks);
+        let readyCallbacks = getReadyCallbacks(
+            paths,
+            requested,
+            pendingCallbacks
+        );
 
         let oldBlocked: ICallback[] = [];
         let newBlocked: ICallback[] = [];
@@ -210,21 +231,32 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 candidates = candidates.slice(1);
 
                 // Remaining candidates are not blocked by current assumptions
-                candidates = getReadyCallbacks(paths, candidates, readyCallbacks);
+                candidates = getReadyCallbacks(
+                    paths,
+                    candidates,
+                    readyCallbacks
+                );
 
                 // Blocked requests need to make sure they have the callback as a predecessor
                 const blockedByAssumptions = difference(candidates, candidates);
 
                 const modified = filter(
-                    cb => !cb.predecessors || !includes(readyCallback.callback, cb.predecessors),
+                    cb =>
+                        !cb.predecessors ||
+                        !includes(readyCallback.callback, cb.predecessors),
                     blockedByAssumptions
                 );
 
                 oldBlocked = concat(oldBlocked, modified);
-                newBlocked = concat(newBlocked, modified.map(cb => ({
-                    ...cb,
-                    predecessors: concat(cb.predecessors ?? [], [readyCallback.callback])
-                })));
+                newBlocked = concat(
+                    newBlocked,
+                    modified.map(cb => ({
+                        ...cb,
+                        predecessors: concat(cb.predecessors ?? [], [
+                            readyCallback.callback
+                        ])
+                    }))
+                );
             }
         }
 
@@ -233,13 +265,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             Clean up the `requested` list - during the dispatch phase,
             it will be updated for real
         */
-        requested = concat(
-            difference(
-                requested,
-                oldBlocked
-            ),
-            newBlocked
-        );
+        requested = concat(difference(requested, oldBlocked), newBlocked);
 
         /*
             5. Prune callbacks that became irrelevant in their `executionGroup`
@@ -255,7 +281,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const dropped: ICallback[] = filter(cb => {
             // If there is no `stored` callback for the group, no outputs were dropped -> `cb` is kept
-            if (!cb.executionGroup || !pendingGroups[cb.executionGroup] || !pendingGroups[cb.executionGroup].length) {
+            if (
+                !cb.executionGroup ||
+                !pendingGroups[cb.executionGroup] ||
+                !pendingGroups[cb.executionGroup].length
+            ) {
                 return false;
             }
 
@@ -263,84 +293,83 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             const inputs = map(combineIdAndProp, flatten(cb.getInputs(paths)));
 
             // Get all the potentially updated props for the group so far
-            const allProps = flatten(map(
-                gcb => gcb.executionMeta.allProps,
-                pendingGroups[cb.executionGroup]
-            ));
+            const allProps = flatten(
+                map(
+                    gcb => gcb.executionMeta.allProps,
+                    pendingGroups[cb.executionGroup]
+                )
+            );
 
             // Get all the updated props for the group so far
-            const updated = flatten(map(
-                gcb => gcb.executionMeta.updatedProps,
-                pendingGroups[cb.executionGroup]
-            ));
+            const updated = flatten(
+                map(
+                    gcb => gcb.executionMeta.updatedProps,
+                    pendingGroups[cb.executionGroup]
+                )
+            );
 
             // If there's no overlap between the updated props and the inputs,
             // + there's no props that aren't covered by the potentially updated props,
             // and not all inputs are multi valued
             // -> drop `cb`
             const res =
-                isEmpty(intersection(
-                    inputs,
-                    updated
-                )) &&
-                isEmpty(difference(
-                    inputs,
-                    allProps
-                ))
-                && !all(
-                    isMultiValued,
-                    cb.callback.inputs
-                );
+                isEmpty(intersection(inputs, updated)) &&
+                isEmpty(difference(inputs, allProps)) &&
+                !all(isMultiValued, cb.callback.inputs);
 
             return res;
-        },
-            readyCallbacks
-        );
+        }, readyCallbacks);
 
         /*
             TODO?
             Clean up the `requested` list - during the dispatch phase,
             it will be updated for real
         */
-        requested = difference(
-            requested,
-            dropped
-        );
+        requested = difference(requested, dropped);
 
-        readyCallbacks = difference(
-            readyCallbacks,
-            dropped
-        );
+        readyCallbacks = difference(readyCallbacks, dropped);
 
-        dispatch(aggregateCallbacks([
-            // Clean up duplicated callbacks
-            rDuplicates.length ? removeRequestedCallbacks(rDuplicates) : null,
-            pDuplicates.length ? removePrioritizedCallbacks(pDuplicates) : null,
-            bDuplicates.length ? removeBlockedCallbacks(bDuplicates) : null,
-            eDuplicates.length ? removeExecutingCallbacks(eDuplicates) : null,
-            wDuplicates.length ? removeWatchedCallbacks(wDuplicates) : null,
-            // Prune callbacks
-            rRemoved.length ? removeRequestedCallbacks(rRemoved) : null,
-            rAdded.length ? addRequestedCallbacks(rAdded) : null,
-            pRemoved.length ? removePrioritizedCallbacks(pRemoved) : null,
-            pAdded.length ? addPrioritizedCallbacks(pAdded) : null,
-            bRemoved.length ? removeBlockedCallbacks(bRemoved) : null,
-            bAdded.length ? addBlockedCallbacks(bAdded) : null,
-            eRemoved.length ? removeExecutingCallbacks(eRemoved) : null,
-            eAdded.length ? addExecutingCallbacks(eAdded) : null,
-            wRemoved.length ? removeWatchedCallbacks(wRemoved) : null,
-            wAdded.length ? addWatchedCallbacks(wAdded) : null,
-            // Prune circular callbacks
-            rCirculars.length ? removeRequestedCallbacks(rCirculars) : null,
-            // Prune circular assumptions
-            oldBlocked.length ? removeRequestedCallbacks(oldBlocked) : null,
-            newBlocked.length ? addRequestedCallbacks(newBlocked) : null,
-            // Drop non-triggered initial callbacks
-            dropped.length ? removeRequestedCallbacks(dropped) : null,
-            // Promote callbacks
-            readyCallbacks.length ? removeRequestedCallbacks(readyCallbacks) : null,
-            readyCallbacks.length ? addPrioritizedCallbacks(readyCallbacks) : null
-        ]));
+        dispatch(
+            aggregateCallbacks([
+                // Clean up duplicated callbacks
+                rDuplicates.length
+                    ? removeRequestedCallbacks(rDuplicates)
+                    : null,
+                pDuplicates.length
+                    ? removePrioritizedCallbacks(pDuplicates)
+                    : null,
+                bDuplicates.length ? removeBlockedCallbacks(bDuplicates) : null,
+                eDuplicates.length
+                    ? removeExecutingCallbacks(eDuplicates)
+                    : null,
+                wDuplicates.length ? removeWatchedCallbacks(wDuplicates) : null,
+                // Prune callbacks
+                rRemoved.length ? removeRequestedCallbacks(rRemoved) : null,
+                rAdded.length ? addRequestedCallbacks(rAdded) : null,
+                pRemoved.length ? removePrioritizedCallbacks(pRemoved) : null,
+                pAdded.length ? addPrioritizedCallbacks(pAdded) : null,
+                bRemoved.length ? removeBlockedCallbacks(bRemoved) : null,
+                bAdded.length ? addBlockedCallbacks(bAdded) : null,
+                eRemoved.length ? removeExecutingCallbacks(eRemoved) : null,
+                eAdded.length ? addExecutingCallbacks(eAdded) : null,
+                wRemoved.length ? removeWatchedCallbacks(wRemoved) : null,
+                wAdded.length ? addWatchedCallbacks(wAdded) : null,
+                // Prune circular callbacks
+                rCirculars.length ? removeRequestedCallbacks(rCirculars) : null,
+                // Prune circular assumptions
+                oldBlocked.length ? removeRequestedCallbacks(oldBlocked) : null,
+                newBlocked.length ? addRequestedCallbacks(newBlocked) : null,
+                // Drop non-triggered initial callbacks
+                dropped.length ? removeRequestedCallbacks(dropped) : null,
+                // Promote callbacks
+                readyCallbacks.length
+                    ? removeRequestedCallbacks(readyCallbacks)
+                    : null,
+                readyCallbacks.length
+                    ? addPrioritizedCallbacks(readyCallbacks)
+                    : null
+            ])
+        );
     },
     inputs: ['callbacks.requested', 'callbacks.completed']
 };

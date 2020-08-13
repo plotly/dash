@@ -23,7 +23,7 @@ import {
     startsWith,
     values,
     zip,
-    zipObj,
+    zipObj
 } from 'ramda';
 
 import {
@@ -33,7 +33,7 @@ import {
     INDIRECT,
     mergeMax,
     makeResolvedCallback,
-    resolveDeps,
+    resolveDeps
 } from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 
@@ -56,7 +56,7 @@ const wildcards = {ALL, MATCH, ALLSMALLER};
 const allowedWildcards = {
     Output: {ALL, MATCH},
     Input: wildcards,
-    State: wildcards,
+    State: wildcards
 };
 const wildcardValTypes = ['string', 'number', 'boolean'];
 
@@ -97,7 +97,7 @@ export function splitIdAndProp(idAndProp) {
     const idStr = idAndProp.substr(0, dotPos);
     return {
         id: parseIfWildcard(idStr),
-        property: idAndProp.substr(dotPos + 1),
+        property: idAndProp.substr(dotPos + 1)
     };
 }
 
@@ -193,7 +193,7 @@ function validateDependencies(parsedDependencies, dispatchError) {
             hasOutputs = false;
             dispatchError('A callback is missing Outputs', [
                 'Please provide an output for this callback:',
-                JSON.stringify(dep, null, 2),
+                JSON.stringify(dep, null, 2)
             ]);
         }
 
@@ -208,14 +208,14 @@ function validateDependencies(parsedDependencies, dispatchError) {
                 'Without `Input` elements, it will never get called.',
                 '',
                 'Subscribing to `Input` components will cause the',
-                'callback to be called whenever their values change.',
+                'callback to be called whenever their values change.'
             ]);
         }
 
         const spec = [
             [outputs, 'Output'],
             [inputs, 'Input'],
-            [state, 'State'],
+            [state, 'State']
         ];
         spec.forEach(([args, cls]) => {
             if (cls === 'Output' && !hasOutputs) {
@@ -230,7 +230,7 @@ function validateDependencies(parsedDependencies, dispatchError) {
                     head,
                     `For ${cls}(s) we found:`,
                     JSON.stringify(args),
-                    'but we expected an Array.',
+                    'but we expected an Array.'
                 ]);
             }
             args.forEach((idProp, i) => {
@@ -249,7 +249,7 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
         dispatchError('Callback property error', [
             head,
             `${cls}[${i}].property = ${JSON.stringify(property)}`,
-            'but we expected `property` to be a non-empty string.',
+            'but we expected `property` to be a non-empty string.'
         ]);
     }
 
@@ -258,7 +258,7 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
             dispatchError('Callback item missing ID', [
                 head,
                 `${cls}[${i}].id = {}`,
-                'Every item linked to a callback needs an ID',
+                'Every item linked to a callback needs an ID'
             ]);
         }
 
@@ -267,7 +267,7 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
                 dispatchError('Callback wildcard ID error', [
                     head,
                     `${cls}[${i}].id has key "${k}"`,
-                    'Keys must be non-empty strings.',
+                    'Keys must be non-empty strings.'
                 ]);
             }
 
@@ -277,7 +277,7 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
                         head,
                         `${cls}[${i}].id["${k}"] = ${v.wild}`,
                         `Allowed wildcards for ${cls}s are:`,
-                        keys(allowedWildcards[cls]).join(', '),
+                        keys(allowedWildcards[cls]).join(', ')
                     ]);
                 }
             } else if (!includes(typeof v, wildcardValTypes)) {
@@ -286,7 +286,7 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
                     `${cls}[${i}].id["${k}"] = ${JSON.stringify(v)}`,
                     'Wildcard callback ID values must be either wildcards',
                     'or constants of one of these types:',
-                    wildcardValTypes.join(', '),
+                    wildcardValTypes.join(', ')
                 ]);
             }
         }, id);
@@ -295,7 +295,7 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
             dispatchError('Callback item missing ID', [
                 head,
                 `${cls}[${i}].id = "${id}"`,
-                'Every item linked to a callback needs an ID',
+                'Every item linked to a callback needs an ID'
             ]);
         }
         const invalidChars = idInvalidChars.filter(c => includes(c, id));
@@ -303,14 +303,14 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
             dispatchError('Callback invalid ID string', [
                 head,
                 `${cls}[${i}].id = '${id}'`,
-                `characters '${invalidChars.join("', '")}' are not allowed.`,
+                `characters '${invalidChars.join("', '")}' are not allowed.`
             ]);
         }
     } else {
         dispatchError('Callback ID type error', [
             head,
             `${cls}[${i}].id = ${JSON.stringify(id)}`,
-            'IDs must be strings or wildcard-compatible objects.',
+            'IDs must be strings or wildcard-compatible objects.'
         ]);
     }
 }
@@ -324,7 +324,7 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
             if (newOutputStrs[idProp]) {
                 dispatchError('Duplicate callback Outputs', [
                     head,
-                    `Output ${i} (${idProp}) is already used by this callback.`,
+                    `Output ${i} (${idProp}) is already used by this callback.`
                 ]);
             } else if (outStrs[idProp]) {
                 dispatchError('Duplicate callback outputs', [
@@ -333,7 +333,7 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
                     'Any given output can only have one callback that sets it.',
                     'To resolve this situation, try combining these into',
                     'one callback function, distinguishing the trigger',
-                    'by using `dash.callback_context` if necessary.',
+                    'by using `dash.callback_context` if necessary.'
                 ]);
             } else {
                 newOutputStrs[idProp] = 1;
@@ -349,7 +349,7 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
                     head,
                     `Output ${i} (${idProp})`,
                     `overlaps another output (${idProp2})`,
-                    `used in ${selfOverlap ? 'this' : 'a different'} callback.`,
+                    `used in ${selfOverlap ? 'this' : 'a different'} callback.`
                 ]);
             } else {
                 newOutputObjs.push(idObj);
@@ -377,7 +377,7 @@ function findInOutOverlap(outputs, inputs, head, dispatchError) {
                     dispatchError('Same `Input` and `Output`', [
                         head,
                         `Input ${ini} (${combineIdAndProp(in_)})`,
-                        `matches Output ${outi} (${combineIdAndProp(out)})`,
+                        `matches Output ${outi} (${combineIdAndProp(out)})`
                     ]);
                 }
             } else if (wildcardOverlap(in_, [out])) {
@@ -385,7 +385,7 @@ function findInOutOverlap(outputs, inputs, head, dispatchError) {
                     head,
                     `Input ${ini} (${combineIdAndProp(in_)})`,
                     'can match the same component(s) as',
-                    `Output ${outi} (${combineIdAndProp(out)})`,
+                    `Output ${outi} (${combineIdAndProp(out)})`
                 ]);
             }
         });
@@ -402,13 +402,13 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
                 'does not have MATCH wildcards on the same keys as',
                 `Output 0 (${combineIdAndProp(outputs[0])}).`,
                 'MATCH wildcards must be on the same keys for all Outputs.',
-                'ALL wildcards need not match, only MATCH.',
+                'ALL wildcards need not match, only MATCH.'
             ]);
         }
     });
     [
         [inputs, 'Input'],
-        [state, 'State'],
+        [state, 'State']
     ].forEach(([args, cls]) => {
         args.forEach((arg, i) => {
             const {matchKeys, allsmallerKeys} = findWildcardKeys(arg.id);
@@ -423,7 +423,7 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
                     `where Output 0 (${combineIdAndProp(outputs[0])})`,
                     'does not have a MATCH wildcard. Inputs and State do not',
                     'need every MATCH from the Output(s), but they cannot have',
-                    'extras beyond the Output(s).',
+                    'extras beyond the Output(s).'
                 ]);
             }
         });
@@ -492,7 +492,7 @@ export function validateCallbacksToLayout(state_, dispatchError) {
             'generated by other callbacks (and therefore not in the',
             'initial layout), you can suppress this exception by setting',
             '`suppress_callback_exceptions=True`.',
-            tail(callbacks),
+            tail(callbacks)
         ]);
     }
 
@@ -519,7 +519,7 @@ export function validateCallbacksToLayout(state_, dispatchError) {
                 `in one of the ${cls} items of a callback.`,
                 `This ID is assigned to a ${namespace}.${type} component`,
                 'in the layout, which does not support this property.',
-                tail(callbacks),
+                tail(callbacks)
             ]);
         }
     }
@@ -664,7 +664,7 @@ export function computeGraphs(dependencies, dispatchError) {
         inputMap,
         outputPatterns,
         inputPatterns,
-        callbacks: parsedDependencies,
+        callbacks: parsedDependencies
     };
 
     if (hasError) {
@@ -683,7 +683,7 @@ export function computeGraphs(dependencies, dispatchError) {
                     if (!wildcardPlaceholders[key]) {
                         wildcardPlaceholders[key] = {
                             exact: [],
-                            expand: 0,
+                            expand: 0
                         };
                     }
                     const keyPlaceholders = wildcardPlaceholders[key];
@@ -872,7 +872,7 @@ export function idMatch(
                                 vals,
                                 refKeys,
                                 refPatternVals,
-                                refVals,
+                                refVals
                             })
                     );
                 }
@@ -1189,9 +1189,7 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
             if (typeof id === 'string' && !removedArrayInputsOnly) {
                 handleOneId(id, graphs.outputMap[id], graphs.inputMap[id]);
             } else {
-                const keyStr = Object.keys(id)
-                    .sort()
-                    .join(',');
+                const keyStr = Object.keys(id).sort().join(',');
                 handleOneId(
                     id,
                     !removedArrayInputsOnly && graphs.outputPatterns[keyStr],
@@ -1204,7 +1202,7 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
     return map(
         cb => ({
             ...cb,
-            priority: getPriority(graphs, paths, cb),
+            priority: getPriority(graphs, paths, cb)
         }),
         callbacks
     );

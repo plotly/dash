@@ -30,5 +30,3 @@ AppProvider.defaultProps = {
 };
 
 export default AppProvider;
-
-

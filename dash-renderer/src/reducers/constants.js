@@ -1,7 +1,7 @@
 export function getAppState(state) {
     const stateList = {
         STARTED: 'STARTED',
-        HYDRATED: 'HYDRATED',
+        HYDRATED: 'HYDRATED'
     };
     if (stateList[state]) {
         return stateList[state];

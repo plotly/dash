@@ -12,7 +12,7 @@ class FrontEndError extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            collapsed: this.props.isListItem,
+            collapsed: this.props.isListItem
         };
     }
 
@@ -138,7 +138,7 @@ function UnconnectedErrorContent({error, base}) {
                                  */
                                 width: 'calc(600px - 67px)',
                                 height: '75vh',
-                                border: 'none',
+                                border: 'none'
                             }}
                         />
                     </div>
@@ -160,12 +160,12 @@ const errorPropTypes = PropTypes.shape({
     stack: PropTypes.string,
 
     /* backend error messages */
-    html: PropTypes.string,
+    html: PropTypes.string
 });
 
 UnconnectedErrorContent.propTypes = {
     error: errorPropTypes,
-    base: PropTypes.string,
+    base: PropTypes.string
 };
 
 const ErrorContent = connect(state => ({base: urlBase(state.config)}))(
@@ -175,15 +175,15 @@ const ErrorContent = connect(state => ({base: urlBase(state.config)}))(
 FrontEndError.propTypes = {
     e: PropTypes.shape({
         timestamp: PropTypes.object,
-        error: errorPropTypes,
+        error: errorPropTypes
     }),
     inAlertsTray: PropTypes.bool,
-    isListItem: PropTypes.bool,
+    isListItem: PropTypes.bool
 };
 
 FrontEndError.defaultProps = {
     inAlertsTray: false,
-    isListItem: false,
+    isListItem: false
 };
 
 export {FrontEndError};

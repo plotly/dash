@@ -10,7 +10,7 @@ import {
     onError,
     setGraphs,
     setPaths,
-    setLayout,
+    setLayout
 } from './actions';
 import {computePaths} from './actions/paths';
 import {computeGraphs} from './actions/dependencies';
@@ -36,7 +36,7 @@ const UnconnectedContainer = props => {
         error,
         layoutRequest,
         layout,
-        loadingMap,
+        loadingMap
     } = props;
 
     const [errorLoading, setErrorLoading] = useState(false);
@@ -55,8 +55,8 @@ const UnconnectedContainer = props => {
             _dashprivate_config: propsRef.current.config,
             _dashprivate_dispatch: propsRef.current.dispatch,
             _dashprivate_graphs: propsRef.current.graphs,
-            _dashprivate_loadingMap: propsRef.current.loadingMap,
-        }),
+            _dashprivate_loadingMap: propsRef.current.loadingMap
+        })
     });
 
     useEffect(storeEffect.bind(null, props, events, setErrorLoading));
@@ -120,7 +120,7 @@ function storeEffect(props, events, setErrorLoading) {
         error,
         graphs,
         layout,
-        layoutRequest,
+        layoutRequest
     } = props;
 
     if (isEmpty(layoutRequest)) {
@@ -180,7 +180,7 @@ function storeEffect(props, events, setErrorLoading) {
 UnconnectedContainer.propTypes = {
     appLifecycle: PropTypes.oneOf([
         getAppState('STARTED'),
-        getAppState('HYDRATED'),
+        getAppState('HYDRATED')
     ]),
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
@@ -190,7 +190,7 @@ UnconnectedContainer.propTypes = {
     loadingMap: PropTypes.any,
     history: PropTypes.any,
     error: PropTypes.object,
-    config: PropTypes.object,
+    config: PropTypes.object
 };
 
 const Container = connect(
@@ -204,7 +204,7 @@ const Container = connect(
         graphs: state.graphs,
         history: state.history,
         error: state.error,
-        config: state.config,
+        config: state.config
     }),
     dispatch => ({dispatch})
 )(UnconnectedContainer);

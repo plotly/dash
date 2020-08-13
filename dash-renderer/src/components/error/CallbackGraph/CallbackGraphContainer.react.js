@@ -83,7 +83,7 @@ const CallbackGraphContainer = ({graphs}) => {
 };
 
 CallbackGraphContainer.propTypes = {
-    graphs: PropTypes.object,
+    graphs: PropTypes.object
 };
 
 export {CallbackGraphContainer};

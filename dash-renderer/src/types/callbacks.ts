@@ -1,4 +1,4 @@
-type CallbackId = string | { [key: string]: any }
+type CallbackId = string | {[key: string]: any};
 
 export interface ICallbackDefinition {
     clientside_function?: {
@@ -40,9 +40,7 @@ export interface ICallback extends ICallbackTemplate {
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface IPrioritizedCallback extends ICallback {
-
-}
+export interface IPrioritizedCallback extends ICallback {}
 
 export interface IBlockedCallback extends IPrioritizedCallback {
     allOutputs: ILayoutCallbackProperty[][];
@@ -55,9 +53,7 @@ export interface IExecutingCallback extends IPrioritizedCallback {
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface IWatchedCallback extends IExecutingCallback {
-
-}
+export interface IWatchedCallback extends IExecutingCallback {}
 
 export interface IExecutedCallback extends IWatchedCallback {
     executionResult: CallbackResult | null;
@@ -67,7 +63,7 @@ export interface IStoredCallback extends IExecutedCallback {
     executionMeta: {
         allProps: string[];
         updatedProps: string[];
-    }
+    };
 }
 
 export interface ICallbackPayload {
@@ -82,4 +78,4 @@ export type CallbackResult = {
     data?: any;
     error?: Error;
     payload: ICallbackPayload | null;
-}
+};

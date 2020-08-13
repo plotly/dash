@@ -10,9 +10,9 @@ function Loading(props) {
 }
 
 Loading.propTypes = {
-    isLoading: PropTypes.bool.isRequired,
+    isLoading: PropTypes.bool.isRequired
 };
 
 export default connect(state => ({
-    isLoading: state.isLoading,
+    isLoading: state.isLoading
 }))(Loading);
