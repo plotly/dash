@@ -30,9 +30,8 @@ export function updateSelectedNode(cy, id) {
     if (id) {
         const node = cy.getElementById(id);
 
-        // Center the node and highlght it.
+        // Highlght the selected node.
 
-        cy.center(node);
         node.addClass('selected-node');
 
         // Find the subtree that the node belongs to. A subtree contains
