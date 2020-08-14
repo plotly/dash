@@ -8,7 +8,7 @@ import {
     aggregateCallbacks,
     executeCallback,
     removeBlockedCallbacks,
-    removePrioritizedCallbacks,
+    removePrioritizedCallbacks
 } from '../actions/callbacks';
 
 import {stringifyId} from '../actions/dependencies';
@@ -21,7 +21,7 @@ import {
     IBlockedCallback,
     ICallback,
     ILayoutCallbackProperty,
-    IPrioritizedCallback,
+    IPrioritizedCallback
 } from '../types/callbacks';
 import {IStoreObserverDefinition} from '../StoreObserver';
 
@@ -56,7 +56,7 @@ const getIds = (cb: ICallback, paths: any) =>
     uniq(
         pluck('id', [
             ...flatten(cb.getInputs(paths)),
-            ...flatten(cb.getState(paths)),
+            ...flatten(cb.getState(paths))
         ])
     );
 
@@ -67,10 +67,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             config,
             hooks,
             layout,
-            paths,
+            paths
         } = getState();
         let {
-            callbacks: {prioritized},
+            callbacks: {prioritized}
         } = getState();
 
         const available = Math.max(0, 12 - executing.length - watched.length);
@@ -108,7 +108,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                 ),
                             pickedSyncCallbacks
                         )
-                    ),
+                    )
                 ])
             );
         }
@@ -118,7 +118,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 cb => ({
                     ...cb,
                     ...getStash(cb, paths),
-                    isReady: isAppReady(layout, paths, getIds(cb, paths)),
+                    isReady: isAppReady(layout, paths, getIds(cb, paths))
                 }),
                 pickedAsyncCallbacks
             );
@@ -126,7 +126,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             dispatch(
                 aggregateCallbacks([
                     removePrioritizedCallbacks(pickedAsyncCallbacks),
-                    addBlockedCallbacks(deffered),
+                    addBlockedCallbacks(deffered)
                 ])
             );
 
@@ -134,7 +134,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 await cb.isReady;
 
                 const {
-                    callbacks: {blocked},
+                    callbacks: {blocked}
                 } = getState();
 
                 // Check if it's been removed from the `blocked` list since - on
@@ -162,13 +162,13 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 dispatch(
                     aggregateCallbacks([
                         removeBlockedCallbacks([cb]),
-                        addExecutingCallbacks([executingCallback]),
+                        addExecutingCallbacks([executingCallback])
                     ])
                 );
             }, deffered);
         }
     },
-    inputs: ['callbacks.prioritized', 'callbacks.completed'],
+    inputs: ['callbacks.prioritized', 'callbacks.completed']
 };
 
 export default observer;

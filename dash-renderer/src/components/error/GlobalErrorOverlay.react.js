@@ -27,7 +27,7 @@ export default class GlobalErrorOverlay extends Component {
         return (
             <div>
                 <div>{this.props.children}</div>
-                <div className="dash-error-menu">
+                <div className='dash-error-menu'>
                     <div className={visible ? 'dash-fe-errors' : ''}>
                         {frontEndErrors}
                     </div>
@@ -41,5 +41,5 @@ GlobalErrorOverlay.propTypes = {
     children: PropTypes.object,
     visible: PropTypes.bool,
     error: PropTypes.object,
-    errorsOpened: PropTypes.any,
+    errorsOpened: PropTypes.any
 };

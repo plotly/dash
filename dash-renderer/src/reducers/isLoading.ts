@@ -1,5 +1,5 @@
 export enum IsLoadingActionType {
-    Set = 'IsLoading.Set',
+    Set = 'IsLoading.Set'
 }
 
 export interface ILoadingMapAction {

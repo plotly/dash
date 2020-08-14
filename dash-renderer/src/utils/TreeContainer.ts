@@ -31,7 +31,7 @@ export function getLoadingState(
         return {
             is_loading: true,
             prop_name: idprop.property,
-            component_name: stringifyId(idprop.id),
+            component_name: stringifyId(idprop.id)
         };
     }
 
@@ -40,7 +40,7 @@ export function getLoadingState(
         return {
             is_loading: true,
             prop_name: idprops.property,
-            component_name: stringifyId(idprops.id),
+            component_name: stringifyId(idprops.id)
         };
     }
 

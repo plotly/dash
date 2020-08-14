@@ -1,6 +1,6 @@
 const initialChange = {
     id: null,
-    props: {},
+    props: {}
 };
 
 function changed(state = initialChange) {

@@ -24,7 +24,7 @@ const buttonFactory = (
     iconVariant,
     label
 ) => (
-    <div className="dash-debug-menu__button-container">
+    <div className='dash-debug-menu__button-container'>
         <div
             className={classes(
                 'dash-debug-menu__button',
@@ -35,7 +35,7 @@ const buttonFactory = (
         >
             <_Icon className={classes('dash-debug-menu__icon', iconVariant)} />
             {label ? (
-                <label className="dash-debug-menu__button-label">{label}</label>
+                <label className='dash-debug-menu__button-label'>{label}</label>
             ) : null}
         </div>
     </div>
@@ -48,7 +48,7 @@ class DebugMenu extends Component {
         this.state = {
             opened: false,
             callbackGraphOpened: false,
-            errorsOpened: true,
+            errorsOpened: true
         };
     }
     render() {
@@ -74,14 +74,14 @@ class DebugMenu extends Component {
             : ClockIcon;
 
         const menuContent = opened ? (
-            <div className="dash-debug-menu__content">
+            <div className='dash-debug-menu__content'>
                 {callbackGraphOpened ? <CallbackGraphContainer /> : null}
                 {buttonFactory(
                     callbackGraphOpened,
                     'callbacks',
                     () => {
                         this.setState({
-                            callbackGraphOpened: !callbackGraphOpened,
+                            callbackGraphOpened: !callbackGraphOpened
                         });
                     },
                     GraphIcon,
@@ -106,20 +106,20 @@ class DebugMenu extends Component {
                 )}
             </div>
         ) : (
-            <div className="dash-debug-menu__content" />
+            <div className='dash-debug-menu__content' />
         );
 
         const alertsLabel =
             (errCount || !connected) && !opened ? (
-                <div className="dash-debug-alert-label">
-                    <div className="dash-debug-alert" onClick={toggleErrors}>
+                <div className='dash-debug-alert-label'>
+                    <div className='dash-debug-alert' onClick={toggleErrors}>
                         {errCount ? (
-                            <div className="dash-debug-error-count">
+                            <div className='dash-debug-error-count'>
                                 {'🛑 ' + errCount}
                             </div>
                         ) : null}
                         {connected ? null : (
-                            <div className="dash-debug-disconnected">🚫</div>
+                            <div className='dash-debug-disconnected'>🚫</div>
                         )}
                     </div>
                 </div>
@@ -158,7 +158,7 @@ class DebugMenu extends Component {
 DebugMenu.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
-    hotReload: PropTypes.bool,
+    hotReload: PropTypes.bool
 };
 
 export {DebugMenu};

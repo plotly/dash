@@ -8,7 +8,7 @@ class ComponentErrorBoundary extends Component {
         this.state = {
             myID: props.componentId,
             oldChildren: null,
-            hasError: false,
+            hasError: false
         };
     }
 
@@ -23,7 +23,7 @@ class ComponentErrorBoundary extends Component {
                 myID: this.state.myID,
                 type: 'frontEnd',
                 error,
-                info,
+                info
             })
         );
         dispatch(revert);
@@ -38,7 +38,7 @@ class ComponentErrorBoundary extends Component {
         ) {
             /* eslint-disable-next-line react/no-did-update-set-state */
             this.setState({
-                oldChildren: prevChildren,
+                oldChildren: prevChildren
             });
         }
     }
@@ -53,7 +53,7 @@ ComponentErrorBoundary.propTypes = {
     children: PropTypes.object,
     componentId: PropTypes.string,
     error: PropTypes.object,
-    dispatch: PropTypes.func,
+    dispatch: PropTypes.func
 };
 
 export default ComponentErrorBoundary;

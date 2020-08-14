@@ -8,7 +8,7 @@ class DocumentTitle extends Component {
         const {update_title} = props.config;
         this.state = {
             title: document.title,
-            update_title,
+            update_title
         };
     }
 
@@ -42,10 +42,10 @@ class DocumentTitle extends Component {
 
 DocumentTitle.propTypes = {
     isLoading: PropTypes.bool.isRequired,
-    config: PropTypes.shape({update_title: PropTypes.string}),
+    config: PropTypes.shape({update_title: PropTypes.string})
 };
 
 export default connect(state => ({
     isLoading: state.isLoading,
-    config: state.config,
+    config: state.config
 }))(DocumentTitle);

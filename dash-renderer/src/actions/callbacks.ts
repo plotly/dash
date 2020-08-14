@@ -7,13 +7,13 @@ import {
     path,
     pick,
     pluck,
-    zip,
+    zip
 } from 'ramda';
 
 import {STATUS} from '../constants/constants';
 import {
     CallbackActionType,
-    CallbackAggregateActionType,
+    CallbackAggregateActionType
 } from '../reducers/callbacks';
 import {
     CallbackResult,
@@ -23,7 +23,7 @@ import {
     ICallbackPayload,
     IStoredCallback,
     IBlockedCallback,
-    IPrioritizedCallback,
+    IPrioritizedCallback
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
@@ -146,7 +146,7 @@ function fillVals(
             inputList.map(({id, property, path: path_}: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property],
+                value: (path(path_, layout) as any).props[property]
             })),
             specs[i],
             cb.anyVals,
@@ -209,12 +209,12 @@ function handleClientside(
     if (!dc.no_update) {
         Object.defineProperty(dc, 'no_update', {
             value: {description: 'Return to prevent updating an Output.'},
-            writable: false,
+            writable: false
         });
 
         Object.defineProperty(dc, 'PreventUpdate', {
             value: {description: 'Throw to prevent updating all Outputs.'},
-            writable: false,
+            writable: false
         });
     }
 
@@ -237,7 +237,7 @@ function handleClientside(
         dc.callback_context = {};
         dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
             prop_id: prop_id,
-            value: inputDict[prop_id],
+            value: inputDict[prop_id]
         }));
         dc.callback_context.inputs_list = inputs;
         dc.callback_context.inputs = inputDict;
@@ -280,7 +280,7 @@ function handleClientside(
             __dash_server: totalTime,
             __dash_client: totalTime,
             __dash_upload: 0,
-            __dash_download: 0,
+            __dash_download: 0
         };
 
         if (config.ui) {
@@ -291,7 +291,7 @@ function handleClientside(
                     status,
                     result,
                     inputs,
-                    state,
+                    state
                 })
             );
         }
@@ -318,7 +318,7 @@ function handleServerside(
         mergeDeepRight(config.fetch, {
             method: 'POST',
             headers: getCSRFHeader() as any,
-            body,
+            body
         })
     ).then(
         (res: any) => {
@@ -333,7 +333,7 @@ function handleServerside(
                         __dash_upload: body.length,
                         __dash_download: Number(
                             res.headers.get('Content-Length')
-                        ),
+                        )
                     } as any;
 
                     const timingHeaders =
@@ -355,7 +355,7 @@ function handleServerside(
                             status,
                             result,
                             inputs: payload.inputs,
-                            state: payload.state,
+                            state: payload.state
                         })
                     );
                 }
@@ -398,7 +398,7 @@ function handleServerside(
                         status: STATUS.NO_RESPONSE,
                         result: {},
                         inputs: payload.inputs,
-                        state: payload.state,
+                        state: payload.state
                     })
                 );
             }
@@ -454,7 +454,7 @@ export function executeCallback(
         if (inVals === null) {
             return {
                 ...cb,
-                executionPromise: null,
+                executionPromise: null
             };
         }
 
@@ -484,7 +484,7 @@ export function executeCallback(
             // regular missing inputs and just silently prevent it.
             return {
                 ...cb,
-                executionPromise: null,
+                executionPromise: null
             };
         }
 
@@ -497,7 +497,7 @@ export function executeCallback(
                     changedPropIds: keys(cb.changedPropIds),
                     state: cb.callback.state.length
                         ? fillVals(paths, layout, cb, state, 'State')
-                        : undefined,
+                        : undefined
                 };
 
                 if (clientside_function) {
@@ -509,7 +509,7 @@ export function executeCallback(
                                 config,
                                 payload
                             ),
-                            payload,
+                            payload
                         });
                     } catch (error) {
                         resolve({error, payload});
@@ -527,14 +527,14 @@ export function executeCallback(
 
         const newCb = {
             ...cb,
-            executionPromise: __promise,
+            executionPromise: __promise
         };
 
         return newCb;
     } catch (error) {
         return {
             ...cb,
-            executionPromise: {error, payload: null},
+            executionPromise: {error, payload: null}
         };
     }
 }

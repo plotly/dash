@@ -9,19 +9,19 @@ const defaultProfile = {
     network: {
         time: 0,
         upload: 0,
-        download: 0,
+        download: 0
     },
     resources: {},
     status: {
-        latest: null,
+        latest: null
     },
-    result: {},
+    result: {}
 };
 
 const defaultState = {
     updated: [],
     resources: {},
-    callbacks: {},
+    callbacks: {}
 };
 
 const profile = (state = defaultState, action) => {
@@ -36,7 +36,7 @@ const profile = (state = defaultState, action) => {
         const newState = {
             updated: [id],
             resources: state.resources,
-            callbacks: state.callbacks,
+            callbacks: state.callbacks
         };
 
         newState.callbacks[id] =

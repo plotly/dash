@@ -5,7 +5,7 @@ import {
     forEachObjIndexed,
     path,
     propEq,
-    props,
+    props
 } from 'ramda';
 
 import {crawlLayout} from './utils';

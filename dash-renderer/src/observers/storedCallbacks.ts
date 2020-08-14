@@ -5,7 +5,7 @@ import {
     isNil,
     partition,
     reduce,
-    toPairs,
+    toPairs
 } from 'ramda';
 
 import {IStoreState} from '../store';
@@ -23,7 +23,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
         let {
-            callbacks: {stored},
+            callbacks: {stored}
         } = getState();
 
         const [nullGroupCallbacks, groupCallbacks] = partition(
@@ -55,11 +55,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 nullGroupCallbacks.length
                     ? removeStoredCallbacks(nullGroupCallbacks)
                     : null,
-                dropped.length ? removeStoredCallbacks(dropped) : null,
+                dropped.length ? removeStoredCallbacks(dropped) : null
             ])
         );
     },
-    inputs: ['callbacks.stored', 'callbacks.completed'],
+    inputs: ['callbacks.stored', 'callbacks.completed']
 };
 
 export default observer;

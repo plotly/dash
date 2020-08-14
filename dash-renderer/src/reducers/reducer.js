@@ -22,7 +22,7 @@ export const apiRequests = [
     'dependenciesRequest',
     'layoutRequest',
     'reloadRequest',
-    'loginRequest',
+    'loginRequest'
 ];
 
 function mainReducer() {
@@ -39,7 +39,7 @@ function mainReducer() {
         isLoading,
         layout,
         loadingMap,
-        paths,
+        paths
     };
     forEach(r => {
         parts[r] = createApiReducer(r);
@@ -94,7 +94,7 @@ function recordHistory(reducer) {
                 nextState.history = {
                     past: [...nextState.history.past, state.history.present],
                     present: historyEntry,
-                    future: [],
+                    future: []
                 };
             }
         }

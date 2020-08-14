@@ -10,7 +10,7 @@ import {
     isEmpty,
     isNil,
     map,
-    values,
+    values
 } from 'ramda';
 
 import {IStoreState} from '../store';
@@ -26,7 +26,7 @@ import {
     addExecutingCallbacks,
     addWatchedCallbacks,
     removeBlockedCallbacks,
-    addBlockedCallbacks,
+    addBlockedCallbacks
 } from '../actions/callbacks';
 
 import {isMultiValued} from '../actions/dependencies';
@@ -35,14 +35,14 @@ import {
     combineIdAndProp,
     getReadyCallbacks,
     getUniqueIdentifier,
-    pruneCallbacks,
+    pruneCallbacks
 } from '../actions/dependencies_ts';
 
 import {
     ICallback,
     IExecutingCallback,
     IStoredCallback,
-    IBlockedCallback,
+    IBlockedCallback
 } from '../types/callbacks';
 
 import {getPendingCallbacks} from '../utils/callbacks';
@@ -53,10 +53,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const {
             callbacks,
             callbacks: {prioritized, blocked, executing, watched, stored},
-            paths,
+            paths
         } = getState();
         let {
-            callbacks: {requested},
+            callbacks: {requested}
         } = getState();
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
@@ -253,8 +253,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     modified.map(cb => ({
                         ...cb,
                         predecessors: concat(cb.predecessors ?? [], [
-                            readyCallback.callback,
-                        ]),
+                            readyCallback.callback
+                        ])
                     }))
                 );
             }
@@ -367,11 +367,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     : null,
                 readyCallbacks.length
                     ? addPrioritizedCallbacks(readyCallbacks)
-                    : null,
+                    : null
             ])
         );
     },
-    inputs: ['callbacks.requested', 'callbacks.completed'],
+    inputs: ['callbacks.requested', 'callbacks.completed']
 };
 
 export default observer;

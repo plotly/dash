@@ -16,7 +16,7 @@ import stylesheet from './CallbackGraphContainerStylesheet';
 import {
     updateSelectedNode,
     updateChangedProps,
-    updateCallback,
+    updateCallback
 } from './CallbackGraphEffects';
 
 Cytoscape.use(Dagre);
@@ -41,8 +41,8 @@ function generateElements(graphs, profile) {
                 data: {
                     id: idStr,
                     label: idStr,
-                    type: idType,
-                },
+                    type: idType
+                }
             });
         }
 
@@ -53,8 +53,8 @@ function generateElements(graphs, profile) {
                     id: child,
                     label: property,
                     parent: parent,
-                    type: 'property',
-                },
+                    type: 'property'
+                }
             });
         }
 
@@ -66,8 +66,8 @@ function generateElements(graphs, profile) {
             data: {
                 source: source,
                 target: target,
-                type: type,
-            },
+                type: type
+            }
         });
     }
 
@@ -86,8 +86,8 @@ function generateElements(graphs, profile) {
                 count: count,
                 time: count > 0 ? Math.round(time / count) : 0,
                 loadingSet: Date.now(),
-                errorSet: Date.now(),
-            },
+                errorSet: Date.now()
+            }
         });
 
         callback.outputs.map(({id, property}) => {
@@ -175,7 +175,7 @@ function CallbackGraph() {
             fit: false,
             positions,
             zoom: cy.zoom(),
-            pan: cy.pan(),
+            pan: cy.pan()
         };
     }
 
@@ -222,8 +222,8 @@ function CallbackGraph() {
         // If we get here too early - most likely during hot reloading - then
         // we need to bail out and wait for the full state to be available
         return (
-            <div className="dash-callback-dag--container">
-                <div className="dash-callback-dag--message">
+            <div className='dash-callback-dag--container'>
+                <div className='dash-callback-dag--message'>
                     <div>Waiting for app to be ready...</div>
                 </div>
             </div>
@@ -288,7 +288,7 @@ function CallbackGraph() {
                         compute,
                         result,
                         inputs,
-                        state,
+                        state
                     } = cbProfile;
 
                     const avg = v => Math.round(v / (count || 1));
@@ -298,14 +298,14 @@ function CallbackGraph() {
 
                     const timing = (elementInfo['time (avg milliseconds)'] = {
                         total: avg(total),
-                        compute: avg(compute),
+                        compute: avg(compute)
                     });
                     if (data.mode === 'server') {
                         timing.network = avg(network.time);
 
                         elementInfo['data transfer (avg bytes)'] = {
                             download: avg(network.download),
-                            upload: avg(network.upload),
+                            upload: avg(network.upload)
                         };
                     }
                     for (const key in resources) {
@@ -329,11 +329,11 @@ function CallbackGraph() {
         spacingFactor: 0.8,
         // after initial layout, just use this again on later draws
         // but we'll also save the layout whenever users interact with it
-        ready: setPresetLayout,
+        ready: setPresetLayout
     };
 
     return (
-        <div className="dash-callback-dag--container">
+        <div className='dash-callback-dag--container'>
             <CytoscapeComponent
                 style={{width: '100%', height: '100%'}}
                 cy={setCytoscape}
@@ -342,7 +342,7 @@ function CallbackGraph() {
                 stylesheet={stylesheet}
             />
             {selected ? (
-                <div className="dash-callback-dag--info">
+                <div className='dash-callback-dag--info'>
                     {hasPatterns ? (
                         <div>
                             Info isn't supported for pattern-matching IDs at
@@ -351,7 +351,7 @@ function CallbackGraph() {
                     ) : null}
                     <JSONTree
                         data={elementInfo}
-                        theme="summerfruit"
+                        theme='summerfruit'
                         labelRenderer={keys =>
                             keys.length === 1 ? elementName : keys[0]
                         }
@@ -385,15 +385,15 @@ class UnconnectedCallbackGraphContainer extends Component {
                 myID: this.state.myID,
                 type: 'frontEnd',
                 error,
-                info,
+                info
             })
         );
     }
 
     render() {
         return this.state.hasError ? (
-            <div className="dash-callback-dag--container">
-                <div className="dash-callback-dag--message">
+            <div className='dash-callback-dag--container'>
+                <div className='dash-callback-dag--message'>
                     <div>Oops! The callback graph threw an error.</div>
                     <div>Check the error list for details.</div>
                 </div>
@@ -405,7 +405,7 @@ class UnconnectedCallbackGraphContainer extends Component {
 }
 
 UnconnectedCallbackGraphContainer.propTypes = {
-    dispatch: PropTypes.func,
+    dispatch: PropTypes.func
 };
 
 const CallbackGraphContainer = connect(null, dispatch => ({dispatch}))(

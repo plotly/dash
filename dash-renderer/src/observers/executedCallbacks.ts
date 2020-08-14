@@ -9,7 +9,7 @@ import {
     keys,
     has,
     pickBy,
-    toPairs,
+    toPairs
 } from 'ramda';
 
 import {IStoreState} from '../store';
@@ -19,7 +19,7 @@ import {
     addRequestedCallbacks,
     removeExecutedCallbacks,
     addCompletedCallbacks,
-    addStoredCallbacks,
+    addStoredCallbacks
 } from '../actions/callbacks';
 
 import {parseIfWildcard} from '../actions/dependencies';
@@ -28,7 +28,7 @@ import {
     combineIdAndProp,
     getCallbacksByInput,
     getLayoutCallbacks,
-    includeObservers,
+    includeObservers
 } from '../actions/dependencies_ts';
 
 import {ICallback, IStoredCallback} from '../types/callbacks';
@@ -42,7 +42,7 @@ import {IStoreObserverDefinition} from '../StoreObserver';
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: ({dispatch, getState}) => {
         const {
-            callbacks: {executed},
+            callbacks: {executed}
         } = getState();
 
         function applyProps(id: any, updatedProps: any) {
@@ -69,7 +69,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 updateProps({
                     itempath,
                     props,
-                    source: 'response',
+                    source: 'response'
                 })
             );
 
@@ -84,7 +84,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
             const {
                 callback: {clientside_function, output},
-                executionResult,
+                executionResult
             } = cb;
 
             if (isNil(executionResult)) {
@@ -99,7 +99,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     const {
                         graphs,
                         layout: oldLayout,
-                        paths: oldPaths,
+                        paths: oldPaths
                     } = getState();
 
                     // Components will trigger callbacks on their own as required (eg. derived)
@@ -122,7 +122,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             )
                         ).map(rcb => ({
                             ...rcb,
-                            predecessors,
+                            predecessors
                         }))
                     );
 
@@ -147,10 +147,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         requestedCallbacks = concat(
                             requestedCallbacks,
                             getLayoutCallbacks(graphs, paths, children, {
-                                chunkPath: oldChildrenPath,
+                                chunkPath: oldChildrenPath
                             }).map(rcb => ({
                                 ...rcb,
-                                predecessors,
+                                predecessors
                             }))
                         );
 
@@ -161,10 +161,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             getLayoutCallbacks(graphs, oldPaths, oldChildren, {
                                 removedArrayInputsOnly: true,
                                 newPaths: paths,
-                                chunkPath: oldChildrenPath,
+                                chunkPath: oldChildrenPath
                             }).map(rcb => ({
                                 ...rcb,
-                                predecessors,
+                                predecessors
                             }))
                         );
                     }
@@ -188,7 +188,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                 paths
                             ).map(rcb => ({
                                 ...rcb,
-                                predecessors,
+                                predecessors
                             }))
                         );
                     }
@@ -214,8 +214,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     ),
                                 toPairs(data)
                             )
-                        ),
-                    },
+                        )
+                    }
                 });
             }
 
@@ -229,7 +229,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 if (clientside_function) {
                     const {
                         namespace: ns,
-                        function_name: fn,
+                        function_name: fn
                     } = clientside_function;
                     message += ` via clientside function ${ns}.${fn}`;
                 }
@@ -243,8 +243,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             combineIdAndProp,
                             flatten(cb.getOutputs(getState().paths))
                         ),
-                        updatedProps: [],
-                    },
+                        updatedProps: []
+                    }
                 });
             }
         }, executed);
@@ -258,11 +258,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     : null,
                 requestedCallbacks.length
                     ? addRequestedCallbacks(requestedCallbacks)
-                    : null,
+                    : null
             ])
         );
     },
-    inputs: ['callbacks.executed'],
+    inputs: ['callbacks.executed']
 };
 
 export default observer;

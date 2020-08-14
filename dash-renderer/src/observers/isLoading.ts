@@ -15,7 +15,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             dispatch(setIsLoading(next));
         }
     },
-    inputs: ['callbacks'],
+    inputs: ['callbacks']
 };
 
 export default observer;

@@ -65,7 +65,7 @@ export default class StoreObserver<TStore> {
             inputPaths: map(p => p.split('.'), inputs),
             lastState: null,
             observer,
-            triggered: false,
+            triggered: false
         });
 
     private notify = () => {

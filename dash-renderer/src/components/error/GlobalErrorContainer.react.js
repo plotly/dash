@@ -12,9 +12,9 @@ class UnconnectedGlobalErrorContainer extends Component {
     render() {
         const {config, error, children} = this.props;
         return (
-            <div id="_dash-global-error-container">
+            <div id='_dash-global-error-container'>
                 <DebugMenu error={error} hotReload={Boolean(config.hot_reload)}>
-                    <div id="_dash-app-content">{children}</div>
+                    <div id='_dash-app-content'>{children}</div>
                 </DebugMenu>
             </div>
         );
@@ -24,12 +24,12 @@ class UnconnectedGlobalErrorContainer extends Component {
 UnconnectedGlobalErrorContainer.propTypes = {
     children: PropTypes.object,
     config: PropTypes.object,
-    error: PropTypes.object,
+    error: PropTypes.object
 };
 
 const GlobalErrorContainer = connect(state => ({
     config: state.config,
-    error: state.error,
+    error: state.error
 }))(Radium(UnconnectedGlobalErrorContainer));
 
 export default GlobalErrorContainer;

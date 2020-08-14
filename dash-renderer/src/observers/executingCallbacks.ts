@@ -5,7 +5,7 @@ import {
     addWatchedCallbacks,
     aggregateCallbacks,
     removeExecutingCallbacks,
-    removeWatchedCallbacks,
+    removeWatchedCallbacks
 } from '../actions/callbacks';
 
 import {IStoreObserverDefinition} from '../StoreObserver';
@@ -14,7 +14,7 @@ import {IStoreState} from '../store';
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: ({dispatch, getState}) => {
         const {
-            callbacks: {executing},
+            callbacks: {executing}
         } = getState();
 
         const [deferred, skippedOrReady] = partition(
@@ -36,7 +36,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                               )
                           )
                       )
-                    : null,
+                    : null
             ])
         );
 
@@ -44,7 +44,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             const result = await cb.executionPromise;
 
             const {
-                callbacks: {watched},
+                callbacks: {watched}
             } = getState();
 
             // Check if it's been removed from the `watched` list since - on callback completion, another callback may be cancelled
@@ -65,14 +65,14 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     addExecutedCallbacks([
                         {
                             ...currentCb,
-                            executionResult: result,
-                        },
-                    ]),
+                            executionResult: result
+                        }
+                    ])
                 ])
             );
         }, deferred);
     },
-    inputs: ['callbacks.executing'],
+    inputs: ['callbacks.executing']
 };
 
 export default observer;

@@ -7,7 +7,7 @@ import {
     IStoredCallback,
     IPrioritizedCallback,
     IBlockedCallback,
-    IWatchedCallback,
+    IWatchedCallback
 } from '../types/callbacks';
 
 export enum CallbackActionType {
@@ -24,12 +24,12 @@ export enum CallbackActionType {
     RemovePrioritized = 'Callbacks.RemovePrioritized',
     RemoveRequested = 'Callbacks.RemoveRequested',
     RemoveStored = 'Callbacks.RemoveStored',
-    RemoveWatched = 'Callbacks.RemoveWatched',
+    RemoveWatched = 'Callbacks.RemoveWatched'
 }
 
 export enum CallbackAggregateActionType {
     AddCompleted = 'Callbacks.Completed',
-    Aggregate = 'Callbacks.Aggregate',
+    Aggregate = 'Callbacks.Aggregate'
 }
 
 export interface IAggregateAction {
@@ -68,7 +68,7 @@ const DEFAULT_STATE: ICallbacksState = {
     requested: [],
     stored: [],
     watched: [],
-    completed: 0,
+    completed: 0
 };
 
 const transforms: {
@@ -87,7 +87,7 @@ const transforms: {
     [CallbackActionType.RemovePrioritized]: difference,
     [CallbackActionType.RemoveRequested]: difference,
     [CallbackActionType.RemoveStored]: difference,
-    [CallbackActionType.RemoveWatched]: difference,
+    [CallbackActionType.RemoveWatched]: difference
 };
 
 const fields: {
@@ -106,12 +106,12 @@ const fields: {
     [CallbackActionType.RemovePrioritized]: 'prioritized',
     [CallbackActionType.RemoveRequested]: 'requested',
     [CallbackActionType.RemoveStored]: 'stored',
-    [CallbackActionType.RemoveWatched]: 'watched',
+    [CallbackActionType.RemoveWatched]: 'watched'
 };
 
 const mutateCompleted = (state: ICallbacksState, action: ICompletedAction) => ({
     ...state,
-    completed: state.completed + action.payload,
+    completed: state.completed + action.payload
 });
 
 const mutateCallbacks = (state: ICallbacksState, action: ICallbackAction) => {
@@ -122,7 +122,7 @@ const mutateCallbacks = (state: ICallbacksState, action: ICallbackAction) => {
         ? state
         : {
               ...state,
-              [field]: transform(state[field], action.payload),
+              [field]: transform(state[field], action.payload)
           };
 };
 

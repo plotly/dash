@@ -13,7 +13,7 @@ function getEdgeTypes(node) {
     return {
         input: elements.filter('[type = "input"]'),
         state: elements.filter('[type = "state"]'),
-        output: elements.filter('[type = "output"]'),
+        output: elements.filter('[type = "output"]')
     };
 }
 

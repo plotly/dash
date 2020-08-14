@@ -10,7 +10,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const {
             callbacks: {executing, watched, executed},
             loadingMap,
-            paths,
+            paths
         } = getState();
 
         /*
@@ -25,7 +25,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             map(cb => cb.getOutputs(paths), [
                 ...executing,
                 ...watched,
-                ...executed,
+                ...executed
             ])
         );
 
@@ -68,7 +68,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             dispatch(setLoadingMap(nextMap));
         }
     },
-    inputs: ['callbacks.executing', 'callbacks.watched', 'callbacks.executed'],
+    inputs: ['callbacks.executing', 'callbacks.watched', 'callbacks.executed']
 };
 
 export default observer;

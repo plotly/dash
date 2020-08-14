@@ -14,14 +14,14 @@ import {
     pickBy,
     props,
     reduce,
-    zipObj,
+    zipObj
 } from 'ramda';
 import {
     ICallback,
     ICallbackProperty,
     ICallbackDefinition,
     ILayoutCallbackProperty,
-    ICallbackTemplate,
+    ICallbackTemplate
 } from '../types/callbacks';
 import {
     addAllResolvedFromOutputs,
@@ -29,7 +29,7 @@ import {
     stringifyId,
     getUnfilteredLayoutCallbacks,
     isMultiValued,
-    idMatch,
+    idMatch
 } from './dependencies';
 import {getPath} from './paths';
 
@@ -242,7 +242,7 @@ export const getLayoutCallbacks = (
 
 export const getUniqueIdentifier = ({
     anyVals,
-    callback: {inputs, outputs, state},
+    callback: {inputs, outputs, state}
 }: ICallback): string =>
     concat(
         map(combineIdAndProp, [...inputs, ...outputs, ...state]),
@@ -281,7 +281,7 @@ export const makeResolvedCallback = (
     getInputs: paths => callback.inputs.map(resolve(paths)),
     getState: paths => callback.state.map(resolve(paths)),
     changedPropIds: {},
-    initialCall: false,
+    initialCall: false
 });
 
 export function pruneCallbacks<T extends ICallback>(
@@ -317,7 +317,7 @@ export function pruneCallbacks<T extends ICallback>(
 
     return {
         added,
-        removed,
+        removed
     };
 }
 

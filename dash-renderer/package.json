@@ -6,10 +6,10 @@
   "scripts": {
     "prepublishOnly": "rm -rf lib && babel src --extensions=\".ts,.tsx,.js,.jsx\" --out-dir lib --copy-files",
     "private::format.js-eslint": "eslint --quiet --fix .",
-    "private::format.js-prettier": "prettier --config .prettierrc --write \"src/**/*.{js,ts}\"",
+    "private::format.js-prettier": "prettier --config .prettierrc --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "private::format.ts": "tslint --fix --project tsconfig.json --config tslint.json",
     "private::lint.js-eslint": "eslint .",
-    "private::lint.js-prettier": "prettier --config .prettierrc \"src/**/*.{js,ts}\" --list-different",
+    "private::lint.js-prettier": "prettier --config .prettierrc \"src/**/*.{js,jsx,ts,tsx}\" --list-different",
     "private::lint.ts": "tslint --project tsconfig.json --config tslint.json",
     "build:js": "webpack --build release",
     "build:dev": "webpack --build local",
