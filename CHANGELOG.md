@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 -  [#1179](https://github.com/plotly/dash/pull/1179) New and improved callback graph in the debug menu. Now based on Cytoscape for much more interactivity, plus callback profiling including number of calls, fine-grained time information, bytes sent and received, and more. You can even add custom timing information on the server with `callback_context.record_timing(name, seconds)`
 
+### Changed
+- [#1180](https://github.com/plotly/dash/pull/1180) `Input`, `Output`, and `State` in callback definitions don't need to be in lists. You still need to provide `Output` items first, then `Input` items, then `State`, and the list form is still supported. In particular, if you want to return a single output item wrapped in a length-1 list, you should still wrap the `Output` in a list. This can be useful for procedurally-generated callbacks.
+
 ## [1.14.0] - 2020-07-27
 ### Added
 - [#1343](https://github.com/plotly/dash/pull/1343) Add `title` parameter to set the

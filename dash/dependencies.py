@@ -1,5 +1,7 @@
 import json
 
+from ._validate import validate_callback
+
 
 class _Wildcard:  # pylint: disable=too-few-public-methods
     def __init__(self, name):
@@ -133,3 +135,40 @@ class ClientsideFunction:  # pylint: disable=too-few-public-methods
 
     def __repr__(self):
         return "ClientsideFunction({}, {})".format(self.namespace, self.function_name)
+
+
+def extract_callback_args(args, kwargs, name, type_):
+    """Extract arguments for callback from a name and type"""
+    parameters = kwargs.get(name, [])
+    if not parameters:
+        while args and isinstance(args[0], type_):
+            parameters.append(args.pop(0))
+    return parameters
+
+
+def handle_callback_args(args, kwargs):
+    """Split args into outputs, inputs and states"""
+    prevent_initial_call = kwargs.get("prevent_initial_call", None)
+    if prevent_initial_call is None and args and isinstance(args[-1], bool):
+        prevent_initial_call = args.pop()
+
+    # flatten args, to support the older syntax where outputs, inputs, and states
+    # each needed to be in their own list
+    flat_args = []
+    for arg in args:
+        flat_args += arg if isinstance(arg, (list, tuple)) else [arg]
+
+    outputs = extract_callback_args(flat_args, kwargs, "output", Output)
+    validate_outputs = outputs
+    if len(outputs) == 1:
+        out0 = kwargs.get("output", args[0] if args else None)
+        if not isinstance(out0, (list, tuple)):
+            outputs = outputs[0]
+
+    inputs = extract_callback_args(flat_args, kwargs, "inputs", Input)
+    states = extract_callback_args(flat_args, kwargs, "state", State)
+
+    types = Input, Output, State
+    validate_callback(validate_outputs, inputs, states, flat_args, types)
+
+    return outputs, inputs, states, prevent_initial_call
