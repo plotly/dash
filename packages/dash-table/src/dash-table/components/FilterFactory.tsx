@@ -1,20 +1,29 @@
 import * as R from 'ramda';
-import React, { CSSProperties } from 'react';
+import React, {CSSProperties} from 'react';
 
 import Logger from 'core/Logger';
-import { arrayMap, arrayMap2 } from 'core/math/arrayZipMap';
+import {arrayMap, arrayMap2} from 'core/math/arrayZipMap';
 import memoizerCache from 'core/cache/memoizer';
-import { memoizeOne } from 'core/memoizer';
+import {memoizeOne} from 'core/memoizer';
 
 import ColumnFilter from 'dash-table/components/Filter/Column';
-import { ColumnId, IColumn, TableAction, IFilterFactoryProps, SetFilter, FilterLogicalOperator } from 'dash-table/components/Table/props';
-import derivedFilterStyles, { derivedFilterOpStyles } from 'dash-table/derived/filter/wrapperStyles';
+import {
+    ColumnId,
+    IColumn,
+    TableAction,
+    IFilterFactoryProps,
+    SetFilter,
+    FilterLogicalOperator
+} from 'dash-table/components/Table/props';
+import derivedFilterStyles, {
+    derivedFilterOpStyles
+} from 'dash-table/derived/filter/wrapperStyles';
 import derivedHeaderOperations from 'dash-table/derived/header/operations';
-import { derivedRelevantFilterStyles } from 'dash-table/derived/style';
-import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
+import {derivedRelevantFilterStyles} from 'dash-table/derived/style';
+import {SingleColumnSyntaxTree} from 'dash-table/syntax-tree';
 
-import { IEdgesMatrices } from 'dash-table/derived/edges/type';
-import { updateColumnFilter } from 'dash-table/derived/filter/map';
+import {IEdgesMatrices} from 'dash-table/derived/edges/type';
+import {updateColumnFilter} from 'dash-table/derived/filter/map';
 
 const NO_FILTERS: JSX.Element[][] = [];
 
@@ -28,52 +37,61 @@ export default class FilterFactory {
         return this.propsFn();
     }
 
-    constructor(private readonly propsFn: () => IFilterFactoryProps) {
-
-    }
+    constructor(private readonly propsFn: () => IFilterFactoryProps) {}
 
     private onChange = (
         column: IColumn,
         map: Map<string, SingleColumnSyntaxTree>,
         operator: FilterLogicalOperator,
-        setFilter: SetFilter, ev: any
+        setFilter: SetFilter,
+        ev: any
     ) => {
-        Logger.debug('Filter -- onChange', column.id, ev.target.value && ev.target.value.trim());
+        Logger.debug(
+            'Filter -- onChange',
+            column.id,
+            ev.target.value && ev.target.value.trim()
+        );
 
         const value = ev.target.value.trim();
 
         updateColumnFilter(map, column, operator, value, setFilter);
-    }
+    };
 
-    private filter = memoizerCache<[ColumnId, number]>()((
-        column: IColumn,
-        index: number,
-        map: Map<string, SingleColumnSyntaxTree>,
-        operator: FilterLogicalOperator,
-        setFilter: SetFilter
-    ) => {
-        const ast = map.get(column.id.toString());
+    private filter = memoizerCache<[ColumnId, number]>()(
+        (
+            column: IColumn,
+            index: number,
+            map: Map<string, SingleColumnSyntaxTree>,
+            operator: FilterLogicalOperator,
+            setFilter: SetFilter
+        ) => {
+            const ast = map.get(column.id.toString());
 
-        return (<ColumnFilter
-            key={`column-${index}`}
-            className={`dash-filter column-${index}`}
-            columnId={column.id}
-            isValid={!ast || ast.isValid}
-            setFilter={this.onChange.bind(this, column, map, operator, setFilter)}
-            value={ast && ast.query}
-        />);
-    });
+            return (
+                <ColumnFilter
+                    key={`column-${index}`}
+                    className={`dash-filter column-${index}`}
+                    columnId={column.id}
+                    isValid={!ast || ast.isValid}
+                    setFilter={this.onChange.bind(
+                        this,
+                        column,
+                        map,
+                        operator,
+                        setFilter
+                    )}
+                    value={ast && ast.query}
+                />
+            );
+        }
+    );
 
-    private wrapperStyles = memoizeOne((
-        styles: any[],
-        edges: IEdgesMatrices | undefined
-    ) => arrayMap(
-        styles,
-        (s, j) => R.merge(
-            s,
-            edges && edges.getStyle(0, j)
-        )
-    ));
+    private wrapperStyles = memoizeOne(
+        (styles: any[], edges: IEdgesMatrices | undefined) =>
+            arrayMap(styles, (s, j) =>
+                R.merge(s, edges && edges.getStyle(0, j))
+            )
+    );
 
     public createFilters(
         filterEdges: IEdgesMatrices | undefined,
@@ -114,15 +132,18 @@ export default class FilterFactory {
             relevantStyles
         )[0];
 
-        const filters = R.addIndex<IColumn, JSX.Element>(R.map)((column, index) => {
-            return this.filter.get(column.id, index)(
-                column,
-                index,
-                map,
-                filter_action.operator,
-                setFilter
-            );
-        }, visibleColumns);
+        const filters = R.addIndex<IColumn, JSX.Element>(R.map)(
+            (column, index) => {
+                return this.filter.get(column.id, index)(
+                    column,
+                    index,
+                    map,
+                    filter_action.operator,
+                    setFilter
+                );
+            },
+            visibleColumns
+        );
 
         const styledFilters = this.getFilterCells(
             filters,
@@ -145,40 +166,43 @@ export default class FilterFactory {
         return this.getCells(operators, styledFilters);
     }
 
-    getCells = memoizeOne((
-        opCells: JSX.Element[],
-        filterCells: JSX.Element[]
-    ) => [opCells.concat(filterCells)]);
+    getCells = memoizeOne(
+        (opCells: JSX.Element[], filterCells: JSX.Element[]) => [
+            opCells.concat(filterCells)
+        ]
+    );
 
-    getFilterCells = memoizeOne((
-        filters: JSX.Element[],
-        styles: (CSSProperties | undefined)[],
-        edges: IEdgesMatrices | undefined
-    ) => arrayMap2(
-        filters,
-        styles,
-        (f, s, j) => React.cloneElement(f, {
-            style: R.mergeAll([
-                edges && edges.getStyle(0, j),
-                s,
-                f.props.style
-            ])
-        })
-    ));
+    getFilterCells = memoizeOne(
+        (
+            filters: JSX.Element[],
+            styles: (CSSProperties | undefined)[],
+            edges: IEdgesMatrices | undefined
+        ) =>
+            arrayMap2(filters, styles, (f, s, j) =>
+                React.cloneElement(f, {
+                    style: R.mergeAll([
+                        edges && edges.getStyle(0, j),
+                        s,
+                        f.props.style
+                    ])
+                })
+            )
+    );
 
-    getOpFilterCells = memoizeOne((
-        ops: JSX.Element[],
-        styles: (CSSProperties | undefined)[],
-        edges: IEdgesMatrices | undefined
-    ) => arrayMap2(
-        ops,
-        styles,
-        (o, s, j) => React.cloneElement(o, {
-            style: R.mergeAll([
-                edges && edges.getStyle(0, j),
-                s,
-                o.props.style
-            ])
-        })
-    ));
+    getOpFilterCells = memoizeOne(
+        (
+            ops: JSX.Element[],
+            styles: (CSSProperties | undefined)[],
+            edges: IEdgesMatrices | undefined
+        ) =>
+            arrayMap2(ops, styles, (o, s, j) =>
+                React.cloneElement(o, {
+                    style: R.mergeAll([
+                        edges && edges.getStyle(0, j),
+                        s,
+                        o.props.style
+                    ])
+                })
+            )
+    );
 }

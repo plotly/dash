@@ -1,9 +1,6 @@
-import {
-    ColumnType,
-    IColumnType
-} from 'dash-table/components/Table/props';
+import {ColumnType, IColumnType} from 'dash-table/components/Table/props';
 
-import { getFormatter as getNumberFormatter } from './number';
+import {getFormatter as getNumberFormatter} from './number';
 
 const DEFAULT_FORMATTER = (value: any) => value;
 export default (c: IColumnType) => {

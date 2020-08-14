@@ -1,14 +1,11 @@
-import { ILexeme } from 'core/syntax-tree/lexicon';
+import {ILexeme} from 'core/syntax-tree/lexicon';
 
 import {
     fieldExpression,
     stringExpression,
     valueExpression
 } from '../lexeme/expression';
-import {
-    and,
-    or
-} from '../lexeme/logical';
+import {and, or} from '../lexeme/logical';
 import {
     contains,
     dateStartsWith,
@@ -38,7 +35,7 @@ import {
     ifUnaryOperator,
     isTerminalExpression
 } from '.';
-import { FilterLogicalOperator } from 'dash-table/components/Table/props';
+import {FilterLogicalOperator} from 'dash-table/components/Table/props';
 
 export default function (operator: FilterLogicalOperator): ILexeme[] {
     return [
@@ -47,7 +44,8 @@ export default function (operator: FilterLogicalOperator): ILexeme[] {
             if: ifLogicalOperator,
             terminal: false
         },
-        ...[contains,
+        ...[
+            contains,
             dateStartsWith,
             equal,
             greaterOrEqual,
@@ -60,7 +58,8 @@ export default function (operator: FilterLogicalOperator): ILexeme[] {
             if: ifRelationalOperator,
             terminal: false
         })),
-        ...[isBlank,
+        ...[
+            isBlank,
             isBool,
             isEven,
             isNil,
@@ -74,11 +73,7 @@ export default function (operator: FilterLogicalOperator): ILexeme[] {
             if: ifUnaryOperator,
             terminal: true
         })),
-        ...[
-            fieldExpression,
-            stringExpression,
-            valueExpression
-        ].map(exp => ({
+        ...[fieldExpression, stringExpression, valueExpression].map(exp => ({
             ...exp,
             if: ifExpression,
             terminal: isTerminalExpression

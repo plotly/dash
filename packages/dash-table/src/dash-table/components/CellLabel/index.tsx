@@ -1,6 +1,4 @@
-import React, {
-    PureComponent
-} from 'react';
+import React, {PureComponent} from 'react';
 
 interface IProps {
     active: boolean;
@@ -11,20 +9,13 @@ interface IProps {
 
 export default class CellLabel extends PureComponent<IProps> {
     render() {
-        const {
-            className,
-            value
-        } = this.props;
+        const {className, value} = this.props;
 
-        return (<div
-            ref='el'
-            className={className}
-            tabIndex={-1}
-        >
-            {typeof value === 'boolean' ?
-                value.toString() :
-                value}
-        </div>);
+        return (
+            <div ref='el' className={className} tabIndex={-1}>
+                {typeof value === 'boolean' ? value.toString() : value}
+            </div>
+        );
     }
 
     componentDidUpdate() {
@@ -36,7 +27,7 @@ export default class CellLabel extends PureComponent<IProps> {
     }
 
     private setFocus() {
-        const { active, applyFocus } = this.props;
+        const {active, applyFocus} = this.props;
         if (!active) {
             return;
         }

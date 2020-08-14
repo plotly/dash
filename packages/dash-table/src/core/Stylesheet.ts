@@ -6,9 +6,7 @@ interface IRule {
 }
 
 class StylesheetFacade {
-    constructor(private readonly name: string) {
-
-    }
+    constructor(private readonly name: string) {}
 
     get rules(): IRule[] {
         const sheet = this.sheet;
@@ -29,26 +27,26 @@ class StylesheetFacade {
         this.sheet.deleteRule(index);
     }
 
-    findRule(selector: string): { rule: IRule, index: number } | null {
+    findRule(selector: string): {rule: IRule; index: number} | null {
         const rules = this.rules;
         const index = rules.findIndex(r => r.selectorText === selector);
 
-        return index === -1 ?
-            null :
-            { rule: rules[index], index };
+        return index === -1 ? null : {rule: rules[index], index};
     }
 
     private __stylesheet: HTMLStyleElement | undefined;
 
     private get sheet() {
-        return (this.__stylesheet = this.__stylesheet || (() => {
-            const style = document.createElement('style');
-            style.type = 'text/css';
-            style.id = this.name;
-            document.getElementsByTagName('head')[0].appendChild(style);
+        return (this.__stylesheet =
+            this.__stylesheet ||
+            (() => {
+                const style = document.createElement('style');
+                style.type = 'text/css';
+                style.id = this.name;
+                document.getElementsByTagName('head')[0].appendChild(style);
 
-            return style;
-        })()).sheet as any;
+                return style;
+            })()).sheet as any;
     }
 }
 
@@ -73,7 +71,10 @@ export default class Stylesheet {
 
         const result = this.stylesheet.findRule(selector);
         if (result) {
-            if (result.rule.cssText === css || result.rule.cssText === `${selector} { ${css} }`) {
+            if (
+                result.rule.cssText === css ||
+                result.rule.cssText === `${selector} { ${css} }`
+            ) {
                 return;
             } else {
                 this.stylesheet.deleteRule(result.index);

@@ -1,5 +1,5 @@
-import React, { PureComponent } from 'react';
-import { KEY_CODES } from 'dash-table/utils/unicode';
+import React, {PureComponent} from 'react';
+import {KEY_CODES} from 'dash-table/utils/unicode';
 
 type Submit = (value: string | undefined) => void;
 
@@ -41,8 +41,8 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
     }
 
     UNSAFE_componentWillReceiveProps(nextProps: IProps) {
-        const { value } = this.props;
-        const { value: nextValue } = nextProps;
+        const {value} = this.props;
+        const {value: nextValue} = nextProps;
 
         if (value !== nextValue) {
             this.setState({
@@ -60,10 +60,7 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
     }
 
     handleKeyDown = (e: React.KeyboardEvent) => {
-        const {
-            stopPropagation,
-            updateOnEnter
-        } = this.propsWithDefaults;
+        const {stopPropagation, updateOnEnter} = this.propsWithDefaults;
 
         if (stopPropagation) {
             e.stopPropagation();
@@ -72,17 +69,17 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
         if (updateOnEnter && e.keyCode === KEY_CODES.ENTER) {
             this.submit();
         }
-    }
+    };
 
     handleChange = (ev: any) => {
         this.setState({
             value: ev.target.value
         });
-    }
+    };
 
     submit = () =>
         this.state.value !== this.props.value &&
-        this.props.submit(this.state.value)
+        this.props.submit(this.state.value);
 
     render() {
         const {
@@ -93,21 +90,23 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
             updateOnSubmit
         } = this.propsWithDefaults;
 
-        let props = {
+        const props = {
             onBlur: updateOnBlur ? this.submit : undefined,
             onKeyDown: this.handleKeyDown,
             onSubmit: updateOnSubmit ? this.submit : undefined
         };
 
-        return (<input
-            ref='input'
-            type='text'
-            value={this.state.value || ''}
-            onChange={this.handleChange}
-            onCopy={onCopy}
-            onPaste={onPaste}
-            placeholder={placeholder}
-            {...props}
-        />);
+        return (
+            <input
+                ref='input'
+                type='text'
+                value={this.state.value || ''}
+                onChange={this.handleChange}
+                onCopy={onCopy}
+                onPaste={onPaste}
+                placeholder={placeholder}
+                {...props}
+            />
+        );
     }
 }

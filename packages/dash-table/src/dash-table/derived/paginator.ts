@@ -1,12 +1,8 @@
-import { memoizeOneFactory } from 'core/memoizer';
+import {memoizeOneFactory} from 'core/memoizer';
 
-import { clearSelection } from 'dash-table/utils/actions';
+import {clearSelection} from 'dash-table/utils/actions';
 
-import {
-    Data,
-    SetProps,
-    TableAction
-} from 'dash-table/components/Table/props';
+import {Data, SetProps, TableAction} from 'dash-table/components/Table/props';
 
 export interface IPaginator {
     loadNext(): void;
@@ -26,36 +22,32 @@ export interface IPaginatorParams {
     page_count: number | undefined;
 }
 
-export function lastPage(
-    data: Data,
-    page_size: number
-) {
+export function lastPage(data: Data, page_size: number) {
     return Math.ceil(data.length / page_size);
 }
 
-function makePaginator(
-    params: IPaginatorParams | null
-): IPaginator {
-
+function makePaginator(params: IPaginatorParams | null): IPaginator {
     if (params === null) {
         return {
-            loadNext() { },
-            loadPrevious() { },
-            loadFirst() { },
-            loadLast() { },
-            loadPage() { },
-            hasPrevious() { return true; },
-            hasNext() { return true; },
-            isLast() { return false; },
+            loadNext() {},
+            loadPrevious() {},
+            loadFirst() {},
+            loadLast() {},
+            loadPage() {},
+            hasPrevious() {
+                return true;
+            },
+            hasNext() {
+                return true;
+            },
+            isLast() {
+                return false;
+            },
             lastPage: undefined
         };
     }
 
-    let {
-        setProps,
-        page_current,
-        page_count
-    } = params;
+    let {setProps, page_current, page_count} = params;
 
     function updatePage() {
         setProps({
@@ -65,7 +57,6 @@ function makePaginator(
     }
 
     function loadPage(page: number) {
-
         page = Math.max(0, page);
         page = page_count ? Math.min(page_count - 1, page) : page;
 
@@ -74,7 +65,6 @@ function makePaginator(
     }
 
     return {
-
         loadNext: () => loadPage(page_current + 1),
 
         loadPrevious: () => loadPage(page_current - 1),
@@ -84,7 +74,9 @@ function makePaginator(
         loadPage,
 
         loadLast: () => {
-            if (page_count) { loadPage(page_count - 1); }
+            if (page_count) {
+                loadPage(page_count - 1);
+            }
         },
 
         hasPrevious: () => {
@@ -111,19 +103,22 @@ const getter = (
     setProps: SetProps,
     data: Data
 ): IPaginator => {
-
     if (table_action === TableAction.Native) {
         page_count = lastPage(data, page_size);
     }
 
-    if (page_count) { page_count = Math.max(page_count, 1); }
+    if (page_count) {
+        page_count = Math.max(page_count, 1);
+    }
 
     return makePaginator(
-        table_action === TableAction.None ? null : {
-            setProps,
-            page_current,
-            page_count
-        }
+        table_action === TableAction.None
+            ? null
+            : {
+                  setProps,
+                  page_current,
+                  page_count
+              }
     );
 };
 

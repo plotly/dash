@@ -1,4 +1,4 @@
-import { CSSProperties, MouseEvent } from 'react';
+import {CSSProperties, MouseEvent} from 'react';
 
 interface IAttributes {
     [key: string]: string | number | boolean;

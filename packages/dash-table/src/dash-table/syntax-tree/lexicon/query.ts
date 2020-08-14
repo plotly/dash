@@ -1,21 +1,15 @@
 import * as R from 'ramda';
 
-import { ILexemeResult } from 'core/syntax-tree/lexer';
-import { LexemeType, ILexeme } from 'core/syntax-tree/lexicon';
+import {ILexemeResult} from 'core/syntax-tree/lexer';
+import {LexemeType, ILexeme} from 'core/syntax-tree/lexicon';
 
-import {
-    blockClose,
-    blockOpen
-} from '../lexeme/block';
+import {blockClose, blockOpen} from '../lexeme/block';
 import {
     fieldExpression,
     stringExpression,
     valueExpression
 } from '../lexeme/expression';
-import {
-    and,
-    or
-} from '../lexeme/logical';
+import {and, or} from '../lexeme/logical';
 import {
     contains,
     dateStartsWith,
@@ -50,19 +44,18 @@ import {
     isTerminalExpression
 } from '.';
 
-const ifNotUnaryOperator = (_: ILexemeResult[], previous: ILexemeResult | undefined) =>
-    !previous || R.includes(
-        previous.lexeme.type,
-        [
-            LexemeType.LogicalOperator,
-            LexemeType.UnaryOperator
-        ]
-    );
+const ifNotUnaryOperator = (
+    _: ILexemeResult[],
+    previous: ILexemeResult | undefined
+) =>
+    !previous ||
+    R.includes(previous.lexeme.type, [
+        LexemeType.LogicalOperator,
+        LexemeType.UnaryOperator
+    ]);
 
 const lexicon: ILexeme[] = [
-    ...[and,
-        or
-    ].map(op => ({
+    ...[and, or].map(op => ({
         ...op,
         if: ifLogicalOperator,
         terminal: false
@@ -77,7 +70,8 @@ const lexicon: ILexeme[] = [
         if: ifBlockOpen,
         terminal: false
     },
-    ...[contains,
+    ...[
+        contains,
         dateStartsWith,
         equal,
         greaterOrEqual,
@@ -90,7 +84,8 @@ const lexicon: ILexeme[] = [
         if: ifRelationalOperator,
         terminal: false
     })),
-    ...[isBlank,
+    ...[
+        isBlank,
         isBool,
         isEven,
         isNil,
@@ -109,11 +104,7 @@ const lexicon: ILexeme[] = [
         if: ifNotUnaryOperator,
         terminal: false
     },
-    ...[
-        fieldExpression,
-        stringExpression,
-        valueExpression
-    ].map(exp => ({
+    ...[fieldExpression, stringExpression, valueExpression].map(exp => ({
         ...exp,
         if: ifExpression,
         terminal: isTerminalExpression

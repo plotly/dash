@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 
 import Environment from 'core/environment';
-import { memoizeOneFactory } from 'core/memoizer';
+import {memoizeOneFactory} from 'core/memoizer';
 
 import {
     IViewportOffset,
@@ -13,10 +13,10 @@ import {
 
 import isActiveCell from 'dash-table/derived/cell/isActive';
 
-import { IConvertedStyle } from '../style';
-import { EdgesMatrices, BorderStyle } from './type';
-import { getDataCellEdges } from '.';
-import { traverse2 } from 'core/math/matrixZipMap';
+import {IConvertedStyle} from '../style';
+import {EdgesMatrices, BorderStyle} from './type';
+import {getDataCellEdges} from '.';
+import {traverse2} from 'core/math/matrixZipMap';
 
 const ACTIVE_PRIORITY = Number.MAX_SAFE_INTEGER;
 const SELECTED_PRIORITY = Number.MAX_SAFE_INTEGER - 1;
@@ -32,22 +32,30 @@ const partialGetter = (
         return;
     }
 
-    const edges = new EdgesMatrices(data.length, columns.length, Environment.defaultEdge, true, !listViewStyle);
+    const edges = new EdgesMatrices(
+        data.length,
+        columns.length,
+        Environment.defaultEdge,
+        true,
+        !listViewStyle
+    );
 
-    traverse2(
-        data,
-        columns,
-        (datum, column, i, j) => edges.setEdges(i, j, getDataCellEdges(
-            datum,
-            i + offset.rows,
-            column,
-            false,
-            false
-        )(styles))
+    traverse2(data, columns, (datum, column, i, j) =>
+        edges.setEdges(
+            i,
+            j,
+            getDataCellEdges(
+                datum,
+                i + offset.rows,
+                column,
+                false,
+                false
+            )(styles)
+        )
     );
 
     return edges;
-}
+};
 
 const getter = (
     baseline: EdgesMatrices | undefined,
@@ -64,15 +72,17 @@ const getter = (
 
     const edges = baseline.clone();
 
-    const cells = selectedCells.length ?
-        selectedCells :
-        activeCell ? [activeCell] : [];
+    const cells = selectedCells.length
+        ? selectedCells
+        : activeCell
+        ? [activeCell]
+        : [];
 
     const inactiveStyles = styles.filter(style => !style.checksState());
     const selectedStyles = styles.filter(style => style.checksStateSelected());
     const activeStyles = styles.filter(style => style.checksStateActive());
 
-    R.forEach(({ row: i, column: j }) => {
+    R.forEach(({row: i, column: j}) => {
         const iWithOffset = i - offset.rows;
         const jWithOffset = j - offset.columns;
 
@@ -83,7 +93,9 @@ const getter = (
         const active = isActiveCell(activeCell, i, j);
 
         const priority = active ? ACTIVE_PRIORITY : SELECTED_PRIORITY;
-        const defaultEdge = active ? Environment.activeEdge : Environment.defaultEdge;
+        const defaultEdge = active
+            ? Environment.activeEdge
+            : Environment.defaultEdge;
 
         const style: BorderStyle = {
             ...getDataCellEdges(
@@ -122,7 +134,7 @@ const getter = (
     }, cells);
 
     return edges;
-}
+};
 
 export const derivedPartialDataEdges = memoizeOneFactory(partialGetter);
 export const derivedDataEdges = memoizeOneFactory(getter);

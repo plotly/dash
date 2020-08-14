@@ -1,12 +1,9 @@
 import * as R from 'ramda';
 
-import { Indices } from 'dash-table/components/Table/props';
-import { memoizeOneFactory } from 'core/memoizer';
+import {Indices} from 'dash-table/components/Table/props';
+import {memoizeOneFactory} from 'core/memoizer';
 
-const getter = (
-    indices: Indices,
-    selectedRows: Indices
-): Indices => {
+const getter = (indices: Indices, selectedRows: Indices): Indices => {
     const map = new Map<number, number>();
 
     R.addIndex<number>(R.forEach)((virtualIndex, index) => {

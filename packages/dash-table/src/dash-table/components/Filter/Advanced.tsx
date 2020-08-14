@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, {PureComponent} from 'react';
 
 import IsolatedInput from 'core/components/IsolatedInput';
 
@@ -11,7 +11,9 @@ interface IAdvancedFilterProps {
     value?: string;
 }
 
-export default class AdvancedFilter extends PureComponent<IAdvancedFilterProps> {
+export default class AdvancedFilter extends PureComponent<
+    IAdvancedFilterProps
+> {
     constructor(props: IAdvancedFilterProps) {
         super(props);
     }
@@ -19,19 +21,16 @@ export default class AdvancedFilter extends PureComponent<IAdvancedFilterProps> 
     private submit = (ev: any) => this.props.setFilter(ev);
 
     render() {
-        const {
-            colSpan,
-            value
-        } = this.props;
+        const {colSpan, value} = this.props;
 
-        return (<th
-            colSpan={colSpan}
-        >
-            <IsolatedInput
-                stopPropagation={true}
-                value={value}
-                submit={this.submit}
-            />
-        </th>);
+        return (
+            <th colSpan={colSpan}>
+                <IsolatedInput
+                    stopPropagation={true}
+                    value={value}
+                    submit={this.submit}
+                />
+            </th>
+        );
     }
 }

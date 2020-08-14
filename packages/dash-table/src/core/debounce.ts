@@ -1,4 +1,4 @@
-import { ResultFn } from 'core/generic';
+import {ResultFn} from 'core/generic';
 import Logger from 'core/Logger';
 
 export default function <TArgs extends any[]>(

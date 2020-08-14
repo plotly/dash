@@ -1,4 +1,4 @@
-import { IPaginator } from 'dash-table/derived/paginator';
+import {IPaginator} from 'dash-table/derived/paginator';
 
 export interface IPageNavigationProps {
     paginator: IPaginator;

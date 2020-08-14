@@ -5,7 +5,7 @@ import LogLevel from './LogLevel';
 import __isChrome from 'core/browser/isChrome';
 /*#endif*/
 
-let LogString: string[] = [];
+const LogString: string[] = [];
 LogString[LogLevel.TRACE] = 'trace';
 LogString[LogLevel.INFO] = 'info';
 LogString[LogLevel.WARNING] = 'warning';
@@ -27,9 +27,12 @@ __highlightPrefix = false;
 
 type LoggerFn = (...args: any[]) => void;
 
-function logFn(level: LogLevel | DebugLevel, currentLevel: LogLevel | DebugLevel): LoggerFn {
+function logFn(
+    level: LogLevel | DebugLevel,
+    currentLevel: LogLevel | DebugLevel
+): LoggerFn {
     if (level < currentLevel) {
-        return () => { };
+        return () => {};
     }
 
     let fn: LoggerFn;
@@ -55,7 +58,9 @@ function logFn(level: LogLevel | DebugLevel, currentLevel: LogLevel | DebugLevel
             throw new Error(`Unknown log ${level}`);
     }
 
-    let prefix = `${fnStyle && __highlightPrefix ? '%c' : ''}[${LogString[level].toUpperCase()}]`;
+    const prefix = `${fnStyle && __highlightPrefix ? '%c' : ''}[${LogString[
+        level
+    ].toUpperCase()}]`;
     if (fnStyle && __highlightPrefix) {
         return fn.bind(window.console, prefix, fnStyle);
     } else {
@@ -75,7 +80,7 @@ interface ILogger {
     setLogLevel(level: LogLevel): void;
 }
 
-let logger: any = {
+const logger: any = {
     setDebugLevel(level: DebugLevel) {
         __debugLevel = level;
     },
@@ -134,4 +139,4 @@ Object.freeze(logger);
 
 export default logger as ILogger;
 
-export { DebugLevel, LogLevel };
+export {DebugLevel, LogLevel};

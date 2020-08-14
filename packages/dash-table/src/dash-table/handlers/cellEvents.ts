@@ -1,8 +1,11 @@
-import { min, max, set, lensPath } from 'ramda';
-import { ICellFactoryProps, Presentation } from 'dash-table/components/Table/props';
+import {min, max, set, lensPath} from 'ramda';
+import {
+    ICellFactoryProps,
+    Presentation
+} from 'dash-table/components/Table/props';
 import isActive from 'dash-table/derived/cell/isActive';
 import isSelected from 'dash-table/derived/cell/isSelected';
-import { makeCell, makeSelection } from 'dash-table/derived/cell/cellProps';
+import {makeCell, makeSelection} from 'dash-table/derived/cell/cellProps';
 import reconcile from 'dash-table/type/reconcile';
 
 export const handleClick = (
@@ -90,7 +93,12 @@ export const handleClick = (
     setProps(newProps);
 };
 
-export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number, i: number, e: any) => {
+export const handleDoubleClick = (
+    propsFn: () => ICellFactoryProps,
+    idx: number,
+    i: number,
+    e: any
+) => {
     const {
         is_focused,
         setProps,
@@ -108,7 +116,8 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number,
     const newCell = makeCell(
         idx,
         i + virtualized.offset.columns,
-        visibleColumns, viewport
+        visibleColumns,
+        viewport
     );
 
     if (!is_focused) {
@@ -124,13 +133,13 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number,
     }
 };
 
-export const handleChange = (propsFn: () => ICellFactoryProps, idx: number, i: number, value: any) => {
-    const {
-        data,
-        setProps,
-        virtualized,
-        visibleColumns
-    } = propsFn();
+export const handleChange = (
+    propsFn: () => ICellFactoryProps,
+    idx: number,
+    i: number,
+    value: any
+) => {
+    const {data, setProps, virtualized, visibleColumns} = propsFn();
 
     const c = visibleColumns[i];
     const realIdx = virtualized.indices[idx - virtualized.offset.rows];
@@ -145,23 +154,18 @@ export const handleChange = (propsFn: () => ICellFactoryProps, idx: number, i: n
         return;
     }
 
-    const newData = set(
-        lensPath([realIdx, c.id]),
-        result.value,
-        data
-    );
+    const newData = set(lensPath([realIdx, c.id]), result.value, data);
     setProps({
         data: newData
     });
-
 };
 
-export const handleEnter = (propsFn: () => ICellFactoryProps, idx: number, i: number) => {
-    const {
-        setState,
-        virtualized,
-        visibleColumns
-    } = propsFn();
+export const handleEnter = (
+    propsFn: () => ICellFactoryProps,
+    idx: number,
+    i: number
+) => {
+    const {setState, virtualized, visibleColumns} = propsFn();
 
     const c = visibleColumns[i];
     const realIdx = virtualized.indices[idx - virtualized.offset.rows];
@@ -174,26 +178,31 @@ export const handleEnter = (propsFn: () => ICellFactoryProps, idx: number, i: nu
     });
 };
 
-export const handleLeave = (propsFn: () => ICellFactoryProps, _idx: number, _i: number) => {
-    const {
-        setState
-    } = propsFn();
+export const handleLeave = (
+    propsFn: () => ICellFactoryProps,
+    _idx: number,
+    _i: number
+) => {
+    const {setState} = propsFn();
 
-    setState({ currentTooltip: undefined });
+    setState({currentTooltip: undefined});
 };
 
-export const handleMove = (propsFn: () => ICellFactoryProps, idx: number, i: number) => {
-    const {
-        currentTooltip,
-        setState,
-        virtualized,
-        visibleColumns
-    } = propsFn();
+export const handleMove = (
+    propsFn: () => ICellFactoryProps,
+    idx: number,
+    i: number
+) => {
+    const {currentTooltip, setState, virtualized, visibleColumns} = propsFn();
 
     const c = visibleColumns[i];
     const realIdx = virtualized.indices[idx - virtualized.offset.rows];
 
-    if (currentTooltip && currentTooltip.id === c.id && currentTooltip.row === realIdx) {
+    if (
+        currentTooltip &&
+        currentTooltip.id === c.id &&
+        currentTooltip.row === realIdx
+    ) {
         return;
     }
 
@@ -205,11 +214,13 @@ export const handleMove = (propsFn: () => ICellFactoryProps, idx: number, i: num
     });
 };
 
-export const handleOnMouseUp = (propsFn: () => ICellFactoryProps, idx: number, i: number, e: any) => {
-    const {
-        active_cell,
-        is_focused
-    } = propsFn();
+export const handleOnMouseUp = (
+    propsFn: () => ICellFactoryProps,
+    idx: number,
+    i: number,
+    e: any
+) => {
+    const {active_cell, is_focused} = propsFn();
 
     const active = isActive(active_cell, idx, i);
 
@@ -222,6 +233,11 @@ export const handleOnMouseUp = (propsFn: () => ICellFactoryProps, idx: number, i
     }
 };
 
-export const handlePaste = (_propsFn: () => ICellFactoryProps, _idx: number, _i: number, e: any) => {
+export const handlePaste = (
+    _propsFn: () => ICellFactoryProps,
+    _idx: number,
+    _i: number,
+    e: any
+) => {
     e.preventDefault();
 };

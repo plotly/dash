@@ -1,23 +1,38 @@
 import * as R from 'ramda';
-import { CSSProperties } from 'react';
+import {CSSProperties} from 'react';
 
-import { OptionalMap, OptionalProp, PropOf } from 'core/type';
-import { KnownCssProperties } from '../style/py2jsCssProperties';
-import { shallowClone } from 'core/math/matrixZipMap';
+import {OptionalMap, OptionalProp, PropOf} from 'core/type';
+import {KnownCssProperties} from '../style/py2jsCssProperties';
+import {shallowClone} from 'core/math/matrixZipMap';
 
 export type Edge = any;
 
 export type BorderProp =
-    PropOf<CSSProperties, 'borderBottom'> |
-    PropOf<CSSProperties, 'borderLeft'> |
-    PropOf<CSSProperties, 'borderRight'> |
-    PropOf<CSSProperties, 'borderTop'>;
+    | PropOf<CSSProperties, 'borderBottom'>
+    | PropOf<CSSProperties, 'borderLeft'>
+    | PropOf<CSSProperties, 'borderRight'>
+    | PropOf<CSSProperties, 'borderTop'>;
 
-export type BorderStyle =
-    OptionalMap<CSSProperties, 'borderBottom', [OptionalProp<CSSProperties, 'borderBottom'>, number]> &
-    OptionalMap<CSSProperties, 'borderLeft', [OptionalProp<CSSProperties, 'borderLeft'>, number]> &
-    OptionalMap<CSSProperties, 'borderRight', [OptionalProp<CSSProperties, 'borderRight'>, number]> &
-    OptionalMap<CSSProperties, 'borderTop', [OptionalProp<CSSProperties, 'borderTop'>, number]>;
+export type BorderStyle = OptionalMap<
+    CSSProperties,
+    'borderBottom',
+    [OptionalProp<CSSProperties, 'borderBottom'>, number]
+> &
+    OptionalMap<
+        CSSProperties,
+        'borderLeft',
+        [OptionalProp<CSSProperties, 'borderLeft'>, number]
+    > &
+    OptionalMap<
+        CSSProperties,
+        'borderRight',
+        [OptionalProp<CSSProperties, 'borderRight'>, number]
+    > &
+    OptionalMap<
+        CSSProperties,
+        'borderTop',
+        [OptionalProp<CSSProperties, 'borderTop'>, number]
+    >;
 
 export const BORDER_PROPERTIES: BorderProp[] = [
     'borderBottom',
@@ -40,12 +55,12 @@ export interface IEdgesMatrix {
 
 export interface IEdgesMatrices {
     getEdges(): {
-        horizontal: Edge[][],
-        vertical: Edge[][]
+        horizontal: Edge[][];
+        vertical: Edge[][];
     };
     getMatrices(): {
-        horizontal: EdgesMatrix,
-        vertical: EdgesMatrix
+        horizontal: EdgesMatrix;
+        vertical: EdgesMatrix;
     };
     getStyle(i: number, j: number): CSSProperties;
 }
@@ -59,17 +74,16 @@ export class EdgesMatrix implements IEdgesMatrix {
     public readonly defaultEdge: Edge | undefined;
 
     constructor(m: EdgesMatrix);
-    constructor(
-        rows: number,
-        columns: number,
-        defaultEdge?: Edge
-    );
+    constructor(rows: number, columns: number, defaultEdge?: Edge);
     constructor(
         rowsOrMatrix: number | EdgesMatrix,
         columns?: number,
         defaultEdge?: Edge
     ) {
-        if (typeof rowsOrMatrix === 'number' && typeof columns !== 'undefined') {
+        if (
+            typeof rowsOrMatrix === 'number' &&
+            typeof columns !== 'undefined'
+        ) {
             const rows = rowsOrMatrix;
 
             this.rows = rows;
@@ -97,7 +111,13 @@ export class EdgesMatrix implements IEdgesMatrix {
         }
     }
 
-    setEdge(i: number, j: number, edge: Edge, weight: number, force: boolean = false) {
+    setEdge(
+        i: number,
+        j: number,
+        edge: Edge,
+        weight: number,
+        force: boolean = false
+    ) {
         if (i < 0 || j < 0 || i >= this.rows || j >= this.columns) {
             return;
         }
@@ -147,7 +167,10 @@ export class EdgesMatrices implements IEdgesMatrices {
         horizontalEdges?: boolean,
         verticalEdges?: boolean
     ) {
-        if (typeof rowsOrMatrix === 'number' && typeof columns !== 'undefined') {
+        if (
+            typeof rowsOrMatrix === 'number' &&
+            typeof columns !== 'undefined'
+        ) {
             const rows = rowsOrMatrix;
 
             this.rows = rows;
@@ -157,8 +180,16 @@ export class EdgesMatrices implements IEdgesMatrices {
             this.horizontalEdges = R.isNil(horizontalEdges) || horizontalEdges;
             this.verticalEdges = R.isNil(verticalEdges) || verticalEdges;
 
-            this.horizontal = new EdgesMatrix(rows + 1, columns, this.horizontalEdges ? defaultEdge : undefined);
-            this.vertical = new EdgesMatrix(rows, columns + 1, this.verticalEdges ? defaultEdge : undefined);
+            this.horizontal = new EdgesMatrix(
+                rows + 1,
+                columns,
+                this.horizontalEdges ? defaultEdge : undefined
+            );
+            this.vertical = new EdgesMatrix(
+                rows,
+                columns + 1,
+                this.verticalEdges ? defaultEdge : undefined
+            );
         } else {
             const source = rowsOrMatrix as EdgesMatrices;
 
@@ -177,21 +208,41 @@ export class EdgesMatrices implements IEdgesMatrices {
     setEdges(i: number, j: number, style: BorderStyle) {
         if (this.horizontalEdges) {
             if (style.borderTop) {
-                this.horizontal.setEdge(i, j, style.borderTop[0], style.borderTop[1]);
+                this.horizontal.setEdge(
+                    i,
+                    j,
+                    style.borderTop[0],
+                    style.borderTop[1]
+                );
             }
 
             if (style.borderBottom) {
-                this.horizontal.setEdge(i + 1, j, style.borderBottom[0], style.borderBottom[1]);
+                this.horizontal.setEdge(
+                    i + 1,
+                    j,
+                    style.borderBottom[0],
+                    style.borderBottom[1]
+                );
             }
         }
 
         if (this.verticalEdges) {
             if (style.borderLeft) {
-                this.vertical.setEdge(i, j, style.borderLeft[0], style.borderLeft[1]);
+                this.vertical.setEdge(
+                    i,
+                    j,
+                    style.borderLeft[0],
+                    style.borderLeft[1]
+                );
             }
 
             if (style.borderRight) {
-                this.vertical.setEdge(i, j + 1, style.borderRight[0], style.borderRight[1]);
+                this.vertical.setEdge(
+                    i,
+                    j + 1,
+                    style.borderRight[0],
+                    style.borderRight[1]
+                );
             }
         }
     }
@@ -199,19 +250,19 @@ export class EdgesMatrices implements IEdgesMatrices {
     getEdges = () => ({
         horizontal: this.horizontal.getEdges(),
         vertical: this.vertical.getEdges()
-    })
+    });
 
     getMatrices = () => ({
         horizontal: this.horizontal,
         vertical: this.vertical
-    })
+    });
 
     getStyle = (i: number, j: number): CSSProperties => ({
         borderBottom: this.horizontal.getEdge(i + 1, j) || null,
         borderTop: this.horizontal.getEdge(i, j) || null,
         borderLeft: this.vertical.getEdge(i, j) || null,
         borderRight: this.vertical.getEdge(i, j + 1) || null
-    })
+    });
 
     clone = () => new EdgesMatrices(this);
 }

@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import * as R from 'ramda';
 
 /*#if DEV*/
 import Logger from 'core/Logger';
 /*#endif*/
 
-import { memoizeOne } from 'core/memoizer';
+import {memoizeOne} from 'core/memoizer';
 
 import ControlledTable from 'dash-table/components/ControlledTable';
 
@@ -20,7 +20,7 @@ import 'react-select/dist/react-select.css';
 import './Table.less';
 import './style';
 import './Dropdown.css';
-import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
+import {SingleColumnSyntaxTree} from 'dash-table/syntax-tree';
 import derivedFilterMap from 'dash-table/derived/filter/map';
 
 import controlledPropsHelper from './controlledPropsHelper';
@@ -28,7 +28,10 @@ import derivedPropsHelper from './derivedPropsHelper';
 import DOM from 'core/browser/DOM';
 import shouldComponentUpdate from './shouldComponentUpdate';
 
-export default class Table extends Component<SanitizedAndDerivedProps, StandaloneState> {
+export default class Table extends Component<
+    SanitizedAndDerivedProps,
+    StandaloneState
+> {
     constructor(props: SanitizedAndDerivedProps) {
         super(props);
 
@@ -49,7 +52,10 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
 
     UNSAFE_componentWillReceiveProps(nextProps: SanitizedAndDerivedProps) {
         this.setState(state => {
-            const { applyFocus: currentApplyFocus, workFilter: { map: currentMap, value } } = state;
+            const {
+                applyFocus: currentApplyFocus,
+                workFilter: {map: currentMap, value}
+            } = state;
 
             const nextState: Partial<StandaloneState> = {};
 
@@ -64,7 +70,7 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
                     );
 
                     if (map !== currentMap) {
-                        nextState.workFilter = { map, value };
+                        nextState.workFilter = {map, value};
                     }
                 }
             }
@@ -75,7 +81,10 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
             } else if (nextProps.loading_state !== this.props.loading_state) {
                 const activeElement = document.activeElement as HTMLElement;
                 const tdElement = DOM.getFirstParentOfType(activeElement, 'td');
-                const tableElement = DOM.getParentById(tdElement, this.props.id);
+                const tableElement = DOM.getParentById(
+                    tdElement,
+                    this.props.id
+                );
 
                 nextState.applyFocus = !!tableElement;
             }
@@ -84,7 +93,7 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
                 delete nextState.applyFocus;
             }
 
-            return R.keysIn(nextState).length ? nextState as any : null;
+            return R.keysIn(nextState).length ? (nextState as any) : null;
         });
     }
 
@@ -96,7 +105,7 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
     }
 
     render() {
-        let controlled = this.controlledPropsHelper(
+        const controlled = this.controlledPropsHelper(
             this.controlledSetProps,
             this.controlledSetState,
             this.props,
@@ -105,7 +114,7 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
 
         this.updateDerivedProps(controlled, this.controlledSetProps);
 
-        return (<ControlledTable {...controlled} />);
+        return <ControlledTable {...controlled} />;
     }
 
     private get controlledSetProps() {
@@ -117,41 +126,48 @@ export default class Table extends Component<SanitizedAndDerivedProps, Standalon
     }
 
     private readonly __setProps = memoizeOne((setProps?: SetProps) => {
-        return setProps ? (newProps: any) => {
-            /*#if DEV*/
-            const props: any = this.props;
-            R.forEach(
-                key => props[key] === newProps[key] && Logger.fatal(`Updated prop ${key} was mutated`),
-                R.keysIn(newProps)
-            );
-            /*#endif*/
+        return setProps
+            ? (newProps: any) => {
+                  /*#if DEV*/
+                  const props: any = this.props;
+                  R.forEach(
+                      key =>
+                          props[key] === newProps[key] &&
+                          Logger.fatal(`Updated prop ${key} was mutated`),
+                      R.keysIn(newProps)
+                  );
+                  /*#endif*/
 
-            if (R.has('data', newProps)) {
-                const { data } = this.props;
+                  if (R.has('data', newProps)) {
+                      const {data} = this.props;
 
-                newProps.data_timestamp = Date.now();
-                newProps.data_previous = data;
-            }
+                      newProps.data_timestamp = Date.now();
+                      newProps.data_previous = data;
+                  }
 
-            setProps(newProps);
-        } : (newProps: Partial<SanitizedAndDerivedProps>) => {
-            /*#if DEV*/
-            const props: any = this.state;
-            R.forEach(
-                key => props[key] === (newProps as any)[key] && Logger.fatal(`Updated prop ${key} was mutated`),
-                R.keysIn(newProps)
-            );
-            /*#endif*/
+                  setProps(newProps);
+              }
+            : (newProps: Partial<SanitizedAndDerivedProps>) => {
+                  /*#if DEV*/
+                  const props: any = this.state;
+                  R.forEach(
+                      key =>
+                          props[key] === (newProps as any)[key] &&
+                          Logger.fatal(`Updated prop ${key} was mutated`),
+                      R.keysIn(newProps)
+                  );
+                  /*#endif*/
 
-            this.setState(newProps);
-        };
+                  this.setState(newProps);
+              };
     });
 
-    private readonly __setState = memoizeOne(() => (state: Partial<IState>) => this.setState(state as IState));
+    private readonly __setState = memoizeOne(() => (state: Partial<IState>) =>
+        this.setState(state as IState)
+    );
 
     private readonly filterMap = derivedFilterMap();
 
     private readonly controlledPropsHelper = controlledPropsHelper();
     private readonly updateDerivedProps = derivedPropsHelper();
 }
-

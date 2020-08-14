@@ -2,7 +2,12 @@ import * as R from 'ramda';
 
 import Logger from 'core/Logger';
 
-import { ICellCoordinates, Columns, Data, ColumnType } from 'dash-table/components/Table/props';
+import {
+    ICellCoordinates,
+    Columns,
+    Data,
+    ColumnType
+} from 'dash-table/components/Table/props';
 import reconcile from 'dash-table/type/reconcile';
 
 export default (
@@ -14,9 +19,11 @@ export default (
     data: Data,
     overflowColumns: boolean = true,
     overflowRows: boolean = true
-): { data: Data, columns: Columns } | void => {
+): {data: Data; columns: Columns} | void => {
     if (!overflowRows) {
-        Logger.debug(`Clipboard -- Sorting or filtering active, do not create new rows`);
+        Logger.debug(
+            `Clipboard -- Sorting or filtering active, do not create new rows`
+        );
     }
 
     if (!overflowColumns) {
@@ -30,7 +37,10 @@ export default (
     let newColumns = columns_.slice(0);
     let newVisibleColumns = visibleColumns.slice(0);
 
-    if (overflowColumns && values[0].length + (activeCell as any).column >= visibleColumns.length) {
+    if (
+        overflowColumns &&
+        values[0].length + (activeCell as any).column >= visibleColumns.length
+    ) {
         const _newColumns = [];
         for (
             let i = visibleColumns.length;
@@ -61,25 +71,23 @@ export default (
         visibleColumns.forEach(c => (emptyRow[c.id] = ''));
         newData = R.concat(
             newData,
-            R.repeat(
-                emptyRow,
-                values.length + realActiveRow - data.length
-            )
+            R.repeat(emptyRow, values.length + realActiveRow - data.length)
         );
     }
 
     const lastEntry = derived_viewport_indices.slice(-1)[0] || 0;
     const viewportSize = derived_viewport_indices.length;
 
-    for (let [i, row] of values.entries()) {
-        for (let [j, value] of row.entries()) {
+    for (const [i, row] of values.entries()) {
+        for (const [j, value] of row.entries()) {
             const viewportIndex = (activeCell as any).row + i;
 
-            let iRealCell: number | undefined = viewportSize > viewportIndex ?
-                derived_viewport_indices[viewportIndex] :
-                overflowRows ?
-                    lastEntry + (viewportIndex - viewportSize + 1) :
-                    undefined;
+            const iRealCell: number | undefined =
+                viewportSize > viewportIndex
+                    ? derived_viewport_indices[viewportIndex]
+                    : overflowRows
+                    ? lastEntry + (viewportIndex - viewportSize + 1)
+                    : undefined;
 
             if (iRealCell === undefined) {
                 continue;
@@ -105,5 +113,5 @@ export default (
         }
     }
 
-    return { data: newData, columns: newColumns };
+    return {data: newData, columns: newColumns};
 };

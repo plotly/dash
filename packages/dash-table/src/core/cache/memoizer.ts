@@ -1,5 +1,5 @@
-import { memoizeOne } from 'core/memoizer';
-import { CacheKeyFragment, getCache } from '.';
+import {memoizeOne} from 'core/memoizer';
+import {CacheKeyFragment, getCache} from '.';
 
 export default <TKey extends CacheKeyFragment[]>() => {
     return <TEntryFn extends (...a: any[]) => any>(fn: TEntryFn) => {
@@ -16,6 +16,6 @@ export default <TKey extends CacheKeyFragment[]>() => {
             );
         }
 
-        return { get };
+        return {get};
     };
 };

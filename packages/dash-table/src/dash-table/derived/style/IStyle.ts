@@ -1,4 +1,4 @@
-import { StyleProperty } from './py2jsCssProperties';
+import {StyleProperty} from './py2jsCssProperties';
 
 export default interface IStyle {
     alignContent: StyleProperty;

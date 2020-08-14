@@ -7,14 +7,14 @@ import {
 
 import IStyle from './IStyle';
 
-export { IStyle };
+export {IStyle};
 
 export type Style = Partial<IStyle>;
 
-export type BasicFilter = Style & { if: ConditionalBasicFilter };
-export type DataCell = Style & { if: ConditionalDataCell };
-export type Cell = Style & { if: ConditionalCell };
-export type Header = Style & { if: ConditionalHeader };
+export type BasicFilter = Style & {if: ConditionalBasicFilter};
+export type DataCell = Style & {if: ConditionalDataCell};
+export type Cell = Style & {if: ConditionalCell};
+export type Header = Style & {if: ConditionalHeader};
 
 export type BasicFilters = BasicFilter[];
 export type DataCells = DataCell[];

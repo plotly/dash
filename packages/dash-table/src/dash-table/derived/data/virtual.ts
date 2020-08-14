@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 
-import { memoizeOneFactory } from 'core/memoizer';
-import sort, { SortBy } from 'core/sorting';
+import {memoizeOneFactory} from 'core/memoizer';
+import sort, {SortBy} from 'core/sorting';
 import {
     ColumnId,
     Data,
@@ -12,7 +12,7 @@ import {
     TableAction,
     IFilterAction
 } from 'dash-table/components/Table/props';
-import { QuerySyntaxTree } from 'dash-table/syntax-tree';
+import {QuerySyntaxTree} from 'dash-table/syntax-tree';
 
 const getter = (
     columns: Columns,
@@ -30,23 +30,17 @@ const getter = (
     if (filter_action.type === TableAction.Native) {
         const tree = new QuerySyntaxTree(filter_query);
 
-        data = tree.isValid ?
-            tree.filter(data) :
-            data;
+        data = tree.isValid ? tree.filter(data) : data;
     }
 
-    const getNullyCases = (
-        columnId: ColumnId
-    ): SortAsNull => {
+    const getNullyCases = (columnId: ColumnId): SortAsNull => {
         const column = R.find(c => c.id === columnId, columns);
 
         return (column && column.sort_as_null) || [];
     };
 
-    const isNully = (
-        value: any,
-        columnId: ColumnId
-    ) => R.isNil(value) || R.includes(value, getNullyCases(columnId));
+    const isNully = (value: any, columnId: ColumnId) =>
+        R.isNil(value) || R.includes(value, getNullyCases(columnId));
 
     if (sort_action === TableAction.Native) {
         data = sort(data, sort_by, isNully);
@@ -55,7 +49,7 @@ const getter = (
     // virtual_indices
     const indices = R.map(datum => map.get(datum) as number, data);
 
-    return { data, indices };
+    return {data, indices};
 };
 
 export default memoizeOneFactory(getter);

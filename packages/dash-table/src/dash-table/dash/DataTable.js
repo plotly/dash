@@ -1,7 +1,7 @@
 import * as R from 'ramda';
-import React, { Component, lazy, Suspense } from 'react';
+import React, {Component, lazy, Suspense} from 'react';
 import PropTypes from 'prop-types';
-import { asyncDecorator } from '@plotly/dash-component-plugins';
+import {asyncDecorator} from '@plotly/dash-component-plugins';
 
 import Logger from 'core/Logger';
 
@@ -127,274 +127,269 @@ export const propTypes = {
      * Columns describes various aspects about each individual column.
      * `name` and `id` are the only required parameters.
      */
-    columns: PropTypes.arrayOf(PropTypes.exact({
-
-        /**
-         * If true, the user can clear the column by clicking on the `clear`
-         * action button on the column. If there are multiple header rows, true
-         * will display the action button on each row.
-         * If `last`, the `clear` action button will only appear on the last header
-         * row. If `first` it will only appear on the first header row. These
-         * are respectively shortcut equivalents to `[false, ..., false, true]` and
-         * `[true, false, ..., false]`.
-         * If there are merged, multi-header columns then you can choose
-         * which column header row to display the `clear` action button in by
-         * supplying an array of booleans.
-         * For example, `[true, false]` will display the `clear` action button
-         * on the first row, but not the second row.
-         * If the `clear` action button appears on a merged column, then clicking
-         * on that button will clear *all* of the merged columns associated with it.
-         * Unlike `column.deletable`, this action does not remove the column(s)
-         * from the table. It only removed the associated entries from `data`.
-         */
-        clearable: PropTypes.oneOfType([
-            PropTypes.oneOf(['first', 'last']),
-            PropTypes.bool,
-            PropTypes.arrayOf(PropTypes.bool)
-        ]),
-
-        /**
-         * If true, the user can remove the column by clicking on the `delete`
-         * action button on the column. If there are multiple header rows, true
-         * will display the action button on each row.
-         * If `last`, the `delete` action button will only appear on the last header
-         * row. If `first` it will only appear on the first header row. These
-         * are respectively shortcut equivalents to `[false, ..., false, true]` and
-         * `[true, false, ..., false]`.
-         * If there are merged, multi-header columns then you can choose
-         * which column header row to display the `delete` action button in by
-         * supplying an array of booleans.
-         * For example, `[true, false]` will display the `delete` action button
-         * on the first row, but not the second row.
-         * If the `delete` action button appears on a merged column, then clicking
-         * on that button will remove *all* of the merged columns associated with it.
-         */
-        deletable: PropTypes.oneOfType([
-            PropTypes.oneOf(['first', 'last']),
-            PropTypes.bool,
-            PropTypes.arrayOf(PropTypes.bool)
-        ]),
-
-        /**
-         * There are two `editable` flags in the table.
-         * This is the  column-level editable flag and there is
-         * also the table-level `editable` flag.
-         * These flags determine whether the contents of the table
-         * are editable or not.
-         * If the column-level `editable` flag is set it overrides
-         * the table-level `editable` flag for that column.
-         */
-        editable: PropTypes.bool,
-
-        /**
-         * If true, the user can hide the column by clicking on the `hide`
-         * action button on the column. If there are multiple header rows, true
-         * will display the action button on each row.
-         * If `last`, the `hide` action button will only appear on the last header
-         * row. If `first` it will only appear on the first header row. These
-         * are respectively shortcut equivalents to `[false, ..., false, true]` and
-         * `[true, false, ..., false]`.
-         * If there are merged, multi-header columns then you can choose
-         * which column header row to display the `hide` action button in by
-         * supplying an array of booleans.
-         * For example, `[true, false]` will display the `hide` action button
-         * on the first row, but not the second row.
-         * If the `hide` action button appears on a merged column, then clicking
-         * on that button will hide *all* of the merged columns associated with it.
-         */
-        hideable: PropTypes.oneOfType([
-            PropTypes.oneOf(['first', 'last']),
-            PropTypes.bool,
-            PropTypes.arrayOf(PropTypes.bool)
-        ]),
-
-        /**
-         * If true, the user can rename the column by clicking on the `rename`
-         * action button on the column. If there are multiple header rows, true
-         * will display the action button on each row.
-         * If `last`, the `rename` action button will only appear on the last header
-         * row. If `first` it will only appear on the first header row. These
-         * are respectively shortcut equivalents to `[false, ..., false, true]` and
-         * `[true, false, ..., false]`.
-         * If there are merged, multi-header columns then you can choose
-         * which column header row to display the `rename` action button in by
-         * supplying an array of booleans.
-         * For example, `[true, false]` will display the `rename` action button
-         * on the first row, but not the second row.
-         * If the `rename` action button appears on a merged column, then clicking
-         * on that button will rename *all* of the merged columns associated with it.
-         */
-        renamable: PropTypes.oneOfType([
-            PropTypes.oneOf(['first', 'last']),
-            PropTypes.bool,
-            PropTypes.arrayOf(PropTypes.bool)
-        ]),
-
-        /**
-         * If true, the user can select the column by clicking on the checkbox or radio button
-         * in the column. If there are multiple header rows, true will display the input
-         * on each row.
-         * If `last`, the input will only appear on the last header row. If `first` it will only
-         * appear on the first header row. These are respectively shortcut equivalents to
-         * `[false, ..., false, true]` and `[true, false, ..., false]`.
-         * If there are merged, multi-header columns then you can choose which column header
-         * row to display the input in by supplying an array of booleans.
-         * For example, `[true, false]` will display the `selectable` input on the first row,
-         * but now on the second row.
-         * If the `selectable` input appears on a merged columns, then clicking on that input
-         * will select *all* of the merged columns associated with it.
-         * The table-level prop `column_selectable` is used to determine the type of column
-         * selection to use.
-         *
-         */
-        selectable: PropTypes.oneOfType([
-            PropTypes.oneOf(['first', 'last']),
-            PropTypes.bool,
-            PropTypes.arrayOf(PropTypes.bool)
-        ]),
-
-        /**
-         * The formatting applied to the column's data.
-         * This prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from
-         * being structured slightly differently (under a single prop), the usage
-         * is the same.
-         * 'locale': represents localization specific formatting information.
-         *  When left unspecified, will use the default value provided by d3-format.
-         *  The keys are as follows:
-         *  'symbol': (default: ['$', '']) a list of two strings representing the
-         *  prefix and suffix symbols. Typically used for currency, and implemented using d3's
-         *  currency format, but you can use this for other symbols such as measurement units;
-         *  'decimal': (default: '.') the string used for the decimal separator;
-         *  'group': (default: ',') the string used for the groups separator;
-         *  'grouping': (default: [3]) a list of integers representing the grouping pattern.
-         *  'numerals': a list of ten strings used as replacements for numbers 0-9;
-         *  'percent': (default: '%') the string used for the percentage symbol;
-         *  'separate_4digits': (default: True) separate integers with 4-digits or less.
-         * 'nully': a value that will be used in place of the nully value during formatting.
-         *   If the value type matches the column type, it will be formatted normally.
-         * 'prefix': a number representing the SI unit to use during formatting.
-         *   See `dash_table.Format.Prefix` enumeration for the list of valid values
-         * 'specifier': (default: '') represents the rules to apply when formatting the number.
-         * dash_table.FormatTemplate contains helper functions to rapidly use certain
-         * typical number formats.
-         */
-        format: PropTypes.exact({
-            locale: PropTypes.exact({
-                symbol: PropTypes.arrayOf(PropTypes.string),
-                decimal: PropTypes.string,
-                group: PropTypes.string,
-                grouping: PropTypes.arrayOf(PropTypes.number),
-                numerals: PropTypes.arrayOf(PropTypes.string),
-                percent: PropTypes.string,
-                separate_4digits: PropTypes.bool
-            }),
-            nully: PropTypes.any,
-            prefix: PropTypes.number,
-            specifier: PropTypes.string
-        }),
-
-        /**
-         * The `id` of the column.
-         * The column `id` is used to match cells in data
-         * with particular columns.
-         * The `id` is not visible in the table.
-         */
-        id: PropTypes.string.isRequired,
-
-        /**
-         * The `name` of the column,
-         * as it appears in the column header.
-         * If `name` is a list of strings, then the columns
-         * will render with multiple headers rows.
-         */
-        name: PropTypes.oneOfType([
-            PropTypes.string,
-            PropTypes.arrayOf(PropTypes.string)
-        ]).isRequired,
-
-        /**
-         * The `presentation` to use to display the value.
-         * Defaults to 'input' for ['datetime', 'numeric', 'text', 'any'].
-         */
-        presentation: PropTypes.oneOf(['input', 'dropdown', 'markdown']),
-
-        /**
-         * The `on_change` behavior of the column for user-initiated modifications.
-         * 'action' (default 'coerce'):
-         *  none: do not validate data;
-         *  coerce: check if the data corresponds to the destination type and
-         *  attempts to coerce it into the destination type if not;
-         *  validate: check if the data corresponds to the destination type (no coercion).
-         * 'failure' (default 'reject'): what to do with the value if the action fails:
-         *  accept: use the invalid value;
-         *  default: replace the provided value with `validation.default`;
-         *  reject: do not modify the existing value.
-         */
-        on_change: PropTypes.exact({
-            action: PropTypes.oneOf([
-                'coerce',
-                'none',
-                'validate'
+    columns: PropTypes.arrayOf(
+        PropTypes.exact({
+            /**
+             * If true, the user can clear the column by clicking on the `clear`
+             * action button on the column. If there are multiple header rows, true
+             * will display the action button on each row.
+             * If `last`, the `clear` action button will only appear on the last header
+             * row. If `first` it will only appear on the first header row. These
+             * are respectively shortcut equivalents to `[false, ..., false, true]` and
+             * `[true, false, ..., false]`.
+             * If there are merged, multi-header columns then you can choose
+             * which column header row to display the `clear` action button in by
+             * supplying an array of booleans.
+             * For example, `[true, false]` will display the `clear` action button
+             * on the first row, but not the second row.
+             * If the `clear` action button appears on a merged column, then clicking
+             * on that button will clear *all* of the merged columns associated with it.
+             * Unlike `column.deletable`, this action does not remove the column(s)
+             * from the table. It only removed the associated entries from `data`.
+             */
+            clearable: PropTypes.oneOfType([
+                PropTypes.oneOf(['first', 'last']),
+                PropTypes.bool,
+                PropTypes.arrayOf(PropTypes.bool)
             ]),
-            failure: PropTypes.oneOf([
-                'accept',
-                'default',
-                'reject'
-            ])
-        }),
 
-        /**
-         * An array of string, number and boolean values that are treated as `null`
-         * (i.e. ignored and always displayed last) when sorting.
-         * This value overrides the table-level `sort_as_null`.
-         */
-        sort_as_null: PropTypes.arrayOf(PropTypes.oneOfType([
-            PropTypes.string,
-            PropTypes.number,
-            PropTypes.bool
-        ])),
+            /**
+             * If true, the user can remove the column by clicking on the `delete`
+             * action button on the column. If there are multiple header rows, true
+             * will display the action button on each row.
+             * If `last`, the `delete` action button will only appear on the last header
+             * row. If `first` it will only appear on the first header row. These
+             * are respectively shortcut equivalents to `[false, ..., false, true]` and
+             * `[true, false, ..., false]`.
+             * If there are merged, multi-header columns then you can choose
+             * which column header row to display the `delete` action button in by
+             * supplying an array of booleans.
+             * For example, `[true, false]` will display the `delete` action button
+             * on the first row, but not the second row.
+             * If the `delete` action button appears on a merged column, then clicking
+             * on that button will remove *all* of the merged columns associated with it.
+             */
+            deletable: PropTypes.oneOfType([
+                PropTypes.oneOf(['first', 'last']),
+                PropTypes.bool,
+                PropTypes.arrayOf(PropTypes.bool)
+            ]),
 
-        /**
-         * The `validation` options.
-         * 'allow_null': Allow the use of nully values. (undefined, null, NaN) (default: false)
-         * 'default': The default value to apply with on_change.failure = 'default'. (default: null)
-         * 'allow_YY': `datetime` columns only, allow 2-digit years (default: false).
-         *   If true, we interpret years as ranging from now-70 to now+29 - in 2019
-         *   this is 1949 to 2048 but in 2020 it will be different. If used with
-         *   `action: 'coerce'`, will convert user input to a 4-digit year.
-         */
-        validation: PropTypes.exact({
-            allow_null: PropTypes.bool,
-            default: PropTypes.any,
-            allow_YY: PropTypes.bool
-        }),
+            /**
+             * There are two `editable` flags in the table.
+             * This is the  column-level editable flag and there is
+             * also the table-level `editable` flag.
+             * These flags determine whether the contents of the table
+             * are editable or not.
+             * If the column-level `editable` flag is set it overrides
+             * the table-level `editable` flag for that column.
+             */
+            editable: PropTypes.bool,
 
-        /**
-         * The data-type of the column's data.
-         * 'numeric': represents both floats and ints.
-         * 'text': represents a string.
-         * 'datetime': a string representing a date or date-time, in the form:
-         *   'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must
-         *   have 4 digits, unless you use `validation.allow_YY: true`. Also
-         *   accepts 'T' or 't' between date and time, and allows timezone info
-         *   at the end. To convert these strings to Python `datetime` objects,
-         *   use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the
-         *   `parsedate` library.
-         *   WARNING: these parsers do not work with 2-digit years, if you use
-         *   `validation.allow_YY: true` and do not coerce to 4-digit years.
-         *   And parsers that do work with 2-digit years may make a different
-         *   guess about the century than we make on the front end.
-         * 'any': represents any type of data.
-         * Defaults to 'any' if undefined.
-         * NOTE: This feature has not been fully implemented.
-         * In the future, it's data types will impact things like
-         * text formatting options in the cell (e.g. display 2 decimals
-         * for a number), filtering options and behavior, and editing
-         * behavior.
-         * Stay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)
-         */
-        type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime'])
-    })),
+            /**
+             * If true, the user can hide the column by clicking on the `hide`
+             * action button on the column. If there are multiple header rows, true
+             * will display the action button on each row.
+             * If `last`, the `hide` action button will only appear on the last header
+             * row. If `first` it will only appear on the first header row. These
+             * are respectively shortcut equivalents to `[false, ..., false, true]` and
+             * `[true, false, ..., false]`.
+             * If there are merged, multi-header columns then you can choose
+             * which column header row to display the `hide` action button in by
+             * supplying an array of booleans.
+             * For example, `[true, false]` will display the `hide` action button
+             * on the first row, but not the second row.
+             * If the `hide` action button appears on a merged column, then clicking
+             * on that button will hide *all* of the merged columns associated with it.
+             */
+            hideable: PropTypes.oneOfType([
+                PropTypes.oneOf(['first', 'last']),
+                PropTypes.bool,
+                PropTypes.arrayOf(PropTypes.bool)
+            ]),
+
+            /**
+             * If true, the user can rename the column by clicking on the `rename`
+             * action button on the column. If there are multiple header rows, true
+             * will display the action button on each row.
+             * If `last`, the `rename` action button will only appear on the last header
+             * row. If `first` it will only appear on the first header row. These
+             * are respectively shortcut equivalents to `[false, ..., false, true]` and
+             * `[true, false, ..., false]`.
+             * If there are merged, multi-header columns then you can choose
+             * which column header row to display the `rename` action button in by
+             * supplying an array of booleans.
+             * For example, `[true, false]` will display the `rename` action button
+             * on the first row, but not the second row.
+             * If the `rename` action button appears on a merged column, then clicking
+             * on that button will rename *all* of the merged columns associated with it.
+             */
+            renamable: PropTypes.oneOfType([
+                PropTypes.oneOf(['first', 'last']),
+                PropTypes.bool,
+                PropTypes.arrayOf(PropTypes.bool)
+            ]),
+
+            /**
+             * If true, the user can select the column by clicking on the checkbox or radio button
+             * in the column. If there are multiple header rows, true will display the input
+             * on each row.
+             * If `last`, the input will only appear on the last header row. If `first` it will only
+             * appear on the first header row. These are respectively shortcut equivalents to
+             * `[false, ..., false, true]` and `[true, false, ..., false]`.
+             * If there are merged, multi-header columns then you can choose which column header
+             * row to display the input in by supplying an array of booleans.
+             * For example, `[true, false]` will display the `selectable` input on the first row,
+             * but now on the second row.
+             * If the `selectable` input appears on a merged columns, then clicking on that input
+             * will select *all* of the merged columns associated with it.
+             * The table-level prop `column_selectable` is used to determine the type of column
+             * selection to use.
+             *
+             */
+            selectable: PropTypes.oneOfType([
+                PropTypes.oneOf(['first', 'last']),
+                PropTypes.bool,
+                PropTypes.arrayOf(PropTypes.bool)
+            ]),
+
+            /**
+             * The formatting applied to the column's data.
+             * This prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from
+             * being structured slightly differently (under a single prop), the usage
+             * is the same.
+             * 'locale': represents localization specific formatting information.
+             *  When left unspecified, will use the default value provided by d3-format.
+             *  The keys are as follows:
+             *  'symbol': (default: ['$', '']) a list of two strings representing the
+             *  prefix and suffix symbols. Typically used for currency, and implemented using d3's
+             *  currency format, but you can use this for other symbols such as measurement units;
+             *  'decimal': (default: '.') the string used for the decimal separator;
+             *  'group': (default: ',') the string used for the groups separator;
+             *  'grouping': (default: [3]) a list of integers representing the grouping pattern.
+             *  'numerals': a list of ten strings used as replacements for numbers 0-9;
+             *  'percent': (default: '%') the string used for the percentage symbol;
+             *  'separate_4digits': (default: True) separate integers with 4-digits or less.
+             * 'nully': a value that will be used in place of the nully value during formatting.
+             *   If the value type matches the column type, it will be formatted normally.
+             * 'prefix': a number representing the SI unit to use during formatting.
+             *   See `dash_table.Format.Prefix` enumeration for the list of valid values
+             * 'specifier': (default: '') represents the rules to apply when formatting the number.
+             * dash_table.FormatTemplate contains helper functions to rapidly use certain
+             * typical number formats.
+             */
+            format: PropTypes.exact({
+                locale: PropTypes.exact({
+                    symbol: PropTypes.arrayOf(PropTypes.string),
+                    decimal: PropTypes.string,
+                    group: PropTypes.string,
+                    grouping: PropTypes.arrayOf(PropTypes.number),
+                    numerals: PropTypes.arrayOf(PropTypes.string),
+                    percent: PropTypes.string,
+                    separate_4digits: PropTypes.bool
+                }),
+                nully: PropTypes.any,
+                prefix: PropTypes.number,
+                specifier: PropTypes.string
+            }),
+
+            /**
+             * The `id` of the column.
+             * The column `id` is used to match cells in data
+             * with particular columns.
+             * The `id` is not visible in the table.
+             */
+            id: PropTypes.string.isRequired,
+
+            /**
+             * The `name` of the column,
+             * as it appears in the column header.
+             * If `name` is a list of strings, then the columns
+             * will render with multiple headers rows.
+             */
+            name: PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.arrayOf(PropTypes.string)
+            ]).isRequired,
+
+            /**
+             * The `presentation` to use to display the value.
+             * Defaults to 'input' for ['datetime', 'numeric', 'text', 'any'].
+             */
+            presentation: PropTypes.oneOf(['input', 'dropdown', 'markdown']),
+
+            /**
+             * The `on_change` behavior of the column for user-initiated modifications.
+             * 'action' (default 'coerce'):
+             *  none: do not validate data;
+             *  coerce: check if the data corresponds to the destination type and
+             *  attempts to coerce it into the destination type if not;
+             *  validate: check if the data corresponds to the destination type (no coercion).
+             * 'failure' (default 'reject'): what to do with the value if the action fails:
+             *  accept: use the invalid value;
+             *  default: replace the provided value with `validation.default`;
+             *  reject: do not modify the existing value.
+             */
+            on_change: PropTypes.exact({
+                action: PropTypes.oneOf(['coerce', 'none', 'validate']),
+                failure: PropTypes.oneOf(['accept', 'default', 'reject'])
+            }),
+
+            /**
+             * An array of string, number and boolean values that are treated as `null`
+             * (i.e. ignored and always displayed last) when sorting.
+             * This value overrides the table-level `sort_as_null`.
+             */
+            sort_as_null: PropTypes.arrayOf(
+                PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool
+                ])
+            ),
+
+            /**
+             * The `validation` options.
+             * 'allow_null': Allow the use of nully values. (undefined, null, NaN) (default: false)
+             * 'default': The default value to apply with on_change.failure = 'default'. (default: null)
+             * 'allow_YY': `datetime` columns only, allow 2-digit years (default: false).
+             *   If true, we interpret years as ranging from now-70 to now+29 - in 2019
+             *   this is 1949 to 2048 but in 2020 it will be different. If used with
+             *   `action: 'coerce'`, will convert user input to a 4-digit year.
+             */
+            validation: PropTypes.exact({
+                allow_null: PropTypes.bool,
+                default: PropTypes.any,
+                allow_YY: PropTypes.bool
+            }),
+
+            /**
+             * The data-type of the column's data.
+             * 'numeric': represents both floats and ints.
+             * 'text': represents a string.
+             * 'datetime': a string representing a date or date-time, in the form:
+             *   'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must
+             *   have 4 digits, unless you use `validation.allow_YY: true`. Also
+             *   accepts 'T' or 't' between date and time, and allows timezone info
+             *   at the end. To convert these strings to Python `datetime` objects,
+             *   use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the
+             *   `parsedate` library.
+             *   WARNING: these parsers do not work with 2-digit years, if you use
+             *   `validation.allow_YY: true` and do not coerce to 4-digit years.
+             *   And parsers that do work with 2-digit years may make a different
+             *   guess about the century than we make on the front end.
+             * 'any': represents any type of data.
+             * Defaults to 'any' if undefined.
+             * NOTE: This feature has not been fully implemented.
+             * In the future, it's data types will impact things like
+             * text formatting options in the cell (e.g. display 2 decimals
+             * for a number), filtering options and behavior, and editing
+             * behavior.
+             * Stay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)
+             */
+            type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime'])
+        })
+    ),
 
     /**
      * If true, headers are included when copying from the table to different
@@ -436,12 +431,7 @@ export const propTypes = {
     markdown_options: PropTypes.exact({
         link_target: PropTypes.oneOfType([
             PropTypes.string,
-            PropTypes.oneOf([
-                '_blank',
-                '_parent',
-                '_self',
-                '_top'
-            ])
+            PropTypes.oneOf(['_blank', '_parent', '_self', '_top'])
         ]).isRequired
     }),
 
@@ -455,10 +445,12 @@ export const propTypes = {
      *     {"selector": ".dash-spreadsheet", "rule": 'font-family: "monospace"'}
      * ]
      */
-    css: PropTypes.arrayOf(PropTypes.exact({
-        selector: PropTypes.string.isRequired,
-        rule: PropTypes.string.isRequired
-    })),
+    css: PropTypes.arrayOf(
+        PropTypes.exact({
+            selector: PropTypes.string.isRequired,
+            rule: PropTypes.string.isRequired
+        })
+    ),
 
     /**
      * The contents of the table.
@@ -670,12 +662,14 @@ export const propTypes = {
      * clicking on a different cell or holding down shift and navigating
      * with the arrow keys.
      */
-    selected_cells: PropTypes.arrayOf(PropTypes.exact({
-        row: PropTypes.number,
-        column: PropTypes.number,
-        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        column_id: PropTypes.string
-    })),
+    selected_cells: PropTypes.arrayOf(
+        PropTypes.exact({
+            row: PropTypes.number,
+            column: PropTypes.number,
+            row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            column_id: PropTypes.string
+        })
+    ),
 
     /**
      * `selected_rows` contains the indices of rows that
@@ -774,17 +768,21 @@ export const propTypes = {
      * The `clearable` property defines whether the value can be deleted.
      * The `options` property refers to the `options` of the dropdown.
      */
-    dropdown: PropTypes.objectOf(PropTypes.exact({
-        clearable: PropTypes.bool,
-        options: PropTypes.arrayOf(PropTypes.exact({
-            label: PropTypes.string.isRequired,
-            value: PropTypes.oneOfType([
-                PropTypes.number,
-                PropTypes.string,
-                PropTypes.bool
-            ]).isRequired
-        })).isRequired
-    })),
+    dropdown: PropTypes.objectOf(
+        PropTypes.exact({
+            clearable: PropTypes.bool,
+            options: PropTypes.arrayOf(
+                PropTypes.exact({
+                    label: PropTypes.string.isRequired,
+                    value: PropTypes.oneOfType([
+                        PropTypes.number,
+                        PropTypes.string,
+                        PropTypes.bool
+                    ]).isRequired
+                })
+            ).isRequired
+        })
+    ),
 
     /**
      * `dropdown_conditional` specifies dropdown options in various columns and cells.
@@ -793,21 +791,25 @@ export const propTypes = {
      * render different "city" dropdowns in a row depending on the
      * current value in the "state" column.
      */
-    dropdown_conditional: PropTypes.arrayOf(PropTypes.exact({
-        clearable: PropTypes.bool,
-        if: PropTypes.exact({
-            column_id: PropTypes.string,
-            filter_query: PropTypes.string
-        }),
-        options: PropTypes.arrayOf(PropTypes.exact({
-            label: PropTypes.string.isRequired,
-            value: PropTypes.oneOfType([
-                PropTypes.number,
-                PropTypes.string,
-                PropTypes.bool
-            ]).isRequired
-        })).isRequired
-    })),
+    dropdown_conditional: PropTypes.arrayOf(
+        PropTypes.exact({
+            clearable: PropTypes.bool,
+            if: PropTypes.exact({
+                column_id: PropTypes.string,
+                filter_query: PropTypes.string
+            }),
+            options: PropTypes.arrayOf(
+                PropTypes.exact({
+                    label: PropTypes.string.isRequired,
+                    value: PropTypes.oneOfType([
+                        PropTypes.number,
+                        PropTypes.string,
+                        PropTypes.bool
+                    ]).isRequired
+                })
+            ).isRequired
+        })
+    ),
 
     /**
      * `dropdown_data` specifies dropdown options on a row-by-row, column-by-column basis.
@@ -818,14 +820,16 @@ export const propTypes = {
         PropTypes.objectOf(
             PropTypes.exact({
                 clearable: PropTypes.bool,
-                options: PropTypes.arrayOf(PropTypes.exact({
-                    label: PropTypes.string.isRequired,
-                    value: PropTypes.oneOfType([
-                        PropTypes.number,
-                        PropTypes.string,
-                        PropTypes.bool
-                    ]).isRequired
-                })).isRequired
+                options: PropTypes.arrayOf(
+                    PropTypes.exact({
+                        label: PropTypes.string.isRequired,
+                        value: PropTypes.oneOfType([
+                            PropTypes.number,
+                            PropTypes.string,
+                            PropTypes.bool
+                        ]).isRequired
+                    })
+                ).isRequired
             })
         )
     ),
@@ -856,10 +860,7 @@ export const propTypes = {
             PropTypes.exact({
                 delay: PropTypes.number,
                 duration: PropTypes.number,
-                type: PropTypes.oneOf([
-                    'text',
-                    'markdown'
-                ]),
+                type: PropTypes.oneOf(['text', 'markdown']),
                 value: PropTypes.string.isRequired
             }),
             PropTypes.string
@@ -900,26 +901,22 @@ export const propTypes = {
      * This overrides the table's `tooltip_duration` property.
      * If set to `null`, the tooltip will not disappear.
      */
-    tooltip_conditional: PropTypes.arrayOf(PropTypes.exact({
-        delay: PropTypes.number,
-        duration: PropTypes.number,
-        if: PropTypes.exact({
-            column_id: PropTypes.string,
-            filter_query: PropTypes.string,
-            row_index: PropTypes.oneOfType([
-                PropTypes.number,
-                PropTypes.oneOf([
-                    'odd',
-                    'even'
+    tooltip_conditional: PropTypes.arrayOf(
+        PropTypes.exact({
+            delay: PropTypes.number,
+            duration: PropTypes.number,
+            if: PropTypes.exact({
+                column_id: PropTypes.string,
+                filter_query: PropTypes.string,
+                row_index: PropTypes.oneOfType([
+                    PropTypes.number,
+                    PropTypes.oneOf(['odd', 'even'])
                 ])
-            ])
-        }).isRequired,
-        type: PropTypes.oneOf([
-            'text',
-            'markdown'
-        ]),
-        value: PropTypes.string.isRequired
-    })),
+            }).isRequired,
+            type: PropTypes.oneOf(['text', 'markdown']),
+            value: PropTypes.string.isRequired
+        })
+    ),
 
     /**
      * `tooltip_data` represents the tooltip shown
@@ -944,19 +941,18 @@ export const propTypes = {
      * a plain string. The `text` syntax will be used in
      * that case.
      */
-    tooltip_data: PropTypes.arrayOf(PropTypes.objectOf(
-        PropTypes.oneOfType([
-            PropTypes.string,
-            PropTypes.exact({
-                delay: PropTypes.number,
-                duration: PropTypes.number,
-                type: PropTypes.oneOf([
-                    'text',
-                    'markdown'
-                ]),
-                value: PropTypes.string.isRequired
-            })
-        ]))
+    tooltip_data: PropTypes.arrayOf(
+        PropTypes.objectOf(
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.exact({
+                    delay: PropTypes.number,
+                    duration: PropTypes.number,
+                    type: PropTypes.oneOf(['text', 'markdown']),
+                    value: PropTypes.string.isRequired
+                })
+            ])
+        )
     ),
 
     /**
@@ -994,20 +990,10 @@ export const propTypes = {
      * and `data` would be the output).
      */
     filter_action: PropTypes.oneOfType([
-        PropTypes.oneOf([
-            'custom',
-            'native',
-            'none'
-        ]),
+        PropTypes.oneOf(['custom', 'native', 'none']),
         PropTypes.shape({
-            type: PropTypes.oneOf([
-                'custom',
-                'native'
-            ]).isRequired,
-            operator: PropTypes.oneOf([
-                'and',
-                'or'
-            ])
+            type: PropTypes.oneOf(['custom', 'native']).isRequired,
+            operator: PropTypes.oneOf(['and', 'or'])
         })
     ]),
 
@@ -1053,7 +1039,8 @@ export const propTypes = {
         PropTypes.exact({
             column_id: PropTypes.string.isRequired,
             direction: PropTypes.oneOf(['asc', 'desc']).isRequired
-        })),
+        })
+    ),
 
     /**
      * An array of string, number and boolean values that are treated as `null`
@@ -1061,11 +1048,13 @@ export const propTypes = {
      * This value will be used by columns without `sort_as_null`.
      * Defaults to `[]`.
      */
-    sort_as_null: PropTypes.arrayOf(PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number,
-        PropTypes.bool
-    ])),
+    sort_as_null: PropTypes.arrayOf(
+        PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.number,
+            PropTypes.bool
+        ])
+    ),
 
     /**
      * CSS styles to be applied to the outer `table` container.
@@ -1104,60 +1093,100 @@ export const propTypes = {
      * Conditional CSS styles for the cells.
      * This can be used to apply styles to cells on a per-column basis.
      */
-    style_cell_conditional: PropTypes.arrayOf(PropTypes.shape({
-        if: PropTypes.exact({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-            column_type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime'])
+    style_cell_conditional: PropTypes.arrayOf(
+        PropTypes.shape({
+            if: PropTypes.exact({
+                column_id: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.arrayOf(PropTypes.string)
+                ]),
+                column_type: PropTypes.oneOf([
+                    'any',
+                    'numeric',
+                    'text',
+                    'datetime'
+                ])
+            })
         })
-    })),
+    ),
 
     /**
      * Conditional CSS styles for the data cells.
      * This can be used to apply styles to data cells on a per-column basis.
      */
-    style_data_conditional: PropTypes.arrayOf(PropTypes.shape({
-        if: PropTypes.exact({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-            column_type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime']),
-            filter_query: PropTypes.string,
-            state: PropTypes.oneOf(['active', 'selected']),
-            row_index: PropTypes.oneOfType([
-                PropTypes.number,
-                PropTypes.oneOf(['odd', 'even']),
-                PropTypes.arrayOf(PropTypes.number)
-            ]),
-            column_editable: PropTypes.bool
+    style_data_conditional: PropTypes.arrayOf(
+        PropTypes.shape({
+            if: PropTypes.exact({
+                column_id: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.arrayOf(PropTypes.string)
+                ]),
+                column_type: PropTypes.oneOf([
+                    'any',
+                    'numeric',
+                    'text',
+                    'datetime'
+                ]),
+                filter_query: PropTypes.string,
+                state: PropTypes.oneOf(['active', 'selected']),
+                row_index: PropTypes.oneOfType([
+                    PropTypes.number,
+                    PropTypes.oneOf(['odd', 'even']),
+                    PropTypes.arrayOf(PropTypes.number)
+                ]),
+                column_editable: PropTypes.bool
+            })
         })
-    })),
+    ),
 
     /**
      * Conditional CSS styles for the filter cells.
      * This can be used to apply styles to filter cells on a per-column basis.
      */
-    style_filter_conditional: PropTypes.arrayOf(PropTypes.shape({
-        if: PropTypes.exact({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-            column_type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime']),
-            column_editable: PropTypes.bool
+    style_filter_conditional: PropTypes.arrayOf(
+        PropTypes.shape({
+            if: PropTypes.exact({
+                column_id: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.arrayOf(PropTypes.string)
+                ]),
+                column_type: PropTypes.oneOf([
+                    'any',
+                    'numeric',
+                    'text',
+                    'datetime'
+                ]),
+                column_editable: PropTypes.bool
+            })
         })
-    })),
+    ),
 
     /**
      * Conditional CSS styles for the header cells.
      * This can be used to apply styles to header cells on a per-column basis.
      */
-    style_header_conditional: PropTypes.arrayOf(PropTypes.shape({
-        if: PropTypes.exact({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-            column_type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime']),
-            header_index: PropTypes.oneOfType([
-                PropTypes.number,
-                PropTypes.arrayOf(PropTypes.number),
-                PropTypes.oneOf(['odd', 'even'])
-            ]),
-            column_editable: PropTypes.bool
+    style_header_conditional: PropTypes.arrayOf(
+        PropTypes.shape({
+            if: PropTypes.exact({
+                column_id: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.arrayOf(PropTypes.string)
+                ]),
+                column_type: PropTypes.oneOf([
+                    'any',
+                    'numeric',
+                    'text',
+                    'datetime'
+                ]),
+                header_index: PropTypes.oneOfType([
+                    PropTypes.number,
+                    PropTypes.arrayOf(PropTypes.number),
+                    PropTypes.oneOf(['odd', 'even'])
+                ]),
+                column_editable: PropTypes.bool
+            })
         })
-    })),
+    ),
 
     /**
      * This property tells the table to use virtualization when rendering.
@@ -1306,9 +1335,11 @@ export const propTypes = {
      * the new prop value also matches what was given originally.
      * Used in conjunction with `persistence_type` and `persisted_props`.
      */
-    persistence: PropTypes.oneOfType(
-        [PropTypes.bool, PropTypes.string, PropTypes.number]
-    ),
+    persistence: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.string,
+        PropTypes.number
+    ]),
 
     /**
      * Properties whose user interactions will persist after refreshing the

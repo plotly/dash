@@ -25,15 +25,13 @@ import {
     isStr
 } from '../lexeme/unary';
 
-import {
-    ifExpression,
-    ifLeading
-} from '.';
+import {ifExpression, ifLeading} from '.';
 
-import { ILexeme } from 'core/syntax-tree/lexicon';
+import {ILexeme} from 'core/syntax-tree/lexicon';
 
 const lexicon: ILexeme[] = [
-    ...[contains,
+    ...[
+        contains,
         dateStartsWith,
         equal,
         greaterOrEqual,
@@ -46,7 +44,8 @@ const lexicon: ILexeme[] = [
         if: ifLeading,
         terminal: false
     })),
-    ...[isBlank,
+    ...[
+        isBlank,
         isBool,
         isEven,
         isNil,
@@ -60,15 +59,13 @@ const lexicon: ILexeme[] = [
         if: ifLeading,
         terminal: true
     })),
-    ...[
-        fieldExpression,
-        permissiveValueExpression,
-        stringExpression
-    ].map(exp => ({
-        ...exp,
-        if: ifExpression,
-        terminal: true
-    }))
+    ...[fieldExpression, permissiveValueExpression, stringExpression].map(
+        exp => ({
+            ...exp,
+            if: ifExpression,
+            terminal: true
+        })
+    )
 ];
 
 export default lexicon;

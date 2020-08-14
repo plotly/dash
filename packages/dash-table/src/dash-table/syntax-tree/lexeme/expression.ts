@@ -1,18 +1,15 @@
 import isNumeric from 'fast-isnumeric';
 
-import { LexemeType, IUnboundedLexeme } from 'core/syntax-tree/lexicon';
-import { ISyntaxTree } from 'core/syntax-tree/syntaxer';
+import {LexemeType, IUnboundedLexeme} from 'core/syntax-tree/lexicon';
+import {ISyntaxTree} from 'core/syntax-tree/syntaxer';
 
 const FIELD_REGEX = /^{(([^{}\\]|\\.)+)}/;
 const STRING_REGEX = /^(('([^'\\]|\\.)*')|("([^"\\]|\\.)*")|(`([^`\\]|\\.)*`))/;
 const VALUE_REGEX = /^(([^\s'"`{}()\\]|\\.)+)(?:[\s)]|$)/;
 const PERMISSIVE_VALUE_REGEX = /^(([^'"`{}()\\]|\\.)+)$/;
 
-const getField = (
-    value: string
-) => value
-    .slice(1, value.length - 1)
-        .replace(/\\(.)/g, '$1');
+const getField = (value: string) =>
+    value.slice(1, value.length - 1).replace(/\\(.)/g, '$1');
 
 export const fieldExpression: IUnboundedLexeme = {
     present: (tree: ISyntaxTree) => getField(tree.value),
@@ -28,9 +25,8 @@ export const fieldExpression: IUnboundedLexeme = {
     type: LexemeType.Expression
 };
 
-const getString = (
-    value: string
-) => value.slice(1, value.length - 1).replace(/\\(.)/g, '$1');
+const getString = (value: string) =>
+    value.slice(1, value.length - 1).replace(/\\(.)/g, '$1');
 
 export const stringExpression: IUnboundedLexeme = {
     present: (tree: ISyntaxTree) => getString(tree.value),
@@ -49,9 +45,7 @@ export const stringExpression: IUnboundedLexeme = {
 const getValueFactory = (regex: RegExp) => (value: string) => {
     value = (value.match(regex) as any)[1];
 
-    return isNumeric(value) ?
-        +value :
-        value.replace(/\\(.)/g, '$1');
+    return isNumeric(value) ? +value : value.replace(/\\(.)/g, '$1');
 };
 
 const valueExpressionFactory = (
@@ -80,7 +74,5 @@ const valueExpressionFactory = (
 export const valueExpression = valueExpressionFactory(VALUE_REGEX);
 export const permissiveValueExpression = valueExpressionFactory(
     PERMISSIVE_VALUE_REGEX,
-    (v: any) => typeof v === 'string' && v.indexOf(' ') !== -1 ?
-        `"${v}"` :
-        v
+    (v: any) => (typeof v === 'string' && v.indexOf(' ') !== -1 ? `"${v}"` : v)
 );

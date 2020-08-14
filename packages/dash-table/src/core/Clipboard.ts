@@ -18,9 +18,9 @@ export default class Clipboard {
         /*#if TEST_COPY_PASTE*/
         value = Clipboard.value;
         /*#else*/
-        value = _ev.clipboardData ?
-            _ev.clipboardData.getData('text/plain') :
-            undefined;
+        value = _ev.clipboardData
+            ? _ev.clipboardData.getData('text/plain')
+            : undefined;
         /*#endif*/
 
         return value;

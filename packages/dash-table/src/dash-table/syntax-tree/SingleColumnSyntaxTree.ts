@@ -1,12 +1,17 @@
-import { RequiredPluck, OptionalPluck } from 'core/type';
+import {RequiredPluck, OptionalPluck} from 'core/type';
 import SyntaxTree from 'core/syntax-tree';
-import { ILexemeResult, ILexerResult } from 'core/syntax-tree/lexer';
-import { LexemeType, boundLexeme } from 'core/syntax-tree/lexicon';
+import {ILexemeResult, ILexerResult} from 'core/syntax-tree/lexer';
+import {LexemeType, boundLexeme} from 'core/syntax-tree/lexicon';
 
-import { ColumnType, IColumn } from 'dash-table/components/Table/props';
+import {ColumnType, IColumn} from 'dash-table/components/Table/props';
 
-import { fieldExpression } from './lexeme/expression';
-import { equal, RelationalOperator, contains, dateStartsWith } from './lexeme/relational';
+import {fieldExpression} from './lexeme/expression';
+import {
+    equal,
+    RelationalOperator,
+    contains,
+    dateStartsWith
+} from './lexeme/relational';
 
 import columnLexicon from './lexicon/column';
 
@@ -36,13 +41,16 @@ function isBinary(lexemes: ILexemeResult[]) {
 }
 
 function isExpression(lexemes: ILexemeResult[]) {
-    return lexemes.length === 1 &&
-        lexemes[0].lexeme.type === LexemeType.Expression;
+    return (
+        lexemes.length === 1 && lexemes[0].lexeme.type === LexemeType.Expression
+    );
 }
 
 function isUnary(lexemes: ILexemeResult[]) {
-    return lexemes.length === 1 &&
-        lexemes[0].lexeme.type === LexemeType.UnaryOperator;
+    return (
+        lexemes.length === 1 &&
+        lexemes[0].lexeme.type === LexemeType.UnaryOperator
+    );
 }
 
 function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
@@ -52,12 +60,12 @@ function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
 
     if (isBinary(res.lexemes) || isUnary(res.lexemes)) {
         res.lexemes = [
-            { lexeme: boundLexeme(fieldExpression), value: `{${config.id}}` },
+            {lexeme: boundLexeme(fieldExpression), value: `{${config.id}}`},
             ...res.lexemes
         ];
     } else if (isExpression(res.lexemes)) {
         res.lexemes = [
-            { lexeme: boundLexeme(fieldExpression), value: `{${config.id}}` },
+            {lexeme: boundLexeme(fieldExpression), value: `{${config.id}}`},
             getImplicitLexeme(config.type),
             ...res.lexemes
         ];
@@ -66,14 +74,11 @@ function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
     return res;
 }
 
-export type SingleColumnConfig = RequiredPluck<IColumn, 'id'> & OptionalPluck<IColumn, 'type'>;
+export type SingleColumnConfig = RequiredPluck<IColumn, 'id'> &
+    OptionalPluck<IColumn, 'type'>;
 
 export default class SingleColumnSyntaxTree extends SyntaxTree {
     constructor(query: string, config: SingleColumnConfig) {
-        super(
-            columnLexicon,
-            query,
-            modifyLex.bind(undefined, config)
-        );
+        super(columnLexicon, query, modifyLex.bind(undefined, config));
     }
 }

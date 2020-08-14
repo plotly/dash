@@ -1,11 +1,13 @@
-import { ITypeColumn } from 'dash-table/components/Table/props';
-import { IReconciliation } from './reconcile';
+import {ITypeColumn} from 'dash-table/components/Table/props';
+import {IReconciliation} from './reconcile';
 
 export const reconcileNull = (
     value: any,
     options: ITypeColumn | undefined
 ): IReconciliation => {
-    const allowNull = Boolean(options && options.validation && options.validation.allow_null);
+    const allowNull = Boolean(
+        options && options.validation && options.validation.allow_null
+    );
     const nully = isNully(value);
 
     return {
@@ -17,7 +19,4 @@ export const reconcileNull = (
 export const isNully = (value: any) =>
     value === undefined ||
     value === null ||
-    (
-        typeof value === 'number' &&
-        (isNaN(value) || !isFinite(value))
-    );
+    (typeof value === 'number' && (isNaN(value) || !isFinite(value)));

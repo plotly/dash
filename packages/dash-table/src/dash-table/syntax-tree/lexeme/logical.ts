@@ -1,5 +1,5 @@
 import Logger from 'core/Logger';
-import { LexemeType, IUnboundedLexeme } from 'core/syntax-tree/lexicon';
+import {LexemeType, IUnboundedLexeme} from 'core/syntax-tree/lexicon';
 
 enum LogicalOperator {
     And = '&&',
@@ -20,10 +20,13 @@ export const and: IUnboundedLexeme = {
     regexp: /^(and\s|&&)/i,
     subType: LogicalOperator.And,
     syntaxer: (lexs: any[], pivot: any, pivotIndex: number) => {
-        return Object.assign({
-            left: lexs.slice(0, pivotIndex),
-            right: lexs.slice(pivotIndex + 1)
-        }, pivot);
+        return Object.assign(
+            {
+                left: lexs.slice(0, pivotIndex),
+                right: lexs.slice(pivotIndex + 1)
+            },
+            pivot
+        );
     }
 };
 
@@ -33,17 +36,22 @@ export const or: IUnboundedLexeme = {
 
         const t = tree as any;
 
-        return t.left.lexeme.evaluate(target, t.left) ||
-            t.right.lexeme.evaluate(target, t.right);
+        return (
+            t.left.lexeme.evaluate(target, t.left) ||
+            t.right.lexeme.evaluate(target, t.right)
+        );
     },
     type: LexemeType.LogicalOperator,
     subType: LogicalOperator.Or,
     priority: 3,
     regexp: /^(or\s|\|\|)/i,
     syntaxer: (lexs: any[], pivot: any, pivotIndex: number) => {
-        return Object.assign({
-            left: lexs.slice(0, pivotIndex),
-            right: lexs.slice(pivotIndex + 1)
-        }, pivot);
+        return Object.assign(
+            {
+                left: lexs.slice(0, pivotIndex),
+                right: lexs.slice(pivotIndex + 1)
+            },
+            pivot
+        );
     }
 };

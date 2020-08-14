@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 
-import { memoizeOneFactory } from 'core/memoizer';
+import {memoizeOneFactory} from 'core/memoizer';
 import {
     IDerivedData,
     IUserInterfaceViewport,
@@ -18,9 +18,9 @@ const getter = (
     if (!virtualization) {
         return {
             ...viewport,
-            offset: { rows: 0, columns: 0 },
+            offset: {rows: 0, columns: 0},
             padding: {
-                rows: { before: 0, after: 0 }
+                rows: {before: 0, after: 0}
             }
         };
     }
@@ -29,9 +29,9 @@ const getter = (
         return {
             data: viewport.data.slice(0, 1),
             indices: viewport.indices.slice(0, 1),
-            offset: { rows: 0, columns: 0 },
+            offset: {rows: 0, columns: 0},
             padding: {
-                rows: { before: 0, after: 0 }
+                rows: {before: 0, after: 0}
             }
         };
     }
@@ -42,7 +42,9 @@ const getter = (
     const headersVisible = Math.max(headersHeight - uiViewport.scrollTop, 0);
 
     let start = Math.floor(scrollTop / uiCell.height);
-    let end = Math.ceil(((uiViewport.height - headersVisible) + scrollTop) / uiCell.height);
+    let end = Math.ceil(
+        (uiViewport.height - headersVisible + scrollTop) / uiCell.height
+    );
 
     const before = Math.min(start, 1);
     const after = Math.min(viewport.data.length - end, 1);
@@ -53,9 +55,9 @@ const getter = (
     return {
         data: viewport.data.slice(start, end),
         indices: viewport.indices.slice(start, end),
-        offset: { rows: start, columns: 0 },
+        offset: {rows: start, columns: 0},
         padding: {
-            rows: { before, after }
+            rows: {before, after}
         }
     };
 };

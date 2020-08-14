@@ -1,11 +1,11 @@
 import * as R from 'ramda';
 import React from 'react';
 
-import { memoizeOneFactory } from 'core/memoizer';
-import { SortDirection, SortBy } from 'core/sorting';
+import {memoizeOneFactory} from 'core/memoizer';
+import {SortDirection, SortBy} from 'core/sorting';
 import multiUpdate from 'core/sorting/multi';
 import singleUpdate from 'core/sorting/single';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
     ColumnId,
     Columns,
@@ -20,8 +20,8 @@ import {
 } from 'dash-table/components/Table/props';
 import getColumnFlag from 'dash-table/derived/header/columnFlag';
 import * as actions from 'dash-table/utils/actions';
-import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
-import { clearColumnsFilter } from '../filter/map';
+import {SingleColumnSyntaxTree} from 'dash-table/syntax-tree';
+import {clearColumnsFilter} from '../filter/map';
 
 const doAction = (
     action: (
@@ -44,9 +44,21 @@ const doAction = (
     map: Map<string, SingleColumnSyntaxTree>,
     data: Data
 ) => () => {
-    const props = action(column, columns, visibleColumns, columnRowIndex, mergeDuplicateHeaders, data);
+    const props = action(
+        column,
+        columns,
+        visibleColumns,
+        columnRowIndex,
+        mergeDuplicateHeaders,
+        data
+    );
 
-    const affectedColumIds = actions.getAffectedColumns(column, columns, columnRowIndex, mergeDuplicateHeaders);
+    const affectedColumIds = actions.getAffectedColumns(
+        column,
+        columns,
+        columnRowIndex,
+        mergeDuplicateHeaders
+    );
 
     if (action === actions.deleteColumn) {
         if (R.intersection(selected_columns, affectedColumIds).length > 0) {
@@ -69,7 +81,12 @@ const doAction = (
     clearColumnsFilter(map, affectedColumns, operator, setFilter);
 };
 
-function doSort(columnId: ColumnId, sortBy: SortBy, mode: SortMode, setProps: SetProps) {
+function doSort(
+    columnId: ColumnId,
+    sortBy: SortBy,
+    mode: SortMode,
+    setProps: SetProps
+) {
     return () => {
         let direction: SortDirection;
         switch (getSorting(columnId, sortBy)) {
@@ -87,49 +104,73 @@ function doSort(columnId: ColumnId, sortBy: SortBy, mode: SortMode, setProps: Se
                 break;
         }
 
-        const sortingStrategy = mode === SortMode.Single ?
-            singleUpdate :
-            multiUpdate;
+        const sortingStrategy =
+            mode === SortMode.Single ? singleUpdate : multiUpdate;
 
         setProps({
-            sort_by: sortingStrategy(
-                sortBy,
-                { column_id: columnId, direction }
-            ),
+            sort_by: sortingStrategy(sortBy, {column_id: columnId, direction}),
             ...actions.clearSelection
         });
     };
 }
 
-function editColumnName(column: IColumn, columns: Columns, columnRowIndex: any, setProps: SetProps, mergeDuplicateHeaders: boolean) {
+function editColumnName(
+    column: IColumn,
+    columns: Columns,
+    columnRowIndex: any,
+    setProps: SetProps,
+    mergeDuplicateHeaders: boolean
+) {
     return () => {
-        const update = actions.editColumnName(column, columns, columnRowIndex, mergeDuplicateHeaders);
+        const update = actions.editColumnName(
+            column,
+            columns,
+            columnRowIndex,
+            mergeDuplicateHeaders
+        );
         if (update) {
             setProps(update);
         }
     };
 }
 
-function selectColumn(current_selection: string[], column: IColumn, columns: Columns, columnRowIndex: any, setProps: SetProps, mergeDuplicateHeaders: boolean, clearSelection: boolean, select: boolean) {
+function selectColumn(
+    current_selection: string[],
+    column: IColumn,
+    columns: Columns,
+    columnRowIndex: any,
+    setProps: SetProps,
+    mergeDuplicateHeaders: boolean,
+    clearSelection: boolean,
+    select: boolean
+) {
     // if 'single' and trying to click selected radio -> do nothing
     if (clearSelection && !select) {
-        return () => { };
+        return () => {};
     }
 
-    let selected_columns = actions.getAffectedColumns(column, columns, columnRowIndex, mergeDuplicateHeaders, true);
+    const selected_columns = actions.getAffectedColumns(
+        column,
+        columns,
+        columnRowIndex,
+        mergeDuplicateHeaders,
+        true
+    );
 
     if (clearSelection) {
-        return () => setProps({ selected_columns });
+        return () => setProps({selected_columns});
     } else if (select) {
         // 'multi' + select -> add to selection (union)
-        return () => setProps({
-            selected_columns: R.union(current_selection, selected_columns)
-        });
+        return () =>
+            setProps({
+                selected_columns: R.union(current_selection, selected_columns)
+            });
     } else {
         // 'multi' + unselect -> invert of intersection
-        return () => setProps({
-            selected_columns: R.without(selected_columns, current_selection)
-        });
+        return () =>
+            setProps({
+                selected_columns: R.without(selected_columns, current_selection)
+            });
     }
 }
 
@@ -190,11 +231,35 @@ function getter(
                         }
                     }
 
-                    const clearable = paginationMode !== TableAction.Custom && getColumnFlag(headerRowIndex, lastRow, column.clearable);
-                    const deletable = paginationMode !== TableAction.Custom && getColumnFlag(headerRowIndex, lastRow, column.deletable);
-                    const hideable = getColumnFlag(headerRowIndex, lastRow, column.hideable);
-                    const renamable = getColumnFlag(headerRowIndex, lastRow, column.renamable);
-                    const selectable = getColumnFlag(headerRowIndex, lastRow, column.selectable);
+                    const clearable =
+                        paginationMode !== TableAction.Custom &&
+                        getColumnFlag(
+                            headerRowIndex,
+                            lastRow,
+                            column.clearable
+                        );
+                    const deletable =
+                        paginationMode !== TableAction.Custom &&
+                        getColumnFlag(
+                            headerRowIndex,
+                            lastRow,
+                            column.deletable
+                        );
+                    const hideable = getColumnFlag(
+                        headerRowIndex,
+                        lastRow,
+                        column.hideable
+                    );
+                    const renamable = getColumnFlag(
+                        headerRowIndex,
+                        lastRow,
+                        column.renamable
+                    );
+                    const selectable = getColumnFlag(
+                        headerRowIndex,
+                        lastRow,
+                        column.selectable
+                    );
 
                     const spansAllColumns = visibleColumns.length === colSpan;
 
@@ -207,105 +272,163 @@ function getter(
                     );
                     const allSelected =
                         selectable &&
-                        (
-                            column_selectable !== 'single' ||
-                            (selected_columns.length === affectedColumns.length)
-                        ) &&
+                        (column_selectable !== 'single' ||
+                            selected_columns.length ===
+                                affectedColumns.length) &&
                         R.all(
                             c => selected_columns.indexOf(c) !== -1,
                             affectedColumns
                         );
 
-                    return (<div>
-                        {!column_selectable || !selectable ?
-                            null :
-                            <span
-                                className='column-header--select'
-                            >
-                                <input
-                                    checked={allSelected}
-                                    onChange={selectColumn(
-                                        selected_columns,
+                    return (
+                        <div>
+                            {!column_selectable || !selectable ? null : (
+                                <span className='column-header--select'>
+                                    <input
+                                        checked={allSelected}
+                                        onChange={selectColumn(
+                                            selected_columns,
+                                            column,
+                                            columns,
+                                            headerRowIndex,
+                                            setProps,
+                                            mergeDuplicateHeaders,
+                                            column_selectable === 'single',
+                                            !allSelected
+                                        )}
+                                        name={`column-select-${id}`}
+                                        type={
+                                            column_selectable === 'single'
+                                                ? 'radio'
+                                                : 'checkbox'
+                                        }
+                                    />
+                                </span>
+                            )}
+                            {sort_action === TableAction.None ||
+                            !isLastRow ? null : (
+                                <span
+                                    className='column-header--sort'
+                                    onClick={doSort(
+                                        column.id,
+                                        sortBy,
+                                        mode,
+                                        setProps
+                                    )}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={getSortingIcon(column.id, sortBy)}
+                                    />
+                                </span>
+                            )}
+
+                            {!renamable ? null : (
+                                <span
+                                    className='column-header--edit'
+                                    onClick={editColumnName(
                                         column,
                                         columns,
                                         headerRowIndex,
                                         setProps,
-                                        mergeDuplicateHeaders,
-                                        column_selectable === 'single',
-                                        !allSelected
+                                        mergeDuplicateHeaders
                                     )}
-                                    name={`column-select-${id}`}
-                                    type={column_selectable === 'single' ?
-                                        'radio' :
-                                        'checkbox'
+                                >
+                                    <FontAwesomeIcon icon='pencil-alt' />
+                                </span>
+                            )}
+
+                            {!clearable ? null : (
+                                <span
+                                    className='column-header--clear'
+                                    onClick={doAction(
+                                        actions.clearColumn,
+                                        selected_columns,
+                                        column,
+                                        columns,
+                                        filterOperator,
+                                        visibleColumns,
+                                        headerRowIndex,
+                                        mergeDuplicateHeaders,
+                                        setFilter,
+                                        setProps,
+                                        map,
+                                        data
+                                    )}
+                                >
+                                    <FontAwesomeIcon icon='eraser' />
+                                </span>
+                            )}
+
+                            {!deletable ? null : (
+                                <span
+                                    className={
+                                        'column-header--delete' +
+                                        (spansAllColumns ? ' disabled' : '')
                                     }
-                                />
+                                    onClick={
+                                        spansAllColumns
+                                            ? undefined
+                                            : doAction(
+                                                  actions.deleteColumn,
+                                                  selected_columns,
+                                                  column,
+                                                  columns,
+                                                  filterOperator,
+                                                  visibleColumns,
+                                                  headerRowIndex,
+                                                  mergeDuplicateHeaders,
+                                                  setFilter,
+                                                  setProps,
+                                                  map,
+                                                  data
+                                              )
+                                    }
+                                >
+                                    <FontAwesomeIcon
+                                        icon={['far', 'trash-alt']}
+                                    />
+                                </span>
+                            )}
+
+                            {!hideable ? null : (
+                                <span
+                                    className={
+                                        'column-header--hide' +
+                                        (spansAllColumns ? ' disabled' : '')
+                                    }
+                                    onClick={
+                                        spansAllColumns
+                                            ? undefined
+                                            : () => {
+                                                  const ids = actions.getColumnIds(
+                                                      column,
+                                                      visibleColumns,
+                                                      headerRowIndex,
+                                                      mergeDuplicateHeaders
+                                                  );
+
+                                                  const hidden_columns = hiddenColumns
+                                                      ? R.union(
+                                                            hiddenColumns,
+                                                            ids
+                                                        )
+                                                      : ids;
+
+                                                  setProps({hidden_columns});
+                                              }
+                                    }
+                                >
+                                    <FontAwesomeIcon
+                                        icon={['far', 'eye-slash']}
+                                    />
+                                </span>
+                            )}
+
+                            <span className='column-header-name'>
+                                {labels[columnIndex]}
                             </span>
-                        }
-                        {sort_action === TableAction.None || !isLastRow ?
-                            null :
-                            (<span
-                                className='column-header--sort'
-                                onClick={doSort(column.id, sortBy, mode, setProps)}
-                            >
-                                <FontAwesomeIcon icon={getSortingIcon(column.id, sortBy)} />
-                            </span>)
-                        }
-
-                        {!renamable ?
-                            null :
-                            (<span
-                                className='column-header--edit'
-                                onClick={editColumnName(column, columns, headerRowIndex, setProps, mergeDuplicateHeaders)}
-                            >
-                                <FontAwesomeIcon icon='pencil-alt' />
-                            </span>)
-                        }
-
-                        {!clearable ?
-                            null :
-                            (<span
-                                className='column-header--clear'
-                                onClick={doAction(actions.clearColumn, selected_columns, column, columns, filterOperator, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)}
-                            >
-                                <FontAwesomeIcon icon='eraser' />
-                            </span>)
-                        }
-
-                        {!deletable ?
-                            null :
-                            (<span
-                                className={'column-header--delete' + (spansAllColumns ? ' disabled' : '')}
-                                onClick={spansAllColumns ?
-                                    undefined :
-                                    doAction(actions.deleteColumn, selected_columns, column, columns, filterOperator, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)
-                                }
-                            >
-                                <FontAwesomeIcon icon={['far', 'trash-alt']} />
-                            </span>)
-                        }
-
-                        {!hideable ?
-                            null :
-                            (<span
-                                className={'column-header--hide' + (spansAllColumns ? ' disabled' : '')}
-                                onClick={spansAllColumns ?
-                                    undefined :
-                                    () => {
-                                        const ids = actions.getColumnIds(column, visibleColumns, headerRowIndex, mergeDuplicateHeaders);
-
-                                        const hidden_columns = hiddenColumns ?
-                                            R.union(hiddenColumns, ids) :
-                                            ids;
-
-                                        setProps({ hidden_columns });
-                                    }}>
-                                <FontAwesomeIcon icon={['far', 'eye-slash']} />
-                            </span>)
-                        }
-
-                        <span className='column-header-name'>{labels[columnIndex]}</span>
-                    </div>);
+                        </div>
+                    );
                 },
                 indices
             );

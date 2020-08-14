@@ -1,20 +1,19 @@
 import * as R from 'ramda';
 
 import SyntaxTree from 'core/syntax-tree';
-import { LexemeType } from 'core/syntax-tree/lexicon';
-import { ISyntaxTree } from 'core/syntax-tree/syntaxer';
+import {LexemeType} from 'core/syntax-tree/lexicon';
+import {ISyntaxTree} from 'core/syntax-tree/syntaxer';
 
 import columnMultiLexicon from './lexicon/columnMulti';
-import { ILexemeResult } from 'core/syntax-tree/lexer';
-import { FilterLogicalOperator } from 'dash-table/components/Table/props';
+import {ILexemeResult} from 'core/syntax-tree/lexer';
+import {FilterLogicalOperator} from 'dash-table/components/Table/props';
 
 export default class MultiColumnsSyntaxTree extends SyntaxTree {
     constructor(query: string, operator: FilterLogicalOperator) {
         super(columnMultiLexicon(operator), query);
     }
     get isValid() {
-        return super.isValid &&
-            this.respectsBasicSyntax();
+        return super.isValid && this.respectsBasicSyntax();
     }
     get statements() {
         if (!this.syntaxerResult.tree) {
@@ -44,7 +43,9 @@ export default class MultiColumnsSyntaxTree extends SyntaxTree {
         const fields = R.map(
             (item: ILexemeResult) => item.value,
             R.filter(
-                i => i.lexeme.type === LexemeType.Expression && i.lexeme.subType === 'field',
+                i =>
+                    i.lexeme.type === LexemeType.Expression &&
+                    i.lexeme.subType === 'field',
                 this.lexerResult.lexemes
             )
         );

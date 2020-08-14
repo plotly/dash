@@ -1,6 +1,6 @@
 import Logger from 'core/Logger';
-import { ILexemeResult, ILexerResult } from 'core/syntax-tree/lexer';
-import { ILexeme } from 'core/syntax-tree/lexicon';
+import {ILexemeResult, ILexerResult} from 'core/syntax-tree/lexer';
+import {ILexeme} from 'core/syntax-tree/lexicon';
 
 export interface ISyntaxerResult {
     tree?: ISyntaxTree;
@@ -20,24 +20,28 @@ const parser = (lexs: ILexemeResult[]): ISyntaxTree => {
     let nesting = 0;
 
     const nestedLexs = lexs.map(lex => {
-        const res = Object.assign({}, lex, { nesting: nesting });
+        const res = Object.assign({}, lex, {nesting});
 
-        nesting += (lex.lexeme.nesting || 0);
+        nesting += lex.lexeme.nesting || 0;
 
         return res;
     });
 
     // find lowest priority 0-nesting lex
     const pivot = nestedLexs
-        .filter(lex => lex.nesting === 0 && typeof lex.lexeme.priority === 'number')
-        .sort((a, b) => (b.lexeme.priority || -1) - (a.lexeme.priority || -1))[0];
+        .filter(
+            lex => lex.nesting === 0 && typeof lex.lexeme.priority === 'number'
+        )
+        .sort(
+            (a, b) => (b.lexeme.priority || -1) - (a.lexeme.priority || -1)
+        )[0];
 
     Logger.trace('parser -> pivot', pivot, lexs);
 
     const pivotIndex = nestedLexs.indexOf(pivot);
 
     if (pivot.lexeme.syntaxer) {
-        let tree = pivot.lexeme.syntaxer(lexs, pivot, pivotIndex);
+        const tree = pivot.lexeme.syntaxer(lexs, pivot, pivotIndex);
 
         if (Array.isArray(tree.left)) {
             tree.left = parser(tree.left);
@@ -58,19 +62,19 @@ const parser = (lexs: ILexemeResult[]): ISyntaxTree => {
 };
 
 export default (lexerResult: ILexerResult): ISyntaxerResult => {
-    const { lexemes } = lexerResult;
+    const {lexemes} = lexerResult;
 
     if (!lexerResult.valid) {
-        return { valid: false, error: `lexer -- ${lexerResult.error}` };
+        return {valid: false, error: `lexer -- ${lexerResult.error}`};
     }
 
     if (lexerResult.lexemes.length === 0) {
-        return { valid: true };
+        return {valid: true};
     }
 
     try {
-        return { tree: parser(lexemes), valid: true };
+        return {tree: parser(lexemes), valid: true};
     } catch (error) {
-        return { valid: false, error };
+        return {valid: false, error};
     }
 };

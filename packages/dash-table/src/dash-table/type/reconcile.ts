@@ -8,10 +8,10 @@ import {
 } from 'dash-table/components/Table/props';
 
 import reconcileAny from './any';
-import { coerce as coerceNumber, validate as validateNumber } from './number';
-import { coerce as coerceText, validate as validateText } from './text';
-import { coerce as coerceDate, validate as validateDate } from './date';
-import { OptionalPluck } from 'core/type';
+import {coerce as coerceNumber, validate as validateNumber} from './number';
+import {coerce as coerceText, validate as validateText} from './text';
+import {coerce as coerceDate, validate as validateDate} from './date';
+import {OptionalPluck} from 'core/type';
 
 export interface IReconciliation {
     action?: ChangeAction;
@@ -53,26 +53,30 @@ function getValidator(c: Options): (value: any, c?: any) => IReconciliation {
 }
 
 function doAction(value: any, c: Options) {
-    const action = (c && c.on_change && c.on_change.action) || ChangeAction.Coerce;
+    const action =
+        (c && c.on_change && c.on_change.action) || ChangeAction.Coerce;
 
     switch (action) {
         case ChangeAction.Coerce:
-            return { action, ...getCoercer(c)(value, c) };
+            return {action, ...getCoercer(c)(value, c)};
         case ChangeAction.None:
-            return { success: true, value, action };
+            return {success: true, value, action};
         case ChangeAction.Validate:
-            return { action, ...getValidator(c)(value, c) };
+            return {action, ...getValidator(c)(value, c)};
     }
 }
 
 function doFailureRecovery(result: IReconciliation, c: Options) {
     // If c/v unsuccessful, process failure
-    const failure = (c && c.on_change && c.on_change.failure) || ChangeFailure.Reject;
+    const failure =
+        (c && c.on_change && c.on_change.failure) || ChangeFailure.Reject;
     result.failure = failure;
 
     if (failure === ChangeFailure.Default) {
         const validationDefault = c && c.validation && c.validation.default;
-        const defaultValue = R.isNil(validationDefault) ? null : validationDefault;
+        const defaultValue = R.isNil(validationDefault)
+            ? null
+            : validationDefault;
         result.success = true;
         result.value = defaultValue;
     } else if (failure === ChangeFailure.Accept) {
@@ -83,7 +87,7 @@ function doFailureRecovery(result: IReconciliation, c: Options) {
 }
 
 export default (value: any, c: Options) => {
-    let res: IReconciliation = doAction(value, c);
+    const res: IReconciliation = doAction(value, c);
 
     if (res.success) {
         return res;

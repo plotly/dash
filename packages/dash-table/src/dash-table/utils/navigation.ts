@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import { ICellCoordinates } from 'dash-table/components/Table/props';
+import {ICellCoordinates} from 'dash-table/components/Table/props';
 
 export function selectionBounds(selected_cells: ICellCoordinates[]) {
     const selectedRows = R.pluck('row', selected_cells);
@@ -13,7 +13,10 @@ export function selectionBounds(selected_cells: ICellCoordinates[]) {
     };
 }
 
-export function selectionCycle(nextCell: [number, number], selected_cells: ICellCoordinates[]) {
+export function selectionCycle(
+    nextCell: [number, number],
+    selected_cells: ICellCoordinates[]
+) {
     const {minRow, minCol, maxRow, maxCol} = selectionBounds(selected_cells);
 
     const [nextRow, nextCol] = nextCell;

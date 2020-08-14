@@ -1,5 +1,5 @@
-import { ILexemeResult } from './lexer';
-import { ISyntaxTree } from './syntaxer';
+import {ILexemeResult} from './lexer';
+import {ISyntaxTree} from './syntaxer';
 
 export enum LexemeType {
     BlockClose = 'close-block',
@@ -25,12 +25,22 @@ export interface IUnboundedLexeme {
 }
 
 export interface ILexeme extends IUnboundedLexeme {
-    terminal: boolean | ((lexemes: ILexemeResult[], previous: ILexemeResult | undefined) => boolean);
-    if: (string | undefined)[] | ((lexemes: ILexemeResult[], previous: ILexemeResult | undefined) => boolean);
+    terminal:
+        | boolean
+        | ((
+              lexemes: ILexemeResult[],
+              previous: ILexemeResult | undefined
+          ) => boolean);
+    if:
+        | (string | undefined)[]
+        | ((
+              lexemes: ILexemeResult[],
+              previous: ILexemeResult | undefined
+          ) => boolean);
 }
 
 export function boundLexeme(lexeme: IUnboundedLexeme) {
-    return { ...lexeme, if: () => false, terminal: false };
+    return {...lexeme, if: () => false, terminal: false};
 }
 
 export type Lexicon = ILexeme[];

@@ -177,4 +177,5 @@ export function isCtrlMetaKey(keyCode: number) {
 }
 
 // catch CTRL but not right ALT (which in some systems triggers ALT+CTRL)
-export const isCtrlDown = (e: KeyboardEvent) => (e.ctrlKey || e.metaKey) && !e.altKey;
+export const isCtrlDown = (e: KeyboardEvent) =>
+    (e.ctrlKey || e.metaKey) && !e.altKey;

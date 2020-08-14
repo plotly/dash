@@ -1,9 +1,12 @@
 import * as R from 'ramda';
 
 import Logger from 'core/Logger';
-import lexer, { ILexerResult } from 'core/syntax-tree/lexer';
-import syntaxer, { ISyntaxerResult, ISyntaxTree } from 'core/syntax-tree/syntaxer';
-import { Lexicon } from './lexicon';
+import lexer, {ILexerResult} from 'core/syntax-tree/lexer';
+import syntaxer, {
+    ISyntaxerResult,
+    ISyntaxTree
+} from 'core/syntax-tree/syntaxer';
+import {Lexicon} from './lexicon';
 
 interface IStructure {
     subType?: string;
@@ -16,7 +19,7 @@ interface IStructure {
 }
 
 function toStructure(tree: ISyntaxTree): IStructure {
-    const { block, left, lexeme, right, value } = tree;
+    const {block, left, lexeme, right, value} = tree;
 
     const res: IStructure = {
         subType: lexeme.subType,
@@ -68,19 +71,25 @@ export default class SyntaxTree {
             throw new Error(msg);
         }
 
-        return this.tree && this.tree.lexeme && this.tree.lexeme.evaluate ?
-            this.tree.lexeme.evaluate(target, this.tree) :
-            true;
-    }
+        return this.tree && this.tree.lexeme && this.tree.lexeme.evaluate
+            ? this.tree.lexeme.evaluate(target, this.tree)
+            : true;
+    };
 
     filter = (targets: any[]) => {
         return targets.filter(this.evaluate);
-    }
+    };
 
     toQueryString() {
-        return this.lexerResult.valid ?
-            R.map(l => l.lexeme.transform ? l.lexeme.transform(l.value) : l.value, this.lexerResult.lexemes).join(' ') :
-            '';
+        return this.lexerResult.valid
+            ? R.map(
+                  l =>
+                      l.lexeme.transform
+                          ? l.lexeme.transform(l.value)
+                          : l.value,
+                  this.lexerResult.lexemes
+              ).join(' ')
+            : '';
     }
 
     toStructure() {

@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import { CSSProperties } from 'react';
+import {CSSProperties} from 'react';
 
 import {
     IUserInterfaceCell,
@@ -16,25 +16,24 @@ export default (
     viewport: IDerivedData,
     rowPadding: IViewportPadding,
     scrollbarWidth: number
-): { fragment?: CSSProperties, cell?: CSSProperties }[][] => {
-    const base = [{}, { fragment: { marginRight: scrollbarWidth } }];
+): {fragment?: CSSProperties; cell?: CSSProperties}[][] => {
+    const base = [{}, {fragment: {marginRight: scrollbarWidth}}];
 
     if (!virtualization || !uiCell || !uiViewport) {
-        return [
-            base,
-            [{}, {}]
-        ];
+        return [base, [{}, {}]];
     }
 
     const fullHeight = uiCell.height * viewport.data.length;
-    const virtualizedHeight = (Math.floor(uiViewport.scrollTop / uiCell.height) - rowPadding.before) * uiCell.height;
+    const virtualizedHeight =
+        (Math.floor(uiViewport.scrollTop / uiCell.height) - rowPadding.before) *
+        uiCell.height;
     const headersHeight = R.sum(R.map(h => h.height, uiHeaders || []));
 
-    const marginTop = virtualization && uiViewport && uiCell ? Math.max(virtualizedHeight - headersHeight, 0) : 0;
+    const marginTop =
+        virtualization && uiViewport && uiCell
+            ? Math.max(virtualizedHeight - headersHeight, 0)
+            : 0;
     const height = Math.max(fullHeight - marginTop, 0);
 
-    return [
-        base,
-        [{ cell: { marginTop } }, { fragment: { height, marginTop } }]
-    ];
+    return [base, [{cell: {marginTop}}, {fragment: {height, marginTop}}]];
 };

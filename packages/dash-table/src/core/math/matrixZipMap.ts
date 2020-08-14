@@ -1,8 +1,6 @@
 type Matrix<T> = T[][];
 
-export function shallowClone<T>(
-    m: Matrix<T>
-): Matrix<T> {
+export function shallowClone<T>(m: Matrix<T>): Matrix<T> {
     const _m_ = m.length;
 
     const res: Matrix<T> = new Array<T[]>(_m_);
@@ -62,14 +60,10 @@ export function matrixMap<T1, TR>(
 
     for (let i = 0; i < _m1_; ++i) {
         const _row_ = m1[i].length;
-        let row = new Array<TR>(_row_);
+        const row = new Array<TR>(_row_);
 
         for (let j = 0; j < _row_; ++j) {
-            row[j] = fn(
-                m1[i][j],
-                i,
-                j
-            );
+            row[j] = fn(m1[i][j], i, j);
         }
 
         res[i] = row;
@@ -89,15 +83,10 @@ export function matrixMap2<T1, T2, TR>(
 
     for (let i = 0; i < _m1_; ++i) {
         const _row_ = m1[i].length;
-        let row = new Array<TR>(_row_);
+        const row = new Array<TR>(_row_);
 
         for (let j = 0; j < _row_; ++j) {
-            row[j] = fn(
-                m1[i][j],
-                m2 ? m2[i][j] : undefined,
-                i,
-                j
-            );
+            row[j] = fn(m1[i][j], m2 ? m2[i][j] : undefined, i, j);
         }
 
         res[i] = row;
@@ -110,7 +99,13 @@ export function matrixMap3<T1, T2, T3, TR>(
     m1: Matrix<T1>,
     m2: Matrix<T2> | undefined,
     m3: Matrix<T3> | undefined,
-    fn: (d1: T1, d2: T2 | undefined, d3: T3 | undefined, i: number, j: number) => TR
+    fn: (
+        d1: T1,
+        d2: T2 | undefined,
+        d3: T3 | undefined,
+        i: number,
+        j: number
+    ) => TR
 ): Matrix<TR> {
     const _m1_ = m1.length;
 
@@ -118,7 +113,7 @@ export function matrixMap3<T1, T2, T3, TR>(
 
     for (let i = 0; i < _m1_; ++i) {
         const _row_ = m1[i].length;
-        let row = new Array<TR>(_row_);
+        const row = new Array<TR>(_row_);
 
         for (let j = 0; j < _row_; ++j) {
             row[j] = fn(
@@ -141,7 +136,14 @@ export function matrixMap4<T1, T2, T3, T4, TR>(
     m2: Matrix<T2> | undefined,
     m3: Matrix<T3> | undefined,
     m4: Matrix<T4> | undefined,
-    fn: (d1: T1, d2: T2 | undefined, d3: T3 | undefined, d4: T4 | undefined, i: number, j: number) => TR
+    fn: (
+        d1: T1,
+        d2: T2 | undefined,
+        d3: T3 | undefined,
+        d4: T4 | undefined,
+        i: number,
+        j: number
+    ) => TR
 ): Matrix<TR> {
     const _m1_ = m1.length;
 
@@ -149,7 +151,7 @@ export function matrixMap4<T1, T2, T3, T4, TR>(
 
     for (let i = 0; i < _m1_; ++i) {
         const _row_ = m1[i].length;
-        let row = new Array<TR>(_row_);
+        const row = new Array<TR>(_row_);
 
         for (let j = 0; j < _row_; ++j) {
             row[j] = fn(
@@ -179,14 +181,14 @@ export function matrixMapN<TR>(
 
     for (let i = 0; i < _m1_; ++i) {
         const _row_ = m1[i].length;
-        let row = new Array<TR>(_row_);
+        const row = new Array<TR>(_row_);
 
         for (let j = 0; j < _row_; ++j) {
             row[j] = fn(
                 m1[i][j],
                 i,
                 j,
-                ...matrices.map(m => m ? m[i][j] : undefined)
+                ...matrices.map(m => (m ? m[i][j] : undefined))
             );
         }
 

@@ -1,5 +1,5 @@
-import { SortBy } from 'core/sorting';
-import { IPaginator } from 'dash-table/derived/paginator';
+import {SortBy} from 'core/sorting';
+import {IPaginator} from 'dash-table/derived/paginator';
 import {
     Table,
     BasicFilters,
@@ -8,13 +8,10 @@ import {
     Headers,
     Style
 } from 'dash-table/derived/style/props';
-import {
-    ConditionalTooltip,
-    Tooltip
-} from 'dash-table/tooltips/props';
-import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
-import { IConditionalElement, INamedElement } from 'dash-table/conditional';
-import { Merge } from 'core/type';
+import {ConditionalTooltip, Tooltip} from 'dash-table/tooltips/props';
+import {SingleColumnSyntaxTree} from 'dash-table/syntax-tree';
+import {IConditionalElement, INamedElement} from 'dash-table/conditional';
+import {Merge} from 'core/type';
 
 export enum ColumnType {
     Any = 'any',
@@ -96,7 +93,7 @@ export type Columns = IColumn[];
 export type Data = Datum[];
 export type IndexedData = IndexedDatum[];
 export type Datum = IDatumObject;
-export type IndexedDatum = Omit<Datum, 'id'> & { id: number | string; };
+export type IndexedDatum = Omit<Datum, 'id'> & {id: number | string};
 export type Indices = number[];
 export type RowId = string | number;
 export type SelectedCells = ICellCoordinates[];
@@ -159,12 +156,14 @@ export interface IMarkdownOptions {
     link_target: '_blank' | '_parent' | '_self' | '_top' | string;
 }
 
-export type NumberFormat = ({
-    locale: INumberLocale;
-    nully: any;
-    prefix?: number;
-    specifier: string;
-}) | undefined;
+export type NumberFormat =
+    | {
+          locale: INumberLocale;
+          nully: any;
+          prefix?: number;
+          specifier: string;
+      }
+    | undefined;
 
 export interface INumberColumn extends ITypeColumn {
     format?: NumberFormat;
@@ -173,7 +172,10 @@ export interface INumberColumn extends ITypeColumn {
 }
 
 export interface ITextColumn extends ITypeColumn {
-    presentation?: Presentation.Input | Presentation.Dropdown | Presentation.Markdown;
+    presentation?:
+        | Presentation.Input
+        | Presentation.Dropdown
+        | Presentation.Markdown;
     type: ColumnType.Text;
 }
 
@@ -210,8 +212,12 @@ export type DataDropdowns = Partial<IDataDropdowns>[];
 export type DataTooltips = Partial<ITableTooltips>[];
 export type StaticDropdowns = Partial<IStaticDropdowns>;
 
-export type Fixed = { headers: false, data?: 0 } | { headers: true, data?: number };
-export type IColumnType = INumberColumn | ITextColumn | IDatetimeColumn | IAnyColumn;
+export type Fixed = {headers: false; data?: 0} | {headers: true; data?: number};
+export type IColumnType =
+    | INumberColumn
+    | ITextColumn
+    | IDatetimeColumn
+    | IAnyColumn;
 export type IColumn = IBaseColumn & IColumnType;
 
 interface IDatumObject {
@@ -281,8 +287,8 @@ export interface IState {
     uiHeaders?: IUserInterfaceCell[];
     uiViewport?: IUserInterfaceViewport;
     workFilter: {
-        value: string,
-        map: Map<string, SingleColumnSyntaxTree>
+        value: string;
+        map: Map<string, SingleColumnSyntaxTree>;
     };
 }
 
@@ -423,34 +429,41 @@ interface IDerivedProps {
 
 export type PropsWithDefaults = IProps & IDefaultProps;
 
-export type SanitizedProps = Omit<Omit<
-    Merge<PropsWithDefaults, {
-        columns: Columns;
-        data: Data;
-        filter_action: IFilterAction;
-        fixed_columns: number;
-        fixed_rows: number;
-        loading_state: boolean;
-        visibleColumns: Columns;
-    }>,
-    'locale_format'>,
-    'sort_as_null'>;
+export type SanitizedProps = Omit<
+    Omit<
+        Merge<
+            PropsWithDefaults,
+            {
+                columns: Columns;
+                data: Data;
+                filter_action: IFilterAction;
+                fixed_columns: number;
+                fixed_rows: number;
+                loading_state: boolean;
+                visibleColumns: Columns;
+            }
+        >,
+        'locale_format'
+    >,
+    'sort_as_null'
+>;
 
 export type SanitizedAndDerivedProps = SanitizedProps & IDerivedProps;
 
-export type ControlledTableProps = SanitizedProps & IState & {
-    setProps: SetProps;
-    setState: SetState;
+export type ControlledTableProps = SanitizedProps &
+    IState & {
+        setProps: SetProps;
+        setState: SetState;
 
-    currentTooltip: IUSerInterfaceTooltip;
-    paginator: IPaginator;
-    viewport: IDerivedData;
-    viewport_selected_columns: string[];
-    viewport_selected_rows: Indices;
-    virtual: IDerivedData;
-    virtual_selected_rows: Indices;
-    virtualized: IVirtualizedDerivedData;
-};
+        currentTooltip: IUSerInterfaceTooltip;
+        paginator: IPaginator;
+        viewport: IDerivedData;
+        viewport_selected_columns: string[];
+        viewport_selected_rows: Indices;
+        virtual: IDerivedData;
+        virtual_selected_rows: Indices;
+        virtualized: IVirtualizedDerivedData;
+    };
 
 export type SetFilter = (
     filter_query: string,

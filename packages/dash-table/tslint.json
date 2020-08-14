@@ -1,7 +1,8 @@
 {
     "defaultSeverity": "error",
     "extends": [
-        "tslint:recommended"
+        "tslint:recommended",
+        "tslint-config-prettier"
     ],
     "linterOptions": {
         "exclude": [
@@ -42,7 +43,6 @@
         ],
         "ordered-imports": false,
         "prefer-const": false,
-        "quotemark": [true, "single"],
         "space-before-function-paren": [false, "always"],
         "trailing-comma": [true, {
             "singleline": "never",
@@ -81,7 +81,6 @@
         "ordered-imports": false,
         "prefer-const": false,
         "prefer-for-of": false,
-        "quotemark": [true, "single"],
         "space-before-function-paren": [false, "always"],
         "trailing-comma": [true, {
             "singleline": "never",

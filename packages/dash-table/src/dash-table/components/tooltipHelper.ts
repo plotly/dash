@@ -1,24 +1,25 @@
-export default (
-    el: HTMLElement | null,
-    parent: HTMLElement | null = null
-) => {
-    parent = parent || (() => {
-        parent = el;
+export default (el: HTMLElement | null, parent: HTMLElement | null = null) => {
+    parent =
+        parent ||
+        (() => {
+            parent = el;
 
-        while (parent && parent.nodeName.toLowerCase() !== 'td') {
-            parent = parent.parentElement;
-        }
+            while (parent && parent.nodeName.toLowerCase() !== 'td') {
+                parent = parent.parentElement;
+            }
 
-        return parent;
-    })();
+            return parent;
+        })();
 
     if (!el || !parent) {
         return {};
     }
 
     let positionalParent = el;
-    while (getComputedStyle(positionalParent).position !== 'relative' &&
-        getComputedStyle(positionalParent).position !== 'sticky') {
+    while (
+        getComputedStyle(positionalParent).position !== 'relative' &&
+        getComputedStyle(positionalParent).position !== 'sticky'
+    ) {
         if (!positionalParent.parentElement) {
             break;
         }
@@ -35,5 +36,5 @@ export default (
         relativeParent = relativeParent.parentElement;
     }
 
-    return { positionalParent, parent };
+    return {positionalParent, parent};
 };

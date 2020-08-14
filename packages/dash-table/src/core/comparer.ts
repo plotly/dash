@@ -1,7 +1,6 @@
 export function isEqual(obj1: object, obj2: object) {
-    return obj1 === obj2 || isEqualArgs(
-        Object.values(obj1),
-        Object.values(obj2)
+    return (
+        obj1 === obj2 || isEqualArgs(Object.values(obj1), Object.values(obj2))
     );
 }
 

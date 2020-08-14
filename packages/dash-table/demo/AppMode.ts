@@ -396,7 +396,7 @@ function getState() {
     const flavorParam = Environment.searchParams.get('flavor');
     const flavors = flavorParam ? flavorParam.split(';') : [];
 
-    let state = getModeState(mode);
+    const state = getModeState(mode);
     flavors.forEach(flavor => {
         const [key, valueString] = flavor.split('=');
         const value = JSON.parse(valueString);

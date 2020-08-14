@@ -39,7 +39,7 @@ module.exports = (options = {}) => {
         module: {
             rules: [
                 {
-                    test: /demo[/\\]index.html?$/,
+                    test: /demo[\\\/]index.html?$/,
                     loader: 'file-loader?name=index.[ext]'
                 },
                 {
@@ -48,11 +48,26 @@ module.exports = (options = {}) => {
                 },
                 {
                     test: /\.ts(x?)$/,
+                    include: /node_modules[\\\/](highlight[.]js)[\\\/]/,
+                    use: [
+                        { loader: 'babel-loader', options: babel },
+                        { loader: 'ts-loader', options: ts },
+                    ]
+                },
+                {
+                    test: /\.ts(x?)$/,
                     exclude: /node_modules/,
                     use: [
                         { loader: 'babel-loader', options: babel },
                         { loader: 'ts-loader', options: ts },
                         { loader: 'webpack-preprocessor', options: JSON.stringify(preprocessor) }
+                    ]
+                },
+                {
+                    test: /\.js$/,
+                    include: /node_modules[\\\/](highlight[.]js)[\\\/]/,
+                    use: [
+                        { loader: 'babel-loader', options: babel }
                     ]
                 },
                 {

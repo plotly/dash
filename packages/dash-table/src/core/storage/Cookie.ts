@@ -12,9 +12,10 @@ export default class CookieStorage {
         try {
             // Create cookie
             document.cookie = 'cookietest=1';
-            let ret = document.cookie.indexOf('cookietest=') !== -1;
+            const ret = document.cookie.indexOf('cookietest=') !== -1;
             // Delete cookie
-            document.cookie = 'cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+            document.cookie =
+                'cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
             return ret;
         } catch (e) {
             return false;
@@ -26,7 +27,7 @@ export default class CookieStorage {
             return;
         }
 
-        let expires = new Date(Date.now() - __1day).toUTCString();
+        const expires = new Date(Date.now() - __1day).toUTCString();
 
         document.cookie = `${id}=;expires=${expires};domain=${domain};path=${path}`;
     }
@@ -37,13 +38,13 @@ export default class CookieStorage {
         }
 
         if (!CookieStorage.enabled()) {
-          return;
+            return;
         }
 
         id = id.toLowerCase();
 
-        let cookies = document.cookie.split(';').map(cookie => {
-            let fragments = cookie.split('=');
+        const cookies = document.cookie.split(';').map(cookie => {
+            const fragments = cookie.split('=');
 
             return {
                 id: fragments[0].trim(),
@@ -51,17 +52,25 @@ export default class CookieStorage {
             };
         });
 
-        return (cookies.find(cookie => id === cookie.id.toLocaleLowerCase()) || {} as any).value;
+        return (
+            cookies.find(cookie => id === cookie.id.toLocaleLowerCase()) ||
+            ({} as any)
+        ).value;
     }
 
-    public static set(id: string, value: string, domain: string = '', path: string = '/') {
+    public static set(
+        id: string,
+        value: string,
+        domain: string = '',
+        path: string = '/'
+    ) {
         if (!CookieStorage.enabled()) {
-          return;
+            return;
         }
 
-        let expires = new Date(Date.now() + __20years).toUTCString();
+        const expires = new Date(Date.now() + __20years).toUTCString();
 
-        let entry = `${id}=${value};expires=${expires};domain=${domain};path=${path}`;
+        const entry = `${id}=${value};expires=${expires};domain=${domain};path=${path}`;
 
         if (CookieStorage.get(id)) {
             CookieStorage.delete(id, domain, path);

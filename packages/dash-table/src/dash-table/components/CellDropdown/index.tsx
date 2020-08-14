@@ -1,14 +1,11 @@
-import React, {
-    ChangeEvent,
-    PureComponent
-} from 'react';
+import React, {ChangeEvent, PureComponent} from 'react';
 import Dropdown from 'react-select';
 
 import DOM from 'core/browser/DOM';
 
 import dropdownHelper from 'dash-table/components/dropdownHelper';
 
-import { IDropdownValue } from '../Table/props';
+import {IDropdownValue} from '../Table/props';
 
 interface IProps {
     active: boolean;
@@ -22,35 +19,38 @@ interface IProps {
 
 export default class CellDropdown extends PureComponent<IProps> {
     render() {
-        const {
-            clearable,
-            dropdown,
-            onChange,
-            value,
-            disabled
-        } = this.props;
+        const {clearable, dropdown, onChange, value, disabled} = this.props;
 
-        return (<div
-            className='dash-dropdown-cell-value-container dash-cell-value-container'
-            onClick={this.handleClick}
-        >
-            <div className='dropdown-cell-value-shadow cell-value-shadow'>
-                {(dropdown && dropdown.find(entry => entry.value === value) || { label: undefined }).label}
+        return (
+            <div
+                className='dash-dropdown-cell-value-container dash-cell-value-container'
+                onClick={this.handleClick}
+            >
+                <div className='dropdown-cell-value-shadow cell-value-shadow'>
+                    {
+                        (
+                            (dropdown &&
+                                dropdown.find(
+                                    entry => entry.value === value
+                                )) || {label: undefined}
+                        ).label
+                    }
+                </div>
+                <Dropdown
+                    ref='dropdown'
+                    clearable={clearable}
+                    onChange={(newValue: any) => {
+                        onChange(newValue ? newValue.value : newValue);
+                    }}
+                    scrollMenuIntoView={false}
+                    onOpen={this.handleOpenDropdown}
+                    options={dropdown}
+                    placeholder={''}
+                    value={value}
+                    disabled={disabled}
+                />
             </div>
-            <Dropdown
-                ref='dropdown'
-                clearable={clearable}
-                onChange={(newValue: any) => {
-                    onChange(newValue ? newValue.value : newValue);
-                }}
-                scrollMenuIntoView={false}
-                onOpen={this.handleOpenDropdown}
-                options={dropdown}
-                placeholder={''}
-                value={value}
-                disabled={disabled}
-            />
-        </div>);
+        );
     }
 
     componentDidUpdate() {
@@ -66,7 +66,7 @@ export default class CellDropdown extends PureComponent<IProps> {
     }
 
     private setFocus() {
-        const { active, applyFocus } = this.props;
+        const {active, applyFocus} = this.props;
         if (!active) {
             return;
         }
@@ -83,8 +83,8 @@ export default class CellDropdown extends PureComponent<IProps> {
     }
 
     private handleOpenDropdown = () => {
-        const { dropdown }: { [key: string]: any } = this.refs;
+        const {dropdown}: {[key: string]: any} = this.refs;
 
         dropdownHelper(dropdown.wrapper.querySelector('.Select-menu-outer'));
-    }
+    };
 }

@@ -1,18 +1,18 @@
 import * as R from 'ramda';
 
 import Logger from 'core/Logger';
-import { SortBy, ISortBy, SortDirection } from 'core/sorting';
+import {SortBy, ISortBy, SortDirection} from 'core/sorting';
 
-export default (
-    sortBy: SortBy,
-    sort: ISortBy
-): SortBy => {
+export default (sortBy: SortBy, sort: ISortBy): SortBy => {
     Logger.trace('multi - update sortBy', sortBy, sort);
 
     sortBy = R.clone(sortBy);
 
     if (sort.direction === SortDirection.None) {
-        const currentIndex = R.findIndex(s => s.column_id === sort.column_id, sortBy);
+        const currentIndex = R.findIndex(
+            s => s.column_id === sort.column_id,
+            sortBy
+        );
 
         if (currentIndex !== -1) {
             sortBy.splice(currentIndex, 1);

@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 
-import { Columns } from 'dash-table/components/Table/props';
+import {Columns} from 'dash-table/components/Table/props';
 
 export default (
     columns: Columns,
@@ -11,7 +11,7 @@ export default (
         if (!mergeHeaders) {
             return R.range(0, columns.length);
         } else {
-            let columnIndices = [0];
+            const columnIndices = [0];
             let compareIndex = 0;
             rowLabels.forEach((label, i) => {
                 if (label === rowLabels[compareIndex]) {

@@ -6,9 +6,7 @@ import React, {
     PureComponent
 } from 'react';
 
-import {
-    KEY_CODES, isNavKey
-} from 'dash-table/utils/unicode';
+import {KEY_CODES, isNavKey} from 'dash-table/utils/unicode';
 
 interface ICellProps {
     active: boolean;
@@ -27,7 +25,6 @@ interface ICellState {
 }
 
 export default class CellInput extends PureComponent<ICellProps, ICellState> {
-
     constructor(props: ICellProps) {
         super(props);
 
@@ -37,34 +34,30 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
     }
 
     render() {
-        const {
-            className,
-            onMouseUp,
-            onPaste,
-            value
-        } = this.props;
+        const {className, onMouseUp, onPaste, value} = this.props;
 
         // input does not handle `null` correct (causes console error)
-        const sanitizedValue = this.state.value === null ?
-            undefined :
-            this.state.value;
+        const sanitizedValue =
+            this.state.value === null ? undefined : this.state.value;
 
-        return (<div className='dash-input-cell-value-container dash-cell-value-container'>
-            <div className='input-cell-value-shadow cell-value-shadow'>
-                {value}
+        return (
+            <div className='dash-input-cell-value-container dash-cell-value-container'>
+                <div className='input-cell-value-shadow cell-value-shadow'>
+                    {value}
+                </div>
+                <input
+                    ref='textInput'
+                    type='text'
+                    className={className}
+                    onBlur={this.propagateChange}
+                    onChange={this.handleChange}
+                    onKeyDown={this.handleKeyDown}
+                    onMouseUp={onMouseUp}
+                    onPaste={onPaste}
+                    value={sanitizedValue}
+                />
             </div>
-            <input
-                ref='textInput'
-                type='text'
-                className={className}
-                onBlur={this.propagateChange}
-                onChange={this.handleChange}
-                onKeyDown={this.handleKeyDown}
-                onMouseUp={onMouseUp}
-                onPaste={onPaste}
-                value={sanitizedValue}
-            />
-        </div>);
+        );
     }
 
     propagateChange = () => {
@@ -72,20 +65,22 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
             return;
         }
 
-        const { onChange } = this.props;
+        const {onChange} = this.props;
 
         onChange(this.state.value);
-    }
+    };
 
     handleChange = (e: any) => {
-        this.setState({ value: e.target.value });
-    }
+        this.setState({value: e.target.value});
+    };
 
     handleKeyDown = (e: KeyboardEvent) => {
         const is_focused = this.props.focused;
 
-        if (is_focused &&
-            (e.keyCode !== KEY_CODES.TAB && e.keyCode !== KEY_CODES.ENTER)
+        if (
+            is_focused &&
+            e.keyCode !== KEY_CODES.TAB &&
+            e.keyCode !== KEY_CODES.ENTER
         ) {
             return;
         }
@@ -95,10 +90,10 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
         }
 
         this.propagateChange();
-    }
+    };
 
     UNSAFE_componentWillReceiveProps(nextProps: ICellProps) {
-        const { value: nextValue } = nextProps;
+        const {value: nextValue} = nextProps;
 
         if (this.state.value !== nextValue) {
             this.setState({
@@ -116,7 +111,7 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
     }
 
     private setFocus() {
-        const { active, applyFocus } = this.props;
+        const {active, applyFocus} = this.props;
         if (!active) {
             return;
         }

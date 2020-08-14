@@ -140,7 +140,7 @@ describe('markdown cells', () => {
         it('loads highlight.js and does not attach hljs to window', () => {
             cy.visit(`http://localhost:8080?mode=${AppMode.Markdown}`);
             // wait for highlight.js to highlight code
-            DashTable.getCellById(0, 'markdown-code-blocks').within(() => cy.get('code.language-python span.hljs-title'));
+            DashTable.getCellById(0, 'markdown-code-blocks').within(() => cy.get('code.language-python'));
             cy.window().should('not.have.property', 'hljs');
         });
         it('uses window.hljs if defined', () => {

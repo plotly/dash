@@ -1,5 +1,5 @@
-import { memoizeOneFactory } from 'core/memoizer';
-import { lastPage } from 'dash-table/derived/paginator';
+import {memoizeOneFactory} from 'core/memoizer';
+import {lastPage} from 'dash-table/derived/paginator';
 
 import {
     Data,
@@ -9,17 +9,19 @@ import {
 } from 'dash-table/components/Table/props';
 
 function getNoPagination(data: Data, indices: Indices): IDerivedData {
-    return { data, indices };
+    return {data, indices};
 }
 
-function getFrontEndPagination(page_current: number, page_size: number, data: Data, indices: Indices): IDerivedData {
-    let currentPage = Math.min(page_current, lastPage(data, page_size));
+function getFrontEndPagination(
+    page_current: number,
+    page_size: number,
+    data: Data,
+    indices: Indices
+): IDerivedData {
+    const currentPage = Math.min(page_current, lastPage(data, page_size));
 
     const firstIndex = page_size * currentPage;
-    const lastIndex = Math.min(
-        firstIndex + page_size,
-        data.length
-    );
+    const lastIndex = Math.min(firstIndex + page_size, data.length);
 
     return {
         data: data.slice(firstIndex, lastIndex),
@@ -28,7 +30,7 @@ function getFrontEndPagination(page_current: number, page_size: number, data: Da
 }
 
 function getBackEndPagination(data: Data, indices: Indices): IDerivedData {
-    return { data, indices };
+    return {data, indices};
 }
 
 const getter = (
@@ -42,7 +44,12 @@ const getter = (
         case TableAction.None:
             return getNoPagination(data, indices);
         case TableAction.Native:
-            return getFrontEndPagination(page_current, page_size, data, indices);
+            return getFrontEndPagination(
+                page_current,
+                page_size,
+                data,
+                indices
+            );
         case TableAction.Custom:
             return getBackEndPagination(data, indices);
         default:

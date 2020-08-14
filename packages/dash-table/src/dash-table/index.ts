@@ -8,6 +8,4 @@ import DataTable from 'dash-table/dash/DataTable';
 Logger.setDebugLevel(Environment.debugLevel);
 Logger.setLogLevel(Environment.logLevel);
 
-export {
-    DataTable
-};
+export {DataTable};
