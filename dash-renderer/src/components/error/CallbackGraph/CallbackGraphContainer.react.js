@@ -71,7 +71,7 @@ function generateElements(graphs, profile) {
         });
     }
 
-    (graphs.callbacks || []).map((callback, i) => {
+    (graphs.callbacks || []).forEach((callback, i) => {
         const cb = `__dash_callback__.${callback.output}`;
         const cbProfile = profile.callbacks[callback.output] || {};
         const count = cbProfile.count || 0;
