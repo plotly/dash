@@ -1404,6 +1404,7 @@ class Dash(object):
                 return get_current_traceback(skip=skip).render_full(), 500
 
         if debug and dev_tools.ui:
+
             def _before_request():
                 flask.g.timing_information = {
                     "__dash_server": {"dur": time.time(), "desc": None}
