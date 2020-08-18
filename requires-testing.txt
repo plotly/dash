@@ -10,3 +10,4 @@ cryptography==3.0
 requests[security]==2.21.0
 beautifulsoup4==4.8.2
 waitress==1.4.3
+flask-talisman==0.7.0
