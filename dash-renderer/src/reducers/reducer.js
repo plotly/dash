@@ -61,7 +61,7 @@ function getInputHistoryState(itempath, props, state) {
 }
 
 function recordHistory(reducer) {
-    return function (state, action) {
+    return function(state, action) {
         // Record initial state
         if (action.type === 'ON_PROP_CHANGE') {
             const {itempath, props} = action.payload;
@@ -101,7 +101,7 @@ function recordHistory(reducer) {
 }
 
 function reloaderReducer(reducer) {
-    return function (state, action) {
+    return function(state, action) {
         const {history, config, hooks} = state || {};
         let newState = state;
         if (action.type === 'RELOAD') {

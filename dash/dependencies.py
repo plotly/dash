@@ -160,7 +160,8 @@ def handle_callback_args(args, kwargs):
 
     outputs = extract_callback_args(flat_args, kwargs, "output", Output)
     validate_outputs = outputs
-    if len(outputs) == 1:
+
+    if isinstance(outputs, (list, tuple)) and len(outputs) == 1:
         out0 = kwargs.get("output", args[0] if args else None)
         if not isinstance(out0, (list, tuple)):
             outputs = outputs[0]

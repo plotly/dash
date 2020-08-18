@@ -1189,7 +1189,9 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
             if (typeof id === 'string' && !removedArrayInputsOnly) {
                 handleOneId(id, graphs.outputMap[id], graphs.inputMap[id]);
             } else {
-                const keyStr = Object.keys(id).sort().join(',');
+                const keyStr = Object.keys(id)
+                    .sort()
+                    .join(',');
                 handleOneId(
                     id,
                     !removedArrayInputsOnly && graphs.outputPatterns[keyStr],
