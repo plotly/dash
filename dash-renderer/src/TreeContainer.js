@@ -1,5 +1,7 @@
 import React, {Component, memo} from 'react';
 import PropTypes from 'prop-types';
+import {onOverrideProps} from '@plotly/dash-component-plugins';
+
 import Registry from './registry';
 import {propTypeErrorHandler} from './exceptions';
 import {
@@ -80,10 +82,28 @@ const TreeContainer = memo(props => (
 ));
 
 class BaseTreeContainer extends Component {
+    unregister = undefined;
+
     constructor(props) {
         super(props);
 
         this.setProps = this.setProps.bind(this);
+    }
+
+    componentDidMount() {
+        const component = Registry.resolve(this.props._dashprivate_layout);
+
+        this.unregister = onOverrideProps(
+            component,
+            this.forceUpdate.bind(this)
+        );
+    }
+
+    componentWillUnmount() {
+        if (this.unregister) {
+            this.unregister();
+            this.unregister = undefined;
+        }
     }
 
     createContainer(props, component, path) {
