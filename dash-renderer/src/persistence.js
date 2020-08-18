@@ -265,10 +265,22 @@ const noopTransform = {
     apply: (storedValue, _propValue) => storedValue,
 };
 
-const getTransform = (element, propName, propPart) =>
-    propPart
-        ? element.persistenceTransforms[propName][propPart]
-        : noopTransform;
+const getTransform = (element, propName, propPart) => {
+    if (typeof element.persistenceTransforms !== 'undefined') {
+        if (
+            Object.getOwnPropertyNames(element.persistenceTransforms).includes(
+                propName
+            )
+        ) {
+            if (propPart) {
+                return element.persistenceTransforms[propName][propPart];
+            }
+            return element.persistenceTransforms[propName];
+        }
+        return noopTransform;
+    }
+    return noopTransform;
+}; 
 
 const getValsKey = (id, persistedProp, persistence) =>
     `${stringifyId(id)}.${persistedProp}.${JSON.stringify(persistence)}`;
