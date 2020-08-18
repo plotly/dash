@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+- [#840](https://github.com/plotly/dash-table/pull/840) Add styling properties to `dcc.Loading` component
+  + `parent_className`: Add CSS class for the outermost `dcc.Loading` parent div DOM node
+  + `parent_style`: Add CSS style property for the outermost `dcc.Loading` parent div DOM node
+  + provides a workaround for the previous behaviour the of `className` property, which changed in [#740](https://github.com/plotly/dash-core-components/pull/740). `parent_className` (or inline styles in `parent_style`) now allow CSS rules to be applied to the outermost `dcc.Loading` div, which is no longer covered by `className` on loading completion as of Dash Core Components `>= 1.9.1` (Dash `>= 1.11.0`).
+
 ## [1.10.2] - 2020-07-27
 - [#835](https://github.com/plotly/dash-core-components/pull/835)
   - Upgraded Plotly.js to [1.54.7](https://github.com/plotly/plotly.js/releases/tag/v1.54.7)

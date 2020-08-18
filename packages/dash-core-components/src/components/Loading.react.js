@@ -5,6 +5,7 @@ import DefaultSpinner from '../fragments/Loading/spinners/DefaultSpinner.jsx';
 import CubeSpinner from '../fragments/Loading/spinners/CubeSpinner.jsx';
 import CircleSpinner from '../fragments/Loading/spinners/CircleSpinner.jsx';
 import DotSpinner from '../fragments/Loading/spinners/DotSpinner.jsx';
+import {mergeRight} from 'ramda';
 
 function getSpinner(spinnerType) {
     switch (spinnerType) {
@@ -44,6 +45,8 @@ export default class Loading extends Component {
             color,
             className,
             style,
+            parent_className,
+            parent_style,
             fullscreen,
             debug,
             type: spinnerType,
@@ -53,7 +56,14 @@ export default class Loading extends Component {
         const Spinner = isLoading && getSpinner(spinnerType);
 
         return (
-            <div style={isLoading ? hiddenContainer : {}}>
+            <div
+                className={parent_className}
+                style={
+                    isLoading
+                        ? mergeRight(hiddenContainer, parent_style)
+                        : parent_style
+                }
+            >
                 {this.props.children}
                 <div style={isLoading ? coveringSpinner : {}}>
                     {isLoading && (
@@ -118,9 +128,19 @@ Loading.propTypes = {
     className: PropTypes.string,
 
     /**
+     *  Additional CSS class for the outermost dcc.Loading parent div DOM node
+     */
+    parent_className: PropTypes.string,
+
+    /**
      * Additional CSS styling for the spinner root DOM node
      */
     style: PropTypes.object,
+
+    /**
+     * Additional CSS styling for the outermost dcc.Loading parent div DOM node
+     */
+    parent_style: PropTypes.object,
 
     /**
      * Primary colour used for the loading spinners
