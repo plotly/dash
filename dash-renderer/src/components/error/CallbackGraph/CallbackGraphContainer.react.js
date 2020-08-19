@@ -326,6 +326,9 @@ function CallbackGraph() {
     const cyLayout = graphLayout || {
         name: 'dagre',
         padding: 10,
+        // nodeSep: 0,
+        // rankSep: 80,
+        // rankDir: 'LR',
         spacingFactor: 0.8,
         // after initial layout, just use this again on later draws
         // but we'll also save the layout whenever users interact with it
