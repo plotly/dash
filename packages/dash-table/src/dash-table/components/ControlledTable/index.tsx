@@ -1093,9 +1093,8 @@ export default class ControlledTable extends PureComponent<
 
         if (t) {
             const cell = table.querySelector(
-                `td[data-dash-column="${id}"][data-dash-row="${row}"]`
+                `td[data-dash-column="${id}"][data-dash-row="${row}"]:not(.phantom-cell)`
             );
-
             (this.refs.tooltip as TableTooltip).updateBounds(cell);
         }
     }

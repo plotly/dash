@@ -91,6 +91,11 @@ class DataTableCellFacade(object):
             else el.get_attribute("innerHTML")
         )
 
+    def move_to(self):
+        ac = ActionChains(self.mixin.driver)
+        ac.move_to_element(self._get_cell_value())
+        return ac.perform()
+
     def is_active(self):
         input = self.get().find_element_by_css_selector("input")
 
@@ -241,6 +246,33 @@ class DataTablePagingFacade(object):
         return len(self.mixin.find_elements(".previous-next-container")) != 0
 
 
+class DataTableTooltipFacade(object):
+    @preconditions(_validate_id, _validate_mixin)
+    def __init__(self, id, mixin):
+        self.id = id
+        self.mixin = mixin
+
+    def _get_tooltip(self):
+        return self.mixin.find_element(".dash-tooltip")
+
+    def get(self):
+        return self._get_tooltip()
+
+    def exists(self):
+        self.mixin._wait_for_table(self.id)
+
+        tooltip = self._get_tooltip()
+
+        return tooltip is not None and tooltip.is_displayed()
+
+    def get_text(self):
+        return (
+            self._get_tooltip()
+            .find_element_by_css_selector(".dash-table-tooltip")
+            .get_attribute("innerHTML")
+        )
+
+
 class DataTableFacade(object):
     @preconditions(_validate_id, _validate_mixin)
     def __init__(self, id, mixin):
@@ -248,6 +280,7 @@ class DataTableFacade(object):
         self.mixin = mixin
 
         self.paging = DataTablePagingFacade(id, mixin)
+        self.tooltip = DataTableTooltipFacade(id, mixin)
 
     @preconditions(_validate_row, _validate_col, _validate_state)
     def cell(self, row, col, state=_ANY):
