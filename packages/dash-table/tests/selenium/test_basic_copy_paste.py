@@ -1,4 +1,5 @@
 import dash
+import pytest
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
@@ -113,13 +114,20 @@ def test_tbcp002_sorted_copy_paste_callback(test):
     assert target.cell(2, 1).get_text() == "MODIFIED"
 
 
-def test_tbcp003_copy_multiple_rows(test):
+@pytest.mark.parametrize("mouse_navigation", [True, False])
+def test_tbcp003_copy_multiple_rows(test, mouse_navigation):
     test.start_server(get_app())
 
     target = test.table("table")
-    with test.hold(Keys.SHIFT):
+
+    if mouse_navigation:
+        with test.hold(Keys.SHIFT):
+            target.cell(0, 0).click()
+            target.cell(2, 0).click()
+    else:
         target.cell(0, 0).click()
-        target.cell(2, 0).click()
+        with test.hold(Keys.SHIFT):
+            test.send_keys(Keys.ARROW_DOWN + Keys.ARROW_DOWN)
 
     test.copy()
     target.cell(3, 0).click()
