@@ -1,11 +1,11 @@
-import React, {Component, useState, useMemo, useEffect} from 'react';
+import React, {Component, useState, useMemo, useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
 import {connect, useSelector} from 'react-redux';
 import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
 import Dagre from 'cytoscape-dagre';
 import JSONTree from 'react-json-tree';
-import {keys, omit, path} from 'ramda';
+import {keys, mergeRight, omit, path} from 'ramda';
 
 import {getPath} from '../../../actions/paths';
 import {stringifyId} from '../../../actions/dependencies';
@@ -141,6 +141,26 @@ function flattenInputs(inArray, final) {
 // len('__dash_callback__.')
 const cbPrefixLen = 18;
 
+const layouts = {
+    'top-down': {
+        name: 'dagre',
+        padding: 10,
+        spacingFactor: 0.8
+    },
+    'left-right': {
+        name: 'dagre',
+        padding: 10,
+        nodeSep: 0,
+        rankSep: 80,
+        rankDir: 'LR'
+    },
+    force: {
+        name: 'cose',
+        padding: 10,
+        animate: false
+    }
+};
+
 function CallbackGraph() {
     // Grab items from the redux store.
     const paths = useSelector(state => state.paths);
@@ -153,6 +173,11 @@ function CallbackGraph() {
     // Keep track of cytoscape reference and user selected items.
     const [selected, setSelected] = useState(null);
     const [cytoscape, setCytoscape] = useState(null);
+
+    const {graphLayout} = profile;
+    const chosenType = graphLayout?._chosenType;
+    const layoutSelector = useRef(null);
+    const [layoutType, setLayoutType] = useState(chosenType || 'top-down');
 
     // Generate and memoize the elements.
     const elements = useMemo(() => generateElements(graphs, profile), [graphs]);
@@ -175,7 +200,8 @@ function CallbackGraph() {
             fit: false,
             positions,
             zoom: cy.zoom(),
-            pan: cy.pan()
+            pan: cy.pan(),
+            _chosenType: layoutSelector.current?.value
         };
     }
 
@@ -322,18 +348,10 @@ function CallbackGraph() {
         }
     }
 
-    const {graphLayout} = profile;
-    const cyLayout = graphLayout || {
-        name: 'dagre',
-        padding: 10,
-        // nodeSep: 0,
-        // rankSep: 80,
-        // rankDir: 'LR',
-        spacingFactor: 0.8,
-        // after initial layout, just use this again on later draws
-        // but we'll also save the layout whenever users interact with it
-        ready: setPresetLayout
-    };
+    const cyLayout =
+        chosenType === layoutType
+            ? graphLayout
+            : mergeRight(layouts[layoutType], {ready: setPresetLayout});
 
     return (
         <div className='dash-callback-dag--container'>
@@ -355,8 +373,8 @@ function CallbackGraph() {
                     <JSONTree
                         data={elementInfo}
                         theme='summerfruit'
-                        labelRenderer={keys =>
-                            keys.length === 1 ? elementName : keys[0]
+                        labelRenderer={_keys =>
+                            _keys.length === 1 ? elementName : _keys[0]
                         }
                         getItemString={(type, data, itemType) => (
                             <span>{itemType}</span>
@@ -365,6 +383,18 @@ function CallbackGraph() {
                     />
                 </div>
             ) : null}
+            <select
+                className='dash-callback-dag--layoutSelector'
+                onChange={e => setLayoutType(e.target.value)}
+                value={layoutType}
+                ref={layoutSelector}
+            >
+                {keys(layouts).map(k => (
+                    <option value={k} key={k}>
+                        {k}
+                    </option>
+                ))}
+            </select>
         </div>
     );
 }
