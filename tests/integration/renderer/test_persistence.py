@@ -11,6 +11,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
 
+from datetime import datetime
+
+from selenium.webdriver.common.action_chains import ActionChains
+
 
 @pytest.fixture(autouse=True)
 def clear_storage(dash_duo):
@@ -526,3 +530,84 @@ def test_rdps012_pattern_matching(dash_duo):
         dash_duo.wait_for_text_to_equal(".out", "")
 
         dash_duo.find_element("#btn").click()
+
+
+def test_rdps013_persisted_props(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("fire callback", id="btn"),
+            html.Div(
+                children=[
+                    dcc.DatePickerSingle(
+                        id="dps1",
+                        date=datetime.today(),
+                        persistence=True,
+                        persistence_type="session",
+                    ),
+                    html.P("dps1", id="dps1-p"),
+                    html.Div(id="container"),
+                    html.P("dps2", id="dps2-p"),
+                ]
+            ),
+        ]
+    )
+
+    @app.callback(Output("container", "children"), [Input("btn", "n_clicks")])
+    def update_output(value):
+        return dcc.DatePickerSingle(
+            id="dps2",
+            date=datetime.today(),
+            persistence=True,
+            persistence_type="session",
+        )
+
+    @app.callback(Output("dps1-p", "children"), [Input("dps1", "date")])
+    def display_dps1(value):
+        print(value)
+        return value
+
+    @app.callback(Output("dps2-p", "children"), [Input("dps2", "date")])
+    def display_dps2(value):
+        return value
+
+    dash_duo.start_server(app)
+    dps1 = dash_duo.find_element("#dps1")
+    dps2 = dash_duo.find_element("#dps2")
+
+    (
+        ActionChains(dash_duo.driver)
+        .move_to_element(dps1)
+        .pause(0.2)
+        .click(dps1)
+        .send_keys(Keys.END)
+        .key_down(Keys.SHIFT)
+        .send_keys(Keys.HOME)
+        .key_up(Keys.SHIFT)
+        .send_keys(Keys.DELETE)
+        .send_keys("01/01/2020")
+        .send_keys(Keys.ENTER)
+    ).perform()
+
+    dash_duo.wait_for_text_to_equal("#dps1-p", "2020-01-01")
+
+    (
+        ActionChains(dash_duo.driver)
+        .move_to_element(dps2)
+        .pause(0.2)
+        .click(dps2)
+        .send_keys(Keys.END)
+        .key_down(Keys.SHIFT)
+        .send_keys(Keys.HOME)
+        .key_up(Keys.SHIFT)
+        .send_keys(Keys.DELETE)
+        .send_keys("01/01/2020")
+        .send_keys(Keys.ENTER)
+    ).perform()
+
+    dash_duo.wait_for_text_to_equal("#dps2-p", "2020-01-01")
+
+    dash_duo.find_element("#btn").click()
+
+    dash_duo.wait_for_text_to_equal("#dps1-p", "2020-01-01")
+    dash_duo.wait_for_text_to_equal("#dps2-p", "2020-01-01")
