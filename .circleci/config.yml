@@ -104,7 +104,7 @@ jobs:
           command: |
               . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
               cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-core-components.git
+              git clone -b persistence-hg --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               ls -la packages
       - persist_to_workspace:
@@ -205,7 +205,7 @@ jobs:
           command: |
               source venv/Scripts/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
               cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-core-components.git
+              git clone -b persistence-hg --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               ls -la packages
       - persist_to_workspace:
@@ -234,7 +234,7 @@ jobs:
             pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
-            git clone --depth 1 https://github.com/plotly/dash-core-components.git
+            git clone -b persistence-hg --depth 1 https://github.com/plotly/dash-core-components.git
             git clone --depth 1 https://github.com/plotly/dash-table.git
             shopt -s extglob
             cd dash-html-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
