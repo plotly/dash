@@ -534,7 +534,7 @@ def test_rdps012_pattern_matching(dash_duo):
         dash_duo.find_element("#btn").click()
 
 
-def test_rdps013_persisted_props(dash_duo):
+def test_rdps013_persisted_dps(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -615,7 +615,7 @@ def test_rdps013_persisted_props(dash_duo):
     dash_duo.wait_for_text_to_equal("#dps2-p", "2020-01-01")
 
 
-def test_rdps014_persisted_props(dash_duo):
+def test_rdps014_persisted_dpr(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
