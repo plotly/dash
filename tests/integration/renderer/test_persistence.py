@@ -576,7 +576,7 @@ def test_rdps013_persisted_props(dash_duo):
     dash_duo.start_server(app)
     dps1 = dash_duo.find_element("#dps1")
     dps2 = dash_duo.find_element("#dps2")
-    time.sleep(1000)
+
     (
         ActionChains(dash_duo.driver)
         .move_to_element(dps1)
@@ -614,6 +614,7 @@ def test_rdps013_persisted_props(dash_duo):
     dash_duo.wait_for_text_to_equal("#dps1-p", "2020-01-01")
     dash_duo.wait_for_text_to_equal("#dps2-p", "2020-01-01")
 
+
 def test_rdps014_persisted_props(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
@@ -623,7 +624,7 @@ def test_rdps014_persisted_props(dash_duo):
                 children=[
                     dcc.DatePickerRange(
                         id="dpr1",
-                        start_date=datetime.today()- td(days=3),
+                        start_date=datetime.today() - td(days=3),
                         end_date=datetime.today(),
                         persistence=True,
                         persistence_type="session",
@@ -632,7 +633,7 @@ def test_rdps014_persisted_props(dash_duo):
                     html.P("dpr1", id="dpr1-p-end"),
                     html.Div(id="container"),
                     html.P("dpr2", id="dpr2-p-start"),
-                    html.P("dpr2", id="dpr2-p-end")
+                    html.P("dpr2", id="dpr2-p-end"),
                 ]
             ),
         ]
@@ -642,7 +643,7 @@ def test_rdps014_persisted_props(dash_duo):
     def update_output(value):
         return dcc.DatePickerRange(
             id="dpr2",
-            start_date=datetime.today()- td(days=3),
+            start_date=datetime.today() - td(days=3),
             end_date=datetime.today(),
             persistence=True,
             persistence_type="session",
@@ -652,7 +653,7 @@ def test_rdps014_persisted_props(dash_duo):
     def display_dps1(value):
         print(value)
         return value
-    
+
     @app.callback(Output("dpr1-p-end", "children"), [Input("dpr1", "end_date")])
     def display_dps1(value):
         print(value)
@@ -667,11 +668,6 @@ def test_rdps014_persisted_props(dash_duo):
         return value
 
     dash_duo.start_server(app)
-    #dpr1 = dash_duo.find_element("#dpr1")
-    dpr2 = dash_duo.find_element("#dpr2")
-    #dash_duo.find_element(".DateInput_input").click()
-    #time.sleep(1000)
-
     dpr1 = dash_duo.find_element("div#dpr1 div div div div .DateInput_input")
     dpr2 = dash_duo.find_element("div#dpr2 div div div div .DateInput_input")
 
@@ -705,7 +701,7 @@ def test_rdps014_persisted_props(dash_duo):
         .key_up(Keys.SHIFT)
         .send_keys("01/01/2020")
         .pause(0.2)
-        #.send_keys("01/02/2020")
+        # .send_keys("01/02/2020")
         .send_keys(Keys.END)
         .key_down(Keys.SHIFT)
         .send_keys(Keys.HOME)
@@ -715,7 +711,7 @@ def test_rdps014_persisted_props(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#dpr2-p-start", "2020-01-01")
     dash_duo.wait_for_text_to_equal("#dpr2-p-end", "2020-01-02")
-    
+
     dash_duo.find_element("#btn").click()
 
     dash_duo.wait_for_text_to_equal("#dpr1-p-start", "2020-01-01")
