@@ -23,8 +23,17 @@ export default class PageNavigation extends Component<IPageNavigationProps> {
     render() {
         const {paginator, page_current} = this.props;
 
-        return paginator.lastPage !== undefined &&
-            paginator.lastPage <= 0 ? null : (
+        if (paginator.lastPage !== undefined && paginator.lastPage <= 0) {
+            return null;
+        }
+
+        const pageChars = Math.max(
+            3,
+            ((paginator.lastPage ?? 0) + 1).toString().length
+        );
+        const minWidth = `${pageChars + 1}ch`;
+
+        return (
             <div className='previous-next-container'>
                 <button
                     className='first-page'
@@ -43,26 +52,32 @@ export default class PageNavigation extends Component<IPageNavigationProps> {
                 </button>
 
                 <div className='page-number'>
-                    <input
-                        type='text'
-                        className='current-page'
-                        onBlur={event => {
-                            this.goToPage(event.target.value);
-                            event.target.value = '';
-                        }}
-                        onKeyDown={event => {
-                            if (event.keyCode === KEY_CODES.ENTER) {
-                                event.currentTarget.blur();
-                            }
-                        }}
-                        placeholder={(page_current + 1).toString()}
-                        defaultValue=''
-                    ></input>
+                    <div className='current-page-container'>
+                        <div className='current-page-shadow' style={{minWidth}}>
+                            {(page_current + 1).toString()}
+                        </div>
+                        <input
+                            type='text'
+                            className='current-page'
+                            style={{minWidth}}
+                            onBlur={event => {
+                                this.goToPage(event.target.value);
+                                event.target.value = '';
+                            }}
+                            onKeyDown={event => {
+                                if (event.keyCode === KEY_CODES.ENTER) {
+                                    event.currentTarget.blur();
+                                }
+                            }}
+                            placeholder={(page_current + 1).toString()}
+                            defaultValue=''
+                        ></input>
+                    </div>
 
                     {paginator.lastPage !== undefined ? ' / ' : ''}
 
                     {paginator.lastPage !== undefined ? (
-                        <div className='last-page'>
+                        <div className='last-page' style={{minWidth}}>
                             {paginator.lastPage + 1}
                         </div>
                     ) : (

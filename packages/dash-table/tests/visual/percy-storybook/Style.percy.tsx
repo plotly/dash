@@ -384,10 +384,49 @@ storiesOf('DashTable/Style type condition', module)
         style_data_conditional={[{
             if: { column_editable: true }, background_color: 'MediumPurple'
         }]}
-        pagination_settings={{
-            current_page: 0,
-            page_size: 10
+        page_current={0}
+        page_size={10}
+    />))
+    .add('large current page', () => (<DataTable
+        id='paging-large-current-page'
+        data={mock.data.slice(0, 10)}
+        columns={mock.columns.map((col: any) => R.merge(col, {
+            name: col.name,
+            deletable: true
+        }))}
+        style_table={{
+            width: '100%'
         }}
+        row_deletable={true}
+        row_selectable={true}
+        pagination_mode={'fe'}
+        style_data_conditional={[{
+            if: { column_editable: true }, background_color: 'MediumPurple'
+        }]}
+        page_action='custom'
+        page_count={999999}
+        page_current={987654}
+        page_size={10}
+    />))
+    .add('large current page and unknown page count', () => (<DataTable
+        id='paging-large-current-page'
+        data={mock.data.slice(0, 10)}
+        columns={mock.columns.map((col: any) => R.merge(col, {
+            name: col.name,
+            deletable: true
+        }))}
+        style_table={{
+            width: '100%'
+        }}
+        row_deletable={true}
+        row_selectable={true}
+        pagination_mode={'fe'}
+        style_data_conditional={[{
+            if: { column_editable: true }, background_color: 'MediumPurple'
+        }]}
+        page_action='custom'
+        page_current={987654}
+        page_size={10}
     />))
     .add('data column_id array', () => (<DataTable
         {...DEFAULT_TABLE}

@@ -143,41 +143,53 @@
 
 .dash-table-container {
     .previous-next-container {
-        display: inline-block;
         float: right;
         padding: 5px 0px;
 
         .page-number {
             font-family: monospace;
             display: inline-block;
+
             .last-page {
-            min-width: 30px;
-            display: inline-block;
-            text-align: center;
-            margin: 0.5em;
-            }
-        }
-
-        input.current-page {
-            display: inline-block;
-            border-bottom: solid lightgrey 1px !important;
-            color: black;
-            border: none;
-            width: 30px;
-            text-align: center;
-            font-family: monospace;
-            font-size: 10pt;
-            margin: 0.5em;
-
-            &::placeholder {
-                color: black;
+                display: inline-block;
+                text-align: center;
+                padding: 1px 2px;
             }
 
-            &:focus {
-                outline: none;
+            .current-page-container {
+                display: inline-block;
+                position: relative;
 
-                &::placeholder {
-                    opacity: 0;
+                .current-page-shadow,
+                input.current-page {
+                    display: inline-block;
+                    border-bottom: solid lightgrey 1px !important;
+                    color: black;
+                    border: none;
+                    text-align: center;
+                    font-family: monospace;
+                    font-size: 10pt;
+                    padding: 1px 2px;
+
+                    &::placeholder {
+                        color: black;
+                    }
+
+                    &:focus {
+                        outline: none;
+
+                        &::placeholder {
+                            opacity: 0;
+                        }
+                    }
+                }
+
+                input.current-page {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
                 }
             }
         }
