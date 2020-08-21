@@ -280,7 +280,7 @@ const getTransform = (element, propName, propPart) => {
         return noopTransform;
     }
     return noopTransform;
-}; 
+};
 
 const getValsKey = (id, persistedProp, persistence) =>
     `${stringifyId(id)}.${persistedProp}.${JSON.stringify(persistence)}`;
