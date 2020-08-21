@@ -144,3 +144,52 @@ def test_cbva003_list_single_output(dash_duo):
     dash_duo.start_server(app)
     dash_duo.wait_for_text_to_equal("#out1", "1: Hi")
     dash_duo.wait_for_text_to_equal("#out2", "2: Hi")
+
+
+@pytest.mark.parametrize("named_out", [True, False])
+@pytest.mark.parametrize("named_in", [True, False])
+@pytest.mark.parametrize("named_state", [True, False])
+def test_cbva004_named_args(named_out, named_in, named_state, dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div("Hi", id="in"),
+            html.Div("gh", id="state"),
+            html.Div(id="out1"),
+            html.Div(id="out2"),
+        ]
+    )
+
+    def make_args(*a):
+        args = []
+        kwargs = {}
+        names = ["output", "inputs", "state"]
+        flags = [named_out, named_in, named_state]
+        for ai, name, flag in zip(a, names, flags):
+            if flag:
+                kwargs[name] = ai
+            else:
+                args.append(ai)
+        return args, kwargs
+
+    args, kwargs = make_args(
+        Output("out1", "children"), Input("in", "children"), State("state", "children")
+    )
+
+    @app.callback(*args, **kwargs)
+    def o1(i, s):
+        return "1: " + i + s
+
+    args, kwargs = make_args(
+        [Output("out2", "children")],
+        [Input("in", "children")],
+        [State("state", "children")],
+    )
+
+    @app.callback(*args, **kwargs)
+    def o2(i, s):
+        return ("2: " + i + s,)
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#out1", "1: High")
+    dash_duo.wait_for_text_to_equal("#out2", "2: High")

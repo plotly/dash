@@ -3,14 +3,13 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
-### Changed
-- [#1368](https://github.com/plotly/dash/pull/1368) Updated pytest to v6.0.1. To avoid deprecation warnings, this also updated pytest-sugar to 0.9.4 and pytest-mock to 3.2.0. The pytest-mock update only effects python >= 3.0. Pytest-mock remains pinned at 2.0.0 for python == 2.7.
-
 ### Added
 - [#1355](https://github.com/plotly/dash/pull/1355) Removed redundant log message and consolidated logger initialization. You can now control the log level - for example suppress informational messages from Dash with `app.logger.setLevel(logging.WARNING)`.
 
 ### Changed
-- [#1180](https://github.com/plotly/dash/pull/1180) `Input`, `Output`, and `State` in callback definitions don't need to be in lists. You still need to provide `Output` items first, then `Input` items, then `State`, and the list form is still supported. In particular, if you want to return a single output item wrapped in a length-1 list, you should still wrap the `Output` in a list. This can be useful for procedurally-generated callbacks.
+- [#1180](https://github.com/plotly/dash/pull/1180) and [#1375](https://github.com/plotly/dash/pull/1375) `Input`, `Output`, and `State` in callback definitions don't need to be in lists. You still need to provide `Output` items first, then `Input` items, then `State`, and the list form is still supported. In particular, if you want to return a single output item wrapped in a length-1 list, you should still wrap the `Output` in a list. This can be useful for procedurally-generated callbacks.
+- [#1368](https://github.com/plotly/dash/pull/1368) Updated pytest to v6.0.1. To avoid deprecation warnings, this also updated pytest-sugar to 0.9.4 and pytest-mock to 3.2.0. The pytest-mock update only effects python >= 3.0. Pytest-mock remains pinned at 2.0.0 for python == 2.7.
+
 
 ## [1.14.0] - 2020-07-27
 ### Added
