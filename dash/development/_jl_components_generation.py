@@ -409,7 +409,9 @@ def generate_toml_file(project_shortname, pkg_data):
     package_name = jl_package_name(project_shortname)
     u = uuid.UUID(jl_dash_uuid)
 
-    package_uuid = uuid.UUID(hex=u.hex[:-12] + hashlib.md5(package_name.encode('utf-8')).hexdigest()[-12:])
+    package_uuid = uuid.UUID(
+        hex=u.hex[:-12] + hashlib.md5(package_name.encode("utf-8")).hexdigest()[-12:]
+    )
 
     authors_string = (
         'authors = ["{}"]\n'.format(package_author) if package_author else ""
