@@ -9,6 +9,7 @@ import warnings
 import sys
 import importlib
 import uuid
+import hashlib
 
 from ._all_keywords import julia_keywords
 from ._py_components_generation import reorder_props
@@ -407,7 +408,8 @@ def generate_toml_file(project_shortname, pkg_data):
     project_ver = pkg_data.get("version")
     package_name = jl_package_name(project_shortname)
     u = uuid.UUID(jl_dash_uuid)
-    package_uuid = uuid.UUID(hex=u.hex[:-12] + hex(hash(package_name))[-12:])
+
+    package_uuid = uuid.UUID(hex=u.hex[:-12] + hashlib.md5(package_name.encode('utf-8')).hexdigest()[-12:])
 
     authors_string = (
         'authors = ["{}"]\n'.format(package_author) if package_author else ""
