@@ -530,7 +530,7 @@ class Browser(DashPageMixin):
         return None
 
     def reset_log_timestamp(self):
-        """reset_log_timestamp only work with chrome webdrier."""
+        """reset_log_timestamp only work with chrome webdriver."""
         if self.driver.name.lower() == "chrome":
             entries = self.driver.get_log("browser")
             if entries:
