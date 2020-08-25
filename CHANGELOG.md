@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.15.0]
+## [1.15.0] - 2020-08-25
 ### Added
 - [#1355](https://github.com/plotly/dash/pull/1355) Removed redundant log message and consolidated logger initialization. You can now control the log level - for example suppress informational messages from Dash with `app.logger.setLevel(logging.WARNING)`.
 - [#1253](https://github.com/plotly/dash/pull/1253), [#1377](https://github.com/plotly/dash/pull/1377) Added experimental `--jl-prefix` option to `dash-generate-components`, optionally generates Julia version of components and corresponding Julia package
