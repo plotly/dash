@@ -34,7 +34,7 @@ jobs:
                 command: |
                     . venv/bin/activate
                     npm run private::build:js-test
-                    npm run private::build:py
+                    npm run private::build:backends
                     python setup.py sdist
                     cd dist
                     find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && cd ..

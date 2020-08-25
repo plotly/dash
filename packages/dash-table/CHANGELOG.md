@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- [#820](https://github.com/plotly/dash-table/pull/820) Add support for Dash.jl Julia built components
+
 ### Fixed
 - [#817](https://github.com/plotly/dash-table/pull/817) Fix a regression introduced with [#722](https://github.com/plotly/dash-table/pull/722) causing the tooltips to be misaligned with respect to their parent cell
 - [#818](https://github.com/plotly/dash-table/pull/818) Fix a regression causing copy/paste not to work when selecting a range of cells with Shift + mouse click

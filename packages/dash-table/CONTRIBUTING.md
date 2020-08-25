@@ -41,7 +41,7 @@ Use the review apps to verify callback functionality (note these examples are wr
 `circleci build --job test`
 
 ## Local Build
-`npm run build:js && npm run build:py`
+`npm run build`
 
 ## Local Dist Build
 `python setup.py sdist`
