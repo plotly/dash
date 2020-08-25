@@ -23,6 +23,7 @@ import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
+from .dependencies import handle_callback_args
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
 from .version import __version__
@@ -384,6 +385,8 @@ class Dash(object):
 
         if self.server is not None:
             self.init_app()
+
+        self.logger.setLevel(logging.INFO)
 
     def init_app(self, app=None):
         """Initialize the parts of Dash that require a flask app."""
@@ -846,7 +849,6 @@ class Dash(object):
         if prevent_initial_call is None:
             prevent_initial_call = self.config.prevent_initial_callbacks
 
-        _validate.validate_callback(output, inputs, state)
         callback_id = create_callback_id(output)
         callback_spec = {
             "output": callback_id,
@@ -863,9 +865,7 @@ class Dash(object):
 
         return callback_id
 
-    def clientside_callback(
-        self, clientside_function, output, inputs, state=(), prevent_initial_call=None
-    ):
+    def clientside_callback(self, clientside_function, *args, **kwargs):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
 
@@ -930,6 +930,7 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
+        output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
         self._insert_callback(output, inputs, state, prevent_initial_call)
 
         # If JS source is explicitly given, create a namespace and function
@@ -961,18 +962,23 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def callback(self, output, inputs, state=(), prevent_initial_call=None):
+    def callback(self, *_args, **_kwargs):
         """
         Normally used as a decorator, `@app.callback` provides a server-side
-        callback relating the values of one or more `output` items to one or
-        more `input` items which will trigger the callback when they change,
-        and optionally `state` items which provide additional information but
+        callback relating the values of one or more `Output` items to one or
+        more `Input` items which will trigger the callback when they change,
+        and optionally `State` items which provide additional information but
         do not trigger the callback directly.
 
         The last, optional argument `prevent_initial_call` causes the callback
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
+
+
         """
+        output, inputs, state, prevent_initial_call = handle_callback_args(
+            _args, _kwargs
+        )
         callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
         multi = isinstance(output, (list, tuple))
 
@@ -1044,7 +1050,7 @@ class Dash(object):
 
         response = flask.g.dash_response = flask.Response(mimetype="application/json")
 
-        args = inputs_to_vals(inputs) + inputs_to_vals(state)
+        args = inputs_to_vals(inputs + state)
 
         func = self.callback_map[output]["callback"]
         response.set_data(func(*args, outputs_list=outputs_list))
@@ -1351,8 +1357,6 @@ class Dash(object):
         if dev_tools.silence_routes_logging:
             logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
-        self.logger.setLevel(logging.INFO)
-
         if dev_tools.hot_reload:
             _reload = self._hot_reload
             _reload.hash = generate_hash()
@@ -1624,11 +1628,5 @@ class Dash(object):
                 display_url = (protocol, host, ":{}".format(port), path)
 
             self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
-            self.logger.info(
-                " Warning: This is a development server. Do not use app.run_server"
-            )
-            self.logger.info(
-                " in production, use a production WSGI server like gunicorn instead.\n"
-            )
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)

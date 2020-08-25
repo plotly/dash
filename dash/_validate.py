@@ -2,73 +2,78 @@ import collections
 import re
 
 from .development.base_component import Component
-from .dependencies import Input, Output, State
 from . import exceptions
 from ._utils import patch_collections_abc, _strings, stringify_id
 
 
-def validate_callback(output, inputs, state):
+def validate_callback(output, inputs, state, extra_args, types):
     is_multi = isinstance(output, (list, tuple))
 
     outputs = output if is_multi else [output]
 
-    for args, cls in [(outputs, Output), (inputs, Input), (state, State)]:
-        validate_callback_args(args, cls)
+    Input, Output, State = types
+    if extra_args:
+        if not isinstance(extra_args[0], (Output, Input, State)):
+            raise exceptions.IncorrectTypeException(
+                """
+                Callback arguments must be `Output`, `Input`, or `State` objects,
+                optionally wrapped in a list or tuple. We found (possibly after
+                unwrapping a list or tuple):
+                {}
+                """.format(
+                    repr(extra_args[0])
+                )
+            )
 
-
-def validate_callback_args(args, cls):
-    name = cls.__name__
-    if not isinstance(args, (list, tuple)):
         raise exceptions.IncorrectTypeException(
             """
-            The {} argument `{}` must be a list or tuple of
-            `dash.dependencies.{}`s.
+            In a callback definition, you must provide all Outputs first,
+            then all Inputs, then all States. After this item:
+            {}
+            we found this item next:
+            {}
             """.format(
-                name.lower(), str(args), name
+                repr((outputs + inputs + state)[-1]), repr(extra_args[0])
             )
         )
 
-    for arg in args:
-        if not isinstance(arg, cls):
-            raise exceptions.IncorrectTypeException(
-                """
-                The {} argument `{}` must be of type `dash.dependencies.{}`.
-                """.format(
-                    name.lower(), str(arg), name
-                )
+    for args in [outputs, inputs, state]:
+        for arg in args:
+            validate_callback_arg(arg)
+
+
+def validate_callback_arg(arg):
+    if not isinstance(getattr(arg, "component_property", None), _strings):
+        raise exceptions.IncorrectTypeException(
+            """
+            component_property must be a string, found {!r}
+            """.format(
+                arg.component_property
             )
+        )
 
-        if not isinstance(getattr(arg, "component_property", None), _strings):
-            raise exceptions.IncorrectTypeException(
-                """
-                component_property must be a string, found {!r}
-                """.format(
-                    arg.component_property
-                )
+    if hasattr(arg, "component_event"):
+        raise exceptions.NonExistentEventException(
+            """
+            Events have been removed.
+            Use the associated property instead.
+            """
+        )
+
+    if isinstance(arg.component_id, dict):
+        validate_id_dict(arg)
+
+    elif isinstance(arg.component_id, _strings):
+        validate_id_string(arg)
+
+    else:
+        raise exceptions.IncorrectTypeException(
+            """
+            component_id must be a string or dict, found {!r}
+            """.format(
+                arg.component_id
             )
-
-        if hasattr(arg, "component_event"):
-            raise exceptions.NonExistentEventException(
-                """
-                Events have been removed.
-                Use the associated property instead.
-                """
-            )
-
-        if isinstance(arg.component_id, dict):
-            validate_id_dict(arg)
-
-        elif isinstance(arg.component_id, _strings):
-            validate_id_string(arg)
-
-        else:
-            raise exceptions.IncorrectTypeException(
-                """
-                component_id must be a string or dict, found {!r}
-                """.format(
-                    arg.component_id
-                )
-            )
+        )
 
 
 def validate_id_dict(arg):

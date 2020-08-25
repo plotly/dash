@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "render dash components in react",
   "main": "dash_renderer/dash_renderer.min.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "build:js": "webpack --build release",
     "build:dev": "webpack --build local",
     "build:local": "renderer build local",
-    "build": "npm run prepublishOnly && renderer build",
+    "build": "renderer build && npm run prepublishOnly",
     "postbuild": "es-check es5 dash_renderer/*.js",
     "start": "webpack-serve ./webpack.serve.config.js",
     "test": "jest",
