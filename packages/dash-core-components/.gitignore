@@ -3,6 +3,7 @@ build/
 dist/
 lib/
 lib/bundle.js*
+Project.toml
 coverage/
 node_modules/
 .npm
@@ -18,8 +19,10 @@ venv/
 /build
 /dash_core_components
 dash_core_components_base/plotly.min.js
+/deps
 /inst
 /man
 /R
+/src/*.jl
 DESCRIPTION
 NAMESPACE

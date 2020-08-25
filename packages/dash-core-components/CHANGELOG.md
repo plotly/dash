@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.11.0] - 2020-08-25
 ### Added
 - [#851](https://github.com/plotly/dash-core-components/pull/851) Add support for Dash.jl Julia built components
 - [#840](https://github.com/plotly/dash-core-components/pull/840) Add styling properties to `dcc.Loading` component
