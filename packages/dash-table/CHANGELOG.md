@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [4.10.0] - 2020-08-25
 ### Added
 - [#820](https://github.com/plotly/dash-table/pull/820) Add support for Dash.jl Julia built components
 

@@ -6,11 +6,14 @@
 # production
 /build
 /dash_table
+/deps
 /inst
 /man
 /R
+/src/*.jl
 DESCRIPTION
 NAMESPACE
+Project.toml
 
 # testing
 /coverage
