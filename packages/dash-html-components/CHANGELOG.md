@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [UNRELEASED]
+### Added
+- [#165](https://github.com/plotly/dash-html-components/pull/165) Add support for Dash.jl Julia component generation.
+
 ## [1.0.3] - 2020-04-01
 ### Updated
 - Update generated props
