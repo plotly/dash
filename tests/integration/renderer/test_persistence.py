@@ -535,6 +535,21 @@ def test_rdps012_pattern_matching(dash_duo):
 
 
 def test_rdps013_persisted_dps(dash_duo):
+    def send_date_dps(target, date):
+        (
+            ActionChains(dash_duo.driver)
+            .move_to_element(target)
+            .pause(0.2)
+            .click(target)
+            .send_keys(Keys.END)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.HOME)
+            .key_up(Keys.SHIFT)
+            .send_keys(Keys.DELETE)
+            .send_keys(str(date))
+            .send_keys(Keys.ENTER)
+        ).perform()
+
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -566,7 +581,6 @@ def test_rdps013_persisted_dps(dash_duo):
 
     @app.callback(Output("dps1-p", "children"), [Input("dps1", "date")])
     def display_dps1(value):
-        print(value)
         return value
 
     @app.callback(Output("dps2-p", "children"), [Input("dps2", "date")])
@@ -577,36 +591,10 @@ def test_rdps013_persisted_dps(dash_duo):
     dps1 = dash_duo.find_element("#dps1")
     dps2 = dash_duo.find_element("#dps2")
 
-    (
-        ActionChains(dash_duo.driver)
-        .move_to_element(dps1)
-        .pause(0.2)
-        .click(dps1)
-        .send_keys(Keys.END)
-        .key_down(Keys.SHIFT)
-        .send_keys(Keys.HOME)
-        .key_up(Keys.SHIFT)
-        .send_keys(Keys.DELETE)
-        .send_keys("01/01/2020")
-        .send_keys(Keys.ENTER)
-    ).perform()
-
+    send_date_dps(dps1, "01/01/2020")
     dash_duo.wait_for_text_to_equal("#dps1-p", "2020-01-01")
 
-    (
-        ActionChains(dash_duo.driver)
-        .move_to_element(dps2)
-        .pause(0.2)
-        .click(dps2)
-        .send_keys(Keys.END)
-        .key_down(Keys.SHIFT)
-        .send_keys(Keys.HOME)
-        .key_up(Keys.SHIFT)
-        .send_keys(Keys.DELETE)
-        .send_keys("01/01/2020")
-        .send_keys(Keys.ENTER)
-    ).perform()
-
+    send_date_dps(dps2, "01/01/2020")
     dash_duo.wait_for_text_to_equal("#dps2-p", "2020-01-01")
 
     dash_duo.find_element("#btn").click()
@@ -616,6 +604,24 @@ def test_rdps013_persisted_dps(dash_duo):
 
 
 def test_rdps014_persisted_dpr(dash_duo):
+    def send_date_dpr(target, start_date, end_date):
+        (
+            ActionChains(dash_duo.driver)
+            .move_to_element(target)
+            .click(target)
+            .send_keys(Keys.END)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.HOME)
+            .key_up(Keys.SHIFT)
+            .send_keys(str(start_date))
+            .pause(0.2)
+            .send_keys(Keys.END)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.HOME)
+            .key_up(Keys.SHIFT)
+            .send_keys(str(end_date))
+        ).perform()
+
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -651,12 +657,10 @@ def test_rdps014_persisted_dpr(dash_duo):
 
     @app.callback(Output("dpr1-p-start", "children"), [Input("dpr1", "start_date")])
     def display_dps1(value):
-        print(value)
         return value
 
     @app.callback(Output("dpr1-p-end", "children"), [Input("dpr1", "end_date")])
     def display_dps1(value):
-        print(value)
         return value
 
     @app.callback(Output("dpr2-p-start", "children"), [Input("dpr2", "start_date")])
@@ -671,44 +675,11 @@ def test_rdps014_persisted_dpr(dash_duo):
     dpr1 = dash_duo.find_element("div#dpr1 div div div div .DateInput_input")
     dpr2 = dash_duo.find_element("div#dpr2 div div div div .DateInput_input")
 
-    (
-        ActionChains(dash_duo.driver)
-        .move_to_element(dpr1)
-        .click(dpr1)
-        .send_keys(Keys.END)
-        .key_down(Keys.SHIFT)
-        .send_keys(Keys.HOME)
-        .key_up(Keys.SHIFT)
-        .send_keys("01/01/2020")
-        .pause(0.2)
-        .send_keys(Keys.END)
-        .key_down(Keys.SHIFT)
-        .send_keys(Keys.HOME)
-        .key_up(Keys.SHIFT)
-        .send_keys("01/02/2020")
-    ).perform()
-
+    send_date_dpr(dpr1, "01/01/2020", "01/02/2020")
     dash_duo.wait_for_text_to_equal("#dpr1-p-start", "2020-01-01")
     dash_duo.wait_for_text_to_equal("#dpr1-p-end", "2020-01-02")
 
-    (
-        ActionChains(dash_duo.driver)
-        .move_to_element(dpr2)
-        .click(dpr2)
-        .send_keys(Keys.END)
-        .key_down(Keys.SHIFT)
-        .send_keys(Keys.HOME)
-        .key_up(Keys.SHIFT)
-        .send_keys("01/01/2020")
-        .pause(0.2)
-        # .send_keys("01/02/2020")
-        .send_keys(Keys.END)
-        .key_down(Keys.SHIFT)
-        .send_keys(Keys.HOME)
-        .key_up(Keys.SHIFT)
-        .send_keys("01/02/2020")
-    ).perform()
-
+    send_date_dpr(dpr2, "01/01/2020", "01/02/2020")
     dash_duo.wait_for_text_to_equal("#dpr2-p-start", "2020-01-01")
     dash_duo.wait_for_text_to_equal("#dpr2-p-end", "2020-01-02")
 
