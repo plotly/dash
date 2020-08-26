@@ -234,7 +234,7 @@ jobs:
             pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
-            git clone -b persistence-hg --depth 1 https://github.com/plotly/dash-core-components.git
+            git clone -b hg-700-persistence--depth 1 https://github.com/plotly/dash-core-components.git
             git clone --depth 1 https://github.com/plotly/dash-table.git
             shopt -s extglob
             cd dash-html-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
