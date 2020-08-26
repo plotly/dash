@@ -266,12 +266,8 @@ const noopTransform = {
 };
 
 const getTransform = (element, propName, propPart) => {
-    if (typeof element.persistenceTransforms !== 'undefined') {
-        if (
-            Object.getOwnPropertyNames(element.persistenceTransforms).includes(
-                propName
-            )
-        ) {
+    if (element.persistenceTransforms) {
+        if (element.persistenceTransforms[propName]) {
             if (propPart) {
                 return element.persistenceTransforms[propName][propPart];
             }
