@@ -93,18 +93,14 @@ def test_rdrh001_request_hooks(dash_duo):
         "output": "output-1.children",
         "outputs": {"id": "output-1", "property": "children"},
         "changedPropIds": ["input.value"],
-        "inputs": [
-            {"id": "input", "property": "value", "value": "fire request hooks"}
-        ],
+        "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}],
     }
 
     assert json.loads(dash_duo.find_element("#output-post-payload").text) == {
         "output": "output-1.children",
         "outputs": {"id": "output-1", "property": "children"},
         "changedPropIds": ["input.value"],
-        "inputs": [
-            {"id": "input", "property": "value", "value": "fire request hooks"}
-        ],
+        "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}],
     }
 
     assert json.loads(dash_duo.find_element("#output-post-response").text) == {
