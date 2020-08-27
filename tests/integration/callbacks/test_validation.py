@@ -207,8 +207,7 @@ def test_cbva005_tuple_args(dash_duo):
     )
 
     @app.callback(
-        Output("out1", "children"),
-        (Input("in1", "children"), Input("in2", "children"))
+        Output("out1", "children"), (Input("in1", "children"), Input("in2", "children"))
     )
     def f(i1, i2):
         return "1: " + i1 + i2
@@ -216,7 +215,7 @@ def test_cbva005_tuple_args(dash_duo):
     @app.callback(
         (Output("out2", "children"),),
         Input("in1", "children"),
-        (State("in2", "children"),)
+        (State("in2", "children"),),
     )
     def g(i1, i2):
         return ("2: " + i1 + i2,)

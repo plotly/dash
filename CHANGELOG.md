@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+### Fixed
+- [#1384](https://github.com/plotly/dash/pull/1384) Fixed a bug introduced by [#1180](https://github.com/plotly/dash/pull/1180) breaking use of `prevent_initial_call` as a positional arg in callback definitions
+
 ## [1.15.0] - 2020-08-25
 ### Added
 - [#1355](https://github.com/plotly/dash/pull/1355) Removed redundant log message and consolidated logger initialization. You can now control the log level - for example suppress informational messages from Dash with `app.logger.setLevel(logging.WARNING)`.

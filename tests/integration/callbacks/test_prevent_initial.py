@@ -339,11 +339,7 @@ def test_cbpi004_positional_arg(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div([html.Button("click", id="btn"), html.Div(id="out")])
 
-    @app.callback(
-        Output("out", "children"),
-        Input("btn", "n_clicks"),
-        True
-    )
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), True)
     def f(n):
         return n
 
