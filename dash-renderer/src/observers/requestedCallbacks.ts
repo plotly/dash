@@ -1,5 +1,6 @@
 import {
     all,
+    assoc,
     concat,
     difference,
     filter,
@@ -10,6 +11,9 @@ import {
     isEmpty,
     isNil,
     map,
+    mergeAll,
+    partition,
+    pluck,
     values
 } from 'ramda';
 
@@ -45,14 +49,18 @@ import {
     IBlockedCallback
 } from '../types/callbacks';
 
+import wait from './../utils/wait';
+
 import { getPendingCallbacks } from '../utils/callbacks';
 import { IStoreObserverDefinition } from '../StoreObserver';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
-    observer: ({
+    observer: async ({
         dispatch,
         getState
     }) => {
+        await wait(0);
+
         const { callbacks, callbacks: { prioritized, blocked, executing, watched, stored }, paths } = getState();
         let { callbacks: { requested } } = getState();
 
@@ -79,25 +87,35 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         */
 
         /*
-            Extract all but the first callback from each IOS-key group
-            these callbacks are duplicates.
+            Group callbacks by identifier and partition based on whether there are duplicates or not.
         */
-        const rDuplicates = flatten(map(
-            group => group.slice(0, -1),
-            values(
-                groupBy<ICallback>(
-                    getUniqueIdentifier,
-                    requested
-                )
+        const [rWithoutDuplicates, rWithDuplicates] = partition(rdg => rdg.length === 1, values(
+            groupBy<ICallback>(
+                getUniqueIdentifier,
+                requested
             )
         ));
+
+        /*
+            Flatten all duplicated callbacks into a list for removal
+        */
+        const rDuplicates = flatten(rWithDuplicates);
+
+        /*
+            Merge duplicate groups into a single callback - merge by giving priority to newer callbacks
+        */
+        const rMergedDuplicates = map(group => assoc(
+            'changedPropIds',
+            mergeAll(pluck('changedPropIds', group)),
+            group[0]
+        ), rWithDuplicates);
 
         /*
             TODO?
             Clean up the `requested` list - during the dispatch phase,
             duplicates will be removed for real
         */
-        requested = difference(requested, rDuplicates);
+        requested = concat(flatten(rWithoutDuplicates), rMergedDuplicates);
 
         /*
             2. Remove duplicated `prioritized`, `executing` and `watching` callbacks
@@ -319,6 +337,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             bDuplicates.length ? removeBlockedCallbacks(bDuplicates) : null,
             eDuplicates.length ? removeExecutingCallbacks(eDuplicates) : null,
             wDuplicates.length ? removeWatchedCallbacks(wDuplicates) : null,
+            // Add merged-duplicated callbacks
+            rMergedDuplicates.length ? addRequestedCallbacks(rMergedDuplicates): null,
             // Prune callbacks
             rRemoved.length ? removeRequestedCallbacks(rRemoved) : null,
             rAdded.length ? addRequestedCallbacks(rAdded) : null,
