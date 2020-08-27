@@ -193,3 +193,34 @@ def test_cbva004_named_args(named_out, named_in, named_state, dash_duo):
     dash_duo.start_server(app)
     dash_duo.wait_for_text_to_equal("#out1", "1: High")
     dash_duo.wait_for_text_to_equal("#out2", "2: High")
+
+
+def test_cbva005_tuple_args(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div("Yo", id="in1"),
+            html.Div("lo", id="in2"),
+            html.Div(id="out1"),
+            html.Div(id="out2"),
+        ]
+    )
+
+    @app.callback(
+        Output("out1", "children"),
+        (Input("in1", "children"), Input("in2", "children"))
+    )
+    def f(i1, i2):
+        return "1: " + i1 + i2
+
+    @app.callback(
+        (Output("out2", "children"),),
+        Input("in1", "children"),
+        (State("in2", "children"),)
+    )
+    def g(i1, i2):
+        return ("2: " + i1 + i2,)
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#out1", "1: Yolo")
+    dash_duo.wait_for_text_to_equal("#out2", "2: Yolo")
