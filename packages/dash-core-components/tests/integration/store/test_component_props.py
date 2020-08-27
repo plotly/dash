@@ -40,8 +40,7 @@ def test_stcp002_modified_ts(store_app, dash_dcc):
     )
 
     @app.callback(
-        Output("initial-storage", "data"),
-        [Input("set-init-storage", "n_clicks")],
+        Output("initial-storage", "data"), [Input("set-init-storage", "n_clicks")],
     )
     def on_init(n_clicks):
         if n_clicks is None:
@@ -74,13 +73,31 @@ def test_stcp002_modified_ts(store_app, dash_dcc):
 
 def test_stcp003_initial_falsy(dash_dcc):
     app = dash.Dash(__name__)
-    app.layout = html.Div([html.Div([
-        storage_type,
-        dcc.Store(storage_type=storage_type, id="zero-" + storage_type, data=0),
-        dcc.Store(storage_type=storage_type, id="false-" + storage_type, data=False),
-        dcc.Store(storage_type=storage_type, id="null-" + storage_type, data=None),
-        dcc.Store(storage_type=storage_type, id="empty-" + storage_type, data=""),
-    ]) for storage_type in ("memory", "local", "session")], id="content")
+    app.layout = html.Div(
+        [
+            html.Div(
+                [
+                    storage_type,
+                    dcc.Store(
+                        storage_type=storage_type, id="zero-" + storage_type, data=0
+                    ),
+                    dcc.Store(
+                        storage_type=storage_type,
+                        id="false-" + storage_type,
+                        data=False,
+                    ),
+                    dcc.Store(
+                        storage_type=storage_type, id="null-" + storage_type, data=None
+                    ),
+                    dcc.Store(
+                        storage_type=storage_type, id="empty-" + storage_type, data=""
+                    ),
+                ]
+            )
+            for storage_type in ("memory", "local", "session")
+        ],
+        id="content",
+    )
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#content", "memory\nlocal\nsession")
@@ -120,7 +137,7 @@ def test_stcp004_remount_store_component(dash_dcc):
         [
             Input("memory", "modified_timestamp"),
             Input("local", "modified_timestamp"),
-            Input("session", "modified_timestamp")
+            Input("session", "modified_timestamp"),
         ],
         [State("memory", "data"), State("local", "data"), State("session", "data")],
     )
@@ -141,11 +158,7 @@ def test_stcp004_remount_store_component(dash_dcc):
         return True, True, True
 
     @app.callback(
-        [
-            Output("memory", "data"),
-            Output("local", "data"),
-            Output("session", "data"),
-        ],
+        [Output("memory", "data"), Output("local", "data"), Output("session", "data")],
         [Input("btn", "n_clicks")],
     )
     def on_click(n_clicks):
@@ -157,14 +170,12 @@ def test_stcp004_remount_store_component(dash_dcc):
 
     dash_dcc.find_element("#start").click()
     dash_dcc.wait_for_text_to_equal(
-        "#output",
-        '[{"n_clicks": null}, {"n_clicks": null}, {"n_clicks": null}]'
+        "#output", '[{"n_clicks": null}, {"n_clicks": null}, {"n_clicks": null}]'
     )
 
     dash_dcc.find_element("#btn").click()
     dash_dcc.wait_for_text_to_equal(
-        "#output",
-        '[{"n_clicks": 1}, {"n_clicks": 1}, {"n_clicks": 1}]'
+        "#output", '[{"n_clicks": 1}, {"n_clicks": 1}, {"n_clicks": 1}]'
     )
 
     dash_dcc.find_element("#clear-btn").click()
@@ -172,21 +183,18 @@ def test_stcp004_remount_store_component(dash_dcc):
 
     dash_dcc.find_element("#btn").click()
     dash_dcc.wait_for_text_to_equal(
-        "#output",
-        '[{"n_clicks": 2}, {"n_clicks": 2}, {"n_clicks": 2}]'
+        "#output", '[{"n_clicks": 2}, {"n_clicks": 2}, {"n_clicks": 2}]'
     )
 
     # now remount content components
     dash_dcc.find_element("#start").click()
     dash_dcc.wait_for_text_to_equal(
-        "#output",
-        '[{"n_clicks": null}, {"n_clicks": null}, {"n_clicks": null}]'
+        "#output", '[{"n_clicks": null}, {"n_clicks": null}, {"n_clicks": null}]'
     )
 
     dash_dcc.find_element("#btn").click()
     dash_dcc.wait_for_text_to_equal(
-        "#output",
-        '[{"n_clicks": 1}, {"n_clicks": 1}, {"n_clicks": 1}]'
+        "#output", '[{"n_clicks": 1}, {"n_clicks": 1}, {"n_clicks": 1}]'
     )
 
     assert not dash_dcc.get_logs()

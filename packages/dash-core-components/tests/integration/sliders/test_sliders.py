@@ -6,17 +6,19 @@ import dash_core_components as dcc
 
 def test_slsl001_always_visible_slider(dash_dcc):
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        dcc.Slider(
-            id="slider",
-            min=0,
-            max=20,
-            step=1,
-            value=5,
-            tooltip={"always_visible": True}
-        ),
-        html.Div(id="out")
-    ])
+    app.layout = html.Div(
+        [
+            dcc.Slider(
+                id="slider",
+                min=0,
+                max=20,
+                step=1,
+                value=5,
+                tooltip={"always_visible": True},
+            ),
+            html.Div(id="out"),
+        ]
+    )
 
     @app.callback(Output("out", "children"), [Input("slider", "value")])
     def update_output(value):
@@ -34,17 +36,20 @@ def test_slsl001_always_visible_slider(dash_dcc):
 
 def test_slsl002_always_visible_rangeslider(dash_dcc):
     app = dash.Dash(__name__)
-    app.layout = html.Div(style={'width': '400px'}, children=[
-        dcc.RangeSlider(
-            id="rangeslider",
-            min=0,
-            max=20,
-            step=1,
-            value=[5, 15],
-            tooltip={"always_visible": True}
-        ),
-        html.Div(id="out")
-    ])
+    app.layout = html.Div(
+        style={"width": "400px"},
+        children=[
+            dcc.RangeSlider(
+                id="rangeslider",
+                min=0,
+                max=20,
+                step=1,
+                value=[5, 15],
+                tooltip={"always_visible": True},
+            ),
+            html.Div(id="out"),
+        ],
+    )
 
     @app.callback(Output("out", "children"), [Input("rangeslider", "value")])
     def update_output(rng):
@@ -63,30 +68,30 @@ def test_slsl002_always_visible_rangeslider(dash_dcc):
 def test_slsl003_out_of_range_marks_slider(dash_dcc):
 
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        dcc.Slider(
-            min=0,
-            max=5,
-            marks={i: 'Label {}'.format(i) for i in range(-1, 10)}
-        )
-    ])
+    app.layout = html.Div(
+        [
+            dcc.Slider(
+                min=0, max=5, marks={i: "Label {}".format(i) for i in range(-1, 10)}
+            )
+        ]
+    )
 
     dash_dcc.start_server(app)
 
-    assert len(dash_dcc.find_elements('span.rc-slider-mark-text')) == 6
+    assert len(dash_dcc.find_elements("span.rc-slider-mark-text")) == 6
 
 
 def test_slsl004_out_of_range_marks_rangeslider(dash_dcc):
 
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        dcc.RangeSlider(
-            min=0,
-            max=5,
-            marks={i: 'Label {}'.format(i) for i in range(-1, 10)}
-        )
-    ])
+    app.layout = html.Div(
+        [
+            dcc.RangeSlider(
+                min=0, max=5, marks={i: "Label {}".format(i) for i in range(-1, 10)}
+            )
+        ]
+    )
 
     dash_dcc.start_server(app)
 
-    assert len(dash_dcc.find_elements('span.rc-slider-mark-text')) == 6
+    assert len(dash_dcc.find_elements("span.rc-slider-mark-text")) == 6

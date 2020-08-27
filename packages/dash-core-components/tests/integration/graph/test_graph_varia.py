@@ -14,15 +14,13 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def findSyncPlotlyJs(scripts):
     for script in scripts:
-        if "dash_core_components/plotly-" in script.get_attribute('src'):
+        if "dash_core_components/plotly-" in script.get_attribute("src"):
             return script
 
 
 def findAsyncPlotlyJs(scripts):
     for script in scripts:
-        if "dash_core_components/async-plotlyjs" in script.get_attribute(
-            'src'
-        ):
+        if "dash_core_components/async-plotlyjs" in script.get_attribute("src"):
             return script
 
 
@@ -31,9 +29,7 @@ def test_candlestick(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
         [
-            html.Button(
-                id="button", children="Update Candlestick", n_clicks=0
-            ),
+            html.Button(id="button", children="Update Candlestick", n_clicks=0),
             dcc.Graph(id="graph"),
         ]
     )
@@ -62,14 +58,20 @@ def test_candlestick(dash_dcc, is_eager):
         EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph .main-svg"))
     )
 
-    dash_dcc.percy_snapshot("candlestick - initial ({})".format("eager" if is_eager else "lazy"))
+    dash_dcc.percy_snapshot(
+        "candlestick - initial ({})".format("eager" if is_eager else "lazy")
+    )
     button.click()
     time.sleep(1)
-    dash_dcc.percy_snapshot("candlestick - 1 click ({})".format("eager" if is_eager else "lazy"))
+    dash_dcc.percy_snapshot(
+        "candlestick - 1 click ({})".format("eager" if is_eager else "lazy")
+    )
 
     button.click()
     time.sleep(1)
-    dash_dcc.percy_snapshot("candlestick - 2 click ({})".format("eager" if is_eager else "lazy"))
+    dash_dcc.percy_snapshot(
+        "candlestick - 2 click ({})".format("eager" if is_eager else "lazy")
+    )
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -81,12 +83,7 @@ def test_graphs_with_different_figures(dash_dcc, is_eager):
                 id="example-graph",
                 figure={
                     "data": [
-                        {
-                            "x": [1, 2, 3],
-                            "y": [4, 1, 2],
-                            "type": "bar",
-                            "name": "SF",
-                        },
+                        {"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar", "name": "SF"},
                         {
                             "x": [1, 2, 3],
                             "y": [2, 4, 5],
@@ -123,8 +120,7 @@ def test_graphs_with_different_figures(dash_dcc, is_eager):
     )
 
     @app.callback(
-        Output("restyle-data", "children"),
-        [Input("example-graph", "restyleData")],
+        Output("restyle-data", "children"), [Input("example-graph", "restyleData")],
     )
     def show_restyle_data(data):
         if data is None:  # ignore initial
@@ -132,13 +128,10 @@ def test_graphs_with_different_figures(dash_dcc, is_eager):
         return json.dumps(data)
 
     @app.callback(
-        Output("relayout-data", "children"),
-        [Input("example-graph", "relayoutData")],
+        Output("relayout-data", "children"), [Input("example-graph", "relayoutData")],
     )
     def show_relayout_data(data):
-        if (
-            data is None or "autosize" in data
-        ):  # ignore initial & auto width
+        if data is None or "autosize" in data:  # ignore initial & auto width
             return ""
         return json.dumps(data)
 
@@ -155,17 +148,15 @@ def test_graphs_with_different_figures(dash_dcc, is_eager):
     )
 
     # move snapshot after click, so it's more stable with the wait
-    dash_dcc.percy_snapshot("2 graphs with different figures ({})".format("eager" if is_eager else "lazy"))
+    dash_dcc.percy_snapshot(
+        "2 graphs with different figures ({})".format("eager" if is_eager else "lazy")
+    )
 
     # and test relayoutData while we're at it
-    autoscale = dash_dcc.driver.find_element_by_css_selector(
-        "#example-graph .ewdrag"
-    )
+    autoscale = dash_dcc.driver.find_element_by_css_selector("#example-graph .ewdrag")
     autoscale.click()
     autoscale.click()
-    dash_dcc.wait_for_text_to_equal(
-        "#relayout-data", '{"xaxis.autorange": true}'
-    )
+    dash_dcc.wait_for_text_to_equal("#relayout-data", '{"xaxis.autorange": true}')
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -177,11 +168,7 @@ def test_empty_graph(dash_dcc, is_eager):
             html.Button(id="click", children="Click me"),
             dcc.Graph(
                 id="graph",
-                figure={
-                    "data": [
-                        dict(x=[1, 2, 3], y=[1, 2, 3], type="scatter")
-                    ]
-                },
+                figure={"data": [dict(x=[1, 2, 3], y=[1, 2, 3], type="scatter")]},
             ),
         ]
     )
@@ -200,7 +187,9 @@ def test_empty_graph(dash_dcc, is_eager):
     button = dash_dcc.wait_for_element("#click")
     button.click()
     time.sleep(2)  # Wait for graph to re-render
-    dash_dcc.percy_snapshot("render-empty-graph ({})".format("eager" if is_eager else "lazy"))
+    dash_dcc.percy_snapshot(
+        "render-empty-graph ({})".format("eager" if is_eager else "lazy")
+    )
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -349,42 +338,17 @@ def test_graph_extend_trace(dash_dcc, is_eager):
             ),
         ]
     )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_extend_selectively", comparison
-    )
+    dash_dcc.wait_for_text_to_equal("#output_trace_will_extend_selectively", comparison)
 
     comparison = json.dumps(
-        [
-            dict(
-                x=[3, 4, 5, 6, 7, 8, 9],
-                y=[0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],
-            )
-        ]
+        [dict(x=[3, 4, 5, 6, 7, 8, 9], y=[0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],)]
     )
     dash_dcc.wait_for_text_to_equal(
         "#output_trace_will_extend_with_max_points", comparison
     )
 
     comparison = json.dumps(
-        [
-            dict(
-                y=[
-                    0,
-                    0,
-                    0,
-                    0.1,
-                    0.2,
-                    0.3,
-                    0.4,
-                    0.5,
-                    0.1,
-                    0.2,
-                    0.3,
-                    0.4,
-                    0.5,
-                ]
-            )
-        ]
+        [dict(y=[0, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5])]
     )
     dash_dcc.wait_for_text_to_equal(
         "#output_trace_will_allow_repeated_extend", comparison
@@ -465,9 +429,7 @@ def test_unmounted_graph_resize(dash_dcc, is_eager):
         dash_dcc.wait_for_element("#eg-graph-1")
     except Exception as e:
         print(
-            dash_dcc.wait_for_element(
-                "#_dash-app-content"
-            ).get_attribute("innerHTML")
+            dash_dcc.wait_for_element("#_dash-app-content").get_attribute("innerHTML")
         )
         raise e
 
@@ -489,18 +451,14 @@ def test_unmounted_graph_resize(dash_dcc, is_eager):
         raise Exception("browser error logged during test", entry)
 
     # set back to original size
-    dash_dcc.driver.set_window_size(
-        window_size["width"], window_size["height"]
-    )
+    dash_dcc.driver.set_window_size(window_size["width"], window_size["height"])
 
 
 def test_external_plotlyjs_prevents_lazy(dash_dcc):
     app = dash.Dash(
         __name__,
         eager_loading=False,
-        external_scripts=[
-            'https://unpkg.com/plotly.js/dist/plotly.min.js'
-        ]
+        external_scripts=["https://unpkg.com/plotly.js/dist/plotly.min.js"],
     )
 
     app.layout = html.Div(id="div", children=[html.Button(id="btn")])

@@ -25,9 +25,7 @@ def test_intp001_all_types(dash_dcc):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
-            dcc.Input(
-                id=input_id(_), type=_, placeholder="input type {}".format(_)
-            )
+            dcc.Input(id=input_id(_), type=_, placeholder="input type {}".format(_))
             for _ in ALLOWING_TYPES
         ]
         + [html.Div(id="output")]
@@ -43,8 +41,7 @@ def test_intp001_all_types(dash_dcc):
     dash_dcc.start_server(app)
 
     assert (
-        dash_dcc.find_element("#input_hidden").get_attribute("type")
-        == "hidden"
+        dash_dcc.find_element("#input_hidden").get_attribute("type") == "hidden"
     ), "hidden input element should present with hidden type"
 
     dash_dcc.percy_snapshot("intp001 - init state")

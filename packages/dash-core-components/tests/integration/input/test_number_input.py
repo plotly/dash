@@ -16,9 +16,7 @@ def test_inni001_invalid_numbers(ninput_app, dash_dcc):
         for debounce in ("false", "true"):
 
             elem = dash_dcc.find_element("#input_{}".format(debounce))
-            assert not elem.get_attribute(
-                "value"
-            ), "input should have no initial value"
+            assert not elem.get_attribute("value"), "input should have no initial value"
 
             # onblur
             elem.send_keys(invalid_number)
@@ -61,15 +59,11 @@ def test_inni003_invalid_numbers_range(dash_dcc, input_range_app):
 
     for invalid_number in ("0.0", "12", "10e10"):
         elem_range.send_keys(invalid_number)
-        dash_dcc.wait_for_text_to_equal(
-            "#out", ""
-        ), "invalid value should return none"
+        dash_dcc.wait_for_text_to_equal("#out", ""), "invalid value should return none"
         dash_dcc.clear_input(elem_range)
 
     elem_range.send_keys("-13")
-    dash_dcc.wait_for_text_to_equal(
-        "#out", ""
-    ), "invalid value should return none"
+    dash_dcc.wait_for_text_to_equal("#out", ""), "invalid value should return none"
 
     time.sleep(0.5)
     dash_dcc.percy_snapshot("inni003 - number out of range")

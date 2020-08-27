@@ -46,9 +46,7 @@ def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
     )
     reset_input(dt_input_1)
 
-    dt_input_2 = dash_dcc.find_element(
-        "#dt-single-no-date-value-init-month #date"
-    )
+    dt_input_2 = dash_dcc.find_element("#dt-single-no-date-value-init-month #date")
     dash_dcc.find_element("label").click()
     dt_input_2.click()
     dash_dcc.percy_snapshot(
@@ -67,9 +65,7 @@ def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
     )
     reset_input(dt_input_3)
 
-    dt_input_4 = dash_dcc.find_element(
-        "#dt-range-no-date-values-init-month #endDate"
-    )
+    dt_input_4 = dash_dcc.find_element("#dt-range-no-date-values-init-month #endDate")
     dash_dcc.find_element("label").click()
     dt_input_4.click()
     dash_dcc.percy_snapshot(

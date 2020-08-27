@@ -50,11 +50,7 @@ def store_app():
         return True, True, True
 
     @app.callback(
-        [
-            Output("memory", "data"),
-            Output("local", "data"),
-            Output("session", "data"),
-        ],
+        [Output("memory", "data"), Output("local", "data"), Output("session", "data")],
         [Input("btn", "n_clicks")],
     )
     def on_click(n_clicks):
@@ -68,6 +64,7 @@ def store_app():
 @pytest.fixture(scope="session")
 def csv_5mb():
     import mimesis
+
     buf, chunks = None, []
     limit = 5 * 1024 * 1024
     while sys.getsizeof(buf) <= limit:
@@ -79,6 +76,6 @@ def csv_5mb():
             )
         )
         chunks.append(chunk)
-        buf = ''.join(chunks)
+        buf = "".join(chunks)
 
-    yield buf[len(chunk):limit]
+    yield buf[len(chunk) : limit]

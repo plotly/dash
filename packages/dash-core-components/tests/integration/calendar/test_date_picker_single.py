@@ -17,8 +17,7 @@ def test_dtps001_simple_click(dash_dcc):
                 id="dps",
                 min_date_allowed=datetime(2010, 1, 1),
                 max_date_allowed=datetime(2099, 12, 31),
-                initial_visible_month=datetime.today().date()
-                - timedelta(days=1),
+                initial_visible_month=datetime.today().date() - timedelta(days=1),
                 day_size=47,
             ),
         ],
@@ -65,11 +64,8 @@ def test_dtps010_local_and_session_persistence(dash_dcc):
         session = dash_dcc.select_date_single("dps-session", index=idx)
         dash_dcc.wait_for_page()
         assert (
-            dash_dcc.find_element("#dps-local input").get_attribute("value")
-            == local
-            and dash_dcc.find_element("#dps-session input").get_attribute(
-                "value"
-            )
+            dash_dcc.find_element("#dps-local input").get_attribute("value") == local
+            and dash_dcc.find_element("#dps-session input").get_attribute("value")
             == session
         ), "the date value should be consistent after refresh"
 
@@ -90,8 +86,7 @@ def test_dtps011_memory_persistence(dash_dcc):
                     id="dps-memory",
                     min_date_allowed=datetime(2010, 1, 1),
                     max_date_allowed=datetime(2099, 12, 31),
-                    initial_visible_month=datetime.today().date()
-                    - timedelta(days=1),
+                    initial_visible_month=datetime.today().date() - timedelta(days=1),
                     persistence=True,
                     persistence_type="memory",
                     day_size=47,
@@ -100,8 +95,7 @@ def test_dtps011_memory_persistence(dash_dcc):
                     id="dps-none",
                     min_date_allowed=datetime(2010, 1, 1),
                     max_date_allowed=datetime(2099, 12, 31),
-                    initial_visible_month=datetime.today().date()
-                    - timedelta(days=1),
+                    initial_visible_month=datetime.today().date() - timedelta(days=1),
                     day_size=47,
                 ),
             ]
@@ -120,8 +114,7 @@ def test_dtps011_memory_persistence(dash_dcc):
     assert dash_dcc.wait_for_text_to_equal("#out", "switched")
     switch.click()
     assert (
-        dash_dcc.find_element("#dps-memory input").get_attribute("value")
-        == memorized
+        dash_dcc.find_element("#dps-memory input").get_attribute("value") == memorized
     )
     switched = dash_dcc.find_element("#dps-none input").get_attribute("value")
     assert switched != amnesiaed and switched == ""
@@ -129,19 +122,21 @@ def test_dtps011_memory_persistence(dash_dcc):
 
 def test_dtps012_initial_month(dash_dcc):
     app = dash.Dash(__name__)
-    app.layout = html.Div([
-        dcc.DatePickerSingle(
-            id="dps-initial-month",
-            min_date_allowed=datetime(2010, 1, 1),
-            max_date_allowed=datetime(2099, 12, 31)
-        )
-    ])
+    app.layout = html.Div(
+        [
+            dcc.DatePickerSingle(
+                id="dps-initial-month",
+                min_date_allowed=datetime(2010, 1, 1),
+                max_date_allowed=datetime(2099, 12, 31),
+            )
+        ]
+    )
 
     dash_dcc.start_server(app)
 
-    date_picker = dash_dcc.find_element('#dps-initial-month')
+    date_picker = dash_dcc.find_element("#dps-initial-month")
     date_picker.click()
     dash_dcc.wait_for_text_to_equal(
-        '#dps-initial-month .CalendarMonth.CalendarMonth_1[data-visible=true] strong',
-        'January 2010'
+        "#dps-initial-month .CalendarMonth.CalendarMonth_1[data-visible=true] strong",
+        "January 2010",
     )

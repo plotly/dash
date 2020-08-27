@@ -7,9 +7,7 @@ def test_stdl001_data_lifecycle_with_different_condition(store_app, dash_dcc):
     nclicks = 10
     dash_dcc.multiple_click("#btn", nclicks)
 
-    dash_dcc.wait_for_text_to_equal(
-        "#output", '{{"n_clicks": {}}}'.format(nclicks)
-    )
+    dash_dcc.wait_for_text_to_equal("#output", '{{"n_clicks": {}}}'.format(nclicks))
     assert dash_dcc.get_local_storage() == {
         "n_clicks": nclicks
     }, "local storage should contain the same click nums"

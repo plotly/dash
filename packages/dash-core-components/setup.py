@@ -1,19 +1,19 @@
 from setuptools import setup
 import json
 
-with open('package.json') as f:
+with open("package.json") as f:
     package = json.load(f)
 
 package_name = str(package["name"].replace(" ", "_").replace("-", "_"))
 
 setup(
-    name='dash_core_components',
+    name="dash_core_components",
     version=package["version"],
-    author=package['author'],
-    author_email='chris@plotly.com',
+    author=package["author"],
+    author_email="chris@plotly.com",
     packages=[package_name],
     include_package_data=True,
-    license=package['license'],
+    license=package["license"],
     description=package.get("description", package_name),
-    install_requires=[]
+    install_requires=[],
 )

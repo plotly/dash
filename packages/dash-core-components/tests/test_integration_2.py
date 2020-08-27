@@ -82,9 +82,7 @@ class Test2(IntegrationTests):
         page_content = self.wait_for_element_by_css_selector("#page-content")
         self.assertNotEqual(page_content.text, "You are on page /")
 
-        self.wait_for_text_to_equal(
-            "#page-content", "You are on page /test-link"
-        )
+        self.wait_for_text_to_equal("#page-content", "You are on page /test-link")
 
         # test if rendered Link's <a> tag has a href attribute
         link_href = test_link.get_attribute("href")
@@ -102,9 +100,7 @@ class Test2(IntegrationTests):
             ]
         )
 
-        @app.callback(
-            Output("output", "children"), [Input("interval", "n_intervals")]
-        )
+        @app.callback(Output("output", "children"), [Input("interval", "n_intervals")])
         def update_text(n):
             return "{}".format(n)
 
@@ -120,10 +116,7 @@ class Test2(IntegrationTests):
         app.layout = html.Div(
             [
                 dcc.Interval(
-                    id="interval",
-                    interval=100,
-                    n_intervals=0,
-                    max_intervals=-1,
+                    id="interval", interval=100, n_intervals=0, max_intervals=-1,
                 ),
                 html.Button("Start", id="start", n_clicks_timestamp=-1),
                 html.Button("Stop", id="stop", n_clicks_timestamp=-1),
@@ -144,9 +137,7 @@ class Test2(IntegrationTests):
             else:
                 return -1
 
-        @app.callback(
-            Output("output", "children"), [Input("interval", "n_intervals")]
-        )
+        @app.callback(Output("output", "children"), [Input("interval", "n_intervals")])
         def display_data(n_intervals):
             return "Updated {}".format(n_intervals)
 
@@ -189,10 +180,7 @@ class Test2(IntegrationTests):
                 ],
             )
             def _on_confirmed(
-                submit_n_clicks,
-                cancel_n_clicks,
-                submit_timestamp,
-                cancel_timestamp,
+                submit_n_clicks, cancel_n_clicks, submit_timestamp, cancel_timestamp,
             ):
                 if not submit_n_clicks and not cancel_n_clicks:
                     return ""
@@ -227,9 +215,7 @@ class Test2(IntegrationTests):
 
         if add_callback:
             self.assertEqual(
-                2,
-                count.value,
-                "Expected 2 callback but got " + str(count.value),
+                2, count.value, "Expected 2 callback but got " + str(count.value),
             )
 
     def test_confirm(self):
@@ -243,9 +229,7 @@ class Test2(IntegrationTests):
             ]
         )
 
-        @app.callback(
-            Output("confirm", "displayed"), [Input("button", "n_clicks")]
-        )
+        @app.callback(Output("confirm", "displayed"), [Input("button", "n_clicks")])
         def on_click_confirm(n_clicks):
             if n_clicks:
                 return True
@@ -296,8 +280,7 @@ class Test2(IntegrationTests):
         )
 
         @app.callback(
-            Output("confirm-container", "children"),
-            [Input("button", "n_clicks")],
+            Output("confirm-container", "children"), [Input("button", "n_clicks")],
         )
         def on_click(n_clicks):
             if n_clicks:
@@ -317,9 +300,7 @@ class Test2(IntegrationTests):
     def test_user_supplied_css(self):
         app = dash.Dash(__name__)
 
-        app.layout = html.Div(
-            className="test-input-css", children=[dcc.Input()]
-        )
+        app.layout = html.Div(className="test-input-css", children=[dcc.Input()])
 
         self.startServer(app)
 
@@ -343,9 +324,7 @@ class Test2(IntegrationTests):
             ]
         )
 
-        @app.callback(
-            Output("content", "children"), [Input("location", "pathname")]
-        )
+        @app.callback(Output("content", "children"), [Input("location", "pathname")])
         def on_location(location_path):
             if location_path is None:
                 raise PreventUpdate
@@ -365,9 +344,7 @@ class Test2(IntegrationTests):
         time.sleep(1)
         self.snapshot("Logout button")
 
-        self.assertEqual(
-            "logged-in", self.driver.get_cookie("logout-cookie")["value"]
-        )
+        self.assertEqual("logged-in", self.driver.get_cookie("logout-cookie")["value"])
         logout_button = self.wait_for_element_by_css_selector("#logout-btn")
         logout_button.click()
         self.wait_for_text_to_equal("#content", "Logged out")
@@ -379,17 +356,13 @@ class Test2(IntegrationTests):
         app.layout = html.Div(
             [
                 dcc.Input(id="input"),
-                html.Div(
-                    html.Div([1.5, None, "string", html.Div(id="output-1")])
-                ),
+                html.Div(html.Div([1.5, None, "string", html.Div(id="output-1")])),
             ]
         )
 
         call_count = Value("i", 0)
 
-        @app.callback(
-            Output("output-1", "children"), [Input("input", "value")]
-        )
+        @app.callback(Output("output-1", "children"), [Input("input", "value")])
         def update_output(value):
             call_count.value = call_count.value + 1
             return value
@@ -443,7 +416,5 @@ class Test2(IntegrationTests):
         )
 
         WebDriverWait(self.driver, TIMEOUT).until(
-            EC.visibility_of_element_located(
-                (By.CSS_SELECTOR, ".tab--disabled")
-            )
+            EC.visibility_of_element_located((By.CSS_SELECTOR, ".tab--disabled"))
         )

@@ -15,10 +15,7 @@ import dash.testing.wait as wait
 def test_grbs001_graph_without_ids(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
-        [
-            dcc.Graph(className="graph-no-id-1"),
-            dcc.Graph(className="graph-no-id-2"),
-        ]
+        [dcc.Graph(className="graph-no-id-1"), dcc.Graph(className="graph-no-id-2")]
     )
 
     dash_dcc.start_server(app)
@@ -37,9 +34,7 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc, is_eager):
 
     df = pd.DataFrame(np.random.randn(50, 50))
     figure = {
-        "data": [
-            {"x": df.columns, "y": df.index, "z": df.values, "type": "heatmap"}
-        ],
+        "data": [{"x": df.columns, "y": df.index, "z": df.values, "type": "heatmap"}],
         "layout": {"xaxis": {"scaleanchor": "y"}},
     }
 
@@ -95,44 +90,40 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc, is_eager):
 @pytest.mark.DCC672
 def test_grbs003_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
     app = dash.Dash(__name__, suppress_callback_exceptions=True)
-    app.layout = html.Div([
-        html.H1('subplot issue'),
-        dcc.Location(id='url', refresh=False),
-        dcc.Loading(id="page-content")
-    ])
+    app.layout = html.Div(
+        [
+            html.H1("subplot issue"),
+            dcc.Location(id="url", refresh=False),
+            dcc.Loading(id="page-content"),
+        ]
+    )
 
-    @app.callback(Output('page-content', 'children'), [Input('url', 'pathname')])
+    @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
     def render_page(url):
         return [
             dcc.Dropdown(
-                id='my-dropdown',
+                id="my-dropdown",
                 options=[
-                    {'label': 'option 1', 'value': '1'},
-                    {'label': 'option 2', 'value': '2'}
+                    {"label": "option 1", "value": "1"},
+                    {"label": "option 2", "value": "2"},
                 ],
-                value='1'
+                value="1",
             ),
-            dcc.Graph(id='my-graph')
+            dcc.Graph(id="my-graph"),
         ]
 
-    @app.callback(Output('my-graph', 'figure'), [Input('my-dropdown', 'value')])
+    @app.callback(Output("my-graph", "figure"), [Input("my-dropdown", "value")])
     def update_graph(value):
         values = [1, 2, 3]
         ranges = [1, 2, 3]
 
         return {
-            'data': [{
-                'x': ranges,
-                'y': values,
-                'line': {
-                    'shape': 'spline'
-                }
-            }],
+            "data": [{"x": ranges, "y": values, "line": {"shape": "spline"}}],
         }
 
     dash_dcc.start_server(app)
 
-    dash_dcc.wait_for_element('#my-graph .main-svg')
+    dash_dcc.wait_for_element("#my-graph .main-svg")
 
     assert not dash_dcc.get_logs()
 
@@ -141,35 +132,31 @@ def test_grbs003_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
 def test_grbs004_graph_loading_state_updates(dash_dcc):
     lock = Lock()
     app = dash.Dash(__name__, suppress_callback_exceptions=True)
-    app.layout = html.Div([
-        html.H1(id='title', children='loading state updates'),
-        dcc.Graph(id='my-graph'),
-    ])
+    app.layout = html.Div(
+        [
+            html.H1(id="title", children="loading state updates"),
+            dcc.Graph(id="my-graph"),
+        ]
+    )
 
-    @app.callback(Output('my-graph', 'figure'), [Input('title', 'n_clicks')])
+    @app.callback(Output("my-graph", "figure"), [Input("title", "n_clicks")])
     def update_graph(n_clicks):
         values = [0, n_clicks]
         ranges = [0, n_clicks]
 
         with lock:
             return {
-                'data': [{
-                    'x': ranges,
-                    'y': values,
-                    'line': {
-                        'shape': 'spline'
-                    }
-                }],
+                "data": [{"x": ranges, "y": values, "line": {"shape": "spline"}}],
             }
 
     dash_dcc.start_server(app)
-    dash_dcc.wait_for_element('#my-graph:not([data-dash-is-loading])')
+    dash_dcc.wait_for_element("#my-graph:not([data-dash-is-loading])")
 
     with lock:
-        title = dash_dcc.wait_for_element('#title')
+        title = dash_dcc.wait_for_element("#title")
         title.click()
         dash_dcc.wait_for_element('#my-graph[data-dash-is-loading="true"]')
 
-    dash_dcc.wait_for_element('#my-graph:not([data-dash-is-loading])')
+    dash_dcc.wait_for_element("#my-graph:not([data-dash-is-loading])")
 
     assert not dash_dcc.get_logs()

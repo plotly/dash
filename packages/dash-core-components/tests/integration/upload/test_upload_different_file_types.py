@@ -54,9 +54,7 @@ def load_data_by_type(filetype, contents):
 def test_upft001_test_upload_with_different_file_types(filetype, dash_dcc):
 
     filepath = os.path.join(
-        os.path.dirname(__file__),
-        "upload-assets",
-        "upft001.{}".format(filetype),
+        os.path.dirname(__file__), "upload-assets", "upft001.{}".format(filetype),
     )
 
     app = dash.Dash(__name__)
@@ -68,9 +66,7 @@ def test_upft001_test_upload_with_different_file_types(filetype, dash_dcc):
                 id="upload-div",
                 children=dcc.Upload(
                     id="upload",
-                    children=html.Div(
-                        ["Drag and Drop or ", html.A("Select a File")]
-                    ),
+                    children=html.Div(["Drag and Drop or ", html.A("Select a File")]),
                     style={
                         "width": "100%",
                         "height": "60px",
