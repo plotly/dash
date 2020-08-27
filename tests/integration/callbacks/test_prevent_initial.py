@@ -333,3 +333,25 @@ def test_cbpi003_multi_outputs(flavor, dash_duo):
     dash_duo.wait_for_text_to_equal("#c", "BlueCheese")
     dash_duo.wait_for_text_to_equal("#b", "Cheese")
     dash_duo.wait_for_text_to_equal("#a", "Blue")
+
+
+def test_cbpi004_positional_arg(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div([html.Button("click", id="btn"), html.Div(id="out")])
+
+    @app.callback(
+        Output("out", "children"),
+        Input("btn", "n_clicks"),
+        True
+    )
+    def f(n):
+        return n
+
+    dash_duo.start_server(app)
+    dash_duo._wait_for_callbacks()
+
+    dash_duo.wait_for_text_to_equal("#out", "")
+
+    dash_duo.find_element("#btn").click()
+
+    dash_duo.wait_for_text_to_equal("#out", "1")
