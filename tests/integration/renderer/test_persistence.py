@@ -11,12 +11,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
 
-from datetime import datetime
-from datetime import timedelta as td
-
-
-from selenium.webdriver.common.action_chains import ActionChains
-
 
 @pytest.fixture(autouse=True)
 def clear_storage(dash_duo):
