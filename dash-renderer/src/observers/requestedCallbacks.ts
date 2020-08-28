@@ -11,9 +11,10 @@ import {
     isEmpty,
     isNil,
     map,
-    mergeAll,
+    mergeWith,
     partition,
     pluck,
+    reduce,
     values
 } from 'ramda';
 
@@ -86,13 +87,15 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             1. Remove duplicated `requested` callbacks - give precedence to newer callbacks over older ones
         */
 
+        const [rInitial, rLater] = partition(cb => cb.initialCall, requested);
+
         /*
             Group callbacks by identifier and partition based on whether there are duplicates or not.
         */
         const [rWithoutDuplicates, rWithDuplicates] = partition(rdg => rdg.length === 1, values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
-                requested
+                rLater
             )
         ));
 
@@ -106,7 +109,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         */
         const rMergedDuplicates = map(group => assoc(
             'changedPropIds',
-            mergeAll(pluck('changedPropIds', group)),
+            reduce(mergeWith(Math.max), {}, pluck('changedPropIds', group)),
             group[0]
         ), rWithDuplicates);
 
@@ -115,7 +118,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             Clean up the `requested` list - during the dispatch phase,
             duplicates will be removed for real
         */
-        requested = concat(flatten(rWithoutDuplicates), rMergedDuplicates);
+        requested = concat(rInitial, concat(flatten(rWithoutDuplicates), rMergedDuplicates));
 
         /*
             2. Remove duplicated `prioritized`, `executing` and `watching` callbacks
