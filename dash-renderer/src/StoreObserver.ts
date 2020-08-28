@@ -21,6 +21,7 @@ interface IStoreObserverState<TStore> {
 export interface IStoreObserverDefinition<TStore> {
     observer: Observer<Store<TStore>>;
     inputs: string[]
+    [key: string]: any;
 }
 
 export default class StoreObserver<TStore> {
