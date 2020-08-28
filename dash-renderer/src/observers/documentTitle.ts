@@ -7,7 +7,7 @@ const updateTitle = (getState: () => IStoreState) => {
         isLoading
     } = getState();
 
-    const { update_title } = config;
+    const update_title = config?.update_title;
 
     if (!update_title) {
         return;
