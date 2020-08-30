@@ -31,7 +31,7 @@ def test_dvct001_callback_timing(dash_thread_server):
     # eg 'Server-Timing': '__dash_server;dur=505, pancakes;dur=1230'
     assert "Server-Timing" in response.headers
     st = response.headers["Server-Timing"]
-    times = {k: int(v) for k, v in [p.split(";dur=") for p in st.split(", ")]}
+    times = {k: int(float(v)) for k, v in [p.split(";dur=") for p in st.split(", ")]}
     assert "__dash_server" in times
     assert times["__dash_server"] >= 500  # 0.5 sec wait
     assert "pancakes" in times
