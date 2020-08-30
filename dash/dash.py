@@ -334,7 +334,7 @@ class Dash(object):
             "via the Dash constructor"
         )
 
-        # keep title as a class property for backwards compatability
+        # keep title as a class property for backwards compatibility
         self.title = title
 
         # list of dependencies - this one is used by the back end for dispatching
