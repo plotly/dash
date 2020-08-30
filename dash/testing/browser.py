@@ -103,6 +103,7 @@ class Browser(DashPageMixin):
         resource_path,
         hook_id,
         wait_for_callbacks=True,
+        convert_canvases=False,
         assert_check=True,
         stay_on_page=False,
     ):
@@ -114,7 +115,11 @@ class Browser(DashPageMixin):
 
             # wait for the hook_id to present and all callbacks get fired
             self.wait_for_element_by_id(hook_id)
-            self.percy_snapshot(path, wait_for_callbacks=wait_for_callbacks)
+            self.percy_snapshot(
+                path,
+                wait_for_callbacks=wait_for_callbacks,
+                convert_canvases=convert_canvases,
+            )
             if assert_check:
                 assert not self.driver.find_elements_by_css_selector(
                     "div.dash-debug-alert"
@@ -125,7 +130,7 @@ class Browser(DashPageMixin):
             logger.exception("snapshot at resource %s error", path)
             raise e
 
-    def percy_snapshot(self, name="", wait_for_callbacks=False):
+    def percy_snapshot(self, name="", wait_for_callbacks=False, convert_canvases=False):
         """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`.
         It also combines the snapshot `name` with the Python version.
         """
@@ -148,7 +153,43 @@ class Browser(DashPageMixin):
                 self.redux_state_rqs,
             )
 
-        self.percy_runner.snapshot(name=snapshot_name)
+        if convert_canvases:
+            self.driver.execute_script(
+                """
+                const stash = window._canvasStash = [];
+                Array.from(document.querySelectorAll('canvas')).forEach(c => {
+                    const i = document.createElement('img');
+                    i.src = c.toDataURL();
+                    i.width = c.width;
+                    i.height = c.height;
+                    i.setAttribute('style', c.getAttribute('style'));
+                    i.className = c.className;
+                    i.setAttribute('data-canvasnum', stash.length);
+                    stash.push(c);
+                    c.parentElement.insertBefore(i, c);
+                    c.parentElement.removeChild(c);
+                });
+            """
+            )
+
+            self.percy_runner.snapshot(name=snapshot_name)
+
+            self.driver.execute_script(
+                """
+                const stash = window._canvasStash;
+                Array.from(
+                    document.querySelectorAll('img[data-canvasnum]')
+                ).forEach(i => {
+                    const c = stash[+i.getAttribute('data-canvasnum')];
+                    i.parentElement.insertBefore(c, i);
+                    i.parentElement.removeChild(i);
+                });
+                delete window._canvasStash;
+            """
+            )
+
+        else:
+            self.percy_runner.snapshot(name=snapshot_name)
 
     def take_snapshot(self, name):
         """Hook method to take snapshot when a selenium test fails. The
