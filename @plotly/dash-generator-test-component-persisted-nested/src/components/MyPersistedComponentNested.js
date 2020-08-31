@@ -2,7 +2,6 @@ import {isNil, omit} from 'ramda';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import isNumeric from 'fast-isnumeric';
-//import './css/input.css';
 
 // eslint-disable-next-line no-implicit-coercion
 const convert = val => (isNumeric(val) ? +val : NaN);
@@ -16,7 +15,7 @@ const isEquivalent = (v1, v2) => v1 === v2 || (isNaN(v1) && isNaN(v2));
  * the Checklist and RadioItems component. Dates, times, and file uploads
  * are also supported through separate components.
  */
-export default class MyPersistedComponent extends PureComponent {
+export default class MyPersistedComponentNested extends PureComponent {
     constructor(props) {
         super(props);
 
@@ -139,17 +138,17 @@ export default class MyPersistedComponent extends PureComponent {
     }
 }
 
-MyPersistedComponent.defaultProps = {
+MyPersistedComponentNested.defaultProps = {
     type: 'text',
     n_submit: 0,
     n_submit_timestamp: -1,
     debounce: false,
     step: 'any',
-    persisted_props: ['value'],
+    persisted_props: ['value.nested_value'],
     persistence_type: 'local',
 };
 
-MyPersistedComponent.propTypes = {
+MyPersistedComponentNested.propTypes = {
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
@@ -438,7 +437,7 @@ MyPersistedComponent.propTypes = {
      * component or the page. Since only `value` is allowed this prop can
      * normally be ignored.
      */
-    persisted_props: PropTypes.arrayOf(PropTypes.oneOf(['value'])),
+    persisted_props: PropTypes.arrayOf(PropTypes.oneOf(['value.nested_value'])),
 
     /**
      * Where persisted user changes will be stored:
@@ -449,16 +448,20 @@ MyPersistedComponent.propTypes = {
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
 };
 
-MyPersistedComponent.persistenceTransforms = {
+MyPersistedComponentNested.persistenceTransforms = {
           value: {
 
-            extract: propValue => {
-                if (!(propValue === null || propValue === undefined)) {
-                    return propValue.toUpperCase();
-                }
-                return propValue;
-            },
-            apply: storedValue => storedValue,
+            nested_value: {
+
+                extract: propValue => {
+                    if (!(propValue === null || propValue === undefined)) {
+                        return propValue.toUpperCase();
+                    }
+                    return propValue;
+                },
+                apply: storedValue => storedValue,
+
+            }
 
         },
     };

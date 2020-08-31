@@ -3,8 +3,8 @@
 from dash.development.base_component import Component, _explicitize_args
 
 
-class MyPersistedComponent(Component):
-    """A MyPersistedComponent component.
+class MyPersistedComponentNested(Component):
+    """A MyPersistedComponentNested component.
 A basic HTML input control for entering text, numbers, or passwords.
 
 Note that checkbox and radio types are supported through
@@ -72,7 +72,7 @@ hasn't changed from its previous value, a `value` that the user has
 changed while using the app will keep that change, as long as
 the new `value` also matches what was given originally.
 Used in conjunction with `persistence_type`.
-- persisted_props (list of a value equal to: 'value's; default ['value']): Properties whose user interactions will persist after refreshing the
+- persisted_props (list of a value equal to: 'value.nested_value's; default ['value.nested_value']): Properties whose user interactions will persist after refreshing the
 component or the page. Since only `value` is allowed this prop can
 normally be ignored.
 - persistence_type (a value equal to: 'local', 'session', 'memory'; default 'local'): Where persisted user changes will be stored:
@@ -82,8 +82,8 @@ session: window.sessionStorage, data is cleared once the browser quit."""
     @_explicitize_args
     def __init__(self, id=Component.UNDEFINED, value=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, debounce=Component.UNDEFINED, type=Component.UNDEFINED, autoComplete=Component.UNDEFINED, autoFocus=Component.UNDEFINED, disabled=Component.UNDEFINED, inputMode=Component.UNDEFINED, list=Component.UNDEFINED, max=Component.UNDEFINED, maxLength=Component.UNDEFINED, min=Component.UNDEFINED, minLength=Component.UNDEFINED, multiple=Component.UNDEFINED, name=Component.UNDEFINED, pattern=Component.UNDEFINED, placeholder=Component.UNDEFINED, readOnly=Component.UNDEFINED, required=Component.UNDEFINED, selectionDirection=Component.UNDEFINED, selectionEnd=Component.UNDEFINED, selectionStart=Component.UNDEFINED, size=Component.UNDEFINED, spellCheck=Component.UNDEFINED, step=Component.UNDEFINED, n_submit=Component.UNDEFINED, n_submit_timestamp=Component.UNDEFINED, loading_state=Component.UNDEFINED, persistence=Component.UNDEFINED, persisted_props=Component.UNDEFINED, persistence_type=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'value', 'style', 'className', 'debounce', 'type', 'autoComplete', 'autoFocus', 'disabled', 'inputMode', 'list', 'max', 'maxLength', 'min', 'minLength', 'multiple', 'name', 'pattern', 'placeholder', 'readOnly', 'required', 'selectionDirection', 'selectionEnd', 'selectionStart', 'size', 'spellCheck', 'step', 'n_submit', 'n_submit_timestamp', 'loading_state', 'persistence', 'persisted_props', 'persistence_type']
-        self._type = 'MyPersistedComponent'
-        self._namespace = 'dash_generator_test_component_persisted'
+        self._type = 'MyPersistedComponentNested'
+        self._namespace = 'dash_generator_test_component_persisted_nested'
         self._valid_wildcard_attributes =            []
         self.available_properties = ['id', 'value', 'style', 'className', 'debounce', 'type', 'autoComplete', 'autoFocus', 'disabled', 'inputMode', 'list', 'max', 'maxLength', 'min', 'minLength', 'multiple', 'name', 'pattern', 'placeholder', 'readOnly', 'required', 'selectionDirection', 'selectionEnd', 'selectionStart', 'size', 'spellCheck', 'step', 'n_submit', 'n_submit_timestamp', 'loading_state', 'persistence', 'persisted_props', 'persistence_type']
         self.available_wildcard_properties =            []
@@ -97,4 +97,4 @@ session: window.sessionStorage, data is cleared once the browser quit."""
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
-        super(MyPersistedComponent, self).__init__(**args)
+        super(MyPersistedComponentNested, self).__init__(**args)

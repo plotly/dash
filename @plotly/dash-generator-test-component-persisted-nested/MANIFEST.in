@@ -1,0 +1,2 @@
+include dash_generator_test_component_persisted_nested/**
+include package.json

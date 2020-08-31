@@ -1,7 +1,7 @@
 {
-  "src/components/MyPersistedComponent.js": {
+  "src/components/MyPersistedComponentNested.js": {
     "description": "A basic HTML input control for entering text, numbers, or passwords.\n\nNote that checkbox and radio types are supported through\nthe Checklist and RadioItems component. Dates, times, and file uploads\nare also supported through separate components.",
-    "displayName": "MyPersistedComponent",
+    "displayName": "MyPersistedComponentNested",
     "methods": [
       {
         "name": "UNSAFE_componentWillReceiveProps",
@@ -599,7 +599,7 @@
             "name": "enum",
             "value": [
               {
-                "value": "'value'",
+                "value": "'value.nested_value'",
                 "computed": false
               }
             ]
@@ -608,7 +608,7 @@
         "required": false,
         "description": "Properties whose user interactions will persist after refreshing the\ncomponent or the page. Since only `value` is allowed this prop can\nnormally be ignored.",
         "defaultValue": {
-          "value": "['value']",
+          "value": "['value.nested_value']",
           "computed": false
         }
       },
