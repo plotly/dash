@@ -11,15 +11,18 @@
         "required": false,
         "description": "The id of the component"
       },
-      "style": {
+      "value": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.shape"
+          "name": "string"
         },
         "required": false,
-        "description": "The style"
+        "description": "The value to display",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
       },
-      "value": {
+      "value2": {
         "type": {
           "name": "string"
         },
@@ -57,6 +60,10 @@
               {
                 "value": "'value'",
                 "computed": false
+              },
+              {
+                "value": "'value2'",
+                "computed": false
               }
             ]
           }
@@ -64,7 +71,7 @@
         "required": false,
         "description": "Properties whose user interactions will persist after refreshing the\ncomponent or the page.",
         "defaultValue": {
-          "value": "['value']",
+          "value": "['value', 'value2']",
           "computed": false
         }
       },

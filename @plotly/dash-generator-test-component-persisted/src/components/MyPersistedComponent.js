@@ -4,7 +4,8 @@ import React from 'react';
 /**
  * MyComponent description
  */
-const MyPersistedComponent = ({ id, style, value }) => (<div id={id} style={style}>{value}</div>);
+const MyPersistedComponent = ({ id, value, value2, persistence, persisted_props, persistence_type }) => 
+(<div id={id}>{value}<br></br>{value2}</div>);
 
 MyPersistedComponent.propTypes = {
     /**
@@ -12,15 +13,16 @@ MyPersistedComponent.propTypes = {
      */
     id: PropTypes.string,
 
-    /**
-     * The style
-     */
-    style: PropTypes.shape,
 
     /**
      * The value to display
      */
     value: PropTypes.string,
+
+    /**
+     * The value to display
+     */
+    value2: PropTypes.string,
 
     persistence: PropTypes.oneOfType([
         PropTypes.bool,
@@ -33,7 +35,7 @@ MyPersistedComponent.propTypes = {
      * component or the page.
      */
     persisted_props: PropTypes.arrayOf(
-        PropTypes.oneOf(['value'])
+        PropTypes.oneOf(['value', 'value2'])
     ),
 
     /**
@@ -45,9 +47,23 @@ MyPersistedComponent.propTypes = {
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
 };
 
+MyPersistedComponent.persistenceTransforms = {
+      value: {
+        extract: propValue => {
+            if (!(propValue === null || propValue === undefined)) {
+                return str.toUpperCase(propValue);
+            }
+            return propValue;
+        },
+        apply: storedValue => storedValue,
+       
+    },
+};
+
 MyPersistedComponent.defaultProps = {
     value: '',
-    persisted_props: ['value'],
+    value2: '',
+    persisted_props: ['value', 'value2'],
     persistence_type: 'local',
 };
 
