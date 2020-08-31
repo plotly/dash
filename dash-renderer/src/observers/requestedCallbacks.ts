@@ -1,18 +1,18 @@
 import {
     all,
-    assoc,
     concat,
     difference,
     filter,
     flatten,
+    forEach,
     groupBy,
     includes,
     intersection,
     isEmpty,
     isNil,
     map,
+    mergeLeft,
     mergeWith,
-    partition,
     pluck,
     reduce,
     values
@@ -87,38 +87,46 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             1. Remove duplicated `requested` callbacks - give precedence to newer callbacks over older ones
         */
 
-        const [rInitial, rLater] = partition(cb => cb.initialCall, requested);
+        let rDuplicates: ICallback[] = [];
+        let rMergedDuplicates: ICallback[] = [];
 
-        /*
-            Group callbacks by identifier and partition based on whether there are duplicates or not.
-        */
-        const [rWithoutDuplicates, rWithDuplicates] = partition(rdg => rdg.length === 1, values(
+        forEach(group => {
+            if (group.length === 1) {
+                // keep callback if its the only one of its kind
+                rMergedDuplicates.push(group[0]);
+            } else {
+                const initial = group.find(cb => cb.initialCall);
+                if (initial) {
+                    // drop the initial callback if it's not alone
+                    rDuplicates.push(initial);
+                }
+
+                const groupWithoutInitial = group.filter(cb => cb !== initial);
+                if (groupWithoutInitial.length === 1) {
+                    // if there's only one callback beside the initial one, keep that callback
+                    rMergedDuplicates.push(groupWithoutInitial[0]);
+                } else {
+                    // otherwise merge all remaining callbacks together
+                    rDuplicates = concat(rDuplicates, groupWithoutInitial);
+                    rMergedDuplicates.push(mergeLeft({
+                        changedPropIds: reduce(mergeWith(Math.max), {}, pluck('changedPropIds', groupWithoutInitial)),
+                        executionGroup: filter(exg => !!exg, pluck('executionGroup', groupWithoutInitial))[0]
+                    }, groupWithoutInitial.slice(-1)[0]) as ICallback);
+                }
+            }
+        }, values(
             groupBy<ICallback>(
                 getUniqueIdentifier,
-                rLater
+                requested
             )
         ));
-
-        /*
-            Flatten all duplicated callbacks into a list for removal
-        */
-        const rDuplicates = flatten(rWithDuplicates);
-
-        /*
-            Merge duplicate groups into a single callback - merge by giving priority to newer callbacks
-        */
-        const rMergedDuplicates = map(group => assoc(
-            'changedPropIds',
-            reduce(mergeWith(Math.max), {}, pluck('changedPropIds', group)),
-            group[0]
-        ), rWithDuplicates);
 
         /*
             TODO?
             Clean up the `requested` list - during the dispatch phase,
             duplicates will be removed for real
         */
-        requested = concat(rInitial, concat(flatten(rWithoutDuplicates), rMergedDuplicates));
+        requested = rMergedDuplicates;
 
         /*
             2. Remove duplicated `prioritized`, `executing` and `watching` callbacks
