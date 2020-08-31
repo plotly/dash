@@ -100,12 +100,13 @@ def test_cbcx004_triggered_backward_compat(dash_duo):
     )
 
 
+calls = 0
+callback_contexts = []
+clicks = dict()
+
+
 @pytest.mark.DASH1350
 def test_cbcx005_grouped_clicks(dash_duo):
-    calls = 0
-    callback_contexts = []
-    clicks = dict()
-
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -139,9 +140,9 @@ def test_cbcx005_grouped_clicks(dash_duo):
         prevent_initial_call=True,
     )
     def update(div1, div2, btn0, btn1, btn2):
-        nonlocal calls
-        nonlocal callback_contexts
-        nonlocal clicks
+        global calls
+        global callback_contexts
+        global clicks
 
         calls = calls + 1
         callback_contexts.append(callback_context.triggered)
