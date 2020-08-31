@@ -110,7 +110,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     rDuplicates = concat(rDuplicates, groupWithoutInitial);
                     rMergedDuplicates.push(mergeLeft({
                         changedPropIds: reduce(mergeWith(Math.max), {}, pluck('changedPropIds', groupWithoutInitial)),
-                        executionGroup: filter(exg => !!exg, pluck('executionGroup', groupWithoutInitial))[0]
+                        executionGroup: filter(exg => !!exg, pluck('executionGroup', groupWithoutInitial)).slice(-1)[0]
                     }, groupWithoutInitial.slice(-1)[0]) as ICallback);
                 }
             }
