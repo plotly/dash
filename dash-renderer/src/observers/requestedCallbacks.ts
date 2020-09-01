@@ -22,16 +22,16 @@ import { IStoreState } from '../store';
 
 import {
     aggregateCallbacks,
-    removeRequestedCallbacks,
     removePrioritizedCallbacks,
     removeExecutingCallbacks,
     removeWatchedCallbacks,
-    addRequestedCallbacks,
     addPrioritizedCallbacks,
     addExecutingCallbacks,
     addWatchedCallbacks,
     removeBlockedCallbacks,
-    addBlockedCallbacks
+    addBlockedCallbacks,
+    addRequestedCallbacks,
+    removeRequestedCallbacks
 } from '../actions/callbacks';
 
 import { isMultiValued } from '../actions/dependencies';
@@ -64,6 +64,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const { callbacks, callbacks: { prioritized, blocked, executing, watched, stored }, paths } = getState();
         let { callbacks: { requested } } = getState();
+
+        const initialRequested = requested.slice(0);
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
@@ -341,18 +343,24 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             dropped
         );
 
+        requested = difference(
+            requested,
+            readyCallbacks
+        );
+
+        const added = difference(requested, initialRequested);
+        const removed = difference(initialRequested, requested);
+
         dispatch(aggregateCallbacks([
+            // Clean up requested callbacks
+            added.length ? addRequestedCallbacks(added) : null,
+            removed.length ? removeRequestedCallbacks(removed) : null,
             // Clean up duplicated callbacks
-            rDuplicates.length ? removeRequestedCallbacks(rDuplicates) : null,
             pDuplicates.length ? removePrioritizedCallbacks(pDuplicates) : null,
             bDuplicates.length ? removeBlockedCallbacks(bDuplicates) : null,
             eDuplicates.length ? removeExecutingCallbacks(eDuplicates) : null,
             wDuplicates.length ? removeWatchedCallbacks(wDuplicates) : null,
-            // Add merged-duplicated callbacks
-            rMergedDuplicates.length ? addRequestedCallbacks(rMergedDuplicates): null,
             // Prune callbacks
-            rRemoved.length ? removeRequestedCallbacks(rRemoved) : null,
-            rAdded.length ? addRequestedCallbacks(rAdded) : null,
             pRemoved.length ? removePrioritizedCallbacks(pRemoved) : null,
             pAdded.length ? addPrioritizedCallbacks(pAdded) : null,
             bRemoved.length ? removeBlockedCallbacks(bRemoved) : null,
@@ -361,15 +369,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             eAdded.length ? addExecutingCallbacks(eAdded) : null,
             wRemoved.length ? removeWatchedCallbacks(wRemoved) : null,
             wAdded.length ? addWatchedCallbacks(wAdded) : null,
-            // Prune circular callbacks
-            rCirculars.length ? removeRequestedCallbacks(rCirculars) : null,
-            // Prune circular assumptions
-            oldBlocked.length ? removeRequestedCallbacks(oldBlocked) : null,
-            newBlocked.length ? addRequestedCallbacks(newBlocked) : null,
-            // Drop non-triggered initial callbacks
-            dropped.length ? removeRequestedCallbacks(dropped) : null,
             // Promote callbacks
-            readyCallbacks.length ? removeRequestedCallbacks(readyCallbacks) : null,
             readyCallbacks.length ? addPrioritizedCallbacks(readyCallbacks) : null
         ]));
     },
