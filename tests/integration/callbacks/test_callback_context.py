@@ -298,6 +298,7 @@ def test_cbcx006_initial_callback_predecessor(dash_duo):
 
     dash_duo.start_server(app)
 
+    # Initial Callbacks
     wait.until(lambda: cbcx006_calls == 2, 2)
     wait.until(lambda: len(cbcx006_contexts) == 2, 2)
 
@@ -309,3 +310,36 @@ def test_cbcx006_initial_callback_predecessor(dash_duo):
     keys1 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[1]))
     assert len(keys1) == 1
     assert "sum-number.value" in keys1
+
+    # User action & followup callbacks
+    dash_duo.find_element("#input-number-1").click()
+    dash_duo.find_element("#input-number-1").send_keys("1")
+
+    wait.until(lambda: cbcx006_calls == 4, 2)
+    wait.until(lambda: len(cbcx006_contexts) == 4, 2)
+
+    keys0 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[2]))
+    # Special case present for backward compatibility
+    assert len(keys0) == 1
+    assert "input-number-1.value" in keys0
+
+    keys1 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[3]))
+    assert len(keys1) == 2
+    assert "sum-number.value" in keys1
+    assert "input-number-1.value" in keys1
+
+    dash_duo.find_element("#input-number-2").click()
+    dash_duo.find_element("#input-number-2").send_keys("1")
+
+    wait.until(lambda: cbcx006_calls == 6, 2)
+    wait.until(lambda: len(cbcx006_contexts) == 6, 2)
+
+    keys0 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[4]))
+    # Special case present for backward compatibility
+    assert len(keys0) == 1
+    assert "input-number-2.value" in keys0
+
+    keys1 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[5]))
+    assert len(keys1) == 2
+    assert "sum-number.value" in keys1
+    assert "input-number-2.value" in keys1
