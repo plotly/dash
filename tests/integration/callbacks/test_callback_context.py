@@ -9,6 +9,7 @@ from dash import Dash, callback_context
 from dash.dependencies import Input, Output
 
 from dash.exceptions import PreventUpdate, MissingCallbackContextException
+import dash.testing.wait as wait
 
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -221,3 +222,90 @@ def test_cbcx005_grouped_clicks(dash_duo):
     assert clicks.get("btn2") == 1
     assert clicks.get("div1") == 4
     assert clicks.get("div2") == 2
+
+
+cbcx006_calls = 0
+cbcx006_contexts = []
+
+
+@pytest.mark.DASH1350
+def test_cbcx006_initial_callback_predecessor(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(
+                style={"display": "block"},
+                children=[
+                    html.Div(
+                        [
+                            html.Label("ID: input-number-1"),
+                            dcc.Input(id="input-number-1", type="number", value=0),
+                        ]
+                    ),
+                    html.Div(
+                        [
+                            html.Label("ID: input-number-2"),
+                            dcc.Input(id="input-number-2", type="number", value=0),
+                        ]
+                    ),
+                    html.Div(
+                        [
+                            html.Label("ID: sum-number"),
+                            dcc.Input(
+                                id="sum-number", type="number", value=0, disabled=True
+                            ),
+                        ]
+                    ),
+                ],
+            ),
+            html.Div(id="results"),
+        ]
+    )
+
+    @app.callback(
+        Output("sum-number", "value"),
+        [Input("input-number-1", "value"), Input("input-number-2", "value")],
+    )
+    def update_sum_number(n1, n2):
+        global cbcx006_calls
+        global cbcx006_contexts
+
+        cbcx006_calls = cbcx006_calls + 1
+        cbcx006_contexts.append(callback_context.triggered)
+
+        return n1 + n2
+
+    @app.callback(
+        Output("results", "children"),
+        [
+            Input("input-number-1", "value"),
+            Input("input-number-2", "value"),
+            Input("sum-number", "value"),
+        ],
+    )
+    def update_results(n1, n2, nsum):
+        global cbcx006_calls
+        global cbcx006_contexts
+
+        cbcx006_calls = cbcx006_calls + 1
+        cbcx006_contexts.append(callback_context.triggered)
+
+        return [
+            "{} + {} = {}".format(n1, n2, nsum),
+            html.Br(),
+            "ctx.triggered={}".format(callback_context.triggered),
+        ]
+
+    dash_duo.start_server(app)
+
+    wait.until(lambda: cbcx006_calls == 2, 2)
+    wait.until(lambda: len(cbcx006_contexts) == 2, 2)
+
+    keys0 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[0]))
+    # Special case present for backward compatibility
+    assert len(keys0) == 1
+    assert "." in keys0
+
+    keys1 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[1]))
+    assert len(keys1) == 1
+    assert "sum-number.value" in keys1
