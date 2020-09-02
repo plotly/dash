@@ -20,11 +20,9 @@ const omit = (key, obj) => {
   }
 
 /**
- * A basic HTML input control for entering text, numbers, or passwords.
+ * Adapted dcc input component for persistence tests.
  *
- * Note that checkbox and radio types are supported through
- * the Checklist and RadioItems component. Dates, times, and file uploads
- * are also supported through separate components.
+ * Note that some unnecessary props have been removed.
  */
 export default class MyPersistedComponent extends PureComponent {
     constructor(props) {
