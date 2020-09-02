@@ -1,0 +1,2 @@
+include dash_test_components/**
+include package.json

@@ -1,9 +1,10 @@
 from dash import Dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-
+import time
 from dash_generator_test_component_nested import MyNestedComponent
 from dash_generator_test_component_standard import MyStandardComponent
+from dash_test_components import StyledComponent
 from dash_html_components import Button, Div
 
 from selenium.webdriver.support.ui import WebDriverWait
@@ -20,6 +21,7 @@ def test_gene001_simple_callback(dash_duo):
     )
 
     dash_duo.start_server(app)
+    time.sleep(50000)
 
     assert dash_duo.wait_for_element("#standard").text == "Standard"
     assert dash_duo.wait_for_element("#nested").text == "Nested"
@@ -37,8 +39,8 @@ def test_gene002_arbitrary_resources(dash_duo):
         if n_clicks is None:
             raise PreventUpdate
 
-        return MyStandardComponent(
-            id="standard", value="Standard", style={"font-family": "godfather"}
+        return StyledComponent(
+            id="styled", value="Styled", style={"font-family": "godfather"}
         )
 
     dash_duo.start_server(app)
@@ -49,7 +51,7 @@ def test_gene002_arbitrary_resources(dash_duo):
     )
 
     dash_duo.wait_for_element("#btn").click()
-    assert dash_duo.wait_for_element("#standard").text == "Standard"
+    assert dash_duo.wait_for_element("#styled").text == "Styled"
 
     WebDriverWait(dash_duo.driver, 10).until(
         lambda _: dash_duo.driver.execute_script(
