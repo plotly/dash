@@ -1,7 +1,7 @@
 {
   "src/components/MyPersistedComponentNested.js": {
     "description": "A basic HTML input control for entering text, numbers, or passwords.\n\nNote that checkbox and radio types are supported through\nthe Checklist and RadioItems component. Dates, times, and file uploads\nare also supported through separate components.",
-    "displayName": "MyPersistedComponent",
+    "displayName": "MyPersistedComponentNested",
     "methods": [
       {
         "name": "UNSAFE_componentWillReceiveProps",

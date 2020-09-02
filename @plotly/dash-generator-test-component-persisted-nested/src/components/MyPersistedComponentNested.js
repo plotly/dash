@@ -26,7 +26,7 @@ const omit = (key, obj) => {
  * the Checklist and RadioItems component. Dates, times, and file uploads
  * are also supported through separate components.
  */
-export default class MyPersistedComponent extends PureComponent {
+export default class MyPersistedComponentNested extends PureComponent {
     constructor(props) {
         super(props);
 
@@ -149,7 +149,7 @@ export default class MyPersistedComponent extends PureComponent {
     }
 }
 
-MyPersistedComponent.defaultProps = {
+MyPersistedComponentNested.defaultProps = {
     type: 'text',
     n_submit: 0,
     n_submit_timestamp: -1,
@@ -158,7 +158,7 @@ MyPersistedComponent.defaultProps = {
     persistence_type: 'local',
 };
 
-MyPersistedComponent.propTypes = {
+MyPersistedComponentNested.propTypes = {
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
