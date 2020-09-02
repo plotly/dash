@@ -41,10 +41,14 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             observer.config = config;
             observer.mutationObserver?.disconnect();
             observer.mutationObserver = new MutationObserver(() => updateTitle(getState));
-            observer.mutationObserver.observe(
-                document.querySelector('title'),
-                { subtree: true, childList: true, attributes: true, characterData: true }
-            );
+
+            const title = document.querySelector('title');
+            if (title) {
+                observer.mutationObserver.observe(
+                    title,
+                    { subtree: true, childList: true, attributes: true, characterData: true }
+                );
+            }
         }
 
         updateTitle(getState);
