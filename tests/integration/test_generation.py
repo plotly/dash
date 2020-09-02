@@ -1,7 +1,7 @@
 from dash import Dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-import time
+
 from dash_generator_test_component_nested import MyNestedComponent
 from dash_generator_test_component_standard import MyStandardComponent
 from dash_test_components import StyledComponent
@@ -21,7 +21,6 @@ def test_gene001_simple_callback(dash_duo):
     )
 
     dash_duo.start_server(app)
-    time.sleep(50000)
 
     assert dash_duo.wait_for_element("#standard").text == "Standard"
     assert dash_duo.wait_for_element("#nested").text == "Nested"
