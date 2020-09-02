@@ -11,8 +11,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
 
-from dash_generator_test_component_persisted import MyPersistedComponent
-from dash_generator_test_component_persisted_nested import MyPersistedComponentNested
+from dash_test_components import MyPersistedComponent
+from dash_test_components import MyPersistedComponentNested
 
 
 @pytest.fixture(autouse=True)
