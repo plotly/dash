@@ -1,5 +1,5 @@
 import json
-from multiprocessing import Value
+from multiprocessing import Lock, Value
 
 import pytest
 
@@ -12,6 +12,8 @@ from dash.exceptions import PreventUpdate
 
 
 def test_cbsc001_simple_callback(dash_duo):
+    lock = Lock()
+
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -23,8 +25,9 @@ def test_cbsc001_simple_callback(dash_duo):
 
     @app.callback(Output("output-1", "children"), [Input("input", "value")])
     def update_output(value):
-        call_count.value = call_count.value + 1
-        return value
+        with lock:
+            call_count.value = call_count.value + 1
+            return value
 
     dash_duo.start_server(app)
 
@@ -34,7 +37,9 @@ def test_cbsc001_simple_callback(dash_duo):
     input_ = dash_duo.find_element("#input")
     dash_duo.clear_input(input_)
 
-    input_.send_keys("hello world")
+    for key in "hello world":
+        with lock:
+            input_.send_keys(key)
 
     assert dash_duo.find_element("#output-1").text == "hello world"
     dash_duo.percy_snapshot(name="simple-callback-hello-world")
@@ -345,6 +350,8 @@ def test_cbsc007_parallel_updates(refresh, dash_duo):
 
 
 def test_cbsc008_wildcard_prop_callbacks(dash_duo):
+    lock = Lock()
+
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -369,8 +376,9 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
 
     @app.callback(Output("output-1", "data-cb"), [Input("input", "value")])
     def update_data(value):
-        input_call_count.value += 1
-        return value
+        with lock:
+            input_call_count.value += 1
+            return value
 
     @app.callback(Output("output-1", "children"), [Input("output-1", "data-cb")])
     def update_text(data):
@@ -382,7 +390,10 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
 
     input1 = dash_duo.find_element("#input")
     dash_duo.clear_input(input1)
-    input1.send_keys("hello world")
+
+    for key in "hello world":
+        with lock:
+            input1.send_keys(key)
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     dash_duo.percy_snapshot(name="wildcard-callback-2")
