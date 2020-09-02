@@ -1,6 +1,7 @@
 import json
 import operator
 import pytest
+
 import dash_html_components as html
 import dash_core_components as dcc
 
@@ -101,13 +102,13 @@ def test_cbcx004_triggered_backward_compat(dash_duo):
     )
 
 
-calls = 0
-callback_contexts = []
-clicks = dict()
-
-
 @pytest.mark.DASH1350
 def test_cbcx005_grouped_clicks(dash_duo):
+    class context:
+        calls = 0
+        callback_contexts = []
+        clicks = dict()
+
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -141,17 +142,13 @@ def test_cbcx005_grouped_clicks(dash_duo):
         prevent_initial_call=True,
     )
     def update(div1, div2, btn0, btn1, btn2):
-        global calls
-        global callback_contexts
-        global clicks
-
-        calls = calls + 1
-        callback_contexts.append(callback_context.triggered)
-        clicks["div1"] = div1
-        clicks["div2"] = div2
-        clicks["btn0"] = btn0
-        clicks["btn1"] = btn1
-        clicks["btn2"] = btn2
+        context.calls = context.calls + 1
+        context.callback_contexts.append(callback_context.triggered)
+        context.clicks["div1"] = div1
+        context.clicks["div2"] = div2
+        context.clicks["btn0"] = btn0
+        context.clicks["btn1"] = btn1
+        context.clicks["btn2"] = btn2
 
     def click(target):
         ActionChains(dash_duo.driver).move_to_element_with_offset(
@@ -160,76 +157,76 @@ def test_cbcx005_grouped_clicks(dash_duo):
 
     dash_duo.start_server(app)
     click(dash_duo.find_element("#btn0"))
-    assert calls == 1
-    keys = list(map(operator.itemgetter("prop_id"), callback_contexts[-1:][0]))
+    assert context.calls == 1
+    keys = list(map(operator.itemgetter("prop_id"), context.callback_contexts[-1:][0]))
     assert len(keys) == 1
     assert "btn0.n_clicks" in keys
 
-    assert clicks.get("btn0") == 1
-    assert clicks.get("btn1") is None
-    assert clicks.get("btn2") is None
-    assert clicks.get("div1") is None
-    assert clicks.get("div2") is None
+    assert context.clicks.get("btn0") == 1
+    assert context.clicks.get("btn1") is None
+    assert context.clicks.get("btn2") is None
+    assert context.clicks.get("div1") is None
+    assert context.clicks.get("div2") is None
 
     click(dash_duo.find_element("#div1"))
-    assert calls == 2
-    keys = list(map(operator.itemgetter("prop_id"), callback_contexts[-1:][0]))
+    assert context.calls == 2
+    keys = list(map(operator.itemgetter("prop_id"), context.callback_contexts[-1:][0]))
     assert len(keys) == 1
     assert "div1.n_clicks" in keys
 
-    assert clicks.get("btn0") == 1
-    assert clicks.get("btn1") is None
-    assert clicks.get("btn2") is None
-    assert clicks.get("div1") == 1
-    assert clicks.get("div2") is None
+    assert context.clicks.get("btn0") == 1
+    assert context.clicks.get("btn1") is None
+    assert context.clicks.get("btn2") is None
+    assert context.clicks.get("div1") == 1
+    assert context.clicks.get("div2") is None
 
     click(dash_duo.find_element("#btn1"))
-    assert calls == 3
-    keys = list(map(operator.itemgetter("prop_id"), callback_contexts[-1:][0]))
+    assert context.calls == 3
+    keys = list(map(operator.itemgetter("prop_id"), context.callback_contexts[-1:][0]))
     assert len(keys) == 2
     assert "btn1.n_clicks" in keys
     assert "div1.n_clicks" in keys
 
-    assert clicks.get("btn0") == 1
-    assert clicks.get("btn1") == 1
-    assert clicks.get("btn2") is None
-    assert clicks.get("div1") == 2
-    assert clicks.get("div2") is None
+    assert context.clicks.get("btn0") == 1
+    assert context.clicks.get("btn1") == 1
+    assert context.clicks.get("btn2") is None
+    assert context.clicks.get("div1") == 2
+    assert context.clicks.get("div2") is None
 
     click(dash_duo.find_element("#div2"))
-    assert calls == 4
-    keys = list(map(operator.itemgetter("prop_id"), callback_contexts[-1:][0]))
+    assert context.calls == 4
+    keys = list(map(operator.itemgetter("prop_id"), context.callback_contexts[-1:][0]))
     assert len(keys) == 2
     assert "div1.n_clicks" in keys
     assert "div2.n_clicks" in keys
 
-    assert clicks.get("btn0") == 1
-    assert clicks.get("btn1") == 1
-    assert clicks.get("btn2") is None
-    assert clicks.get("div1") == 3
-    assert clicks.get("div2") == 1
+    assert context.clicks.get("btn0") == 1
+    assert context.clicks.get("btn1") == 1
+    assert context.clicks.get("btn2") is None
+    assert context.clicks.get("div1") == 3
+    assert context.clicks.get("div2") == 1
 
     click(dash_duo.find_element("#btn2"))
-    assert calls == 5
-    keys = list(map(operator.itemgetter("prop_id"), callback_contexts[-1:][0]))
+    assert context.calls == 5
+    keys = list(map(operator.itemgetter("prop_id"), context.callback_contexts[-1:][0]))
     assert len(keys) == 3
     assert "btn2.n_clicks" in keys
     assert "div1.n_clicks" in keys
     assert "div2.n_clicks" in keys
 
-    assert clicks.get("btn0") == 1
-    assert clicks.get("btn1") == 1
-    assert clicks.get("btn2") == 1
-    assert clicks.get("div1") == 4
-    assert clicks.get("div2") == 2
-
-
-cbcx006_calls = 0
-cbcx006_contexts = []
+    assert context.clicks.get("btn0") == 1
+    assert context.clicks.get("btn1") == 1
+    assert context.clicks.get("btn2") == 1
+    assert context.clicks.get("div1") == 4
+    assert context.clicks.get("div2") == 2
 
 
 @pytest.mark.DASH1350
 def test_cbcx006_initial_callback_predecessor(dash_duo):
+    class context:
+        calls = 0
+        callback_contexts = []
+
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -267,11 +264,8 @@ def test_cbcx006_initial_callback_predecessor(dash_duo):
         [Input("input-number-1", "value"), Input("input-number-2", "value")],
     )
     def update_sum_number(n1, n2):
-        global cbcx006_calls
-        global cbcx006_contexts
-
-        cbcx006_calls = cbcx006_calls + 1
-        cbcx006_contexts.append(callback_context.triggered)
+        context.calls = context.calls + 1
+        context.callback_contexts.append(callback_context.triggered)
 
         return n1 + n2
 
@@ -284,11 +278,8 @@ def test_cbcx006_initial_callback_predecessor(dash_duo):
         ],
     )
     def update_results(n1, n2, nsum):
-        global cbcx006_calls
-        global cbcx006_contexts
-
-        cbcx006_calls = cbcx006_calls + 1
-        cbcx006_contexts.append(callback_context.triggered)
+        context.calls = context.calls + 1
+        context.callback_contexts.append(callback_context.triggered)
 
         return [
             "{} + {} = {}".format(n1, n2, nsum),
@@ -299,15 +290,15 @@ def test_cbcx006_initial_callback_predecessor(dash_duo):
     dash_duo.start_server(app)
 
     # Initial Callbacks
-    wait.until(lambda: cbcx006_calls == 2, 2)
-    wait.until(lambda: len(cbcx006_contexts) == 2, 2)
+    wait.until(lambda: context.calls == 2, 2)
+    wait.until(lambda: len(context.callback_contexts) == 2, 2)
 
-    keys0 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[0]))
+    keys0 = list(map(operator.itemgetter("prop_id"), context.callback_contexts[0]))
     # Special case present for backward compatibility
     assert len(keys0) == 1
     assert "." in keys0
 
-    keys1 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[1]))
+    keys1 = list(map(operator.itemgetter("prop_id"), context.callback_contexts[1]))
     assert len(keys1) == 1
     assert "sum-number.value" in keys1
 
@@ -315,15 +306,15 @@ def test_cbcx006_initial_callback_predecessor(dash_duo):
     dash_duo.find_element("#input-number-1").click()
     dash_duo.find_element("#input-number-1").send_keys("1")
 
-    wait.until(lambda: cbcx006_calls == 4, 2)
-    wait.until(lambda: len(cbcx006_contexts) == 4, 2)
+    wait.until(lambda: context.calls == 4, 2)
+    wait.until(lambda: len(context.callback_contexts) == 4, 2)
 
-    keys0 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[2]))
+    keys0 = list(map(operator.itemgetter("prop_id"), context.callback_contexts[2]))
     # Special case present for backward compatibility
     assert len(keys0) == 1
     assert "input-number-1.value" in keys0
 
-    keys1 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[3]))
+    keys1 = list(map(operator.itemgetter("prop_id"), context.callback_contexts[3]))
     assert len(keys1) == 2
     assert "sum-number.value" in keys1
     assert "input-number-1.value" in keys1
@@ -331,15 +322,15 @@ def test_cbcx006_initial_callback_predecessor(dash_duo):
     dash_duo.find_element("#input-number-2").click()
     dash_duo.find_element("#input-number-2").send_keys("1")
 
-    wait.until(lambda: cbcx006_calls == 6, 2)
-    wait.until(lambda: len(cbcx006_contexts) == 6, 2)
+    wait.until(lambda: context.calls == 6, 2)
+    wait.until(lambda: len(context.callback_contexts) == 6, 2)
 
-    keys0 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[4]))
+    keys0 = list(map(operator.itemgetter("prop_id"), context.callback_contexts[4]))
     # Special case present for backward compatibility
     assert len(keys0) == 1
     assert "input-number-2.value" in keys0
 
-    keys1 = list(map(operator.itemgetter("prop_id"), cbcx006_contexts[5]))
+    keys1 = list(map(operator.itemgetter("prop_id"), context.callback_contexts[5]))
     assert len(keys1) == 2
     assert "sum-number.value" in keys1
     assert "input-number-2.value" in keys1
