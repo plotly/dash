@@ -9,6 +9,7 @@ import dash_table
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+from dash.testing import wait
 
 
 def test_cbsc001_simple_callback(dash_duo):
@@ -41,7 +42,7 @@ def test_cbsc001_simple_callback(dash_duo):
         with lock:
             input_.send_keys(key)
 
-    assert dash_duo.find_element("#output-1").text == "hello world"
+    wait.until(lambda: dash_duo.find_element("#output-1").text == "hello world", 2)
     dash_duo.percy_snapshot(name="simple-callback-hello-world")
 
     assert call_count.value == 2 + len("hello world"), "initial count + each key stroke"
