@@ -22,7 +22,7 @@ export const dispatchError = dispatch => (message, lines) =>
     dispatch(
         onError({
             type: 'backEnd',
-            error: {message, html: lines.join('\n')},
+            error: {message, html: lines.join('\n')}
         })
     );
 
@@ -40,7 +40,7 @@ const logWarningOnce = once(console.warn);
 export function getCSRFHeader() {
     try {
         return {
-            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
         };
     } catch (e) {
         logWarningOnce(e);
@@ -60,8 +60,8 @@ function triggerDefaultState(dispatch, getState) {
                 type: 'backEnd',
                 error: {
                     message: 'Circular Dependencies',
-                    html: err.toString(),
-                },
+                    html: err.toString()
+                }
             })
         );
     }
@@ -69,7 +69,7 @@ function triggerDefaultState(dispatch, getState) {
     dispatch(
         addRequestedCallbacks(
             getLayoutCallbacks(graphs, paths, layout, {
-                outputsOnly: true,
+                outputsOnly: true
             })
         )
     );
@@ -92,7 +92,7 @@ function moveHistory(changeType) {
             dispatch(
                 createAction('UNDO_PROP_CHANGE')({
                     itempath: getPath(paths, id),
-                    props,
+                    props
                 })
             );
 

@@ -16,18 +16,29 @@ import {
     reduce,
     zipObj
 } from 'ramda';
-import { ICallback, ICallbackProperty, ICallbackDefinition, ILayoutCallbackProperty, ICallbackTemplate } from '../types/callbacks';
-import { addAllResolvedFromOutputs, splitIdAndProp, stringifyId, getUnfilteredLayoutCallbacks, isMultiValued, idMatch } from './dependencies';
-import { getPath } from './paths';
+import {
+    ICallback,
+    ICallbackProperty,
+    ICallbackDefinition,
+    ILayoutCallbackProperty,
+    ICallbackTemplate
+} from '../types/callbacks';
+import {
+    addAllResolvedFromOutputs,
+    splitIdAndProp,
+    stringifyId,
+    getUnfilteredLayoutCallbacks,
+    isMultiValued,
+    idMatch
+} from './dependencies';
+import {getPath} from './paths';
 
 export const DIRECT = 2;
 export const INDIRECT = 1;
 export const mergeMax = mergeWith(Math.max);
 
-export const combineIdAndProp = ({
-    id,
-    property
-}: ICallbackProperty) => `${stringifyId(id)}.${property}`;
+export const combineIdAndProp = ({id, property}: ICallbackProperty) =>
+    `${stringifyId(id)}.${property}`;
 
 export function getCallbacksByInput(
     graphs: any,
@@ -38,7 +49,7 @@ export function getCallbacksByInput(
     withPriority: boolean = true
 ): ICallback[] {
     const matches: ICallback[] = [];
-    const idAndProp = combineIdAndProp({ id, property: prop });
+    const idAndProp = combineIdAndProp({id, property: prop});
 
     if (typeof id === 'string') {
         // standard id version
@@ -74,7 +85,7 @@ export function getCallbacksByInput(
     matches.forEach(match => {
         match.changedPropIds[idAndProp] = changeType || DIRECT;
         if (withPriority) {
-            match.priority = getPriority(graphs, paths, match)
+            match.priority = getPriority(graphs, paths, match);
         }
     });
     return matches;
@@ -85,18 +96,19 @@ export function getCallbacksByInput(
  * Uses the number of callbacks at each tree depth and the total depth of the tree
  * to create a sortable priority hash.
  */
-export function getPriority(graphs: any, paths: any, callback: ICallback): string {
+export function getPriority(
+    graphs: any,
+    paths: any,
+    callback: ICallback
+): string {
     let callbacks: ICallback[] = [callback];
-    let touchedOutputs: { [key: string]: boolean } = {};
+    let touchedOutputs: {[key: string]: boolean} = {};
     let priority: number[] = [];
 
     while (callbacks.length) {
         const outputs = filter(
             o => !touchedOutputs[combineIdAndProp(o)],
-            flatten(map(
-                cb => flatten(cb.getOutputs(paths)),
-                callbacks
-            ))
+            flatten(map(cb => flatten(cb.getOutputs(paths)), callbacks))
         );
 
         touchedOutputs = reduce(
@@ -105,17 +117,20 @@ export function getPriority(graphs: any, paths: any, callback: ICallback): strin
             outputs
         );
 
-        callbacks = flatten(map(
-            ({ id, property }: any) => getCallbacksByInput(
-                graphs,
-                paths,
-                id,
-                property,
-                INDIRECT,
-                false
-            ),
-            outputs
-        ));
+        callbacks = flatten(
+            map(
+                ({id, property}: any) =>
+                    getCallbacksByInput(
+                        graphs,
+                        paths,
+                        id,
+                        property,
+                        INDIRECT,
+                        false
+                    ),
+                outputs
+            )
+        );
 
         if (callbacks.length) {
             priority.push(callbacks.length);
@@ -148,18 +163,19 @@ export const getReadyCallbacks = (
     );
 
     // Make `outputs` hash table for faster access
-    const outputsMap: { [key: string]: boolean } = {};
-    forEach(output => outputsMap[output] = true, outputs);
+    const outputsMap: {[key: string]: boolean} = {};
+    forEach(output => (outputsMap[output] = true), outputs);
 
     // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
     return filter(
-        cb => all(
-            cbp => !outputsMap[combineIdAndProp(cbp)],
-            flatten(cb.getInputs(paths))
-        ),
+        cb =>
+            all(
+                cbp => !outputsMap[combineIdAndProp(cbp)],
+                flatten(cb.getInputs(paths))
+            ),
         candidates
     );
-}
+};
 
 export const getLayoutCallbacks = (
     graphs: any,
@@ -188,14 +204,15 @@ export const getLayoutCallbacks = (
     */
     while (true) {
         // Find callbacks for which all inputs are missing or in the exclusions
-        const [included, excluded] = partition(({
-            callback: { inputs },
-            getInputs
-        }) => all(isMultiValued, inputs) ||
-            !isEmpty(difference(
-                map(combineIdAndProp, flatten(getInputs(paths))),
-                exclusions
-            )),
+        const [included, excluded] = partition(
+            ({callback: {inputs}, getInputs}) =>
+                all(isMultiValued, inputs) ||
+                !isEmpty(
+                    difference(
+                        map(combineIdAndProp, flatten(getInputs(paths))),
+                        exclusions
+                    )
+                ),
             callbacks
         );
 
@@ -209,10 +226,10 @@ export const getLayoutCallbacks = (
         // update exclusions with all additional excluded outputs
         exclusions = concat(
             exclusions,
-            map(combineIdAndProp, flatten(map(
-                ({ getOutputs }) => getOutputs(paths),
-                excluded
-            )))
+            map(
+                combineIdAndProp,
+                flatten(map(({getOutputs}) => getOutputs(paths), excluded))
+            )
         );
     }
 
@@ -220,35 +237,30 @@ export const getLayoutCallbacks = (
         Return all callbacks with an `executionGroup` to allow group-processing
     */
     const executionGroup = Math.random().toString(16);
-    return map(cb => ({
-        ...cb,
-        executionGroup
-    }), callbacks);
-}
+    return map(cb => ({...cb, executionGroup}), callbacks);
+};
 
 export const getUniqueIdentifier = ({
     anyVals,
-    callback: {
-        inputs,
-        outputs,
-        state
-    }
-}: ICallback): string => concat(
-    map(combineIdAndProp, [
-        ...inputs,
-        ...outputs,
-        ...state
-    ]),
-    Array.isArray(anyVals) ?
-        anyVals :
-        anyVals === '' ? [] : [anyVals]
+    callback: {inputs, outputs, state}
+}: ICallback): string =>
+    concat(
+        map(combineIdAndProp, [...inputs, ...outputs, ...state]),
+        Array.isArray(anyVals) ? anyVals : anyVals === '' ? [] : [anyVals]
     ).join(',');
 
-export function includeObservers(id: any, properties: any, graphs: any, paths: any): ICallback[] {
-    return flatten(map(
-        propName => getCallbacksByInput(graphs, paths, id, propName),
-        keys(properties)
-    ));
+export function includeObservers(
+    id: any,
+    properties: any,
+    graphs: any,
+    paths: any
+): ICallback[] {
+    return flatten(
+        map(
+            propName => getCallbacksByInput(graphs, paths, id, propName),
+            keys(properties)
+        )
+    );
 }
 
 /*
@@ -272,25 +284,34 @@ export const makeResolvedCallback = (
     initialCall: false
 });
 
-export function pruneCallbacks<T extends ICallback>(callbacks: T[], paths: any): {
-    added: T[],
-    removed: T[]
+export function pruneCallbacks<T extends ICallback>(
+    callbacks: T[],
+    paths: any
+): {
+    added: T[];
+    removed: T[];
 } {
     const [, removed] = partition(
-        ({ getOutputs, callback: { outputs } }) => flatten(getOutputs(paths)).length === outputs.length,
+        ({getOutputs, callback: {outputs}}) =>
+            flatten(getOutputs(paths)).length === outputs.length,
         callbacks
     );
 
     const [, modified] = partition(
-        ({ getOutputs }) => !flatten(getOutputs(paths)).length,
+        ({getOutputs}) => !flatten(getOutputs(paths)).length,
         removed
     );
 
     const added = map(
-        cb => assoc('changedPropIds', pickBy(
-            (_, propId) => getPath(paths, splitIdAndProp(propId).id),
-            cb.changedPropIds
-        ), cb),
+        cb =>
+            assoc(
+                'changedPropIds',
+                pickBy(
+                    (_, propId) => getPath(paths, splitIdAndProp(propId).id),
+                    cb.changedPropIds
+                ),
+                cb
+            ),
         modified
     );
 
@@ -300,11 +321,15 @@ export function pruneCallbacks<T extends ICallback>(callbacks: T[], paths: any):
     };
 }
 
-export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: string) {
-    return (paths: any) => ({ id: idPattern, property }: ICallbackProperty) => {
+export function resolveDeps(
+    refKeys?: any,
+    refVals?: any,
+    refPatternVals?: string
+) {
+    return (paths: any) => ({id: idPattern, property}: ICallbackProperty) => {
         if (typeof idPattern === 'string') {
             const path = getPath(paths, idPattern);
-            return path ? [{ id: idPattern, property, path }] : [];
+            return path ? [{id: idPattern, property, path}] : [];
         }
         const _keys = Object.keys(idPattern).sort();
         const patternVals = props(_keys, idPattern);
@@ -314,7 +339,7 @@ export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: strin
             return [];
         }
         const result: ILayoutCallbackProperty[] = [];
-        keyPaths.forEach(({ values: vals, path }: any) => {
+        keyPaths.forEach(({values: vals, path}: any) => {
             if (
                 idMatch(
                     _keys,
@@ -325,7 +350,7 @@ export function resolveDeps(refKeys?: any, refVals?: any, refPatternVals?: strin
                     refPatternVals
                 )
             ) {
-                result.push({ id: zipObj(_keys, vals), property, path });
+                result.push({id: zipObj(_keys, vals), property, path});
             }
         });
         return result;

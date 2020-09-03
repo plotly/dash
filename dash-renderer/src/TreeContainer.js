@@ -15,7 +15,7 @@ import {
     pick,
     pickBy,
     propOr,
-    type,
+    type
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
@@ -26,12 +26,12 @@ import {getWatchedKeys, stringifyId} from './actions/dependencies';
 import {
     getLoadingHash,
     getLoadingState,
-    validateComponent,
+    validateComponent
 } from './utils/TreeContainer';
 import {DashContext} from './APIController.react';
 
 const NOT_LOADING = {
-    is_loading: false,
+    is_loading: false
 };
 
 function CheckedComponent(p) {
@@ -56,7 +56,7 @@ CheckedComponent.propTypes = {
     layout: PropTypes.any,
     props: PropTypes.any,
     extraProps: PropTypes.any,
-    id: PropTypes.string,
+    id: PropTypes.string
 };
 
 function createElement(element, props, extraProps, children) {
@@ -117,7 +117,7 @@ class BaseTreeContainer extends Component {
             _dashprivate_graphs,
             _dashprivate_dispatch,
             _dashprivate_path,
-            _dashprivate_layout,
+            _dashprivate_layout
         } = this.props;
 
         const oldProps = this.getLayoutProps();
@@ -142,7 +142,7 @@ class BaseTreeContainer extends Component {
             _dashprivate_dispatch(
                 updateProps({
                     props: changedProps,
-                    itempath: _dashprivate_path,
+                    itempath: _dashprivate_path
                 })
             );
 
@@ -151,7 +151,7 @@ class BaseTreeContainer extends Component {
                 _dashprivate_dispatch(
                     notifyObservers({
                         id,
-                        props: pick(watchedKeys, changedProps),
+                        props: pick(watchedKeys, changedProps)
                     })
                 );
             }
@@ -184,7 +184,7 @@ class BaseTreeContainer extends Component {
         const {
             _dashprivate_config,
             _dashprivate_dispatch,
-            _dashprivate_error,
+            _dashprivate_error
         } = this.props;
 
         if (isEmpty(_dashprivate_layout)) {
@@ -208,7 +208,7 @@ class BaseTreeContainer extends Component {
         }
         const extraProps = {
             loading_state: loading_state || NOT_LOADING,
-            setProps,
+            setProps
         };
 
         return (
@@ -242,7 +242,7 @@ class BaseTreeContainer extends Component {
         const {
             _dashprivate_layout,
             _dashprivate_loadingState,
-            _dashprivate_path,
+            _dashprivate_path
         } = this.props;
 
         const layoutProps = this.getLayoutProps();
@@ -266,10 +266,10 @@ TreeContainer.propTypes = {
     _dashprivate_layout: PropTypes.object,
     _dashprivate_loadingState: PropTypes.oneOfType([
         PropTypes.object,
-        PropTypes.bool,
+        PropTypes.bool
     ]),
     _dashprivate_loadingStateHash: PropTypes.string,
-    _dashprivate_path: PropTypes.string,
+    _dashprivate_path: PropTypes.string
 };
 
 BaseTreeContainer.propTypes = {
@@ -278,7 +278,7 @@ BaseTreeContainer.propTypes = {
     _dashprivate_dispatch: PropTypes.func,
     _dashprivate_graphs: PropTypes.any,
     _dashprivate_loadingMap: PropTypes.any,
-    _dashprivate_path: PropTypes.array,
+    _dashprivate_path: PropTypes.array
 };
 
 export default TreeContainer;

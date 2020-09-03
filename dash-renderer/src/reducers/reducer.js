@@ -11,6 +11,8 @@ import graphs from './dependencyGraph';
 import error from './error';
 import history from './history';
 import hooks from './hooks';
+import profile from './profile';
+import changed from './changed';
 import isLoading from './isLoading';
 import layout from './layout';
 import loadingMap from './loadingMap';
@@ -20,7 +22,7 @@ export const apiRequests = [
     'dependenciesRequest',
     'layoutRequest',
     'reloadRequest',
-    'loginRequest',
+    'loginRequest'
 ];
 
 function mainReducer() {
@@ -32,10 +34,12 @@ function mainReducer() {
         graphs,
         history,
         hooks,
+        profile,
+        changed,
         isLoading,
         layout,
         loadingMap,
-        paths,
+        paths
     };
     forEach(r => {
         parts[r] = createApiReducer(r);
@@ -44,16 +48,22 @@ function mainReducer() {
     return combineReducers(parts);
 }
 
-function getInputHistoryState(itempath, props, state) {
-    const {graphs, layout, paths} = state;
-    const idProps = path(itempath.concat(['props']), layout);
-    const {id} = idProps || {};
+function getInputHistoryState(payload, state, recordChanges) {
+    const {graphs, paths, layout} = state;
+    const {itempath, props} = payload;
+    const refProps = path(itempath.concat(['props']), layout) || {};
+    const {id} = refProps;
+
     let historyEntry;
     if (id) {
+        if (recordChanges) {
+            state.changed = {id, props};
+        }
+
         historyEntry = {id, props: {}};
         keys(props).forEach(propKey => {
             if (getCallbacksByInput(graphs, paths, id, propKey).length) {
-                historyEntry.props[propKey] = idProps[propKey];
+                historyEntry.props[propKey] = refProps[propKey];
             }
         });
     }
@@ -63,9 +73,10 @@ function getInputHistoryState(itempath, props, state) {
 function recordHistory(reducer) {
     return function(state, action) {
         // Record initial state
-        if (action.type === 'ON_PROP_CHANGE') {
-            const {itempath, props} = action.payload;
-            const historyEntry = getInputHistoryState(itempath, props, state);
+        const {type, payload} = action;
+        if (type === 'ON_PROP_CHANGE') {
+            // history records all prop changes that are inputs.
+            const historyEntry = getInputHistoryState(payload, state, true);
             if (historyEntry && !isEmpty(historyEntry.props)) {
                 state.history.present = historyEntry;
             }
@@ -73,25 +84,17 @@ function recordHistory(reducer) {
 
         const nextState = reducer(state, action);
 
-        if (
-            action.type === 'ON_PROP_CHANGE' &&
-            action.payload.source !== 'response'
-        ) {
-            const {itempath, props} = action.payload;
+        if (type === 'ON_PROP_CHANGE' && payload.source !== 'response') {
             /*
              * if the prop change is an input, then
              * record it so that it can be played back
              */
-            const historyEntry = getInputHistoryState(
-                itempath,
-                props,
-                nextState
-            );
+            const historyEntry = getInputHistoryState(payload, nextState);
             if (historyEntry && !isEmpty(historyEntry.props)) {
                 nextState.history = {
                     past: [...nextState.history.past, state.history.present],
                     present: historyEntry,
-                    future: [],
+                    future: []
                 };
             }
         }

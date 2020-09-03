@@ -36,7 +36,7 @@ export default (layout, paths, targets) => {
                     ready,
                     rendered.then(
                         () => document.getElementById(stringifyId(id)) && ready
-                    ),
+                    )
                 ])
             );
         }

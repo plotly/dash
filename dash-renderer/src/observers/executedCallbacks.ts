@@ -12,7 +12,7 @@ import {
     toPairs
 } from 'ramda';
 
-import { IStoreState } from '../store';
+import {IStoreState} from '../store';
 
 import {
     aggregateCallbacks,
@@ -22,7 +22,7 @@ import {
     addStoredCallbacks
 } from '../actions/callbacks';
 
-import { parseIfWildcard } from '../actions/dependencies';
+import {parseIfWildcard} from '../actions/dependencies';
 
 import {
     combineIdAndProp,
@@ -31,33 +31,22 @@ import {
     includeObservers
 } from '../actions/dependencies_ts';
 
-import {
-    ICallback,
-    IStoredCallback
-} from '../types/callbacks';
+import {ICallback, IStoredCallback} from '../types/callbacks';
 
-import { updateProps, setPaths, handleAsyncError } from '../actions';
-import { getPath, computePaths } from '../actions/paths';
+import {updateProps, setPaths, handleAsyncError} from '../actions';
+import {getPath, computePaths} from '../actions/paths';
 
-import {
-    applyPersistence,
-    prunePersistence
-} from '../persistence';
-import { IStoreObserverDefinition } from '../StoreObserver';
+import {applyPersistence, prunePersistence} from '../persistence';
+import {IStoreObserverDefinition} from '../StoreObserver';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
-    observer: ({
-        dispatch,
-        getState
-    }) => {
+    observer: ({dispatch, getState}) => {
         const {
-            callbacks: {
-                executed
-            }
+            callbacks: {executed}
         } = getState();
 
         function applyProps(id: any, updatedProps: any) {
-            const { layout, paths } = getState();
+            const {layout, paths} = getState();
             const itempath = getPath(paths, id);
             if (!itempath) {
                 return false;
@@ -74,7 +63,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
             // In case the update contains whole components, see if any of
             // those components have props to update to persist user edits.
-            const { props } = applyPersistence({ props: updatedProps }, dispatch);
+            const {props} = applyPersistence({props: updatedProps}, dispatch);
 
             dispatch(
                 updateProps({
@@ -91,16 +80,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         let storedCallbacks: IStoredCallback[] = [];
 
         forEach(cb => {
-            const predecessors = concat(
-                cb.predecessors ?? [],
-                [cb.callback]
-            );
+            const predecessors = concat(cb.predecessors ?? [], [cb.callback]);
 
             const {
-                callback: {
-                    clientside_function,
-                    output
-                },
+                callback: {clientside_function, output},
                 executionResult
             } = cb;
 
@@ -108,12 +91,16 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 return;
             }
 
-            const { data, error, payload } = executionResult;
+            const {data, error, payload} = executionResult;
 
             if (data !== undefined) {
-                forEach(([id, props]: [any, { [key: string]: any }]) => {
+                forEach(([id, props]: [any, {[key: string]: any}]) => {
                     const parsedId = parseIfWildcard(id);
-                    const { graphs, layout: oldLayout, paths: oldPaths } = getState();
+                    const {
+                        graphs,
+                        layout: oldLayout,
+                        paths: oldPaths
+                    } = getState();
 
                     // Components will trigger callbacks on their own as required (eg. derived)
                     const appliedProps = applyProps(parsedId, props);
@@ -121,10 +108,19 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     // Add callbacks for modified inputs
                     requestedCallbacks = concat(
                         requestedCallbacks,
-                        flatten(map(
-                            prop => getCallbacksByInput(graphs, oldPaths, parsedId, prop, true),
-                            keys(props)
-                        )).map(rcb => ({
+                        flatten(
+                            map(
+                                prop =>
+                                    getCallbacksByInput(
+                                        graphs,
+                                        oldPaths,
+                                        parsedId,
+                                        prop,
+                                        true
+                                    ),
+                                keys(props)
+                            )
+                        ).map(rcb => ({
                             ...rcb,
                             predecessors
                         }))
@@ -132,12 +128,19 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
                     // New layout - trigger callbacks for that explicitly
                     if (has('children', appliedProps)) {
-                        const { children } = appliedProps;
+                        const {children} = appliedProps;
 
-                        const oldChildrenPath: string[] = concat(getPath(oldPaths, parsedId) as string[], ['props', 'children']);
+                        const oldChildrenPath: string[] = concat(
+                            getPath(oldPaths, parsedId) as string[],
+                            ['props', 'children']
+                        );
                         const oldChildren = path(oldChildrenPath, oldLayout);
 
-                        const paths = computePaths(children, oldChildrenPath, oldPaths);
+                        const paths = computePaths(
+                            children,
+                            oldChildrenPath,
+                            oldPaths
+                        );
                         dispatch(setPaths(paths));
 
                         // Get callbacks for new layout (w/ execution group)
@@ -156,7 +159,9 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         requestedCallbacks = concat(
                             requestedCallbacks,
                             getLayoutCallbacks(graphs, oldPaths, oldChildren, {
-                                removedArrayInputsOnly: true, newPaths: paths, chunkPath: oldChildrenPath
+                                removedArrayInputsOnly: true,
+                                newPaths: paths,
+                                chunkPath: oldChildrenPath
                             }).map(rcb => ({
                                 ...rcb,
                                 predecessors
@@ -172,11 +177,16 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         appliedProps
                     );
                     if (!isEmpty(addedProps)) {
-                        const { graphs: currentGraphs, paths } = getState();
+                        const {graphs: currentGraphs, paths} = getState();
 
                         requestedCallbacks = concat(
                             requestedCallbacks,
-                            includeObservers(id, addedProps, currentGraphs, paths).map(rcb => ({
+                            includeObservers(
+                                id,
+                                addedProps,
+                                currentGraphs,
+                                paths
+                            ).map(rcb => ({
                                 ...rcb,
                                 predecessors
                             }))
@@ -190,25 +200,37 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 storedCallbacks.push({
                     ...cb,
                     executionMeta: {
-                        allProps: map(combineIdAndProp, flatten(cb.getOutputs(getState().paths))),
-                        updatedProps: flatten(map(
-                            ([id, value]) => map(
-                                property => combineIdAndProp({ id, property }),
-                                keys(value)
-                            ),
-                            toPairs(data)
-                        ))
+                        allProps: map(
+                            combineIdAndProp,
+                            flatten(cb.getOutputs(getState().paths))
+                        ),
+                        updatedProps: flatten(
+                            map(
+                                ([id, value]) =>
+                                    map(
+                                        property =>
+                                            combineIdAndProp({id, property}),
+                                        keys(value)
+                                    ),
+                                toPairs(data)
+                            )
+                        )
                     }
                 });
             }
 
             if (error !== undefined) {
                 const outputs = payload
-                    ? map(combineIdAndProp, flatten([payload.outputs])).join(', ')
+                    ? map(combineIdAndProp, flatten([payload.outputs])).join(
+                          ', '
+                      )
                     : output;
                 let message = `Callback error updating ${outputs}`;
                 if (clientside_function) {
-                    const { namespace: ns, function_name: fn } = clientside_function;
+                    const {
+                        namespace: ns,
+                        function_name: fn
+                    } = clientside_function;
                     message += ` via clientside function ${ns}.${fn}`;
                 }
 
@@ -217,19 +239,28 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 storedCallbacks.push({
                     ...cb,
                     executionMeta: {
-                        allProps: map(combineIdAndProp, flatten(cb.getOutputs(getState().paths))),
+                        allProps: map(
+                            combineIdAndProp,
+                            flatten(cb.getOutputs(getState().paths))
+                        ),
                         updatedProps: []
                     }
                 });
             }
         }, executed);
 
-        dispatch(aggregateCallbacks([
-            executed.length ? removeExecutedCallbacks(executed) : null,
-            executed.length ? addCompletedCallbacks(executed.length) : null,
-            storedCallbacks.length ? addStoredCallbacks(storedCallbacks) : null,
-            requestedCallbacks.length ? addRequestedCallbacks(requestedCallbacks) : null
-        ]));
+        dispatch(
+            aggregateCallbacks([
+                executed.length ? removeExecutedCallbacks(executed) : null,
+                executed.length ? addCompletedCallbacks(executed.length) : null,
+                storedCallbacks.length
+                    ? addStoredCallbacks(storedCallbacks)
+                    : null,
+                requestedCallbacks.length
+                    ? addRequestedCallbacks(requestedCallbacks)
+                    : null
+            ])
+        );
     },
     inputs: ['callbacks.executed']
 };

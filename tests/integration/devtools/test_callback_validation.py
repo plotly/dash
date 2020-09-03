@@ -677,7 +677,7 @@ def test_dvcv013_circular_3_step(dash_duo):
 
     @app.callback([Output("a", "children")], [Input("c", "children")])
     def c3(children):
-        return children
+        return (children,)
 
     dash_duo.start_server(app, **debugging)
 

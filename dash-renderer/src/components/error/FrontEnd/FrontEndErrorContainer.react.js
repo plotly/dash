@@ -26,16 +26,16 @@ class FrontEndErrorContainer extends Component {
         }
         return (
             <div className={cardClasses}>
-                <div className="dash-error-card__topbar">
-                    <div className="dash-error-card__message">
+                <div className='dash-error-card__topbar'>
+                    <div className='dash-error-card__message'>
                         🛑 Errors (
-                        <strong className="test-devtools-error-count">
+                        <strong className='test-devtools-error-count'>
                             {errorsLength}
                         </strong>
                         ){connected ? null : '\u00a0 🚫 Server Unavailable'}
                     </div>
                 </div>
-                <div className="dash-error-card__list">{errorElements}</div>
+                <div className='dash-error-card__list'>{errorElements}</div>
             </div>
         );
     }
@@ -44,11 +44,11 @@ class FrontEndErrorContainer extends Component {
 FrontEndErrorContainer.propTypes = {
     errors: PropTypes.array,
     connected: PropTypes.bool,
-    inAlertsTray: PropTypes.any,
+    inAlertsTray: PropTypes.any
 };
 
 FrontEndErrorContainer.propTypes = {
-    inAlertsTray: PropTypes.any,
+    inAlertsTray: PropTypes.any
 };
 
 export {FrontEndErrorContainer};

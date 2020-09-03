@@ -1,7 +1,7 @@
 const initialHistory = {
     past: [],
     present: {},
-    future: [],
+    future: []
 };
 
 function history(state = initialHistory, action) {
@@ -13,7 +13,7 @@ function history(state = initialHistory, action) {
             return {
                 past: newPast,
                 present: previous,
-                future: [present, ...future],
+                future: [present, ...future]
             };
         }
 
@@ -24,7 +24,7 @@ function history(state = initialHistory, action) {
             return {
                 past: [...past, present],
                 present: next,
-                future: newFuture,
+                future: newFuture
             };
         }
 
@@ -35,7 +35,7 @@ function history(state = initialHistory, action) {
             return {
                 past: newPast,
                 present: previous,
-                future: [...future],
+                future: [...future]
             };
         }
 
