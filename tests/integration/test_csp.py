@@ -25,7 +25,9 @@ def does_not_raise():
         (True, "sha999", pytest.raises(ValueError)),
     ],
 )
-def test_incs001_csp_hashes_inline_scripts(dash_duo, add_hashes, hash_algorithm, expectation):
+def test_incs001_csp_hashes_inline_scripts(
+    dash_duo, add_hashes, hash_algorithm, expectation
+):
     app = dash.Dash(__name__)
 
     app.layout = html.Div(
