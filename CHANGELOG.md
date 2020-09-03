@@ -8,12 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 - [#1385](https://github.com/plotly/dash/pull/1385) Closes [#1350](https://github.com/plotly/dash/issues/1350) and fixes a previously undefined callback behavior when multiple elements are stacked on top of one another and their `n_clicks` props are used as inputs of the same callback. The callback will now trigger once with all the triggered `n_clicks` props changes.
+- [#1179](https://github.com/plotly/dash/pull/1179) New and improved callback graph in the debug menu. Now based on Cytoscape for much more interactivity, plus callback profiling including number of calls, fine-grained time information, bytes sent and received, and more. You can even add custom timing information on the server with `callback_context.record_timing(name, seconds)`
 
 ### Fixed
 - [#1384](https://github.com/plotly/dash/pull/1384) Fixed a bug introduced by [#1180](https://github.com/plotly/dash/pull/1180) breaking use of `prevent_initial_call` as a positional arg in callback definitions
-
-### Changed
--  [#1179](https://github.com/plotly/dash/pull/1179) New and improved callback graph in the debug menu. Now based on Cytoscape for much more interactivity, plus callback profiling including number of calls, fine-grained time information, bytes sent and received, and more. You can even add custom timing information on the server with `callback_context.record_timing(name, seconds)`
 
 ## [1.15.0] - 2020-08-25
 ### Added
