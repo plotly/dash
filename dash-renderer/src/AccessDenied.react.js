@@ -46,6 +46,6 @@ function AccessDenied(props) {
     );
 }
 AccessDenied.propTypes = {
-    config: PropTypes.object,
+    config: PropTypes.object
 };
 export default AccessDenied;

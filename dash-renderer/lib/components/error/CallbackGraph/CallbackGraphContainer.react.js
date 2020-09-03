@@ -1,7 +1,5 @@
 "use strict";
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -11,19 +9,55 @@ var _react = _interopRequireWildcard(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-require("./CallbackGraphContainer.css");
+var _reactRedux = require("react-redux");
 
-var _viz = _interopRequireDefault(require("viz.js"));
+var _cytoscape = _interopRequireDefault(require("cytoscape"));
 
-var _full = require("viz.js/full.render");
+var _reactCytoscapejs = _interopRequireDefault(require("react-cytoscapejs"));
+
+var _cytoscapeDagre = _interopRequireDefault(require("cytoscape-dagre"));
+
+var _reactJsonTree = _interopRequireDefault(require("react-json-tree"));
+
+var _ramda = require("ramda");
+
+var _paths = require("../../../actions/paths");
 
 var _dependencies = require("../../../actions/dependencies");
+
+var _actions = require("../../../actions");
+
+require("./CallbackGraphContainer.css");
+
+var _CallbackGraphContainerStylesheet = _interopRequireDefault(require("./CallbackGraphContainerStylesheet"));
+
+var _CallbackGraphEffects = require("./CallbackGraphEffects");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
@@ -37,71 +71,463 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-var CallbackGraphContainer = function CallbackGraphContainer(_ref) {
-  var graphs = _ref.graphs;
-  var el = (0, _react.useRef)(null);
-  var viz = (0, _react.useRef)(null);
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-  var makeViz = function makeViz() {
-    viz.current = new _viz["default"]({
-      Module: _full.Module,
-      render: _full.render
-    });
-  };
+_cytoscape["default"].use(_cytoscapeDagre["default"]);
+/*
+ * Generates all the elements (nodes, edeges) for the dependency graph.
+ */
 
-  if (!viz.current) {
-    makeViz();
+
+function generateElements(graphs, profile) {
+  var consumed = [];
+  var elements = [];
+
+  function recordNode(id, property) {
+    var idStr = (0, _dependencies.stringifyId)(id);
+    var idType = _typeof(id) === 'object' ? 'wildcard' : 'component';
+    var parent = idStr;
+    var child = "".concat(idStr, ".").concat(property);
+
+    if (!consumed.includes(parent)) {
+      consumed.push(parent);
+      elements.push({
+        data: {
+          id: idStr,
+          label: idStr,
+          type: idType
+        }
+      });
+    }
+
+    if (!consumed.includes(child)) {
+      consumed.push(child);
+      elements.push({
+        data: {
+          id: child,
+          label: property,
+          parent: parent,
+          type: 'property'
+        }
+      });
+    }
+
+    return child;
   }
 
-  (0, _react.useEffect)(function () {
-    var callbacks = graphs.callbacks;
-    var elements = {};
-    var callbacksOut = [];
-    var links = callbacks.map(function (_ref2, i) {
-      var inputs = _ref2.inputs,
-          outputs = _ref2.outputs;
-      callbacksOut.push("cb".concat(i, ";"));
+  function recordEdge(source, target, type) {
+    elements.push({
+      data: {
+        source: source,
+        target: target,
+        type: type
+      }
+    });
+  }
 
-      function recordAndReturn(_ref3) {
-        var id = _ref3.id,
-            property = _ref3.property;
-        var idClean = (0, _dependencies.stringifyId)(id).replace(/[\{\}".;\[\]()]/g, '').replace(/:/g, '-').replace(/,/g, '_');
-        elements[idClean] = elements[idClean] || {};
-        elements[idClean][property] = true;
-        return "\"".concat(idClean, ".").concat(property, "\"");
+  (graphs.callbacks || []).forEach(function (callback, i) {
+    var cb = "__dash_callback__.".concat(callback.output);
+    var cbProfile = profile.callbacks[callback.output] || {};
+    var count = cbProfile.count || 0;
+    var time = cbProfile.total || 0;
+    elements.push({
+      data: {
+        id: cb,
+        label: "callback.".concat(i),
+        type: 'callback',
+        mode: callback.clientside_function ? 'client' : 'server',
+        count: count,
+        time: count > 0 ? Math.round(time / count) : 0,
+        loadingSet: Date.now(),
+        errorSet: Date.now()
+      }
+    });
+    callback.outputs.map(function (_ref) {
+      var id = _ref.id,
+          property = _ref.property;
+      var node = recordNode(id, property);
+      recordEdge(cb, node, 'output');
+    });
+    callback.inputs.map(function (_ref2) {
+      var id = _ref2.id,
+          property = _ref2.property;
+      var node = recordNode(id, property);
+      recordEdge(node, cb, 'input');
+    });
+    callback.state.map(function (_ref3) {
+      var id = _ref3.id,
+          property = _ref3.property;
+      var node = recordNode(id, property);
+      recordEdge(node, cb, 'state');
+    });
+  });
+  return elements;
+}
+
+function reduceStatus(status) {
+  if ((0, _ramda.keys)(status).length === 2) {
+    return status.latest;
+  }
+
+  return status;
+}
+
+function flattenOutputs(res) {
+  var outputs = {};
+
+  for (var idStr in res) {
+    for (var prop in res[idStr]) {
+      outputs[idStr + '.' + prop] = res[idStr][prop];
+    }
+  }
+
+  return outputs;
+}
+
+function flattenInputs(inArray, _final) {
+  (inArray || []).forEach(function (inItem) {
+    if (Array.isArray(inItem)) {
+      flattenInputs(inItem, _final);
+    } else {
+      var id = inItem.id,
+          property = inItem.property,
+          value = inItem.value;
+      _final[(0, _dependencies.stringifyId)(id) + '.' + property] = value;
+    }
+  });
+  return _final;
+} // len('__dash_callback__.')
+
+
+var cbPrefixLen = 18;
+var layouts = {
+  'top-down': {
+    name: 'dagre',
+    padding: 10,
+    spacingFactor: 0.8
+  },
+  'left-right': {
+    name: 'dagre',
+    padding: 10,
+    nodeSep: 0,
+    rankSep: 80,
+    rankDir: 'LR'
+  },
+  force: {
+    name: 'cose',
+    padding: 10,
+    animate: false
+  }
+};
+
+function CallbackGraph() {
+  // Grab items from the redux store.
+  var paths = (0, _reactRedux.useSelector)(function (state) {
+    return state.paths;
+  });
+  var layout = (0, _reactRedux.useSelector)(function (state) {
+    return state.layout;
+  });
+  var graphs = (0, _reactRedux.useSelector)(function (state) {
+    return state.graphs;
+  });
+  var profile = (0, _reactRedux.useSelector)(function (state) {
+    return state.profile;
+  });
+  var changed = (0, _reactRedux.useSelector)(function (state) {
+    return state.changed;
+  });
+  var lifecycleState = (0, _reactRedux.useSelector)(function (state) {
+    return state.appLifecycle;
+  }); // Keep track of cytoscape reference and user selected items.
+
+  var _useState = (0, _react.useState)(null),
+      _useState2 = _slicedToArray(_useState, 2),
+      selected = _useState2[0],
+      setSelected = _useState2[1];
+
+  var _useState3 = (0, _react.useState)(null),
+      _useState4 = _slicedToArray(_useState3, 2),
+      cytoscape = _useState4[0],
+      setCytoscape = _useState4[1];
+
+  var graphLayout = profile.graphLayout;
+  var chosenType = graphLayout === null || graphLayout === void 0 ? void 0 : graphLayout._chosenType;
+  var layoutSelector = (0, _react.useRef)(null);
+
+  var _useState5 = (0, _react.useState)(chosenType || 'top-down'),
+      _useState6 = _slicedToArray(_useState5, 2),
+      layoutType = _useState6[0],
+      setLayoutType = _useState6[1]; // Generate and memoize the elements.
+
+
+  var elements = (0, _react.useMemo)(function () {
+    return generateElements(graphs, profile);
+  }, [graphs]); // Custom hook to make sure cytoscape is loaded.
+
+  var useCytoscapeEffect = function useCytoscapeEffect(effect, condition) {
+    (0, _react.useEffect)(function () {
+      return cytoscape && effect(cytoscape) || undefined;
+    }, condition);
+  };
+
+  function setPresetLayout(_ref4) {
+    var _layoutSelector$curre;
+
+    var cy = _ref4.cy;
+    var positions = {};
+    cy.nodes().each(function (n) {
+      positions[n.id()] = n.position();
+    });
+    profile.graphLayout = {
+      name: 'preset',
+      fit: false,
+      positions: positions,
+      zoom: cy.zoom(),
+      pan: cy.pan(),
+      _chosenType: (_layoutSelector$curre = layoutSelector.current) === null || _layoutSelector$curre === void 0 ? void 0 : _layoutSelector$curre.value
+    };
+  } // Adds callbacks once cyctoscape is intialized.
+
+
+  useCytoscapeEffect(function (cy) {
+    cytoscape.on('tap', 'node', function (e) {
+      return setSelected(e.target);
+    });
+    cytoscape.on('tap', function (e) {
+      if (e.target === cy) {
+        setSelected(null);
+      }
+    });
+    cytoscape.on('zoom', setPresetLayout);
+    cytoscape.on('pan', setPresetLayout);
+    cytoscape.nodes().on('position', setPresetLayout);
+  }, [cytoscape]); // Set node classes on selected.
+
+  useCytoscapeEffect(function (cy) {
+    return selected && (0, _CallbackGraphEffects.updateSelectedNode)(cy, selected.data().id);
+  }, [selected]); // Flash classes when props change. Uses changed as a trigger. Also
+  // flash all input edges originating from this node and highlight
+  // the subtree that contains the selected node.
+
+  useCytoscapeEffect(function (cy) {
+    return changed && (0, _CallbackGraphEffects.updateChangedProps)(cy, changed.id, changed.props);
+  }, [changed]); // Update callbacks from profiling information.
+
+  useCytoscapeEffect(function (cy) {
+    return profile.updated.forEach(function (cb) {
+      return (0, _CallbackGraphEffects.updateCallback)(cy, cb, profile.callbacks[cb]);
+    });
+  }, [profile.updated]);
+
+  if (lifecycleState !== 'HYDRATED') {
+    // If we get here too early - most likely during hot reloading - then
+    // we need to bail out and wait for the full state to be available
+    return /*#__PURE__*/_react["default"].createElement("div", {
+      className: "dash-callback-dag--container"
+    }, /*#__PURE__*/_react["default"].createElement("div", {
+      className: "dash-callback-dag--message"
+    }, /*#__PURE__*/_react["default"].createElement("div", null, "Waiting for app to be ready...")));
+  } // FIXME: Move to a new component?
+  // Generate the element introspection data.
+
+
+  var elementName = '';
+  var elementInfo = {};
+  var hasPatterns = false;
+
+  if (selected) {
+    var getComponent = function getComponent(id) {
+      // for now ignore pattern-matching IDs
+      // to do better we may need to store the *actual* IDs used for each
+      // callback invocation, since they need not match what's on the page now.
+      if (id.charAt(0) === '{') {
+        hasPatterns = true;
+        return undefined;
       }
 
-      var out_nodes = outputs.map(recordAndReturn).join(', ');
-      var in_nodes = inputs.map(recordAndReturn).join(', ');
-      return "{".concat(in_nodes, "} -> cb").concat(i, " -> {").concat(out_nodes, "};");
-    });
-    var dot = "digraph G {\n            overlap = false; fontname=\"Arial\"; fontcolor=\"#333333\";\n            edge [color=\"#888888\"];\n            node [shape=box, fontname=\"Arial\", style=filled, color=\"#109DFF\", fontcolor=white];\n            graph [penwidth=0];\n            subgraph callbacks {\n                node [shape=circle, width=0.3, label=\"\", color=\"#00CC96\"];\n                ".concat(callbacksOut.join('\n'), " }\n\n            ").concat(Object.entries(elements).map(function (_ref4, i) {
-      var _ref5 = _slicedToArray(_ref4, 2),
-          id = _ref5[0],
-          props = _ref5[1];
+      var idPath = (0, _paths.getPath)(paths, id);
+      return idPath ? (0, _ramda.path)(idPath, layout) : undefined;
+    };
 
-      return "\n                subgraph cluster_".concat(i, " {\n                    bgcolor=\"#B9C2CE\";\n                    ").concat(Object.keys(props).map(function (p) {
-        return "\"".concat(id, ".").concat(p, "\" [label=\"").concat(p, "\"];");
-      }).join('\n'), "\n                    label = \"").concat(id, "\"; }");
-    }).join('\n'), "\n\n            ").concat(links.join('\n'), " }");
-    viz.current.renderSVGElement(dot).then(function (vizEl) {
-      el.current.innerHTML = '';
-      el.current.appendChild(vizEl);
-    })["catch"](function (e) {
-      // https://github.com/mdaines/viz.js/wiki/Caveats
-      makeViz(); // eslint-disable-next-line no-console
+    var getPropValue = function getPropValue(data) {
+      var parent = getComponent(data.parent);
+      return parent ? parent.props[data.label] : undefined;
+    };
 
-      console.error(e);
-      el.current.innerHTML = 'Error creating callback graph';
-    });
+    var data = selected.data();
+
+    switch (data.type) {
+      case 'component':
+        {
+          var _getComponent;
+
+          var rest = (0, _ramda.omit)(['id'], (_getComponent = getComponent(data.id)) === null || _getComponent === void 0 ? void 0 : _getComponent.props);
+          elementInfo = rest;
+          elementName = data.id;
+          break;
+        }
+
+      case 'property':
+        {
+          elementName = data.parent;
+          elementInfo[data.label] = getPropValue(data);
+          break;
+        }
+      // callback
+
+      default:
+        {
+          elementInfo.type = data.mode; // Remove uid and set profile.
+
+          var callbackOutputId = data.id.slice(cbPrefixLen);
+          elementName = callbackOutputId.replace(/(^\.\.|\.\.$)/g, '');
+          var cbProfile = profile.callbacks[callbackOutputId];
+
+          if (cbProfile) {
+            var count = cbProfile.count,
+                status = cbProfile.status,
+                network = cbProfile.network,
+                resources = cbProfile.resources,
+                total = cbProfile.total,
+                compute = cbProfile.compute,
+                result = cbProfile.result,
+                inputs = cbProfile.inputs,
+                state = cbProfile.state;
+
+            var avg = function avg(v) {
+              return Math.round(v / (count || 1));
+            };
+
+            elementInfo['call count'] = count;
+            elementInfo.status = reduceStatus(status);
+            var timing = elementInfo['time (avg milliseconds)'] = {
+              total: avg(total),
+              compute: avg(compute)
+            };
+
+            if (data.mode === 'server') {
+              timing.network = avg(network.time);
+              elementInfo['data transfer (avg bytes)'] = {
+                download: avg(network.download),
+                upload: avg(network.upload)
+              };
+            }
+
+            for (var key in resources) {
+              timing['user: ' + key] = avg(resources[key]);
+            }
+
+            elementInfo.outputs = flattenOutputs(result);
+            elementInfo.inputs = flattenInputs(inputs, {});
+            elementInfo.state = flattenInputs(state, {});
+          } else {
+            elementInfo['call count'] = 0;
+          }
+        }
+    }
+  }
+
+  var cyLayout = chosenType === layoutType ? graphLayout : (0, _ramda.mergeRight)(layouts[layoutType], {
+    ready: setPresetLayout
   });
   return /*#__PURE__*/_react["default"].createElement("div", {
-    className: "dash-callback-dag--container",
-    ref: el
-  });
-};
+    className: "dash-callback-dag--container"
+  }, /*#__PURE__*/_react["default"].createElement(_reactCytoscapejs["default"], {
+    style: {
+      width: '100%',
+      height: '100%'
+    },
+    cy: setCytoscape,
+    elements: elements,
+    layout: cyLayout,
+    stylesheet: _CallbackGraphContainerStylesheet["default"]
+  }), selected ? /*#__PURE__*/_react["default"].createElement("div", {
+    className: "dash-callback-dag--info"
+  }, hasPatterns ? /*#__PURE__*/_react["default"].createElement("div", null, "Info isn't supported for pattern-matching IDs at this time") : null, /*#__PURE__*/_react["default"].createElement(_reactJsonTree["default"], {
+    data: elementInfo,
+    theme: "summerfruit",
+    labelRenderer: function labelRenderer(_keys) {
+      return _keys.length === 1 ? elementName : _keys[0];
+    },
+    getItemString: function getItemString(type, data, itemType) {
+      return /*#__PURE__*/_react["default"].createElement("span", null, itemType);
+    },
+    shouldExpandNode: function shouldExpandNode(keyName, data, level) {
+      return level < 1;
+    }
+  })) : null, /*#__PURE__*/_react["default"].createElement("select", {
+    className: "dash-callback-dag--layoutSelector",
+    onChange: function onChange(e) {
+      return setLayoutType(e.target.value);
+    },
+    value: layoutType,
+    ref: layoutSelector
+  }, (0, _ramda.keys)(layouts).map(function (k) {
+    return /*#__PURE__*/_react["default"].createElement("option", {
+      value: k,
+      key: k
+    }, k);
+  })));
+}
 
-exports.CallbackGraphContainer = CallbackGraphContainer;
-CallbackGraphContainer.propTypes = {
-  graphs: _propTypes["default"].object
+CallbackGraph.propTypes = {};
+
+var UnconnectedCallbackGraphContainer = /*#__PURE__*/function (_Component) {
+  _inherits(UnconnectedCallbackGraphContainer, _Component);
+
+  var _super = _createSuper(UnconnectedCallbackGraphContainer);
+
+  function UnconnectedCallbackGraphContainer(props) {
+    var _this;
+
+    _classCallCheck(this, UnconnectedCallbackGraphContainer);
+
+    _this = _super.call(this, props);
+    _this.state = {
+      hasError: false
+    };
+    return _this;
+  }
+
+  _createClass(UnconnectedCallbackGraphContainer, [{
+    key: "componentDidCatch",
+    value: function componentDidCatch(error, info) {
+      var dispatch = this.props.dispatch;
+      dispatch((0, _actions.onError)({
+        myID: this.state.myID,
+        type: 'frontEnd',
+        error: error,
+        info: info
+      }));
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return this.state.hasError ? /*#__PURE__*/_react["default"].createElement("div", {
+        className: "dash-callback-dag--container"
+      }, /*#__PURE__*/_react["default"].createElement("div", {
+        className: "dash-callback-dag--message"
+      }, /*#__PURE__*/_react["default"].createElement("div", null, "Oops! The callback graph threw an error."), /*#__PURE__*/_react["default"].createElement("div", null, "Check the error list for details."))) : /*#__PURE__*/_react["default"].createElement(CallbackGraph, null);
+    }
+  }], [{
+    key: "getDerivedStateFromError",
+    value: function getDerivedStateFromError(_) {
+      return {
+        hasError: true
+      };
+    }
+  }]);
+
+  return UnconnectedCallbackGraphContainer;
+}(_react.Component);
+
+UnconnectedCallbackGraphContainer.propTypes = {
+  dispatch: _propTypes["default"].func
 };
+var CallbackGraphContainer = (0, _reactRedux.connect)(null, function (dispatch) {
+  return {
+    dispatch: dispatch
+  };
+})(UnconnectedCallbackGraphContainer);
+exports.CallbackGraphContainer = CallbackGraphContainer;

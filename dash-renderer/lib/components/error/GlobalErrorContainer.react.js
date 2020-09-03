@@ -60,13 +60,11 @@ var UnconnectedGlobalErrorContainer = /*#__PURE__*/function (_Component) {
       var _this$props = this.props,
           config = _this$props.config,
           error = _this$props.error,
-          graphs = _this$props.graphs,
           children = _this$props.children;
       return /*#__PURE__*/_react["default"].createElement("div", {
         id: "_dash-global-error-container"
       }, /*#__PURE__*/_react["default"].createElement(_DebugMenu.DebugMenu, {
         error: error,
-        graphs: graphs,
         hotReload: Boolean(config.hot_reload)
       }, /*#__PURE__*/_react["default"].createElement("div", {
         id: "_dash-app-content"
@@ -80,14 +78,12 @@ var UnconnectedGlobalErrorContainer = /*#__PURE__*/function (_Component) {
 UnconnectedGlobalErrorContainer.propTypes = {
   children: _propTypes["default"].object,
   config: _propTypes["default"].object,
-  error: _propTypes["default"].object,
-  graphs: _propTypes["default"].object
+  error: _propTypes["default"].object
 };
 var GlobalErrorContainer = (0, _reactRedux.connect)(function (state) {
   return {
     config: state.config,
-    error: state.error,
-    graphs: state.graphs
+    error: state.error
   };
 })((0, _radium["default"])(UnconnectedGlobalErrorContainer));
 var _default = GlobalErrorContainer;

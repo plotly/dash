@@ -15,6 +15,8 @@ var _reducer = require("./reducers/reducer");
 
 var _StoreObserver = _interopRequireDefault(require("./StoreObserver"));
 
+var _documentTitle = _interopRequireDefault(require("./observers/documentTitle"));
+
 var _executedCallbacks = _interopRequireDefault(require("./observers/executedCallbacks"));
 
 var _executingCallbacks = _interopRequireDefault(require("./observers/executingCallbacks"));
@@ -35,6 +37,7 @@ var store;
 var storeObserver = new _StoreObserver["default"]();
 var setObservers = (0, _ramda.once)(function () {
   var observe = storeObserver.observe;
+  observe(_documentTitle["default"]);
   observe(_isLoading["default"]);
   observe(_loadingMap["default"]);
   observe(_requestedCallbacks["default"]);

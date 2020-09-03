@@ -104,7 +104,7 @@ var observer = {
 
               if (pickedSyncCallbacks.length) {
                 dispatch((0, _callbacks.aggregateCallbacks)([(0, _callbacks.removePrioritizedCallbacks)(pickedSyncCallbacks), (0, _callbacks.addExecutingCallbacks)((0, _ramda.map)(function (cb) {
-                  return (0, _callbacks.executeCallback)(cb, config, hooks, paths, layout, getStash(cb, paths));
+                  return (0, _callbacks.executeCallback)(cb, config, hooks, paths, layout, getStash(cb, paths), dispatch);
                 }, pickedSyncCallbacks))]));
               }
 
@@ -127,8 +127,10 @@ var observer = {
                             return cb.isReady;
 
                           case 2:
-                            _getState3 = getState(), blocked = _getState3.callbacks.blocked; // Check if it's been removed from the `blocked` list since - on callback completion, another callback may be cancelled
-                            // Find the callback instance or one that matches its promise (eg. could have been pruned)
+                            _getState3 = getState(), blocked = _getState3.callbacks.blocked; // Check if it's been removed from the `blocked` list since - on
+                            // callback completion, another callback may be cancelled
+                            // Find the callback instance or one that matches its promise
+                            // (eg. could have been pruned)
 
                             currentCb = (0, _ramda.find)(function (_cb) {
                               return _cb === cb || _cb.isReady === cb.isReady;
@@ -142,7 +144,7 @@ var observer = {
                             return _context.abrupt("return");
 
                           case 6:
-                            executingCallback = (0, _callbacks.executeCallback)(cb, config, hooks, paths, layout, cb);
+                            executingCallback = (0, _callbacks.executeCallback)(cb, config, hooks, paths, layout, cb, dispatch);
                             dispatch((0, _callbacks.aggregateCallbacks)([(0, _callbacks.removeBlockedCallbacks)([cb]), (0, _callbacks.addExecutingCallbacks)([executingCallback])]));
 
                           case 8:

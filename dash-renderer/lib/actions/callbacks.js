@@ -78,6 +78,7 @@ var removeWatchedCallbacks = (0, _reduxActions.createAction)(_callbacks.Callback
 exports.removeWatchedCallbacks = removeWatchedCallbacks;
 var aggregateCallbacks = (0, _reduxActions.createAction)(_callbacks.CallbackAggregateActionType.Aggregate);
 exports.aggregateCallbacks = aggregateCallbacks;
+var updateResourceUsage = (0, _reduxActions.createAction)('UPDATE_RESOURCE_USAGE');
 
 function unwrapIfNotMulti(paths, idProps, spec, anyVals, depType) {
   var msg = '';
@@ -168,9 +169,7 @@ var zipIfArray = function zipIfArray(a, b) {
   return Array.isArray(a) ? (0, _ramda.zip)(a, b) : [[a, b]];
 };
 
-function handleClientside(clientside_function, payload) {
-  var _returnValue;
-
+function handleClientside(dispatch, clientside_function, config, payload) {
   var dc = window.dash_clientside = window.dash_clientside || {};
 
   if (!dc.no_update) {
@@ -191,7 +190,11 @@ function handleClientside(clientside_function, payload) {
   var inputs = payload.inputs,
       outputs = payload.outputs,
       state = payload.state;
-  var returnValue;
+  var requestTime = Date.now();
+  var inputDict = inputsToDict(inputs);
+  var stateDict = inputsToDict(state);
+  var result = {};
+  var status = _constants.STATUS.OK;
 
   try {
     var _dc$namespace;
@@ -205,68 +208,119 @@ function handleClientside(clientside_function, payload) {
     } // setup callback context
 
 
-    var input_dict = inputsToDict(inputs);
     dc.callback_context = {};
     dc.callback_context.triggered = payload.changedPropIds.map(function (prop_id) {
       return {
         prop_id: prop_id,
-        value: input_dict[prop_id]
+        value: inputDict[prop_id]
       };
     });
     dc.callback_context.inputs_list = inputs;
-    dc.callback_context.inputs = input_dict;
+    dc.callback_context.inputs = inputDict;
     dc.callback_context.states_list = state;
-    dc.callback_context.states = inputsToDict(state);
-    returnValue = (_dc$namespace = dc[namespace])[function_name].apply(_dc$namespace, _toConsumableArray(args));
-  } catch (e) {
-    if (e === dc.PreventUpdate) {
-      return {};
+    dc.callback_context.states = stateDict;
+
+    var returnValue = (_dc$namespace = dc[namespace])[function_name].apply(_dc$namespace, _toConsumableArray(args));
+
+    if (typeof (returnValue === null || returnValue === void 0 ? void 0 : returnValue.then) === 'function') {
+      throw new Error('The clientside function returned a Promise. ' + 'Promises are not supported in Dash clientside ' + 'right now, but may be in the future.');
     }
 
-    throw e;
-  } finally {
-    delete dc.callback_context;
-  }
+    zipIfArray(outputs, returnValue).forEach(function (_ref2) {
+      var _ref3 = _slicedToArray(_ref2, 2),
+          outi = _ref3[0],
+          reti = _ref3[1];
 
-  if (typeof ((_returnValue = returnValue) === null || _returnValue === void 0 ? void 0 : _returnValue.then) === 'function') {
-    throw new Error('The clientside function returned a Promise. ' + 'Promises are not supported in Dash clientside ' + 'right now, but may be in the future.');
-  }
+      zipIfArray(outi, reti).forEach(function (_ref4) {
+        var _ref5 = _slicedToArray(_ref4, 2),
+            outij = _ref5[0],
+            retij = _ref5[1];
 
-  var data = {};
-  zipIfArray(outputs, returnValue).forEach(function (_ref2) {
-    var _ref3 = _slicedToArray(_ref2, 2),
-        outi = _ref3[0],
-        reti = _ref3[1];
+        var id = outij.id,
+            property = outij.property;
+        var idStr = (0, _dependencies.stringifyId)(id);
+        var dataForId = result[idStr] = result[idStr] || {};
 
-    zipIfArray(outi, reti).forEach(function (_ref4) {
-      var _ref5 = _slicedToArray(_ref4, 2),
-          outij = _ref5[0],
-          retij = _ref5[1];
-
-      var id = outij.id,
-          property = outij.property;
-      var idStr = (0, _dependencies.stringifyId)(id);
-      var dataForId = data[idStr] = data[idStr] || {};
-
-      if (retij !== dc.no_update) {
-        dataForId[property] = retij;
-      }
+        if (retij !== dc.no_update) {
+          dataForId[property] = retij;
+        }
+      });
     });
-  });
-  return data;
+  } catch (e) {
+    if (e === dc.PreventUpdate) {
+      status = _constants.STATUS.PREVENT_UPDATE;
+    } else {
+      status = _constants.STATUS.CLIENTSIDE_ERROR;
+      throw e;
+    }
+  } finally {
+    delete dc.callback_context; // Setting server = client forces network = 0
+
+    var totalTime = Date.now() - requestTime;
+    var resources = {
+      __dash_server: totalTime,
+      __dash_client: totalTime,
+      __dash_upload: 0,
+      __dash_download: 0
+    };
+
+    if (config.ui) {
+      dispatch(updateResourceUsage({
+        id: payload.output,
+        usage: resources,
+        status: status,
+        result: result,
+        inputs: inputs,
+        state: state
+      }));
+    }
+  }
+
+  return result;
 }
 
-function handleServerside(hooks, config, payload) {
+function handleServerside(dispatch, hooks, config, payload) {
   if (hooks.request_pre !== null) {
     hooks.request_pre(payload);
   }
 
+  var requestTime = Date.now();
+  var body = JSON.stringify(payload);
   return fetch("".concat((0, _utils.urlBase)(config), "_dash-update-component"), (0, _ramda.mergeDeepRight)(config.fetch, {
     method: 'POST',
     headers: (0, _.getCSRFHeader)(),
-    body: JSON.stringify(payload)
+    body: body
   })).then(function (res) {
     var status = res.status;
+
+    function recordProfile(result) {
+      if (config.ui) {
+        // Callback profiling - only relevant if we're showing the debug ui
+        var resources = {
+          __dash_server: 0,
+          __dash_client: Date.now() - requestTime,
+          __dash_upload: body.length,
+          __dash_download: Number(res.headers.get('Content-Length'))
+        };
+        var timingHeaders = res.headers.get('Server-Timing') || '';
+        timingHeaders.split(',').forEach(function (header) {
+          var name = header.split(';')[0];
+          var dur = header.match(/;dur=[0-9\.]+/);
+
+          if (dur) {
+            resources[name] = Number(dur[0].slice(5));
+          }
+        });
+        dispatch(updateResourceUsage({
+          id: payload.output,
+          usage: resources,
+          status: status,
+          result: result,
+          inputs: payload.inputs,
+          state: payload.state
+        }));
+      }
+    }
 
     if (status === _constants.STATUS.OK) {
       return res.json().then(function (data) {
@@ -277,17 +331,23 @@ function handleServerside(hooks, config, payload) {
           hooks.request_post(payload, response);
         }
 
+        var result;
+
         if (multi) {
-          return response;
+          result = response;
+        } else {
+          var output = payload.output;
+          var id = output.substr(0, output.lastIndexOf('.'));
+          result = _defineProperty({}, id, response.props);
         }
 
-        var output = payload.output;
-        var id = output.substr(0, output.lastIndexOf('.'));
-        return _defineProperty({}, id, response.props);
+        recordProfile(result);
+        return result;
       });
     }
 
     if (status === _constants.STATUS.PREVENT_UPDATE) {
+      recordProfile({});
       return {};
     }
 
@@ -296,6 +356,16 @@ function handleServerside(hooks, config, payload) {
     // fetch rejection - this means the request didn't return,
     // we don't get here from 400/500 errors, only network
     // errors or unresponsive servers.
+    if (config.ui) {
+      dispatch(updateResourceUsage({
+        id: payload.output,
+        status: _constants.STATUS.NO_RESPONSE,
+        result: {},
+        inputs: payload.inputs,
+        state: payload.state
+      }));
+    }
+
     throw new Error('Callback failed: the server did not respond.');
   });
 }
@@ -334,8 +404,8 @@ function inputsToDict(inputs_list) {
   return inputs;
 }
 
-function executeCallback(cb, config, hooks, paths, layout, _ref7) {
-  var allOutputs = _ref7.allOutputs;
+function executeCallback(cb, config, hooks, paths, layout, _ref6, dispatch) {
+  var allOutputs = _ref6.allOutputs;
   var _cb$callback = cb.callback,
       output = _cb$callback.output,
       inputs = _cb$callback.inputs,
@@ -394,7 +464,7 @@ function executeCallback(cb, config, hooks, paths, layout, _ref7) {
         if (clientside_function) {
           try {
             resolve({
-              data: handleClientside(clientside_function, payload),
+              data: handleClientside(dispatch, clientside_function, config, payload),
               payload: payload
             });
           } catch (error) {
@@ -406,7 +476,7 @@ function executeCallback(cb, config, hooks, paths, layout, _ref7) {
 
           return null;
         } else {
-          handleServerside(hooks, config, payload).then(function (data) {
+          handleServerside(dispatch, hooks, config, payload).then(function (data) {
             return resolve({
               data: data,
               payload: payload

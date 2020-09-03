@@ -156,7 +156,7 @@ def handle_callback_args(args, kwargs):
     """Split args into outputs, inputs and states"""
     prevent_initial_call = kwargs.get("prevent_initial_call", None)
     if prevent_initial_call is None and args and isinstance(args[-1], bool):
-        prevent_initial_call = args.pop()
+        args, prevent_initial_call = args[:-1], args[-1]
 
     # flatten args, to support the older syntax where outputs, inputs, and states
     # each needed to be in their own list
@@ -170,7 +170,7 @@ def handle_callback_args(args, kwargs):
         out0 = kwargs.get("output", args[0] if args else None)
         if not isinstance(out0, (list, tuple)):
             # unless it was explicitly provided as a list, a single output
-            # sholuld be unwrapped. That ensures the return value of the
+            # should be unwrapped. That ensures the return value of the
             # callback is also not expected to be wrapped in a list.
             outputs = outputs[0]
 

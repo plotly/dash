@@ -102,7 +102,6 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
           callbackGraphOpened = _this$state.callbackGraphOpened;
       var _this$props = this.props,
           error = _this$props.error,
-          graphs = _this$props.graphs,
           hotReload = _this$props.hotReload;
       var errCount = error.frontEnd.length + error.backEnd.length;
       var connected = error.backEndConnected;
@@ -119,9 +118,7 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
 
       var menuContent = opened ? /*#__PURE__*/_react["default"].createElement("div", {
         className: "dash-debug-menu__content"
-      }, callbackGraphOpened ? /*#__PURE__*/_react["default"].createElement(_CallbackGraphContainer.CallbackGraphContainer, {
-        graphs: graphs
-      }) : null, buttonFactory(callbackGraphOpened, 'callbacks', function () {
+      }, callbackGraphOpened ? /*#__PURE__*/_react["default"].createElement(_CallbackGraphContainer.CallbackGraphContainer, null) : null, buttonFactory(callbackGraphOpened, 'callbacks', function () {
         _this2.setState({
           callbackGraphOpened: !callbackGraphOpened
         });
@@ -165,6 +162,5 @@ exports.DebugMenu = DebugMenu;
 DebugMenu.propTypes = {
   children: _propTypes["default"].object,
   error: _propTypes["default"].object,
-  graphs: _propTypes["default"].object,
   hotReload: _propTypes["default"].bool
 };

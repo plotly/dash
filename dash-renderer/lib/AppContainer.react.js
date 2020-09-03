@@ -13,8 +13,6 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _APIController = _interopRequireDefault(require("./APIController.react"));
 
-var _DocumentTitle = _interopRequireDefault(require("./components/core/DocumentTitle.react"));
-
 var _Loading = _interopRequireDefault(require("./components/core/Loading.react"));
 
 var _Toolbar = _interopRequireDefault(require("./components/core/Toolbar.react"));
@@ -95,7 +93,7 @@ var UnconnectedAppContainer = /*#__PURE__*/function (_React$Component) {
       }
 
       var show_undo_redo = config.show_undo_redo;
-      return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, show_undo_redo ? /*#__PURE__*/_react["default"].createElement(_Toolbar["default"], null) : null, /*#__PURE__*/_react["default"].createElement(_APIController["default"], null), /*#__PURE__*/_react["default"].createElement(_DocumentTitle["default"], null), /*#__PURE__*/_react["default"].createElement(_Loading["default"], null), /*#__PURE__*/_react["default"].createElement(_Reloader["default"], null));
+      return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, show_undo_redo ? /*#__PURE__*/_react["default"].createElement(_Toolbar["default"], null) : null, /*#__PURE__*/_react["default"].createElement(_APIController["default"], null), /*#__PURE__*/_react["default"].createElement(_Loading["default"], null), /*#__PURE__*/_react["default"].createElement(_Reloader["default"], null));
     }
   }]);
 

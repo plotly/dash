@@ -28,6 +28,10 @@ var _history = _interopRequireDefault(require("./history"));
 
 var _hooks = _interopRequireDefault(require("./hooks"));
 
+var _profile = _interopRequireDefault(require("./profile"));
+
+var _changed = _interopRequireDefault(require("./changed"));
+
 var _isLoading = _interopRequireDefault(require("./isLoading"));
 
 var _layout = _interopRequireDefault(require("./layout"));
@@ -62,6 +66,8 @@ function mainReducer() {
     graphs: _dependencyGraph["default"],
     history: _history["default"],
     hooks: _hooks["default"],
+    profile: _profile["default"],
+    changed: _changed["default"],
     isLoading: _isLoading["default"],
     layout: _layout["default"],
     loadingMap: _loadingMap["default"],
@@ -73,25 +79,31 @@ function mainReducer() {
   return (0, _redux.combineReducers)(parts);
 }
 
-function getInputHistoryState(itempath, props, state) {
+function getInputHistoryState(payload, state, recordChanges) {
   var graphs = state.graphs,
-      layout = state.layout,
-      paths = state.paths;
-  var idProps = (0, _ramda.path)(itempath.concat(['props']), layout);
-
-  var _ref = idProps || {},
-      id = _ref.id;
-
+      paths = state.paths,
+      layout = state.layout;
+  var itempath = payload.itempath,
+      props = payload.props;
+  var refProps = (0, _ramda.path)(itempath.concat(['props']), layout) || {};
+  var id = refProps.id;
   var historyEntry;
 
   if (id) {
+    if (recordChanges) {
+      state.changed = {
+        id: id,
+        props: props
+      };
+    }
+
     historyEntry = {
       id: id,
       props: {}
     };
     (0, _ramda.keys)(props).forEach(function (propKey) {
       if ((0, _dependencies_ts.getCallbacksByInput)(graphs, paths, id, propKey).length) {
-        historyEntry.props[propKey] = idProps[propKey];
+        historyEntry.props[propKey] = refProps[propKey];
       }
     });
   }
@@ -102,11 +114,12 @@ function getInputHistoryState(itempath, props, state) {
 function recordHistory(reducer) {
   return function (state, action) {
     // Record initial state
-    if (action.type === 'ON_PROP_CHANGE') {
-      var _action$payload = action.payload,
-          itempath = _action$payload.itempath,
-          props = _action$payload.props;
-      var historyEntry = getInputHistoryState(itempath, props, state);
+    var type = action.type,
+        payload = action.payload;
+
+    if (type === 'ON_PROP_CHANGE') {
+      // history records all prop changes that are inputs.
+      var historyEntry = getInputHistoryState(payload, state, true);
 
       if (historyEntry && !(0, _ramda.isEmpty)(historyEntry.props)) {
         state.history.present = historyEntry;
@@ -115,16 +128,12 @@ function recordHistory(reducer) {
 
     var nextState = reducer(state, action);
 
-    if (action.type === 'ON_PROP_CHANGE' && action.payload.source !== 'response') {
-      var _action$payload2 = action.payload,
-          _itempath = _action$payload2.itempath,
-          _props = _action$payload2.props;
+    if (type === 'ON_PROP_CHANGE' && payload.source !== 'response') {
       /*
        * if the prop change is an input, then
        * record it so that it can be played back
        */
-
-      var _historyEntry = getInputHistoryState(_itempath, _props, nextState);
+      var _historyEntry = getInputHistoryState(payload, nextState);
 
       if (_historyEntry && !(0, _ramda.isEmpty)(_historyEntry.props)) {
         nextState.history = {
@@ -141,10 +150,10 @@ function recordHistory(reducer) {
 
 function reloaderReducer(reducer) {
   return function (state, action) {
-    var _ref2 = state || {},
-        history = _ref2.history,
-        config = _ref2.config,
-        hooks = _ref2.hooks;
+    var _ref = state || {},
+        history = _ref.history,
+        config = _ref.config,
+        hooks = _ref.hooks;
 
     var newState = state;
 

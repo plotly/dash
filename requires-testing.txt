@@ -6,6 +6,8 @@ pytest-mock==2.0.0;python_version=="2.7"
 lxml==4.5.0
 selenium==3.141.0
 percy==2.0.2
+cryptography==3.0
 requests[security]==2.21.0
 beautifulsoup4==4.8.2
 waitress==1.4.3
+flask-talisman==0.7.0

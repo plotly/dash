@@ -12,24 +12,24 @@ function UnconnectedToolbar(props) {
             display: 'inline-block',
             opacity: '0.2',
             ':hover': {
-                opacity: 1,
-            },
+                opacity: 1
+            }
         },
         iconStyle: {
-            fontSize: 20,
+            fontSize: 20
         },
         labelStyle: {
-            fontSize: 15,
-        },
+            fontSize: 15
+        }
     };
 
     const undoLink = (
         <span
-            key="undoLink"
+            key='undoLink'
             style={mergeRight(
                 {
                     color: history.past.length ? '#0074D9' : 'grey',
-                    cursor: history.past.length ? 'pointer' : 'default',
+                    cursor: history.past.length ? 'pointer' : 'default'
                 },
                 styles.parentSpanStyle
             )}
@@ -49,12 +49,12 @@ function UnconnectedToolbar(props) {
 
     const redoLink = (
         <span
-            key="redoLink"
+            key='redoLink'
             style={mergeRight(
                 {
                     color: history.future.length ? '#0074D9' : 'grey',
                     cursor: history.future.length ? 'pointer' : 'default',
-                    marginLeft: 10,
+                    marginLeft: 10
                 },
                 styles.parentSpanStyle
             )}
@@ -74,7 +74,7 @@ function UnconnectedToolbar(props) {
 
     return (
         <div
-            className="_dash-undo-redo"
+            className='_dash-undo-redo'
             style={{
                 position: 'fixed',
                 bottom: '30px',
@@ -82,12 +82,12 @@ function UnconnectedToolbar(props) {
                 fontSize: '20px',
                 textAlign: 'center',
                 zIndex: '9999',
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)'
             }}
         >
             <div
                 style={{
-                    position: 'relative',
+                    position: 'relative'
                 }}
             >
                 {history.past.length > 0 ? undoLink : null}
@@ -99,12 +99,12 @@ function UnconnectedToolbar(props) {
 
 UnconnectedToolbar.propTypes = {
     history: PropTypes.object,
-    dispatch: PropTypes.func,
+    dispatch: PropTypes.func
 };
 
 const Toolbar = connect(
     state => ({
-        history: state.history,
+        history: state.history
     }),
     dispatch => ({dispatch})
 )(Radium(UnconnectedToolbar));

@@ -64,7 +64,7 @@ import {
     lensPath,
     mergeRight,
     set,
-    type,
+    type
 } from 'ramda';
 import {createAction} from 'redux-actions';
 
@@ -78,7 +78,7 @@ function err(e) {
 
     return createAction('ON_ERROR')({
         type: 'frontEnd',
-        error,
+        error
     });
 }
 
@@ -208,14 +208,14 @@ function longString() {
 }
 
 export const stores = {
-    memory: new MemStore(),
+    memory: new MemStore()
     // Defer testing & making local/session stores until requested.
     // That way if we have errors here they can show up in devtools.
 };
 
 const backEnds = {
     local: 'localStorage',
-    session: 'sessionStorage',
+    session: 'sessionStorage'
 };
 
 function tryGetWebStore(backEnd, dispatch) {
@@ -262,7 +262,7 @@ function getStore(type, dispatch) {
 
 const noopTransform = {
     extract: propValue => propValue,
-    apply: (storedValue, _propValue) => storedValue,
+    apply: (storedValue, _propValue) => storedValue
 };
 
 const getTransform = (element, propName, propPart) =>
@@ -294,7 +294,7 @@ const getProps = layout => {
         element,
         persistence,
         persisted_props,
-        persistence_type,
+        persistence_type
     };
 };
 
@@ -306,7 +306,7 @@ export function recordUiEdit(layout, newProps, dispatch) {
         element,
         persistence,
         persisted_props,
-        persistence_type,
+        persistence_type
     } = getProps(layout);
     if (!canPersist || !persistence) {
         return;
@@ -381,7 +381,7 @@ function persistenceMods(layout, component, path, dispatch) {
         element,
         persistence,
         persisted_props,
-        persistence_type,
+        persistence_type
     } = getProps(component);
 
     let layoutOut = layout;
@@ -447,7 +447,7 @@ export function prunePersistence(layout, newProps, dispatch) {
         persistence,
         persisted_props,
         persistence_type,
-        element,
+        element
     } = getProps(layout);
 
     const getFinal = (propName, prevVal) =>
