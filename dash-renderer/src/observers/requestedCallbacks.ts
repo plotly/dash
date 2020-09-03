@@ -4,12 +4,17 @@ import {
     difference,
     filter,
     flatten,
+    forEach,
     groupBy,
     includes,
     intersection,
     isEmpty,
     isNil,
     map,
+    mergeLeft,
+    mergeWith,
+    pluck,
+    reduce,
     values
 } from 'ramda';
 
@@ -17,16 +22,16 @@ import { IStoreState } from '../store';
 
 import {
     aggregateCallbacks,
-    removeRequestedCallbacks,
     removePrioritizedCallbacks,
     removeExecutingCallbacks,
     removeWatchedCallbacks,
-    addRequestedCallbacks,
     addPrioritizedCallbacks,
     addExecutingCallbacks,
     addWatchedCallbacks,
     removeBlockedCallbacks,
-    addBlockedCallbacks
+    addBlockedCallbacks,
+    addRequestedCallbacks,
+    removeRequestedCallbacks
 } from '../actions/callbacks';
 
 import { isMultiValued } from '../actions/dependencies';
@@ -45,16 +50,22 @@ import {
     IBlockedCallback
 } from '../types/callbacks';
 
+import wait from './../utils/wait';
+
 import { getPendingCallbacks } from '../utils/callbacks';
 import { IStoreObserverDefinition } from '../StoreObserver';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
-    observer: ({
+    observer: async ({
         dispatch,
         getState
     }) => {
+        await wait(0);
+
         const { callbacks, callbacks: { prioritized, blocked, executing, watched, stored }, paths } = getState();
         let { callbacks: { requested } } = getState();
+
+        const initialRequested = requested.slice(0);
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
@@ -78,17 +89,37 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             1. Remove duplicated `requested` callbacks - give precedence to newer callbacks over older ones
         */
 
-        /*
-            Extract all but the first callback from each IOS-key group
-            these callbacks are duplicates.
-        */
-        const rDuplicates = flatten(map(
-            group => group.slice(0, -1),
-            values(
-                groupBy<ICallback>(
-                    getUniqueIdentifier,
-                    requested
-                )
+        let rDuplicates: ICallback[] = [];
+        let rMergedDuplicates: ICallback[] = [];
+
+        forEach(group => {
+            if (group.length === 1) {
+                // keep callback if its the only one of its kind
+                rMergedDuplicates.push(group[0]);
+            } else {
+                const initial = group.find(cb => cb.initialCall);
+                if (initial) {
+                    // drop the initial callback if it's not alone
+                    rDuplicates.push(initial);
+                }
+
+                const groupWithoutInitial = group.filter(cb => cb !== initial);
+                if (groupWithoutInitial.length === 1) {
+                    // if there's only one callback beside the initial one, keep that callback
+                    rMergedDuplicates.push(groupWithoutInitial[0]);
+                } else {
+                    // otherwise merge all remaining callbacks together
+                    rDuplicates = concat(rDuplicates, groupWithoutInitial);
+                    rMergedDuplicates.push(mergeLeft({
+                        changedPropIds: reduce(mergeWith(Math.max), {}, pluck('changedPropIds', groupWithoutInitial)),
+                        executionGroup: filter(exg => !!exg, pluck('executionGroup', groupWithoutInitial)).slice(-1)[0]
+                    }, groupWithoutInitial.slice(-1)[0]) as ICallback);
+                }
+            }
+        }, values(
+            groupBy<ICallback>(
+                getUniqueIdentifier,
+                requested
             )
         ));
 
@@ -97,7 +128,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             Clean up the `requested` list - during the dispatch phase,
             duplicates will be removed for real
         */
-        requested = difference(requested, rDuplicates);
+        requested = rMergedDuplicates;
 
         /*
             2. Remove duplicated `prioritized`, `executing` and `watching` callbacks
@@ -312,16 +343,24 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             dropped
         );
 
+        requested = difference(
+            requested,
+            readyCallbacks
+        );
+
+        const added = difference(requested, initialRequested);
+        const removed = difference(initialRequested, requested);
+
         dispatch(aggregateCallbacks([
+            // Clean up requested callbacks
+            added.length ? addRequestedCallbacks(added) : null,
+            removed.length ? removeRequestedCallbacks(removed) : null,
             // Clean up duplicated callbacks
-            rDuplicates.length ? removeRequestedCallbacks(rDuplicates) : null,
             pDuplicates.length ? removePrioritizedCallbacks(pDuplicates) : null,
             bDuplicates.length ? removeBlockedCallbacks(bDuplicates) : null,
             eDuplicates.length ? removeExecutingCallbacks(eDuplicates) : null,
             wDuplicates.length ? removeWatchedCallbacks(wDuplicates) : null,
             // Prune callbacks
-            rRemoved.length ? removeRequestedCallbacks(rRemoved) : null,
-            rAdded.length ? addRequestedCallbacks(rAdded) : null,
             pRemoved.length ? removePrioritizedCallbacks(pRemoved) : null,
             pAdded.length ? addPrioritizedCallbacks(pAdded) : null,
             bRemoved.length ? removeBlockedCallbacks(bRemoved) : null,
@@ -330,15 +369,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             eAdded.length ? addExecutingCallbacks(eAdded) : null,
             wRemoved.length ? removeWatchedCallbacks(wRemoved) : null,
             wAdded.length ? addWatchedCallbacks(wAdded) : null,
-            // Prune circular callbacks
-            rCirculars.length ? removeRequestedCallbacks(rCirculars) : null,
-            // Prune circular assumptions
-            oldBlocked.length ? removeRequestedCallbacks(oldBlocked) : null,
-            newBlocked.length ? addRequestedCallbacks(newBlocked) : null,
-            // Drop non-triggered initial callbacks
-            dropped.length ? removeRequestedCallbacks(dropped) : null,
             // Promote callbacks
-            readyCallbacks.length ? removeRequestedCallbacks(readyCallbacks) : null,
             readyCallbacks.length ? addPrioritizedCallbacks(readyCallbacks) : null
         ]));
     },

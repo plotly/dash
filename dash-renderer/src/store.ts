@@ -7,6 +7,7 @@ import { ICallbacksState } from './reducers/callbacks';
 import { LoadingMapState } from './reducers/loadingMap';
 import { IsLoadingState } from './reducers/isLoading';
 
+import documentTitle from './observers/documentTitle';
 import executedCallbacks from './observers/executedCallbacks';
 import executingCallbacks from './observers/executingCallbacks';
 import isLoading from './observers/isLoading'
@@ -33,6 +34,7 @@ const storeObserver = new StoreObserver<IStoreState>();
 const setObservers = once(() => {
     const observe = storeObserver.observe;
 
+    observe(documentTitle);
     observe(isLoading);
     observe(loadingMap);
     observe(requestedCallbacks);
