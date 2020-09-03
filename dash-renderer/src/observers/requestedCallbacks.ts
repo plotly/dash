@@ -370,50 +370,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         readyCallbacks = difference(readyCallbacks, dropped);
 
-        dispatch(
-            aggregateCallbacks([
-                // Clean up duplicated callbacks
-                rDuplicates.length
-                    ? removeRequestedCallbacks(rDuplicates)
-                    : null,
-                pDuplicates.length
-                    ? removePrioritizedCallbacks(pDuplicates)
-                    : null,
-                bDuplicates.length ? removeBlockedCallbacks(bDuplicates) : null,
-                eDuplicates.length
-                    ? removeExecutingCallbacks(eDuplicates)
-                    : null,
-                wDuplicates.length ? removeWatchedCallbacks(wDuplicates) : null,
-                // Prune callbacks
-                rRemoved.length ? removeRequestedCallbacks(rRemoved) : null,
-                rAdded.length ? addRequestedCallbacks(rAdded) : null,
-                pRemoved.length ? removePrioritizedCallbacks(pRemoved) : null,
-                pAdded.length ? addPrioritizedCallbacks(pAdded) : null,
-                bRemoved.length ? removeBlockedCallbacks(bRemoved) : null,
-                bAdded.length ? addBlockedCallbacks(bAdded) : null,
-                eRemoved.length ? removeExecutingCallbacks(eRemoved) : null,
-                eAdded.length ? addExecutingCallbacks(eAdded) : null,
-                wRemoved.length ? removeWatchedCallbacks(wRemoved) : null,
-                wAdded.length ? addWatchedCallbacks(wAdded) : null,
-                // Prune circular callbacks
-                rCirculars.length ? removeRequestedCallbacks(rCirculars) : null,
-                // Prune circular assumptions
-                oldBlocked.length ? removeRequestedCallbacks(oldBlocked) : null,
-                newBlocked.length ? addRequestedCallbacks(newBlocked) : null,
-                // Drop non-triggered initial callbacks
-                dropped.length ? removeRequestedCallbacks(dropped) : null,
-                // Promote callbacks
-                readyCallbacks.length
-                    ? removeRequestedCallbacks(readyCallbacks)
-                    : null,
-                readyCallbacks.length
-                    ? addPrioritizedCallbacks(readyCallbacks)
-                    : null
-            ])
-        );
-
-        readyCallbacks = difference(readyCallbacks, dropped);
-
         requested = difference(requested, readyCallbacks);
 
         const added = difference(requested, initialRequested);
