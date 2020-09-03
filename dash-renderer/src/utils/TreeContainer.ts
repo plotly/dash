@@ -1,7 +1,7 @@
-import { path, type, has } from 'ramda';
+import {path, type, has} from 'ramda';
 
 import Registry from '../registry';
-import { stringifyId } from '../actions/dependencies';
+import {stringifyId} from '../actions/dependencies';
 
 function isLoadingComponent(layout: any) {
     validateComponent(layout);
@@ -10,7 +10,11 @@ function isLoadingComponent(layout: any) {
 
 const NULL_LOADING_STATE = false;
 
-export function getLoadingState(componentLayout: any, componentPath: any, loadingMap: any) {
+export function getLoadingState(
+    componentLayout: any,
+    componentPath: any,
+    loadingMap: any
+) {
     if (!loadingMap) {
         return NULL_LOADING_STATE;
     }
@@ -43,21 +47,21 @@ export function getLoadingState(componentLayout: any, componentPath: any, loadin
     return NULL_LOADING_STATE;
 }
 
-export const getLoadingHash = (
-    componentPath: any,
-    loadingMap: any
-) => (
-    ((loadingMap && (path(componentPath, loadingMap) as any)?.__dashprivate__idprops__) ?? []) as any[]
-).map(({ id, property }) => `${id}.${property}`).join(',');
+export const getLoadingHash = (componentPath: any, loadingMap: any) =>
+    (((loadingMap &&
+        (path(componentPath, loadingMap) as any)?.__dashprivate__idprops__) ??
+        []) as any[])
+        .map(({id, property}) => `${id}.${property}`)
+        .join(',');
 
 export function validateComponent(componentDefinition: any) {
     if (type(componentDefinition) === 'Array') {
         throw new Error(
             'The children property of a component is a list of lists, instead ' +
-            'of just a list. ' +
-            'Check the component that has the following contents, ' +
-            'and remove one of the levels of nesting: \n' +
-            JSON.stringify(componentDefinition, null, 2)
+                'of just a list. ' +
+                'Check the component that has the following contents, ' +
+                'and remove one of the levels of nesting: \n' +
+                JSON.stringify(componentDefinition, null, 2)
         );
     }
     if (
@@ -70,9 +74,9 @@ export function validateComponent(componentDefinition: any) {
     ) {
         throw new Error(
             'An object was provided as `children` instead of a component, ' +
-            'string, or number (or list of those). ' +
-            'Check the children property that looks something like:\n' +
-            JSON.stringify(componentDefinition, null, 2)
+                'string, or number (or list of those). ' +
+                'Check the children property that looks something like:\n' +
+                JSON.stringify(componentDefinition, null, 2)
         );
     }
 }

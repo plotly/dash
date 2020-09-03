@@ -9,7 +9,7 @@ const layout = (state = {}, action) => {
         includes(action.type, [
             'UNDO_PROP_CHANGE',
             'REDO_PROP_CHANGE',
-            getAction('ON_PROP_CHANGE'),
+            getAction('ON_PROP_CHANGE')
         ])
     ) {
         const propPath = append('props', action.payload.itempath);

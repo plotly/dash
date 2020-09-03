@@ -1,16 +1,16 @@
-import { once } from 'ramda';
-import { createStore, applyMiddleware, Store, Observer } from 'redux';
+import {once} from 'ramda';
+import {createStore, applyMiddleware, Store, Observer} from 'redux';
 import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
 import StoreObserver from './StoreObserver';
-import { ICallbacksState } from './reducers/callbacks';
-import { LoadingMapState } from './reducers/loadingMap';
-import { IsLoadingState } from './reducers/isLoading';
+import {ICallbacksState} from './reducers/callbacks';
+import {LoadingMapState} from './reducers/loadingMap';
+import {IsLoadingState} from './reducers/isLoading';
 
 import documentTitle from './observers/documentTitle';
 import executedCallbacks from './observers/executedCallbacks';
 import executingCallbacks from './observers/executingCallbacks';
-import isLoading from './observers/isLoading'
+import isLoading from './observers/isLoading';
 import loadingMap from './observers/loadingMap';
 import prioritizedCallbacks from './observers/prioritizedCallbacks';
 import requestedCallbacks from './observers/requestedCallbacks';

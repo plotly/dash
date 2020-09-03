@@ -1,11 +1,8 @@
-import { IStoreObserverDefinition } from '../StoreObserver';
-import { IStoreState } from '../store';
+import {IStoreObserverDefinition} from '../StoreObserver';
+import {IStoreState} from '../store';
 
 const updateTitle = (getState: () => IStoreState) => {
-    const {
-        config,
-        isLoading
-    } = getState();
+    const {config, isLoading} = getState();
 
     const update_title = config?.update_title;
 
@@ -30,24 +27,24 @@ const updateTitle = (getState: () => IStoreState) => {
 const observer: IStoreObserverDefinition<IStoreState> = {
     inputs: ['isLoading'],
     mutationObserver: undefined,
-    observer: ({
-        getState
-    }) => {
-        const {
-            config
-        } = getState();
+    observer: ({getState}) => {
+        const {config} = getState();
 
         if (observer.config !== config) {
             observer.config = config;
             observer.mutationObserver?.disconnect();
-            observer.mutationObserver = new MutationObserver(() => updateTitle(getState));
+            observer.mutationObserver = new MutationObserver(() =>
+                updateTitle(getState)
+            );
 
             const title = document.querySelector('title');
             if (title) {
-                observer.mutationObserver.observe(
-                    title,
-                    { subtree: true, childList: true, attributes: true, characterData: true }
-                );
+                observer.mutationObserver.observe(title, {
+                    subtree: true,
+                    childList: true,
+                    attributes: true,
+                    characterData: true
+                });
             }
         }
 

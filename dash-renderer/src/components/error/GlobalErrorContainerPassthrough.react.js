@@ -6,12 +6,12 @@ class GlobalErrorContainer extends Component {
         super(props);
     }
     render() {
-        return <div id="_dash-app-content">{this.props.children}</div>;
+        return <div id='_dash-app-content'>{this.props.children}</div>;
     }
 }
 
 GlobalErrorContainer.propTypes = {
-    children: PropTypes.object,
+    children: PropTypes.object
 };
 
 export default GlobalErrorContainer;

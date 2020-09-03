@@ -5,6 +5,8 @@ import dash_html_components as html
 import dash
 import dash.testing.wait as wait
 
+from ...assets.todo_app import todo_app
+
 
 def test_dvui001_disable_props_check_config(dash_duo):
     app = dash.Dash(__name__)
@@ -62,3 +64,38 @@ def test_dvui002_disable_ui_config(dash_duo):
         ".dash-debug-menu"
     ), "the debug menu icon should NOT show up"
     dash_duo.percy_snapshot("devtools - disable dev tools UI - no debug menu")
+
+
+def test_dvui003_callback_graph(dash_duo):
+    app = todo_app()
+
+    dash_duo.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    dash_duo.wait_for_text_to_equal("#totals", "0 of 0 items completed")
+
+    # reset compute and network times for all profiled callbacks, so we get
+    # a consistent callback graph image
+    dash_duo.driver.execute_script(
+        """
+        const cbProfiles = window.store.getState().profile.callbacks;
+        Object.keys(cbProfiles).forEach(k => {
+            cbProfiles[k].compute = 44;
+            cbProfiles[k].network.time = 33;
+            cbProfiles[k].total = 77;
+        });
+    """
+    )
+
+    dash_duo.find_element(".dash-debug-menu").click()
+    sleep(1)  # wait for debug menu opening animation
+    dash_duo.find_element(".dash-debug-menu__button--callbacks").click()
+    sleep(3)  # wait for callback graph to draw
+    dash_duo.find_element('canvas[data-id="layer2-node"]')
+
+    dash_duo.percy_snapshot("devtools - callback graph", convert_canvases=True)

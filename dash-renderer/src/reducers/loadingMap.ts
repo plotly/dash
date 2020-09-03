@@ -8,15 +8,11 @@ export interface ILoadingMapAction {
 }
 
 type LoadingMapState = any;
-export {
-    LoadingMapState
-};
+export {LoadingMapState};
 
 const DEFAULT_STATE: LoadingMapState = {};
 
 export default (
     state: LoadingMapState = DEFAULT_STATE,
     action: ILoadingMapAction
-) => action.type === LoadingMapActionType.Set ?
-        action.payload :
-        state;
+) => (action.type === LoadingMapActionType.Set ? action.payload : state);

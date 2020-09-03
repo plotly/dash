@@ -10,7 +10,7 @@ function GET(path, fetchConfig) {
         path,
         mergeDeepRight(fetchConfig, {
             method: 'GET',
-            headers: getCSRFHeader(),
+            headers: getCSRFHeader()
         })
     );
 }
@@ -21,7 +21,7 @@ function POST(path, fetchConfig, body = {}) {
         mergeDeepRight(fetchConfig, {
             method: 'POST',
             headers: getCSRFHeader(),
-            body: body ? JSON.stringify(body) : null,
+            body: body ? JSON.stringify(body) : null
         })
     );
 }
@@ -37,14 +37,14 @@ export default function apiThunk(endpoint, method, store, id, body) {
             if (getState().error.backEndConnected !== connected) {
                 dispatch({
                     type: 'SET_CONNECTION_STATUS',
-                    payload: connected,
+                    payload: connected
                 });
             }
         }
 
         dispatch({
             type: store,
-            payload: {id, status: 'loading'},
+            payload: {id, status: 'loading'}
         });
         return request[method](url, config.fetch, body)
             .then(
@@ -61,8 +61,8 @@ export default function apiThunk(endpoint, method, store, id, body) {
                                 payload: {
                                     status: res.status,
                                     content: json,
-                                    id,
-                                },
+                                    id
+                                }
                             });
                             return json;
                         });
@@ -74,8 +74,8 @@ export default function apiThunk(endpoint, method, store, id, body) {
                         type: store,
                         payload: {
                             id,
-                            status: res.status,
-                        },
+                            status: res.status
+                        }
                     });
                 },
                 () => {

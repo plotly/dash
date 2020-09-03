@@ -12,7 +12,7 @@ class FrontEndError extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            collapsed: this.props.isListItem,
+            collapsed: this.props.isListItem
         };
     }
 
@@ -27,20 +27,20 @@ class FrontEndError extends Component {
         /* eslint-disable no-inline-comments */
         const errorHeader = (
             <div
-                className="dash-fe-error-top test-devtools-error-toggle"
+                className='dash-fe-error-top test-devtools-error-toggle'
                 onClick={() => this.setState({collapsed: !collapsed})}
             >
-                <span className="dash-fe-error-top__group">
+                <span className='dash-fe-error-top__group'>
                     ⛑️
-                    <span className="dash-fe-error__title">
+                    <span className='dash-fe-error__title'>
                         {e.error.message || 'Error'}
                     </span>
                 </span>
-                <span className="dash-fe-error-top__group">
-                    <span className="dash-fe-error__timestamp percy-hide">
+                <span className='dash-fe-error-top__group'>
+                    <span className='dash-fe-error__timestamp percy-hide'>
                         {`${e.timestamp.toLocaleTimeString()}`}
                     </span>
-                    <span className="dash-fe-error__timestamp percy-show">
+                    <span className='dash-fe-error__timestamp percy-show'>
                         {/* Special percy timestamp for visual testing.
                          * Hidden during regular usage.
                          */}
@@ -59,7 +59,7 @@ class FrontEndError extends Component {
         /* eslint-enable no-inline-comments */
 
         return collapsed ? (
-            <div className="dash-error-card__list-item">{errorHeader}</div>
+            <div className='dash-error-card__list-item'>{errorHeader}</div>
         ) : (
             <div className={cardClasses}>
                 {errorHeader}
@@ -73,7 +73,7 @@ const MAX_MESSAGE_LENGTH = 40;
 /* eslint-disable no-inline-comments */
 function UnconnectedErrorContent({error, base}) {
     return (
-        <div className="error-container">
+        <div className='error-container'>
             {/*
              * 40 is a rough heuristic - if longer than 40 then the
              * message might overflow into ellipses in the title above &
@@ -81,16 +81,16 @@ function UnconnectedErrorContent({error, base}) {
              */}
             {typeof error.message !== 'string' ||
             error.message.length < MAX_MESSAGE_LENGTH ? null : (
-                <div className="dash-fe-error__st">
-                    <div className="dash-fe-error__info dash-fe-error__curved">
+                <div className='dash-fe-error__st'>
+                    <div className='dash-fe-error__info dash-fe-error__curved'>
                         {error.message}
                     </div>
                 </div>
             )}
 
             {typeof error.stack !== 'string' ? null : (
-                <div className="dash-fe-error__st">
-                    <div className="dash-fe-error__info">
+                <div className='dash-fe-error__st'>
+                    <div className='dash-fe-error__info'>
                         <details>
                             <summary>
                                 <i>
@@ -112,8 +112,8 @@ function UnconnectedErrorContent({error, base}) {
             {typeof error.html !== 'string' ? null : error.html.indexOf(
                   '<!DOCTYPE HTML'
               ) === 0 ? (
-                <div className="dash-be-error__st">
-                    <div className="dash-backend-error">
+                <div className='dash-be-error__st'>
+                    <div className='dash-backend-error'>
                         {/* Embed werkzeug debugger in an iframe to prevent
                         CSS leaking - werkzeug HTML includes a bunch
                         of CSS on base html elements like `<body/>`
@@ -138,14 +138,14 @@ function UnconnectedErrorContent({error, base}) {
                                  */
                                 width: 'calc(600px - 67px)',
                                 height: '75vh',
-                                border: 'none',
+                                border: 'none'
                             }}
                         />
                     </div>
                 </div>
             ) : (
-                <div className="dash-be-error__str">
-                    <div className="dash-backend-error">{error.html}</div>
+                <div className='dash-be-error__str'>
+                    <div className='dash-backend-error'>{error.html}</div>
                 </div>
             )}
         </div>
@@ -160,12 +160,12 @@ const errorPropTypes = PropTypes.shape({
     stack: PropTypes.string,
 
     /* backend error messages */
-    html: PropTypes.string,
+    html: PropTypes.string
 });
 
 UnconnectedErrorContent.propTypes = {
     error: errorPropTypes,
-    base: PropTypes.string,
+    base: PropTypes.string
 };
 
 const ErrorContent = connect(state => ({base: urlBase(state.config)}))(
@@ -175,15 +175,15 @@ const ErrorContent = connect(state => ({base: urlBase(state.config)}))(
 FrontEndError.propTypes = {
     e: PropTypes.shape({
         timestamp: PropTypes.object,
-        error: errorPropTypes,
+        error: errorPropTypes
     }),
     inAlertsTray: PropTypes.bool,
-    isListItem: PropTypes.bool,
+    isListItem: PropTypes.bool
 };
 
 FrontEndError.defaultProps = {
     inAlertsTray: false,
-    isListItem: false,
+    isListItem: false
 };
 
 export {FrontEndError};
