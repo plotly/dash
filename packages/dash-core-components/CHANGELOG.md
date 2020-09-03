@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Updated
+- [#858](https://github.com/plotly/dash-core-components/pull/858)
+  - Upgraded Plotly.js to [1.55.1](https://github.com/plotly/plotly.js/releases/tag/v1.55.1)
+  - Patch release [1.55.1](https://github.com/plotly/plotly.js/releases/tag/v1.55.1)
+  - [Feature release of Plotly.js 1.55.0](https://github.com/plotly/plotly.js/releases/tag/v1.55.0) which:
+    - Introduce "period" `ticklabelmode` on cartesian date axes [#4993](https://github.com/plotly/plotly.js/pull/4993), [#5055](https://github.com/plotly/plotly.js/pull/5055), [#5060](https://github.com/plotly/plotly.js/pull/5060), [#5065](https://github.com/plotly/plotly.js/pull/5065), [#5088](https://github.com/plotly/plotly.js/pull/5088), [#5089](https://github.com/plotly/plotly.js/pull/5089)
+    - Add new formatting options for weeks and quarters [#5026](https://github.com/plotly/plotly.js/pull/5026)
+    - Add `source` attribute to `image` traces for fast rendering [#5075](https://github.com/plotly/plotly.js/pull/5075)
+    - Add `zsmooth` attribute for discrete `heatmapgl` traces [#4953](https://github.com/plotly/plotly.js/pull/4953)
+    - Add horizontal and vertical markers for arrow charts [#5010](https://github.com/plotly/plotly.js/pull/5010)
+    - Add touch support to `rangeslider` [#5025](https://github.com/plotly/plotly.js/pull/5025)
+
 ## [1.11.0] - 2020-08-25
 ### Added
 - [#851](https://github.com/plotly/dash-core-components/pull/851) Add support for Dash.jl Julia built components
