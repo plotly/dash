@@ -2,7 +2,6 @@ import {connect} from 'react-redux';
 import React from 'react';
 import PropTypes from 'prop-types';
 import APIController from './APIController.react';
-import DocumentTitle from './components/core/DocumentTitle.react';
 import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
 import Reloader from './components/core/Reloader.react';
@@ -48,7 +47,6 @@ class UnconnectedAppContainer extends React.Component {
             <React.Fragment>
                 {show_undo_redo ? <Toolbar /> : null}
                 <APIController />
-                <DocumentTitle />
                 <Loading />
                 <Reloader />
             </React.Fragment>

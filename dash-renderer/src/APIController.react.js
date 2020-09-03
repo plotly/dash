@@ -20,6 +20,7 @@ import {applyPersistence} from './persistence';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
+import wait from './utils/wait';
 
 export const DashContext = createContext({});
 
@@ -63,8 +64,11 @@ const UnconnectedContainer = props => {
 
     useEffect(() => {
         if (renderedTree.current) {
-            renderedTree.current = false;
-            events.current.emit('rendered');
+            (async () => {
+                renderedTree.current = false;
+                await wait(0);
+                events.current.emit('rendered');
+            })();
         }
     });
 

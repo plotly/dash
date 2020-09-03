@@ -82,7 +82,7 @@ uuid = "{package_uuid}"
 [deps]
 {base_package} = "{dash_uuid}"
 
-[compact]
+[compat]
 julia = "1.2"
 {base_package} = ">=0.1"
 """
