@@ -10,6 +10,8 @@ import threading
 import re
 import logging
 import mimetypes
+import hashlib
+import base64
 
 from functools import wraps
 from future.moves.urllib.parse import urlparse
@@ -1127,6 +1129,42 @@ class Dash(object):
         return flask.Response(
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
+
+    def csp_hashes(self, hash_algorithm="sha256"):
+        """Calculates CSP hashes (sha + base64) of all inline scripts, such that
+        one of the biggest benefits of CSP (disallowing general inline scripts)
+        can be utilized together with Dash clientside callbacks (inline scripts).
+
+        Calculate these hashes after all inline callbacks are defined,
+        and add them to your CSP headers before starting the server, for example
+        with the flask-talisman package from PyPI:
+
+        flask_talisman.Talisman(app.server, content_security_policy={
+            "default-src": "'self'",
+            "script-src": ["'self'"] + app.csp_hashes()
+        })
+
+        :param hash_algorithm: One of the recognized CSP hash algorithms ('sha256', 'sha384', 'sha512').
+        :return: List of CSP hash strings of all inline scripts.
+        """
+
+        HASH_ALGORITHMS = ["sha256", "sha384", "sha512"]
+        if hash_algorithm not in HASH_ALGORITHMS:
+            raise ValueError(
+                "Possible CSP hash algorithms: " + ", ".join(HASH_ALGORITHMS)
+            )
+
+        method = getattr(hashlib, hash_algorithm)
+
+        return [
+            "'{hash_algorithm}-{base64_hash}'".format(
+                hash_algorithm=hash_algorithm,
+                base64_hash=base64.b64encode(
+                    method(script.encode("utf-8")).digest()
+                ).decode("utf-8"),
+            )
+            for script in self._inline_scripts + [self.renderer]
+        ]
 
     def get_asset_url(self, path):
         asset = get_asset_path(

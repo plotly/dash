@@ -3,6 +3,9 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
+### Added
+- [#1371](https://github.com/plotly/dash/pull/1371) You can now get [CSP `script-src` hashes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src) of all added inline scripts by calling `app.csp_hashes()` (both Dash internal inline scripts, and those added with `app.clientside_callback`) .
+
 ### Changed
 - [#1385](https://github.com/plotly/dash/pull/1385) Closes [#1350](https://github.com/plotly/dash/issues/1350) and fixes a previously undefined callback behavior when multiple elements are stacked on top of one another and their `n_clicks` props are used as inputs of the same callback. The callback will now trigger once with all the triggered `n_clicks` props changes.
 
