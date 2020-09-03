@@ -1,8 +1,9 @@
-from multiprocessing import Value
+from multiprocessing import Lock, Value
 
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
+from dash.testing import wait
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -47,6 +48,8 @@ def test_rdmo001_single_input_multi_outputs_on_multiple_components(dash_duo):
 
 
 def test_rdmo002_multi_outputs_on_single_component(dash_duo):
+    lock = Lock()
+
     call_count = Value("i")
     app = dash.Dash(__name__)
 
@@ -66,8 +69,9 @@ def test_rdmo002_multi_outputs_on_single_component(dash_duo):
         [Input("input", "value")],
     )
     def update_output(value):
-        call_count.value += 1
-        return [value, {"fontFamily": value}, value]
+        with lock:
+            call_count.value += 1
+            return [value, {"fontFamily": value}, value]
 
     dash_duo.start_server(app)
 
@@ -79,7 +83,9 @@ def test_rdmo002_multi_outputs_on_single_component(dash_duo):
 
     assert call_count.value == 1
 
-    dash_duo.find_element("#input").send_keys(" hello")
+    for key in " hello":
+        with lock:
+            dash_duo.find_element("#input").send_keys(key)
 
     dash_duo.wait_for_text_to_equal("#output-container", "dash hello")
     _html = dash_duo.find_element("#output-container").get_property("innerHTML")
@@ -88,7 +94,7 @@ def test_rdmo002_multi_outputs_on_single_component(dash_duo):
         'style="font-family: &quot;dash hello&quot;;">dash hello</div>'
     )
 
-    assert call_count.value == 7
+    wait.until(lambda: call_count.value == 7, 3)
 
 
 def test_rdmo003_single_output_as_multi(dash_duo):
