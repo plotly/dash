@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component, lazy, Suspense} from 'react';
 import datePickerSingle from '../utils/LazyLoader/datePickerSingle';
+import transformDate from '../utils/DatePickerPersistence';
 
 const RealDateSingleRange = lazy(datePickerSingle);
 
@@ -218,6 +219,10 @@ DatePickerSingle.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
+};
+
+DatePickerSingle.persistenceTransforms = {
+    date: transformDate,
 };
 
 DatePickerSingle.defaultProps = {

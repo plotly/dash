@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- [#854](https://github.com/plotly/dash-core-components/pull/854) Used `persistenceTransforms` to strip the time part of the datetime in the persited props of DatePickerSingle (date) and DatePickerRange (end_date, start_date), fixing [dcc#700](https://github.com/plotly/dash-core-components/issues/700).
+
 ### Added
 - [#850](https://github.com/plotly/dash-core-components/pull/850) Add property `prependData` to `Graph` to support `Plotly.prependTraces`
   + refactored the existing `extendTraces` API to be a single `mergeTraces` API that can handle both `prepend` as well as `extend`.
