@@ -112,7 +112,7 @@ class BaseTreeContainer extends Component {
         );
     }
 
-    setProps(newProps) {
+    setProps(newProps, silent, force) {
         const {
             _dashprivate_graphs,
             _dashprivate_dispatch,
@@ -122,8 +122,9 @@ class BaseTreeContainer extends Component {
 
         const oldProps = this.getLayoutProps();
         const {id} = oldProps;
+
         const changedProps = pickBy(
-            (val, key) => !equals(val, oldProps[key]),
+            (val, key) => force || !equals(val, oldProps[key]),
             newProps
         );
         if (!isEmpty(changedProps)) {
@@ -147,13 +148,15 @@ class BaseTreeContainer extends Component {
             );
 
             // Only dispatch changes to Dash if a watched prop changed
-            if (watchedKeys.length) {
-                _dashprivate_dispatch(
-                    notifyObservers({
-                        id,
-                        props: pick(watchedKeys, changedProps)
-                    })
-                );
+            if (!silent) {
+                if (watchedKeys.length) {
+                    _dashprivate_dispatch(
+                        notifyObservers({
+                            id,
+                            props: pick(watchedKeys, changedProps)
+                        })
+                    );
+                }
             }
         }
     }
