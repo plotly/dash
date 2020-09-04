@@ -266,14 +266,14 @@ const noopTransform = {
 };
 
 const getTransform = (element, propName, propPart) => {
-    if (element.persistenceTransforms) {
-        if (element.persistenceTransforms[propName]) {
-            if (propPart) {
-                return element.persistenceTransforms[propName][propPart];
-            }
-            return element.persistenceTransforms[propName];
+    if (
+        element.persistenceTransforms &&
+        element.persistenceTransforms[propName]
+    ) {
+        if (propPart) {
+            return element.persistenceTransforms[propName][propPart];
         }
-        return noopTransform;
+        return element.persistenceTransforms[propName];
     }
     return noopTransform;
 };
