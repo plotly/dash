@@ -9,7 +9,7 @@ import {
     privateDefaultProps,
 } from '../fragments/Graph.privateprops';
 
-const EMPTY_EXTEND_DATA = [];
+const EMPTY_DATA = [];
 
 /**
  * Graph can be used to render any plotly.js-powered data visualization.
@@ -22,13 +22,19 @@ class PlotlyGraph extends Component {
         super(props);
 
         this.state = {
+            prependData: [],
             extendData: [],
         };
 
-        this.clearExtendData = this.clearExtendData.bind(this);
+        this.clearState = this.clearState.bind(this);
     }
 
     componentDidMount() {
+        if (this.props.prependData) {
+            this.setState({
+                prependData: [this.props.prependData],
+            });
+        }
         if (this.props.extendData) {
             this.setState({
                 extendData: [this.props.extendData],
@@ -38,15 +44,37 @@ class PlotlyGraph extends Component {
 
     componentWillUnmount() {
         this.setState({
+            prependData: [],
             extendData: [],
         });
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
+        let prependData = this.state.prependData.slice(0);
+
+        if (this.props.figure !== nextProps.figure) {
+            prependData = EMPTY_DATA;
+        }
+
+        if (
+            nextProps.prependData &&
+            this.props.prependData !== nextProps.prependData
+        ) {
+            prependData.push(nextProps.prependData);
+        } else {
+            prependData = EMPTY_DATA;
+        }
+
+        if (prependData !== EMPTY_DATA) {
+            this.setState({
+                prependData,
+            });
+        }
+
         let extendData = this.state.extendData.slice(0);
 
         if (this.props.figure !== nextProps.figure) {
-            extendData = EMPTY_EXTEND_DATA;
+            extendData = EMPTY_DATA;
         }
 
         if (
@@ -55,22 +83,23 @@ class PlotlyGraph extends Component {
         ) {
             extendData.push(nextProps.extendData);
         } else {
-            extendData = EMPTY_EXTEND_DATA;
+            extendData = EMPTY_DATA;
         }
 
-        if (extendData !== EMPTY_EXTEND_DATA) {
+        if (extendData !== EMPTY_DATA) {
             this.setState({
                 extendData,
             });
         }
     }
 
-    clearExtendData() {
-        this.setState(({extendData}) => {
+    clearState(dataKey) {
+        this.setState(props => {
+            var data = props[dataKey];
             const res =
-                extendData && extendData.length
+                data && data.length
                     ? {
-                          extendData: EMPTY_EXTEND_DATA,
+                          [dataKey]: EMPTY_DATA,
                       }
                     : undefined;
 
@@ -82,8 +111,9 @@ class PlotlyGraph extends Component {
         return (
             <ControlledPlotlyGraph
                 {...this.props}
+                prependData={this.state.prependData}
                 extendData={this.state.extendData}
-                clearExtendData={this.clearExtendData}
+                clearState={this.clearState}
             />
         );
     }
@@ -190,6 +220,18 @@ PlotlyGraph.propTypes = {
      * https://plotly.com/javascript/plotlyjs-function-reference/#plotlyextendtraces
      */
     extendData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+
+    /**
+     * Data that should be prepended to existing traces. Has the form
+     * `[updateData, traceIndices, maxPoints]`, where `updateData` is an object
+     * containing the data to prepend, `traceIndices` (optional) is an array of
+     * trace indices that should be prepended, and `maxPoints` (optional) is
+     * either an integer defining the maximum number of points allowed or an
+     * object with key:value pairs matching `updateData`
+     * Reference the Plotly.prependTraces API for full usage:
+     * https://plotly.com/javascript/plotlyjs-function-reference/#plotlyprependtraces
+     */
+    prependData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
 
     /**
      * Data from latest restyle event which occurs
@@ -523,6 +565,7 @@ PlotlyGraph.defaultProps = {
     hoverData: null,
     selectedData: null,
     relayoutData: null,
+    prependData: null,
     extendData: null,
     restyleData: null,
     figure: {

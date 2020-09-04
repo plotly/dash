@@ -193,6 +193,171 @@ def test_empty_graph(dash_dcc, is_eager):
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
+def test_graph_prepend_trace(dash_dcc, is_eager):
+    app = dash.Dash(__name__, eager_loading=is_eager)
+
+    def generate_with_id(id, data=None):
+        if data is None:
+            data = [{"x": [10, 11, 12, 13, 14], "y": [0, 0.5, 1, 0.5, 0]}]
+
+        return html.Div(
+            [
+                html.P(id),
+                dcc.Graph(id=id, figure=dict(data=data)),
+                html.Div(id="output_{}".format(id)),
+            ]
+        )
+
+    figs = [
+        "trace_will_prepend",
+        "trace_will_prepend_with_no_indices",
+        "trace_will_prepend_with_max_points",
+    ]
+
+    layout = [generate_with_id(id) for id in figs]
+
+    figs.append("trace_will_allow_repeated_prepend")
+    data = [{"y": [0, 0, 0]}]
+    layout.append(generate_with_id(figs[-1], data))
+
+    figs.append("trace_will_prepend_selectively")
+    data = [
+        {"x": [10, 11, 12, 13, 14], "y": [0, 0.5, 1, 0.5, 0]},
+        {"x": [10, 11, 12, 13, 14], "y": [1, 1, 1, 1, 1]},
+    ]
+    layout.append(generate_with_id(figs[-1], data))
+
+    layout.append(
+        dcc.Interval(
+            id="interval_prependablegraph_update",
+            interval=10,
+            n_intervals=0,
+            max_intervals=1,
+        )
+    )
+
+    layout.append(
+        dcc.Interval(
+            id="interval_prependablegraph_prependtwice",
+            interval=500,
+            n_intervals=0,
+            max_intervals=2,
+        )
+    )
+
+    app.layout = html.Div(layout)
+
+    @app.callback(
+        Output("trace_will_allow_repeated_prepend", "prependData"),
+        [Input("interval_prependablegraph_prependtwice", "n_intervals")],
+    )
+    def trace_will_allow_repeated_prepend(n_intervals):
+        if n_intervals is None or n_intervals < 1:
+            raise PreventUpdate
+
+        return dict(y=[[0.1, 0.2, 0.3, 0.4, 0.5]])
+
+    @app.callback(
+        Output("trace_will_prepend", "prependData"),
+        [Input("interval_prependablegraph_update", "n_intervals")],
+    )
+    def trace_will_prepend(n_intervals):
+        if n_intervals is None or n_intervals < 1:
+            raise PreventUpdate
+
+        x_new = [5, 6, 7, 8, 9]
+        y_new = [0.1, 0.2, 0.3, 0.4, 0.5]
+        return dict(x=[x_new], y=[y_new]), [0]
+
+    @app.callback(
+        Output("trace_will_prepend_selectively", "prependData"),
+        [Input("interval_prependablegraph_update", "n_intervals")],
+    )
+    def trace_will_prepend_selectively(n_intervals):
+        if n_intervals is None or n_intervals < 1:
+            raise PreventUpdate
+
+        x_new = [5, 6, 7, 8, 9]
+        y_new = [0.1, 0.2, 0.3, 0.4, 0.5]
+        return dict(x=[x_new], y=[y_new]), [1]
+
+    @app.callback(
+        Output("trace_will_prepend_with_no_indices", "prependData"),
+        [Input("interval_prependablegraph_update", "n_intervals")],
+    )
+    def trace_will_prepend_with_no_indices(n_intervals):
+        if n_intervals is None or n_intervals < 1:
+            raise PreventUpdate
+
+        x_new = [5, 6, 7, 8, 9]
+        y_new = [0.1, 0.2, 0.3, 0.4, 0.5]
+        return dict(x=[x_new], y=[y_new])
+
+    @app.callback(
+        Output("trace_will_prepend_with_max_points", "prependData"),
+        [Input("interval_prependablegraph_update", "n_intervals")],
+    )
+    def trace_will_prepend_with_max_points(n_intervals):
+        if n_intervals is None or n_intervals < 1:
+            raise PreventUpdate
+
+        x_new = [5, 6, 7, 8, 9]
+        y_new = [0.1, 0.2, 0.3, 0.4, 0.5]
+        return dict(x=[x_new], y=[y_new]), [0], 7
+
+    for id in figs:
+
+        @app.callback(
+            Output("output_{}".format(id), "children"),
+            [Input(id, "prependData")],
+            [State(id, "figure")],
+        )
+        def display_data(trigger, fig):
+            return json.dumps(fig["data"])
+
+    dash_dcc.start_server(app)
+
+    comparison = json.dumps(
+        [
+            dict(
+                x=[5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+                y=[0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5, 1, 0.5, 0],
+            )
+        ]
+    )
+    dash_dcc.wait_for_text_to_equal("#output_trace_will_prepend", comparison)
+    dash_dcc.wait_for_text_to_equal(
+        "#output_trace_will_prepend_with_no_indices", comparison
+    )
+    comparison = json.dumps(
+        [
+            dict(x=[10, 11, 12, 13, 14], y=[0, 0.5, 1, 0.5, 0]),
+            dict(
+                x=[5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+                y=[0.1, 0.2, 0.3, 0.4, 0.5, 1, 1, 1, 1, 1],
+            ),
+        ]
+    )
+    dash_dcc.wait_for_text_to_equal(
+        "#output_trace_will_prepend_selectively", comparison
+    )
+
+    comparison = json.dumps(
+        [dict(x=[5, 6, 7, 8, 9, 10, 11], y=[0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5],)]
+    )
+    dash_dcc.wait_for_text_to_equal(
+        "#output_trace_will_prepend_with_max_points", comparison
+    )
+
+    comparison = json.dumps(
+        [dict(y=[0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0, 0, 0])]
+    )
+    dash_dcc.wait_for_text_to_equal(
+        "#output_trace_will_allow_repeated_prepend", comparison
+    )
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
 def test_graph_extend_trace(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
 

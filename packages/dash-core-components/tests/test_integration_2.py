@@ -297,16 +297,6 @@ class Test2(IntegrationTests):
 
         self.driver.switch_to.alert.accept()
 
-    def test_user_supplied_css(self):
-        app = dash.Dash(__name__)
-
-        app.layout = html.Div(className="test-input-css", children=[dcc.Input()])
-
-        self.startServer(app)
-
-        self.wait_for_element_by_css_selector(".test-input-css")
-        self.snapshot("styled input - width: 100%, border-color: hotpink")
-
     def test_logout_btn(self):
         app = dash.Dash(__name__)
 
@@ -350,37 +340,6 @@ class Test2(IntegrationTests):
         self.wait_for_text_to_equal("#content", "Logged out")
 
         self.assertFalse(self.driver.get_cookie("logout-cookie"))
-
-    def test_simple_callback(self):
-        app = dash.Dash(__name__)
-        app.layout = html.Div(
-            [
-                dcc.Input(id="input"),
-                html.Div(html.Div([1.5, None, "string", html.Div(id="output-1")])),
-            ]
-        )
-
-        call_count = Value("i", 0)
-
-        @app.callback(Output("output-1", "children"), [Input("input", "value")])
-        def update_output(value):
-            call_count.value = call_count.value + 1
-            return value
-
-        self.startServer(app)
-
-        input1 = self.wait_for_element_by_css_selector("#input")
-        input1.send_keys("hello world")
-        output1 = self.wait_for_element_by_css_selector("#output-1")
-        self.wait_for_text_to_equal("#output-1", "hello world")
-        output1.click()  # Lose focus, no callback sent for value.
-
-        self.assertEqual(
-            call_count.value,
-            # an initial call to retrieve the first value
-            # plus one for each hello world character
-            1 + len("hello world"),
-        )
 
     def test_disabled_tab(self):
         app = dash.Dash(__name__)

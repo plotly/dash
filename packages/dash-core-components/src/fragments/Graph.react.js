@@ -188,18 +188,16 @@ class PlotlyGraph extends Component {
         });
     }
 
-    extend(props) {
-        const {clearExtendData, extendData: extendDataArray} = props;
+    mergeTraces(props, dataKey, plotlyFnKey) {
+        const clearState = props.clearState;
+        const dataArray = props[dataKey];
 
-        extendDataArray.forEach(extendData => {
+        dataArray.forEach(data => {
             let updateData, traceIndices, maxPoints;
-            if (
-                Array.isArray(extendData) &&
-                typeof extendData[0] === 'object'
-            ) {
-                [updateData, traceIndices, maxPoints] = extendData;
+            if (Array.isArray(data) && typeof data[0] === 'object') {
+                [updateData, traceIndices, maxPoints] = data;
             } else {
-                updateData = extendData;
+                updateData = data;
             }
 
             if (!traceIndices) {
@@ -214,9 +212,9 @@ class PlotlyGraph extends Component {
             }
 
             const gd = this.gd.current;
-            return Plotly.extendTraces(gd, updateData, traceIndices, maxPoints);
+            return Plotly[plotlyFnKey](gd, updateData, traceIndices, maxPoints);
         });
-        clearExtendData();
+        clearState(dataKey);
     }
 
     getConfig(config, responsive) {
@@ -348,8 +346,11 @@ class PlotlyGraph extends Component {
 
     componentDidMount() {
         this.plot(this.props);
+        if (this.props.prependData) {
+            this.mergeTraces(this.props, 'prependData', 'prependTraces');
+        }
         if (this.props.extendData) {
-            this.extend(this.props);
+            this.mergeTraces(this.props, 'extendData', 'extendTraces');
         }
     }
 
@@ -392,8 +393,12 @@ class PlotlyGraph extends Component {
             this.plot(nextProps);
         }
 
+        if (this.props.prependData !== nextProps.prependData) {
+            this.mergeTraces(nextProps, 'prependData', 'prependTraces');
+        }
+
         if (this.props.extendData !== nextProps.extendData) {
-            this.extend(nextProps);
+            this.mergeTraces(nextProps, 'extendData', 'extendTraces');
         }
     }
 
@@ -432,14 +437,18 @@ class PlotlyGraph extends Component {
 
 PlotlyGraph.propTypes = {
     ...graphPropTypes,
+    prependData: PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.array, PropTypes.object])
+    ),
     extendData: PropTypes.arrayOf(
         PropTypes.oneOfType([PropTypes.array, PropTypes.object])
     ),
-    clearExtendData: PropTypes.func.isRequired,
+    clearState: PropTypes.func.isRequired,
 };
 
 PlotlyGraph.defaultProps = {
     ...graphDefaultProps,
+    prependData: [],
     extendData: [],
 };
 

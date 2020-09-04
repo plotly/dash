@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 
-ALLOWING_TYPES = (
+ALLOWED_TYPES = (
     "text",
     "number",
     "password",
@@ -18,7 +18,7 @@ ALLOWING_TYPES = (
 )
 
 
-def test_intp001_all_types(dash_dcc):
+def test_inbs001_all_types(dash_dcc):
     def input_id(type_):
         return "input_{}".format(type_)
 
@@ -26,14 +26,14 @@ def test_intp001_all_types(dash_dcc):
     app.layout = html.Div(
         [
             dcc.Input(id=input_id(_), type=_, placeholder="input type {}".format(_))
-            for _ in ALLOWING_TYPES
+            for _ in ALLOWED_TYPES
         ]
         + [html.Div(id="output")]
     )
 
     @app.callback(
         Output("output", "children"),
-        [Input(input_id(_), "value") for _ in ALLOWING_TYPES],
+        [Input(input_id(_), "value") for _ in ALLOWED_TYPES],
     )
     def cb_render(*vals):
         return " | ".join((val for val in vals if val))
@@ -46,7 +46,7 @@ def test_intp001_all_types(dash_dcc):
 
     dash_dcc.percy_snapshot("intp001 - init state")
 
-    for atype in ALLOWING_TYPES[:-1]:
+    for atype in ALLOWED_TYPES[:-1]:
         dash_dcc.find_element("#input_{}".format(atype)).send_keys(
             "test intp001 - input[{}]".format(atype)
         )
@@ -54,4 +54,15 @@ def test_intp001_all_types(dash_dcc):
     with pytest.raises(WebDriverException):
         dash_dcc.find_element("#input_hidden").send_keys("no interaction")
 
-    dash_dcc.percy_snapshot("intp001 - callback output rendering")
+    dash_dcc.percy_snapshot("inbs001 - callback output rendering")
+
+
+def test_inbs002_user_class(dash_dcc):
+    app = dash.Dash(__name__, assets_folder="../../assets")
+
+    app.layout = html.Div(className="test-input-css", children=[dcc.Input()])
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.find_element(".test-input-css")
+    dash_dcc.percy_snapshot("styled input - width: 100%, border-color: hotpink")
