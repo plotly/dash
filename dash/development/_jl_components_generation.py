@@ -84,7 +84,7 @@ uuid = "{package_uuid}"
 
 [compat]
 julia = "1.2"
-{base_package} = ">=0.1"
+{base_package} = "0.1"
 """
 
 jl_component_include_string = 'include("{name}.jl")'
