@@ -38,6 +38,9 @@ const profile = (state = defaultState, action) => {
             updated: [id],
             resources: state.resources,
             callbacks: state.callbacks,
+            // graphLayout is never passed in via actions, because we don't
+            // want it to trigger a rerender of the callback graph.
+            // See CallbackGraphContainer.react
             graphLayout: state.graphLayout
         };
 
