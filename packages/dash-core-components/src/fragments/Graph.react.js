@@ -214,6 +214,7 @@ class PlotlyGraph extends Component {
             const gd = this.gd.current;
             return Plotly[plotlyFnKey](gd, updateData, traceIndices, maxPoints);
         });
+
         clearState(dataKey);
     }
 
@@ -352,6 +353,10 @@ class PlotlyGraph extends Component {
         if (this.props.extendData) {
             this.mergeTraces(this.props, 'extendData', 'extendTraces');
         }
+
+        if (this.props.prependData?.length || this.props.extendData?.length) {
+            this.props._dashprivate_onFigureModified(this.props.figure);
+        }
     }
 
     componentWillUnmount() {
@@ -399,6 +404,10 @@ class PlotlyGraph extends Component {
 
         if (this.props.extendData !== nextProps.extendData) {
             this.mergeTraces(nextProps, 'extendData', 'extendTraces');
+        }
+
+        if (this.props.prependData?.length || this.props.extendData?.length) {
+            this.props._dashprivate_onFigureModified(this.props.figure);
         }
     }
 
