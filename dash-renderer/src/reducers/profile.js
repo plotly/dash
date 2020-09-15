@@ -21,7 +21,8 @@ const defaultProfile = {
 const defaultState = {
     updated: [],
     resources: {},
-    callbacks: {}
+    callbacks: {},
+    graphLayout: null
 };
 
 const profile = (state = defaultState, action) => {
@@ -36,7 +37,8 @@ const profile = (state = defaultState, action) => {
         const newState = {
             updated: [id],
             resources: state.resources,
-            callbacks: state.callbacks
+            callbacks: state.callbacks,
+            graphLayout: state.graphLayout
         };
 
         newState.callbacks[id] =
