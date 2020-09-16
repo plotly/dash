@@ -89,7 +89,7 @@ def test_dvui003_callback_graph(dash_duo):
             cbProfiles[k].network.time = 33;
             cbProfiles[k].total = 77;
         });
-    """
+        """
     )
 
     dash_duo.find_element(".dash-debug-menu").click()
@@ -99,3 +99,27 @@ def test_dvui003_callback_graph(dash_duo):
     dash_duo.find_element('canvas[data-id="layer2-node"]')
 
     dash_duo.percy_snapshot("devtools - callback graph", convert_canvases=True)
+
+    pos = dash_duo.driver.execute_script(
+        """
+        const pos = store.getState().profile.graphLayout.positions['new-item.value'];
+        pos.y -= 100;
+        return pos.y;
+        """
+    )
+
+    # hide and redraw the callback graph so we get the new position
+    dash_duo.find_element(".dash-debug-menu__button--callbacks").click()
+
+    # fire callbacks so the profile state is regenerated
+    dash_duo.find_element("#add").click()
+    dash_duo.find_element(".dash-debug-menu__button--callbacks").click()
+    dash_duo.wait_for_text_to_equal("#totals", "0 of 1 items completed - 0%")
+    sleep(2)
+    # the manually moved node is still in its new position
+    assert pos == dash_duo.driver.execute_script(
+        """
+        const pos = store.getState().profile.graphLayout.positions['new-item.value'];
+        return pos.y;
+        """
+    )

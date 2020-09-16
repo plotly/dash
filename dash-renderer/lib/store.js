@@ -33,71 +33,92 @@ var _storedCallbacks = _interopRequireDefault(require("./observers/storedCallbac
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var store;
-var storeObserver = new _StoreObserver["default"]();
-var setObservers = (0, _ramda.once)(function () {
-  var observe = storeObserver.observe;
-  observe(_documentTitle["default"]);
-  observe(_isLoading["default"]);
-  observe(_loadingMap["default"]);
-  observe(_requestedCallbacks["default"]);
-  observe(_prioritizedCallbacks["default"]);
-  observe(_executingCallbacks["default"]);
-  observe(_executedCallbacks["default"]);
-  observe(_storedCallbacks["default"]);
-});
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function createAppStore(reducer, middleware) {
-  store = (0, _redux.createStore)(reducer, middleware);
-  storeObserver.setStore(store);
-  setObservers();
-}
-/**
- * Initialize a Redux store with thunk, plus logging (only in development mode) middleware
- *
- * @param {bool} reset: discard any previous store
- *
- * @returns {Store<GenericStoreEnhancer>}
- *  An initialized redux store with middleware and possible hot reloading of reducers
- */
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var initializeStore = function initializeStore(reset) {
-  if (store && !reset) {
-    return store;
-  }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-  var reducer = (0, _reducer.createReducer)(); // eslint-disable-next-line no-process-env
+var RendererStore = /*#__PURE__*/function () {
+  function RendererStore() {
+    var _this = this;
 
-  if (process.env.NODE_ENV === 'production') {
-    createAppStore(reducer, (0, _redux.applyMiddleware)(_reduxThunk["default"]));
-  } else {
-    // only attach logger to middleware in non-production mode
-    var reduxDTEC = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+    _classCallCheck(this, RendererStore);
 
-    if (reduxDTEC) {
-      createAppStore(reducer, reduxDTEC((0, _redux.applyMiddleware)(_reduxThunk["default"])));
-    } else {
-      createAppStore(reducer, (0, _redux.applyMiddleware)(_reduxThunk["default"]));
-    }
-  }
+    _defineProperty(this, "__store", void 0);
 
-  if (!reset) {
-    // TODO - Protect this under a debug mode?
-    window.store = store;
-  }
+    _defineProperty(this, "storeObserver", new _StoreObserver["default"]());
 
-  if (module.hot) {
-    // Enable hot module replacement for reducers
-    module.hot.accept('./reducers/reducer', function () {
-      var nextRootReducer = require('./reducers/reducer').createReducer();
+    _defineProperty(this, "setObservers", (0, _ramda.once)(function () {
+      var observe = _this.storeObserver.observe;
+      observe(_documentTitle["default"]);
+      observe(_isLoading["default"]);
+      observe(_loadingMap["default"]);
+      observe(_requestedCallbacks["default"]);
+      observe(_prioritizedCallbacks["default"]);
+      observe(_executingCallbacks["default"]);
+      observe(_executedCallbacks["default"]);
+      observe(_storedCallbacks["default"]);
+    }));
 
-      store.replaceReducer(nextRootReducer);
+    _defineProperty(this, "createAppStore", function (reducer, middleware) {
+      _this.__store = (0, _redux.createStore)(reducer, middleware);
+
+      _this.storeObserver.setStore(_this.__store);
+
+      _this.setObservers();
     });
+
+    _defineProperty(this, "initializeStore", function (reset) {
+      if (_this.__store && !reset) {
+        return _this.__store;
+      }
+
+      var reducer = (0, _reducer.createReducer)(); // eslint-disable-next-line no-process-env
+
+      if (process.env.NODE_ENV === 'production') {
+        _this.createAppStore(reducer, (0, _redux.applyMiddleware)(_reduxThunk["default"]));
+      } else {
+        // only attach logger to middleware in non-production mode
+        var reduxDTEC = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+
+        if (reduxDTEC) {
+          _this.createAppStore(reducer, reduxDTEC((0, _redux.applyMiddleware)(_reduxThunk["default"])));
+        } else {
+          _this.createAppStore(reducer, (0, _redux.applyMiddleware)(_reduxThunk["default"]));
+        }
+      }
+
+      if (!reset) {
+        // TODO - Protect this under a debug mode?
+        window.store = _this.__store;
+      }
+
+      if (module.hot) {
+        // Enable hot module replacement for reducers
+        module.hot.accept('./reducers/reducer', function () {
+          var nextRootReducer = require('./reducers/reducer').createReducer();
+
+          _this.__store.replaceReducer(nextRootReducer);
+        });
+      }
+
+      return _this.__store;
+    });
+
+    this.__store = this.initializeStore();
   }
 
-  return store;
-};
+  _createClass(RendererStore, [{
+    key: "store",
+    get: function get() {
+      return this.__store;
+    }
+  }]);
 
-var _default = initializeStore;
-exports["default"] = _default;
+  return RendererStore;
+}();
+
+exports["default"] = RendererStore;

@@ -11,6 +11,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
 
+from dash_test_components import MyPersistedComponent
+from dash_test_components import MyPersistedComponentNested
+
 
 @pytest.fixture(autouse=True)
 def clear_storage(dash_duo):
@@ -526,3 +529,36 @@ def test_rdps012_pattern_matching(dash_duo):
         dash_duo.wait_for_text_to_equal(".out", "")
 
         dash_duo.find_element("#btn").click()
+
+
+def test_rdps013_persisted_props_nested(dash_duo):
+    # testing persistenceTransforms with generated test components
+    # with persisted prop and persisted nested prop
+    app = dash.Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("click me", id="btn"),
+            html.Div(id="container1"),
+            html.Div(id="container2"),
+        ]
+    )
+
+    @app.callback(Output("container1", "children"), [Input("btn", "n_clicks")])
+    def update_container(n_clicks):
+        return MyPersistedComponent(id="component-propName", persistence=True)
+
+    @app.callback(Output("container2", "children"), [Input("btn", "n_clicks")])
+    def update_container(n_clicks):
+        return MyPersistedComponentNested(id="component-propPart", persistence=True)
+
+    dash_duo.start_server(app)
+
+    # send lower case strings to test components
+    dash_duo.find_element("#component-propName").send_keys("alpaca")
+    dash_duo.find_element("#component-propPart").send_keys("artichoke")
+    dash_duo.find_element("#btn").click()
+
+    # persistenceTransforms should return upper case strings
+    dash_duo.wait_for_text_to_equal("#component-propName", "ALPACA")
+    dash_duo.wait_for_text_to_equal("#component-propPart", "ARTICHOKE")

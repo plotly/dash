@@ -31,7 +31,8 @@ var defaultProfile = {
 var defaultState = {
   updated: [],
   resources: {},
-  callbacks: {}
+  callbacks: {},
+  graphLayout: null
 };
 
 var profile = function profile() {
@@ -51,7 +52,11 @@ var profile = function profile() {
     var newState = {
       updated: [id],
       resources: state.resources,
-      callbacks: state.callbacks
+      callbacks: state.callbacks,
+      // graphLayout is never passed in via actions, because we don't
+      // want it to trigger a rerender of the callback graph.
+      // See CallbackGraphContainer.react
+      graphLayout: state.graphLayout
     };
     newState.callbacks[id] = newState.callbacks[id] || (0, _ramda.clone)(defaultProfile);
     var cb = newState.callbacks[id];

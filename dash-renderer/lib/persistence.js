@@ -279,7 +279,15 @@ var noopTransform = {
 };
 
 var getTransform = function getTransform(element, propName, propPart) {
-  return propPart ? element.persistenceTransforms[propName][propPart] : noopTransform;
+  if (element.persistenceTransforms && element.persistenceTransforms[propName]) {
+    if (propPart) {
+      return element.persistenceTransforms[propName][propPart];
+    }
+
+    return element.persistenceTransforms[propName];
+  }
+
+  return noopTransform;
 };
 
 var getValsKey = function getValsKey(id, persistedProp, persistence) {

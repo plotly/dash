@@ -84656,15 +84656,33 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store */ "./src/store.ts");
 /* harmony import */ var _AppContainer_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./AppContainer.react */ "./src/AppContainer.react.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
 
 
-var store = Object(_store__WEBPACK_IMPORTED_MODULE_3__["default"])();
+
 
 var AppProvider = function AppProvider(_ref) {
   var hooks = _ref.hooks;
+
+  var _useState = Object(react__WEBPACK_IMPORTED_MODULE_1__["useState"])(function () {
+    return new _store__WEBPACK_IMPORTED_MODULE_3__["default"]();
+  }),
+      _useState2 = _slicedToArray(_useState, 1),
+      store = _useState2[0].store;
+
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react_redux__WEBPACK_IMPORTED_MODULE_2__["Provider"], {
     store: store
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_AppContainer_react__WEBPACK_IMPORTED_MODULE_4__["default"], {
@@ -88655,7 +88673,13 @@ function CallbackGraph() {
     var positions = {};
     cy.nodes().each(function (n) {
       positions[n.id()] = n.position();
-    });
+    }); // Hack! We're mutating the redux store directly here, rather than
+    // dispatching an action, because we don't want this to trigger a
+    // rerender, we just want the layout to persist when the callback graph
+    // is rerendered - either because there's new profile information to
+    // display or because the graph was closed and reopened. The latter is
+    // the reason we're not using component state to store the layout.
+
     profile.graphLayout = {
       name: 'preset',
       fit: false,
@@ -91970,7 +91994,15 @@ var noopTransform = {
 };
 
 var getTransform = function getTransform(element, propName, propPart) {
-  return propPart ? element.persistenceTransforms[propName][propPart] : noopTransform;
+  if (element.persistenceTransforms && element.persistenceTransforms[propName]) {
+    if (propPart) {
+      return element.persistenceTransforms[propName][propPart];
+    }
+
+    return element.persistenceTransforms[propName];
+  }
+
+  return noopTransform;
 };
 
 var getValsKey = function getValsKey(id, persistedProp, persistence) {
@@ -92827,7 +92859,8 @@ var defaultProfile = {
 var defaultState = {
   updated: [],
   resources: {},
-  callbacks: {}
+  callbacks: {},
+  graphLayout: null
 };
 
 var profile = function profile() {
@@ -92847,7 +92880,11 @@ var profile = function profile() {
     var newState = {
       updated: [id],
       resources: state.resources,
-      callbacks: state.callbacks
+      callbacks: state.callbacks,
+      // graphLayout is never passed in via actions, because we don't
+      // want it to trigger a rerender of the callback graph.
+      // See CallbackGraphContainer.react
+      graphLayout: state.graphLayout
     };
     newState.callbacks[id] = newState.callbacks[id] || Object(ramda__WEBPACK_IMPORTED_MODULE_0__["clone"])(defaultProfile);
     var cb = newState.callbacks[id];
@@ -93114,6 +93151,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return RendererStore; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
 /* harmony import */ var redux_thunk__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! redux-thunk */ "./node_modules/redux-thunk/es/index.js");
@@ -93127,6 +93165,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _observers_prioritizedCallbacks__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./observers/prioritizedCallbacks */ "./src/observers/prioritizedCallbacks.ts");
 /* harmony import */ var _observers_requestedCallbacks__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./observers/requestedCallbacks */ "./src/observers/requestedCallbacks.ts");
 /* harmony import */ var _observers_storedCallbacks__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./observers/storedCallbacks */ "./src/observers/storedCallbacks.ts");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 
 
@@ -93140,64 +93183,86 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var store;
-var storeObserver = new _StoreObserver__WEBPACK_IMPORTED_MODULE_4__["default"]();
-var setObservers = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["once"])(function () {
-  var observe = storeObserver.observe;
-  observe(_observers_documentTitle__WEBPACK_IMPORTED_MODULE_5__["default"]);
-  observe(_observers_isLoading__WEBPACK_IMPORTED_MODULE_8__["default"]);
-  observe(_observers_loadingMap__WEBPACK_IMPORTED_MODULE_9__["default"]);
-  observe(_observers_requestedCallbacks__WEBPACK_IMPORTED_MODULE_11__["default"]);
-  observe(_observers_prioritizedCallbacks__WEBPACK_IMPORTED_MODULE_10__["default"]);
-  observe(_observers_executingCallbacks__WEBPACK_IMPORTED_MODULE_7__["default"]);
-  observe(_observers_executedCallbacks__WEBPACK_IMPORTED_MODULE_6__["default"]);
-  observe(_observers_storedCallbacks__WEBPACK_IMPORTED_MODULE_12__["default"]);
-});
-
-function createAppStore(reducer, middleware) {
-  store = Object(redux__WEBPACK_IMPORTED_MODULE_1__["createStore"])(reducer, middleware);
-  storeObserver.setStore(store);
-  setObservers();
-}
-/**
- * Initialize a Redux store with thunk, plus logging (only in development mode) middleware
- *
- * @param {bool} reset: discard any previous store
- *
- * @returns {Store<GenericStoreEnhancer>}
- *  An initialized redux store with middleware and possible hot reloading of reducers
- */
 
 
-var initializeStore = function initializeStore(reset) {
-  if (store && !reset) {
-    return store;
+var RendererStore = /*#__PURE__*/function () {
+  function RendererStore() {
+    var _this = this;
+
+    _classCallCheck(this, RendererStore);
+
+    this.storeObserver = new _StoreObserver__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    this.setObservers = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["once"])(function () {
+      var observe = _this.storeObserver.observe;
+      observe(_observers_documentTitle__WEBPACK_IMPORTED_MODULE_5__["default"]);
+      observe(_observers_isLoading__WEBPACK_IMPORTED_MODULE_8__["default"]);
+      observe(_observers_loadingMap__WEBPACK_IMPORTED_MODULE_9__["default"]);
+      observe(_observers_requestedCallbacks__WEBPACK_IMPORTED_MODULE_11__["default"]);
+      observe(_observers_prioritizedCallbacks__WEBPACK_IMPORTED_MODULE_10__["default"]);
+      observe(_observers_executingCallbacks__WEBPACK_IMPORTED_MODULE_7__["default"]);
+      observe(_observers_executedCallbacks__WEBPACK_IMPORTED_MODULE_6__["default"]);
+      observe(_observers_storedCallbacks__WEBPACK_IMPORTED_MODULE_12__["default"]);
+    });
+
+    this.createAppStore = function (reducer, middleware) {
+      _this.__store = Object(redux__WEBPACK_IMPORTED_MODULE_1__["createStore"])(reducer, middleware);
+
+      _this.storeObserver.setStore(_this.__store);
+
+      _this.setObservers();
+    };
+    /**
+     * Initialize a Redux store with thunk, plus logging (only in development mode) middleware
+     *
+     * @param {bool} reset: discard any previous store
+     *
+     * @returns {Store<GenericStoreEnhancer>}
+     *  An initialized redux store with middleware and possible hot reloading of reducers
+     */
+
+
+    this.initializeStore = function (reset) {
+      if (_this.__store && !reset) {
+        return _this.__store;
+      }
+
+      var reducer = Object(_reducers_reducer__WEBPACK_IMPORTED_MODULE_3__["createReducer"])(); // eslint-disable-next-line no-process-env
+
+      if (false) {} else {
+        // only attach logger to middleware in non-production mode
+        var reduxDTEC = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+
+        if (reduxDTEC) {
+          _this.createAppStore(reducer, reduxDTEC(Object(redux__WEBPACK_IMPORTED_MODULE_1__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_2__["default"])));
+        } else {
+          _this.createAppStore(reducer, Object(redux__WEBPACK_IMPORTED_MODULE_1__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_2__["default"]));
+        }
+      }
+
+      if (!reset) {
+        // TODO - Protect this under a debug mode?
+        window.store = _this.__store;
+      }
+
+      if (false) {}
+
+      return _this.__store;
+    };
+
+    this.__store = this.initializeStore();
   }
 
-  var reducer = Object(_reducers_reducer__WEBPACK_IMPORTED_MODULE_3__["createReducer"])(); // eslint-disable-next-line no-process-env
-
-  if (false) {} else {
-    // only attach logger to middleware in non-production mode
-    var reduxDTEC = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
-
-    if (reduxDTEC) {
-      createAppStore(reducer, reduxDTEC(Object(redux__WEBPACK_IMPORTED_MODULE_1__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_2__["default"])));
-    } else {
-      createAppStore(reducer, Object(redux__WEBPACK_IMPORTED_MODULE_1__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_2__["default"]));
+  _createClass(RendererStore, [{
+    key: "store",
+    get: function get() {
+      return this.__store;
     }
-  }
+  }]);
 
-  if (!reset) {
-    // TODO - Protect this under a debug mode?
-    window.store = store;
-  }
+  return RendererStore;
+}();
 
-  if (false) {}
 
-  return store;
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (initializeStore);
 
 /***/ }),
 

@@ -278,7 +278,13 @@ function CallbackGraph() {
     var positions = {};
     cy.nodes().each(function (n) {
       positions[n.id()] = n.position();
-    });
+    }); // Hack! We're mutating the redux store directly here, rather than
+    // dispatching an action, because we don't want this to trigger a
+    // rerender, we just want the layout to persist when the callback graph
+    // is rerendered - either because there's new profile information to
+    // display or because the graph was closed and reopened. The latter is
+    // the reason we're not using component state to store the layout.
+
     profile.graphLayout = {
       name: 'preset',
       fit: false,
