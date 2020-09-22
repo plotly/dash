@@ -32,33 +32,34 @@ function generateElements(graphs, profile) {
         const idStr = stringifyId(id);
         const idType = typeof id === 'object' ? 'wildcard' : 'component';
 
-        const parent = idStr;
-        const child = `${idStr}.${property}`;
+        // dagre layout has problems with eg `width` property - so prepend an X
+        const parentId = idStr;
+        const childId = `${parentId}.X${property}`;
 
-        if (!consumed.includes(parent)) {
-            consumed.push(parent);
+        if (!consumed.includes(parentId)) {
+            consumed.push(parentId);
             elements.push({
                 data: {
-                    id: idStr,
+                    id: parentId,
                     label: idStr,
                     type: idType
                 }
             });
         }
 
-        if (!consumed.includes(child)) {
-            consumed.push(child);
+        if (!consumed.includes(childId)) {
+            consumed.push(childId);
             elements.push({
                 data: {
-                    id: child,
+                    id: childId,
                     label: property,
-                    parent: parent,
+                    parent: parentId,
                     type: 'property'
                 }
             });
         }
 
-        return child;
+        return childId;
     }
 
     function recordEdge(source, target, type) {
@@ -91,18 +92,18 @@ function generateElements(graphs, profile) {
         });
 
         callback.outputs.map(({id, property}) => {
-            const node = recordNode(id, property);
-            recordEdge(cb, node, 'output');
+            const nodeId = recordNode(id, property);
+            recordEdge(cb, nodeId, 'output');
         });
 
         callback.inputs.map(({id, property}) => {
-            const node = recordNode(id, property);
-            recordEdge(node, cb, 'input');
+            const nodeId = recordNode(id, property);
+            recordEdge(nodeId, cb, 'input');
         });
 
         callback.state.map(({id, property}) => {
-            const node = recordNode(id, property);
-            recordEdge(node, cb, 'state');
+            const nodeId = recordNode(id, property);
+            recordEdge(nodeId, cb, 'state');
         });
     });
 
