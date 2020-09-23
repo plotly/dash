@@ -1,0 +1,1 @@
+export default () => import('./../fragments/AsyncComponent');
