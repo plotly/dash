@@ -102,7 +102,7 @@
   },
   "files": [
     "/dash_core_components/*{.js,.map}",
-    "/lib/**"
+    "/lib/**/!(*.jl)"
   ],
   "peerDependencies": {
     "react": "^16.0.0",
