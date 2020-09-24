@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import {connect, useSelector} from 'react-redux';
 import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
-import Dagre from 'cytoscape-dagre';
+import dagre from 'cytoscape-dagre';
+import fcose from 'cytoscape-fcose';
 import JSONTree from 'react-json-tree';
-import {keys, mergeRight, omit, path} from 'ramda';
+import {keys, mergeRight, omit, path, values} from 'ramda';
 
 import {getPath} from '../../../actions/paths';
 import {stringifyId} from '../../../actions/dependencies';
@@ -19,14 +20,16 @@ import {
     updateCallback
 } from './CallbackGraphEffects';
 
-Cytoscape.use(Dagre);
+Cytoscape.use(dagre);
+Cytoscape.use(fcose);
 
 /*
  * Generates all the elements (nodes, edeges) for the dependency graph.
  */
-function generateElements(graphs, profile) {
+function generateElements(graphs, profile, extraLinks) {
     const consumed = [];
     const elements = [];
+    const structure = {};
 
     function recordNode(id, property) {
         const idStr = stringifyId(id);
@@ -45,6 +48,7 @@ function generateElements(graphs, profile) {
                     type: idType
                 }
             });
+            structure[parentId] = [];
         }
 
         if (!consumed.includes(childId)) {
@@ -57,6 +61,7 @@ function generateElements(graphs, profile) {
                     type: 'property'
                 }
             });
+            structure[parentId].push(childId);
         }
 
         return childId;
@@ -107,6 +112,19 @@ function generateElements(graphs, profile) {
         });
     });
 
+    // pull together props in the same component
+    if (extraLinks) {
+        values(structure).forEach(childIds => {
+            childIds.forEach(childFrom => {
+                childIds.forEach(childTo => {
+                    if (childFrom !== childTo) {
+                        recordEdge(childFrom, childTo, 'hidden');
+                    }
+                });
+            });
+        });
+    }
+
     return elements;
 }
 
@@ -142,24 +160,19 @@ function flattenInputs(inArray, final) {
 // len('__dash_callback__.')
 const cbPrefixLen = 18;
 
+const dagreLayout = {
+    name: 'dagre',
+    padding: 10,
+    ranker: 'tight-tree'
+};
+
+const forceLayout = {name: 'fcose', padding: 10, animate: false};
+
 const layouts = {
-    'top-down': {
-        name: 'dagre',
-        padding: 10,
-        spacingFactor: 0.8
-    },
-    'left-right': {
-        name: 'dagre',
-        padding: 10,
-        nodeSep: 0,
-        rankSep: 80,
-        rankDir: 'LR'
-    },
-    force: {
-        name: 'cose',
-        padding: 10,
-        animate: false
-    }
+    'top-down': {...dagreLayout, spacingFactor: 0.8},
+    'left-right': {...dagreLayout, nodeSep: 0, rankSep: 80, rankDir: 'LR'},
+    force: forceLayout,
+    'force-loose': forceLayout
 };
 
 function CallbackGraph() {
@@ -181,7 +194,10 @@ function CallbackGraph() {
     const [layoutType, setLayoutType] = useState(chosenType || 'top-down');
 
     // Generate and memoize the elements.
-    const elements = useMemo(() => generateElements(graphs, profile), [graphs]);
+    const elements = useMemo(
+        () => generateElements(graphs, profile, layoutType === 'force'),
+        [graphs, layoutType]
+    );
 
     // Custom hook to make sure cytoscape is loaded.
     const useCytoscapeEffect = (effect, condition) => {
