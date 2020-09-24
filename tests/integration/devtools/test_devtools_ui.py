@@ -102,7 +102,7 @@ def test_dvui003_callback_graph(dash_duo):
 
     pos = dash_duo.driver.execute_script(
         """
-        const pos = store.getState().profile.graphLayout.positions['new-item.value'];
+        const pos = store.getState().profile.graphLayout.positions['new-item.Xvalue'];
         pos.y -= 100;
         return pos.y;
         """
@@ -119,7 +119,7 @@ def test_dvui003_callback_graph(dash_duo):
     # the manually moved node is still in its new position
     assert pos == dash_duo.driver.execute_script(
         """
-        const pos = store.getState().profile.graphLayout.positions['new-item.value'];
+        const pos = store.getState().profile.graphLayout.positions['new-item.Xvalue'];
         return pos.y;
         """
     )
