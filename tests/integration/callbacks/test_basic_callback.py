@@ -8,6 +8,7 @@ import dash_table
 import dash
 from dash_test_components import (
     AsyncComponent,
+    CollapseComponent,
     DelayedEventComponent,
     FragmentComponent,
 )
@@ -413,18 +414,8 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
 def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
     app = dash.Dash(__name__)
     app.layout = FragmentComponent(
-        children=[
-            dcc.Tabs(
-                value="1",
-                children=[
-                    dcc.Tab(label="Tab 1", value="1", children="Tab 1 Content"),
-                    dcc.Tab(
-                        label="2",
-                        value="2",
-                        children=AsyncComponent(id="async", value="A"),
-                    ),
-                ],
-            ),
+        [
+            CollapseComponent([AsyncComponent(id="async", value="A")]),
             html.Button("n", id="n"),
             DelayedEventComponent(id="d"),
             html.Div("Output init", id="output"),
