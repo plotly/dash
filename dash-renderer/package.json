@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "render dash components in react",
   "main": "dash_renderer/dash_renderer.min.js",
   "scripts": {
