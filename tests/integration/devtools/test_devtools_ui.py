@@ -3,8 +3,10 @@ from time import sleep
 import dash_core_components as dcc
 import dash_html_components as html
 import dash
+from dash.dependencies import Input, Output
 import dash.testing.wait as wait
 
+from dash_test_components import WidthComponent
 from ...assets.todo_app import todo_app
 
 
@@ -123,3 +125,32 @@ def test_dvui003_callback_graph(dash_duo):
         return pos.y;
         """
     )
+
+
+def test_dvui004_width_props(dash_duo):
+    app = dash.Dash(__name__)
+
+    app.layout = html.Div(
+        [html.Button(["Click me!"], id="btn"), WidthComponent(id="width")]
+    )
+
+    @app.callback(Output("width", "width"), Input("btn", "n_clicks"))
+    def get_width(n_clicks):
+        n_clicks = n_clicks if n_clicks is not None else 0
+
+        return (n_clicks + 1) * 10
+
+    dash_duo.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    dash_duo.find_element(".dash-debug-menu").click()
+    sleep(1)  # wait for debug menu opening animation
+    dash_duo.find_element(".dash-debug-menu__button--callbacks").click()
+    sleep(3)  # wait for callback graph to draw
+
+    assert dash_duo.get_logs() == []

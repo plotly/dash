@@ -2,10 +2,10 @@ import AsyncComponent from './components/AsyncComponent';
 import CollapseComponent from './components/CollapseComponent';
 import DelayedEventComponent from './components/DelayedEventComponent';
 import FragmentComponent from './components/FragmentComponent';
-import StyledComponent from './components/StyledComponent';
 import MyPersistedComponent from './components/MyPersistedComponent';
 import MyPersistedComponentNested from './components/MyPersistedComponentNested';
-
+import StyledComponent from './components/StyledComponent';
+import WidthComponent from './components/WidthComponent';
 
 export {
     AsyncComponent,
@@ -14,5 +14,6 @@ export {
     FragmentComponent,
     MyPersistedComponent,
     MyPersistedComponentNested,
-    StyledComponent
+    StyledComponent,
+    WidthComponent
 };
