@@ -1,12 +1,17 @@
 import json
 from multiprocessing import Lock, Value
-
 import pytest
 
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 import dash
+from dash_test_components import (
+    AsyncComponent,
+    CollapseComponent,
+    DelayedEventComponent,
+    FragmentComponent,
+)
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash.testing import wait
@@ -404,3 +409,43 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
     assert input_call_count.value == 2 + len("hello world")
 
     assert not dash_duo.get_logs()
+
+
+def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = FragmentComponent(
+        [
+            CollapseComponent([AsyncComponent(id="async", value="A")]),
+            html.Button("n", id="n"),
+            DelayedEventComponent(id="d"),
+            html.Div("Output init", id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("n", "n_clicks"),
+        Input("d", "n_clicks"),
+        Input("async", "value"),
+    )
+    def content(n, d, v):
+        return json.dumps([n, d, v])
+
+    dash_duo.start_server(app)
+
+    wait.until(lambda: dash_duo.find_element("#output").text == '[null, null, "A"]', 3)
+    dash_duo.wait_for_element("#d").click()
+
+    wait.until(
+        lambda: dash_duo.find_element("#output").text == '[null, 1, "A"]', 3,
+    )
+
+    dash_duo.wait_for_element("#n").click()
+    wait.until(
+        lambda: dash_duo.find_element("#output").text == '[1, 1, "A"]', 3,
+    )
+
+    dash_duo.wait_for_element("#d").click()
+    wait.until(
+        lambda: dash_duo.find_element("#output").text == '[1, 2, "A"]', 3,
+    )

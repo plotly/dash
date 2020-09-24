@@ -138,14 +138,6 @@ class BaseTreeContainer extends Component {
             // for persistence
             recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
 
-            // Always update this component's props
-            _dashprivate_dispatch(
-                updateProps({
-                    props: changedProps,
-                    itempath: _dashprivate_path
-                })
-            );
-
             // Only dispatch changes to Dash if a watched prop changed
             if (watchedKeys.length) {
                 _dashprivate_dispatch(
@@ -155,6 +147,14 @@ class BaseTreeContainer extends Component {
                     })
                 );
             }
+
+            // Always update this component's props
+            _dashprivate_dispatch(
+                updateProps({
+                    props: changedProps,
+                    itempath: _dashprivate_path
+                })
+            );
         }
     }
 
