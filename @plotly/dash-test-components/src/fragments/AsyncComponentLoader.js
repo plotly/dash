@@ -1,1 +1,1 @@
-export default () => import('./../fragments/AsyncComponent');
+export default () => import('./AsyncComponent');
