@@ -25,6 +25,13 @@ const stylesheet = [
     },
 
     {
+        selector: 'edge[type="hidden"]',
+        style: {
+            display: 'none'
+        }
+    },
+
+    {
         selector: 'edge[type="output"]',
         style: {
             'line-color': '#0080D0',

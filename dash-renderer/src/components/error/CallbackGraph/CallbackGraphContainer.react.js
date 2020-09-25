@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import {connect, useSelector} from 'react-redux';
 import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
-import Dagre from 'cytoscape-dagre';
+import dagre from 'cytoscape-dagre';
+import fcose from 'cytoscape-fcose';
 import JSONTree from 'react-json-tree';
-import {keys, mergeRight, omit, path} from 'ramda';
+import {keys, mergeRight, omit, path, values} from 'ramda';
 
 import {getPath} from '../../../actions/paths';
 import {stringifyId} from '../../../actions/dependencies';
@@ -19,46 +20,51 @@ import {
     updateCallback
 } from './CallbackGraphEffects';
 
-Cytoscape.use(Dagre);
+Cytoscape.use(dagre);
+Cytoscape.use(fcose);
 
 /*
  * Generates all the elements (nodes, edeges) for the dependency graph.
  */
-function generateElements(graphs, profile) {
+function generateElements(graphs, profile, extraLinks) {
     const consumed = [];
     const elements = [];
+    const structure = {};
 
     function recordNode(id, property) {
         const idStr = stringifyId(id);
         const idType = typeof id === 'object' ? 'wildcard' : 'component';
 
-        const parent = idStr;
-        const child = `${idStr}.${property}`;
+        // dagre layout has problems with eg `width` property - so prepend an X
+        const parentId = idStr;
+        const childId = `${parentId}.X${property}`;
 
-        if (!consumed.includes(parent)) {
-            consumed.push(parent);
+        if (!consumed.includes(parentId)) {
+            consumed.push(parentId);
             elements.push({
                 data: {
-                    id: idStr,
+                    id: parentId,
                     label: idStr,
                     type: idType
                 }
             });
+            structure[parentId] = [];
         }
 
-        if (!consumed.includes(child)) {
-            consumed.push(child);
+        if (!consumed.includes(childId)) {
+            consumed.push(childId);
             elements.push({
                 data: {
-                    id: child,
+                    id: childId,
                     label: property,
-                    parent: parent,
+                    parent: parentId,
                     type: 'property'
                 }
             });
+            structure[parentId].push(childId);
         }
 
-        return child;
+        return childId;
     }
 
     function recordEdge(source, target, type) {
@@ -91,20 +97,33 @@ function generateElements(graphs, profile) {
         });
 
         callback.outputs.map(({id, property}) => {
-            const node = recordNode(id, property);
-            recordEdge(cb, node, 'output');
+            const nodeId = recordNode(id, property);
+            recordEdge(cb, nodeId, 'output');
         });
 
         callback.inputs.map(({id, property}) => {
-            const node = recordNode(id, property);
-            recordEdge(node, cb, 'input');
+            const nodeId = recordNode(id, property);
+            recordEdge(nodeId, cb, 'input');
         });
 
         callback.state.map(({id, property}) => {
-            const node = recordNode(id, property);
-            recordEdge(node, cb, 'state');
+            const nodeId = recordNode(id, property);
+            recordEdge(nodeId, cb, 'state');
         });
     });
+
+    // pull together props in the same component
+    if (extraLinks) {
+        values(structure).forEach(childIds => {
+            childIds.forEach(childFrom => {
+                childIds.forEach(childTo => {
+                    if (childFrom !== childTo) {
+                        recordEdge(childFrom, childTo, 'hidden');
+                    }
+                });
+            });
+        });
+    }
 
     return elements;
 }
@@ -141,24 +160,19 @@ function flattenInputs(inArray, final) {
 // len('__dash_callback__.')
 const cbPrefixLen = 18;
 
+const dagreLayout = {
+    name: 'dagre',
+    padding: 10,
+    ranker: 'tight-tree'
+};
+
+const forceLayout = {name: 'fcose', padding: 10, animate: false};
+
 const layouts = {
-    'top-down': {
-        name: 'dagre',
-        padding: 10,
-        spacingFactor: 0.8
-    },
-    'left-right': {
-        name: 'dagre',
-        padding: 10,
-        nodeSep: 0,
-        rankSep: 80,
-        rankDir: 'LR'
-    },
-    force: {
-        name: 'cose',
-        padding: 10,
-        animate: false
-    }
+    'top-down': {...dagreLayout, spacingFactor: 0.8},
+    'left-right': {...dagreLayout, nodeSep: 0, rankSep: 80, rankDir: 'LR'},
+    force: forceLayout,
+    'force-loose': forceLayout
 };
 
 function CallbackGraph() {
@@ -180,7 +194,10 @@ function CallbackGraph() {
     const [layoutType, setLayoutType] = useState(chosenType || 'top-down');
 
     // Generate and memoize the elements.
-    const elements = useMemo(() => generateElements(graphs, profile), [graphs]);
+    const elements = useMemo(
+        () => generateElements(graphs, profile, layoutType === 'force'),
+        [graphs, layoutType]
+    );
 
     // Custom hook to make sure cytoscape is loaded.
     const useCytoscapeEffect = (effect, condition) => {
