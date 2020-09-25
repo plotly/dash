@@ -171,20 +171,20 @@ var BaseTreeContainer = /*#__PURE__*/function (_Component) {
         var watchedKeys = (0, _dependencies.getWatchedKeys)(id, (0, _ramda.keys)(changedProps), _dashprivate_graphs); // setProps here is triggered by the UI - record these changes
         // for persistence
 
-        (0, _persistence.recordUiEdit)(_dashprivate_layout, newProps, _dashprivate_dispatch); // Always update this component's props
-
-        _dashprivate_dispatch((0, _actions.updateProps)({
-          props: changedProps,
-          itempath: _dashprivate_path
-        })); // Only dispatch changes to Dash if a watched prop changed
-
+        (0, _persistence.recordUiEdit)(_dashprivate_layout, newProps, _dashprivate_dispatch); // Only dispatch changes to Dash if a watched prop changed
 
         if (watchedKeys.length) {
           _dashprivate_dispatch((0, _actions.notifyObservers)({
             id: id,
             props: (0, _ramda.pick)(watchedKeys, changedProps)
           }));
-        }
+        } // Always update this component's props
+
+
+        _dashprivate_dispatch((0, _actions.updateProps)({
+          props: changedProps,
+          itempath: _dashprivate_path
+        }));
       }
     }
   }, {

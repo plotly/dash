@@ -26,6 +26,11 @@ var stylesheet = [{
     'transition-timing-function': 'ease-in-out-sine'
   }
 }, {
+  selector: 'edge[type="hidden"]',
+  style: {
+    display: 'none'
+  }
+}, {
   selector: 'edge[type="output"]',
   style: {
     'line-color': '#0080D0',

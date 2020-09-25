@@ -17,6 +17,8 @@ var _reactCytoscapejs = _interopRequireDefault(require("react-cytoscapejs"));
 
 var _cytoscapeDagre = _interopRequireDefault(require("cytoscape-dagre"));
 
+var _cytoscapeFcose = _interopRequireDefault(require("cytoscape-fcose"));
+
 var _reactJsonTree = _interopRequireDefault(require("react-json-tree"));
 
 var _ramda = require("ramda");
@@ -71,48 +73,60 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 _cytoscape["default"].use(_cytoscapeDagre["default"]);
+
+_cytoscape["default"].use(_cytoscapeFcose["default"]);
 /*
  * Generates all the elements (nodes, edeges) for the dependency graph.
  */
 
 
-function generateElements(graphs, profile) {
+function generateElements(graphs, profile, extraLinks) {
   var consumed = [];
   var elements = [];
+  var structure = {};
 
   function recordNode(id, property) {
     var idStr = (0, _dependencies.stringifyId)(id);
-    var idType = _typeof(id) === 'object' ? 'wildcard' : 'component';
-    var parent = idStr;
-    var child = "".concat(idStr, ".").concat(property);
+    var idType = _typeof(id) === 'object' ? 'wildcard' : 'component'; // dagre layout has problems with eg `width` property - so prepend an X
 
-    if (!consumed.includes(parent)) {
-      consumed.push(parent);
+    var parentId = idStr;
+    var childId = "".concat(parentId, ".X").concat(property);
+
+    if (!consumed.includes(parentId)) {
+      consumed.push(parentId);
       elements.push({
         data: {
-          id: idStr,
+          id: parentId,
           label: idStr,
           type: idType
         }
       });
+      structure[parentId] = [];
     }
 
-    if (!consumed.includes(child)) {
-      consumed.push(child);
+    if (!consumed.includes(childId)) {
+      consumed.push(childId);
       elements.push({
         data: {
-          id: child,
+          id: childId,
           label: property,
-          parent: parent,
+          parent: parentId,
           type: 'property'
         }
       });
+      structure[parentId].push(childId);
     }
 
-    return child;
+    return childId;
   }
 
   function recordEdge(source, target, type) {
@@ -145,22 +159,35 @@ function generateElements(graphs, profile) {
     callback.outputs.map(function (_ref) {
       var id = _ref.id,
           property = _ref.property;
-      var node = recordNode(id, property);
-      recordEdge(cb, node, 'output');
+      var nodeId = recordNode(id, property);
+      recordEdge(cb, nodeId, 'output');
     });
     callback.inputs.map(function (_ref2) {
       var id = _ref2.id,
           property = _ref2.property;
-      var node = recordNode(id, property);
-      recordEdge(node, cb, 'input');
+      var nodeId = recordNode(id, property);
+      recordEdge(nodeId, cb, 'input');
     });
     callback.state.map(function (_ref3) {
       var id = _ref3.id,
           property = _ref3.property;
-      var node = recordNode(id, property);
-      recordEdge(node, cb, 'state');
+      var nodeId = recordNode(id, property);
+      recordEdge(nodeId, cb, 'state');
     });
-  });
+  }); // pull together props in the same component
+
+  if (extraLinks) {
+    (0, _ramda.values)(structure).forEach(function (childIds) {
+      childIds.forEach(function (childFrom) {
+        childIds.forEach(function (childTo) {
+          if (childFrom !== childTo) {
+            recordEdge(childFrom, childTo, 'hidden');
+          }
+        });
+      });
+    });
+  }
+
   return elements;
 }
 
@@ -200,24 +227,27 @@ function flattenInputs(inArray, _final) {
 
 
 var cbPrefixLen = 18;
+var dagreLayout = {
+  name: 'dagre',
+  padding: 10,
+  ranker: 'tight-tree'
+};
+var forceLayout = {
+  name: 'fcose',
+  padding: 10,
+  animate: false
+};
 var layouts = {
-  'top-down': {
-    name: 'dagre',
-    padding: 10,
+  'top-down': _objectSpread(_objectSpread({}, dagreLayout), {}, {
     spacingFactor: 0.8
-  },
-  'left-right': {
-    name: 'dagre',
-    padding: 10,
+  }),
+  'left-right': _objectSpread(_objectSpread({}, dagreLayout), {}, {
     nodeSep: 0,
     rankSep: 80,
     rankDir: 'LR'
-  },
-  force: {
-    name: 'cose',
-    padding: 10,
-    animate: false
-  }
+  }),
+  force: forceLayout,
+  'force-loose': forceLayout
 };
 
 function CallbackGraph() {
@@ -262,8 +292,8 @@ function CallbackGraph() {
 
 
   var elements = (0, _react.useMemo)(function () {
-    return generateElements(graphs, profile);
-  }, [graphs]); // Custom hook to make sure cytoscape is loaded.
+    return generateElements(graphs, profile, layoutType === 'force');
+  }, [graphs, layoutType]); // Custom hook to make sure cytoscape is loaded.
 
   var useCytoscapeEffect = function useCytoscapeEffect(effect, condition) {
     (0, _react.useEffect)(function () {
