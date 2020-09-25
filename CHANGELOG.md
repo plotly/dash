@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [1.16.2] - 2020-09-25
 ### Fixed
 - [#1415](https://github.com/plotly/dash/pull/1415) Fix a regression with some layouts callbacks involving dcc.Tabs, not yet loaded dash_table.DataTable and dcc.Graph to not be called
 - [#1416](https://github.com/plotly/dash/pull/1416) Make callback graph more robust for complex apps and some specific props (`width` in particular) that previously caused errors.
