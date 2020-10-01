@@ -597,15 +597,13 @@ class Browser(DashPageMixin):
 
         It also implicitly calls `wait_for_page`.
         """
-        self._url = value
+        self.pure_server_url = value
         self.wait_for_page()
 
     @server_url.setter
     def pure_server_url(self, value):
         """Set the server url so the selenium is aware of the local server
         port.
-
-        It also implicitly calls `wait_for_page`.
         """
         self._url = value
 
