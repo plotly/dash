@@ -9,17 +9,17 @@ class DashComposite(Browser):
     def start_server(self, app, **kwargs):
         """Start the local server with app."""
 
-        load_page = kwargs.get("load_page", False)
-        kwargs.pop("load_page", None)
+        load_url = kwargs.get("load_url", True)
+        kwargs.pop("load_url", None)
 
         # start server with app and pass Dash arguments
         self.server(app, **kwargs)
 
         # set the default server_url, it implicitly call wait_for_page
-        if load_page:
-            self.pure_server_url = self.server.url
-        else:
+        if load_url:
             self.server_url = self.server.url
+        else:
+            self.pure_server_url = self.server.url
 
 
 class DashRComposite(Browser):
