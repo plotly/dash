@@ -78,5 +78,7 @@ NAMESPACE
 digest.json
 VERSION.txt
 
+!@plotly/dash-generate-components/recipes/R/
+
 # vim
 *.swp

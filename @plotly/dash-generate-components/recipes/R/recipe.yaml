@@ -1,0 +1,59 @@
+vars:
+  dist: 'dist/R'
+
+  inst_deps: inst/deps/
+  js_name: ${package.name}
+  r_name: ${package.name.split(/-|\s/).map(f => f[0].toUpperCase() + f.slice(1)).join('')}
+  version: ${package.version}
+
+  rd_header: |
+    % Auto-generated: do not edit by hand
+
+artifacts:
+  - filepath: ${recipe.vars.inst_deps + target.target}
+    foreach: config.dist
+    template: ${js.core.readFile(target.source)}
+
+  - filepath: ${target.target}
+    foreach: config.vars.dist
+    template: ${js.core.readFile(target.source)}
+
+  - filepath: man/${config.vars.prefix}${target.displayName}.Rd
+    foreach: metadata
+    template: |
+      ${recipe.vars.rd_header}
+      \\name{${config.vars.prefix}${target.displayName}}
+
+      \\alias{${config.vars.prefix}${target.displayName}}
+
+      \\title{${target.displayName} component}
+
+      \\description{
+      ${config.vars.pkg_help_description}
+      }
+
+      \\usage{
+      ${config.vars.prefix}${target.displayName}(
+      ${templates.class_parameter(js.core.filterProps(target.props))}
+      )
+      }
+
+      \\arguments{
+      ${templates.class_property(js.core.filterProps(target.props))}
+      }
+
+      \\value{named list of JSON elements corresponding to React.js properties and their values}
+
+      \\examples{
+      ${config.vars.examples[config.vars.prefix + target.displayName].code}
+      }
+
+templates:
+  class_parameter:
+    template: ${key}=NULL
+    join: |
+      ,
+  class_property:
+    template: ${js.getPropDescription(key, target)}
+
+
