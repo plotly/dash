@@ -44,16 +44,16 @@ function generate(__recipe) {
 
     const recipe = yaml.parse(rawRecipe);
 
-    const { componentPaths, dist, path: basePath } = config;
+    const { componentPaths, dist } = config;
 
-    const packagePath = path.join(__workdir, basePath, 'package.json');
+    const packagePath = path.join(__workdir, 'package.json');
     const rawPackage = fs.readFileSync(packagePath, 'utf8');
     const package = JSON.parse(rawPackage);
 
     const { artifacts, templates, vars } = recipe;
 
     /* Initialize Store */
-    const metadata = meta.generate(recipe, componentPaths.map(p => path.join(__workdir, basePath, p)));
+    const metadata = meta.generate(recipe, componentPaths.map(p => path.join(__workdir, p)));
 
     const _ = {
         config: JSON.parse(JSON.stringify(config)),
@@ -111,6 +111,7 @@ function generate(__recipe) {
 
                 template = resolved;
             } catch (ex) {
+                // console.error(ex);
                 return template;
             }
         }

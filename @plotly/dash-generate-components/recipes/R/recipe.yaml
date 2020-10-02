@@ -10,12 +10,17 @@ vars:
   snake_name: ${package.name.replace(/(\s|-)/, '_')}
   url: ${package.homepage}
   version: ${package.version}
+  vignettes: vignettes/
   year: ${new Date().getFullYear()}
 
   r_header: '# AUTO GENERATED FILE - DO NOT EDIT'
   rd_header: '% Auto-generated: do not edit by hand'
 
 artifacts:
+  - filepath: ${target}
+    foreach: js.core.getSourceFiles(recipe.vars.vignettes)
+    template: ${js.core.readSourceFile(target)}
+
   - filepath: ${recipe.vars.deps + target.target}
     foreach: config.dist
     template: ${js.core.readConfigFile(target.source)}
@@ -59,6 +64,15 @@ templates:
     template: ${target}
     join: |
       ,
+
+  import_knitr:
+    template: 'knitr, '
+    condition: target
+
+  import_rmarkdown:
+    template: 'rmarkdown, '
+    condition: target
+
   dist:
     template: ${js.core.readRecipeFile('templates/internal__dist.R')}
     join: ', '

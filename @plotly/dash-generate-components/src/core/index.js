@@ -1,4 +1,5 @@
 const fs = require('fs');
+const glob = require('glob');
 const path = require('path');
 
 function filterProps(props) {
@@ -33,8 +34,15 @@ function readSourceFile(filepath) {
     return fs.readFileSync(path.join(process.cwd(), filepath), 'utf8');
 }
 
+function getSourceFiles(filepath) {
+    return sourceFileExists(filepath) ?
+        glob.sync(path.join(process.cwd(), filepath, '**/*'), {}).map(p => path.relative(process.cwd(), p)) :
+        [];
+}
+
 module.exports = (recipe, recipePath) => ({
     filterProps,
+    getSourceFiles,
     readConfigFile: readConfigFile.bind(undefined, recipe),
     readRecipeFile: readRecipeFile.bind(undefined, recipePath),
     readSourceFile,

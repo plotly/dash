@@ -18,7 +18,12 @@ function toAsync(value) {
     }
 }
 
+function contains(list, value) {
+    return Array.isArray(list) && list.indexOf(value) >= 0;
+}
+
 module.exports = {
+    contains,
     toAsync,
     toR
 };
