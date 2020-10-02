@@ -67,6 +67,14 @@ templates:
     template: ${key}=NULL
     join: ', '
 
+  dontrun_open:
+    template: \\dontrun{
+    condition: target
+
+  dontrun_close:
+    template: '}'
+    condition: target
+
   export:
     template: export(${config.vars.prefix + target.displayName})
     join: |

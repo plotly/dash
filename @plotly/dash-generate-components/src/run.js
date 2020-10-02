@@ -130,7 +130,9 @@ function generate(__recipe) {
                 '' :
                 Array.isArray(source) ?
                     source.map((value, key) => resolveTemplate(template, { _, value, key })).join(join || '\n') :
-                    Object.entries(source).map(([key, value]) => resolveTemplate(template, { _, value, key })).join(join || '\n')
+                    typeof source === 'object' ?
+                        Object.entries(source).map(([key, value]) => resolveTemplate(template, { _, value, key })).join(join || '\n') :
+                        resolveTemplate(template, { _, value: source })
     });
 
     /* Resolve Recipe Variables */

@@ -21,6 +21,6 @@ ${templates.class_property(js.core.filterProps(target.props))}
 
 \\value{named list of JSON elements corresponding to React.js properties and their values}
 
-\\examples{
+\\examples{${templates.dontrun_open(config.vars.examples[target.displayName].dontrun)}
 ${config.vars.examples[target.displayName].code}
-}
+${templates.dontrun_close(config.vars.examples[target.displayName].dontrun)}}
