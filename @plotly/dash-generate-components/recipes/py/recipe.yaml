@@ -1,5 +1,5 @@
 vars:
-  dist: 'dist/py'
+  dist: .dcg/dist/py
 
   js_name: ${package.name}
   py_name: ${package.name.replace(/(\s|-)/, '_')}

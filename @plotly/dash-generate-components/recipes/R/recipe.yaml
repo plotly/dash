@@ -1,5 +1,5 @@
 vars:
-  dist: 'dist/R'
+  dist: .dcg/dist/R
 
   inst_deps: inst/deps/
   js_name: ${package.name}
