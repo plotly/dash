@@ -66,9 +66,18 @@ function generate(__recipe) {
         templates: {},
     };
 
+    /* Initialize Store: Recipe JS */
+    glob.sync(recipeJsPath, {}).forEach(script => {
+        console.log(`  > Load JS: ${script}`);
+
+        const module = require(script);
+        Object.entries(module).forEach(([key, value]) => _.js[key] = value);
+    });
+    console.log('Recipe functions:', Object.keys(_.js));
+
     /* Initialize Store: Core JS */
     glob.sync(coreJsPath, {}).forEach(script => {
-        console.log(`Load JS resource: ${script}`);
+        console.log(`  > Load JS: ${script}`);
         let module = require(script);
         if (typeof module === 'function') {
             module = module(__recipe, recipePath);
@@ -76,12 +85,7 @@ function generate(__recipe) {
 
         Object.entries(module).forEach(([key, value]) => _.js.core[key] = value);
     });
-
-    /* Initialize Store: Recipe JS */
-    glob.sync(recipeJsPath, {}).forEach(script => {
-        const module = require(script);
-        Object.entries(module).forEach(([key, value]) => _.js[key] = value);
-    });
+    console.log('Core functions:', Object.keys(_.js.core));
 
     /* Initialize Store: Templates */
     const variables = 'const { config, js, metadata, package, recipe, templates } = _;';
