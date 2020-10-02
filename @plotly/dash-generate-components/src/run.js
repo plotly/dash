@@ -126,7 +126,7 @@ function generate(__recipe) {
     Object.entries(templates || {}).forEach(([key, { condition, join, template }]) => {
         return _.templates[key] = source => (source === null || source === undefined) ?
             '' :
-            (condition && (console.log('condition', condition) || !evaluate(condition)(_, source))) ?
+            (condition && !evaluate(condition)(_, source)) ?
                 '' :
                 Array.isArray(source) ?
                     source.map((value, key) => resolveTemplate(template, { _, value, key })).join(join || '\n') :

@@ -94,4 +94,8 @@ templates:
   class_property:
     template: ${js.getPropDescription(key, target)}
 
+  vignettes:
+    template: '\nVignetteBuilder: knitr'
+    condition: js.core.sourceFileExists('vignettes')
+
 
