@@ -1,0 +1,2 @@
+YEAR: ${recipe.vars.year}
+COPYRIGHT HOLDER: ${config.vars.pkg_copyright}

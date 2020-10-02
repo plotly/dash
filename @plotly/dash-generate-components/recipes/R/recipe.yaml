@@ -1,119 +1,84 @@
-vars:
-  dist: .dcg/dist/R
+dist: .dcg/dist/R
 
-  inst_deps: inst/deps/
+vars:
+  deps: inst/deps/
+  issues: ${(package && package.bugs && package.bugs.url) || ''}
   js_name: ${package.name}
+  license: ${package.license}
   maintainer: ${package.maintainer}
   r_name: ${package.name.split(/-|\s/).map((f, i) => i === 0 ? f : f[0].toUpperCase() + f.slice(1)).join('')}
   snake_name: ${package.name.replace(/(\s|-)/, '_')}
+  url: ${package.homepage}
   version: ${package.version}
+  year: ${new Date().getFullYear()}
 
   r_header: '# AUTO GENERATED FILE - DO NOT EDIT'
   rd_header: '% Auto-generated: do not edit by hand'
 
 artifacts:
-  - filepath: ${recipe.vars.inst_deps + target.target}
+  - filepath: ${recipe.vars.deps + target.target}
     foreach: config.dist
-    template: ${js.core.readFile(target.source)}
+    template: ${js.core.readConfigFile(target.source)}
 
   - filepath: ${target.target}
     foreach: config.vars.dist
-    template: ${js.core.readFile(target.source)}
+    template: ${js.core.readConfigFile(target.source)}
+
+  - filepath: .Rbuildignore
+    template: ${js.core.readRecipeFile('templates/.Rbuildignore')}
+
+  - filepath: DESCRIPTION
+    template: ${js.core.readRecipeFile('templates/DESCRIPTION')}
+
+  - filepath: NAMESPACE
+    template: ${js.core.readRecipeFile('templates/NAMESPACE')}
+
+  - filepath: LICENSE
+    template: ${js.core.readRecipeFile('templates/LICENSE')}
 
   - filepath: R/internal.R
-    template: |
-      .${recipe.vars.r_name}_js_metadata <- function() {
-      deps_metadata <- list(\`${recipe.vars.js_name}\` = ${templates.dist(config.dist)}
-      ))
-      return(deps_metadata)
-      }
+    template: ${js.core.readRecipeFile('templates/internal.R')}
 
   - filepath: R/${config.vars.prefix + target.displayName}.R
     foreach: metadata
-    template: |
-      ${recipe.vars.r_header}
-
-      ${config.vars.prefix + target.displayName} <- function(${templates.ctor_argument(js.core.filterProps(target.props))}) {
-
-        props <- list(${templates.prop_assignment(js.core.filterProps(target.props))})
-        if (length(props) > 0) {
-            props <- props[!vapply(props, is.null, logical(1))]
-        }
-        component <- list(
-          props = props,
-          type = '${target.displayName}',
-          namespace = '${recipe.vars.js_name}',
-          propNames = c(${templates.prop_name(js.core.filterProps(target.props))}),
-          namespace = '${recipe.vars.r_name}',
-          )
-
-        structure(component, class = c('dash_component', 'list')
-      }
+    template: ${js.core.readRecipeFile('templates/<component>.R')}
 
   - filepath: man/${recipe.vars.r_name}-package.Rd
-    template: |
-      ${recipe.vars.rd_header}
-      \\docType{package}
-      \\name{${recipe.vars.r_name}-package}
-      \\alias{${recipe.vars.r_name}}
-      \\title{${config.vars.pkg_help_title}}
-      \\description{
-      ${config.vars.pkg_help_description.split('\n').join(' ')}
-      }
-      \\author{
-      \\strong{Maintainer}: ${recipe.vars.maintainer}
-      }
-
+    template: ${js.core.readRecipeFile('templates/<package>-package.Rd')}
 
   - filepath: man/${config.vars.prefix}${target.displayName}.Rd
     foreach: metadata
-    template: |
-      ${recipe.vars.rd_header}
-      \\name{${config.vars.prefix}${target.displayName}}
-
-      \\alias{${config.vars.prefix}${target.displayName}}
-
-      \\title{${target.displayName} component}
-
-      \\description{
-      ${config.vars.pkg_help_description}
-      }
-
-      \\usage{
-      ${config.vars.prefix}${target.displayName}(
-      ${templates.class_parameter(js.core.filterProps(target.props))}
-      )
-      }
-
-      \\arguments{
-      ${templates.class_property(js.core.filterProps(target.props))}
-      }
-
-      \\value{named list of JSON elements corresponding to React.js properties and their values}
-
-      \\examples{
-      ${config.vars.examples[config.vars.prefix + target.displayName].code}
-      }
+    template: ${js.core.readRecipeFile('templates/<component>.Rd')}
 
 templates:
+  comma:
+    template: ', '
+    condition: target
+
+  import:
+    template: ${target}
+    join: |
+      ,
   dist:
-    template: |
-      structure(list(name = "${recipe.vars.snake_name}",
-      version = "${recipe.vars.version}", src = list(href = NULL,
-      file = "deps"), meta = NULL,
-      script = "${target.target}",
-      stylesheet = NULL, head = NULL, attachment = NULL, package = "${recipe.vars.r_name}",
-      all_files = FALSE, async = ${js.toAsync(target.async)}), class = "html_dependency")
+    template: ${js.core.readRecipeFile('templates/internal__dist.R')}
     join: ', '
+
   ctor_argument:
     template: ${key}=NULL
     join: ', '
+
+  export:
+    template: export(${config.vars.prefix + target.displayName})
+    join: |
+
   prop_assignment:
     template: ${key}=${key}
     join: ', '
+
   prop_name:
     template: "'${key}'"
     join: ', '
+
   class_parameter:
     template: ${key}=NULL
     join: |

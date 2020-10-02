@@ -1,6 +1,6 @@
-vars:
-  dist: .dcg/dist/py
+dist: .dcg/dist/py
 
+vars:
   js_name: ${package.name}
   py_name: ${package.name.replace(/(\s|-)/, '_')}
   version: ${package.version}
@@ -10,70 +10,47 @@ vars:
     # AUTO GENERATED FILE - DO NOT EDIT
 
     from dash.development.base_component import Component, _explicitize_args
-  init: ${js.core.readRecipeFile('__init__.template.py')}
 
 artifacts:
   - filepath: ${target.target}
     foreach: config.dist
-    template: ${js.core.readFile(target.source)}
+    template: ${js.core.readConfigFile(target.source)}
 
   - filepath: ${target.target}
     foreach: config.vars.dist
-    template: ${js.core.readFile(target.source)}
+    template: ${js.core.readConfigFile(target.source)}
+
+  - filepath: __init__.py
+    template: ${js.core.readRecipeFile('templates/__init__.py')}
+
+  - filepath: _imports_.py
+    template: ${js.core.readRecipeFile('templates/_imports_.py')}
+
+  - filepath: LICENSE
+    condition: js.core.sourceFileExists('LICENSE') || js.core.sourceFileExists('LICENSE.txt')
+    template: ${js.core.readSourceFile('LICENSE') || js.core.readSourceFile('LICENSE.txt')}
+
+  - filepath: MANIFEST.in
+    template: ${js.core.readRecipeFile('templates/MANIFEST.in')}
 
   - filepath: metadata.json
     template: ${js.stringify(metadata)}
 
-  - filepath: __init__.py
-    template: ${recipe.vars.init}
-
-  - filepath: _imports_.py
-    template: |
-      ${templates.import_from(metadata)}
-
-      __all__ = [
-      ${templates.import_export(metadata)}
-      ]
-
   - filepath: ${target.displayName}.py
     foreach: metadata
-    template: |
-      ${recipe.vars.class_header}
-
-      ${templates.class_declaration(metadata)}
+    template: ${js.core.readRecipeFile('templates/<component>.py')}
 
 templates:
+  include:
+    template: include ${target.target}
+    join: |
+
   resource:
     template: ${js.getJsDist(target, recipe.vars.js_name, recipe.vars.py_name, recipe.vars.version)}
     join: ','
   class_declaration:
     # template: ${recipe.vars.class_declaration}
-    template: |
-      class ${target.displayName}(Component):
-      """A ${target.displayName} component.
-      ${target.description}
-
-      Keyword arguments:
-      ${templates.class_property(js.core.filterProps(target.props))}
-      """
-      @_explicitize_args
-      def __init__(self, ${templates.class_parameter(js.core.filterProps(target.props))}, **kwargs):
-          self._prop_names = [${templates.class_property_name(js.core.filterProps(target.props))}]
-          self._type = '${target.displayName}'
-          self._valid_wildcard_attributes = []
-          self.available_properties = [${templates.class_property_name(js.core.filterProps(target.props))}]
-          self.available_wildcard_properties = []
-
-          _explicit_args = kwargs.pop('_explicit_args')
-          _locals = locals()
-          _locals.update(kwargs)  # For wildcard attrs
-          args = {k: _locals[k] for k in _explicit_args if k != 'children'}
-
-          for k in []:
-          if k not in args:
-              raise TypeError(
-              'Required argument \`' + k + '\` was not specified.')
-          super(${target.displayName}, self).__init(**args)
+    template: ${js.core.readRecipeFile('templates/__class_declaration.py')}
 
   class_parameter:
     template: ${key}=Component.UNDEFINED
@@ -85,7 +62,9 @@ templates:
   class_property_name:
     template: \'${key}\'
     join: ', '
+
   import_export:
     template: \t\'${target.displayName}\'
+
   import_from:
     template: from .${target.displayName} import DataTable

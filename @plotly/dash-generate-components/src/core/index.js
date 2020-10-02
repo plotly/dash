@@ -8,7 +8,20 @@ function filterProps(props) {
     return clone;
 }
 
-function readFile(recipe, filepath) {
+function configFileExists(recipe, filepath) {
+    return fs.existsSync(path.join(process.cwd(), '.dcg', recipe, filepath));
+}
+
+function recipeFileExists(recipePath, filepath) {
+    return fs.existsSync(path.join(path.dirname(recipePath), filepath));
+}
+
+function sourceFileExists(filepath) {
+    return fs.existsSync(path.join(process.cwd(), filepath));
+}
+
+
+function readConfigFile(recipe, filepath) {
     return fs.readFileSync(path.join(process.cwd(), '.dcg', recipe, filepath), 'utf8');
 }
 
@@ -16,8 +29,16 @@ function readRecipeFile(recipePath, filepath) {
     return fs.readFileSync(path.join(path.dirname(recipePath), filepath), 'utf8');
 }
 
+function readSourceFile(filepath) {
+    return fs.readFileSync(path.join(process.cwd(), filepath), 'utf8');
+}
+
 module.exports = (recipe, recipePath) => ({
     filterProps,
-    readFile: readFile.bind(undefined, recipe),
-    readRecipeFile: readRecipeFile.bind(undefined, recipePath)
+    readConfigFile: readConfigFile.bind(undefined, recipe),
+    readRecipeFile: readRecipeFile.bind(undefined, recipePath),
+    readSourceFile,
+    configFileExists: configFileExists.bind(undefined, recipe),
+    recipeFileExists: recipeFileExists.bind(undefined, recipePath),
+    sourceFileExists
 });

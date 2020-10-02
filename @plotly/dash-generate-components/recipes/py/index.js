@@ -28,8 +28,8 @@ function getJsDist(dist, js_name, py_name, version) {
     return str;
 }
 
-function filterJsDist(config) {
-    return config.dist.filter(d => !d.recipe);
+function filterJsDist(dist) {
+    return dist.filter(d => !d.recipe);
 }
 
 function stringify(value) {

@@ -68,7 +68,7 @@ function generate(__recipe) {
 
     /* Initialize Store: Recipe JS */
     glob.sync(recipeJsPath, {}).forEach(script => {
-        console.log(`  > Load JS: ${script}`);
+        console.log(`Load JS: ${script}`);
 
         const module = require(script);
         Object.entries(module).forEach(([key, value]) => _.js[key] = value);
@@ -77,7 +77,7 @@ function generate(__recipe) {
 
     /* Initialize Store: Core JS */
     glob.sync(coreJsPath, {}).forEach(script => {
-        console.log(`  > Load JS: ${script}`);
+        console.log(`Load JS: ${script}`);
         let module = require(script);
         if (typeof module === 'function') {
             module = module(__recipe, recipePath);
@@ -90,20 +90,21 @@ function generate(__recipe) {
     /* Initialize Store: Templates */
     const variables = 'const { config, js, metadata, package, recipe, templates } = _;';
 
-    const resolveTemplateImpl = template => new Function('_', 'target', 'key', `
-    ${variables}
+    const resolveTemplateImpl = template => new Function(
+        '_',
+        'target',
+        'key',
+        `${variables} return \`${template}\`;`
+    );
 
-    return \`${template}\`;
-`);
-
-    const resolveTemplate = (template, _, value, key) => {
+    const resolveTemplate = (template, { _, value, key }) => {
         while (true) {
             try {
                 const resolved = resolveTemplateImpl(template)(_, value, key);
 
                 if (
-                    template.indexOf(/js[.]\w+[.]readFile/g) === -1 &&
-                    template.indexOf(/js[.]core[.]readFile/g) === -1
+                    !/js[.]core[.]read(Config|Recipe|Source)File/g.test(template) &&
+                    !/templates[.]\w+[(]/g.test(template)
                 ) {
                     return resolved;
                 }
@@ -115,16 +116,22 @@ function generate(__recipe) {
         }
     }
 
-    const evaluateFunction = value => new Function('_', 'target', 'key', `
-    ${variables}
-    return ${value};
-`);
-
-    Object.entries(templates || {}).forEach(([key, v]) =>
-        _.templates[key] = source => Array.isArray(source) ?
-            source.map((_v, _k) => resolveTemplate(v.template, _, _v, _k)).join(v.join || '\n') :
-            Object.entries(source).map(([_k, _v]) => resolveTemplate(v.template, _, _v, _k)).join(v.join || '\n')
+    const evaluate = value => new Function(
+        '_',
+        'target',
+        'key',
+        `${variables} return ${value};`
     );
+
+    Object.entries(templates || {}).forEach(([key, { condition, join, template }]) => {
+        return _.templates[key] = source => (source === null || source === undefined) ?
+            '' :
+            (condition && (console.log('condition', condition) || !evaluate(condition)(_, source))) ?
+                '' :
+                Array.isArray(source) ?
+                    source.map((value, key) => resolveTemplate(template, { _, value, key })).join(join || '\n') :
+                    Object.entries(source).map(([key, value]) => resolveTemplate(template, { _, value, key })).join(join || '\n')
+    });
 
     /* Resolve Recipe Variables */
     function resolve(target, targetPath = []) {
@@ -133,7 +140,7 @@ function generate(__recipe) {
             if (value && typeof value === 'object') {
                 target = resolve(target, [...targetPath, key]);
             } else if (typeof value === 'string') {
-                const r = resolveTemplate(value, _);
+                const r = resolveTemplate(value, { _ });
                 if (r !== value) {
                     console.log([...targetPath, key]);
                     target = R.assocPath([...targetPath, key], r, target);
@@ -151,35 +158,49 @@ function generate(__recipe) {
     _.recipe.vars = resolve(_.recipe.vars);
 
     /* Generate Artifacts */
-    const resolveArtifact = ({ filepath, foreach, template, templatefile }) => {
+    const resolveArtifact = ({ condition, filepath, foreach, template, templatefile }) => {
+        if (condition) {
+            const res = evaluate(condition)(_);
+
+            if (!res) {
+                console.log(`Skip artifact ${filepath}. Condition evaluated to`, res)
+                return [];
+            }
+        }
+
         if (!foreach) {
             return [[
-                resolveTemplate(filepath, _),
-                resolveTemplate(template, _)
+                resolveTemplate(filepath, { _ }),
+                resolveTemplate(template, { _ })
             ]];
         }
 
-        const source = evaluateFunction(foreach)(_);
+        const source = evaluate(foreach)(_);
 
-        return Array.isArray(source) ?
-            source.map((_v, _k) => {
-                const resolvedFilepath = resolveTemplate(filepath, _, _v, _k);
-                const content = resolveTemplate(template, _, _v, _k);
+        return (source === null || source === undefined) ?
+            [] :
+            Array.isArray(source) ?
+                source.map((value, key) => {
+                    const resolvedFilepath = resolveTemplate(filepath, { _, value, key });
+                    const content = resolveTemplate(template, { _, value, key });
 
-                return [resolvedFilepath, content];
-            }) :
-            Object.entries(source).map(([_k, _v]) => {
-                const resolvedFilepath = resolveTemplate(filepath, _, _v, _k);
-                const content = resolveTemplate(template, _, _v, _k);
+                    return [resolvedFilepath, content];
+                }) :
+                Object.entries(source).map(([key, value]) => {
+                    const resolvedFilepath = resolveTemplate(filepath, { _, value, key });
+                    const content = resolveTemplate(template, { _, value, key });
 
-                return [resolvedFilepath, content];
-            });
+                    return [resolvedFilepath, content];
+                });
     };
 
     const resolvedArtifacts = Array.prototype.concat(...artifacts.map(resolveArtifact));
 
+    const distFolder = path.resolve(__workdir, _.recipe.dist);
+    fs.rmdirSync(distFolder, { recursive: true });
+
     resolvedArtifacts.forEach(([filepath, content]) => {
-        filepath = path.resolve(__workdir, _.recipe.vars.dist || '', filepath);
+        filepath = path.resolve(distFolder, filepath);
 
         ensureDirectoryExistence(filepath);
         fs.writeFileSync(filepath, content);
