@@ -428,15 +428,15 @@ workflows:
   version: 2
   python3.7:
     jobs:
-      - lint-unit-37
+      - lint-unit-37:
           context: dash-docker-hub
-      - build-core-37
+      - build-core-37:
           context: dash-docker-hub
-      - build-windows-37
+      - build-windows-37:
           context: dash-docker-hub
-      - build-misc-37
+      - build-misc-37:
           context: dash-docker-hub
-      - build-dashr
+      - build-dashr:
           context: dash-docker-hub
       - test-37:
           context: dash-docker-hub
@@ -462,11 +462,11 @@ workflows:
 
   python3.6:
     jobs:
-      - lint-unit-36
+      - lint-unit-36:
           context: dash-docker-hub
-      - build-core-36
+      - build-core-36:
           context: dash-docker-hub
-      - build-misc-36
+      - build-misc-36:
           context: dash-docker-hub
       - test-36:
           context: dash-docker-hub
@@ -475,11 +475,11 @@ workflows:
             - build-misc-36
   python2.7:
     jobs:
-      - lint-unit-27
+      - lint-unit-27:
           context: dash-docker-hub
-      - build-core-27
+      - build-core-27:
           context: dash-docker-hub
-      - build-misc-27
+      - build-misc-27:
           context: dash-docker-hub
       - test-27:
           context: dash-docker-hub
