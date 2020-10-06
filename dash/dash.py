@@ -280,6 +280,11 @@ class Dash(object):
         elif isinstance(server, bool):
             name = name if name else "__main__"
             self.server = flask.Flask(name) if server else None
+            if self.server is not None:
+                # flask-compress==1.6.0 changed default to ['br', 'gzip']
+                # and non-overridable default compression with Brotli is
+                # causing performance issues
+                self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
