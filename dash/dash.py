@@ -51,7 +51,7 @@ from ._utils import (
 from . import _validate
 from . import _watch
 
-flask_compress_version = parse_version(get_distribution("flask-compress").version)
+_flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
@@ -284,7 +284,7 @@ class Dash(object):
         elif isinstance(server, bool):
             name = name if name else "__main__"
             self.server = flask.Flask(name) if server else None
-            if self.server is not None and flask_compress_version >= parse_version(
+            if self.server is not None and _flask_compress_version >= parse_version(
                 "1.6.0"
             ):
                 # flask-compress==1.6.0 changed default to ['br', 'gzip']
