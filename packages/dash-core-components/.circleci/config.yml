@@ -3,6 +3,9 @@ jobs:
   percy-finalize:
     docker:
       - image: percyio/agent
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
     steps:
       - run: percy finalize --all
 
@@ -10,6 +13,9 @@ jobs:
     working_directory: ~/project
     docker:
       - image: circleci/python:3.7.6-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py37
     steps:
@@ -44,6 +50,9 @@ jobs:
     <<: *lint-unit
     docker:
       - image: circleci/python:3.6.9-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py36
 
@@ -51,6 +60,9 @@ jobs:
     <<: *lint-unit
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py27
 
@@ -58,6 +70,9 @@ jobs:
     working_directory: ~/project
     docker:
       - image: circleci/python:3.7.6-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
             PYTHON_VERSION: py37
     steps:
@@ -99,6 +114,9 @@ jobs:
     <<: *build-dash
     docker:
       - image: circleci/python:3.6.9-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py36
 
@@ -106,6 +124,9 @@ jobs:
     <<: *build-dash
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py27
 
@@ -113,6 +134,9 @@ jobs:
     working_directory: ~/project
     docker:
       - image: circleci/python:3.7.6-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
             PYTHON_VERSION: py37
             PERCY_PARALLEL_TOTAL: -1
@@ -145,6 +169,9 @@ jobs:
     <<: *test
     docker:
       - image: circleci/python:3.6.9-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
@@ -153,6 +180,9 @@ jobs:
     <<: *test
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py27
           PERCY_ENABLE: 0
@@ -161,6 +191,9 @@ jobs:
     working_directory: ~/project
     docker:
       - image: circleci/python:3.7.6-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
             PYTHON_VERSION: py37
             PERCY_PARALLEL_TOTAL: -1
@@ -195,6 +228,9 @@ jobs:
     <<: *test-legacy
     docker:
       - image: circleci/python:3.6.9-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
@@ -202,6 +238,9 @@ jobs:
     <<: *test-legacy
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py27
           PERCY_ENABLE: 0
@@ -210,37 +249,63 @@ workflows:
   version: 2
   python3.7:
     jobs:
-      - lint-unit-37
-      - build-dash-37
+      - lint-unit-37:
+          context:
+            - dash-docker-hub
+      - build-dash-37:
+          context:
+            - dash-docker-hub
       - test-37:
+          context:
+            - dash-docker-hub
           requires:
             - build-dash-37
       - test-legacy-37:
+          context:
+            - dash-docker-hub
           requires:
             - build-dash-37
       - percy-finalize:
+          context:
+            - dash-docker-hub
           requires:
             - test-37
             - test-legacy-37
 
   python3.6:
     jobs:
-      - lint-unit-36
-      - build-dash-36
+      - lint-unit-36:
+          context:
+            - dash-docker-hub
+      - build-dash-36:
+          context:
+            - dash-docker-hub
       - test-36:
+          context:
+            - dash-docker-hub
           requires:
             - build-dash-36
       - test-legacy-36:
+          context:
+            - dash-docker-hub
           requires:
             - build-dash-36
 
   python2.7:
     jobs:
-      - lint-unit-27
-      - build-dash-27
+      - lint-unit-27:
+          context:
+            - dash-docker-hub
+      - build-dash-27:
+          context:
+            - dash-docker-hub
       - test-27:
+          context:
+            - dash-docker-hub
           requires:
             - build-dash-27
       - test-legacy-27:
+          context:
+            - dash-docker-hub
           requires:
             - build-dash-27
