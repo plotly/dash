@@ -4,6 +4,9 @@ jobs:
   python-2.7: &test-template
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py27
           PERCY_ENABLE: 1
@@ -57,6 +60,9 @@ jobs:
     <<: *test-template
     docker:
       - image: circleci/python:3.6.9-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
@@ -65,6 +71,9 @@ jobs:
     <<: *test-template
     docker:
       - image: circleci/python:3.7.6-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYTHON_VERSION: py37
           PERCY_ENABLE: 0
@@ -73,6 +82,12 @@ workflows:
   version: 2
   build:
     jobs:
-      - python-2.7
-      - python-3.6
-      - python-3.7
+      - python-2.7:
+          context:
+            - dash-docker-hub
+      - python-3.6:
+          context:
+            - dash-docker-hub
+      - python-3.7:
+          context:
+            - dash-docker-hub
