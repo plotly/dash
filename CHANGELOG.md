@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 ### Fixed
-
+- [#1426](https://github.com/plotly/dash/pull/1426) Fix a regression caused by `flask-compress==1.6.0` causing performance degradation on server requests
 
 ## [1.16.2] - 2020-09-25
 ### Fixed
