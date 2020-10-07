@@ -20,6 +20,7 @@ from future.moves.urllib.parse import urlparse
 import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
+from pkg_resources import get_distribution, parse_version
 
 import plotly
 import dash_renderer
@@ -48,6 +49,8 @@ from ._utils import (
 )
 from . import _validate
 from . import _watch
+
+_flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
@@ -282,6 +285,16 @@ class Dash(object):
             self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
+
+        if (
+            self.server is not None
+            and not hasattr(self.server.config, "COMPRESS_ALGORITHM")
+            and _flask_compress_version >= parse_version("1.6.0")
+        ):
+            # flask-compress==1.6.0 changed default to ['br', 'gzip']
+            # and non-overridable default compression with Brotli is
+            # causing performance issues
+            self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
