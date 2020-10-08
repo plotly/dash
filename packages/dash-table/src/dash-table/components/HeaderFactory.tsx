@@ -22,7 +22,7 @@ export default class HeaderFactory {
     private readonly headerOperations = derivedHeaderOperations();
     private readonly headerStyles = derivedHeaderStyles();
     private readonly headerOpStyles = derivedHeaderOpStyles();
-    private readonly headerWrappers = derivedHeaderWrappers();
+    private readonly headerWrappers = derivedHeaderWrappers(() => this.props);
     private readonly relevantStyles = derivedRelevantHeaderStyles();
     private readonly labelsAndIndices = derivedLabelsAndIndices();
 
@@ -95,7 +95,7 @@ export default class HeaderFactory {
             relevantStyles
         );
 
-        const wrappers = this.headerWrappers(
+        const wrappers = this.headerWrappers.get(
             visibleColumns,
             labelsAndIndices,
             merge_duplicate_headers

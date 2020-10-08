@@ -6,8 +6,10 @@ import {
     handleClick,
     handleDoubleClick,
     handleEnter,
+    handleEnterHeader,
     handleLeave,
     handleMove,
+    handleMoveHeader,
     handleOnMouseUp,
     handlePaste
 } from 'dash-table/handlers/cellEvents';
@@ -17,8 +19,10 @@ export enum Handler {
     Click = 'click',
     DoubleClick = 'doubleclick',
     Enter = 'enter',
+    EnterHeader = 'enterheader',
     Leave = 'leave',
     Move = 'move',
+    MoveHeader = 'moveheader',
     MouseUp = 'mouseup',
     Paste = 'paste'
 }
@@ -60,6 +64,13 @@ class EventHandler {
                         rowIndex,
                         columnIndex
                     );
+                case Handler.EnterHeader:
+                    return handleEnterHeader.bind(
+                        undefined,
+                        this.propsFn,
+                        rowIndex,
+                        columnIndex
+                    );
                 case Handler.Leave:
                     return handleLeave.bind(
                         undefined,
@@ -69,6 +80,13 @@ class EventHandler {
                     );
                 case Handler.Move:
                     return handleMove.bind(
+                        undefined,
+                        this.propsFn,
+                        rowIndex,
+                        columnIndex
+                    );
+                case Handler.MoveHeader:
+                    return handleMoveHeader.bind(
                         undefined,
                         this.propsFn,
                         rowIndex,

@@ -129,15 +129,21 @@ class DataTableColumnFacade(object):
     def get(self, row=0):
         self.mixin._wait_for_table(self.id, self.state)
 
-        return self.mixin.find_elements(
-            '#{} {} tbody tr th.dash-header[data-dash-column="{}"]:not(.phantom-cell)'.format(
-                self.id, self.state, self.col_id
+        return self.mixin.find_element(
+            '#{} {} tbody tr:nth-of-type({}) th.dash-header[data-dash-column="{}"]:not(.phantom-cell)'.format(
+                self.id, self.state, row + 1, self.col_id
             )
-        )[row]
+        )
 
     @preconditions(_validate_row)
     def hide(self, row=0):
         self.get(row).find_element_by_css_selector(".column-header--hide").click()
+
+    @preconditions(_validate_row)
+    def move_to(self, row=0):
+        ac = ActionChains(self.mixin.driver)
+        ac.move_to_element(self.get(row))
+        return ac.perform()
 
     @preconditions(_validate_row)
     def sort(self, row=0):
@@ -264,6 +270,11 @@ class DataTableTooltipFacade(object):
         tooltip = self._get_tooltip()
 
         return tooltip is not None and tooltip.is_displayed()
+
+    def missing(self):
+        self.mixin._wait_for_table(self.id)
+
+        return len(self.mixin.find_elements(".dash-tooltip")) == 0
 
     def get_text(self):
         return (

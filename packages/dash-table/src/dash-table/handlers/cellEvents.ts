@@ -167,13 +167,27 @@ export const handleEnter = (
 ) => {
     const {setState, virtualized, visibleColumns} = propsFn();
 
-    const c = visibleColumns[i];
-    const realIdx = virtualized.indices[idx - virtualized.offset.rows];
+    setState({
+        currentTooltip: {
+            header: false,
+            id: visibleColumns[i].id,
+            row: virtualized.indices[idx - virtualized.offset.rows]
+        }
+    });
+};
+
+export const handleEnterHeader = (
+    propsFn: () => ICellFactoryProps,
+    idx: number,
+    i: number
+) => {
+    const {setState, visibleColumns} = propsFn();
 
     setState({
         currentTooltip: {
-            id: c.id,
-            row: realIdx
+            header: true,
+            id: visibleColumns[i].id,
+            row: idx
         }
     });
 };
@@ -201,15 +215,44 @@ export const handleMove = (
     if (
         currentTooltip &&
         currentTooltip.id === c.id &&
-        currentTooltip.row === realIdx
+        currentTooltip.row === realIdx &&
+        !currentTooltip.header
     ) {
         return;
     }
 
     setState({
         currentTooltip: {
+            header: false,
             id: c.id,
             row: realIdx
+        }
+    });
+};
+
+export const handleMoveHeader = (
+    propsFn: () => ICellFactoryProps,
+    idx: number,
+    i: number
+) => {
+    const {currentTooltip, setState, visibleColumns} = propsFn();
+
+    const c = visibleColumns[i];
+
+    if (
+        currentTooltip &&
+        currentTooltip.id === c.id &&
+        currentTooltip.row === idx &&
+        currentTooltip.header
+    ) {
+        return;
+    }
+
+    setState({
+        currentTooltip: {
+            header: true,
+            id: c.id,
+            row: idx
         }
     });
 };

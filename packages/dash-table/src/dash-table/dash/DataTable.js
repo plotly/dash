@@ -77,6 +77,7 @@ export const defaultProps = {
     tooltip: {},
     tooltip_conditional: [],
     tooltip_data: [],
+    tooltip_header: {},
     tooltip_delay: 350,
     tooltip_duration: 2000,
 
@@ -843,6 +844,9 @@ export const propTypes = {
      * or `text`. Defaults to `text`.
      * The `value` refers to the syntax-based content of
      * the tooltip. This value is required.
+     * The `use_with` refers to whether the tooltip will be shown
+     * only on data or headers. Can be `both`, `data`, `header`.
+     * Defaults to `both`.
      * The `delay` represents the delay in milliseconds before
      * the tooltip is shown when hovering a cell. This overrides
      * the table's `tooltip_delay` property. If set to `null`,
@@ -857,13 +861,14 @@ export const propTypes = {
      */
     tooltip: PropTypes.objectOf(
         PropTypes.oneOfType([
+            PropTypes.string,
             PropTypes.exact({
                 delay: PropTypes.number,
                 duration: PropTypes.number,
                 type: PropTypes.oneOf(['text', 'markdown']),
+                use_with: PropTypes.oneOf(['both', 'data', 'header']),
                 value: PropTypes.string.isRequired
-            }),
-            PropTypes.string
+            })
         ])
     ),
 
@@ -921,9 +926,9 @@ export const propTypes = {
     /**
      * `tooltip_data` represents the tooltip shown
      * for different columns and cells.
-     * The `property` name refers to the column ID. Each property
-     * contains a list of tooltips mapped to the source `data`
-     * row index.
+     * A list of objects for which each key is
+     * a column id and the value a tooltip configuration.
+     * For each tooltip configuration,
      * The `type` refers to the type of tooltip syntax used
      * for the tooltip generation. Can either be `markdown`
      * or `text`. Defaults to `text`.
@@ -953,6 +958,55 @@ export const propTypes = {
                 })
             ])
         )
+    ),
+
+    /**
+     * `tooltip_header` represents the tooltip shown
+     * for different columns and cells.
+     * An object for which each key is a column id and the value
+     * a list of tooltip configurations or a toolttip configuration.
+     * If the value is tooltip configuration, the same tooltip will
+     * be used for all header rows of the corresponding column.
+     * For each tooltip configuration,
+     * The `type` refers to the type of tooltip syntax used
+     * for the tooltip generation. Can either be `markdown`
+     * or `text`. Defaults to `text`.
+     * The `value` refers to the syntax-based content of
+     * the tooltip. This value is required.
+     * The `delay` represents the delay in milliseconds before
+     * the tooltip is shown when hovering a cell. This overrides
+     * the table's `tooltip_delay` property. If set to `null`,
+     * the tooltip will be shown immediately.
+     * The `duration` represents the duration in milliseconds
+     * during which the tooltip is shown when hovering a cell.
+     * This overrides the table's `tooltip_duration` property.
+     * If set to `null`, the tooltip will not disappear.
+     * Alternatively, the value of the property can also be
+     * a plain string or a nully value to . The `text` syntax will be used in
+     * that case.
+     */
+    tooltip_header: PropTypes.objectOf(
+        PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.exact({
+                delay: PropTypes.number,
+                duration: PropTypes.number,
+                type: PropTypes.oneOf(['text', 'markdown']),
+                value: PropTypes.string.isRequired
+            }),
+            PropTypes.arrayOf(
+                PropTypes.oneOfType([
+                    PropTypes.nully,
+                    PropTypes.string,
+                    PropTypes.exact({
+                        delay: PropTypes.number,
+                        duration: PropTypes.number,
+                        type: PropTypes.oneOf(['text', 'markdown']),
+                        value: PropTypes.string.isRequired
+                    })
+                ])
+            )
+        ])
     ),
 
     /**
