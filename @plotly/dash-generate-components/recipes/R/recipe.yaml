@@ -7,7 +7,7 @@ vars:
   license: ${package.license}
   maintainer: ${package.maintainer}
   r_name: ${package.name.split(/-|\s/).map((f, i) => i === 0 ? f : f[0].toUpperCase() + f.slice(1)).join('')}
-  snake_name: ${package.name.replace(/(\s|-)/, '_')}
+  snake_name: ${package.name.replace(/(\s|-)/g, '_')}
   url: ${package.homepage}
   version: ${package.version}
   vignettes: vignettes/
@@ -110,6 +110,6 @@ templates:
 
   vignettes:
     template: '\nVignetteBuilder: knitr'
-    condition: js.core.sourceFileExists('vignettes')
+    condition: js.core.configFileExists('vignettes')
 
 

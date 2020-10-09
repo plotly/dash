@@ -9,6 +9,14 @@ function filterProps(props) {
     return clone;
 }
 
+function filterPropsNoChildren(props) {
+    let clone = Object.assign({}, props);
+    delete clone.setProps;
+    delete clone.children;
+
+    return clone;
+}
+
 function configFileExists(recipe, filepath) {
     return fs.existsSync(path.join(process.cwd(), '.dcg', recipe, filepath));
 }
@@ -42,6 +50,7 @@ function getSourceFiles(filepath) {
 
 module.exports = (recipe, recipePath) => ({
     filterProps,
+    filterPropsNoChildren,
     getSourceFiles,
     readConfigFile: readConfigFile.bind(undefined, recipe),
     readRecipeFile: readRecipeFile.bind(undefined, recipePath),

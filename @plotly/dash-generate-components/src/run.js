@@ -125,15 +125,17 @@ function generate(__recipe) {
     );
 
     Object.entries(templates || {}).forEach(([key, { condition, join, template }]) => {
-        return _.templates[key] = source => (source === null || source === undefined) ?
+        return _.templates[key] = (key_or_source, target) => (key_or_source === null || key_or_source === undefined) ?
             '' :
-            (condition && !evaluate(condition)(_, source)) ?
+            (condition && !evaluate(condition)(_, key_or_source)) ?
                 '' :
-                Array.isArray(source) ?
-                    source.map((value, key) => resolveTemplate(template, { _, value, key })).join(join || '\n') :
-                    typeof source === 'object' ?
-                        Object.entries(source).map(([key, value]) => resolveTemplate(template, { _, value, key })).join(join || '\n') :
-                        resolveTemplate(template, { _, value: source })
+                target ?
+                    resolveTemplate(template, { _, value: target, key: key_or_source }) :
+                    Array.isArray(key_or_source) ?
+                        key_or_source.map((value, key) => resolveTemplate(template, { _, value, key })).join(join || '\n') :
+                        typeof key_or_source === 'object' ?
+                            Object.entries(key_or_source).map(([key, value]) => resolveTemplate(template, { _, value, key })).join(join || '\n') :
+                            resolveTemplate(template, { _, value: key_or_source })
     });
 
     /* Resolve Recipe Variables */
