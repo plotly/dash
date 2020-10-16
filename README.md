@@ -18,7 +18,7 @@ Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dr
 
 - [Dash Docs on Heroku](https://dash-docs.herokuapp.com/) (for corporate network that cannot access plotly.com)
 
-- [Open-Source App Gallery] (https://dash-gallery.plotly.host/Portal/) With sample code and templates!
+- [Open-Source App Gallery](https://dash-gallery.plotly.host/Portal/) With sample code and templates!
 
 ### App Samples
 
