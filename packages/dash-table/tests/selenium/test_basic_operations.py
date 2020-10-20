@@ -41,6 +41,7 @@ def test_tbst001_get_cell(test):
     assert target.cell(0, 0).get_text() == "0"
     target.paging.next.click()
     assert target.cell(0, 0).get_text() == "250"
+    assert test.get_log_errors() == []
 
 
 def test_tbst002_select_all_text(test):
@@ -51,6 +52,7 @@ def test_tbst002_select_all_text(test):
     target.cell(0, 1).click()
 
     assert target.cell(0, 1).get_text() == test.get_selected_text()
+    assert test.get_log_errors() == []
 
 
 # https://github.com/plotly/dash-table/issues/50
@@ -63,6 +65,7 @@ def test_tbst003_edit_on_enter(test):
     test.send_keys("abc" + Keys.ENTER)
 
     assert target.cell(249, 0).get_text() == "abc"
+    assert test.get_log_errors() == []
 
 
 # https://github.com/plotly/dash-table/issues/107
@@ -75,6 +78,7 @@ def test_tbst004_edit_on_tab(test):
     test.send_keys("abc" + Keys.TAB)
 
     assert target.cell(249, 0).get_text() == "abc"
+    assert test.get_log_errors() == []
 
 
 def test_tbst005_edit_last_row_on_click_outside(test):
@@ -87,6 +91,7 @@ def test_tbst005_edit_last_row_on_click_outside(test):
     target.cell(248, 0).click()
 
     assert target.cell(249, 0).get_text() == "abc"
+    assert test.get_log_errors() == []
 
 
 # https://github.com/plotly/dash-table/issues/141
@@ -100,6 +105,7 @@ def test_tbst006_focused_arrow_left(test):
 
     assert target.cell(249, 1).get_text() == "abc"
     assert target.cell(249, 0).is_focused()
+    assert test.get_log_errors() == []
 
 
 # https://github.com/plotly/dash-table/issues/141
@@ -113,6 +119,7 @@ def test_tbst007_active_focused_arrow_right(test):
 
     assert target.cell(249, 0).get_text() == "abc"
     assert target.cell(249, 1).is_focused()
+    assert test.get_log_errors() == []
 
 
 # https://github.com/plotly/dash-table/issues/141
@@ -126,6 +133,7 @@ def test_tbst008_active_focused_arrow_up(test):
 
     assert target.cell(249, 0).get_text() == "abc"
     assert target.cell(248, 0).is_focused()
+    assert test.get_log_errors() == []
 
 
 # https://github.com/plotly/dash-table/issues/141
@@ -139,6 +147,7 @@ def test_tbst009_active_focused_arrow_down(test):
 
     assert target.cell(249, 0).get_text() == "abc"
     assert target.cell(249, 0).is_focused()
+    assert test.get_log_errors() == []
 
 
 def test_tbst010_active_with_dblclick(test):
@@ -149,6 +158,7 @@ def test_tbst010_active_with_dblclick(test):
     target.cell(0, 0).double_click()
     assert target.cell(0, 0).is_active()
     assert target.cell(0, 0).get_text() == test.get_selected_text()
+    assert test.get_log_errors() == []
 
 
 def test_tbst011_delete_row(test):
@@ -160,6 +170,7 @@ def test_tbst011_delete_row(test):
     target.row(0).delete()
 
     assert target.cell(0, 0).get_text() == text01
+    assert test.get_log_errors() == []
 
 
 def test_tbst012_delete_sorted_row(test):
@@ -174,6 +185,7 @@ def test_tbst012_delete_sorted_row(test):
     target.row(0).delete()
 
     assert target.cell(0, 0).get_text() == text01
+    assert test.get_log_errors() == []
 
 
 def test_tbst013_select_row(test):
@@ -184,6 +196,7 @@ def test_tbst013_select_row(test):
     target.row(0).select()
 
     assert target.row(0).is_selected()
+    assert test.get_log_errors() == []
 
 
 def test_tbst014_selected_sorted_row(test):
@@ -196,6 +209,7 @@ def test_tbst014_selected_sorted_row(test):
     target.row(0).select()
 
     assert target.row(0).is_selected()
+    assert test.get_log_errors() == []
 
 
 def test_tbst015_selected_row_respects_sort(test):
@@ -215,6 +229,7 @@ def test_tbst015_selected_row_respects_sort(test):
     target.column(rawDf.columns[0]).sort()  # DESC -> None
 
     assert target.row(0).is_selected()
+    assert test.get_log_errors() == []
 
 
 def test_tbst016_delete_cell(test):
@@ -227,6 +242,7 @@ def test_tbst016_delete_cell(test):
     test.send_keys(Keys.ENTER)
 
     assert target.cell(0, 1).get_text() == ""
+    assert test.get_log_errors() == []
 
 
 @pytest.mark.skip(reason="https://github.com/plotly/dash-table/issues/700")
@@ -239,6 +255,7 @@ def test_tbst017_delete_cell_updates_while_selected(test):
     test.send_keys(Keys.BACKSPACE)
 
     assert target.cell(0, 1).get_text() == ""
+    assert test.get_log_errors() == []
 
 
 def test_tbst018_delete_multiple_cells(test):
@@ -255,6 +272,8 @@ def test_tbst018_delete_multiple_cells(test):
     for row in range(2):
         for col in range(1, 3):
             assert target.cell(row, col).get_text() == ""
+
+    assert test.get_log_errors() == []
 
 
 @pytest.mark.skip(reason="https://github.com/plotly/dash-table/issues/700")
@@ -273,6 +292,8 @@ def test_tbst019_delete_multiple_cells_while_selected(test):
         for col in range(1, 3):
             assert target.cell(row, col).get_text() == ""
 
+    assert test.get_log_errors() == []
+
 
 def test_tbst020_sorted_table_delete_cell(test):
     test.start_server(get_app())
@@ -287,6 +308,7 @@ def test_tbst020_sorted_table_delete_cell(test):
     test.send_keys(Keys.ENTER)
 
     assert target.cell(0, 1).get_text() == ""
+    assert test.get_log_errors() == []
 
 
 @pytest.mark.skip(reason="https://github.com/plotly/dash-table/issues/700")
@@ -302,6 +324,7 @@ def test_tbst021_sorted_table_delete_cell_updates_while_selected(test):
     test.send_keys(Keys.BACKSPACE)
 
     assert target.cell(0, 1).get_text() == ""
+    assert test.get_log_errors() == []
 
 
 def test_tbst022_sorted_table_delete_multiple_cells(test):
@@ -322,6 +345,8 @@ def test_tbst022_sorted_table_delete_multiple_cells(test):
         for col in range(1, 3):
             assert target.cell(row, col).get_text() == ""
 
+    assert test.get_log_errors() == []
+
 
 @pytest.mark.skip(reason="https://github.com/plotly/dash-table/issues/700")
 def test_tbst023_sorted_table_delete_multiple_cells_while_selected(test):
@@ -341,3 +366,5 @@ def test_tbst023_sorted_table_delete_multiple_cells_while_selected(test):
     for row in range(2):
         for col in range(1, 3):
             assert target.cell(row, col).get_text() == ""
+
+    assert test.get_log_errors() == []

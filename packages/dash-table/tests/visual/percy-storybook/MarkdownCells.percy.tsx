@@ -109,6 +109,129 @@ variants.forEach(variant => {
                 columns={columnFormats}
                 {...props}
             />))
+        .add(`Syntax highlighting${name}`, () => (
+            <DataTable
+                setProps={setProps}
+                id='table'
+                data={[
+                    {
+                        a: ['```plaintext',
+                            'export default helloworld(){',
+                            '  print("hello, world!")}',
+                            '```'].join('\n'),
+                        b: 'plaintext'
+                    },
+                    {
+                        a: ['```bash',
+                            'ls -laR | grep .gz',
+                            'find . -name "*.gz" | xargs pip install',
+                            '```'].join('\n'),
+                        b: 'bash'
+                    },
+                    {
+                        a: ['```css',
+                            '#div-id { background-color: red; }',
+                            '.item:not(.subitem)[data-type="text"] { font-size: 1.5rem; }',
+                            '```'].join('\n'),
+                        b: 'css'
+                    },
+                    {
+                        a: ['```http',
+                            '<html>',
+                            '  <body>',
+                            '    <div>Hello World</div>',
+                            '  </body>',
+                            '</html>',
+                            '```'].join('\n'),
+                        b: 'http'
+                    },
+                    {
+                        a: ['```javascript',
+                            'function getDate() {',
+                            '  return new Date();',
+                            '}',
+                            '```'].join('\n'),
+                        b: 'javascript'
+                    },
+                    {
+                        a: ['```json',
+                            '{',
+                            '  "prop": "value"',
+                            '}',
+                            '```'].join('\n'),
+                        b: 'json'
+                    },
+                    {
+                        a: ['```julia',
+                            'function init(r)',
+                            '  println("hello world")',
+                            'end',
+                            '```'].join('\n'),
+                        b: 'julia'
+                    },
+                    {
+                        a: ['```markdown',
+                            '# Hello',
+                            '## World',
+                            '```'].join('\n'),
+                        b: 'markdown'
+                    },
+                    {
+                        a: ['```python',
+                            'def hello_world():',
+                            '  print("hello, world!")',
+                            '```'].join('\n'),
+                        b: 'code block with syntax highlighting'
+                    },
+                    {
+                        a: ['```r',
+                            'print("Hello World!")',
+                            '```'].join('\n'),
+                        b: 'r'
+                    },
+                    {
+                        a: ['```ruby',
+                            'puts "Hello World"',
+                            '```'].join('\n'),
+                        b: 'ruby'
+                    },
+                    {
+                        a: ['```shell',
+                            '#!/bin/sh',
+                            'echo "Hello world"',
+                            '```'].join('\n'),
+                        b: 'shell'
+                    },
+                    {
+                        a: ['```sql',
+                            'SELECT first_name, last_name FROM person',
+                            '```'].join('\n'),
+                        b: 'sql'
+                    },
+                    {
+                        a: ['```xml',
+                            '<person>',
+                            '  <firstname>John</firstname>',
+                            '  <lastname>Doe</lastname>',
+                            '</person>',
+                            '```'].join('\n'),
+                        b: 'xml'
+                    },
+                    {
+                        a: ['```yaml',
+                            'obj:',
+                            '  prop: value',
+                            '',
+                            'list:',
+                            '  - value1',
+                            '  - value2',
+                            '```'].join('\n'),
+                        b: 'yaml'
+                    },
+                ]}
+                columns={columnFormats}
+                {...props}
+            />))
         .add(`Quotes, code, and syntax highlighting${name}`, () => (
             <DataTable
                 setProps={setProps}

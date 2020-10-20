@@ -996,7 +996,7 @@ export const propTypes = {
             }),
             PropTypes.arrayOf(
                 PropTypes.oneOfType([
-                    PropTypes.nully,
+                    PropTypes.oneOf([null]),
                     PropTypes.string,
                     PropTypes.exact({
                         delay: PropTypes.number,

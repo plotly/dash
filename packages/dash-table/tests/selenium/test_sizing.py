@@ -2,6 +2,7 @@ import dash
 import pytest
 
 from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 from dash.testing import wait
 from dash_table import DataTable
 from dash_html_components import Button, Div
@@ -182,6 +183,8 @@ def test_szng001_widths_on_style_change(test):
         if n_clicks < len(styles):
             style_table = styles[n_clicks]["style_table"]
             return [style_table for i in variations_range]
+        else:
+            raise PreventUpdate
 
     test.start_server(app)
 
@@ -212,6 +215,8 @@ def test_szng001_widths_on_style_change(test):
                 cells_are_same_width(target, table)
 
         test.driver.find_element_by_css_selector("#btn").click()
+
+    assert test.get_log_errors() == []
 
 
 def test_szng002_percentages_result_in_same_widths(test):
@@ -248,6 +253,8 @@ def test_szng002_percentages_result_in_same_widths(test):
     for i in range(1, len(variations)):
         table = test.driver.find_element_by_css_selector("#table{}".format(i))
         cells_are_same_width(target, table)
+
+    assert test.get_log_errors() == []
 
 
 @pytest.mark.parametrize(
@@ -321,3 +328,5 @@ def test_szng003_on_prop_change(
 
     test.driver.find_element_by_css_selector("#btn").click()
     cells_are_same_width(target, target)
+
+    assert test.get_log_errors() == []

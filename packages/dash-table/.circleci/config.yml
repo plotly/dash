@@ -183,68 +183,10 @@ jobs:
                     npm run lint
                 when: always
 
-
-    "python-3.6":
-        docker:
-            - image: circleci/python:3.7.5-stretch-node-browsers
-
-        environment:
-            PERCY_ENABLED: True
-            PERCY_PROJECT: plotly/dash-table-python-v0
-
-        steps:
-            - checkout
-
-            - run:
-                name: Inject Percy Environment variables
-                command: |
-                  echo 'export PERCY_TOKEN="$PERCY_PYTHON_TOKEN_V0"' >> $BASH_ENV
-
-            - run:
-                name: Install requirements
-                command: |
-                    sudo pip install --upgrade virtualenv
-                    python -m venv venv || virtualenv venv
-                    . venv/bin/activate
-                    pip install -r dev-requirements.txt --quiet
-                    npm ci
-
-            - run:
-                name: Install dependencies (dash)
-                command: |
-                    . venv/bin/activate
-                    git clone --depth 1 git@github.com:plotly/dash.git dash-main
-                    pip install -e ./dash-main[dev,testing] --quiet
-                    cd dash-main/dash-renderer && npm ci && npm run build && pip install -e . && cd ../..
-
-            - run:
-                name: Install test requirements
-                command: |
-                    . venv/bin/activate
-                    npm run build
-                    python setup.py sdist
-                    cd dist
-                    find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && cd ..
-
-            - run:
-                name: ⚙️ run integration test
-                command: |
-                  . venv/bin/activate
-                  pytest --junitxml=test-reports/dash.xml tests/integration
-            - store_artifacts:
-                path: test-reports
-            - store_test_results:
-                path: test-reports
-            - store_artifacts:
-                path: /tmp/dash_artifacts
-
-
-
 workflows:
     version: 2
     build:
         jobs:
-            - "python-3.6"
             - "node"
             - "server-test"
             - "standalone-test"

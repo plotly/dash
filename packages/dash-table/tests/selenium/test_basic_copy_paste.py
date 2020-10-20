@@ -85,6 +85,7 @@ def test_tbcp001_copy_paste_callback(test):
 
     assert target.cell(1, 0).get_text() == "0"
     assert target.cell(1, 1).get_text() == "MODIFIED"
+    assert test.get_log_errors() == []
 
 
 def test_tbcp002_sorted_copy_paste_callback(test):
@@ -112,6 +113,7 @@ def test_tbcp002_sorted_copy_paste_callback(test):
 
     assert target.cell(1, 0).get_text() == "11"
     assert target.cell(2, 1).get_text() == "MODIFIED"
+    assert test.get_log_errors() == []
 
 
 @pytest.mark.parametrize("mouse_navigation", [True, False])
@@ -137,6 +139,8 @@ def test_tbcp003_copy_multiple_rows(test, mouse_navigation):
         assert target.cell(i + 3, 0).get_text() == target.cell(i, 0).get_text()
         assert target.cell(i + 3, 1).get_text() == "MODIFIED"
 
+    assert test.get_log_errors() == []
+
 
 def test_tbcp004_copy_9_and_10(test):
     test.start_server(get_app())
@@ -158,6 +162,8 @@ def test_tbcp004_copy_9_and_10(test):
                 target.cell(row, col).get_text() == source.cell(row + 9, col).get_text()
             )
 
+    assert test.get_log_errors() == []
+
 
 def test_tbcp005_copy_multiple_rows_and_columns(test):
     test.start_server(get_app())
@@ -177,6 +183,8 @@ def test_tbcp005_copy_multiple_rows_and_columns(test):
             assert (
                 target.cell(row + 3, col).get_text() == target.cell(row, col).get_text()
             )
+
+    assert test.get_log_errors() == []
 
 
 def test_tbcp006_copy_paste_between_tables(test):
@@ -200,6 +208,8 @@ def test_tbcp006_copy_paste_between_tables(test):
                 == target.cell(row, col).get_text()
             )
 
+    assert test.get_log_errors() == []
+
 
 def test_tbcp007_copy_paste_with_hidden_column(test):
     test.start_server(get_app())
@@ -222,6 +232,8 @@ def test_tbcp007_copy_paste_with_hidden_column(test):
                 == target.cell(row + 3, col + 1).get_text()
             )
 
+    assert test.get_log_errors() == []
+
 
 def test_tbcp008_copy_paste_between_tables_with_hidden_columns(test):
     test.start_server(get_app())
@@ -243,3 +255,5 @@ def test_tbcp008_copy_paste_between_tables_with_hidden_columns(test):
                 target.cell(row + 10, col).get_text()
                 == target.cell(row, col).get_text()
             )
+
+    assert test.get_log_errors() == []

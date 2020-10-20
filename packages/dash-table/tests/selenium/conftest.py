@@ -354,6 +354,9 @@ class DataTableComposite(Browser, DataTableMixin):
         self.LOADING = _LOADING
         self.ANY = _ANY
 
+    def get_log_errors(self):
+        return list(filter(lambda i: i.get("level") != "WARNING", self.get_logs()))
+
     def start_server(self, app, **kwargs):
         """start the local server with app"""
 

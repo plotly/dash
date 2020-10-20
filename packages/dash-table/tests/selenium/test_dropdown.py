@@ -49,3 +49,4 @@ def test_drpd001_no_scroll(test):
     cell.open_dropdown()
 
     assert get_page_offset(test) == yOffset
+    assert test.get_log_errors() == []

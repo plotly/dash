@@ -87,6 +87,7 @@ def test_ttip001_displays_aligned_tooltip(test, fixed_rows, fixed_columns, ops):
     cell = target.cell(0, len(columns) - 1)
     cell.move_to()
     assert_aligned(cell.get(), tooltip.get())
+    assert test.get_log_errors() == []
 
 
 @pytest.mark.parametrize(
@@ -114,6 +115,7 @@ def test_ttip002_displays_tooltip_content(test, tooltip_data, expected_text):
     cell.move_to()
     assert tooltip.exists()
     assert tooltip.get_text().strip() == expected_text
+    assert test.get_log_errors() == []
 
 
 def test_ttip003_tooltip_disappears(test):
@@ -139,6 +141,7 @@ def test_ttip003_tooltip_disappears(test):
 
     wait.until(lambda: tooltip.exists(), 2.5)
     wait.until(lambda: not tooltip.exists(), 2.5)
+    assert test.get_log_errors() == []
 
 
 ttip004_tooltip = {
@@ -245,3 +248,5 @@ def test_ttip004_tooltip_applied(
     wait.until(lambda: target.tooltip.exists(), 3)
     assert tooltip.get_text().strip() == "text3"
     cell55.move_to()
+
+    assert test.get_log_errors() == []

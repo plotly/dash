@@ -83,7 +83,7 @@
     "es-check": "^5.1.0",
     "fast-isnumeric": "^1.1.4",
     "file-loader": "^6.0.0",
-    "highlight.js": "^10.1.2",
+    "highlight.js": "^10.3.1",
     "http-server": "^0.12.3",
     "husky": "^4.2.5",
     "less": "^3.12.2",

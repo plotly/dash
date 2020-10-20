@@ -1,4 +1,5 @@
 import dash
+from dash.testing import wait
 from dash_table import DataTable
 
 import pandas as pd
@@ -7,9 +8,7 @@ url = "https://github.com/plotly/datasets/raw/master/" "26k-consumer-complaints.
 rawDf = pd.read_csv(url)
 rawDf["Complaint ID"] = rawDf["Complaint ID"].map(lambda x: "**" + str(x) + "**")
 rawDf["Product"] = rawDf["Product"].map(lambda x: "[" + str(x) + "](plot.ly)")
-rawDf["Issue"] = rawDf["Issue"].map(
-    lambda x: "![" + str(x) + "](https://dash.plot.ly/assets/images/logo.png)"
-)
+rawDf["Issue"] = rawDf["Issue"].map(lambda x: "![" + str(x) + "](assets/logo.png)")
 rawDf["State"] = rawDf["State"].map(lambda x: '```python\n"{}"\n```'.format(x))
 
 df = rawDf.to_dict("rows")
@@ -49,7 +48,8 @@ def test_tmcp001_copy_markdown_to_text(test):
     target.cell(0, "Sub-product").click()
     test.paste()
 
-    assert target.cell(0, 2).get_text() == df[0].get("Issue")
+    wait.until(lambda: target.cell(0, 2).get_text() == df[0].get("Issue"), 3)
+    assert test.get_log_errors() == []
 
 
 def test_tmcp002_copy_markdown_to_markdown(test):
@@ -63,10 +63,12 @@ def test_tmcp002_copy_markdown_to_markdown(test):
     target.cell(0, "Complaint ID").click()
     test.paste()
 
-    assert (
-        target.cell(0, "Complaint ID").get_text()
-        == target.cell(0, "Product").get_text()
+    wait.until(
+        lambda: target.cell(0, "Complaint ID").get_text()
+        == target.cell(0, "Product").get_text(),
+        3,
     )
+    assert test.get_log_errors() == []
 
 
 def test_tmcp003_copy_text_to_markdown(test):
@@ -80,9 +82,15 @@ def test_tmcp003_copy_text_to_markdown(test):
     target.cell(1, "Product").click()
     test.paste()
 
-    assert target.cell(1, "Product").get().find_element_by_css_selector(
-        ".dash-cell-value > p"
-    ).get_attribute("innerHTML") == df[1].get("Sub-product")
+    wait.until(
+        lambda: target.cell(1, "Product")
+        .get()
+        .find_element_by_css_selector(".dash-cell-value > p")
+        .get_attribute("innerHTML")
+        == df[1].get("Sub-product"),
+        3,
+    )
+    assert test.get_log_errors() == []
 
 
 def test_tmcp004_copy_null_text_to_markdown(test):
@@ -96,10 +104,12 @@ def test_tmcp004_copy_null_text_to_markdown(test):
     target.cell(0, "Product").click()
     test.paste()
 
-    assert (
-        target.cell(0, "Product")
+    wait.until(
+        lambda: target.cell(0, "Product")
         .get()
         .find_element_by_css_selector(".dash-cell-value > p")
         .get_attribute("innerHTML")
-        == "null"
+        == "null",
+        3,
     )
+    assert test.get_log_errors() == []

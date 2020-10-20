@@ -82,3 +82,5 @@ def test_filt001_basic(test, props, expect):
 
     for index, value in enumerate(expect):
         assert target.cell(index, "a").get_text() == value
+
+    assert test.get_log_errors() == []
