@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+- [#871](https://github.com/plotly/dash-core-components/pull/871) Add Julia syntax highlighting support for dcc.Markdown
+
 ## [1.12.1] - 2020-09-16
 ### Fixed
 - [#854](https://github.com/plotly/dash-core-components/pull/854) Used `persistenceTransforms` to strip the time part of the datetime in the persited props of DatePickerSingle (date) and DatePickerRange (end_date, start_date), fixing [dcc#700](https://github.com/plotly/dash-core-components/issues/700).
