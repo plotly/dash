@@ -7,7 +7,7 @@ jobs:
       - image: percyio/agent
         auth:
           username: dashautomation
-          password: $DASH_PAT_DOCKERHUB      
+          password: $DASH_PAT_DOCKERHUB
     steps:
       - run: percy finalize --all
 
@@ -16,7 +16,7 @@ jobs:
       - image: circleci/python:3.7.6-stretch-node-browsers
         auth:
           username: dashautomation
-          password: $DASH_PAT_DOCKERHUB      
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYVERSION: python37
     steps:
@@ -36,7 +36,7 @@ jobs:
       - image: circleci/python:3.7.6-stretch-node-browsers
         auth:
           username: dashautomation
-          password: $DASH_PAT_DOCKERHUB      
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYLINTRC: .pylintrc37
           PYVERSION: python37
@@ -76,7 +76,7 @@ jobs:
         - image: circleci/python:3.6.9-stretch-node-browsers
           auth:
             username: dashautomation
-            password: $DASH_PAT_DOCKERHUB              
+            password: $DASH_PAT_DOCKERHUB
           environment:
             PYLINTRC: .pylintrc
             PYVERSION: python36
@@ -98,7 +98,7 @@ jobs:
       - image: circleci/python:3.7.6-stretch-node-browsers
         auth:
           username: dashautomation
-          password: $DASH_PAT_DOCKERHUB      
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYVERSION: python37
     steps:
@@ -136,7 +136,7 @@ jobs:
         - image: circleci/python:3.6.9-stretch-node-browsers
           auth:
             username: dashautomation
-            password: $DASH_PAT_DOCKERHUB              
+            password: $DASH_PAT_DOCKERHUB
           environment:
             PYVERSION: python36
 
@@ -146,7 +146,7 @@ jobs:
         - image: circleci/python:2.7.18-stretch-node-browsers
           auth:
             username: dashautomation
-            password: $DASH_PAT_DOCKERHUB              
+            password: $DASH_PAT_DOCKERHUB
           environment:
             PYVERSION: python27
 
@@ -156,7 +156,7 @@ jobs:
       - image: circleci/python:3.7.6-stretch-node-browsers
         auth:
           username: dashautomation
-          password: $DASH_PAT_DOCKERHUB            
+          password: $DASH_PAT_DOCKERHUB
         environment:
           PYVERSION: python37
 
@@ -209,7 +209,7 @@ jobs:
           environment:
             PYVERSION: python27
 
-  build-windows-37: &build-windows
+  build-windows-37:
     working_directory: ~/dash
     executor:
       name: win/default
@@ -219,32 +219,13 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
-      - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
-      - run:
-          name: ️️🏗️ pip dev requirements
-          command: |
-            pip install --upgrade virtualenv
-            virtualenv venv
-            source venv/Scripts/activate
-            sed -i '/dash-/d' requires-install.txt
-            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
-      - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
-          paths:
-              - venv
       - run:
           name: ️️🏗️ build core
           command: |
-              source venv/Scripts/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
+              pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
               cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
-              cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
-              ls -la packages
-      - persist_to_workspace:
-          root: ~/dash
-          paths:
-            - packages/*.tar.gz
+              cd dash-core-components && npm ci && npm run build && python setup.py sdist && cd ..
 
   build-dashr:
     working_directory: ~/dashr
