@@ -65,7 +65,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.jsx?$/,
-                    include: /node_modules[\\\/](react-jsx-parser[\\\/])/,
+                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js)[\\\/]/,
                     use: {
                         loader: 'babel-loader',
                         options: {

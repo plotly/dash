@@ -44,6 +44,7 @@ jobs:
       - run:
           name: 🔎 Unit Tests
           command: |
+            set -eo pipefail
             npm run test-unit
 
   lint-unit-36:
@@ -85,6 +86,7 @@ jobs:
           command: |
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
+            set -eo pipefail
             pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -94,17 +96,18 @@ jobs:
           name: 🏗️ build dash
           command: |
             . venv/bin/activate && mkdir packages
+            set -eo pipefail
             # build main dash
             git clone --depth 1 https://github.com/plotly/dash.git dash-main
             cd dash-main && pip install -e .[dev] --progress-bar off && python setup.py sdist && mv dist/* ../packages/
             cd dash-renderer && npm ci && npm run build
             python setup.py sdist && mv dist/* ../../packages/ && cd ../..
-            # build dcc
-            npm ci && npm run build && python setup.py sdist && mv dist/* ./packages
             # build html
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
             cd dash-html-components && npm ci && npm run build
-            python setup.py sdist && mv dist/* ../packages && cd .. && ls -la packages
+            python setup.py sdist && mv dist/* ../packages && cd ..
+            # build dcc
+            npm ci && npm run build && python setup.py sdist && mv dist/* ./packages && ls -la packages
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -152,6 +155,7 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate && rm -rf dash_core_components && ls -la
+            set -eo pipefail
             cd packages && mv dash-*.tar.gz main.tar.gz && ls -la
             find . -name "dash_*.gz" | xargs pip install -I --progress-bar off --no-cache-dir
             pip install --no-cache-dir --progress-bar off main.tar.gz[dev,testing]
@@ -209,11 +213,11 @@ jobs:
           name: 🧪 Run Legacy Integration Tests
           command: |
             . venv/bin/activate && rm -rf dash_core_components && ls -la
+            set -eo pipefail
             cd packages && mv dash-*.tar.gz main.tar.gz && ls -la
             find . -name "dash_*.gz" | xargs pip install -I --progress-bar off --no-cache-dir
             pip install --no-cache-dir --progress-bar off main.tar.gz[dev,testing]
             pip list | grep dash | xargs pip show && cd ..
-            set -eo pipefail
             echo $(python -V 2>&1) | grep 3. && python -m unittest tests/test_dash_import.py
             TESTFILES=$(circleci tests glob "tests/test_integration_*.py" | circleci tests split --split-by=timings)
             pytest --durations=10 --junitxml=test-reports/junit_legacy.xml ${TESTFILES}
