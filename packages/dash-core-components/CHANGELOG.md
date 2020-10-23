@@ -6,6 +6,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - [#871](https://github.com/plotly/dash-core-components/pull/871) Add Julia syntax highlighting support for dcc.Markdown
 
+## Updated
+- [#875](https://github.com/plotly/dash-core-components/pull/875)
+  - Upgraded Plotly.js to [1.57.1](https://github.com/plotly/plotly.js/releases/tag/v1.57.1)
+    - Patch release [1.57.1](https://github.com/plotly/plotly.js/releases/tag/v1.57.1)
+    - [Feature release of Plotly.js 1.57.0](https://github.com/plotly/plotly.js/releases/tag/v1.57.0) which:
+      - Add "domain" axis references in layout `images`, `shapes` and `annotations` [#5014](https://github.com/plotly/plotly.js/pull/5014)
+      - Add `rotation` attribute to `sunburst` traces [#5171](https://github.com/plotly/plotly.js/pull/5171), [#5201](https://github.com/plotly/plotly.js/pull/5201)
+      - Add computed margins in "full-json" export [#5203](https://github.com/plotly/plotly.js/pull/5203)
+    - [Feature release of Plotly.js 1.56.0](https://github.com/plotly/plotly.js/releases/tag/v1.56.0) which:
+        - Introduce period positioning attributes on date axes in various cartesian traces [#5074](https://github.com/plotly/plotly.js/pull/5074), [#5175](https://github.com/plotly/plotly.js/pull/5175)
+        - Add minexponent attribute to improve control over SI prefixes in axis tick labels [#5121](https://github.com/plotly/plotly.js/pull/5121),
+        - Add sort attribute to sunburst and treemap traces to disable automatic sort [#5164](https://github.com/plotly/plotly.js/pull/5164)
+        - Handle rgba colors in colorscale of surface traces [#5166](https://github.com/plotly/plotly.js/pull/5166)
+    - Patch release [1.55.2](https://github.com/plotly/plotly.js/releases/tag/v1.55.2)
+
 ## [1.12.1] - 2020-09-16
 ### Fixed
 - [#854](https://github.com/plotly/dash-core-components/pull/854) Used `persistenceTransforms` to strip the time part of the datetime in the persited props of DatePickerSingle (date) and DatePickerRange (end_date, start_date), fixing [dcc#700](https://github.com/plotly/dash-core-components/issues/700).
