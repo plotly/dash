@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - [#841](https://github.com/plotly/dash-table/pull/841) Add Julia syntax highlighting support for Markdown cells
+- [#831](https://github.com/plotly/dash-table/pull/831) Add the `tooltip_header` prop and add nested prop `use_with` (with values: `header`, `data`, `both`) to the `tooltip` prop to configure header cell tooltips
 
 ## [4.10.1] - 2020-09-03
 -Dash.jl Julia component generation
