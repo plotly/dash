@@ -97,7 +97,15 @@ export default class Slider extends Component {
                             setProps({value});
                         }
                     }}
-                    tipProps={tipProps}
+                    /*
+                    if/when rc-slider or rc-tooltip are updated to latest versions,
+                    we will need to revisit this code as the getTooltipContainer function will need to be a prop instead of a nested property
+                    */
+                    tipProps={{
+                        ...tipProps,
+                        getTooltipContainer: node => node,
+                    }}
+                    style={{position: 'relative'}}
                     value={value}
                     marks={truncatedMarks}
                     {...omit(
