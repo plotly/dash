@@ -9,7 +9,9 @@ Glad that you decided to make your contribution in Dash, to set up your developm
 $ git clone https://github.com/plotly/dash
 $ cd dash
 $ python3 -m venv .venv/dev
-# activate the virtualenv (on windows .venv\dev\scripts\activate)
+# activate the virtualenv
+# on windows `.venv\dev\scripts\activate`
+# on some linux / mac environments, use `.` instead of `source`
 $ source .venv/dev/bin/activate
 # install dash and dependencies
 $ pip install -e .[testing,dev]  # in some shells you need \ to escape []
