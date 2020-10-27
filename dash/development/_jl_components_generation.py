@@ -84,8 +84,13 @@ uuid = "{package_uuid}"
 
 [compat]
 julia = "1.2"
-{base_package} = ">=0.1"
+{base_package} = "{base_version}"
 """
+
+jl_base_version = {
+    "Dash": "0.1.3",
+    "DashBase": "0.1",
+}
 
 jl_component_include_string = 'include("{name}.jl")'
 
@@ -417,12 +422,15 @@ def generate_toml_file(project_shortname, pkg_data):
         'authors = ["{}"]\n'.format(package_author) if package_author else ""
     )
 
+    base_package = base_package_name(project_shortname)
+
     toml_string = jl_projecttoml_string.format(
         package_name=package_name,
         package_uuid=package_uuid,
         version=project_ver,
         authors=authors_string,
-        base_package=base_package_name(project_shortname),
+        base_package=base_package,
+        base_version=jl_base_version[base_package],
         dash_uuid=base_package_uid(project_shortname),
     )
     file_path = "Project.toml"

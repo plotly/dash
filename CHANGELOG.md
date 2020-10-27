@@ -3,8 +3,24 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
+### Fixed
+- [#1434](https://github.com/plotly/dash/pull/1434) Fix [#1432](https://github.com/plotly/dash/issues/1432) for Julia to import non-core component packages without possible errors.
+
+## [1.16.3] - 2020-10-07
+### Fixed
+- [#1426](https://github.com/plotly/dash/pull/1426) Fix a regression caused by `flask-compress==1.6.0` causing performance degradation on server requests
+
+## [1.16.2] - 2020-09-25
+### Fixed
+- [#1415](https://github.com/plotly/dash/pull/1415) Fix a regression with some layouts callbacks involving dcc.Tabs, not yet loaded dash_table.DataTable and dcc.Graph to not be called
+- [#1416](https://github.com/plotly/dash/pull/1416) Make callback graph more robust for complex apps and some specific props (`width` in particular) that previously caused errors.
+
+## [1.16.1] - 2020-09-16
 ### Changed
 - [#1376](https://github.com/plotly/dash/pull/1376) Extends the `getTransform` logic in the renderer to handle `persistenceTransforms` for both nested and non-nested persisted props. This was used to to fix [dcc#700](https://github.com/plotly/dash-core-components/issues/700) in conjunction with [dcc#854](https://github.com/plotly/dash-core-components/pull/854) by using persistenceTransforms to strip the time part of the datetime so that datepickers can persist when defined in callbacks.
+
+### Fixed
+- [#1408](https://github.com/plotly/dash/pull/1408) Fixes a bug where the callback graph layout would reset whenever a callback fired, losing user-initiated layout changes ([#1402](https://github.com/plotly/dash/issues/1402)) or creating a new force layout ([#1401](https://github.com/plotly/dash/issues/1401))
 
 ## [1.16.0] - 2020-09-03
 ### Added

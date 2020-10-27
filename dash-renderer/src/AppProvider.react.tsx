@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useState} from 'react';
 import {Provider} from 'react-redux';
 
-import initializeStore from './store';
+import Store from './store';
 import AppContainer from './AppContainer.react';
 
-const store = initializeStore();
-
 const AppProvider = ({hooks}: any) => {
+    const [{store}] = useState(() => new Store());
+
     return (
         <Provider store={store}>
             <AppContainer hooks={hooks} />

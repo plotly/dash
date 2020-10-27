@@ -1,8 +1,8 @@
 Flask>=1.0.2
 flask-compress
 plotly
-dash_renderer==1.8.0
-dash-core-components==1.12.0
+dash_renderer==1.8.2
+dash-core-components==1.12.1
 dash-html-components==1.1.1
 dash-table==4.10.1
 future
