@@ -40,7 +40,11 @@ def assert_aligned(cell, tooltip):
 
 @pytest.mark.parametrize(
     "fixed_rows",
-    [dict(fixed_rows=dict(headers=True)), dict(fixed_rows=dict(headers=True, data=1))],
+    [
+        dict(),
+        dict(fixed_rows=dict(headers=True)),
+        dict(fixed_rows=dict(headers=True, data=1)),
+    ],
 )
 @pytest.mark.parametrize(
     "fixed_columns",
@@ -73,7 +77,6 @@ def test_ttip001_displays_aligned_tooltip(test, fixed_rows, fixed_columns, ops):
     tooltip = target.tooltip
 
     target.is_ready()
-
     cell.move_to()
     assert tooltip.exists()
     assert tooltip.get_text() == ";; 1-1"

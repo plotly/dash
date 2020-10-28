@@ -1,18 +1,6 @@
-export default (el: HTMLElement | null, parent: HTMLElement | null = null) => {
-    parent =
-        parent ||
-        (() => {
-            parent = el;
-
-            while (parent && parent.nodeName.toLowerCase() !== 'td') {
-                parent = parent.parentElement;
-            }
-
-            return parent;
-        })();
-
-    if (!el || !parent) {
-        return {};
+export const getPositionalParent = (el: HTMLElement | null = null) => {
+    if (!el) {
+        return;
     }
 
     let positionalParent = el;
@@ -27,14 +15,5 @@ export default (el: HTMLElement | null, parent: HTMLElement | null = null) => {
         positionalParent = positionalParent.parentElement;
     }
 
-    let relativeParent = el;
-    while (getComputedStyle(relativeParent).position !== 'relative') {
-        if (!relativeParent.parentElement) {
-            break;
-        }
-
-        relativeParent = relativeParent.parentElement;
-    }
-
-    return {positionalParent, parent};
+    return positionalParent;
 };
