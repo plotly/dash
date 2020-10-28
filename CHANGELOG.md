@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 ### Fixed
 - [#1434](https://github.com/plotly/dash/pull/1434) Fix [#1432](https://github.com/plotly/dash/issues/1432) for Julia to import non-core component packages without possible errors.
+- [#1447](https://github.com/plotly/dash/pull/1447) Fix [#1164](https://github.com/plotly/dash/issues/1164). Commands like `dash_duo.wait_for_element(some_search_pattern, timeout=some_timeout)` now waits until a _non-stale_ reference exists, and (still) raises `TimeoutException` if not satisfied within the timeout. Previously, `wait_for_element` could occasionally fail with `StaleElementReferenceException`.
 
 ## [1.16.3] - 2020-10-07
 ### Fixed
