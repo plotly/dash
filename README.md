@@ -8,7 +8,7 @@
 [![LGTM Alerts](https://img.shields.io/lgtm/alerts/g/plotly/dash.svg)](https://lgtm.com/projects/g/plotly/dash/alerts)
 [![LGTM Grade](https://img.shields.io/lgtm/grade/python/g/plotly/dash.svg)](https://lgtm.com/projects/g/plotly/dash/context:python)
 
-#### *Dash is a Python framework for building analytical web applications. No JavaScript required*.
+#### *Dash is the most downloaded, trusted Python framework for building ML & data science web apps*.
 
 Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical Python code. Read our tutorial proudly crafted ❤️ by Dash itself.
 
@@ -17,6 +17,8 @@ Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dr
 - [Offline (PDF) Documentation](https://github.com/plotly/dash-docs/blob/master/pdf-docs/Dash_User_Guide_and_Documentation.pdf)
 
 - [Dash Docs on Heroku](https://dash-docs.herokuapp.com/) (for corporate network that cannot access plotly.com)
+
+- [Open-Source App Gallery](https://dash-gallery.plotly.host/Portal/) With sample code and templates!
 
 ### App Samples
 
@@ -29,14 +31,31 @@ Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dr
 
 To learn more about Dash, read the [extensive announcement letter](https://medium.com/@plotlygraphs/introducing-dash-5ecf7191b503) or [jump in with the user guide](https://plotly.com/dash).
 
-### Contact and Support
+### Dash OSS & Dash Enterprise
 
-For companies with software budgets, Plotly offers
+With Dash Open Source, Dash apps run on your local laptop or workstation, but cannot be easily accessed by others in your organization.
 
-- [**Dash Deployment Server**](https://plotly.com/products/dash/) speeds your time-to-delivery while providing the right resources, security, and scalability you need to deliver production-quality apps
-- [**Dash Design Kit**](https://plotly.com/products/dash/) makes your internal dashboard awesome without expertise in JavaScript & CSS.
-- [**Snapshot Engine**](https://plotly.com/products/dash/) seamlessly links your analytics and reporting workflows together, giving you a fast way to generate interactive reports of just the data you need
+Scale up with Dash Enterprise when your Dash app is ready for department or company-wide consumption. Or, launch your initiative with Dash Enterprise from the start to unlock developer productivity gains and hands-on acceleration from Plotly's team.
 
-See [https://plotly.com/dash/support](https://plotly.com/dash/support) for ways to get in touch.
+ML Ops Features: A one-stop shop for ML Ops: Horizontally scalable hosting, deployment, and authentication for your Dash apps. No IT or DevOps required. 
+- [**App manager**](https://plotly.com/dash/app-manager/) Deploy & manage Dash apps without needing IT or a DevOps team. App Manager gives you point & click control over all aspects of your Dash deployments.
+- [**Kubernetes scaling**](https://plotly.com/dash/kubernetes/) Ensure high availability of Dash apps and scale horizontally with Dash Enterprise’s Kubernetes architecture. No IT or Helm required. 
+- [**No code auth**](https://plotly.com/dash/authentication/) Control Dash app access in a few clicks. Dash Enterprise supports LDAP, AD, PKI, Okta, SAML, OpenID Connect, OAuth, SSO, and simple email authentication.
+- [**Job Queue**](https://plotly.com/dash/job-queue/) The Job Queue is the key to building scalable Dash apps. Move heavy computation from synchronous Dash callbacks to the Job Queue for asynchronous background processing.
 
-![image](https://user-images.githubusercontent.com/1280389/30084008-9fbc68fc-925e-11e7-891c-18a9b8f6ac6b.png)
+Low-Code Features: Low-code Dash app capabilities that supercharge developer productivity.
+- [**Design Kit**](https://plotly.com/dash/design-kit/) Design like a pro without writing a line of CSS. Easily arrange, style, brand, and customize your Dash apps.
+- [**Snapshot Engine**](https://plotly.com/dash/snapshot-engine/) Save & share Dash app views as links or PDFs. Or, run a Python job through Dash and have Snapshot Engine email a report when the job is done.
+- [**Dashboard Toolkit**](https://plotly.com/dash/toolkit/) Drag & drop layouts, chart editing, and crossfilter for your Dash apps.
+- [**Embedding**](https://plotly.com/dash/embedding/) Natively embed Dash apps in an existing web application or website without the use of IFrames.
+
+Enterprise AI Features: Everything that your data science team needs to rapidly deliver AI/ML research and business initiatives.
+- [**AI App Marketplace**](https://plotly.com/dash/ai-and-ml-templates/) Dash Enterprise ships with dozens of Dash app templates for business problems where AI/ML is having the greatest impact.
+- [**Big Data for Pything**](https://plotly.com/dash/big-data-for-python/) Connect to Python's most popular big data back ends: Dask, Databricks, NVIDIA RAPIDS, Snowflake, Postgres, Vaex, and more.
+- [**GPU & Dask Acceleration**](https://plotly.com/dash/gpu-dask-acceleration/) Dash Enterprise puts Python’s most popular HPC stack for GPU and parallel CPU computing in the hands of business users.
+- [**Data Science Workspaces**](https://plotly.com/dash/workspaces/) Be productive from Day 1. Write and execute Python, R, & Julia code from Dash Enterprise's onboard code editor.
+
+
+See [https://plotly.com/contact-us/](https://plotly.com/contact-us/) to get in touch.
+
+![image](https://images.prismic.io/plotly-marketing-website/493eec39-8467-4610-b9d0-d6ad3ea61423_Dash+Open+source%2BDash+enterprise2-01.jpg?auto=compress,format)
