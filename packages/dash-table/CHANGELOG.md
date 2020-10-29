@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [4.11.0] - 2020-10-29
 ### Fixed
 - [#841](https://github.com/plotly/dash-table/pull/841)
   - Fix prop-types regression causing console errors in browser devtools
