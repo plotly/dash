@@ -1068,7 +1068,11 @@ class Dash(object):
 
         args = inputs_to_vals(inputs + state)
 
-        func = self.callback_map[output]["callback"]
+        try:
+            func = self.callback_map[output]["callback"]
+        except KeyError:
+            msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
+            raise KeyError(msg.format(output))
         response.set_data(func(*args, outputs_list=outputs_list))
         return response
 
