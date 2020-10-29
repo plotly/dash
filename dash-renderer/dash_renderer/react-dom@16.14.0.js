@@ -1,4 +1,4 @@
-/** @license React v16.13.0
+/** @license React v16.14.0
  * react-dom.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -438,271 +438,6 @@
   var FundamentalComponent = 20;
   var ScopeComponent = 21;
   var Block = 22;
-
-  var BEFORE_SLASH_RE = /^(.*)[\\\/]/;
-  function describeComponentFrame (name, source, ownerName) {
-    var sourceInfo = '';
-
-    if (source) {
-      var path = source.fileName;
-      var fileName = path.replace(BEFORE_SLASH_RE, '');
-
-      {
-        // In DEV, include code for a common special case:
-        // prefer "folder/index.js" instead of just "index.js".
-        if (/^index\./.test(fileName)) {
-          var match = path.match(BEFORE_SLASH_RE);
-
-          if (match) {
-            var pathBeforeSlash = match[1];
-
-            if (pathBeforeSlash) {
-              var folderName = pathBeforeSlash.replace(BEFORE_SLASH_RE, '');
-              fileName = folderName + '/' + fileName;
-            }
-          }
-        }
-      }
-
-      sourceInfo = ' (at ' + fileName + ':' + source.lineNumber + ')';
-    } else if (ownerName) {
-      sourceInfo = ' (created by ' + ownerName + ')';
-    }
-
-    return '\n    in ' + (name || 'Unknown') + sourceInfo;
-  }
-
-  // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
-  // nor polyfill, then a plain number is used for performance.
-  var hasSymbol = typeof Symbol === 'function' && Symbol.for;
-  var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7;
-  var REACT_PORTAL_TYPE = hasSymbol ? Symbol.for('react.portal') : 0xeaca;
-  var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for('react.fragment') : 0xeacb;
-  var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for('react.strict_mode') : 0xeacc;
-  var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for('react.profiler') : 0xead2;
-  var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for('react.provider') : 0xeacd;
-  var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace; // TODO: We don't use AsyncMode or ConcurrentMode anymore. They were temporary
-  var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for('react.concurrent_mode') : 0xeacf;
-  var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0;
-  var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
-  var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for('react.suspense_list') : 0xead8;
-  var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
-  var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
-  var REACT_BLOCK_TYPE = hasSymbol ? Symbol.for('react.block') : 0xead9;
-  var MAYBE_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
-  var FAUX_ITERATOR_SYMBOL = '@@iterator';
-  function getIteratorFn(maybeIterable) {
-    if (maybeIterable === null || typeof maybeIterable !== 'object') {
-      return null;
-    }
-
-    var maybeIterator = MAYBE_ITERATOR_SYMBOL && maybeIterable[MAYBE_ITERATOR_SYMBOL] || maybeIterable[FAUX_ITERATOR_SYMBOL];
-
-    if (typeof maybeIterator === 'function') {
-      return maybeIterator;
-    }
-
-    return null;
-  }
-
-  var Uninitialized = -1;
-  var Pending = 0;
-  var Resolved = 1;
-  var Rejected = 2;
-  function refineResolvedLazyComponent(lazyComponent) {
-    return lazyComponent._status === Resolved ? lazyComponent._result : null;
-  }
-  function initializeLazyComponentType(lazyComponent) {
-    if (lazyComponent._status === Uninitialized) {
-      lazyComponent._status = Pending;
-      var ctor = lazyComponent._ctor;
-      var thenable = ctor();
-      lazyComponent._result = thenable;
-      thenable.then(function (moduleObject) {
-        if (lazyComponent._status === Pending) {
-          var defaultExport = moduleObject.default;
-
-          {
-            if (defaultExport === undefined) {
-              error('lazy: Expected the result of a dynamic import() call. ' + 'Instead received: %s\n\nYour code should look like: \n  ' + "const MyComponent = lazy(() => import('./MyComponent'))", moduleObject);
-            }
-          }
-
-          lazyComponent._status = Resolved;
-          lazyComponent._result = defaultExport;
-        }
-      }, function (error) {
-        if (lazyComponent._status === Pending) {
-          lazyComponent._status = Rejected;
-          lazyComponent._result = error;
-        }
-      });
-    }
-  }
-
-  function getWrappedName(outerType, innerType, wrapperName) {
-    var functionName = innerType.displayName || innerType.name || '';
-    return outerType.displayName || (functionName !== '' ? wrapperName + "(" + functionName + ")" : wrapperName);
-  }
-
-  function getComponentName(type) {
-    if (type == null) {
-      // Host root, text node or just invalid type.
-      return null;
-    }
-
-    {
-      if (typeof type.tag === 'number') {
-        error('Received an unexpected object in getComponentName(). ' + 'This is likely a bug in React. Please file an issue.');
-      }
-    }
-
-    if (typeof type === 'function') {
-      return type.displayName || type.name || null;
-    }
-
-    if (typeof type === 'string') {
-      return type;
-    }
-
-    switch (type) {
-      case REACT_FRAGMENT_TYPE:
-        return 'Fragment';
-
-      case REACT_PORTAL_TYPE:
-        return 'Portal';
-
-      case REACT_PROFILER_TYPE:
-        return "Profiler";
-
-      case REACT_STRICT_MODE_TYPE:
-        return 'StrictMode';
-
-      case REACT_SUSPENSE_TYPE:
-        return 'Suspense';
-
-      case REACT_SUSPENSE_LIST_TYPE:
-        return 'SuspenseList';
-    }
-
-    if (typeof type === 'object') {
-      switch (type.$$typeof) {
-        case REACT_CONTEXT_TYPE:
-          return 'Context.Consumer';
-
-        case REACT_PROVIDER_TYPE:
-          return 'Context.Provider';
-
-        case REACT_FORWARD_REF_TYPE:
-          return getWrappedName(type, type.render, 'ForwardRef');
-
-        case REACT_MEMO_TYPE:
-          return getComponentName(type.type);
-
-        case REACT_BLOCK_TYPE:
-          return getComponentName(type.render);
-
-        case REACT_LAZY_TYPE:
-          {
-            var thenable = type;
-            var resolvedThenable = refineResolvedLazyComponent(thenable);
-
-            if (resolvedThenable) {
-              return getComponentName(resolvedThenable);
-            }
-
-            break;
-          }
-      }
-    }
-
-    return null;
-  }
-
-  var ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
-
-  function describeFiber(fiber) {
-    switch (fiber.tag) {
-      case HostRoot:
-      case HostPortal:
-      case HostText:
-      case Fragment:
-      case ContextProvider:
-      case ContextConsumer:
-        return '';
-
-      default:
-        var owner = fiber._debugOwner;
-        var source = fiber._debugSource;
-        var name = getComponentName(fiber.type);
-        var ownerName = null;
-
-        if (owner) {
-          ownerName = getComponentName(owner.type);
-        }
-
-        return describeComponentFrame(name, source, ownerName);
-    }
-  }
-
-  function getStackByFiberInDevAndProd(workInProgress) {
-    var info = '';
-    var node = workInProgress;
-
-    do {
-      info += describeFiber(node);
-      node = node.return;
-    } while (node);
-
-    return info;
-  }
-  var current = null;
-  var phase = null;
-  function getCurrentFiberOwnerNameInDevOrNull() {
-    {
-      if (current === null) {
-        return null;
-      }
-
-      var owner = current._debugOwner;
-
-      if (owner !== null && typeof owner !== 'undefined') {
-        return getComponentName(owner.type);
-      }
-    }
-
-    return null;
-  }
-  function getCurrentFiberStackInDev() {
-    {
-      if (current === null) {
-        return '';
-      } // Safe because if current fiber exists, we are reconciling,
-      // and it is guaranteed to be the work-in-progress version.
-
-
-      return getStackByFiberInDevAndProd(current);
-    }
-  }
-  function resetCurrentFiber() {
-    {
-      ReactDebugCurrentFrame.getCurrentStack = null;
-      current = null;
-      phase = null;
-    }
-  }
-  function setCurrentFiber(fiber) {
-    {
-      ReactDebugCurrentFrame.getCurrentStack = getCurrentFiberStackInDev;
-      current = fiber;
-      phase = null;
-    }
-  }
-  function setCurrentPhase(lifeCyclePhase) {
-    {
-      phase = lifeCyclePhase;
-    }
-  }
 
   /**
    * Injectable ordering of event plugins.
@@ -1427,10 +1162,10 @@
     true);
   });
 
-  var ReactDebugCurrentFrame$1 = null;
+  var ReactDebugCurrentFrame = null;
 
   {
-    ReactDebugCurrentFrame$1 = ReactSharedInternals.ReactDebugCurrentFrame;
+    ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
   } // A javascript: URL can contain leading C0 control or \u0020 SPACE,
   // and any newline or tab are filtered out as if they're not part of the URL.
   // https://url.spec.whatwg.org/#url-parsing
@@ -1632,6 +1367,271 @@
       } else {
         node.setAttribute(attributeName, attributeValue);
       }
+    }
+  }
+
+  var BEFORE_SLASH_RE = /^(.*)[\\\/]/;
+  function describeComponentFrame (name, source, ownerName) {
+    var sourceInfo = '';
+
+    if (source) {
+      var path = source.fileName;
+      var fileName = path.replace(BEFORE_SLASH_RE, '');
+
+      {
+        // In DEV, include code for a common special case:
+        // prefer "folder/index.js" instead of just "index.js".
+        if (/^index\./.test(fileName)) {
+          var match = path.match(BEFORE_SLASH_RE);
+
+          if (match) {
+            var pathBeforeSlash = match[1];
+
+            if (pathBeforeSlash) {
+              var folderName = pathBeforeSlash.replace(BEFORE_SLASH_RE, '');
+              fileName = folderName + '/' + fileName;
+            }
+          }
+        }
+      }
+
+      sourceInfo = ' (at ' + fileName + ':' + source.lineNumber + ')';
+    } else if (ownerName) {
+      sourceInfo = ' (created by ' + ownerName + ')';
+    }
+
+    return '\n    in ' + (name || 'Unknown') + sourceInfo;
+  }
+
+  // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
+  // nor polyfill, then a plain number is used for performance.
+  var hasSymbol = typeof Symbol === 'function' && Symbol.for;
+  var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7;
+  var REACT_PORTAL_TYPE = hasSymbol ? Symbol.for('react.portal') : 0xeaca;
+  var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for('react.fragment') : 0xeacb;
+  var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for('react.strict_mode') : 0xeacc;
+  var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for('react.profiler') : 0xead2;
+  var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for('react.provider') : 0xeacd;
+  var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace; // TODO: We don't use AsyncMode or ConcurrentMode anymore. They were temporary
+  var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for('react.concurrent_mode') : 0xeacf;
+  var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0;
+  var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
+  var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for('react.suspense_list') : 0xead8;
+  var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
+  var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
+  var REACT_BLOCK_TYPE = hasSymbol ? Symbol.for('react.block') : 0xead9;
+  var MAYBE_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+  var FAUX_ITERATOR_SYMBOL = '@@iterator';
+  function getIteratorFn(maybeIterable) {
+    if (maybeIterable === null || typeof maybeIterable !== 'object') {
+      return null;
+    }
+
+    var maybeIterator = MAYBE_ITERATOR_SYMBOL && maybeIterable[MAYBE_ITERATOR_SYMBOL] || maybeIterable[FAUX_ITERATOR_SYMBOL];
+
+    if (typeof maybeIterator === 'function') {
+      return maybeIterator;
+    }
+
+    return null;
+  }
+
+  var Uninitialized = -1;
+  var Pending = 0;
+  var Resolved = 1;
+  var Rejected = 2;
+  function refineResolvedLazyComponent(lazyComponent) {
+    return lazyComponent._status === Resolved ? lazyComponent._result : null;
+  }
+  function initializeLazyComponentType(lazyComponent) {
+    if (lazyComponent._status === Uninitialized) {
+      lazyComponent._status = Pending;
+      var ctor = lazyComponent._ctor;
+      var thenable = ctor();
+      lazyComponent._result = thenable;
+      thenable.then(function (moduleObject) {
+        if (lazyComponent._status === Pending) {
+          var defaultExport = moduleObject.default;
+
+          {
+            if (defaultExport === undefined) {
+              error('lazy: Expected the result of a dynamic import() call. ' + 'Instead received: %s\n\nYour code should look like: \n  ' + "const MyComponent = lazy(() => import('./MyComponent'))", moduleObject);
+            }
+          }
+
+          lazyComponent._status = Resolved;
+          lazyComponent._result = defaultExport;
+        }
+      }, function (error) {
+        if (lazyComponent._status === Pending) {
+          lazyComponent._status = Rejected;
+          lazyComponent._result = error;
+        }
+      });
+    }
+  }
+
+  function getWrappedName(outerType, innerType, wrapperName) {
+    var functionName = innerType.displayName || innerType.name || '';
+    return outerType.displayName || (functionName !== '' ? wrapperName + "(" + functionName + ")" : wrapperName);
+  }
+
+  function getComponentName(type) {
+    if (type == null) {
+      // Host root, text node or just invalid type.
+      return null;
+    }
+
+    {
+      if (typeof type.tag === 'number') {
+        error('Received an unexpected object in getComponentName(). ' + 'This is likely a bug in React. Please file an issue.');
+      }
+    }
+
+    if (typeof type === 'function') {
+      return type.displayName || type.name || null;
+    }
+
+    if (typeof type === 'string') {
+      return type;
+    }
+
+    switch (type) {
+      case REACT_FRAGMENT_TYPE:
+        return 'Fragment';
+
+      case REACT_PORTAL_TYPE:
+        return 'Portal';
+
+      case REACT_PROFILER_TYPE:
+        return "Profiler";
+
+      case REACT_STRICT_MODE_TYPE:
+        return 'StrictMode';
+
+      case REACT_SUSPENSE_TYPE:
+        return 'Suspense';
+
+      case REACT_SUSPENSE_LIST_TYPE:
+        return 'SuspenseList';
+    }
+
+    if (typeof type === 'object') {
+      switch (type.$$typeof) {
+        case REACT_CONTEXT_TYPE:
+          return 'Context.Consumer';
+
+        case REACT_PROVIDER_TYPE:
+          return 'Context.Provider';
+
+        case REACT_FORWARD_REF_TYPE:
+          return getWrappedName(type, type.render, 'ForwardRef');
+
+        case REACT_MEMO_TYPE:
+          return getComponentName(type.type);
+
+        case REACT_BLOCK_TYPE:
+          return getComponentName(type.render);
+
+        case REACT_LAZY_TYPE:
+          {
+            var thenable = type;
+            var resolvedThenable = refineResolvedLazyComponent(thenable);
+
+            if (resolvedThenable) {
+              return getComponentName(resolvedThenable);
+            }
+
+            break;
+          }
+      }
+    }
+
+    return null;
+  }
+
+  var ReactDebugCurrentFrame$1 = ReactSharedInternals.ReactDebugCurrentFrame;
+
+  function describeFiber(fiber) {
+    switch (fiber.tag) {
+      case HostRoot:
+      case HostPortal:
+      case HostText:
+      case Fragment:
+      case ContextProvider:
+      case ContextConsumer:
+        return '';
+
+      default:
+        var owner = fiber._debugOwner;
+        var source = fiber._debugSource;
+        var name = getComponentName(fiber.type);
+        var ownerName = null;
+
+        if (owner) {
+          ownerName = getComponentName(owner.type);
+        }
+
+        return describeComponentFrame(name, source, ownerName);
+    }
+  }
+
+  function getStackByFiberInDevAndProd(workInProgress) {
+    var info = '';
+    var node = workInProgress;
+
+    do {
+      info += describeFiber(node);
+      node = node.return;
+    } while (node);
+
+    return info;
+  }
+  var current = null;
+  var isRendering = false;
+  function getCurrentFiberOwnerNameInDevOrNull() {
+    {
+      if (current === null) {
+        return null;
+      }
+
+      var owner = current._debugOwner;
+
+      if (owner !== null && typeof owner !== 'undefined') {
+        return getComponentName(owner.type);
+      }
+    }
+
+    return null;
+  }
+  function getCurrentFiberStackInDev() {
+    {
+      if (current === null) {
+        return '';
+      } // Safe because if current fiber exists, we are reconciling,
+      // and it is guaranteed to be the work-in-progress version.
+
+
+      return getStackByFiberInDevAndProd(current);
+    }
+  }
+  function resetCurrentFiber() {
+    {
+      ReactDebugCurrentFrame$1.getCurrentStack = null;
+      current = null;
+      isRendering = false;
+    }
+  }
+  function setCurrentFiber(fiber) {
+    {
+      ReactDebugCurrentFrame$1.getCurrentStack = getCurrentFiberStackInDev;
+      current = fiber;
+      isRendering = false;
+    }
+  }
+  function setIsRendering(rendering) {
+    {
+      isRendering = rendering;
     }
   }
 
@@ -5743,7 +5743,6 @@
   }
 
   var didWarnInvalidHydration = false;
-  var didWarnShadyDOM = false;
   var DANGEROUSLY_SET_INNER_HTML = 'dangerouslySetInnerHTML';
   var SUPPRESS_CONTENT_EDITABLE_WARNING = 'suppressContentEditableWarning';
   var SUPPRESS_HYDRATION_WARNING = 'suppressHydrationWarning';
@@ -6063,12 +6062,6 @@
 
     {
       validatePropertiesInDevelopment(tag, rawProps);
-
-      if (isCustomComponentTag && !didWarnShadyDOM && domElement.shadyRoot) {
-        error('%s is using shady DOM. Using shady DOM with React can ' + 'cause things to break subtly.', getCurrentFiberOwnerNameInDevOrNull() || 'A component');
-
-        didWarnShadyDOM = true;
-      }
     } // TODO: Make sure that we check isMounted before firing any of these events.
 
 
@@ -6422,12 +6415,6 @@
       suppressHydrationWarning = rawProps[SUPPRESS_HYDRATION_WARNING] === true;
       isCustomComponentTag = isCustomComponent(tag, rawProps);
       validatePropertiesInDevelopment(tag, rawProps);
-
-      if (isCustomComponentTag && !didWarnShadyDOM && domElement.shadyRoot) {
-        error('%s is using shady DOM. Using shady DOM with React can ' + 'cause things to break subtly.', getCurrentFiberOwnerNameInDevOrNull() || 'A component');
-
-        didWarnShadyDOM = true;
-      }
     } // TODO: Make sure that we check isMounted before firing any of these events.
 
 
@@ -10948,18 +10935,9 @@
       }
 
       var childContext;
-
-      {
-        setCurrentPhase('getChildContext');
-      }
-
       startPhaseTimer(fiber, 'getChildContext');
       childContext = instance.getChildContext();
       stopPhaseTimer();
-
-      {
-        setCurrentPhase(null);
-      }
 
       for (var contextKey in childContext) {
         if (!(contextKey in childContextTypes)) {
@@ -16896,7 +16874,6 @@
   var didWarnAboutGetDerivedStateOnFunctionComponent;
   var didWarnAboutFunctionRefs;
   var didWarnAboutReassigningProps;
-  var didWarnAboutMaxDuration;
   var didWarnAboutRevealOrder;
   var didWarnAboutTailOptions;
 
@@ -16907,7 +16884,6 @@
     didWarnAboutGetDerivedStateOnFunctionComponent = {};
     didWarnAboutFunctionRefs = {};
     didWarnAboutReassigningProps = false;
-    didWarnAboutMaxDuration = false;
     didWarnAboutRevealOrder = {};
     didWarnAboutTailOptions = {};
   }
@@ -16971,7 +16947,7 @@
 
     {
       ReactCurrentOwner$1.current = workInProgress;
-      setCurrentPhase('render');
+      setIsRendering(true);
       nextChildren = renderWithHooks(current, workInProgress, render, nextProps, ref, renderExpirationTime);
 
       if ( workInProgress.mode & StrictMode) {
@@ -16981,7 +16957,7 @@
         }
       }
 
-      setCurrentPhase(null);
+      setIsRendering(false);
     }
 
     if (current !== null && !didReceiveUpdate) {
@@ -17189,7 +17165,7 @@
 
     {
       ReactCurrentOwner$1.current = workInProgress;
-      setCurrentPhase('render');
+      setIsRendering(true);
       nextChildren = renderWithHooks(current, workInProgress, Component, nextProps, context, renderExpirationTime);
 
       if ( workInProgress.mode & StrictMode) {
@@ -17199,7 +17175,7 @@
         }
       }
 
-      setCurrentPhase(null);
+      setIsRendering(false);
     }
 
     if (current !== null && !didReceiveUpdate) {
@@ -17315,14 +17291,14 @@
       }
     } else {
       {
-        setCurrentPhase('render');
+        setIsRendering(true);
         nextChildren = instance.render();
 
         if ( workInProgress.mode & StrictMode) {
           instance.render();
         }
 
-        setCurrentPhase(null);
+        setIsRendering(false);
       }
     } // React DevTools reads this flag.
 
@@ -17636,8 +17612,10 @@
         ReactStrictModeWarnings.recordLegacyContextWarning(workInProgress, null);
       }
 
+      setIsRendering(true);
       ReactCurrentOwner$1.current = workInProgress;
       value = renderWithHooks(null, workInProgress, Component, props, context, renderExpirationTime);
+      setIsRendering(false);
     } // React DevTools reads this flag.
 
 
@@ -17803,17 +17781,7 @@
     }
 
     suspenseContext = setDefaultShallowSuspenseContext(suspenseContext);
-    pushSuspenseContext(workInProgress, suspenseContext);
-
-    {
-      if ('maxDuration' in nextProps) {
-        if (!didWarnAboutMaxDuration) {
-          didWarnAboutMaxDuration = true;
-
-          error('maxDuration has been removed from React. ' + 'Remove the maxDuration prop.');
-        }
-      }
-    } // This next part is a bit confusing. If the children timeout, we switch to
+    pushSuspenseContext(workInProgress, suspenseContext); // This next part is a bit confusing. If the children timeout, we switch to
     // showing the fallback children in place of the "primary" children.
     // However, we don't want to delete the primary children because then their
     // state will be lost (both the React state and the host state, e.g.
@@ -17834,7 +17802,6 @@
     // Otherwise, we render the primary children directly. This requires some
     // custom reconciliation logic to preserve the state of the primary
     // children. It's essentially a very basic form of re-parenting.
-
 
     if (current === null) {
       // If we're currently hydrating, try to hydrate this boundary.
@@ -18468,9 +18435,9 @@
 
     {
       ReactCurrentOwner$1.current = workInProgress;
-      setCurrentPhase('render');
+      setIsRendering(true);
       newChildren = render(newValue);
-      setCurrentPhase(null);
+      setIsRendering(false);
     } // React DevTools reads this flag.
 
 
@@ -20982,9 +20949,11 @@
         var currentSource = sourceFiber.alternate;
 
         if (currentSource) {
+          sourceFiber.updateQueue = currentSource.updateQueue;
           sourceFiber.memoizedState = currentSource.memoizedState;
           sourceFiber.expirationTime = currentSource.expirationTime;
         } else {
+          sourceFiber.updateQueue = null;
           sourceFiber.memoizedState = null;
         }
       }
@@ -23382,43 +23351,40 @@
   }
 
   var didWarnAboutUpdateInRender = false;
-  var didWarnAboutUpdateInGetChildContext = false;
+  var didWarnAboutUpdateInRenderForAnotherComponent;
+
+  {
+    didWarnAboutUpdateInRenderForAnotherComponent = new Set();
+  }
 
   function warnAboutRenderPhaseUpdatesInDEV(fiber) {
     {
-      if ((executionContext & RenderContext) !== NoContext) {
+      if (isRendering && (executionContext & RenderContext) !== NoContext) {
         switch (fiber.tag) {
           case FunctionComponent:
           case ForwardRef:
           case SimpleMemoComponent:
             {
-              error('Cannot update a component from inside the function body of a ' + 'different component.');
+              var renderingComponentName = workInProgress && getComponentName(workInProgress.type) || 'Unknown'; // Dedupe by the rendering component because it's the one that needs to be fixed.
+
+              var dedupeKey = renderingComponentName;
+
+              if (!didWarnAboutUpdateInRenderForAnotherComponent.has(dedupeKey)) {
+                didWarnAboutUpdateInRenderForAnotherComponent.add(dedupeKey);
+                var setStateComponentName = getComponentName(fiber.type) || 'Unknown';
+
+                error('Cannot update a component (`%s`) while rendering a ' + 'different component (`%s`). To locate the bad setState() call inside `%s`, ' + 'follow the stack trace as described in https://fb.me/setstate-in-render', setStateComponentName, renderingComponentName, renderingComponentName);
+              }
 
               break;
             }
 
           case ClassComponent:
             {
-              switch (phase) {
-                case 'getChildContext':
-                  if (didWarnAboutUpdateInGetChildContext) {
-                    return;
-                  }
+              if (!didWarnAboutUpdateInRender) {
+                error('Cannot update during an existing state transition (such as ' + 'within `render`). Render methods should be a pure ' + 'function of props and state.');
 
-                  error('setState(...): Cannot call setState() inside getChildContext()');
-
-                  didWarnAboutUpdateInGetChildContext = true;
-                  break;
-
-                case 'render':
-                  if (didWarnAboutUpdateInRender) {
-                    return;
-                  }
-
-                  error('Cannot update during an existing state transition (such as ' + 'within `render`). Render methods should be a pure ' + 'function of props and state.');
-
-                  didWarnAboutUpdateInRender = true;
-                  break;
+                didWarnAboutUpdateInRender = true;
               }
 
               break;
@@ -24513,7 +24479,7 @@
     }
 
     {
-      if (phase === 'render' && current !== null && !didWarnAboutNestedUpdates) {
+      if (isRendering && current !== null && !didWarnAboutNestedUpdates) {
         didWarnAboutNestedUpdates = true;
 
         error('Render methods should be a pure function of props and state; ' + 'triggering nested component updates from render is not allowed. ' + 'If necessary, trigger nested updates in componentDidUpdate.\n\n' + 'Check the render method of %s.', getComponentName(current.type) || 'Unknown');
@@ -24737,7 +24703,7 @@
       // Enables DevTools to append owner stacks to error messages in DEV mode.
       getCurrentFiber:  function () {
         return current;
-      } 
+      }
     }));
   }
   var IsSomeRendererActing$1 = ReactSharedInternals.IsSomeRendererActing;
@@ -25089,7 +25055,7 @@
     };
   }
 
-  var ReactVersion = '16.13.0';
+  var ReactVersion = '16.14.0';
 
   setAttemptUserBlockingHydration(attemptUserBlockingHydration$1);
   setAttemptContinuousHydration(attemptContinuousHydration$1);

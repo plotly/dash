@@ -2,6 +2,15 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.17.0] - 2020-10-29
+### Changed
+- [#1442](https://github.com/plotly/dash/pull/1442) Update from React 16.13.0 to 16.14.0
+### Fixed
+- [#1434](https://github.com/plotly/dash/pull/1434) Fix [#1432](https://github.com/plotly/dash/issues/1432) for Julia to import non-core component packages without possible errors.
+
+### Changed
+- [#1448](https://github.com/plotly/dash/pull/1448) Provide a hint in the callback error when the user forgot to make `app.callback(...)` a decorator.
+
 ## [1.16.3] - 2020-10-07
 ### Fixed
 - [#1426](https://github.com/plotly/dash/pull/1426) Fix a regression caused by `flask-compress==1.6.0` causing performance degradation on server requests

@@ -9,8 +9,10 @@ Glad that you decided to make your contribution in Dash, to set up your developm
 $ git clone https://github.com/plotly/dash
 $ cd dash
 $ python3 -m venv .venv/dev
-# activate the virtualenv (on windows .venv\dev\scripts\activate)
-$ . .venv/dev/bin/activate
+# activate the virtualenv
+# on windows `.venv\dev\scripts\activate`
+# on some linux / mac environments, use `.` instead of `source`
+$ source .venv/dev/bin/activate
 # install dash and dependencies
 $ pip install -e .[testing,dev]  # in some shells you need \ to escape []
 $ cd dash-renderer
@@ -23,7 +25,7 @@ $ pip install -e .
 # build and install components used in tests
 $ cd .. # should be back in dash/ root directory
 $ npm install
-$ npm run setup-tests
+$ npm run setup-tests.py # or npm run setup-tests.R
 # you should see both dash and dash-renderer are pointed to local source repos
 $ pip list | grep dash
 ```
