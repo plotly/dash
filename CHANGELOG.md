@@ -3,6 +3,8 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
+### Changed
+- [#1442](https://github.com/plotly/dash/pull/1442) Update from React 16.13.0 to 16.14.0
 ### Fixed
 - [#1434](https://github.com/plotly/dash/pull/1434) Fix [#1432](https://github.com/plotly/dash/issues/1432) for Julia to import non-core component packages without possible errors.
 
