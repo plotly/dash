@@ -6,9 +6,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - [#871](https://github.com/plotly/dash-core-components/pull/871) Add Julia syntax highlighting support for dcc.Markdown
 
-## Updated
+### Fixed
 - [#878](https://github.com/plotly/dash-core-components/pull/878)
   - Fixed [#751](https://github.com/plotly/dash-core-components/issues/751), a bug that causes `dcc.Slider` and `dcc.RangerSlider` tooltips to be visible even if the slider component isn't visible (e.g. overflow),
+
+### Updated
 - [#875](https://github.com/plotly/dash-core-components/pull/875)
   - Upgraded Plotly.js to [1.57.1](https://github.com/plotly/plotly.js/releases/tag/v1.57.1)
     - Patch release [1.57.1](https://github.com/plotly/plotly.js/releases/tag/v1.57.1)
