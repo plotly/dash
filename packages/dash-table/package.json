@@ -40,7 +40,7 @@
     "postbuild": "es-check es5 dash_table/*.js",
     "format": "run-s private::format.*",
     "lint": "run-s private::lint.*",
-    "test.server": "pytest tests/selenium",
+    "test.server": "pytest --nopercyfinalize tests/selenium",
     "test.standalone": "run-p --race private::host_js private::test.standalone",
     "test.unit": "run-s private::test.python private::test.unit",
     "test.visual": "build-storybook && percy-storybook",

@@ -222,6 +222,11 @@
         flex-direction: row;
         position: relative;
 
+        // This overrides Bootstrap 3.4.1 body styling
+        // https://github.com/twbs/bootstrap/blob/v3-dev/dist/css/bootstrap.css#L1087
+        // Also unapplies with the latest `in development` 5.0.0-alpha2 (https://github.com/twbs/bootstrap/blob/main/dist/css/bootstrap.css#L51)
+        line-height: initial;
+
         // This overrides Chrome's default `font-size: medium;` which is causing performance issues
         // with AutoInputResize sub-component in react-select
         // https://github.com/JedWatson/react-input-autosize/blob/05b0f86a7f8b16de99c2b31296ff0d3307f15957/src/AutosizeInput.js#L58
@@ -232,6 +237,19 @@
             td, th {
                 pointer-events: initial;
             }
+        }
+
+        input[type="radio"] {
+            // These override Bootstrap 3.4.1 type="radio" styling
+            // https://github.com/twbs/bootstrap/blob/v3-dev/dist/css/bootstrap.css#L2621
+            // This is not a problem with the latest `in development` 5.0.0-alpha2
+            margin: initial;
+            line-height: initial;
+            // These override Bootstrap 4.5.0 type="radio" styling
+            // https://github.com/twbs/bootstrap/blob/v4-dev/dist/css/bootstrap.css#L287
+            // This is not a problem with the latest `in development` 5.0.0-alpha2
+            box-sizing: initial;
+            padding: initial;
         }
 
 	    .dash-spreadsheet-inner {
@@ -295,7 +313,7 @@
             }
 
             &:not(.dash-empty-11) {
-                .row-0 {
+                .dt-table-container__row-0 {
                     tr:last-of-type {
                         td, th {
                             border-bottom: none !important;
@@ -344,13 +362,13 @@
             &.dash-virtualized {
                 overflow: hidden !important;
 
-                .row-0 {
+                .dt-table-container__row-0 {
                     display: flex;
                     flex: 0 0 auto;
                     flex-direction: row;
                 }
 
-                .row-1 {
+                .dt-table-container__row-1 {
                     display: flex;
                     flex-direction: row;
                     overflow: auto;

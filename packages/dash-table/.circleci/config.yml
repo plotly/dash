@@ -1,13 +1,20 @@
-version: 2
+version: 2.1
 
 jobs:
     "server-test":
         docker:
             - image: circleci/python:3.7.6-node-browsers
+              environment:
+                PERCY_PARALLEL_TOTAL: -1
             - image: cypress/base:10
 
         steps:
             - checkout
+            - run:
+                name: Inject Percy Environment variables
+                command: |
+                  echo 'export PERCY_TOKEN="$PERCY_TOKEN_E2E"' >> $BASH_ENV
+
             - restore_cache:
                 key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
             - run:
@@ -44,6 +51,10 @@ jobs:
                 command: |
                     . venv/bin/activate
                     npm run test.server
+            - run:
+                name: 🦔 percy finalize
+                command: npx percy finalize --all
+                when: always
 
 
     "standalone-test":

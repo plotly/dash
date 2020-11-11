@@ -1,3 +1,4 @@
+dash-bootstrap-components==0.10.7
 pandas
 preconditions
 xlrd

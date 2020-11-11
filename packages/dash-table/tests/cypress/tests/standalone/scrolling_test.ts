@@ -21,7 +21,7 @@ variants.forEach(([mode, flavors]) => {
             DashTable.clickCellById(0, 'rows');
             DashTable.getSelectedCells().should('have.length', 1);
 
-            cy.get('.row-1').scrollTo(0, 1000);
+            cy.get('.dt-table-container__row-1').scrollTo(0, 1000);
             DashTable.getSelectedCells().should('have.length', 0);
         });
 
@@ -29,10 +29,10 @@ variants.forEach(([mode, flavors]) => {
             DashTable.clickCellById(0, 'rows');
             DashTable.getActiveCell().should('have.length', 1);
 
-            cy.get('.row-1').scrollTo(0, 1000);
+            cy.get('.dt-table-container__row-1').scrollTo(0, 1000);
             DashTable.getActiveCell().should('have.length', 0);
 
-            cy.get('.row-1').scrollTo(0, 0);
+            cy.get('.dt-table-container__row-1').scrollTo(0, 0);
             DashTable.getActiveCell().should('have.length', 1);
         });
 
@@ -45,10 +45,10 @@ variants.forEach(([mode, flavors]) => {
 
             DashTable.getSelectedCells().should('have.length', 6);
 
-            cy.get('.row-1').scrollTo(0, 1000);
+            cy.get('.dt-table-container__row-1').scrollTo(0, 1000);
             DashTable.getSelectedCells().should('have.length', 0);
 
-            cy.get('.row-1').scrollTo(0, 0);
+            cy.get('.dt-table-container__row-1').scrollTo(0, 0);
             DashTable.getSelectedCells().should('have.length', 6);
         });
 
@@ -57,7 +57,7 @@ variants.forEach(([mode, flavors]) => {
             DashTable.clickCell(0, 0);
             DashTable.toggleScroll(true);
 
-            cy.get('.row-1').scrollTo(0, 1000);
+            cy.get('.dt-table-container__row-1').scrollTo(0, 1000);
             cy.wait(1000);
 
             DashTable.clickCell(10, 1);
