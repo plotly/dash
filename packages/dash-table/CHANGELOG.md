@@ -2,12 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+- [#844](https://github.com/plotly/dash-table/pull/844) Fix a bug where the table is using classes that are styled by Bootstrap
+
 ## [4.11.0] - 2020-10-29
 ### Fixed
 - [#841](https://github.com/plotly/dash-table/pull/841)
   - Fix prop-types regression causing console errors in browser devtools
   - Fix syntax highlighting regression for Markdown cells
-- [#844](https://github.com/plotly/dash-table/pull/844) Fix a bug where the table is using classes that are styled by Bootstrap
 - [#842](https://github.com/plotly/dash-table/pull/842) Fix a regression introduced with [#722](https://github.com/plotly/dash-table/pull/722) causing the tooltips to be misaligned with respect to their parent cell and incompletely addressed in [#817](https://github.com/plotly/dash-table/pull/817)
 
 ### Added
