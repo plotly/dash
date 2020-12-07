@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
 - [#844](https://github.com/plotly/dash-table/pull/844) Fix a bug where the table is using classes that are styled by Bootstrap
 
 ## [4.11.0] - 2020-10-29
