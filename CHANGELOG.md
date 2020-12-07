@@ -2,6 +2,8 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.18.0] - 2020-12-07
+
 ## [1.17.0] - 2020-10-29
 ### Changed
 - [#1442](https://github.com/plotly/dash/pull/1442) Update from React 16.13.0 to 16.14.0

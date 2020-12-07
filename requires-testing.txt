@@ -3,7 +3,7 @@ pytest==4.6.9;python_version=="2.7"
 pytest-sugar==0.9.4
 pytest-mock==3.2.0;python_version>="3.0"
 pytest-mock==2.0.0;python_version=="2.7"
-lxml==4.5.0
+lxml==4.6.1
 selenium==3.141.0
 percy==2.0.2
 cryptography==3.0
