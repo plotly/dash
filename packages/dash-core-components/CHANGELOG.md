@@ -4,8 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Updated
-- [#889](https://github.com/plotly/dash-core-components/pull/889)
-  - Upgraded Plotly.js to [1.58.0](https://github.com/plotly/plotly.js/releases/tag/v1.58.0)
+- [#889](https://github.com/plotly/dash-core-components/pull/889) & [#893](https://github.com/plotly/dash-core-components/pull/893)
+  - Upgraded Plotly.js to [1.58.1](https://github.com/plotly/plotly.js/releases/tag/v1.58.1)
+    - Patch Release [1.58.1](https://github.com/plotly/plotly.js/releases/tag/v1.58.1)
     - [Feature release of Plotly.js 1.58.0](https://github.com/plotly/plotly.js/releases/tag/v1.58.0) which:
       - Add `ticklabelposition` attribute to cartesian axes and colorbars [#5275](https://github.com/plotly/plotly.js/pull/5275)
       - Add "strict" `autotypenumbers` to axes and `layout` [#5240](https://github.com/plotly/plotly.js/pull/5240)
