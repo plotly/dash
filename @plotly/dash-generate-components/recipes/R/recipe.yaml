@@ -1,0 +1,115 @@
+dist: .dcg/dist/R
+
+vars:
+  deps: inst/deps/
+  issues: ${(package && package.bugs && package.bugs.url) || ''}
+  js_name: ${package.name}
+  license: ${package.license}
+  maintainer: ${package.maintainer}
+  r_name: ${package.name.split(/-|\s/).map((f, i) => i === 0 ? f : f[0].toUpperCase() + f.slice(1)).join('')}
+  snake_name: ${package.name.replace(/(\s|-)/g, '_')}
+  url: ${package.homepage}
+  version: ${package.version}
+  vignettes: vignettes/
+  year: ${new Date().getFullYear()}
+
+  r_header: '# AUTO GENERATED FILE - DO NOT EDIT'
+  rd_header: '% Auto-generated: do not edit by hand'
+
+artifacts:
+  - filepath: ${target}
+    foreach: js.core.getSourceFiles(recipe.vars.vignettes)
+    template: ${js.core.readSourceFile(target)}
+
+  - filepath: ${recipe.vars.deps + target.target}
+    foreach: config.dist
+    template: ${js.core.readConfigFile(target.source)}
+
+  - filepath: ${target.target}
+    foreach: config.vars.dist
+    template: ${js.core.readConfigFile(target.source)}
+
+  - filepath: .Rbuildignore
+    template: ${js.core.readRecipeFile('templates/.Rbuildignore')}
+
+  - filepath: DESCRIPTION
+    template: ${js.core.readRecipeFile('templates/DESCRIPTION')}
+
+  - filepath: NAMESPACE
+    template: ${js.core.readRecipeFile('templates/NAMESPACE')}
+
+  - filepath: LICENSE
+    template: ${js.core.readRecipeFile('templates/LICENSE')}
+
+  - filepath: R/internal.R
+    template: ${js.core.readRecipeFile('templates/internal.R')}
+
+  - filepath: R/${config.vars.prefix + target.displayName}.R
+    foreach: metadata
+    template: ${js.core.readRecipeFile('templates/<component>.R')}
+
+  - filepath: man/${recipe.vars.r_name}-package.Rd
+    template: ${js.core.readRecipeFile('templates/<package>-package.Rd')}
+
+  - filepath: man/${config.vars.prefix}${target.displayName}.Rd
+    foreach: metadata
+    template: ${js.core.readRecipeFile('templates/<component>.Rd')}
+
+templates:
+  comma:
+    template: ', '
+    condition: target
+
+  import:
+    template: ${target}
+    join: |
+      ,
+
+  import_knitr:
+    template: 'knitr, '
+    condition: target
+
+  import_rmarkdown:
+    template: 'rmarkdown, '
+    condition: target
+
+  dist:
+    template: ${js.core.readRecipeFile('templates/internal__dist.R')}
+    join: ', '
+
+  ctor_argument:
+    template: ${key}=NULL
+    join: ', '
+
+  dontrun_open:
+    template: \\dontrun{
+    condition: target
+
+  dontrun_close:
+    template: '}'
+    condition: target
+
+  export:
+    template: export(${config.vars.prefix + target.displayName})
+    join: |
+
+  prop_assignment:
+    template: ${key}=${key}
+    join: ', '
+
+  prop_name:
+    template: "'${key}'"
+    join: ', '
+
+  class_parameter:
+    template: ${key}=NULL
+    join: |
+      ,
+  class_property:
+    template: ${js.getPropDescription(key, target)}
+
+  vignettes:
+    template: '\nVignetteBuilder: knitr'
+    condition: js.core.configFileExists('vignettes')
+
+

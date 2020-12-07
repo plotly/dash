@@ -1,0 +1,96 @@
+dist: .dcg/dist/py
+
+vars:
+  author: ${package.author}
+  deps: ${package.name.replace(/(\s|-)/g, '_') + "/"}
+  description: ${package.description}
+  js_name: ${package.name}
+  license: ${package.license}
+  py_name: ${package.name.replace(/(\s|-)/g, '_')}
+  version: ${package.version}
+
+  class_header: |
+    # AUTO GENERATED FILE - DO NOT EDIT
+
+    from dash.development.base_component import Component, _explicitize_args
+
+artifacts:
+  - filepath: ${recipe.vars.deps + target.target}
+    foreach: config.dist
+    template: ${js.core.readSourceFile(target.source)}
+
+  - filepath: ${recipe.vars.deps + target.target}
+    foreach: config.vars.dist
+    template: ${js.core.readConfigFile(target.source)}
+
+  - filepath: ${recipe.vars.deps + '__init__.py' }
+    template: ${js.core.readRecipeFile('templates/__init__.py')}
+
+  - filepath: ${recipe.vars.deps + '_imports_.py' }
+    template: ${js.core.readRecipeFile('templates/_imports_.py')}
+
+  - filepath: ${recipe.vars.deps + key.split('/').slice(-1)[0].split('.')[0]}.py
+    foreach: metadata
+    template: ${js.core.readRecipeFile('templates/<component>.py')}
+
+  - filepath: ${recipe.vars.deps + 'metadata.json' }
+    template: ${js.stringify(metadata)}
+
+  - filepath: LICENSE
+    condition: js.core.sourceFileExists('LICENSE') || js.core.sourceFileExists('LICENSE.txt')
+    template: ${js.core.readSourceFile('LICENSE') || js.core.readSourceFile('LICENSE.txt')}
+
+  - filepath: MANIFEST.in
+    template: ${js.core.readRecipeFile('templates/MANIFEST.in')}
+
+  - filepath: setup.py
+    template: ${js.core.readRecipeFile('templates/setup.py')}
+
+  - filepath: README.md
+    condition: js.core.sourceFileExists('README.md')
+    template: ${js.core.readSourceFile('README.md')}
+
+templates:
+  include:
+    template: include ${recipe.vars.deps + target.target}
+    join: |
+
+  resource:
+    template: ${js.getJsDist(target, recipe.vars.js_name, recipe.vars.py_name, recipe.vars.version)}
+    join: ','
+
+  children:
+    condition: target
+    template: "'children', "
+
+  children_arg:
+    condition: target
+    template: 'children=children, '
+
+  children_default_arg:
+    condition: target
+    template: 'children=None, '
+
+  class_declaration:
+    template: ${js.core.readRecipeFile('templates/__class_declaration.py')}
+
+  class_parameter:
+    template: >-
+      ${key === 'children' ? key + '=None' : key + '=Component.UNDEFINED'}
+    join: ', '
+  class_property:
+    template: ${js.getPropDescription(key, target)}
+    join: |
+
+  class_property_name:
+    template: \'${key}\'
+    join: ', '
+
+  import_export:
+    template: >-1
+         "${key.split('/').slice(-1)[0].split('.')[0]}"
+    join: |
+      ,
+
+  import_from:
+    template: from .${key.split('/').slice(-1)[0].split('.')[0]} import ${key.split('/').slice(-1)[0].split('.')[0]}
