@@ -2,7 +2,41 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [1.18.0] - 2020-12-07
+
+## [1.17.0] - 2020-10-29
+### Changed
+- [#1442](https://github.com/plotly/dash/pull/1442) Update from React 16.13.0 to 16.14.0
+### Fixed
+- [#1434](https://github.com/plotly/dash/pull/1434) Fix [#1432](https://github.com/plotly/dash/issues/1432) for Julia to import non-core component packages without possible errors.
+
+### Changed
+- [#1448](https://github.com/plotly/dash/pull/1448) Provide a hint in the callback error when the user forgot to make `app.callback(...)` a decorator.
+
+## [1.16.3] - 2020-10-07
+### Fixed
+- [#1426](https://github.com/plotly/dash/pull/1426) Fix a regression caused by `flask-compress==1.6.0` causing performance degradation on server requests
+
+## [1.16.2] - 2020-09-25
+### Fixed
+- [#1415](https://github.com/plotly/dash/pull/1415) Fix a regression with some layouts callbacks involving dcc.Tabs, not yet loaded dash_table.DataTable and dcc.Graph to not be called
+- [#1416](https://github.com/plotly/dash/pull/1416) Make callback graph more robust for complex apps and some specific props (`width` in particular) that previously caused errors.
+
+## [1.16.1] - 2020-09-16
+### Changed
+- [#1376](https://github.com/plotly/dash/pull/1376) Extends the `getTransform` logic in the renderer to handle `persistenceTransforms` for both nested and non-nested persisted props. This was used to to fix [dcc#700](https://github.com/plotly/dash-core-components/issues/700) in conjunction with [dcc#854](https://github.com/plotly/dash-core-components/pull/854) by using persistenceTransforms to strip the time part of the datetime so that datepickers can persist when defined in callbacks.
+
+### Fixed
+- [#1408](https://github.com/plotly/dash/pull/1408) Fixes a bug where the callback graph layout would reset whenever a callback fired, losing user-initiated layout changes ([#1402](https://github.com/plotly/dash/issues/1402)) or creating a new force layout ([#1401](https://github.com/plotly/dash/issues/1401))
+
+## [1.16.0] - 2020-09-03
+### Added
+- [#1371](https://github.com/plotly/dash/pull/1371) You can now get [CSP `script-src` hashes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src) of all added inline scripts by calling `app.csp_hashes()` (both Dash internal inline scripts, and those added with `app.clientside_callback`) .
+
+### Changed
+- [#1385](https://github.com/plotly/dash/pull/1385) Closes [#1350](https://github.com/plotly/dash/issues/1350) and fixes a previously undefined callback behavior when multiple elements are stacked on top of one another and their `n_clicks` props are used as inputs of the same callback. The callback will now trigger once with all the triggered `n_clicks` props changes.
+- [#1179](https://github.com/plotly/dash/pull/1179) New and improved callback graph in the debug menu. Now based on Cytoscape for much more interactivity, plus callback profiling including number of calls, fine-grained time information, bytes sent and received, and more. You can even add custom timing information on the server with `callback_context.record_timing(name, seconds)`
+
 ### Fixed
 - [#1384](https://github.com/plotly/dash/pull/1384) Fixed a bug introduced by [#1180](https://github.com/plotly/dash/pull/1180) breaking use of `prevent_initial_call` as a positional arg in callback definitions
 
@@ -14,7 +48,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 - [#1180](https://github.com/plotly/dash/pull/1180) and [#1375](https://github.com/plotly/dash/pull/1375) `Input`, `Output`, and `State` in callback definitions don't need to be in lists. You still need to provide `Output` items first, then `Input` items, then `State`, and the list form is still supported. In particular, if you want to return a single output item wrapped in a length-1 list, you should still wrap the `Output` in a list. This can be useful for procedurally-generated callbacks.
 - [#1368](https://github.com/plotly/dash/pull/1368) Updated pytest to v6.0.1. To avoid deprecation warnings, this also updated pytest-sugar to 0.9.4 and pytest-mock to 3.2.0. The pytest-mock update only effects python >= 3.0. Pytest-mock remains pinned at 2.0.0 for python == 2.7.
-
 
 ## [1.14.0] - 2020-07-27
 ### Added

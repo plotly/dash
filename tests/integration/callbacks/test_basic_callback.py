@@ -1,17 +1,25 @@
 import json
-from multiprocessing import Value
-
+from multiprocessing import Lock, Value
 import pytest
 
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 import dash
+from dash_test_components import (
+    AsyncComponent,
+    CollapseComponent,
+    DelayedEventComponent,
+    FragmentComponent,
+)
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+from dash.testing import wait
 
 
 def test_cbsc001_simple_callback(dash_duo):
+    lock = Lock()
+
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -23,8 +31,9 @@ def test_cbsc001_simple_callback(dash_duo):
 
     @app.callback(Output("output-1", "children"), [Input("input", "value")])
     def update_output(value):
-        call_count.value = call_count.value + 1
-        return value
+        with lock:
+            call_count.value = call_count.value + 1
+            return value
 
     dash_duo.start_server(app)
 
@@ -34,9 +43,11 @@ def test_cbsc001_simple_callback(dash_duo):
     input_ = dash_duo.find_element("#input")
     dash_duo.clear_input(input_)
 
-    input_.send_keys("hello world")
+    for key in "hello world":
+        with lock:
+            input_.send_keys(key)
 
-    assert dash_duo.find_element("#output-1").text == "hello world"
+    wait.until(lambda: dash_duo.find_element("#output-1").text == "hello world", 2)
     dash_duo.percy_snapshot(name="simple-callback-hello-world")
 
     assert call_count.value == 2 + len("hello world"), "initial count + each key stroke"
@@ -345,6 +356,8 @@ def test_cbsc007_parallel_updates(refresh, dash_duo):
 
 
 def test_cbsc008_wildcard_prop_callbacks(dash_duo):
+    lock = Lock()
+
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -369,8 +382,9 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
 
     @app.callback(Output("output-1", "data-cb"), [Input("input", "value")])
     def update_data(value):
-        input_call_count.value += 1
-        return value
+        with lock:
+            input_call_count.value += 1
+            return value
 
     @app.callback(Output("output-1", "children"), [Input("output-1", "data-cb")])
     def update_text(data):
@@ -382,7 +396,10 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
 
     input1 = dash_duo.find_element("#input")
     dash_duo.clear_input(input1)
-    input1.send_keys("hello world")
+
+    for key in "hello world":
+        with lock:
+            input1.send_keys(key)
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     dash_duo.percy_snapshot(name="wildcard-callback-2")
@@ -392,3 +409,43 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
     assert input_call_count.value == 2 + len("hello world")
 
     assert not dash_duo.get_logs()
+
+
+def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = FragmentComponent(
+        [
+            CollapseComponent([AsyncComponent(id="async", value="A")]),
+            html.Button("n", id="n"),
+            DelayedEventComponent(id="d"),
+            html.Div("Output init", id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("n", "n_clicks"),
+        Input("d", "n_clicks"),
+        Input("async", "value"),
+    )
+    def content(n, d, v):
+        return json.dumps([n, d, v])
+
+    dash_duo.start_server(app)
+
+    wait.until(lambda: dash_duo.find_element("#output").text == '[null, null, "A"]', 3)
+    dash_duo.wait_for_element("#d").click()
+
+    wait.until(
+        lambda: dash_duo.find_element("#output").text == '[null, 1, "A"]', 3,
+    )
+
+    dash_duo.wait_for_element("#n").click()
+    wait.until(
+        lambda: dash_duo.find_element("#output").text == '[1, 1, "A"]', 3,
+    )
+
+    dash_duo.wait_for_element("#d").click()
+    wait.until(
+        lambda: dash_duo.find_element("#output").text == '[1, 2, "A"]', 3,
+    )

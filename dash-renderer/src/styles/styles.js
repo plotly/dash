@@ -16,7 +16,7 @@ export const base = {
     html: {
         fontFamily: "'Open Sans', Helvetica, sans-serif",
         fontWeight: 400,
-        color: '#2A3F5F',
+        color: '#2A3F5F'
     },
 
     h2: {
@@ -24,13 +24,13 @@ export const base = {
         fontWeight: '600',
         fontSize: '28px',
         marginTop: '14px',
-        marginBottom: '14px',
+        marginBottom: '14px'
     },
 
     h4: {
         fontSize: '18px',
         marginTop: '9px',
-        marginBottom: '18px',
+        marginBottom: '18px'
     },
 
     button: {
@@ -46,27 +46,27 @@ export const base = {
         lineHeight: '1',
         cursor: 'pointer',
         outline: 'none',
-        margin: '0px',
+        margin: '0px'
     },
 
     a: {
         color: '#119DFF',
         textDecoration: 'none',
-        cursor: 'pointer',
+        cursor: 'pointer'
     },
 
     caption: {
         fontSize: '13px',
         marginTop: '20px',
-        color: '#A2B1C6',
+        color: '#A2B1C6'
     },
 
     container: {
         marginLeft: 'auto',
         marginRight: 'auto',
         width: '90%',
-        maxWidth: '300px',
-    },
+        maxWidth: '300px'
+    }
 };
 
 export default base;

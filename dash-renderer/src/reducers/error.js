@@ -3,7 +3,7 @@ import {mergeRight} from 'ramda';
 const initialError = {
     frontEnd: [],
     backEnd: [],
-    backEndConnected: true,
+    backEndConnected: true
 };
 
 export default function error(state = initialError, action) {
@@ -19,19 +19,19 @@ export default function error(state = initialError, action) {
                 return {
                     frontEnd: [
                         mergeRight(action.payload, {timestamp: new Date()}),
-                        ...frontEnd,
+                        ...frontEnd
                     ],
                     backEnd,
-                    backEndConnected,
+                    backEndConnected
                 };
             } else if (action.payload.type === 'backEnd') {
                 return {
                     frontEnd,
                     backEnd: [
                         mergeRight(action.payload, {timestamp: new Date()}),
-                        ...backEnd,
+                        ...backEnd
                     ],
-                    backEndConnected,
+                    backEndConnected
                 };
             }
             return state;

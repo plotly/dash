@@ -1,7 +1,8 @@
 {
     "defaultSeverity": "error",
     "extends": [
-        "tslint:recommended"
+        "tslint:recommended",
+        "tslint-config-prettier"
     ],
     "linterOptions": {
         "exclude": [
@@ -44,12 +45,7 @@
         "ordered-imports": false,
         "prefer-const": false,
         "prefer-for-of": false,
-        "quotemark": [true, "single"],
         "space-before-function-paren": [false, "always"],
-        "trailing-comma": [true, {
-            "singleline": "never",
-            "multiline": "never"
-        }],
         "unified-signatures": false,
         "variable-name": false
     },

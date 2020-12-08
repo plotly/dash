@@ -10,7 +10,7 @@ import {
     onError,
     setGraphs,
     setPaths,
-    setLayout,
+    setLayout
 } from './actions';
 import {computePaths} from './actions/paths';
 import {computeGraphs} from './actions/dependencies';
@@ -20,6 +20,7 @@ import {applyPersistence} from './persistence';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
+import wait from './utils/wait';
 
 export const DashContext = createContext({});
 
@@ -36,7 +37,7 @@ const UnconnectedContainer = props => {
         error,
         layoutRequest,
         layout,
-        loadingMap,
+        loadingMap
     } = props;
 
     const [errorLoading, setErrorLoading] = useState(false);
@@ -55,16 +56,19 @@ const UnconnectedContainer = props => {
             _dashprivate_config: propsRef.current.config,
             _dashprivate_dispatch: propsRef.current.dispatch,
             _dashprivate_graphs: propsRef.current.graphs,
-            _dashprivate_loadingMap: propsRef.current.loadingMap,
-        }),
+            _dashprivate_loadingMap: propsRef.current.loadingMap
+        })
     });
 
     useEffect(storeEffect.bind(null, props, events, setErrorLoading));
 
     useEffect(() => {
         if (renderedTree.current) {
-            renderedTree.current = false;
-            events.current.emit('rendered');
+            (async () => {
+                renderedTree.current = false;
+                await wait(0);
+                events.current.emit('rendered');
+            })();
         }
     });
 
@@ -73,13 +77,13 @@ const UnconnectedContainer = props => {
         layoutRequest.status &&
         !includes(layoutRequest.status, [STATUS.OK, 'loading'])
     ) {
-        content = <div className="_dash-error">Error loading layout</div>;
+        content = <div className='_dash-error'>Error loading layout</div>;
     } else if (
         errorLoading ||
         (dependenciesRequest.status &&
             !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
     ) {
-        content = <div className="_dash-error">Error loading dependencies</div>;
+        content = <div className='_dash-error'>Error loading dependencies</div>;
     } else if (appLifecycle === getAppState('HYDRATED')) {
         renderedTree.current = true;
 
@@ -102,7 +106,7 @@ const UnconnectedContainer = props => {
             </DashContext.Provider>
         );
     } else {
-        content = <div className="_dash-loading">Loading...</div>;
+        content = <div className='_dash-loading'>Loading...</div>;
     }
 
     return config && config.ui === true ? (
@@ -120,7 +124,7 @@ function storeEffect(props, events, setErrorLoading) {
         error,
         graphs,
         layout,
-        layoutRequest,
+        layoutRequest
     } = props;
 
     if (isEmpty(layoutRequest)) {
@@ -180,7 +184,7 @@ function storeEffect(props, events, setErrorLoading) {
 UnconnectedContainer.propTypes = {
     appLifecycle: PropTypes.oneOf([
         getAppState('STARTED'),
-        getAppState('HYDRATED'),
+        getAppState('HYDRATED')
     ]),
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
@@ -190,7 +194,7 @@ UnconnectedContainer.propTypes = {
     loadingMap: PropTypes.any,
     history: PropTypes.any,
     error: PropTypes.object,
-    config: PropTypes.object,
+    config: PropTypes.object
 };
 
 const Container = connect(
@@ -204,7 +208,7 @@ const Container = connect(
         graphs: state.graphs,
         history: state.history,
         error: state.error,
-        config: state.config,
+        config: state.config
     }),
     dispatch => ({dispatch})
 )(UnconnectedContainer);

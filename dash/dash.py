@@ -9,7 +9,10 @@ import pkgutil
 import threading
 import re
 import logging
+import time
 import mimetypes
+import hashlib
+import base64
 
 from functools import wraps
 from future.moves.urllib.parse import urlparse
@@ -17,6 +20,7 @@ from future.moves.urllib.parse import urlparse
 import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
+from pkg_resources import get_distribution, parse_version
 
 import plotly
 import dash_renderer
@@ -45,6 +49,8 @@ from ._utils import (
 )
 from . import _validate
 from . import _watch
+
+_flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
@@ -279,6 +285,16 @@ class Dash(object):
             self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
+
+        if (
+            self.server is not None
+            and not hasattr(self.server.config, "COMPRESS_ALGORITHM")
+            and _flask_compress_version >= parse_version("1.6.0")
+        ):
+            # flask-compress==1.6.0 changed default to ['br', 'gzip']
+            # and non-overridable default compression with Brotli is
+            # causing performance issues
+            self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
@@ -1052,7 +1068,11 @@ class Dash(object):
 
         args = inputs_to_vals(inputs + state)
 
-        func = self.callback_map[output]["callback"]
+        try:
+            func = self.callback_map[output]["callback"]
+        except KeyError:
+            msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
+            raise KeyError(msg.format(output))
         response.set_data(func(*args, outputs_list=outputs_list))
         return response
 
@@ -1127,6 +1147,42 @@ class Dash(object):
         return flask.Response(
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
+
+    def csp_hashes(self, hash_algorithm="sha256"):
+        """Calculates CSP hashes (sha + base64) of all inline scripts, such that
+        one of the biggest benefits of CSP (disallowing general inline scripts)
+        can be utilized together with Dash clientside callbacks (inline scripts).
+
+        Calculate these hashes after all inline callbacks are defined,
+        and add them to your CSP headers before starting the server, for example
+        with the flask-talisman package from PyPI:
+
+        flask_talisman.Talisman(app.server, content_security_policy={
+            "default-src": "'self'",
+            "script-src": ["'self'"] + app.csp_hashes()
+        })
+
+        :param hash_algorithm: One of the recognized CSP hash algorithms ('sha256', 'sha384', 'sha512').
+        :return: List of CSP hash strings of all inline scripts.
+        """
+
+        HASH_ALGORITHMS = ["sha256", "sha384", "sha512"]
+        if hash_algorithm not in HASH_ALGORITHMS:
+            raise ValueError(
+                "Possible CSP hash algorithms: " + ", ".join(HASH_ALGORITHMS)
+            )
+
+        method = getattr(hashlib, hash_algorithm)
+
+        return [
+            "'{hash_algorithm}-{base64_hash}'".format(
+                hash_algorithm=hash_algorithm,
+                base64_hash=base64.b64encode(
+                    method(script.encode("utf-8")).digest()
+                ).decode("utf-8"),
+            )
+            for script in self._inline_scripts + [self.renderer]
+        ]
 
     def get_asset_url(self, path):
         asset = get_asset_path(
@@ -1401,6 +1457,34 @@ class Dash(object):
                         skip = int((i + 1) / 2)
                         break
                 return get_current_traceback(skip=skip).render_full(), 500
+
+        if debug and dev_tools.ui:
+
+            def _before_request():
+                flask.g.timing_information = {
+                    "__dash_server": {"dur": time.time(), "desc": None}
+                }
+
+            def _after_request(response):
+                dash_total = flask.g.timing_information["__dash_server"]
+                dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+
+                for name, info in flask.g.timing_information.items():
+
+                    value = name
+                    if info.get("desc") is not None:
+                        value += ';desc="{}"'.format(info["desc"])
+
+                    if info.get("dur") is not None:
+                        value += ";dur={}".format(info["dur"])
+
+                    response.headers.add("Server-Timing", value)
+
+                return response
+
+            self.server.before_request(_before_request)
+
+            self.server.after_request(_after_request)
 
         if (
             debug
