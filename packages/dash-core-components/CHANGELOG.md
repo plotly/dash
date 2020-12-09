@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.14.1] - 2020-12-09
 ### Updated
 - [#898](https://github.com/plotly/dash-core-components/pull/898)
     - Patch Release [1.58.2](https://github.com/plotly/plotly.js/releases/tag/v1.58.2)
