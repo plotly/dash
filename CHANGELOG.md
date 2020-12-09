@@ -2,6 +2,8 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.18.1] - 2020-12-09
+
 ## [1.18.0] - 2020-12-07
 
 ## [1.17.0] - 2020-10-29
