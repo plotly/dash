@@ -6,7 +6,7 @@ Refer to the [readme](README.md) for installation and development instructions.
 
 ## Contributions
 
-[Dash Core Components][] consist of pluggable components for creating interactive user interfaces. For generic HTML5 elements, see [Dash HTML Components][]. Contributions are welcome! This repository's open [issues][] are a good place to start. Another way to contribute is to [write your own components][] using the [Dash Components Archetype][].
+[Dash Core Components][] consist of pluggable components for creating interactive user interfaces. For generic HTML5 elements, see [Dash HTML Components][]. Contributions are welcome! This repository's open [issues][] are a good place to start. Another way to contribute is to [write your own components][] using for instance the [component boilerplate](https://github.com/plotly/dash-component-boilerplate).
 
 ## Coding Style
 
