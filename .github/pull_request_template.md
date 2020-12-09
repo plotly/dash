@@ -11,6 +11,6 @@
 ### optionals
 
 - [ ] I have added entry in the `CHANGELOG.md`
-- [ ] If this PR needs a follow-up in **dash docs**, **community thread**, I have mentioned the relevant URLS as follow
-    -  [ ] this github [#PR number]() updates the dash docs
-    -  [ ] here is the show and tell thread in plotly dash community 
+- [ ] If this PR needs a follow-up in **dash docs**, **community thread**, I have mentioned the relevant URLS as follows
+    -  [ ] this GitHub [#PR number]() updates the dash docs
+    -  [ ] here is the show and tell thread in Plotly Dash community 

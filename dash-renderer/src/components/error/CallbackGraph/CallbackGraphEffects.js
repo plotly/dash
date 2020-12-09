@@ -6,7 +6,7 @@ import {STATUS, STATUSMAP} from '../../../constants/constants';
  * Finds all edges connected to a node and splits them by type.
  *
  * @param {Object} node - Cytoscape node.
- * @returns {Object} - Object contaiing the edges, sorted by type.
+ * @returns {Object} - Object containing the edges, sorted by type.
  */
 function getEdgeTypes(node) {
     const elements = node.connectedEdges();
@@ -30,7 +30,7 @@ export function updateSelectedNode(cy, id) {
     if (id) {
         const node = cy.getElementById(id);
 
-        // Highlght the selected node.
+        // Highlight the selected node.
 
         node.addClass('selected-node');
 
@@ -112,7 +112,7 @@ export function updateChangedProps(cy, id, props, flashTime = 500) {
  *
  * @param {Object} cy - Reference to the cytoscape instance.
  * @param {String} id - The id of the callback (i.e., it's output identifier)
- * @param {Object} profile - The callback profiling infomration.
+ * @param {Object} profile - The callback profiling information.
  * @param {Number} flashTime - The time to flash classes for in ms.
  * @returns {undefined}
  */
