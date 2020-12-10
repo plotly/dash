@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [UNRELEASED]
+### Fixed
+- [#903](https://github.com/plotly/dash-core-components/pull/903) - part of fixing dash import bug https://github.com/plotly/dash/issues/1143
+
 ## [1.14.1] - 2020-12-09
 ### Updated
 - [#898](https://github.com/plotly/dash-core-components/pull/898)
