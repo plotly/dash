@@ -50,6 +50,11 @@ RangeSlider.propTypes = {
     value: PropTypes.arrayOf(PropTypes.number),
 
     /**
+     * The value of the input during a drag
+     */
+    drag_value: PropTypes.arrayOf(PropTypes.number),
+
+    /**
      * allowCross could be set as true to allow those handles to cross.
      */
     allowCross: PropTypes.bool,
@@ -145,18 +150,18 @@ RangeSlider.propTypes = {
     verticalHeight: PropTypes.number,
 
     /**
-     * Determines when the component should update
-     * its value. If `mouseup`, then the slider
-     * will only trigger its value when the user has
-     * finished dragging the slider. If `drag`, then
-     * the slider will update its value continuously
-     * as it is being dragged.
-     * Only use `drag` if your updates are fast.
+     * Determines when the component should update its `value`
+     * property. If `mouseup` (the default) then the slider
+     * will only trigger its value when the user has finished
+     * dragging the slider. If `drag`, then the slider will
+     * update its value continuously as it is being dragged.
+     * Note that for the latter case, the `drag_value`
+     * property could be used instead.
      */
     updatemode: PropTypes.oneOf(['mouseup', 'drag']),
 
     /**
-     * Dash-assigned callback that gets fired when the value changes.
+     * Dash-assigned callback that gets fired when the value or drag_value changes.
      */
     setProps: PropTypes.func,
 

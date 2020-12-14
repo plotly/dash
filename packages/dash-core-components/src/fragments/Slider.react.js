@@ -13,20 +13,11 @@ import {propTypes, defaultProps} from '../components/Slider.react';
 export default class Slider extends Component {
     constructor(props) {
         super(props);
-        this.propsToState = this.propsToState.bind(this);
         this.DashSlider = props.tooltip
             ? createSliderWithTooltip(ReactSlider)
             : ReactSlider;
         this._computeStyle = computeSliderStyle();
-        this.state = {
-            value: props.value,
-        };
-    }
-
-    propsToState(newProps) {
-        if (newProps.value !== this.props.value) {
-            this.setState({value: newProps.value});
-        }
+        this.state = {value: props.value};
     }
 
     UNSAFE_componentWillReceiveProps(newProps) {
@@ -35,11 +26,17 @@ export default class Slider extends Component {
                 ? createSliderWithTooltip(ReactSlider)
                 : ReactSlider;
         }
-        this.propsToState(newProps);
+        if (newProps.value !== this.props.value) {
+            this.props.setProps({drag_value: newProps.value});
+            this.setState({value: newProps.value});
+        }
     }
 
     UNSAFE_componentWillMount() {
-        this.propsToState(this.props);
+        if (this.props.value !== null) {
+            this.props.setProps({drag_value: this.props.value});
+            this.setState({value: this.props.value});
+        }
     }
 
     render() {
@@ -87,9 +84,10 @@ export default class Slider extends Component {
                 <this.DashSlider
                     onChange={value => {
                         if (updatemode === 'drag') {
-                            setProps({value});
+                            setProps({value: value, drag_value: value});
                         } else {
-                            this.setState({value});
+                            this.setState({value: value});
+                            setProps({drag_value: value});
                         }
                     }}
                     onAfterChange={value => {
@@ -114,6 +112,7 @@ export default class Slider extends Component {
                             'setProps',
                             'updatemode',
                             'value',
+                            'drag_value',
                             'marks',
                             'verticalHeight',
                         ],

@@ -2,6 +2,7 @@ import logging
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 
 logger = logging.getLogger(__name__)
 
@@ -100,3 +101,20 @@ class DashCoreComponentsMixin(object):
     @property
     def date_picker_day_locator(self):
         return 'div[data-visible="true"] td.CalendarDay'
+
+    def click_and_hold_at_coord_fractions(self, elem_or_selector, fx, fy):
+        elem = self._get_element(elem_or_selector)
+
+        ActionChains(self.driver).move_to_element_with_offset(
+            elem, elem.size["width"] * fx, elem.size["height"] * fy
+        ).click_and_hold().perform()
+
+    def move_to_coord_fractions(self, elem_or_selector, fx, fy):
+        elem = self._get_element(elem_or_selector)
+
+        ActionChains(self.driver).move_to_element_with_offset(
+            elem, elem.size["width"] * fx, elem.size["height"] * fy
+        ).perform()
+
+    def release(self):
+        ActionChains(self.driver).release().perform()

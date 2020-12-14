@@ -49,6 +49,11 @@ Slider.propTypes = {
     value: PropTypes.number,
 
     /**
+     * The value of the input during a drag
+     */
+    drag_value: PropTypes.number,
+
+    /**
      * Additional CSS class for the root DOM node
      */
     className: PropTypes.string,
@@ -125,18 +130,19 @@ Slider.propTypes = {
     verticalHeight: PropTypes.number,
 
     /**
-     * Determines when the component should update
-     * its value. If `mouseup`, then the slider
-     * will only trigger its value when the user has
-     * finished dragging the slider. If `drag`, then
-     * the slider will update its value continuously
-     * as it is being dragged.
-     * Only use `drag` if your updates are fast.
+     * Determines when the component should update its `value`
+     * property. If `mouseup` (the default) then the slider
+     * will only trigger its value when the user has finished
+     * dragging the slider. If `drag`, then the slider will
+     * update its value continuously as it is being dragged.
+     * If you want different actions during and after drag,
+     * leave `updatemode` as `mouseup` and use `drag_value`
+     * for the continuously updating value.
      */
     updatemode: PropTypes.oneOf(['mouseup', 'drag']),
 
     /**
-     * Dash-assigned callback that gets fired when the value changes.
+     * Dash-assigned callback that gets fired when the value or drag_value changes.
      */
     setProps: PropTypes.func,
 
