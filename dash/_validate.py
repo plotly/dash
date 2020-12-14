@@ -1,5 +1,6 @@
 import collections
 import re
+from textwrap import dedent
 
 from .development.base_component import Component
 from . import exceptions
@@ -15,25 +16,29 @@ def validate_callback(output, inputs, state, extra_args, types):
     if extra_args:
         if not isinstance(extra_args[0], (Output, Input, State)):
             raise exceptions.IncorrectTypeException(
-                """
+                dedent(
+                    """
                 Callback arguments must be `Output`, `Input`, or `State` objects,
                 optionally wrapped in a list or tuple. We found (possibly after
                 unwrapping a list or tuple):
                 {}
                 """.format(
-                    repr(extra_args[0])
+                        repr(extra_args[0])
+                    )
                 )
             )
 
         raise exceptions.IncorrectTypeException(
-            """
+            dedent(
+                """
             In a callback definition, you must provide all Outputs first,
             then all Inputs, then all States. After this item:
             {}
             we found this item next:
             {}
             """.format(
-                repr((outputs + inputs + state)[-1]), repr(extra_args[0])
+                    repr((outputs + inputs + state)[-1]), repr(extra_args[0])
+                )
             )
         )
 
@@ -45,19 +50,23 @@ def validate_callback(output, inputs, state, extra_args, types):
 def validate_callback_arg(arg):
     if not isinstance(getattr(arg, "component_property", None), _strings):
         raise exceptions.IncorrectTypeException(
-            """
+            dedent(
+                """
             component_property must be a string, found {!r}
             """.format(
-                arg.component_property
+                    arg.component_property
+                )
             )
         )
 
     if hasattr(arg, "component_event"):
         raise exceptions.NonExistentEventException(
-            """
+            dedent(
+                """
             Events have been removed.
             Use the associated property instead.
             """
+            )
         )
 
     if isinstance(arg.component_id, dict):
@@ -68,10 +77,12 @@ def validate_callback_arg(arg):
 
     else:
         raise exceptions.IncorrectTypeException(
-            """
+            dedent(
+                """
             component_id must be a string or dict, found {!r}
             """.format(
-                arg.component_id
+                    arg.component_id
+                )
             )
         )
 
@@ -85,11 +96,13 @@ def validate_id_dict(arg):
         # cause unwanted collisions
         if not isinstance(k, _strings):
             raise exceptions.IncorrectTypeException(
-                """
+                dedent(
+                    """
                 Wildcard ID keys must be non-empty strings,
                 found {!r} in id {!r}
                 """.format(
-                    k, arg_id
+                        k, arg_id
+                    )
                 )
             )
 
@@ -101,11 +114,13 @@ def validate_id_string(arg):
     invalid_found = [x for x in invalid_chars if x in arg_id]
     if invalid_found:
         raise exceptions.InvalidComponentIdError(
-            """
+            dedent(
+                """
             The element `{}` contains `{}` in its ID.
             Characters `{}` are not allowed in IDs.
             """.format(
-                arg_id, "`, `".join(invalid_found), "`, `".join(invalid_chars)
+                    arg_id, "`, `".join(invalid_found), "`, `".join(invalid_chars)
+                )
             )
         )
 
@@ -113,22 +128,26 @@ def validate_id_string(arg):
 def validate_multi_return(outputs_list, output_value, callback_id):
     if not isinstance(output_value, (list, tuple)):
         raise exceptions.InvalidCallbackReturnValue(
-            """
+            dedent(
+                """
             The callback {} is a multi-output.
             Expected the output type to be a list or tuple but got:
             {}.
             """.format(
-                callback_id, repr(output_value)
+                    callback_id, repr(output_value)
+                )
             )
         )
 
     if len(output_value) != len(outputs_list):
         raise exceptions.InvalidCallbackReturnValue(
-            """
+            dedent(
+                """
             Invalid number of output values for {}.
             Expected {}, got {}
             """.format(
-                callback_id, len(outputs_list), len(output_value)
+                    callback_id, len(outputs_list), len(output_value)
+                )
             )
         )
 
@@ -137,25 +156,29 @@ def validate_multi_return(outputs_list, output_value, callback_id):
             vi = output_value[i]
             if not isinstance(vi, (list, tuple)):
                 raise exceptions.InvalidCallbackReturnValue(
-                    """
+                    dedent(
+                        """
                     The callback {} output {} is a wildcard multi-output.
                     Expected the output type to be a list or tuple but got:
                     {}.
                     output spec: {}
                     """.format(
-                        callback_id, i, repr(vi), repr(outi)
+                            callback_id, i, repr(vi), repr(outi)
+                        )
                     )
                 )
 
             if len(vi) != len(outi):
                 raise exceptions.InvalidCallbackReturnValue(
-                    """
+                    dedent(
+                        """
                     Invalid number of output values for {} item {}.
                     Expected {}, got {}
                     output spec: {}
                     output value: {}
                     """.format(
-                        callback_id, i, len(vi), len(outi), repr(outi), repr(vi)
+                            callback_id, i, len(vi), len(outi), repr(outi), repr(vi)
+                        )
                     )
                 )
 
@@ -170,22 +193,27 @@ def fail_callback_output(output_value, output):
         )
         outer_type = type(outer_val).__name__
         if toplevel:
-            location = """
-            The value in question is either the only value returned,
-            or is in the top level of the returned list,
-            """
+            location = dedent(
+                """
+                The value in question is either the only value returned,
+                or is in the top level of the returned list,
+                """
+            )
         else:
             index_string = "[*]" if index is None else "[{:d}]".format(index)
-            location = """
-            The value in question is located at
-            {} {} {}
-            {},
-            """.format(
-                index_string, outer_type, outer_id, path
+            location = dedent(
+                """
+                The value in question is located at
+                {} {} {}
+                {},
+                """.format(
+                    index_string, outer_type, outer_id, path
+                )
             )
 
         raise exceptions.InvalidCallbackReturnValue(
-            """
+            dedent(
+                """
             The callback for `{output}`
             returned a {object:s} having type `{type}`
             which is not JSON serializable.
@@ -198,11 +226,12 @@ def fail_callback_output(output_value, output):
             dash components, strings, dictionaries, numbers, None,
             or lists of those.
             """.format(
-                output=repr(output),
-                object="tree with one value" if not toplevel else "value",
-                type=bad_type,
-                location=location,
-                bad_val=bad_val,
+                    output=repr(output),
+                    object="tree with one value" if not toplevel else "value",
+                    type=bad_type,
+                    location=location,
+                    bad_val=bad_val,
+                )
             )
         )
 
@@ -259,14 +288,16 @@ def fail_callback_output(output_value, output):
 
     # if we got this far, raise a generic JSON error
     raise exceptions.InvalidCallbackReturnValue(
-        """
+        dedent(
+            """
         The callback for property `{property:s}` of component `{id:s}`
         returned a value which is not JSON serializable.
 
         In general, Dash properties can only be dash components, strings,
         dictionaries, numbers, None, or lists of those.
         """.format(
-            property=output.component_property, id=output.component_id
+                property=output.component_property, id=output.component_id
+            )
         )
     )
 
@@ -275,11 +306,13 @@ def check_obsolete(kwargs):
     for key in kwargs:
         if key in ["components_cache_max_age", "static_folder"]:
             raise exceptions.ObsoleteKwargException(
-                """
+                dedent(
+                    """
                 {} is no longer a valid keyword argument in Dash since v1.0.
                 See https://dash.plotly.com for details.
                 """.format(
-                    key
+                        key
+                    )
                 )
             )
         # any other kwarg mimic the built-in exception
@@ -289,23 +322,27 @@ def check_obsolete(kwargs):
 def validate_js_path(registered_paths, package_name, path_in_package_dist):
     if package_name not in registered_paths:
         raise exceptions.DependencyException(
-            """
+            dedent(
+                """
             Error loading dependency. "{}" is not a registered library.
             Registered libraries are:
             {}
             """.format(
-                package_name, list(registered_paths.keys())
+                    package_name, list(registered_paths.keys())
+                )
             )
         )
 
     if path_in_package_dist not in registered_paths[package_name]:
         raise exceptions.DependencyException(
-            """
+            dedent(
+                """
             "{}" is registered but the path requested is not valid.
             The path requested: "{}"
             List of registered paths: {}
             """.format(
-                package_name, path_in_package_dist, registered_paths
+                    package_name, path_in_package_dist, registered_paths
+                )
             )
         )
 
@@ -324,19 +361,25 @@ def validate_index(name, checks, index):
 def validate_layout_type(value):
     if not isinstance(value, (Component, patch_collections_abc("Callable"))):
         raise exceptions.NoLayoutException(
-            "Layout must be a dash component "
-            "or a function that returns a dash component."
+            dedent(
+                """
+            Layout must be a dash component
+            or a function that returns a dash component.
+            """
+            )
         )
 
 
 def validate_layout(layout, layout_value):
     if layout is None:
         raise exceptions.NoLayoutException(
-            """
+            dedent(
+                """
             The layout was `None` at the time that `run_server` was called.
             Make sure to set the `layout` attribute of your application
             before running the server.
             """
+            )
         )
 
     layout_id = stringify_id(getattr(layout_value, "id", None))
@@ -346,10 +389,12 @@ def validate_layout(layout, layout_value):
         component_id = stringify_id(getattr(component, "id", None))
         if component_id and component_id in component_ids:
             raise exceptions.DuplicateIdError(
-                """
+                dedent(
+                    """
                 Duplicate component id found in the initial layout: `{}`
                 """.format(
-                    component_id
+                        component_id
+                    )
                 )
             )
         component_ids.add(component_id)

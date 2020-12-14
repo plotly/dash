@@ -1,0 +1,4 @@
+include package.json
+include digest.json
+include dash_renderer/*.js
+include dash_renderer/*.map

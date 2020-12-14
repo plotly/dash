@@ -1,0 +1,8 @@
+node_modules/
+.npm
+.git/
+vv/
+venv/
+*.pyc
+*.log
+.DS_Store
