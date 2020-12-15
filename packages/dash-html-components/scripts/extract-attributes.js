@@ -55,7 +55,10 @@ const attributeMap = supportedAttributes.reduce((map, reactAttribute) => {
  * descriptions and supported elements.
  */
 function extractAttributes($) {
-    const $table = $('#Attribute_list').next('table');
+    const $table = $('#Attribute_list').parent().find('table');
+    if($table.length !== 1) {
+        throw new Error('page structure changed at ' + htmlURL);
+    }
     const attributes = {};
 
     $table.find('tbody tr').each((i, row) => {
