@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 ### Fixed
 - [#1493](https://github.com/plotly/dash/pull/1493) Fix [#1143](https://github.com/plotly/dash/issues/1143), a bug where having a file with one of several common names (test.py, code.py, org.py, etc) that imports a dash component package would make `import dash` fail with a cryptic error message asking whether you have a file named "dash.py"
-- [#1501](https://github.com/plotly/dash/1499) Dedented error messages.
+- [#1501](https://github.com/plotly/dash/pull/1501) Dedented error messages.
 
 
 ## [1.18.1] - 2020-12-09
