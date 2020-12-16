@@ -65,7 +65,7 @@ def pytest_addoption(parser):
 def pytest_addhooks(pluginmanager):
     # https://github.com/pytest-dev/pytest-xdist/blob/974bd566c599dc6a9ea291838c6f226197208b46/xdist/plugin.py#L67
     # avoid warnings with pytest-2.8
-    from dash.testing import newhooks
+    from dash.testing import newhooks  # pylint: disable=import-outside-toplevel
 
     method = getattr(pluginmanager, "add_hookspecs", None)
     if method is None:
