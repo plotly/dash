@@ -1,6 +1,7 @@
 import json
 import os
 import string
+import pytest
 
 from bs4 import BeautifulSoup
 import requests
@@ -99,3 +100,15 @@ def test_rddd001_initial_state(dash_duo):
 
     dash_duo.percy_snapshot(name="layout")
     assert dash_duo.get_logs() == [], "console has no errors"
+
+
+@pytest.mark.parametrize("child", [0, [0]])
+def test_rddd002_falsy_child(dash_duo, child):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(id="falsy-wrapper", children=0)
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#falsy-wrapper", "0")
+
+    assert not dash_duo.get_logs()

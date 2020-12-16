@@ -1,7 +1,6 @@
 import datetime
-
 import flask
-
+import json
 import pytest
 
 from bs4 import BeautifulSoup
@@ -275,3 +274,101 @@ def test_inin025_url_base_pathname(dash_br, dash_thread_server):
 
     dash_br.server_url = "http://localhost:8050/app2/"
     dash_br.wait_for_text_to_equal("#out", "The second")
+
+
+def test_inin026_graphs_in_tabs_do_not_share_state(dash_duo):
+    app = Dash(__name__, suppress_callback_exceptions=True)
+
+    app.layout = html.Div(
+        [
+            dcc.Tabs(
+                id="tabs",
+                children=[
+                    dcc.Tab(label="Tab 1", value="tab1", id="tab1"),
+                    dcc.Tab(label="Tab 2", value="tab2", id="tab2"),
+                ],
+                value="tab1",
+            ),
+            # Tab content
+            html.Div(id="tab_content"),
+        ]
+    )
+    tab1_layout = [
+        html.Div(
+            [
+                dcc.Graph(
+                    id="graph1",
+                    figure={"data": [{"x": [1, 2, 3], "y": [5, 10, 6], "type": "bar"}]},
+                )
+            ]
+        ),
+        html.Pre(id="graph1_info"),
+    ]
+
+    tab2_layout = [
+        html.Div(
+            [
+                dcc.Graph(
+                    id="graph2",
+                    figure={"data": [{"x": [4, 3, 2], "y": [5, 10, 6], "type": "bar"}]},
+                )
+            ]
+        ),
+        html.Pre(id="graph2_info"),
+    ]
+
+    @app.callback(Output("graph1_info", "children"), Input("graph1", "clickData"))
+    def display_hover_data(hover_data):
+        return json.dumps(hover_data)
+
+    @app.callback(Output("graph2_info", "children"), Input("graph2", "clickData"))
+    def display_hover_data_2(hover_data):
+        return json.dumps(hover_data)
+
+    @app.callback(Output("tab_content", "children"), Input("tabs", "value"))
+    def render_content(tab):
+        return tab2_layout if tab == "tab2" else tab1_layout
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#graph1:not(.dash-graph--pending)").click()
+
+    graph_1_expected_clickdata = {
+        "points": [
+            {
+                "curveNumber": 0,
+                "pointNumber": 1,
+                "pointIndex": 1,
+                "x": 2,
+                "y": 10,
+                "label": 2,
+                "value": 10,
+            }
+        ]
+    }
+
+    graph_2_expected_clickdata = {
+        "points": [
+            {
+                "curveNumber": 0,
+                "pointNumber": 1,
+                "pointIndex": 1,
+                "x": 3,
+                "y": 10,
+                "label": 3,
+                "value": 10,
+            }
+        ]
+    }
+
+    dash_duo.wait_for_text_to_equal(
+        "#graph1_info", json.dumps(graph_1_expected_clickdata)
+    )
+
+    dash_duo.find_element("#tab2").click()
+
+    dash_duo.find_element("#graph2:not(.dash-graph--pending)").click()
+
+    dash_duo.wait_for_text_to_equal(
+        "#graph2_info", json.dumps(graph_2_expected_clickdata)
+    )

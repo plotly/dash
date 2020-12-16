@@ -154,3 +154,73 @@ def test_dvui004_width_props(dash_duo):
     sleep(3)  # wait for callback graph to draw
 
     assert dash_duo.get_logs() == []
+
+
+def test_dvui005_undo_redo(dash_duo):
+    def click_undo():
+        undo_selector = "._dash-undo-redo span:first-child div:last-child"
+        dash_duo.wait_for_text_to_equal(undo_selector, "undo")
+        dash_duo.find_element(undo_selector).click()
+
+    def click_redo():
+        redo_selector = "._dash-undo-redo span:last-child div:last-child"
+        dash_duo.wait_for_text_to_equal(redo_selector, "redo")
+        dash_duo.find_element(redo_selector).click()
+
+    def check_undo_redo_exist(has_undo, has_redo):
+        selector = "._dash-undo-redo span div:last-child"
+        els = dash_duo.find_elements(selector)
+        texts = (["undo"] if has_undo else []) + (["redo"] if has_redo else [])
+
+        assert len(els) == len(texts)
+        for el, text in zip(els, texts):
+            assert el.text == text
+
+    app = dash.Dash(__name__, show_undo_redo=True)
+    app.layout = html.Div([dcc.Input(id="a"), html.Div(id="b")])
+
+    @app.callback(Output("b", "children"), Input("a", "value"))
+    def set_b(a):
+        return a
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#a").send_keys("xyz")
+
+    dash_duo.wait_for_text_to_equal("#b", "xyz")
+    check_undo_redo_exist(True, False)
+
+    click_undo()
+    dash_duo.wait_for_text_to_equal("#b", "xy")
+    check_undo_redo_exist(True, True)
+
+    click_undo()
+    dash_duo.wait_for_text_to_equal("#b", "x")
+    check_undo_redo_exist(True, True)
+
+    click_redo()
+    dash_duo.wait_for_text_to_equal("#b", "xy")
+    check_undo_redo_exist(True, True)
+
+    dash_duo.percy_snapshot(name="undo-redo")
+
+    click_undo()
+    click_undo()
+    dash_duo.wait_for_text_to_equal("#b", "")
+    check_undo_redo_exist(False, True)
+
+
+def test_dvui006_no_undo_redo(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div([dcc.Input(id="a"), html.Div(id="b")])
+
+    @app.callback(Output("b", "children"), Input("a", "value"))
+    def set_b(a):
+        return a
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#a").send_keys("xyz")
+
+    dash_duo.wait_for_text_to_equal("#b", "xyz")
+    dash_duo.wait_for_no_elements("._dash-undo-redo")
