@@ -151,7 +151,8 @@ disable=invalid-name,
         bad-continuation,
         line-too-long,
         super-with-arguments,
-        raise-missing-from
+        raise-missing-from,
+        bad-option-value
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
