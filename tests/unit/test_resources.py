@@ -1,6 +1,8 @@
 import mock
 import dash_core_components as dcc
+import dash_html_components as html  # noqa: F401
 import dash
+from dash.development.base_component import ComponentRegistry
 
 _monkey_patched_js_dist = [
     {
@@ -34,7 +36,13 @@ class StatMock(object):
 
 
 def test_external(mocker):
+    assert "dash_core_components" in ComponentRegistry.registry
+    assert "dash_html_components" in ComponentRegistry.registry
+    mocker.patch("dash.development.base_component.ComponentRegistry.registry")
+    ComponentRegistry.registry = {"dash_core_components", "dash_html_components"}
+
     mocker.patch("dash_core_components._js_dist")
+    mocker.patch("dash_core_components.__version__")
     mocker.patch("dash_html_components._js_dist")
     dcc._js_dist = _monkey_patched_js_dist  # noqa: W0212
     dcc.__version__ = "1.0.0"
@@ -61,7 +69,13 @@ def test_external_kwarg():
 
 
 def test_internal(mocker):
+    assert "dash_core_components" in ComponentRegistry.registry
+    assert "dash_html_components" in ComponentRegistry.registry
+    mocker.patch("dash.development.base_component.ComponentRegistry.registry")
+    ComponentRegistry.registry = {"dash_core_components", "dash_html_components"}
+
     mocker.patch("dash_core_components._js_dist")
+    mocker.patch("dash_core_components.__version__")
     mocker.patch("dash_html_components._js_dist")
     dcc._js_dist = _monkey_patched_js_dist  # noqa: W0212,
     dcc.__version__ = "1.0.0"
