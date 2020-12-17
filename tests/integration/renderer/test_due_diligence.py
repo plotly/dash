@@ -105,7 +105,7 @@ def test_rddd001_initial_state(dash_duo):
 @pytest.mark.parametrize("child", [0, [0]])
 def test_rddd002_falsy_child(dash_duo, child):
     app = dash.Dash(__name__)
-    app.layout = html.Div(id="falsy-wrapper", children=0)
+    app.layout = html.Div(id="falsy-wrapper", children=child)
 
     dash_duo.start_server(app)
 
