@@ -1,7 +1,6 @@
 import io
 import base64
 import os
-import time
 import pytest
 import pandas as pd
 
@@ -24,15 +23,10 @@ def load_table(filetype, payload):
     )
 
     return html.Div(
-        [
-            DataTable(
-                data=df.to_dict("records"),
-                columns=[{"id": i} for i in ["city", "country"]],
-            ),
-            html.Hr(),
-            html.Div("Raw Content"),
-            html.Pre(payload, style=pre_style),
-        ]
+        DataTable(
+            data=df.to_dict("records"),
+            columns=[{"id": i} for i in ["city", "country"]],
+        )
     )
 
 
@@ -40,13 +34,15 @@ def load_data_by_type(filetype, contents):
     children = []
     _type, payload = contents.split(",")
     if filetype in {"csv", "xlsx", "xls"}:
-        return load_table(filetype, payload)
+        children = [load_table(filetype, payload)]
     elif filetype in {"png", "svg"}:
         children = [html.Img(src=contents)]
 
-    children.extend(
-        (html.Hr(), html.Div("Raw Content"), html.Pre(payload, style=pre_style))
-    )
+    children += [
+        html.Hr(),
+        html.Div("Raw Content", id="raw-title"),
+        html.Pre(payload, style=pre_style),
+    ]
     return html.Div(children)
 
 
@@ -92,5 +88,6 @@ def test_upft001_test_upload_with_different_file_types(filetype, dash_dcc):
 
     upload_div = dash_dcc.wait_for_element("#upload-div input[type=file]")
     upload_div.send_keys(filepath)
-    time.sleep(0.5)
+
+    dash_dcc.wait_for_text_to_equal("#raw-title", "Raw Content")
     dash_dcc.percy_snapshot(filepath)

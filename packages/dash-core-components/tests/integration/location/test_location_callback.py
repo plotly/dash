@@ -87,6 +87,7 @@ def test_loca002_location_link(dash_dcc):
 
     dash_dcc.start_server(app)
 
+    dash_dcc.wait_for_text_to_equal("#test-pathname", "/")
     dash_dcc.percy_snapshot("link -- location")
 
     # Check that link updates pathname

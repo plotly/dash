@@ -19,7 +19,7 @@ if not hasattr(_dash, '__plotly_dash') and not hasattr(_dash, 'development'):
           "named \n'dash.py' in your current directory.", file=_sys.stderr)
     _sys.exit(1)
 
-from ._imports_ import *  # noqa: F401, F403
+from ._imports_ import *  # noqa: F401, F403, E402
 from ._imports_ import __all__  # noqa: E402
 
 _current_path = _os.path.dirname(_os.path.abspath(__file__))
