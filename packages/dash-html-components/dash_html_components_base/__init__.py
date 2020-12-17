@@ -22,8 +22,8 @@ if not hasattr(_dash, '__plotly_dash') and not hasattr(_dash, 'development'):
     _sys.exit(1)
 
 
-from ._imports_ import *
-from ._imports_ import __all__
+from ._imports_ import *  # noqa: E402, F401, F403
+from ._imports_ import __all__  # noqa: E402
 
 
 _current_path = _os.path.dirname(_os.path.abspath(__file__))
