@@ -126,7 +126,7 @@ describe('Input with (default) type=text', () => {
         input = mount(<Input value="initial value" setProps={mockSetProps} />);
     });
 
-    test("Input updates it's value on recieving new props", () => {
+    test("Input updates it's value on receiving new props", () => {
         input.setProps({value: 'new value'});
 
         // expect value prop to not be updated on state, and on the node itself

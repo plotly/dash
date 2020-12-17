@@ -120,7 +120,7 @@ def test_stda002_nested_data(dash_dcc):
 
 
 @pytest.mark.skipif(
-    sys.version_info < (3, 6), reason="tests requires depedency only available in 3.6+",
+    sys.version_info < (3, 6), reason="tests requires dependency only available in 3.6+",
 )
 @pytest.mark.parametrize("storage_type", ("memory", "local", "session"))
 def test_stda003_large_data_size(storage_type, csv_5mb, dash_dcc):
