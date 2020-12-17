@@ -358,9 +358,9 @@ class Browser(DashPageMixin):
 
         if self._pause:
             try:
-                import pdb as pdb_
+                import pdb as pdb_  # pylint: disable=import-outside-toplevel
             except ImportError:
-                import ipdb as pdb_
+                import ipdb as pdb_  # pylint: disable=import-outside-toplevel
 
             pdb_.set_trace()
 
