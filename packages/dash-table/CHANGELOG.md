@@ -328,7 +328,7 @@ reset the filter for the affected column(s)
         `'fe'` is now `'native'`, `'be'` is now `'custom'`, and `false` is now '`none'`
     -  `column_static_dropdown`
         Renamed to `dropdown`.
-        Now an object with each entry refering to a Column ID. Each nested prop expects.
+        Now an object with each entry referring to a Column ID. Each nested prop expects.
         `clearable` and `options`.
     - `column_conditional_dropdowns`
         Renamed to `dropdown_conditional`.
