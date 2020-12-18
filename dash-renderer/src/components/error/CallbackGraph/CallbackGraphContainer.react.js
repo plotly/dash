@@ -24,7 +24,7 @@ Cytoscape.use(dagre);
 Cytoscape.use(fcose);
 
 /*
- * Generates all the elements (nodes, edeges) for the dependency graph.
+ * Generates all the elements (nodes, edges) for the dependency graph.
  */
 function generateElements(graphs, profile, extraLinks) {
     const consumed = [];
@@ -229,7 +229,7 @@ function CallbackGraph() {
         };
     }
 
-    // Adds callbacks once cyctoscape is intialized.
+    // Adds callbacks once cyctoscape is initialized.
     useCytoscapeEffect(
         cy => {
             cytoscape.on('tap', 'node', e => setSelected(e.target));

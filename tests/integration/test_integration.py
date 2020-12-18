@@ -151,7 +151,7 @@ def test_inin008_index_customization(dash_duo):
             </footer>
             <div id="custom-footer">My custom footer</div>
             <script>
-            // Test the formatting doesn"t mess up script tags.
+            // Test the formatting doesn't mess up script tags.
             var elem = document.getElementById('add');
             if (!elem) {
                 throw Error('could not find container to add');
