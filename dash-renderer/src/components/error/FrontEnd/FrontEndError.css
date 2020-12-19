@@ -2,6 +2,17 @@
     margin-top: 10px;
 }
 
+.dash-fe-error__icon-x {
+    width: 16px;
+    height: 16px;
+    background-color: red;
+    margin-left: 75px;
+    border-radius: 4px;
+    border: 1px solid;
+
+}
+
+
 .dash-fe-errors {
     min-width: 386px;
     max-width: 650px;
