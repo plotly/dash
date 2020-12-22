@@ -9,6 +9,7 @@
     color: #ccc;
     font-size: 20px;
     cursor: pointer;
+    margin-right: 5px
 }
 
 .dash-fe-error__icon-x:hover
