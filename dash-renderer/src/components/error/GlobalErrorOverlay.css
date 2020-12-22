@@ -53,6 +53,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 .dash-error-card__message {
     font-size: 14px;

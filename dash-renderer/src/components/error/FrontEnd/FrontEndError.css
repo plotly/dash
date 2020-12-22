@@ -3,13 +3,17 @@
 }
 
 .dash-fe-error__icon-x {
-    width: 16px;
-    height: 16px;
-    background-color: red;
-    margin-left: 75px;
-    border-radius: 4px;
-    border: 1px solid;
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: #ccc;
+    font-size: 20px;
+    cursor: pointer;
+}
 
+.dash-fe-error__icon-x:hover
+{
+ color:black;
 }
 
 

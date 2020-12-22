@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import './FrontEndError.css';
-import OffIcon from '../icons/OffIcon.svg';
 import PropTypes from 'prop-types';
 import {FrontEndError} from './FrontEndError.react';
 
@@ -36,13 +35,11 @@ class FrontEndErrorContainer extends Component {
                         ){connected ? null : '\u00a0 🚫 Server Unavailable'}
                     </div>
                     <div
-                        className='dash-error-card__message'
-                        onClick={() => clickHandler()}
-                    >
-                        <OffIcon className='dash-fe-error__icon-x' />
+                        className='dash-fe-error__icon-x'
+                        onClick={() => clickHandler()}>
+                        x
                     </div>
                 </div>
-
                 <div className='dash-error-card__list'>{errorElements}</div>
             </div>
         );
