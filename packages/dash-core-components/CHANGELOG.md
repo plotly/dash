@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [#903](https://github.com/plotly/dash-core-components/pull/903) - part of fixing dash import bug https://github.com/plotly/dash/issues/1143
 
 ### Updated
+- [#911](https://github.com/plotly/dash-core-components/pull/911)
+    - Patch Release [1.58.4](https://github.com/plotly/plotly.js/releases/tag/v1.58.4)
 - [#906](https://github.com/plotly/dash-core-components/pull/906)
     - Patch Release [1.58.3](https://github.com/plotly/plotly.js/releases/tag/v1.58.3)
 
