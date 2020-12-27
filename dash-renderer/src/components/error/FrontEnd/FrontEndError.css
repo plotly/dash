@@ -6,19 +6,15 @@
     position: absolute;
     right: 0;
     top: 0;
-    color: #ccc;
+    color: #B9C2CE;
     font-size: 20px;
     cursor: pointer;
-<<<<<<< refs/remotes/origin/1403-x-button-to-close-error-box
-    margin-right: 5px
-=======
     margin-right: 10px
->>>>>>> One more css update to align the button  #1403
 }
 
 .dash-fe-error__icon-x:hover
 {
- color:black;
+ color:#a1a9b5;
 }
 
 
