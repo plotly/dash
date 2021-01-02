@@ -46,6 +46,7 @@ from ._utils import (
     split_callback_id,
     stringify_id,
     strip_relative_path,
+    to_json_plotly,
 )
 from . import _validate
 from . import _watch
@@ -528,7 +529,7 @@ class Dash(object):
 
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
-            json.dumps(layout, cls=plotly.utils.PlotlyJSONEncoder),
+            to_json_plotly(layout),
             mimetype="application/json",
         )
 
@@ -686,7 +687,7 @@ class Dash(object):
 
     def _generate_config_html(self):
         return '<script id="_dash-config" type="application/json">{}</script>'.format(
-            json.dumps(self._config(), cls=plotly.utils.PlotlyJSONEncoder)
+            to_json_plotly(self._config())
         )
 
     def _generate_renderer(self):
@@ -1035,9 +1036,7 @@ class Dash(object):
                 response = {"response": component_ids, "multi": True}
 
                 try:
-                    jsonResponse = json.dumps(
-                        response, cls=plotly.utils.PlotlyJSONEncoder
-                    )
+                    jsonResponse = to_json_plotly(response)
                 except TypeError:
                     _validate.fail_callback_output(output_value, output)
 
