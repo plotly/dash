@@ -528,10 +528,7 @@ class Dash(object):
         layout = self._layout_value()
 
         # TODO - Set browser cache limit - pass hash into frontend
-        return flask.Response(
-            to_json_plotly(layout),
-            mimetype="application/json",
-        )
+        return flask.Response(to_json_plotly(layout), mimetype="application/json",)
 
     def _config(self):
         # pieces of config needed by the front end

@@ -27,9 +27,11 @@ except ImportError:
     def to_json_plotly(value):
         return json.dumps(value, cls=PlotlyJSONEncoder)
 
+
 try:
     from plotly.io.json import from_plotly_json
 except ImportError:
+
     def from_plotly_json(value):
         return json.loads(value)
 
