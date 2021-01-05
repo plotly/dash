@@ -9,7 +9,7 @@ import pandas as pd
 
 url = "https://github.com/plotly/datasets/raw/master/" "26k-consumer-complaints.csv"
 rawDf = pd.read_csv(url)
-df = rawDf.to_dict("rows")
+df = rawDf.to_dict("records")
 
 
 def get_app(fixed_rows, fixed_columns, ops):

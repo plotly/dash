@@ -13,7 +13,7 @@ url = "https://github.com/plotly/datasets/raw/master/" "26k-consumer-complaints.
 rawDf = pd.read_csv(url, nrows=100)
 rawDf["id"] = rawDf.index + 3000
 
-df = rawDf.to_dict("rows")
+df = rawDf.to_dict("records")
 
 props = [
     "active_cell",
@@ -57,7 +57,7 @@ def get_app():
     )
 
     @app.callback(
-        Output("props_container", "children"), [Input("table", prop) for prop in props],
+        Output("props_container", "children"), [Input("table", prop) for prop in props]
     )
     def show_props(*args):
         # return 'Something yet!'
@@ -68,7 +68,7 @@ def get_app():
                     [
                         html.Td(prop),
                         html.Td(
-                            json.dumps(val) if val is not None else "None", id=prop,
+                            json.dumps(val) if val is not None else "None", id=prop
                         ),
                     ]
                 )
@@ -212,10 +212,7 @@ def test_tdrp003_select_cells(test):
         for col in range(3):
             selected.append(
                 dict(
-                    row=row,
-                    column=col,
-                    column_id=rawDf.columns[col],
-                    row_id=row + 3000,
+                    row=row, column=col, column_id=rawDf.columns[col], row_id=row + 3000
                 )
             )
 
@@ -275,10 +272,7 @@ def test_tdrp003_select_cells(test):
         for col in range(2):
             selected.append(
                 dict(
-                    row=row,
-                    column=col,
-                    column_id=rawDf.columns[col],
-                    row_id=row + 3000,
+                    row=row, column=col, column_id=rawDf.columns[col], row_id=row + 3000
                 )
             )
 
@@ -345,17 +339,14 @@ def test_tdrp004_navigate_selected_cells(test):
         for col in range(3):
             selected.append(
                 dict(
-                    row=row,
-                    column=col,
-                    column_id=rawDf.columns[col],
-                    row_id=row + 3000,
+                    row=row, column=col, column_id=rawDf.columns[col], row_id=row + 3000
                 )
             )
 
     for row in range(3):
         for col in range(3):
             active = dict(
-                row=row, column=col, column_id=rawDf.columns[col], row_id=row + 3000,
+                row=row, column=col, column_id=rawDf.columns[col], row_id=row + 3000
             )
 
             assert test.find_element("#active_cell").get_attribute(

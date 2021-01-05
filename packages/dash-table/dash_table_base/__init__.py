@@ -1,4 +1,4 @@
-from __future__ import print_function as _
+from __future__ import print_function
 
 import os as _os
 import sys as _sys
@@ -6,7 +6,7 @@ import json
 
 import dash as _dash
 
-if not hasattr(_dash, '__plotly_dash') and not hasattr(_dash, 'development'):
+if not hasattr(_dash, "__plotly_dash") and not hasattr(_dash, "development"):
     print(
         "Dash was not successfully imported. "
         "Make sure you don't have a file "

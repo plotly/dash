@@ -11,7 +11,7 @@ rawDf["Product"] = rawDf["Product"].map(lambda x: "[" + str(x) + "](plot.ly)")
 rawDf["Issue"] = rawDf["Issue"].map(lambda x: "![" + str(x) + "](assets/logo.png)")
 rawDf["State"] = rawDf["State"].map(lambda x: '```python\n"{}"\n```'.format(x))
 
-df = rawDf.to_dict("rows")
+df = rawDf.to_dict("records")
 
 
 def get_app():

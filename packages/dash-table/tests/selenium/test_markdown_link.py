@@ -6,10 +6,7 @@ import pytest
 def get_app(cell_selectable, markdown_options):
     md = "[Click me](https://www.google.com)"
 
-    data = [
-        dict(a=md, b=md),
-        dict(a=md, b=md),
-    ]
+    data = [dict(a=md, b=md), dict(a=md, b=md)]
 
     app = dash.Dash(__name__)
 

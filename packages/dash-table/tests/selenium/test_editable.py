@@ -13,7 +13,7 @@ import pandas as pd
 
 url = "https://github.com/plotly/datasets/raw/master/" "26k-consumer-complaints.csv"
 rawDf = pd.read_csv(url)
-df = rawDf.to_dict("rows")
+df = rawDf.to_dict("records")
 
 
 def get_app_and_locks():
@@ -44,7 +44,7 @@ def get_app_and_locks():
     non_blocking_lock = Lock()
 
     @app.callback(
-        Output("table", "style_cell_conditional"), [Input("non-blocking", "n_clicks")],
+        Output("table", "style_cell_conditional"), [Input("non-blocking", "n_clicks")]
     )
     def non_blocking_callback(clicks):
         if clicks is None:

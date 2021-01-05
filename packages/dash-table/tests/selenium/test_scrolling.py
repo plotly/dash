@@ -75,15 +75,11 @@ def test_scrol001_fixed_alignment(test, fixed_rows, fixed_columns, ops):
 
     scroll_by(test, 200)
 
-    wait.until(
-        lambda: -get_margin(test) == fixed_width + 200, 3,
-    )
+    wait.until(lambda: -get_margin(test) == fixed_width + 200, 3)
 
     scroll_by(test, -200)
 
-    wait.until(
-        lambda: -get_margin(test) == fixed_width, 3,
-    )
+    wait.until(lambda: -get_margin(test) == fixed_width, 3)
     assert test.get_log_errors() == []
 
 
@@ -131,7 +127,5 @@ def test_scrol002_edit_navigate(test, fixed_rows, fixed_columns, ops):
     test.send_keys(Keys.ARROW_RIGHT)
 
     wait.until(lambda: target.cell(2, 4).is_selected(), 3)
-    wait.until(
-        lambda: -get_margin(test) == fixed_width + get_scroll(test), 3,
-    )
+    wait.until(lambda: -get_margin(test) == fixed_width + get_scroll(test), 3)
     assert test.get_log_errors() == []
