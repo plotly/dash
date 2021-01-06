@@ -3,6 +3,10 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
+### Added
+- [#1508](https://github.com/plotly/dash/pull/1508) Fix [#1403](https://github.com/plotly/dash/issues/1403): Adds an x button
+to close the error messages box.
+
 ### Changed
 - [#1503](https://github.com/plotly/dash/pull/1506) Fix [#1466](https://github.com/plotly/dash/issues/1466): loosen `dash[testing]` requirements for easier integration in external projects. This PR also bumps many `dash[dev]` requirements.
 
