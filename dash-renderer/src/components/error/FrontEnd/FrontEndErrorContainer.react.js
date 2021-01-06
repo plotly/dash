@@ -38,7 +38,7 @@ class FrontEndErrorContainer extends Component {
                         className='dash-fe-error__icon-x'
                         onClick={() => clickHandler()}
                     >
-                        x
+                        ×
                     </div>
                 </div>
                 <div className='dash-error-card__list'>{errorElements}</div>
