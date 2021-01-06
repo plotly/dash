@@ -114,7 +114,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         }
 
         if (pickedAsyncCallbacks.length) {
-            const deffered = map<IPrioritizedCallback, IBlockedCallback>(
+            const deferred = map<IPrioritizedCallback, IBlockedCallback>(
                 cb => ({
                     ...cb,
                     ...getStash(cb, paths),
@@ -126,7 +126,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             dispatch(
                 aggregateCallbacks([
                     removePrioritizedCallbacks(pickedAsyncCallbacks),
-                    addBlockedCallbacks(deffered)
+                    addBlockedCallbacks(deferred)
                 ])
             );
 
@@ -165,7 +165,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         addExecutingCallbacks([executingCallback])
                     ])
                 );
-            }, deffered);
+            }, deferred);
         }
     },
     inputs: ['callbacks.prioritized', 'callbacks.completed']
