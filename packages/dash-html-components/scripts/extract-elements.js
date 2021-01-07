@@ -6,6 +6,7 @@ const request = require('request');
 
 const refUrl = 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element';
 const dataPath = './data/elements.txt';
+const expectedElCount = 131;
 
 /**
  * From the MDN HTML elements reference, extract a list of elements.
@@ -13,6 +14,10 @@ const dataPath = './data/elements.txt';
 function extractElements($) {
     const excludeElements = [
         'html', 'head', 'body', 'style', 'h1–h6', 'input',
+        // out of scope, different namespaces - but Mozilla added these to the
+        // above reference page Jan 2021 so we need to exclude them now.
+        // see https://github.com/mdn/content/pull/410
+        'svg', 'math',
         // obsolete, non-standard, or deprecated tags
         'image', 'dir', 'tt', 'applet', 'noembed', 'bgsound', 'menu', 'menuitem',
         'noframes'
@@ -56,6 +61,12 @@ request(refUrl, (error, response, html) => {
     }
     const $ = cheerio.load(html);
     const elements = extractElements($);
+    if (elements.length !== expectedElCount) {
+        throw new Error(
+            'Unexpected number of elements extracted from ' + refUrl +
+            ' Check the output and edit expectedElCount if this is intended.'
+        );
+    }
     const out = elements.join('\n');
 
     fs.writeFileSync(dataPath, out);
