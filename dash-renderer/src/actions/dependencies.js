@@ -239,7 +239,6 @@ function validateDependencies(parsedDependencies, dispatchError) {
         });
 
         findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs);
-        findInOutOverlap(outputs, inputs, head, dispatchError);
         findMismatchedWildcards(outputs, inputs, state, head, dispatchError);
     });
 }
