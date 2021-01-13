@@ -799,17 +799,11 @@ def test_dvcv016_circular_with_input_output(dash_duo):
     )
 
     @app.callback(
-        [
-            Output("a", "children"),
-            Output("b", "children"),
-        ],
-        [
-            Input("a", "children"),
-            Input("b", "children"),
-            Input("c", "children"),
-        ])
-    def c1(a,b,c):
-        return a,b
+        [Output("a", "children"), Output("b", "children")],
+        [Input("a", "children"), Input("b", "children"), Input("c", "children")],
+    )
+    def c1(a, b, c):
+        return a, b
 
     @app.callback(Output("c", "children"), [Input("a", "children")])
     def c2(children):
