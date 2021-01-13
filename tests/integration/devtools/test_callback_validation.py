@@ -789,3 +789,42 @@ def test_dvcv015_multipage_validation_layout(validation, dash_duo):
     dash_duo.wait_for_text_to_equal("#page-2-display-value", 'You have selected "LA"')
 
     assert not dash_duo.get_logs()
+
+
+def test_dvcv016_circular_with_input_output(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [html.Div([], id="a"), html.Div(["Bye"], id="b"), html.Div(["Hello"], id="c")]
+    )
+
+    @app.callback(
+        [
+            Output("a", "children"),
+            Output("b", "children"),
+        ],
+        [
+            Input("a", "children"),
+            Input("b", "children"),
+            Input("c", "children"),
+        ])
+    def c1(a,b,c):
+        return a,b
+
+    @app.callback(Output("c", "children"), [Input("a", "children")])
+    def c2(children):
+        return children
+
+    dash_duo.start_server(app, **debugging)
+
+    specs = [
+        [
+            "Circular Dependencies",
+            [
+                "Dependency Cycle Found:",
+                "a.children__output -> c.children",
+                "c.children -> a.children__output",
+            ],
+        ]
+    ]
+    check_errors(dash_duo, specs)
