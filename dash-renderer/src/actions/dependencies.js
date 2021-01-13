@@ -364,20 +364,21 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
 }
 
 function checkInOutOverlap(out, inputs) {
-        const {id: outId, property: outProp} = out;
+    const {id: outId, property: outProp} = out;
     return inputs.some(in_ => {
-            const {id: inId, property: inProp} = in_;
-            if (outProp !== inProp || typeof outId !== typeof inId) {
+        const {id: inId, property: inProp} = in_;
+        if (outProp !== inProp || typeof outId !== typeof inId) {
             return false;
-            }
-            if (typeof outId === 'string') {
-                if (outId === inId) {
+        }
+        if (typeof outId === 'string') {
+            if (outId === inId) {
                 return true;
-                }
-            } else if (wildcardOverlap(in_, [out])) {
-            return true;
             }
-        });
+        } else if (wildcardOverlap(in_, [out])) {
+            return true;
+        }
+        return false;
+    });
 }
 
 function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
@@ -738,22 +739,22 @@ export function computeGraphs(dependencies, dispatchError) {
     }
 
     /* multiGraph is used only for testing circularity
-     * 
+     *
      * Each component+property that is used as an input or output is added as a node
      * to a directed graph with a dependency from each input to each output. The
      * function triggerDefaultState in index.js then checks this graph for circularity.
-     * 
+     *
      * In order to allow the same component+property to be both an input and output
      * of the same callback, a two pass approach is used.
-     * 
+     *
      * In the first pass, the graph is built up normally with the exception that
-     * in cases where an output is also an input to the same callback a special 
+     * in cases where an output is also an input to the same callback a special
      * "output" node is added and the dependencies target this output node instead.
      * For example, if `slider.value` is both an input and an output, then the a new
      * node `slider.value__output` will be added with a dependency from `slider.value`
      * to `slider.value__output`. Splitting the input and output into separate nodes
      * removes the circularity.
-     * 
+     *
      * In order to still detect other forms of circularity, it is necessary to do a
      * second pass and add the new output nodes as a dependency in any *other* callbacks
      * where the original node was an input. Continuing the example, any other callback
@@ -762,18 +763,18 @@ export function computeGraphs(dependencies, dispatchError) {
      * and outputs for each callback are stored during the first pass.
      */
 
-    const outputTag = "__output";
+    const outputTag = '__output';
     const duplicateOutputs = [];
     const cbIn = [];
     const cbOut = [];
 
-    function addInputToMulti(inIdProp, outIdProp, firstPass=true) {
+    function addInputToMulti(inIdProp, outIdProp, firstPass = true) {
         multiGraph.addNode(inIdProp);
         multiGraph.addDependency(inIdProp, outIdProp);
         // only store callback inputs and outputs during the first pass
-        if (firstPass){
-            cbIn[cbIn.length-1].push(inIdProp);
-            cbOut[cbOut.length-1].push(outIdProp);
+        if (firstPass) {
+            cbIn[cbIn.length - 1].push(inIdProp);
+            cbOut[cbOut.length - 1].push(outIdProp);
         }
     }
 
@@ -821,10 +822,10 @@ export function computeGraphs(dependencies, dispatchError) {
             if (typeof outId === 'object') {
                 const outIdList = makeAllIds(outId, {});
                 outIdList.forEach(id => {
-                    let tempOutIdProp = {id, property};
+                    const tempOutIdProp = {id, property};
                     let outIdName = combineIdAndProp(tempOutIdProp);
                     // if this output is also an input, add `outputTag` to the name
-                    if (alsoInput){
+                    if (alsoInput) {
                         duplicateOutputs.push(tempOutIdProp);
                         outIdName += outputTag;
                     }
@@ -834,7 +835,7 @@ export function computeGraphs(dependencies, dispatchError) {
             } else {
                 let outIdName = combineIdAndProp(outIdProp);
                 // if this output is also an input, add `outputTag` to the name
-                if (alsoInput){
+                if (alsoInput) {
                     duplicateOutputs.push(outIdProp);
                     outIdName += outputTag;
                 }
@@ -853,17 +854,17 @@ export function computeGraphs(dependencies, dispatchError) {
         });
     });
 
-    // second pass for adding new output nodes as dependencies where needed 
+    // second pass for adding new output nodes as dependencies where needed
     duplicateOutputs.forEach(dupeOutIdProp => {
-        let originalName = combineIdAndProp(dupeOutIdProp);
-        let newName = originalName.concat(outputTag);
-        for (var cnt=0; cnt<cbIn.length; cnt++){
+        const originalName = combineIdAndProp(dupeOutIdProp);
+        const newName = originalName.concat(outputTag);
+        for (var cnt = 0; cnt < cbIn.length; cnt++) {
             // check if input to the callback
-            if (cbIn[cnt].some(inName=>(inName==originalName))){
+            if (cbIn[cnt].some(inName => inName === originalName)) {
                 /* make sure it's not also an output of the callback
                  * (this will be the original callback)
                  */
-                if(!cbOut[cnt].some(outName=>(outName==newName))){
+                if (!cbOut[cnt].some(outName => outName === newName)) {
                     cbOut[cnt].forEach(outName => {
                         addInputToMulti(newName, outName, false);
                     });
