@@ -750,7 +750,7 @@ export function computeGraphs(dependencies, dispatchError) {
      * in cases where an output is also an input to the same callback a special 
      * "output" node is added and the dependencies target this output node instead.
      * For example, if `slider.value` is both an input and an output, then the a new
-     * node `slider.value__output` will be added with a dependency from `slide.value`
+     * node `slider.value__output` will be added with a dependency from `slider.value`
      * to `slider.value__output`. Splitting the input and output into separate nodes
      * removes the circularity.
      * 
