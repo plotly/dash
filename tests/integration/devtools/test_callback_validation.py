@@ -5,6 +5,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash import Dash
 from dash.dependencies import Input, Output, State, MATCH, ALL, ALLSMALLER
+from dash.testing import wait
 
 debugging = dict(
     debug=True, use_reloader=False, use_debugger=True, dev_tools_hot_reload=False
@@ -91,9 +92,7 @@ def test_dvcv002_blank_id_prop(dash_duo):
 
     dash_duo.start_server(app, **debugging)
 
-    # the first one is just an artifact... the other 4 we care about
     specs = [
-        ["Same `Input` and `Output`", []],
         [
             "Callback item missing ID",
             ['Input[0].id = ""', "Every item linked to a callback needs an ID"],
@@ -252,33 +251,9 @@ def test_dvcv005_input_output_overlap(dash_duo):
 
     dash_duo.start_server(app, **debugging)
 
-    specs = [
-        [
-            "Same `Input` and `Output`",
-            [
-                'Input 0 ({"b":MATCH,"c":1}.children)',
-                "can match the same component(s) as",
-                'Output 1 ({"b":MATCH,"c":1}.children)',
-            ],
-        ],
-        [
-            "Same `Input` and `Output`",
-            [
-                'Input 0 ({"a":1}.children)',
-                "can match the same component(s) as",
-                'Output 0 ({"a":ALL}.children)',
-            ],
-        ],
-        [
-            "Same `Input` and `Output`",
-            ["Input 0 (c.children)", "matches Output 1 (c.children)"],
-        ],
-        [
-            "Same `Input` and `Output`",
-            ["Input 0 (a.children)", "matches Output 0 (a.children)"],
-        ],
-    ]
-    check_errors(dash_duo, specs)
+    # input/output overlap is now legal, shouldn't throw any errors
+    wait.until(lambda: ~dash_duo.redux_state_is_loading, 2)
+    assert dash_duo.get_logs() == []
 
 
 def test_dvcv006_inconsistent_wildcards(dash_duo):
