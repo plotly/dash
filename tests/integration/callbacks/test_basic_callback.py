@@ -658,7 +658,7 @@ def test_cbsc015_input_output_callback(dash_duo):
 
     app = dash.Dash(__name__)
     app.layout = html.Div(
-        [html.Div(id="input-text"), dcc.Input(id="input", type="number", value=0),]
+        [html.Div(id="input-text"), dcc.Input(id="input", type="number", value=0)]
     )
 
     @app.callback(
