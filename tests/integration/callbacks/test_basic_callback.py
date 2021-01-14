@@ -658,7 +658,7 @@ def test_cbsc015_input_output_callback(dash_duo):
 
     app = dash.Dash(__name__)
     app.layout = html.Div(
-        [html.Div(id="input-text"), dcc.Input(id="input", type="number", value=0)]
+        [html.Div("0", id="input-text"), dcc.Input(id="input", type="number", value=0)]
     )
 
     @app.callback(
@@ -683,8 +683,6 @@ def test_cbsc015_input_output_callback(dash_duo):
             return str(v)
 
     dash_duo.start_server(app)
-
-    wait.until(lambda: dash_duo.find_element("#input-text").text == "0", 2)
 
     input_ = dash_duo.find_element("#input")
     for key in "2":
