@@ -167,11 +167,15 @@ export const getReadyCallbacks = (
     forEach(output => (outputsMap[output] = true), outputs);
 
     // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
+    // Outputs which overlap an input do not count as an outstanding output
     return filter(
         cb =>
             all(
                 cbp => !outputsMap[combineIdAndProp(cbp)],
-                flatten(cb.getInputs(paths))
+                difference(
+                    flatten(cb.getInputs(paths)),
+                    flatten(cb.getOutputs(paths))
+                )
             ),
         candidates
     );
