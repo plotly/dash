@@ -658,15 +658,11 @@ def test_cbsc015_input_output_callback(dash_duo):
 
     app = dash.Dash(__name__)
     app.layout = html.Div(
-        [
-            html.Div(id="input-text"),
-            dcc.Input(id="input", type="number", value=0),
-        ]
+        [html.Div(id="input-text"), dcc.Input(id="input", type="number", value=0),]
     )
 
     @app.callback(
-        Output("input", "value"),
-        Input("input", "value"),
+        Output("input", "value"), Input("input", "value"),
     )
     def circular_output(v):
         ctx = dash.callback_context
@@ -677,9 +673,9 @@ def test_cbsc015_input_output_callback(dash_duo):
         return value
 
     call_count = Value("i", 0)
+
     @app.callback(
-        Output("input-text", "children"),
-        Input("input", "value"),
+        Output("input-text", "children"), Input("input", "value"),
     )
     def follower_output(v):
         with lock:
