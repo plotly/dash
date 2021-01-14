@@ -170,7 +170,7 @@ export const getReadyCallbacks = (
     // Outputs which overlap an input do not count as an outstanding output
     return filter(
         cb =>
-            all(
+            all<ILayoutCallbackProperty>(
                 cbp => !outputsMap[combineIdAndProp(cbp)],
                 difference(
                     flatten(cb.getInputs(paths)),
