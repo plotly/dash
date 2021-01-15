@@ -118,3 +118,12 @@ class DashCoreComponentsMixin(object):
 
     def release(self):
         ActionChains(self.driver).release().perform()
+
+    def click_and_drag_at_coord_fractions(self, elem_or_selector, fx1, fy1, fx2, fy2):
+        elem = self._get_element(elem_or_selector)
+
+        ActionChains(self.driver).move_to_element_with_offset(
+            elem, elem.size["width"] * fx1, elem.size["height"] * fy1
+        ).click_and_hold().move_to_element_with_offset(
+            elem, elem.size["width"] * fx2, elem.size["height"] * fy2
+        ).release().perform()

@@ -4,12 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [UNRELEASED]
 ### Fixed
-- [#903](https://github.com/plotly/dash-core-components/pull/903) - part of fixing dash import bug https://github.com/plotly/dash/issues/1143
+- [#905](https://github.com/plotly/dash-core-components/pull/905) Make sure the `figure` prop of `dcc.Graph` receives updates from user interactions in the graph, by using the same `layout` object as provided in the prop rather than cloning it. Fixes [#879](https://github.com/plotly/dash-core-components/issues/879).
+- [#903](https://github.com/plotly/dash-core-components/pull/903) Part of fixing dash import bug https://github.com/plotly/dash/issues/1143
 
 ### Updated
-- [#911](https://github.com/plotly/dash-core-components/pull/911)
+- [#911](https://github.com/plotly/dash-core-components/pull/911), [#906](https://github.com/plotly/dash-core-components/pull/906)
+  - Upgraded Plotly.js to [1.58.4](https://github.com/plotly/plotly.js/releases/tag/v1.58.4)
     - Patch Release [1.58.4](https://github.com/plotly/plotly.js/releases/tag/v1.58.4)
-- [#906](https://github.com/plotly/dash-core-components/pull/906)
     - Patch Release [1.58.3](https://github.com/plotly/plotly.js/releases/tag/v1.58.3)
 
 ## [1.14.1] - 2020-12-09

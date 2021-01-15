@@ -25,7 +25,7 @@ def findAsyncPlotlyJs(scripts):
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
-def test_candlestick(dash_dcc, is_eager):
+def test_grva001_candlestick(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
         [
@@ -75,7 +75,7 @@ def test_candlestick(dash_dcc, is_eager):
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
-def test_graphs_with_different_figures(dash_dcc, is_eager):
+def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
         [
@@ -160,7 +160,7 @@ def test_graphs_with_different_figures(dash_dcc, is_eager):
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
-def test_empty_graph(dash_dcc, is_eager):
+def test_grva003_empty_graph(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
 
     app.layout = html.Div(
@@ -193,7 +193,7 @@ def test_empty_graph(dash_dcc, is_eager):
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
-def test_graph_prepend_trace(dash_dcc, is_eager):
+def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
 
     def generate_with_id(id, data=None):
@@ -358,7 +358,7 @@ def test_graph_prepend_trace(dash_dcc, is_eager):
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
-def test_graph_extend_trace(dash_dcc, is_eager):
+def test_grva005_graph_extend_trace(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
 
     def generate_with_id(id, data=None):
@@ -521,7 +521,7 @@ def test_graph_extend_trace(dash_dcc, is_eager):
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
-def test_unmounted_graph_resize(dash_dcc, is_eager):
+def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
     app = dash.Dash(__name__, eager_loading=is_eager)
 
     app.layout = html.Div(
@@ -619,7 +619,7 @@ def test_unmounted_graph_resize(dash_dcc, is_eager):
     dash_dcc.driver.set_window_size(window_size["width"], window_size["height"])
 
 
-def test_external_plotlyjs_prevents_lazy(dash_dcc):
+def test_grva007_external_plotlyjs_prevents_lazy(dash_dcc):
     app = dash.Dash(
         __name__,
         eager_loading=False,
@@ -658,3 +658,168 @@ def test_external_plotlyjs_prevents_lazy(dash_dcc):
     scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
     assert findSyncPlotlyJs(scripts) is None
     assert findAsyncPlotlyJs(scripts) is None
+
+
+def test_grva008_shapes_not_lost(dash_dcc):
+    # See issue #879 and pr #905
+    app = dash.Dash(__name__)
+
+    fig = {"data": [], "layout": {"dragmode": "drawrect"}}
+    graph = dcc.Graph(id="graph", figure=fig, style={"height": "400px"})
+
+    app.layout = html.Div(
+        [
+            graph,
+            html.Br(),
+            html.Button(id="button", children="Clone figure"),
+            html.Div(id="output", children=""),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        function clone_figure(_, figure) {
+            const new_figure = {...figure};
+            const shapes = new_figure.layout.shapes || [];
+            return [new_figure, shapes.length];
+        }
+        """,
+        Output("graph", "figure"),
+        Output("output", "children"),
+        Input("button", "n_clicks"),
+        State("graph", "figure"),
+    )
+
+    dash_dcc.start_server(app)
+    button = dash_dcc.wait_for_element("#button")
+    dash_dcc.wait_for_text_to_equal("#output", "0")
+
+    # Draw a shape
+    dash_dcc.click_and_hold_at_coord_fractions("#graph", 0.25, 0.25)
+    dash_dcc.move_to_coord_fractions("#graph", 0.35, 0.75)
+    dash_dcc.release()
+
+    # Click to trigger an update of the output, the shape should survive
+    dash_dcc.wait_for_text_to_equal("#output", "0")
+    button.click()
+    dash_dcc.wait_for_text_to_equal("#output", "1")
+
+    # Draw another shape
+    dash_dcc.click_and_hold_at_coord_fractions("#graph", 0.75, 0.25)
+    dash_dcc.move_to_coord_fractions("#graph", 0.85, 0.75)
+    dash_dcc.release()
+
+    # Click to trigger an update of the output, the shape should survive
+    dash_dcc.wait_for_text_to_equal("#output", "1")
+    button.click()
+    dash_dcc.wait_for_text_to_equal("#output", "2")
+
+
+@pytest.mark.parametrize("mutate_fig", [True, False])
+def test_grva009_originals_maintained_for_responsive_override(mutate_fig, dash_dcc):
+    # In #905 we made changes to prevent shapes from being lost.
+    # This test makes sure that the overrides applied by the `responsive`
+    # prop are "undone" when the `responsive` prop changes.
+
+    app = dash.Dash(__name__)
+
+    graph = dcc.Graph(
+        id="graph",
+        figure={"data": [{"y": [1, 2]}], "layout": {"width": 300, "height": 250}},
+        style={"height": "400px", "width": "500px"},
+    )
+    responsive_size = [500, 400]
+    fixed_size = [300, 250]
+
+    app.layout = html.Div(
+        [
+            graph,
+            html.Br(),
+            html.Button(id="edit_figure", children="Edit figure"),
+            html.Button(id="edit_responsive", children="Edit responsive"),
+            html.Div(id="output", children=""),
+        ]
+    )
+
+    if mutate_fig:
+        # Modify the layout in place (which still has changes made by responsive)
+        change_fig = """
+            figure.layout.title = {text: String(n_fig || 0)};
+            const new_figure = {...figure};
+        """
+    else:
+        # Or create a new one each time
+        change_fig = """
+            const new_figure = {
+                data: [{y: [1, 2]}],
+                layout: {width: 300, height: 250, title: {text: String(n_fig || 0)}}
+            };
+        """
+
+    callback = (
+        """
+        function clone_figure(n_fig, n_resp, figure) {
+        """
+        + change_fig
+        + """
+            let responsive = [true, false, 'auto'][(n_resp || 0) % 3];
+            return [new_figure, responsive, (n_fig || 0) + ' ' + responsive];
+        }
+        """
+    )
+
+    app.clientside_callback(
+        callback,
+        Output("graph", "figure"),
+        Output("graph", "responsive"),
+        Output("output", "children"),
+        Input("edit_figure", "n_clicks"),
+        Input("edit_responsive", "n_clicks"),
+        State("graph", "figure"),
+    )
+
+    dash_dcc.start_server(app)
+    edit_figure = dash_dcc.wait_for_element("#edit_figure")
+    edit_responsive = dash_dcc.wait_for_element("#edit_responsive")
+
+    def graph_dims():
+        return dash_dcc.driver.execute_script(
+            """
+            const layout = document.querySelector('.js-plotly-plot')._fullLayout;
+            return [layout.width, layout.height];
+            """
+        )
+
+    dash_dcc.wait_for_text_to_equal("#output", "0 true")
+    dash_dcc.wait_for_text_to_equal(".gtitle", "0")
+    assert graph_dims() == responsive_size
+
+    edit_figure.click()
+    dash_dcc.wait_for_text_to_equal("#output", "1 true")
+    dash_dcc.wait_for_text_to_equal(".gtitle", "1")
+    assert graph_dims() == responsive_size
+
+    edit_responsive.click()
+    dash_dcc.wait_for_text_to_equal("#output", "1 false")
+    dash_dcc.wait_for_text_to_equal(".gtitle", "1")
+    assert graph_dims() == fixed_size
+
+    edit_figure.click()
+    dash_dcc.wait_for_text_to_equal("#output", "2 false")
+    dash_dcc.wait_for_text_to_equal(".gtitle", "2")
+    assert graph_dims() == fixed_size
+
+    edit_responsive.click()
+    dash_dcc.wait_for_text_to_equal("#output", "2 auto")
+    dash_dcc.wait_for_text_to_equal(".gtitle", "2")
+    assert graph_dims() == fixed_size
+
+    edit_figure.click()
+    dash_dcc.wait_for_text_to_equal("#output", "3 auto")
+    dash_dcc.wait_for_text_to_equal(".gtitle", "3")
+    assert graph_dims() == fixed_size
+
+    edit_responsive.click()
+    dash_dcc.wait_for_text_to_equal("#output", "3 true")
+    dash_dcc.wait_for_text_to_equal(".gtitle", "3")
+    assert graph_dims() == responsive_size

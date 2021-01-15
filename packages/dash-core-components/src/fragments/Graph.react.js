@@ -131,6 +131,8 @@ class PlotlyGraph extends Component {
         this.getLayoutOverride = this.getLayoutOverride.bind(this);
         this.graphResize = this.graphResize.bind(this);
         this.isResponsive = this.isResponsive.bind(this);
+
+        this.state = {override: {}, originals: {}};
     }
 
     plot(props) {
@@ -226,8 +228,29 @@ class PlotlyGraph extends Component {
         if (!layout) {
             return layout;
         }
-
-        return mergeDeepRight(layout, this.getLayoutOverride(responsive));
+        const override = this.getLayoutOverride(responsive);
+        const {override: prev_override, originals: prev_originals} = this.state;
+        // Store the original data that we're about to override
+        const originals = {};
+        for (const key in override) {
+            if (layout[key] !== prev_override[key]) {
+                originals[key] = layout[key];
+            } else if (prev_originals.hasOwnProperty(key)) {
+                originals[key] = prev_originals[key];
+            }
+        }
+        this.setState({override, originals});
+        // Undo the previous override, but only for keys that the user did not change
+        for (const key in prev_originals) {
+            if (layout[key] === prev_override[key]) {
+                layout[key] = prev_originals[key];
+            }
+        }
+        // Apply the current override
+        for (const key in override) {
+            layout[key] = override[key];
+        }
+        return layout; // not really a clone
     }
 
     getConfigOverride(responsive) {
