@@ -150,10 +150,12 @@ class Dash(object):
     :type assets_ignore: string
 
     :param assets_external_path: an absolute URL from which to load assets.
-        Use with ``serve_locally=False``. Dash can still find js and css to
-        automatically load if you also keep local copies in your assets
-        folder that Dash can index, but external serving can improve
-        performance and reduce load on the Dash server.
+        Use with ``serve_locally=False``. assets_external_path is joined
+        with assets_url_path to determine the absolute url to the
+        asset folder. Dash can still find js and css to automatically load
+        if you also keep local copies in your assets folder that Dash can index,
+        but external serving can improve performance and reduce load on
+        the Dash server.
         env: ``DASH_ASSETS_EXTERNAL_PATH``
     :type assets_external_path: string
 
@@ -1098,8 +1100,9 @@ class Dash(object):
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:
-            res["external_url"] = "{}{}".format(
-                self.config.assets_external_path, url_path
+            res["external_url"] = "/".join([
+                self.config.assets_external_path.rstrip('/'), self.config.assets_url_path.strip('/'), url_path.lstrip('/')
+            ]
             )
         self._assets_files.append(file_path)
         return res
@@ -1186,17 +1189,15 @@ class Dash(object):
 
     def get_asset_url(self, path):
         if self.config.assets_external_path:
-            asset = get_asset_path(
-                self.config.assets_external_path,
-                path,
-                self.config.assets_url_path.lstrip("/"),
-            )
+            prefix = self.config.assets_external_path
         else:
-            asset = get_asset_path(
-                self.config.requests_pathname_prefix,
-                path,
-                self.config.assets_url_path.lstrip("/"),
-            )
+            prefix = self.config.requests_pathname_prefix
+
+        asset = get_asset_path(
+            prefix,
+            path,
+            self.config.assets_url_path.lstrip("/")
+        )
 
         return asset
 

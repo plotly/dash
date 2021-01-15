@@ -105,6 +105,28 @@ def test_pathname_prefix_assets(empty_environ, req, expected):
     assert path == expected
 
 
+@pytest.mark.parametrize(
+    "requests_pathname_prefix, assets_external_path, assets_url_path, expected",
+    [
+        (None    , None                        , "assets" , "/assets/reset.css"),
+        ("/app/" , None                        , "assets" , '/app/assets/reset.css'),
+        (None    , None                        , "css"    , "/css/reset.css"),
+        ("/app/" , None                        , "css"    , "/app/css/reset.css"),
+        (None    , "http:\\external.com/", "assets" , "http:\\external.com/assets/reset.css"),
+        ("/app/" , "http:\\external.com/", "css"    , "http:\\external.com/css/reset.css"),
+
+    ],)
+def test_asset_url(empty_environ, requests_pathname_prefix, assets_external_path, assets_url_path, expected):
+    app = Dash('Dash',
+               requests_pathname_prefix=requests_pathname_prefix,
+               assets_external_path=assets_external_path,
+               assets_url_path=assets_url_path
+               )
+
+    path = app.get_asset_url('reset.css')
+    assert path == expected
+
+
 def test_get_combined_config_dev_tools_ui(empty_environ):
     val1 = get_combined_config("ui", None, default=False)
     assert (
