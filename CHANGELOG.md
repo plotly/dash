@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - [#1508](https://github.com/plotly/dash/pull/1508) Fix [#1403](https://github.com/plotly/dash/issues/1403): Adds an x button
 to close the error messages box.
+- [#1525] (https://github.com/plotly/dash/pull/1525): Add support for callbacks which have overlapping inputs and outputs. Combined with `dash.callback_context` this addresses many use cases which require circular callbacks.
 
 ### Changed
 - [#1503](https://github.com/plotly/dash/pull/1506) Fix [#1466](https://github.com/plotly/dash/issues/1466): loosen `dash[testing]` requirements for easier integration in external projects. This PR also bumps many `dash[dev]` requirements.
