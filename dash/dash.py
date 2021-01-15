@@ -1185,11 +1185,18 @@ class Dash(object):
         ]
 
     def get_asset_url(self, path):
-        asset = get_asset_path(
-            self.config.requests_pathname_prefix,
+        if self.config.assets_external_path:
+            asset = get_asset_path(
+                self.config.assets_external_path,
+                path,
+                self.config.assets_url_path.lstrip("/"),
+            )
+        else:
+            asset = get_asset_path(
+                self.config.requests_pathname_prefix,
             path,
-            self.config.assets_url_path.lstrip("/"),
-        )
+                self.config.assets_url_path.lstrip("/"),
+            )
 
         return asset
 
