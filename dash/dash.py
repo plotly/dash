@@ -1194,7 +1194,7 @@ class Dash(object):
         else:
             asset = get_asset_path(
                 self.config.requests_pathname_prefix,
-            path,
+                path,
                 self.config.assets_url_path.lstrip("/"),
             )
 
