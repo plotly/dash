@@ -112,8 +112,8 @@ def test_pathname_prefix_assets(empty_environ, req, expected):
         ("/app/" , None                        , "assets" , '/app/assets/reset.css'),
         (None    , None                        , "css"    , "/css/reset.css"),
         ("/app/" , None                        , "css"    , "/app/css/reset.css"),
-        (None    , "http:\\external.com/", "assets" , "http:\\external.com/assets/reset.css"),
-        ("/app/" , "http:\\external.com/", "css"    , "http:\\external.com/css/reset.css"),
+        (None    , "http://external.com/", "assets" , "http://external.com/assets/reset.css"),
+        ("/app/" , "http://external.com/", "css"    , "http://external.com/css/reset.css"),
 
     ],)
 def test_asset_url(empty_environ, requests_pathname_prefix, assets_external_path, assets_url_path, expected):
