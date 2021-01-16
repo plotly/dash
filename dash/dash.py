@@ -1100,10 +1100,7 @@ class Dash(object):
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:
-            res["external_url"] = "/".join([
-                self.config.assets_external_path.rstrip('/'), self.config.assets_url_path.strip('/'), url_path.lstrip('/')
-            ]
-            )
+            res["external_url"] = self.get_asset_url(url_path.lstrip("/"))
         self._assets_files.append(file_path)
         return res
 
@@ -1193,11 +1190,7 @@ class Dash(object):
         else:
             prefix = self.config.requests_pathname_prefix
 
-        asset = get_asset_path(
-            prefix,
-            path,
-            self.config.assets_url_path.lstrip("/")
-        )
+        asset = get_asset_path(prefix, path, self.config.assets_url_path.lstrip("/"))
 
         return asset
 
