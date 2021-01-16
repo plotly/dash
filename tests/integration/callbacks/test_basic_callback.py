@@ -651,3 +651,48 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_2.value > timestamp_1.value
     assert call_count.value == 4
     dash_duo.percy_snapshot("button-2 click again")
+
+
+def test_cbsc015_input_output_callback(dash_duo):
+    lock = Lock()
+
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [html.Div("0", id="input-text"), dcc.Input(id="input", type="number", value=0)]
+    )
+
+    @app.callback(
+        Output("input", "value"), Input("input", "value"),
+    )
+    def circular_output(v):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            value = v
+        else:
+            value = v + 1
+        return value
+
+    call_count = Value("i", 0)
+
+    @app.callback(
+        Output("input-text", "children"), Input("input", "value"),
+    )
+    def follower_output(v):
+        with lock:
+            call_count.value = call_count.value + 1
+            return str(v)
+
+    dash_duo.start_server(app)
+
+    input_ = dash_duo.find_element("#input")
+    for key in "2":
+        with lock:
+            input_.send_keys(key)
+
+    wait.until(lambda: dash_duo.find_element("#input-text").text == "3", 2)
+
+    assert call_count.value == 2, "initial + changed once"
+
+    assert not dash_duo.redux_state_is_loading
+
+    assert dash_duo.get_logs() == []
