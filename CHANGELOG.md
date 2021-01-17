@@ -695,3 +695,9 @@ app = dash.Dash(...)
 
 ## 0.17.3 - 2017-06-22
 ✨ This is the initial open-source release of Dash.
+
+### Fixed
+- [#1527](https://github.com/plotly/dash/issues/1527)🐛 `get_asset_url` now pulls from an external source if `assets_external_path` is set.
+- updated `_add_assets_resource` to build asset urls the same way as `get_asset_url`.
+- updated doc string for `assets_external_path` Dash argument to be more clear that it will allways be joined with 
+the `assets_url_path` argument when determining the url to an external asset.
