@@ -13,6 +13,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - Patch Release [1.58.4](https://github.com/plotly/plotly.js/releases/tag/v1.58.4)
     - Patch Release [1.58.3](https://github.com/plotly/plotly.js/releases/tag/v1.58.3)
 
+### Added
+- [#888](https://github.com/plotly/dash-core-components/pull/888) Adds a `drag_value` prop to `dcc.Slider`to be able to fire callbacks from dragging and releasing the slider.
+
 ## [1.14.1] - 2020-12-09
 ### Updated
 - [#898](https://github.com/plotly/dash-core-components/pull/898)
