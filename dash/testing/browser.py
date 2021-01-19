@@ -358,9 +358,9 @@ class Browser(DashPageMixin):
 
         if self._pause:
             try:
-                import pdb as pdb_
+                import pdb as pdb_  # pylint: disable=import-outside-toplevel
             except ImportError:
-                import ipdb as pdb_
+                import ipdb as pdb_  # pylint: disable=import-outside-toplevel
 
             pdb_.set_trace()
 
@@ -431,6 +431,7 @@ class Browser(DashPageMixin):
 
         capabilities = DesiredCapabilities.CHROME
         capabilities["loggingPrefs"] = {"browser": "SEVERE"}
+        capabilities["goog:loggingPrefs"] = {"browser": "SEVERE"}
 
         if "DASH_TEST_CHROMEPATH" in os.environ:
             options.binary_location = os.environ["DASH_TEST_CHROMEPATH"]

@@ -125,7 +125,7 @@ class ThreadedRunner(BaseDashRunner):
         stopper()
         return "Flask server is shutting down"
 
-    # pylint: disable=arguments-differ,C0330
+    # pylint: disable=arguments-differ
     def start(self, app, **kwargs):
         """Start the app server in threading flavor."""
         app.server.add_url_rule(self.stop_route, self.stop_route, self._stop_server)

@@ -4,7 +4,6 @@ from __future__ import print_function
 import copy
 import os
 import shutil
-import glob
 import warnings
 import sys
 import importlib
@@ -526,14 +525,21 @@ def generate_module(
 
     os.makedirs("deps")
 
-    for javascript in glob.glob("{}/*.js".format(project_shortname)):
-        shutil.copy(javascript, "deps/")
+    for rel_dirname, _, filenames in os.walk(project_shortname):
+        for filename in filenames:
+            extension = os.path.splitext(filename)[1]
 
-    for css in glob.glob("{}/*.css".format(project_shortname)):
-        shutil.copy(css, "deps/")
+            if extension in [".py", ".pyc", ".json"]:
+                continue
 
-    for sourcemap in glob.glob("{}/*.map".format(project_shortname)):
-        shutil.copy(sourcemap, "deps/")
+            target_dirname = os.path.join(
+                "deps/", os.path.relpath(rel_dirname, project_shortname)
+            )
+
+            if not os.path.exists(target_dirname):
+                os.makedirs(target_dirname)
+
+            shutil.copy(os.path.join(rel_dirname, filename), target_dirname)
 
     generate_package_file(project_shortname, components, pkg_data, prefix)
     generate_toml_file(project_shortname, pkg_data)
