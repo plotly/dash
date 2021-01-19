@@ -420,7 +420,7 @@ def create_prop_docstring(
 
     # formats description
     period = "." if description else ""
-    description = description.strip().strip(".") + period
+    description = description.strip().strip(".").replace('"', r"\"") + period
     desc_indent = indent_spacing + "    "
     description = fill(
         description,
