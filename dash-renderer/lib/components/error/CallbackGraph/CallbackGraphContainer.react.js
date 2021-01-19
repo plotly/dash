@@ -85,7 +85,7 @@ _cytoscape["default"].use(_cytoscapeDagre["default"]);
 
 _cytoscape["default"].use(_cytoscapeFcose["default"]);
 /*
- * Generates all the elements (nodes, edeges) for the dependency graph.
+ * Generates all the elements (nodes, edges) for the dependency graph.
  */
 
 
@@ -323,7 +323,7 @@ function CallbackGraph() {
       pan: cy.pan(),
       _chosenType: (_layoutSelector$curre = layoutSelector.current) === null || _layoutSelector$curre === void 0 ? void 0 : _layoutSelector$curre.value
     };
-  } // Adds callbacks once cyctoscape is intialized.
+  } // Adds callbacks once cyctoscape is initialized.
 
 
   useCytoscapeEffect(function (cy) {

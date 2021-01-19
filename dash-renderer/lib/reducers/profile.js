@@ -41,7 +41,7 @@ var profile = function profile() {
 
   if (action.type === 'UPDATE_RESOURCE_USAGE') {
     // Keep a record of the most recent change. This
-    // is subtly different from history.present becasue
+    // is subtly different from history.present because
     // it watches all props, not just inputs.
     var _action$payload = action.payload,
         id = _action$payload.id,

@@ -6439,7 +6439,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.i, ".error-container {\n    margin-top: 10px;\n}\n\n.dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error-top {\n    height: 20px;\n    display: flex;\n    justify-content: space-between;\n    width: 100%;\n    cursor: pointer;\n}\n.dash-fe-error-top__group:first-child {\n    /*\n     * 77% is the maximum space allowed based off of the other elements\n     * in the top part of the error container (timestamp & collapse arrow).\n     * this was manually determined */\n    width: 77%;\n}\n.dash-fe-error-top__group {\n    display: inline-flex;\n    align-items: center;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 0px;\n    margin-left: 5px;\n    padding: 0px;\n    font-size: 14px;\n    display: inline-block;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    overflow: hidden;\n}\n.dash-fe-error__timestamp {\n    margin-right: 20px;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__info_title {\n    margin: 0;\n    color: #506784;\n    font-size: 16px;\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    box-sizing: border-box;\n    border-top-left-radius: 4px;\n    border-top-right-radius: 4px;\n    padding: 10px;\n}\n\n.dash-fe-error__info {\n    border: 1px solid #dfe8f3;\n    margin: 0 0 1em 0;\n    padding: 10px;\n\n    background-color: white;\n    border: 2px solid #dfe8f3;\n    color: #506784;\n    overflow: auto;\n    white-space: pre-wrap;\n}\n\n.dash-fe-error__curved {\n    border-radius: 4px;\n}\n\n.dash-fe-error__curved-top {\n    border-top-left-radius: 4px;\n    border-top-right-radius: 4px;\n    border-bottom-width: 0px;\n}\n\n.dash-fe-error__curved-bottom {\n    border-radius-bottom-left: 4px;\n    border-radius-bottom-right: 4px;\n    background-color: #FFEFEF;\n}\n\n.dash-be-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    /* iframe container handles the scrolling */\n    overflow: hidden;\n    display: inline-block;\n}\n\n.dash-be-error__str {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    overflow: auto;\n    display: inline-block;\n    white-space: pre-wrap;\n}\n", ""]);
+exports.push([module.i, ".error-container {\n    margin-top: 10px;\n}\n\n.dash-fe-error__icon-x {\n    position: absolute;\n    right: 0;\n    top: 0;\n    color: #B9C2CE;\n    font-size: 20px;\n    cursor: pointer;\n    margin-right: 10px\n}\n\n.dash-fe-error__icon-x:hover\n{\n color:#a1a9b5;\n}\n\n\n.dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error-top {\n    height: 20px;\n    display: flex;\n    justify-content: space-between;\n    width: 100%;\n    cursor: pointer;\n}\n.dash-fe-error-top__group:first-child {\n    /*\n     * 77% is the maximum space allowed based off of the other elements\n     * in the top part of the error container (timestamp & collapse arrow).\n     * this was manually determined */\n    width: 77%;\n}\n.dash-fe-error-top__group {\n    display: inline-flex;\n    align-items: center;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 0px;\n    margin-left: 5px;\n    padding: 0px;\n    font-size: 14px;\n    display: inline-block;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    overflow: hidden;\n}\n.dash-fe-error__timestamp {\n    margin-right: 20px;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__info_title {\n    margin: 0;\n    color: #506784;\n    font-size: 16px;\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    box-sizing: border-box;\n    border-top-left-radius: 4px;\n    border-top-right-radius: 4px;\n    padding: 10px;\n}\n\n.dash-fe-error__info {\n    border: 1px solid #dfe8f3;\n    margin: 0 0 1em 0;\n    padding: 10px;\n\n    background-color: white;\n    border: 2px solid #dfe8f3;\n    color: #506784;\n    overflow: auto;\n    white-space: pre-wrap;\n}\n\n.dash-fe-error__curved {\n    border-radius: 4px;\n}\n\n.dash-fe-error__curved-top {\n    border-top-left-radius: 4px;\n    border-top-right-radius: 4px;\n    border-bottom-width: 0px;\n}\n\n.dash-fe-error__curved-bottom {\n    border-radius-bottom-left: 4px;\n    border-radius-bottom-right: 4px;\n    background-color: #FFEFEF;\n}\n\n.dash-be-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    /* iframe container handles the scrolling */\n    overflow: hidden;\n    display: inline-block;\n}\n\n.dash-be-error__str {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    overflow: auto;\n    display: inline-block;\n    white-space: pre-wrap;\n}\n", ""]);
 // Exports
 module.exports = exports;
 
@@ -6457,7 +6457,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.i, ".dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: monospace;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    width: 600px;\n    max-width: 800px;\n    max-height: calc(100vh - 50px);\n    margin: 10px;\n    overflow: auto;\n    z-index: 1001;  /* above the plotly.js toolbar */\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 14px;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 10px 10px;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: flex;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
+exports.push([module.i, ".dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: monospace;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    width: 600px;\n    max-width: 800px;\n    max-height: calc(100vh - 50px);\n    margin: 10px;\n    overflow: auto;\n    z-index: 1001;  /* above the plotly.js toolbar */\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    position: relative;\n}\n.dash-error-card__message {\n    font-size: 14px;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 10px 10px;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: flex;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
 // Exports
 module.exports = exports;
 
@@ -93887,7 +93887,6 @@ function validateDependencies(parsedDependencies, dispatchError) {
       });
     });
     findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs);
-    findInOutOverlap(outputs, inputs, head, dispatchError);
     findMismatchedWildcards(outputs, inputs, state, head, dispatchError);
   });
 }
@@ -93981,26 +93980,26 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
   });
 }
 
-function findInOutOverlap(outputs, inputs, head, dispatchError) {
-  outputs.forEach(function (out, outi) {
-    var outId = out.id,
-        outProp = out.property;
-    inputs.forEach(function (in_, ini) {
-      var inId = in_.id,
-          inProp = in_.property;
+function checkInOutOverlap(out, inputs) {
+  var outId = out.id,
+      outProp = out.property;
+  return inputs.some(function (in_) {
+    var inId = in_.id,
+        inProp = in_.property;
 
-      if (outProp !== inProp || _typeof(outId) !== _typeof(inId)) {
-        return;
-      }
+    if (outProp !== inProp || _typeof(outId) !== _typeof(inId)) {
+      return false;
+    }
 
-      if (typeof outId === 'string') {
-        if (outId === inId) {
-          dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(in_), ")"), "matches Output ".concat(outi, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(out), ")")]);
-        }
-      } else if (wildcardOverlap(in_, [out])) {
-        dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(in_), ")"), 'can match the same component(s) as', "Output ".concat(outi, " (").concat(Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(out), ")")]);
+    if (typeof outId === 'string') {
+      if (outId === inId) {
+        return true;
       }
-    });
+    } else if (wildcardOverlap(in_, [out])) {
+      return true;
+    }
+
+    return false;
   });
 }
 
@@ -94376,15 +94375,54 @@ function computeGraphs(dependencies, dispatchError) {
     }, idSpec);
     return idList;
   }
+  /* multiGraph is used only for testing circularity
+   *
+   * Each component+property that is used as an input or output is added as a node
+   * to a directed graph with a dependency from each input to each output. The
+   * function triggerDefaultState in index.js then checks this graph for circularity.
+   *
+   * In order to allow the same component+property to be both an input and output
+   * of the same callback, a two pass approach is used.
+   *
+   * In the first pass, the graph is built up normally with the exception that
+   * in cases where an output is also an input to the same callback a special
+   * "output" node is added and the dependencies target this output node instead.
+   * For example, if `slider.value` is both an input and an output, then the a new
+   * node `slider.value__output` will be added with a dependency from `slider.value`
+   * to `slider.value__output`. Splitting the input and output into separate nodes
+   * removes the circularity.
+   *
+   * In order to still detect other forms of circularity, it is necessary to do a
+   * second pass and add the new output nodes as a dependency in any *other* callbacks
+   * where the original node was an input. Continuing the example, any other callback
+   * that had `slider.value` as an input dependency also needs to have
+   * `slider.value__output` as a dependency. To make this efficient, all the inputs
+   * and outputs for each callback are stored during the first pass.
+   */
+
+
+  var outputTag = '__output';
+  var duplicateOutputs = [];
+  var cbIn = [];
+  var cbOut = [];
+
+  function addInputToMulti(inIdProp, outIdProp) {
+    var firstPass = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    multiGraph.addNode(inIdProp);
+    multiGraph.addDependency(inIdProp, outIdProp); // only store callback inputs and outputs during the first pass
+
+    if (firstPass) {
+      cbIn[cbIn.length - 1].push(inIdProp);
+      cbOut[cbOut.length - 1].push(outIdProp);
+    }
+  }
 
   parsedDependencies.forEach(function registerDependency(dependency) {
     var outputs = dependency.outputs,
-        inputs = dependency.inputs; // multiGraph - just for testing circularity
+        inputs = dependency.inputs; // new callback, add an empty array for its inputs and outputs
 
-    function addInputToMulti(inIdProp, outIdProp) {
-      multiGraph.addNode(inIdProp);
-      multiGraph.addDependency(inIdProp, outIdProp);
-    }
+    cbIn.push([]);
+    cbOut.push([]);
 
     function addOutputToMulti(outIdFinal, outIdProp) {
       multiGraph.addNode(outIdProp);
@@ -94424,19 +94462,36 @@ function computeGraphs(dependencies, dispatchError) {
     }, dependency);
     outputs.forEach(function (outIdProp) {
       var outId = outIdProp.id,
-          property = outIdProp.property;
+          property = outIdProp.property; // check if this output is also an input to the same callback
+
+      var alsoInput = checkInOutOverlap(outIdProp, inputs);
 
       if (_typeof(outId) === 'object') {
         var outIdList = makeAllIds(outId, {});
         outIdList.forEach(function (id) {
-          addOutputToMulti(id, Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])({
+          var tempOutIdProp = {
             id: id,
             property: property
-          }));
+          };
+          var outIdName = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(tempOutIdProp); // if this output is also an input, add `outputTag` to the name
+
+          if (alsoInput) {
+            duplicateOutputs.push(tempOutIdProp);
+            outIdName += outputTag;
+          }
+
+          addOutputToMulti(id, outIdName);
         });
         addPattern(outputPatterns, outId, property, finalDependency);
       } else {
-        addOutputToMulti({}, Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(outIdProp));
+        var outIdName = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(outIdProp); // if this output is also an input, add `outputTag` to the name
+
+        if (alsoInput) {
+          duplicateOutputs.push(outIdProp);
+          outIdName += outputTag;
+        }
+
+        addOutputToMulti({}, outIdName);
         addMap(outputMap, outId, property, finalDependency);
       }
     });
@@ -94450,6 +94505,29 @@ function computeGraphs(dependencies, dispatchError) {
         addMap(inputMap, inId, inProp, finalDependency);
       }
     });
+  }); // second pass for adding new output nodes as dependencies where needed
+
+  duplicateOutputs.forEach(function (dupeOutIdProp) {
+    var originalName = Object(_dependencies_ts__WEBPACK_IMPORTED_MODULE_3__["combineIdAndProp"])(dupeOutIdProp);
+    var newName = originalName.concat(outputTag);
+
+    for (var cnt = 0; cnt < cbIn.length; cnt++) {
+      // check if input to the callback
+      if (cbIn[cnt].some(function (inName) {
+        return inName === originalName;
+      })) {
+        /* make sure it's not also an output of the callback
+         * (this will be the original callback)
+         */
+        if (!cbOut[cnt].some(function (outName) {
+          return outName === newName;
+        })) {
+          cbOut[cnt].forEach(function (outName) {
+            addInputToMulti(newName, outName, false);
+          });
+        }
+      }
+    }
   });
   return finalGraphs;
 }
@@ -94999,11 +95077,12 @@ var getReadyCallbacks = function getReadyCallbacks(paths, candidates) {
   Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (output) {
     return outputsMap[output] = true;
   }, outputs); // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
+  // Outputs which overlap an input do not count as an outstanding output
 
   return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (cb) {
     return Object(ramda__WEBPACK_IMPORTED_MODULE_0__["all"])(function (cbp) {
       return !outputsMap[combineIdAndProp(cbp)];
-    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getInputs(paths)));
+    }, Object(ramda__WEBPACK_IMPORTED_MODULE_0__["difference"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getInputs(paths)), Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(cb.getOutputs(paths))));
   }, candidates);
 };
 var getLayoutCallbacks = function getLayoutCallbacks(graphs, paths, layout, options) {
@@ -96296,7 +96375,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 cytoscape__WEBPACK_IMPORTED_MODULE_3___default.a.use(cytoscape_dagre__WEBPACK_IMPORTED_MODULE_5___default.a);
 cytoscape__WEBPACK_IMPORTED_MODULE_3___default.a.use(cytoscape_fcose__WEBPACK_IMPORTED_MODULE_6___default.a);
 /*
- * Generates all the elements (nodes, edeges) for the dependency graph.
+ * Generates all the elements (nodes, edges) for the dependency graph.
  */
 
 function generateElements(graphs, profile, extraLinks) {
@@ -96533,7 +96612,7 @@ function CallbackGraph() {
       pan: cy.pan(),
       _chosenType: (_layoutSelector$curre = layoutSelector.current) === null || _layoutSelector$curre === void 0 ? void 0 : _layoutSelector$curre.value
     };
-  } // Adds callbacks once cyctoscape is intialized.
+  } // Adds callbacks once cyctoscape is initialized.
 
 
   useCytoscapeEffect(function (cy) {
@@ -96944,7 +97023,7 @@ __webpack_require__.r(__webpack_exports__);
  * Finds all edges connected to a node and splits them by type.
  *
  * @param {Object} node - Cytoscape node.
- * @returns {Object} - Object contaiing the edges, sorted by type.
+ * @returns {Object} - Object containing the edges, sorted by type.
  */
 
 function getEdgeTypes(node) {
@@ -97005,7 +97084,7 @@ function updateSelectedNode(cy, id) {
       });
     };
 
-    var node = cy.getElementById(id); // Highlght the selected node.
+    var node = cy.getElementById(id); // Highlight the selected node.
 
     node.addClass('selected-node');
     var subtree = cy.collection();
@@ -97052,7 +97131,7 @@ function updateChangedProps(cy, id, props) {
  *
  * @param {Object} cy - Reference to the cytoscape instance.
  * @param {String} id - The id of the callback (i.e., it's output identifier)
- * @param {Object} profile - The callback profiling infomration.
+ * @param {Object} profile - The callback profiling information.
  * @param {Number} flashTime - The time to flash classes for in ms.
  * @returns {undefined}
  */
@@ -97505,10 +97584,12 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
     value: function render() {
       var _this$props = this.props,
           errors = _this$props.errors,
-          connected = _this$props.connected;
+          connected = _this$props.connected,
+          errorsOpened = _this$props.errorsOpened,
+          clickHandler = _this$props.clickHandler;
       var errorsLength = errors.length;
 
-      if (errorsLength === 0) {
+      if (errorsLength === 0 || !errorsOpened) {
         return null;
       }
 
@@ -97534,7 +97615,12 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
         className: "dash-error-card__message"
       }, "\uD83D\uDED1 Errors (", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("strong", {
         className: "test-devtools-error-count"
-      }, errorsLength), ")", connected ? null : "\xA0 \uD83D\uDEAB Server Unavailable")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, errorsLength), ")", connected ? null : "\xA0 \uD83D\uDEAB Server Unavailable"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "dash-fe-error__icon-x",
+        onClick: function onClick() {
+          return clickHandler();
+        }
+      }, "\xD7")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "dash-error-card__list"
       }, errorElements));
     }
@@ -97544,9 +97630,12 @@ var FrontEndErrorContainer = /*#__PURE__*/function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 
 FrontEndErrorContainer.propTypes = {
+  id: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.string,
   errors: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.array,
   connected: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.bool,
-  inAlertsTray: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.any
+  inAlertsTray: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.any,
+  errorsOpened: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.any,
+  clickHandler: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.func
 };
 FrontEndErrorContainer.propTypes = {
   inAlertsTray: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.any
@@ -97740,14 +97829,17 @@ var GlobalErrorOverlay = /*#__PURE__*/function (_Component) {
       var _this$props = this.props,
           visible = _this$props.visible,
           error = _this$props.error,
-          errorsOpened = _this$props.errorsOpened;
+          errorsOpened = _this$props.errorsOpened,
+          clickHandler = _this$props.clickHandler;
       var frontEndErrors;
 
       if (errorsOpened) {
         var errors = Object(ramda__WEBPACK_IMPORTED_MODULE_2__["concat"])(error.frontEnd, error.backEnd);
         frontEndErrors = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_FrontEnd_FrontEndErrorContainer_react__WEBPACK_IMPORTED_MODULE_4__["FrontEndErrorContainer"], {
           errors: errors,
-          connected: error.backEndConnected
+          connected: error.backEndConnected,
+          errorsOpened: errorsOpened,
+          clickHandler: clickHandler
         });
       }
 
@@ -97767,7 +97859,8 @@ GlobalErrorOverlay.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
   visible: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.bool,
   error: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
-  errorsOpened: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any
+  errorsOpened: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any,
+  clickHandler: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func
 };
 
 /***/ }),
@@ -98237,7 +98330,8 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
       })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_GlobalErrorOverlay_react__WEBPACK_IMPORTED_MODULE_9__["default"], {
         error: error,
         visible: errCount > 0,
-        errorsOpened: errorsOpened
+        errorsOpened: errorsOpened,
+        clickHandler: toggleErrors
       }, this.props.children));
     }
   }]);
@@ -99055,7 +99149,7 @@ var getIds = function getIds(cb, paths) {
 var observer = {
   observer: function () {
     var _observer = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(_ref2) {
-      var dispatch, getState, _getState, _getState$callbacks, executing, watched, config, hooks, layout, paths, _getState2, prioritized, available, _partition, _partition2, syncCallbacks, asyncCallbacks, pickedSyncCallbacks, pickedAsyncCallbacks, deffered;
+      var dispatch, getState, _getState, _getState$callbacks, executing, watched, config, hooks, layout, paths, _getState2, prioritized, available, _partition, _partition2, syncCallbacks, asyncCallbacks, pickedSyncCallbacks, pickedAsyncCallbacks, deferred;
 
       return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
@@ -99081,12 +99175,12 @@ var observer = {
               }
 
               if (pickedAsyncCallbacks.length) {
-                deffered = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
+                deferred = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["map"])(function (cb) {
                   return _objectSpread(_objectSpread(_objectSpread({}, cb), getStash(cb, paths)), {}, {
                     isReady: Object(_actions_isAppReady__WEBPACK_IMPORTED_MODULE_4__["default"])(layout, paths, getIds(cb, paths))
                   });
                 }, pickedAsyncCallbacks);
-                dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removePrioritizedCallbacks"])(pickedAsyncCallbacks), Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addBlockedCallbacks"])(deffered)]));
+                dispatch(Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["aggregateCallbacks"])([Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["removePrioritizedCallbacks"])(pickedAsyncCallbacks), Object(_actions_callbacks__WEBPACK_IMPORTED_MODULE_1__["addBlockedCallbacks"])(deferred)]));
                 Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])( /*#__PURE__*/function () {
                   var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(cb) {
                     var _getState3, blocked, currentCb, executingCallback;
@@ -99130,7 +99224,7 @@ var observer = {
                   return function (_x2) {
                     return _ref3.apply(this, arguments);
                   };
-                }(), deffered);
+                }(), deferred);
               }
 
             case 10:
@@ -100719,7 +100813,7 @@ var profile = function profile() {
 
   if (action.type === 'UPDATE_RESOURCE_USAGE') {
     // Keep a record of the most recent change. This
-    // is subtly different from history.present becasue
+    // is subtly different from history.present because
     // it watches all props, not just inputs.
     var _action$payload = action.payload,
         id = _action$payload.id,
