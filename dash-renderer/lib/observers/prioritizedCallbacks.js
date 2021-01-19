@@ -83,7 +83,7 @@ var getIds = function getIds(cb, paths) {
 var observer = {
   observer: function () {
     var _observer = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(_ref2) {
-      var dispatch, getState, _getState, _getState$callbacks, executing, watched, config, hooks, layout, paths, _getState2, prioritized, available, _partition, _partition2, syncCallbacks, asyncCallbacks, pickedSyncCallbacks, pickedAsyncCallbacks, deffered;
+      var dispatch, getState, _getState, _getState$callbacks, executing, watched, config, hooks, layout, paths, _getState2, prioritized, available, _partition, _partition2, syncCallbacks, asyncCallbacks, pickedSyncCallbacks, pickedAsyncCallbacks, deferred;
 
       return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
@@ -109,12 +109,12 @@ var observer = {
               }
 
               if (pickedAsyncCallbacks.length) {
-                deffered = (0, _ramda.map)(function (cb) {
+                deferred = (0, _ramda.map)(function (cb) {
                   return _objectSpread(_objectSpread(_objectSpread({}, cb), getStash(cb, paths)), {}, {
                     isReady: (0, _isAppReady["default"])(layout, paths, getIds(cb, paths))
                   });
                 }, pickedAsyncCallbacks);
-                dispatch((0, _callbacks.aggregateCallbacks)([(0, _callbacks.removePrioritizedCallbacks)(pickedAsyncCallbacks), (0, _callbacks.addBlockedCallbacks)(deffered)]));
+                dispatch((0, _callbacks.aggregateCallbacks)([(0, _callbacks.removePrioritizedCallbacks)(pickedAsyncCallbacks), (0, _callbacks.addBlockedCallbacks)(deferred)]));
                 (0, _ramda.forEach)( /*#__PURE__*/function () {
                   var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(cb) {
                     var _getState3, blocked, currentCb, executingCallback;
@@ -158,7 +158,7 @@ var observer = {
                   return function (_x2) {
                     return _ref3.apply(this, arguments);
                   };
-                }(), deffered);
+                }(), deferred);
               }
 
             case 10:

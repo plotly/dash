@@ -150,7 +150,8 @@ var DebugMenu = /*#__PURE__*/function (_Component) {
       })), /*#__PURE__*/_react["default"].createElement(_GlobalErrorOverlay["default"], {
         error: error,
         visible: errCount > 0,
-        errorsOpened: errorsOpened
+        errorsOpened: errorsOpened,
+        clickHandler: toggleErrors
       }, this.props.children));
     }
   }]);

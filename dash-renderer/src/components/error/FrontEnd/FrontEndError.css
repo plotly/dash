@@ -2,6 +2,22 @@
     margin-top: 10px;
 }
 
+.dash-fe-error__icon-x {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: #B9C2CE;
+    font-size: 20px;
+    cursor: pointer;
+    margin-right: 10px
+}
+
+.dash-fe-error__icon-x:hover
+{
+ color:#a1a9b5;
+}
+
+
 .dash-fe-errors {
     min-width: 386px;
     max-width: 650px;

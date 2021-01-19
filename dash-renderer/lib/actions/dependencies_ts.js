@@ -159,11 +159,12 @@ var getReadyCallbacks = function getReadyCallbacks(paths, candidates) {
   (0, _ramda.forEach)(function (output) {
     return outputsMap[output] = true;
   }, outputs); // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
+  // Outputs which overlap an input do not count as an outstanding output
 
   return (0, _ramda.filter)(function (cb) {
     return (0, _ramda.all)(function (cbp) {
       return !outputsMap[combineIdAndProp(cbp)];
-    }, (0, _ramda.flatten)(cb.getInputs(paths)));
+    }, (0, _ramda.difference)((0, _ramda.flatten)(cb.getInputs(paths)), (0, _ramda.flatten)(cb.getOutputs(paths))));
   }, candidates);
 };
 

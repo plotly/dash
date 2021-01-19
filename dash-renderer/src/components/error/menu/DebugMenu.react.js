@@ -147,6 +147,7 @@ class DebugMenu extends Component {
                     error={error}
                     visible={errCount > 0}
                     errorsOpened={errorsOpened}
+                    clickHandler={toggleErrors}
                 >
                     {this.props.children}
                 </GlobalErrorOverlay>

@@ -61,7 +61,8 @@ disable=fixme,
         old-style-class,
         superfluous-parens,
         bad-continuation,
-        line-too-long
+        line-too-long,
+        bad-option-value
 
 
 # Enable the message, report, category or checker with the given id(s). You can

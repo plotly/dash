@@ -15,7 +15,7 @@ var _constants = require("../../../constants/constants");
  * Finds all edges connected to a node and splits them by type.
  *
  * @param {Object} node - Cytoscape node.
- * @returns {Object} - Object contaiing the edges, sorted by type.
+ * @returns {Object} - Object containing the edges, sorted by type.
  */
 function getEdgeTypes(node) {
   var elements = node.connectedEdges();
@@ -75,7 +75,7 @@ function updateSelectedNode(cy, id) {
       });
     };
 
-    var node = cy.getElementById(id); // Highlght the selected node.
+    var node = cy.getElementById(id); // Highlight the selected node.
 
     node.addClass('selected-node');
     var subtree = cy.collection();
@@ -123,7 +123,7 @@ function updateChangedProps(cy, id, props) {
  *
  * @param {Object} cy - Reference to the cytoscape instance.
  * @param {String} id - The id of the callback (i.e., it's output identifier)
- * @param {Object} profile - The callback profiling infomration.
+ * @param {Object} profile - The callback profiling information.
  * @param {Number} flashTime - The time to flash classes for in ms.
  * @returns {undefined}
  */

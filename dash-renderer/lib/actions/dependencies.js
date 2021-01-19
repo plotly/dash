@@ -283,7 +283,6 @@ function validateDependencies(parsedDependencies, dispatchError) {
       });
     });
     findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs);
-    findInOutOverlap(outputs, inputs, head, dispatchError);
     findMismatchedWildcards(outputs, inputs, state, head, dispatchError);
   });
 }
@@ -377,26 +376,26 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
   });
 }
 
-function findInOutOverlap(outputs, inputs, head, dispatchError) {
-  outputs.forEach(function (out, outi) {
-    var outId = out.id,
-        outProp = out.property;
-    inputs.forEach(function (in_, ini) {
-      var inId = in_.id,
-          inProp = in_.property;
+function checkInOutOverlap(out, inputs) {
+  var outId = out.id,
+      outProp = out.property;
+  return inputs.some(function (in_) {
+    var inId = in_.id,
+        inProp = in_.property;
 
-      if (outProp !== inProp || _typeof(outId) !== _typeof(inId)) {
-        return;
-      }
+    if (outProp !== inProp || _typeof(outId) !== _typeof(inId)) {
+      return false;
+    }
 
-      if (typeof outId === 'string') {
-        if (outId === inId) {
-          dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat((0, _dependencies_ts.combineIdAndProp)(in_), ")"), "matches Output ".concat(outi, " (").concat((0, _dependencies_ts.combineIdAndProp)(out), ")")]);
-        }
-      } else if (wildcardOverlap(in_, [out])) {
-        dispatchError('Same `Input` and `Output`', [head, "Input ".concat(ini, " (").concat((0, _dependencies_ts.combineIdAndProp)(in_), ")"), 'can match the same component(s) as', "Output ".concat(outi, " (").concat((0, _dependencies_ts.combineIdAndProp)(out), ")")]);
+    if (typeof outId === 'string') {
+      if (outId === inId) {
+        return true;
       }
-    });
+    } else if (wildcardOverlap(in_, [out])) {
+      return true;
+    }
+
+    return false;
   });
 }
 
@@ -775,15 +774,54 @@ function computeGraphs(dependencies, dispatchError) {
     }, idSpec);
     return idList;
   }
+  /* multiGraph is used only for testing circularity
+   *
+   * Each component+property that is used as an input or output is added as a node
+   * to a directed graph with a dependency from each input to each output. The
+   * function triggerDefaultState in index.js then checks this graph for circularity.
+   *
+   * In order to allow the same component+property to be both an input and output
+   * of the same callback, a two pass approach is used.
+   *
+   * In the first pass, the graph is built up normally with the exception that
+   * in cases where an output is also an input to the same callback a special
+   * "output" node is added and the dependencies target this output node instead.
+   * For example, if `slider.value` is both an input and an output, then the a new
+   * node `slider.value__output` will be added with a dependency from `slider.value`
+   * to `slider.value__output`. Splitting the input and output into separate nodes
+   * removes the circularity.
+   *
+   * In order to still detect other forms of circularity, it is necessary to do a
+   * second pass and add the new output nodes as a dependency in any *other* callbacks
+   * where the original node was an input. Continuing the example, any other callback
+   * that had `slider.value` as an input dependency also needs to have
+   * `slider.value__output` as a dependency. To make this efficient, all the inputs
+   * and outputs for each callback are stored during the first pass.
+   */
+
+
+  var outputTag = '__output';
+  var duplicateOutputs = [];
+  var cbIn = [];
+  var cbOut = [];
+
+  function addInputToMulti(inIdProp, outIdProp) {
+    var firstPass = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    multiGraph.addNode(inIdProp);
+    multiGraph.addDependency(inIdProp, outIdProp); // only store callback inputs and outputs during the first pass
+
+    if (firstPass) {
+      cbIn[cbIn.length - 1].push(inIdProp);
+      cbOut[cbOut.length - 1].push(outIdProp);
+    }
+  }
 
   parsedDependencies.forEach(function registerDependency(dependency) {
     var outputs = dependency.outputs,
-        inputs = dependency.inputs; // multiGraph - just for testing circularity
+        inputs = dependency.inputs; // new callback, add an empty array for its inputs and outputs
 
-    function addInputToMulti(inIdProp, outIdProp) {
-      multiGraph.addNode(inIdProp);
-      multiGraph.addDependency(inIdProp, outIdProp);
-    }
+    cbIn.push([]);
+    cbOut.push([]);
 
     function addOutputToMulti(outIdFinal, outIdProp) {
       multiGraph.addNode(outIdProp);
@@ -823,19 +861,36 @@ function computeGraphs(dependencies, dispatchError) {
     }, dependency);
     outputs.forEach(function (outIdProp) {
       var outId = outIdProp.id,
-          property = outIdProp.property;
+          property = outIdProp.property; // check if this output is also an input to the same callback
+
+      var alsoInput = checkInOutOverlap(outIdProp, inputs);
 
       if (_typeof(outId) === 'object') {
         var outIdList = makeAllIds(outId, {});
         outIdList.forEach(function (id) {
-          addOutputToMulti(id, (0, _dependencies_ts.combineIdAndProp)({
+          var tempOutIdProp = {
             id: id,
             property: property
-          }));
+          };
+          var outIdName = (0, _dependencies_ts.combineIdAndProp)(tempOutIdProp); // if this output is also an input, add `outputTag` to the name
+
+          if (alsoInput) {
+            duplicateOutputs.push(tempOutIdProp);
+            outIdName += outputTag;
+          }
+
+          addOutputToMulti(id, outIdName);
         });
         addPattern(outputPatterns, outId, property, finalDependency);
       } else {
-        addOutputToMulti({}, (0, _dependencies_ts.combineIdAndProp)(outIdProp));
+        var outIdName = (0, _dependencies_ts.combineIdAndProp)(outIdProp); // if this output is also an input, add `outputTag` to the name
+
+        if (alsoInput) {
+          duplicateOutputs.push(outIdProp);
+          outIdName += outputTag;
+        }
+
+        addOutputToMulti({}, outIdName);
         addMap(outputMap, outId, property, finalDependency);
       }
     });
@@ -849,6 +904,29 @@ function computeGraphs(dependencies, dispatchError) {
         addMap(inputMap, inId, inProp, finalDependency);
       }
     });
+  }); // second pass for adding new output nodes as dependencies where needed
+
+  duplicateOutputs.forEach(function (dupeOutIdProp) {
+    var originalName = (0, _dependencies_ts.combineIdAndProp)(dupeOutIdProp);
+    var newName = originalName.concat(outputTag);
+
+    for (var cnt = 0; cnt < cbIn.length; cnt++) {
+      // check if input to the callback
+      if (cbIn[cnt].some(function (inName) {
+        return inName === originalName;
+      })) {
+        /* make sure it's not also an output of the callback
+         * (this will be the original callback)
+         */
+        if (!cbOut[cnt].some(function (outName) {
+          return outName === newName;
+        })) {
+          cbOut[cnt].forEach(function (outName) {
+            addInputToMulti(newName, outName, false);
+          });
+        }
+      }
+    }
   });
   return finalGraphs;
 }

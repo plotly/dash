@@ -60,14 +60,17 @@ var GlobalErrorOverlay = /*#__PURE__*/function (_Component) {
       var _this$props = this.props,
           visible = _this$props.visible,
           error = _this$props.error,
-          errorsOpened = _this$props.errorsOpened;
+          errorsOpened = _this$props.errorsOpened,
+          clickHandler = _this$props.clickHandler;
       var frontEndErrors;
 
       if (errorsOpened) {
         var errors = (0, _ramda.concat)(error.frontEnd, error.backEnd);
         frontEndErrors = /*#__PURE__*/_react["default"].createElement(_FrontEndErrorContainer.FrontEndErrorContainer, {
           errors: errors,
-          connected: error.backEndConnected
+          connected: error.backEndConnected,
+          errorsOpened: errorsOpened,
+          clickHandler: clickHandler
         });
       }
 
@@ -87,5 +90,6 @@ GlobalErrorOverlay.propTypes = {
   children: _propTypes["default"].object,
   visible: _propTypes["default"].bool,
   error: _propTypes["default"].object,
-  errorsOpened: _propTypes["default"].any
+  errorsOpened: _propTypes["default"].any,
+  clickHandler: _propTypes["default"].func
 };

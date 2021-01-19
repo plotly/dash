@@ -9,9 +9,9 @@ class FrontEndErrorContainer extends Component {
     }
 
     render() {
-        const {errors, connected} = this.props;
+        const {errors, connected, errorsOpened, clickHandler} = this.props;
         const errorsLength = errors.length;
-        if (errorsLength === 0) {
+        if (errorsLength === 0 || !errorsOpened) {
             return null;
         }
 
@@ -34,6 +34,12 @@ class FrontEndErrorContainer extends Component {
                         </strong>
                         ){connected ? null : '\u00a0 🚫 Server Unavailable'}
                     </div>
+                    <div
+                        className='dash-fe-error__icon-x'
+                        onClick={() => clickHandler()}
+                    >
+                        ×
+                    </div>
                 </div>
                 <div className='dash-error-card__list'>{errorElements}</div>
             </div>
@@ -42,9 +48,12 @@ class FrontEndErrorContainer extends Component {
 }
 
 FrontEndErrorContainer.propTypes = {
+    id: PropTypes.string,
     errors: PropTypes.array,
     connected: PropTypes.bool,
-    inAlertsTray: PropTypes.any
+    inAlertsTray: PropTypes.any,
+    errorsOpened: PropTypes.any,
+    clickHandler: PropTypes.func
 };
 
 FrontEndErrorContainer.propTypes = {
