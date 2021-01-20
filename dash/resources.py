@@ -24,8 +24,12 @@ class Resources:
             if "async" in s:
                 if "dynamic" in s:
                     raise exceptions.ResourceException(
-                        "Can't have both 'dynamic' and 'async'. "
-                        "{}".format(json.dumps(filtered_resource))
+                        """
+                        Can't have both 'dynamic' and 'async'.
+                        {}
+                        """.format(
+                            json.dumps(filtered_resource)
+                        )
                     )
 
                 # Async assigns a value dynamically to 'dynamic'
@@ -70,9 +74,12 @@ class Resources:
                 continue
             else:
                 raise exceptions.ResourceException(
-                    "{} does not have a "
-                    "relative_package_path, absolute_path, or an "
-                    "external_url.".format(json.dumps(filtered_resource))
+                    """
+                    {} does not have a relative_package_path, absolute_path,
+                    or an external_url.
+                    """.format(
+                        json.dumps(filtered_resource)
+                    )
                 )
 
             filtered_resources.append(filtered_resource)
