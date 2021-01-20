@@ -82,12 +82,6 @@ workflows:
   version: 2
   build:
     jobs:
-      - python-2.7:
-          context:
-            - dash-docker-hub
-      - python-3.6:
-          context:
-            - dash-docker-hub
-      - python-3.7:
-          context:
-            - dash-docker-hub
+      - python-2.7
+      - python-3.6
+      - python-3.7
