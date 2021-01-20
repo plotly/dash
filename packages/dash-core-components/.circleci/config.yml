@@ -78,7 +78,7 @@ jobs:
             PYTHON_VERSION: py37
     steps:
       - checkout
-      - run: echo $PYTHON_VERSION > ver.txtf
+      - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - run:
