@@ -78,7 +78,7 @@ jobs:
             PYTHON_VERSION: py37
     steps:
       - checkout
-      - run: echo $PYTHON_VERSION > ver.txt
+      - run: echo $PYTHON_VERSION > ver.txtf
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - run:
@@ -253,63 +253,37 @@ workflows:
   version: 2
   python3.7:
     jobs:
-      - lint-unit-37:
-          context:
-            - dash-docker-hub
-      - build-dash-37:
-          context:
-            - dash-docker-hub
+      - lint-unit-37
+      - build-dash-37
       - test-37:
-          context:
-            - dash-docker-hub
           requires:
             - build-dash-37
       - test-legacy-37:
-          context:
-            - dash-docker-hub
           requires:
             - build-dash-37
       - percy-finalize:
-          context:
-            - dash-docker-hub
           requires:
             - test-37
             - test-legacy-37
 
   python3.6:
     jobs:
-      - lint-unit-36:
-          context:
-            - dash-docker-hub
-      - build-dash-36:
-          context:
-            - dash-docker-hub
+      - lint-unit-36
+      - build-dash-36
       - test-36:
-          context:
-            - dash-docker-hub
           requires:
             - build-dash-36
       - test-legacy-36:
-          context:
-            - dash-docker-hub
           requires:
             - build-dash-36
 
   python2.7:
     jobs:
-      - lint-unit-27:
-          context:
-            - dash-docker-hub
-      - build-dash-27:
-          context:
-            - dash-docker-hub
+      - lint-unit-27
+      - build-dash-27
       - test-27:
-          context:
-            - dash-docker-hub
           requires:
             - build-dash-27
       - test-legacy-27:
-          context:
-            - dash-docker-hub
           requires:
             - build-dash-27
