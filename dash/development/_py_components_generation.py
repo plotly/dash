@@ -439,7 +439,7 @@ def create_prop_docstring(
 
         # format and rewrite the intro to the nested dicts
         intro1, intro2, dict_descr = py_type_name.partition("with keys:")
-        intro = "".join([f"`{prop_name}`", " is a ", intro1, intro2])
+        intro = "".join(["`{}`".format(prop_name), " is a ", intro1, intro2])
         intro = fill(
             intro,
             initial_indent=desc_indent,
@@ -531,7 +531,7 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
             "list"
             + (
                 " of {}".format(
-                    js_to_py_type(type_object["value"])
+                    js_to_py_type(type_object["value"]) + "s"
                     if js_to_py_type(type_object["value"]).split(" ")[0] != "dict"
                     else js_to_py_type(type_object["value"]).replace("dict", "dicts", 1)
                 )
@@ -590,7 +590,7 @@ def map_js_to_py_types_flow_types(type_object):
                         required=prop["value"]["required"],
                         description=prop["value"].get("description", ""),
                         default=prop.get("defaultValue"),
-                        indent_num=indent_num,
+                        indent_num=indent_num + 2,
                         is_flow_type=True,
                     )
                     for prop in type_object["signature"]["properties"]

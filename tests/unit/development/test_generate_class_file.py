@@ -9,7 +9,7 @@ from dash.development._py_components_generation import (
     generate_class_string,
     generate_class_file,
 )
-from . import _dir, has_trailing_space
+from . import _dir
 
 # Import string not included in generated class string
 import_string = (
@@ -68,8 +68,6 @@ def test_class_string(expected_class_string, component_class_string):
         )
     )
 
-    assert not has_trailing_space(component_class_string)
-
 
 def test_class_file(expected_class_string, written_class_string):
     assert not list(
@@ -77,4 +75,3 @@ def test_class_file(expected_class_string, written_class_string):
             expected_class_string.splitlines(), written_class_string.splitlines()
         )
     )
-    assert not has_trailing_space(written_class_string)
