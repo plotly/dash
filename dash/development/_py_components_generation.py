@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import copy
 import os
-from textwrap import fill, indent
+from textwrap import fill
 
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
@@ -455,10 +455,10 @@ def create_prop_docstring(
             dict_part2 = "".join([desc_indent, "Or", dict_part2])
             dict_descr = "{}   \n\n  {}".format(dict_part1, dict_part2)
 
-        # ensures indent is correct
+        # ensures indent is correct if there is a second nested dict
         current_indent = dict_descr.lstrip("\n").find("-")
-        if current_indent == len(indent_spacing):
-            dict_descr = indent(dict_descr, "    ")
+        if current_indent == len(indent_spacing) + 4:
+            dict_descr = "".join("    " + line for line in dict_descr.splitlines(True))
 
         return (
             "\n{indent_spacing}- {name} ({dict_or_list}; {is_required}){colon}"
@@ -552,7 +552,6 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
 
 def map_js_to_py_types_flow_types(type_object):
     """Mapping from the Flow js types to the Python type."""
-
     return dict(
         array=lambda: "list",
         boolean=lambda: "boolean",
