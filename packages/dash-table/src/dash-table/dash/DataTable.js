@@ -102,7 +102,6 @@ export const defaultProps = {
 
     persisted_props: [
         'columns.name',
-        // data is not included by default
         'filter_query',
         'hidden_columns',
         'selected_columns',
@@ -257,54 +256,72 @@ export const propTypes = {
             /**
              * The formatting applied to the column's data.
              * This prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from
-             * being structured slightly differently (under a single prop), the usage
-             * is the same.
-             * 'locale': represents localization specific formatting information.
-             *  When left unspecified, will use the default value provided by d3-format.
-             *  The keys are as follows:
-             *  'symbol': (default: ['$', '']) a list of two strings representing the
-             *  prefix and suffix symbols. Typically used for currency, and implemented using d3's
-             *  currency format, but you can use this for other symbols such as measurement units;
-             *  'decimal': (default: '.') the string used for the decimal separator;
-             *  'group': (default: ',') the string used for the groups separator;
-             *  'grouping': (default: [3]) a list of integers representing the grouping pattern.
-             *  'numerals': a list of ten strings used as replacements for numbers 0-9;
-             *  'percent': (default: '%') the string used for the percentage symbol;
-             *  'separate_4digits': (default: True) separate integers with 4-digits or less.
-             * 'nully': a value that will be used in place of the nully value during formatting.
-             *   If the value type matches the column type, it will be formatted normally.
-             * 'prefix': a number representing the SI unit to use during formatting.
-             *   See `dash_table.Format.Prefix` enumeration for the list of valid values
-             * 'specifier': (default: '') represents the rules to apply when formatting the number.
-             * dash_table.FormatTemplate contains helper functions to rapidly use certain
-             * typical number formats.
+             * being structured slightly differently (under a single prop), the usage is the same.
+             * See also dash_table.FormatTemplate.  It contains helper functions for typical number formats.
              */
             format: PropTypes.exact({
+                /**
+                 * Represents localization specific formatting information.
+                 * When left unspecified, will use the default value provided by d3-format.
+                 */
                 locale: PropTypes.exact({
+                    /**
+                     * (default: ['$', '']).  A list of two strings representing the
+                     *  prefix and suffix symbols. Typically used for currency, and implemented using d3's
+                     *  currency format, but you can use this for other symbols such as measurement units
+                     */
                     symbol: PropTypes.arrayOf(PropTypes.string),
+                    /**
+                     * (default: '.').  The string used for the decimal separator
+                     */
                     decimal: PropTypes.string,
+                    /**
+                     * (default: ',').  The string used for the groups separator
+                     */
                     group: PropTypes.string,
+                    /**
+                     * (default: [3]).  A list of integers representing the grouping pattern. The default is
+                     * 3 for thousands.
+                     */
                     grouping: PropTypes.arrayOf(PropTypes.number),
+                    /**
+                     *  A list of ten strings used as replacements for numbers 0-9
+                     */
                     numerals: PropTypes.arrayOf(PropTypes.string),
+                    /**
+                     * (default: '%').  The string used for the percentage symbol
+                     */
                     percent: PropTypes.string,
+                    /**
+                     * (default: True). Separates integers with 4-digits or less
+                     */
                     separate_4digits: PropTypes.bool
                 }),
+                /**
+                 * A value that will be used in place of the nully value during formatting.
+                 *   If the value type matches the column type, it will be formatted normally.
+                 */
                 nully: PropTypes.any,
+                /**
+                 * A number representing the SI unit to use during formatting.
+                 *   See `dash_table.Format.Prefix` enumeration for the list of valid values
+                 */
                 prefix: PropTypes.number,
+                /**
+                 *  (default: '').  Represents the d3 rules to apply when formatting the number.
+                 */
                 specifier: PropTypes.string
             }),
 
             /**
              * The `id` of the column.
-             * The column `id` is used to match cells in data
-             * with particular columns.
+             * The column `id` is used to match cells in data with particular columns.
              * The `id` is not visible in the table.
              */
             id: PropTypes.string.isRequired,
 
             /**
-             * The `name` of the column,
-             * as it appears in the column header.
+             * The `name` of the column, as it appears in the column header.
              * If `name` is a list of strings, then the columns
              * will render with multiple headers rows.
              */
@@ -314,25 +331,29 @@ export const propTypes = {
             ]).isRequired,
 
             /**
-             * The `presentation` to use to display the value.
+             * The `presentation` to use to display data. Markdown can be used on
+             * columns with type 'text'.  See 'dropdown' for more info.
              * Defaults to 'input' for ['datetime', 'numeric', 'text', 'any'].
              */
             presentation: PropTypes.oneOf(['input', 'dropdown', 'markdown']),
 
             /**
              * The `on_change` behavior of the column for user-initiated modifications.
-             * 'action' (default 'coerce'):
-             *  none: do not validate data;
-             *  coerce: check if the data corresponds to the destination type and
-             *  attempts to coerce it into the destination type if not;
-             *  validate: check if the data corresponds to the destination type (no coercion).
-             * 'failure' (default 'reject'): what to do with the value if the action fails:
-             *  accept: use the invalid value;
-             *  default: replace the provided value with `validation.default`;
-             *  reject: do not modify the existing value.
              */
             on_change: PropTypes.exact({
+                /**
+                 * (default 'coerce'):  'none': do not validate data;
+                 *  'coerce': check if the data corresponds to the destination type and
+                 *  attempts to coerce it into the destination type if not;
+                 *  'validate': check if the data corresponds to the destination type (no coercion).
+                 */
                 action: PropTypes.oneOf(['coerce', 'none', 'validate']),
+                /**
+                 *  (default 'reject'):  What to do with the value if the action fails.
+                 *  'accept': use the invalid value;
+                 *  'default': replace the provided value with `validation.default`;
+                 *  'reject': do not modify the existing value.
+                 */
                 failure: PropTypes.oneOf(['accept', 'default', 'reject'])
             }),
 
@@ -350,22 +371,30 @@ export const propTypes = {
             ),
 
             /**
-             * The `validation` options.
-             * 'allow_null': Allow the use of nully values. (undefined, null, NaN) (default: false)
-             * 'default': The default value to apply with on_change.failure = 'default'. (default: null)
-             * 'allow_YY': `datetime` columns only, allow 2-digit years (default: false).
-             *   If true, we interpret years as ranging from now-70 to now+29 - in 2019
-             *   this is 1949 to 2048 but in 2020 it will be different. If used with
-             *   `action: 'coerce'`, will convert user input to a 4-digit year.
+             * The `validation` options for user input processing that can accept, reject or apply a
+             * default value.
              */
             validation: PropTypes.exact({
+                /**
+                 * Allow the use of nully values. (undefined, null, NaN) (default: False)
+                 */
                 allow_null: PropTypes.bool,
+                /**
+                 * The default value to apply with on_change.failure = 'default'. (default: None)
+                 */
                 default: PropTypes.any,
+                /**
+                 * This is for `datetime` columns only.  Allow 2-digit years (default: False).
+                 *   If True, we interpret years as ranging from now-70 to now+29 - in 2019
+                 *   this is 1949 to 2048 but in 2020 it will be different. If used with
+                 *   `action: 'coerce'`, will convert user input to a 4-digit year.
+                 */
                 allow_YY: PropTypes.bool
             }),
 
             /**
-             * The data-type of the column's data.
+             * The data-type provides support for per column typing and allows for data
+             * validation and coercion.
              * 'numeric': represents both floats and ints.
              * 'text': represents a string.
              * 'datetime': a string representing a date or date-time, in the form:
@@ -381,12 +410,8 @@ export const propTypes = {
              *   guess about the century than we make on the front end.
              * 'any': represents any type of data.
              * Defaults to 'any' if undefined.
-             * NOTE: This feature has not been fully implemented.
-             * In the future, it's data types will impact things like
-             * text formatting options in the cell (e.g. display 2 decimals
-             * for a number), filtering options and behavior, and editing
-             * behavior.
-             * Stay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)
+             *
+             *
              */
             type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime'])
         })
@@ -403,33 +428,49 @@ export const propTypes = {
      * The localization specific formatting information applied to all columns in the table.
      * This prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.
      * When left unspecified, each individual nested prop will default to a pre-determined value.
-     *   'symbol': (default: ['$', '']) a list of two strings representing the
-     *   prefix and suffix symbols. Typically used for currency, and implemented using d3's
-     *   currency format, but you can use this for other symbols such as measurement units.
-     *   'decimal': (default: '.') the string used for the decimal separator.
-     *   'group': (default: ',') the string used for the groups separator.
-     *   'grouping': (default: [3]) a list of integers representing the grouping pattern.
-     *   'numerals': a list of ten strings used as replacements for numbers 0-9.
-     *   'percent': (default: '%') the string used for the percentage symbol.
-     *   'separate_4digits': (default: True) separate integers with 4-digits or less.
      */
     locale_format: PropTypes.exact({
+        /**
+         *   (default: ['$', '']). A  list of two strings representing the
+         *   prefix and suffix symbols. Typically used for currency, and implemented using d3's
+         *   currency format, but you can use this for other symbols such as measurement units.
+         */
         symbol: PropTypes.arrayOf(PropTypes.string),
+        /**
+         * (default: '.'). The string used for the decimal separator.
+         */
         decimal: PropTypes.string,
+        /**
+         * (default: ','). The string used for the groups separator.
+         */
         group: PropTypes.string,
+        /**
+         * (default: [3]). A  list of integers representing the grouping pattern.
+         */
         grouping: PropTypes.arrayOf(PropTypes.number),
+        /**
+         * A list of ten strings used as replacements for numbers 0-9.
+         */
         numerals: PropTypes.arrayOf(PropTypes.string),
+        /**
+         * (default: '%'). The string used for the percentage symbol.
+         */
         percent: PropTypes.string,
+        /**
+         * (default: True). Separate integers with 4-digits or less.
+         */
         separate_4digits: PropTypes.bool
     }),
 
     /**
      * The `markdown_options` property allows customization of the markdown cells behavior.
-     *  'link_target': (default: '_blank') the link's behavior (_blank opens the link in a
-     * new tab, _parent opens the link in the parent frame, _self opens the link in the
-     * current tab, and _top opens the link in the top frame) or a string
      */
     markdown_options: PropTypes.exact({
+        /**
+         * (default: '_blank').  The link's behavior (_blank opens the link in a
+         * new tab, _parent opens the link in the parent frame, _self opens the link in the
+         * current tab, and _top opens the link in the top frame) or a string
+         */
         link_target: PropTypes.oneOfType([
             PropTypes.string,
             PropTypes.oneOf(['_blank', '_parent', '_self', '_top'])
@@ -575,20 +616,30 @@ export const propTypes = {
      * If `headers` is True, all operation columns (see `row_deletable` and `row_selectable`)
      * are fixed. Additional data columns can be fixed by
      * assigning a number to `data`.
-     * Defaults to `{ headers: False }`.
+     *
      * Note that fixing columns introduces some changes to the
      * underlying markup of the table and may impact the
      * way that your columns are rendered or sized.
      * View the documentation examples to learn more.
+     *
      */
     fixed_columns: PropTypes.oneOfType([
         PropTypes.exact({
-            headers: PropTypes.oneOf([false]),
-            data: PropTypes.oneOf([0])
+            /**
+             * Example `{'headers':False, 'data':0}` No columns are fixed (the default)
+             */
+
+            data: PropTypes.oneOf([0]),
+            headers: PropTypes.oneOf([false])
         }),
+
         PropTypes.exact({
-            headers: PropTypes.oneOf([true]).isRequired,
-            data: PropTypes.number
+            /**
+             * Example `{'headers':True, 'data':1}` one column is fixed.
+             */
+
+            data: PropTypes.number,
+            headers: PropTypes.oneOf([true]).isRequired
         })
     ]),
 
@@ -600,26 +651,32 @@ export const propTypes = {
      * If `headers` is False, no rows are fixed.
      * If `headers` is True, all header and filter rows (see `filter_action`) are
      * fixed. Additional data rows can be fixed by assigning
-     * a number to `data`.
-     * Defaults to `{ headers: False }`.
-     * Note that fixing rows introduces some changes to the
+     * a number to `data`.  Note that fixing rows introduces some changes to the
      * underlying markup of the table and may impact the
      * way that your columns are rendered or sized.
      * View the documentation examples to learn more.
      */
     fixed_rows: PropTypes.oneOfType([
         PropTypes.exact({
-            headers: PropTypes.oneOf([false]),
-            data: PropTypes.oneOf([0])
+            /**
+             * Example `{'headers':False, 'data':0}` No rows are fixed (the default)
+             */
+
+            data: PropTypes.oneOf([0]),
+            headers: PropTypes.oneOf([false])
         }),
         PropTypes.exact({
-            headers: PropTypes.oneOf([true]).isRequired,
-            data: PropTypes.number
+            /**
+             * Example `{'headers':True, 'data':1}` one row is fixed.
+             */
+
+            data: PropTypes.number,
+            headers: PropTypes.oneOf([true]).isRequired
         })
     ]),
 
     /**
-     * If `single`, then the uer can select a single column or group
+     * If `single`, then the user can select a single column or group
      * of merged columns via the radio button that will appear in the
      * header rows.
      * If `multi`, then the user can select multiple columns or groups
@@ -738,7 +795,7 @@ export const propTypes = {
      * handled by the table;
      * `'custom'`: data is passed to the table one page at a time, paging logic
      * is handled via callbacks;
-     * `none`: disables paging, render all of the data at once.
+     * `'none'`: disables paging, render all of the data at once.
      */
     page_action: PropTypes.oneOf(['custom', 'native', 'none']),
 
@@ -836,37 +893,46 @@ export const propTypes = {
     ),
 
     /**
-     * `tooltip` represents the tooltip shown
-     * for different columns.
-     * The `property` name refers to the column ID.
-     * The `type` refers to the type of tooltip syntax used
-     * for the tooltip generation. Can either be `markdown`
-     * or `text`. Defaults to `text`.
-     * The `value` refers to the syntax-based content of
-     * the tooltip. This value is required.
-     * The `use_with` refers to whether the tooltip will be shown
-     * only on data or headers. Can be `both`, `data`, `header`.
-     * Defaults to `both`.
-     * The `delay` represents the delay in milliseconds before
-     * the tooltip is shown when hovering a cell. This overrides
-     * the table's `tooltip_delay` property. If set to `null`,
-     * the tooltip will be shown immediately.
-     * The `duration` represents the duration in milliseconds
-     * during which the tooltip is shown when hovering a cell.
-     * This overrides the table's `tooltip_duration` property.
-     * If set to `null`, the tooltip will not disappear.
-     * Alternatively, the value of the property can also be
-     * a plain string. The `text` syntax will be used in
-     * that case.
+     * `tooltip` is the column based tooltip configuration applied to all rows. The key is the column
+     *  id and the value is a tooltip configuration.
+     * Example: {i: {'value': i, 'use_with: 'both'} for i in df.columns}
      */
     tooltip: PropTypes.objectOf(
         PropTypes.oneOfType([
             PropTypes.string,
             PropTypes.exact({
+                /**
+                 * Represents the delay in milliseconds before
+                 * the tooltip is shown when hovering a cell. This overrides
+                 * the table's `tooltip_delay` property. If set to `None`,
+                 * the tooltip will be shown immediately.
+                 */
                 delay: PropTypes.number,
+                /**
+                 * represents the duration in milliseconds
+                 * during which the tooltip is shown when hovering a cell.
+                 * This overrides the table's `tooltip_duration` property.
+                 * If set to `None`, the tooltip will not disappear.
+                 */
                 duration: PropTypes.number,
+                /**
+                 * refers to the type of tooltip syntax used
+                 * for the tooltip generation. Can either be `markdown`
+                 * or `text`. Defaults to `text`.
+                 */
                 type: PropTypes.oneOf(['text', 'markdown']),
+                /**
+                 * Refers to whether the tooltip will be shown
+                 * only on data or headers. Can be `both`, `data`, `header`.
+                 * Defaults to `both`.
+                 */
                 use_with: PropTypes.oneOf(['both', 'data', 'header']),
+                /**
+                 * refers to the syntax-based content of
+                 * the tooltip. This value is required. Alternatively, the value of the
+                 * property can also be  a plain string. The `text` syntax will be used in
+                 * that case.
+                 */
                 value: PropTypes.string.isRequired
             })
         ])
@@ -875,50 +941,64 @@ export const propTypes = {
     /**
      * `tooltip_conditional` represents the tooltip shown
      * for different columns and cells.
-     * This property allows you to specify different tooltips for
+     * This property allows you to specify different tooltips
      * depending on certain conditions. For example, you may have
      * different tooltips in the same column based on the value
      * of a certain data property.
      * Priority is from first to last defined conditional tooltip
      * in the list. Higher priority (more specific) conditional
      * tooltips should be put at the beginning of the list.
-     * The `if` refers to the condition that needs to be fulfilled
-     * in order for the associated tooltip configuration to be
-     * used. If multiple conditions are defined, all conditions
-     * must be met for the tooltip to be used by a cell.
-     * The `if` nested property `column_id` refers to the column
-     * ID that must be matched.
-     * The `if` nested property `row_index` refers to the index
-     * of the row in the source `data`.
-     * The `if` nested property `filter_query` refers to the query that
-     * must evaluate to True.
-     * The `type` refers to the type of tooltip syntax used
-     * for the tooltip generation. Can either be `markdown`
-     * or `text`. Defaults to `text`.
-     * The `value` refers to the syntax-based content of
-     * the tooltip. This value is required.
-     * The `delay` represents the delay in milliseconds before
-     * the tooltip is shown when hovering a cell. This overrides
-     * the table's `tooltip_delay` property. If set to `null`,
-     * the tooltip will be shown immediately.
-     * The `duration` represents the duration in milliseconds
-     * during which the tooltip is shown when hovering a cell.
-     * This overrides the table's `tooltip_duration` property.
-     * If set to `null`, the tooltip will not disappear.
      */
     tooltip_conditional: PropTypes.arrayOf(
         PropTypes.exact({
+            /**
+             * The `delay` represents the delay in milliseconds before
+             * the tooltip is shown when hovering a cell. This overrides
+             * the table's `tooltip_delay` property. If set to `None`,
+             * the tooltip will be shown immediately.
+             */
             delay: PropTypes.number,
+            /**
+             * The `duration` represents the duration in milliseconds
+             * during which the tooltip is shown when hovering a cell.
+             * This overrides the table's `tooltip_duration` property.
+             * If set to `None`, the tooltip will not disappear.
+             */
             duration: PropTypes.number,
+
+            /**
+             * The `if` refers to the condition that needs to be fulfilled
+             * in order for the associated tooltip configuration to be
+             * used. If multiple conditions are defined, all conditions
+             * must be met for the tooltip to be used by a cell.
+             */
+
             if: PropTypes.exact({
+                /**
+                 * `column_id` refers to the column ID that must be matched.
+                 */
                 column_id: PropTypes.string,
+                /**
+                 * `filter_query` refers to the query that must evaluate to True.
+                 */
                 filter_query: PropTypes.string,
+                /**
+                 * `row_index` refers to the index of the row in the source `data`.
+                 */
                 row_index: PropTypes.oneOfType([
                     PropTypes.number,
                     PropTypes.oneOf(['odd', 'even'])
                 ])
             }).isRequired,
+            /**
+             * The `type` refers to the type of tooltip syntax used
+             * for the tooltip generation. Can either be `markdown`
+             * or `text`. Defaults to `text`.
+             */
             type: PropTypes.oneOf(['text', 'markdown']),
+            /**
+             * The `value` refers to the syntax-based content of the tooltip. This value is required.
+             */
             value: PropTypes.string.isRequired
         })
     ),
@@ -926,34 +1006,41 @@ export const propTypes = {
     /**
      * `tooltip_data` represents the tooltip shown
      * for different columns and cells.
-     * A list of objects for which each key is
-     * a column id and the value a tooltip configuration.
-     * For each tooltip configuration,
-     * The `type` refers to the type of tooltip syntax used
-     * for the tooltip generation. Can either be `markdown`
-     * or `text`. Defaults to `text`.
-     * The `value` refers to the syntax-based content of
-     * the tooltip. This value is required.
-     * The `delay` represents the delay in milliseconds before
-     * the tooltip is shown when hovering a cell. This overrides
-     * the table's `tooltip_delay` property. If set to `null`,
-     * the tooltip will be shown immediately.
-     * The `duration` represents the duration in milliseconds
-     * during which the tooltip is shown when hovering a cell.
-     * This overrides the table's `tooltip_duration` property.
-     * If set to `null`, the tooltip will not disappear.
-     * Alternatively, the value of the property can also be
-     * a plain string. The `text` syntax will be used in
-     * that case.
+     * A list of dicts for which each key is
+     * a column id and the value is a tooltip configuration.
      */
     tooltip_data: PropTypes.arrayOf(
         PropTypes.objectOf(
             PropTypes.oneOfType([
                 PropTypes.string,
                 PropTypes.exact({
+                    /**
+                     * The `delay` represents the delay in milliseconds before
+                     * the tooltip is shown when hovering a cell. This overrides
+                     * the table's `tooltip_delay` property. If set to `None`,
+                     * the tooltip will be shown immediately.
+                     */
                     delay: PropTypes.number,
+                    /**
+                     * The `duration` represents the duration in milliseconds
+                     * during which the tooltip is shown when hovering a cell.
+                     * This overrides the table's `tooltip_duration` property.
+                     * If set to `None`, the tooltip will not disappear.
+                     * Alternatively, the value of the property can also be
+                     * a plain string. The `text` syntax will be used in
+                     * that case.
+                     */
                     duration: PropTypes.number,
+                    /**
+                     * For each tooltip configuration,
+                     * The `type` refers to the type of tooltip syntax used
+                     * for the tooltip generation. Can either be `markdown`
+                     * or `text`. Defaults to `text`.
+                     */
                     type: PropTypes.oneOf(['text', 'markdown']),
+                    /**
+                     * The `value` refers to the syntax-based content of the tooltip. This value is required.
+                     */
                     value: PropTypes.string.isRequired
                 })
             ])
@@ -962,36 +1049,45 @@ export const propTypes = {
 
     /**
      * `tooltip_header` represents the tooltip shown
-     * for different columns and cells.
-     * An object for which each key is a column id and the value
-     * a list of tooltip configurations or a toolttip configuration.
-     * If the value is tooltip configuration, the same tooltip will
-     * be used for all header rows of the corresponding column.
-     * For each tooltip configuration,
-     * The `type` refers to the type of tooltip syntax used
-     * for the tooltip generation. Can either be `markdown`
-     * or `text`. Defaults to `text`.
-     * The `value` refers to the syntax-based content of
-     * the tooltip. This value is required.
-     * The `delay` represents the delay in milliseconds before
-     * the tooltip is shown when hovering a cell. This overrides
-     * the table's `tooltip_delay` property. If set to `null`,
-     * the tooltip will be shown immediately.
-     * The `duration` represents the duration in milliseconds
-     * during which the tooltip is shown when hovering a cell.
-     * This overrides the table's `tooltip_duration` property.
-     * If set to `null`, the tooltip will not disappear.
-     * Alternatively, the value of the property can also be
-     * a plain string or a nully value to . The `text` syntax will be used in
-     * that case.
+     * for each header column and optionally each header row.
+     * Example to show long column names in a tooltip: {i: i for i in df.columns}.
+     * Example to show different column names in a tooltip: {'Rep': 'Republican', 'Dem': 'Democrat'}.
+     * If the table has multiple rows of headers, then use a list as the value of the
+     * `tooltip_header` items.
+     *
+     *
      */
     tooltip_header: PropTypes.objectOf(
         PropTypes.oneOfType([
             PropTypes.string,
             PropTypes.exact({
+                /**
+                 * The `delay` represents the delay in milliseconds before
+                 * the tooltip is shown when hovering a cell. This overrides
+                 * the table's `tooltip_delay` property. If set to `None`,
+                 * the tooltip will be shown immediately.
+                 */
                 delay: PropTypes.number,
+                /**
+                 * The `duration` represents the duration in milliseconds
+                 * during which the tooltip is shown when hovering a cell.
+                 * This overrides the table's `tooltip_duration` property.
+                 * If set to `None`, the tooltip will not disappear.
+                 * Alternatively, the value of the property can also be
+                 * a plain string. The `text` syntax will be used in
+                 * that case.
+                 */
                 duration: PropTypes.number,
+                /**
+                 * For each tooltip configuration,
+                 * The `type` refers to the type of tooltip syntax used
+                 * for the tooltip generation. Can either be `markdown`
+                 * or `text`. Defaults to `text`.
+                 */
                 type: PropTypes.oneOf(['text', 'markdown']),
+                /**
+                 * The `value` refers to the syntax-based content of the tooltip. This value is required.
+                 */
                 value: PropTypes.string.isRequired
             }),
             PropTypes.arrayOf(
@@ -1011,7 +1107,7 @@ export const propTypes = {
 
     /**
      * `tooltip_delay` represents the table-wide delay in milliseconds before
-     * the tooltip is shown when hovering a cell. If set to `null`, the tooltip
+     * the tooltip is shown when hovering a cell. If set to `None`, the tooltip
      * will be shown immediately.
      * Defaults to 350.
      */
@@ -1020,7 +1116,7 @@ export const propTypes = {
     /**
      * `tooltip_duration` represents the table-wide duration in milliseconds
      * during which the tooltip will be displayed when hovering a cell. If
-     * set to `null`, the tooltip will not disappear.
+     * set to `None`, the tooltip will not disappear.
      * Defaults to 2000.
      */
     tooltip_duration: PropTypes.number,
@@ -1056,7 +1152,7 @@ export const propTypes = {
      * sorted on a per-column basis.
      * If `'none'`, then the sorting UI is not displayed.
      * If `'native'`, then the sorting UI is displayed and the sorting
-     * logic is hanled by the table. That is, it is performed on the data
+     * logic is handled by the table. That is, it is performed on the data
      * that exists in the `data` property.
      * If `'custom'`, the the sorting UI is displayed but it is the
      * responsibility of the developer to program the sorting
@@ -1097,7 +1193,7 @@ export const propTypes = {
     ),
 
     /**
-     * An array of string, number and boolean values that are treated as `null`
+     * An array of string, number and boolean values that are treated as `None`
      * (i.e. ignored and always displayed last) when sorting.
      * This value will be used by columns without `sort_as_null`.
      * Defaults to `[]`.
@@ -1274,7 +1370,7 @@ export const propTypes = {
      * left (nested query structure; optional).
      * right (nested query structure; optional).
      * If the query is invalid or empty, the `derived_filter_query_structure` will
-     * be null.
+     * be `None`.
      */
     derived_filter_query_structure: PropTypes.object,
 
