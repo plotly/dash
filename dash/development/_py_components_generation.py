@@ -455,7 +455,7 @@ def create_prop_docstring(
             dict_part2 = "".join([desc_indent, "Or", dict_part2])
             dict_descr = "{}   \n\n  {}".format(dict_part1, dict_part2)
 
-        # ensures indent is correct if there is a second nested dict
+        # ensures indent is correct if there is a second nested list of dicts
         current_indent = dict_descr.lstrip("\n").find("-")
         if current_indent == len(indent_spacing) + 4:
             dict_descr = "".join("    " + line for line in dict_descr.splitlines(True))
@@ -576,24 +576,18 @@ def map_js_to_py_types_flow_types(type_object):
             else ""
         ),
         # React's PropTypes.shape
-        signature=lambda indent_num: "dict with keys: {}.\n{}".format(
-            ", ".join(
-                "'{}'".format(d["key"]) for d in type_object["signature"]["properties"]
-            ),
-            "{}Those keys have the following types:\n{}".format(
-                "  " * indent_num,
-                "\n".join(
-                    create_prop_docstring(
-                        prop_name=prop["key"],
-                        type_object=prop["value"],
-                        required=prop["value"]["required"],
-                        description=prop["value"].get("description", ""),
-                        default=prop.get("defaultValue"),
-                        indent_num=indent_num + 2,
-                        is_flow_type=True,
-                    )
-                    for prop in type_object["signature"]["properties"]
-                ),
+        signature=lambda indent_num: "dict with keys:  \n{}".format(
+            "  \n".join(
+                create_prop_docstring(
+                    prop_name=prop["key"],
+                    type_object=prop["value"],
+                    required=prop["value"]["required"],
+                    description=prop["value"].get("description", ""),
+                    default=prop.get("defaultValue"),
+                    indent_num=indent_num + 2,
+                    is_flow_type=True,
+                )
+                for prop in type_object["signature"]["properties"]
             ),
         ),
     )
