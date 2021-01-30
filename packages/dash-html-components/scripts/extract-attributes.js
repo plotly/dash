@@ -10,14 +10,13 @@ const dataPath = './data/attributes.json';
 const htmlPath = './data/attributes.html';
 
 // From https://facebook.github.io/react/docs/tags-and-attributes.html#supported-attributes
-// less the `data` attribute,
-// the special `className` and `htmlFor` props,
+// less the special `className` and `htmlFor` props,
 // and `httpEquiv` + `acceptCharset` which are already correctly camelCased.
 const supportedAttributes = ['accept', 'accessKey', 'action',
 'allowFullScreen', 'allowTransparency', 'alt', 'async', 'autoComplete',
 'autoFocus', 'autoPlay', 'capture', 'cellPadding', 'cellSpacing', 'challenge',
 'charSet', 'checked', 'cite', 'classID', 'colSpan', 'cols', 'content',
-'contentEditable', 'contextMenu', 'controls', 'coords', 'crossOrigin',
+'contentEditable', 'contextMenu', 'controls', 'coords', 'crossOrigin', 'data',
 'dateTime', 'default', 'defer', 'dir', 'disabled', 'download', 'draggable',
 'encType', 'form', 'formAction', 'formEncType', 'formMethod', 'formNoValidate',
 'formTarget', 'frameBorder', 'headers', 'height', 'hidden', 'high', 'href',
@@ -82,7 +81,7 @@ function extractAttributes($) {
             .toString();
 
         // Skip `data-*` attributes
-        if (htmlAttribute.indexOf('data') === 0) {
+        if (htmlAttribute.indexOf('data-') === 0) {
             return;
         }
 

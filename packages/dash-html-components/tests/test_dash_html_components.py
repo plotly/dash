@@ -1,43 +1,48 @@
-import unittest
-import dash_html_components
+import pytest
+import dash_html_components as html
 
 
-class TestDashHtmlComponents(unittest.TestCase):
-    def test_imports(self):
-        with open('./scripts/data/elements.txt') as f:
-            elements = [
-                s[0].upper() + s[1:] for s in
-                f.read().split('\n')
-            ]
-            elements += ['MapEl', 'ObjectEl']
-            for s in ['Map', 'Object']:
-                elements.remove(s)
+def test_imports():
+    with open("./scripts/data/elements.txt") as f:
+        elements = [s[0].upper() + s[1:] for s in f.read().split("\n")]
+        elements += ["MapEl", "ObjectEl"]
+        for s in ["Map", "Object"]:
+            elements.remove(s)
 
-        print(dir(dash_html_components))
+    dir_set = set(
+        [
+            d
+            for d in dir(html)
+            if d[0] != "_" and d[0] == d[0].capitalize()
+        ]
+    )
+    assert dir_set == set(elements)
 
-        self.assertEqual(
-            set([d for d in dir(dash_html_components) if d[0] != '_' and d[0] == d[0].capitalize()]),
-            set(elements)
-        )
 
-    def test_sample_items(self):
-        Div = dash_html_components.Div
-        Img = dash_html_components.Img
+def test_sample_items():
+    layout = html.Div(
+        html.Div(html.Img(src="https://plotly.com/~chris/1638.png")),
+        style={"color": "red"}
+    )
 
-        layout = Div(
-            Div(
-                Img(src='https://plotly.com/~chris/1638.png')
-            ), style={'color': 'red'}
-        )
+    expected = (
+        "Div(children=Div(Img(src='https://plotly.com/~chris/1638.png')), "
+        "style={'color': 'red'})"
+    )
+    assert repr(layout) == expected
 
-        self.assertEqual(
-            repr(layout),
-            ''.join([
-                "Div(children=Div(Img(src='https://plotly.com/~chris/1638.png')), "
-                "style={'color': 'red'})"
-            ])
-        )
+    assert layout._namespace == "dash_html_components"
 
-        self.assertEqual(
-            layout._namespace, 'dash_html_components'
-        )
+
+def test_objectEl():
+    layout = html.ObjectEl(data="something", **{"data-x": "else"})
+    assert repr(layout) == "ObjectEl(data='something', data-x='else')"
+
+    with pytest.raises(TypeError):
+        html.ObjectEl(datax="something")
+
+
+def test_customDocs():
+    assert "CAUTION" in html.Script.__doc__[:100]
+    assert "OBSOLETE" in html.Blink.__doc__[:100]
+    assert "DEPRECATED" in html.Marquee.__doc__[:100]

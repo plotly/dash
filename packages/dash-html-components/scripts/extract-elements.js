@@ -20,11 +20,18 @@ function extractElements($) {
         'svg', 'math',
         // obsolete, non-standard, or deprecated tags
         'image', 'dir', 'tt', 'applet', 'noembed', 'bgsound', 'menu', 'menuitem',
-        'noframes'
+        'noframes',
+        // experimental, don't add yet
+        'portal'
     ];
     // `<section>` is for some reason missing from the reference tables.
+    // `<command>` and `element` are obsolete and has been removed from the
+    // reference table, but we had them in the past so we should wait for a
+    // major to remove
     const addElements = [
         'base',
+        'command',
+        'element',
         'section',
         'h1',
         'h2',
@@ -64,6 +71,7 @@ request(refUrl, (error, response, html) => {
     if (elements.length !== expectedElCount) {
         throw new Error(
             'Unexpected number of elements extracted from ' + refUrl +
+            ' - Found ' + elements.length + ' but expected ' + expectedElCount +
             ' Check the output and edit expectedElCount if this is intended.'
         );
     }
