@@ -29,16 +29,16 @@ expected_arg_strings = OrderedDict(
             "optionalObjectWithExactAndNestedDescription",
             "\n".join(
                 [
-                    "dict with keys:  \n",
-                    "    - color (string; optional)  \n",
+                    "dict with keys:\n",
+                    "    - color (string; optional)\n",
                     "    - figure (dict; optional):",
-                    "        Figure is a plotly graph object.    \n",
-                    "        `figure` is a dict with keys:   \n",
+                    "        Figure is a plotly graph object.\n",
+                    "        `figure` is a dict with keys:\n",
                     # noqa: E501
                     "        - data (list of dicts; optional):",
-                    "            data is a collection of traces.    \n",
+                    "            data is a collection of traces.\n",
                     "        - layout (dict; optional):",
-                    "            layout describes the rest of the figure.    \n",
+                    "            layout describes the rest of the figure.\n",
                     # noqa: E501
                     "    - fontSize (number; optional)",
                 ]
@@ -48,16 +48,16 @@ expected_arg_strings = OrderedDict(
             "optionalObjectWithShapeAndNestedDescription",
             "\n".join(
                 [
-                    "dict with keys:  \n",
-                    "    - color (string; optional)  \n",
+                    "dict with keys:\n",
+                    "    - color (string; optional)\n",
                     "    - figure (dict; optional):",
-                    "        Figure is a plotly graph object.    \n",
-                    "        `figure` is a dict with keys:   \n",
+                    "        Figure is a plotly graph object.\n",
+                    "        `figure` is a dict with keys:\n",
                     # noqa: E501
                     "        - data (list of dicts; optional):",
-                    "            data is a collection of traces.    \n",
+                    "            data is a collection of traces.\n",
                     "        - layout (dict; optional):",
-                    "            layout describes the rest of the figure.    \n",
+                    "            layout describes the rest of the figure.\n",
                     # noqa: E501
                     "    - fontSize (number; optional)",
                 ],

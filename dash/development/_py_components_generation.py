@@ -429,7 +429,7 @@ def create_prop_docstring(
         break_long_words=False,
         break_on_hyphens=False,
     )
-    description = "\n{}  ".format(description) if description else ""
+    description = "\n{}".format(description) if description else ""
     colon = ":" if description else ""
     description = fix_keywords(description)
 
@@ -450,20 +450,21 @@ def create_prop_docstring(
 
         # captures optional nested dict description and puts the "or" condition on a new line
         if "| dict with keys:" in dict_descr:
-            dict_part1, dict_part2 = dict_descr.split("|", 1)
-            dict_part1 = dict_part1 + "  "
+            dict_part1, dict_part2 = dict_descr.split(" |", 1)
             dict_part2 = "".join([desc_indent, "Or", dict_part2])
-            dict_descr = "{}   \n\n  {}".format(dict_part1, dict_part2)
+            dict_descr = "{}\n\n  {}".format(dict_part1, dict_part2)
 
         # ensures indent is correct if there is a second nested list of dicts
         current_indent = dict_descr.lstrip("\n").find("-")
-        if current_indent == len(indent_spacing) + 4:
-            dict_descr = "".join("    " + line for line in dict_descr.splitlines(True))
+        if current_indent == len(indent_spacing):
+            dict_descr = "".join(
+                "\n\n    " + line for line in dict_descr.splitlines() if line != ""
+            )
 
         return (
             "\n{indent_spacing}- {name} ({dict_or_list}; {is_required}){colon}"
-            "{description}  "
-            "\n\n{intro} {dict_descr}".format(
+            "{description}"
+            "\n\n{intro}{dict_descr}".format(
                 indent_spacing=indent_spacing,
                 name=prop_name,
                 colon=colon,
@@ -491,8 +492,8 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
     """Mapping from the PropTypes js type object to the Python type."""
 
     def shape_or_exact():
-        return "dict with keys:  \n{}".format(
-            "  \n".join(
+        return "dict with keys:\n{}".format(
+            "\n".join(
                 create_prop_docstring(
                     prop_name=prop_name,
                     type_object=prop,
@@ -576,8 +577,8 @@ def map_js_to_py_types_flow_types(type_object):
             else ""
         ),
         # React's PropTypes.shape
-        signature=lambda indent_num: "dict with keys:  \n{}".format(
-            "  \n".join(
+        signature=lambda indent_num: "dict with keys:\n{}".format(
+            "\n".join(
                 create_prop_docstring(
                     prop_name=prop["key"],
                     type_object=prop["value"],
