@@ -18,6 +18,7 @@ describe('Props can be set properly', () => {
             {label: 'Disabled', value: 'x', disabled: true},
         ],
         value: 2,
+        autoComplete: 'off',
         optionHeight: 50,
         className: 'dd-class',
         clearable: true,
