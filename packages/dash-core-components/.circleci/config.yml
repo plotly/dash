@@ -12,7 +12,7 @@ jobs:
   lint-unit-37: &lint-unit
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7.6-stretch-node-browsers
+      - image: circleci/python:3.7.9-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -50,7 +50,7 @@ jobs:
   lint-unit-36:
     <<: *lint-unit
     docker:
-      - image: circleci/python:3.6.9-stretch-node-browsers
+      - image: circleci/python:3.6.12-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -60,7 +60,7 @@ jobs:
   lint-unit-27:
     <<: *lint-unit
     docker:
-      - image: circleci/python:2.7-stretch-node-browsers
+      - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -70,7 +70,7 @@ jobs:
   build-dash-37: &build-dash
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7.6-stretch-node-browsers
+      - image: circleci/python:3.7.9-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -116,7 +116,7 @@ jobs:
   build-dash-36:
     <<: *build-dash
     docker:
-      - image: circleci/python:3.6.9-stretch-node-browsers
+      - image: circleci/python:3.6.12-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -126,7 +126,7 @@ jobs:
   build-dash-27:
     <<: *build-dash
     docker:
-      - image: circleci/python:2.7-stretch-node-browsers
+      - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -136,7 +136,7 @@ jobs:
   test-37: &test
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7.6-stretch-node-browsers
+      - image: circleci/python:3.7.9-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -172,7 +172,7 @@ jobs:
   test-36:
     <<: *test
     docker:
-      - image: circleci/python:3.6.9-stretch-node-browsers
+      - image: circleci/python:3.6.12-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -183,7 +183,7 @@ jobs:
   test-27:
     <<: *test
     docker:
-      - image: circleci/python:2.7-stretch-node-browsers
+      - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -194,7 +194,7 @@ jobs:
   test-legacy-37: &test-legacy
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7.6-stretch-node-browsers
+      - image: circleci/python:3.7.9-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -231,7 +231,7 @@ jobs:
   test-legacy-36:
     <<: *test-legacy
     docker:
-      - image: circleci/python:3.6.9-stretch-node-browsers
+      - image: circleci/python:3.6.12-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -241,7 +241,7 @@ jobs:
   test-legacy-27:
     <<: *test-legacy
     docker:
-      - image: circleci/python:2.7-stretch-node-browsers
+      - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB

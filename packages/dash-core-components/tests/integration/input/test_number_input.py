@@ -5,16 +5,8 @@ from selenium.webdriver.common.keys import Keys
 
 def test_inni001_invalid_numbers(ninput_app, dash_dcc):
     dash_dcc.start_server(ninput_app)
-    for invalid_number in (
-        "10e10000",
-        "e+++eeeeeE-",
-        "120.2.33",
-        "12-.3",
-        "-3.3.3",
-        "0..0",
-    ):
+    for invalid_number in ("10e10000", "e+++eeeeeE-", "12-.3"):
         for debounce in ("false", "true"):
-
             elem = dash_dcc.find_element("#input_{}".format(debounce))
             assert not elem.get_attribute("value"), "input should have no initial value"
 
