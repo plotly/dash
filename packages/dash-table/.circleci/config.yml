@@ -3,7 +3,7 @@ version: 2.1
 jobs:
     "server-test":
         docker:
-            - image: circleci/python:3.7.6-node-browsers
+            - image: circleci/python:3.7.9-node-browsers
               environment:
                 PERCY_PARALLEL_TOTAL: -1
             - image: cypress/base:10
