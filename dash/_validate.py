@@ -125,7 +125,7 @@ def validate_output_spec(output, output_spec, Output):
     for outi, speci in zip(output, output_spec):
         speci_list = speci if isinstance(speci, (list, tuple)) else [speci]
         for specij in speci_list:
-            if Output(specij["id"], specij["property"]) != outi:
+            if not Output(specij["id"], specij["property"]) == outi:
                 raise exceptions.CallbackException(
                     "Output does not match callback definition"
                 )
