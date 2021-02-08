@@ -52,6 +52,8 @@ class BaseDashRunner(object):
     """Base context manager class for running applications."""
 
     def __init__(self, keep_open, stop_timeout):
+        self.scheme = 'http'
+        self.host = 'localhost'
         self.port = 8050
         self.started = None
         self.keep_open = keep_open
@@ -92,7 +94,7 @@ class BaseDashRunner(object):
     @property
     def url(self):
         """The default server url."""
-        return "http://localhost:{}".format(self.port)
+        return "{}://{}:{}".format(self.scheme, self.host, self.port)
 
     @property
     def is_windows(self):
