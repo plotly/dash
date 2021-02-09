@@ -27,7 +27,7 @@ import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
-from .dependencies import handle_callback_args
+from .dependencies import handle_callback_args, Output
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
 from .version import __version__
@@ -1004,6 +1004,7 @@ class Dash(object):
             @wraps(func)
             def add_context(*args, **kwargs):
                 output_spec = kwargs.pop("outputs_list")
+                _validate.validate_output_spec(output, output_spec, Output)
 
                 # don't touch the comment on the next line - used by debugger
                 output_value = func(*args, **kwargs)  # %% callback invoked %%
