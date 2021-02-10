@@ -5,10 +5,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## UNRELEASED
 
 ### Changed
+- [#1531](https://github.com/plotly/dash/pull/1531) Update the format of the docstrings to make them easier to read in the reference pages of Dash Docs and in the console.  This also addresses [#1205](https://github.com/plotly/dash/issues/1205)
 
-- [#1531](https://github.com/plotly/dash/pull/1531).  Updates the format of the docstrings to make them easier to read in
-  the reference pages of Dash Docs and in the console.  This also addresses [#1205](https://github.com/plotly/dash/issues/1205)
-
+### Fixed
+- [#1546](https://github.com/plotly/dash/pull/1546) Validate callback request `outputs` vs `output` to avoid a perceived security issue.
 
 ## [1.19.0] - 2021-01-19
 
