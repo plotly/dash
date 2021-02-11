@@ -12,7 +12,7 @@ const htmlPath = './data/attributes.html';
 // From https://facebook.github.io/react/docs/tags-and-attributes.html#supported-attributes
 // less the special `className` and `htmlFor` props,
 // and `httpEquiv` + `acceptCharset` which are already correctly camelCased.
-const supportedAttributes = ['accept', 'accessKey', 'action',
+const supportedAttributes = ['accept', 'accessKey', 'action', 'allow',
 'allowFullScreen', 'allowTransparency', 'alt', 'async', 'autoComplete',
 'autoFocus', 'autoPlay', 'capture', 'cellPadding', 'cellSpacing', 'challenge',
 'charSet', 'checked', 'cite', 'classID', 'colSpan', 'cols', 'content',
@@ -25,8 +25,8 @@ const supportedAttributes = ['accept', 'accessKey', 'action',
 'manifest', 'marginHeight', 'marginWidth', 'max', 'maxLength', 'media',
 'mediaGroup', 'method', 'min', 'minLength', 'multiple', 'muted', 'name',
 'noValidate', 'nonce', 'open', 'optimum', 'pattern', 'placeholder', 'poster',
-'preload', 'profile', 'radioGroup', 'readOnly', 'rel', 'required', 'reversed',
-'role', 'rowSpan', 'rows', 'sandbox', 'scope', 'scoped', 'scrolling',
+'preload', 'profile', 'radioGroup', 'readOnly', 'referrerPolicy', 'rel', 'required', 
+'reversed', 'role', 'rowSpan', 'rows', 'sandbox', 'scope', 'scoped', 'scrolling',
 'seamless', 'selected', 'shape', 'size', 'sizes', 'span', 'spellCheck', 'src',
 'srcDoc', 'srcLang', 'srcSet', 'start', 'step', 'style', 'summary', 'tabIndex',
 'target', 'title', 'type', 'useMap', 'value', 'width', 'wmode', 'wrap'];
