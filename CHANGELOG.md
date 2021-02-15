@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 - [#1531](https://github.com/plotly/dash/pull/1531) Update the format of the docstrings to make them easier to read in the reference pages of Dash Docs and in the console.  This also addresses [#1205](https://github.com/plotly/dash/issues/1205)
+- [#1553](https://github.com/plotly/dash/pull/1553) Increase the z-index of the Dash error menu from 1001 to 1100 in order to make sure it appears above Bootstrap components.
 
 ### Fixed
 - [#1546](https://github.com/plotly/dash/pull/1546) Validate callback request `outputs` vs `output` to avoid a perceived security issue.
