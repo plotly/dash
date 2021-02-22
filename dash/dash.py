@@ -1052,6 +1052,135 @@ class Dash(object):
 
         return wrap_func
 
+    def dict_callback(self, *_args, **_kwargs):
+        """
+        Normally used as a decorator, `@app.dict_callback` provides a server-side
+        callback relating the values of one or more `Output` items to one or
+        more `Input` items which will trigger the callback when they change,
+        and optionally `State` items which provide additional information but
+        do not trigger the callback directly.
+        
+        This differs from the standard callback because the callback function 
+        receives as input an input and state dictionary and generates as output 
+        an output dictionary. They keys in a dictionary are of the form "id.property"
+        for standard Inputs, States, and Outputs and "type#index.property" for pattern
+        matched Inputs and States.
+        
+        This decorator accepts any keyword arguments the standard callback method does 
+        including the optional argument 'prevent_initial_call'. In addition, two
+        additional optional callback arguments are added 'strict' and 'allow_missing'.
+
+        The optional argument `prevent_initial_call` causes the callback
+        not to fire when its outputs are first added to the page. Defaults to
+        `False` unless `prevent_initial_callbacks=True` at the app level.
+
+        The 'strict' argument causes the callback to raise a KeyError if the callback
+        returns a key in the dictionary that is not expected as an Output. Defaults to 
+        'False'.
+        
+        The 'allow_missing' argument returns a 'no_update'. For any keys missing when
+        in the output returned by the callback. If 'False' a KeyError is raised if
+        any keys are missing in the output dictionary. Defaults to 'True'.
+        """
+
+        # Pull new options out of the keyword arguments
+        strict = _kwargs.pop('strict', False)
+        allow_missing = _kwargs.pop('allow_missing', True)
+
+        #
+        # Helper Functions
+        #
+
+        def property_to_key(prop):
+            """Converts the property to our key format for dictionaries"""
+            if type(prop['id']) == dict:
+                return f"{prop['id']['type']}#{prop['id']['index']}.{prop['property']}"
+            else:
+                return f"{prop['id']}.{prop['property']}"
+
+        def to_dict(in_, prop_list, recurse=True):
+            """
+            Maps an values input list to a dict based on the list of properties.
+            We allow one level of recursion since pattern matching allows for a list of lists.
+            """
+            if len(in_) != len(prop_list):
+                raise ValueError("List must have the same number of elements as keys")
+            out_dict = {}
+            for prop, value in zip(prop_list, in_):
+                if isinstance(prop, (list, tuple)) and recurse:
+                    out_dict.update(to_dict(value, prop, recurse=False))
+                else:
+                    out_dict[property_to_key(prop)] = value
+            return out_dict
+
+        def get_keys_from_list(prop_list, recurse=True):
+            """
+            Converts a list of properties to a list of keys. This is for 'strict' validation.
+            We allow one level of recurse for pattern matching.
+            """
+            out_list = []
+            for prop in prop_list:
+                if isinstance(prop, (list, tuple)) and recurse:
+                    out_list += get_keys_from_list(prop_list, recurse=False)
+                else:
+                    out_list.append(property_to_key(prop))
+            return out_list
+
+        def from_dict(output_values, prop_list, recurse=True):
+            """
+            Maps output_values dict to a list based on the list of properties. 
+            For symmetry sake, we allow one level of recursion, but pattern matching on outputs
+            doesn't support any kind of list of list. 
+            """
+            # A single property may appear not as a so we make it a list for consistent processing.
+
+            if not isinstance(prop_list, (list, tuple)):
+                prop_list = [prop_list]
+
+            out_list = []
+            for prop in prop_list:
+                if isinstance(prop, (list, tuple)) and recurse:
+                    out_list.append(from_dict(output_values, prop, recurse=False))
+                else:
+                    if allow_missing:
+                        out_list.append(output_values.get(property_to_key(prop), no_update))
+                    else:  # Throw Key error if value is missing
+                        out_list.append(output_values[property_to_key(prop)])
+
+            return out_list
+
+        def decorator(func):
+            @wraps(func)
+            def wrapped_func(*args, **kwargs):
+                ctx = dash.callback_context
+                inputs = to_dict(args[0:len(ctx.inputs_list)], ctx.inputs_list)
+                state = to_dict(args[len(ctx.inputs_list):], ctx.states_list)
+                output_dict = func(inputs, state, **kwargs)  # %% callback invoked %%
+
+                # As with standard callback, we still support the returning of a single
+                # no_update to prevent updating
+
+                if isinstance(output_dict, _NoUpdate):
+                    raise PreventUpdate
+
+                output_value = from_dict(output_dict, ctx.outputs_list)
+                if strict:
+                    # Check to see if there are any excess keys in strict mode
+                    excess_keys = set(output_value.keys()) - set(get_keys_from_list(ctx.outputs_list))
+                    if excess_keys:
+                        raise KeyError(f'The following keys were note found {",".join(list(excess_keys))}')
+
+                # If the expected output is not a list we need to unwrap it from our list
+
+                if not isinstance(ctx.outputs_list, (list, tuple)):
+                    output_value = output_value[0]
+
+                return output_value
+
+            return self.callback(*_args, **_kwargs)(wrapped_func)
+
+        return decorator
+
     def dispatch(self):
         body = flask.request.get_json()
         flask.g.inputs_list = inputs = body.get("inputs", [])
