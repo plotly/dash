@@ -49,6 +49,7 @@ from ._utils import (
 )
 from . import _validate
 from . import _watch
+from ._callback_context import callback_context
 
 _flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
@@ -1152,11 +1153,10 @@ class Dash(object):
         def decorator(func):
             @wraps(func)
             def wrapped_func(*args, **kwargs):
-                ctx = dash.callback_context
+                ctx = callback_context
                 inputs = to_dict(args[0:len(ctx.inputs_list)], ctx.inputs_list)
                 state = to_dict(args[len(ctx.inputs_list):], ctx.states_list)
                 output_dict = func(inputs, state, **kwargs)  # %% callback invoked %%
-
                 # As with standard callback, we still support the returning of a single
                 # no_update to prevent updating
 
