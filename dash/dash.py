@@ -1166,7 +1166,7 @@ class Dash(object):
                 output_value = from_dict(output_dict, ctx.outputs_list)
                 if strict:
                     # Check to see if there are any excess keys in strict mode
-                    excess_keys = set(output_value.keys()) - set(get_keys_from_list(ctx.outputs_list))
+                    excess_keys = set(output_dict.keys()) - set(get_keys_from_list(ctx.outputs_list))
                     if excess_keys:
                         raise KeyError(f'The following keys were note found {",".join(list(excess_keys))}')
 
