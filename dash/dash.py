@@ -1095,10 +1095,21 @@ class Dash(object):
         def property_to_key(prop):
             """Converts the property to our key format for dictionaries"""
             if type(prop['id']) == dict:
-                return f"{prop['id']['type']}#{prop['id']['index']}.{prop['property']}"
+                return f"{frozenset(prop['id'].items())}.{prop['property']}"
             else:
                 return f"{prop['id']}.{prop['property']}"
 
+        class callback_dict(dict):
+            def pget(self, key=None, property=None, **kwargs):
+                if not key:
+                    key=kwargs
+                return self[property_to_key(dict(id=key, property=property))]
+            
+            def pset(self, key=None, property=None, value=None, **kwargs):
+                if not key:
+                    key=kwargs
+                self[property_to_key(dict(id=key, property=property))]=value
+                
         def to_dict(in_, prop_list, recurse=True):
             """
             Maps an values input list to a dict based on the list of properties.
@@ -1106,7 +1117,7 @@ class Dash(object):
             """
             if len(in_) != len(prop_list):
                 raise ValueError("List must have the same number of elements as keys")
-            out_dict = {}
+            out_dict = callback_dict()
             for prop, value in zip(prop_list, in_):
                 if isinstance(prop, (list, tuple)) and recurse:
                     out_dict.update(to_dict(value, prop, recurse=False))
