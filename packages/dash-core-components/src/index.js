@@ -17,6 +17,7 @@ import Textarea from './components/Textarea.react';
 import DatePickerSingle from './components/DatePickerSingle.react';
 import DatePickerRange from './components/DatePickerRange.react';
 import Upload from './components/Upload.react';
+import Download from './components/Download.react';
 import Tabs from './components/Tabs.react';
 import Tab from './components/Tab.react';
 import Store from './components/Store.react';
@@ -48,4 +49,5 @@ export {
     Upload,
     Store,
     LogoutButton,
+    Download
 };

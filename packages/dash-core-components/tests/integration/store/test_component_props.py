@@ -61,6 +61,10 @@ def test_stcp002_modified_ts(store_app, dash_dcc):
     # the python ts ends at seconds while javascript one ends at ms
     ts = float(time.time() * 1000)
 
+    wait.until(
+        lambda: "initialized" in dash_dcc.find_element("#init-output").text, timeout=3
+    )
+
     output_data = json.loads(dash_dcc.find_element("#init-output").text)
 
     assert (

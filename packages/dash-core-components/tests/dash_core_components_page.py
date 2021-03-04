@@ -29,14 +29,10 @@ class DashCoreComponentsMixin(object):
         self._wait_until_day_is_clickable()
         days = self.find_elements(self.date_picker_day_locator)
         if day:
-            filtered = [
-                _ for _ in days if _.text == str(day) and is_month_valid(_)
-            ]
+            filtered = [_ for _ in days if _.text == str(day) and is_month_valid(_)]
             if not filtered or len(filtered) > 1:
                 logger.error(
-                    "cannot find the matched day with index=%s, day=%s",
-                    index,
-                    day,
+                    "cannot find the matched day with index=%s, day=%s", index, day,
                 )
             matched = filtered[0]
         else:
@@ -93,9 +89,7 @@ class DashCoreComponentsMixin(object):
 
     def _wait_until_day_is_clickable(self, timeout=1):
         WebDriverWait(self.driver, timeout).until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, self.date_picker_day_locator)
-            )
+            EC.element_to_be_clickable((By.CSS_SELECTOR, self.date_picker_day_locator))
         )
 
     @property
