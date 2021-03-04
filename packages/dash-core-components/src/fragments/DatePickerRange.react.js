@@ -82,7 +82,10 @@ export default class DatePickerRange extends Component {
     }
 
     isOutsideRange(date) {
-        const {min_date_allowed, max_date_allowed} = this.props;
+        const {min_date_allowed, max_date_allowed} = convertToMoment(
+            this.props,
+            ['min_date_allowed', 'max_date_allowed']
+        );
 
         return (
             (min_date_allowed && date.isBefore(min_date_allowed)) ||

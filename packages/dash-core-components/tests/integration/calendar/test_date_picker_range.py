@@ -80,3 +80,32 @@ def test_dtpr003_no_initial_month_no_min_date_start_date(dash_dcc):
         "#dps-initial-month .CalendarMonth.CalendarMonth_1[data-visible=true] strong",
         "August 2019",
     )
+
+
+def test_dtpr004_max_and_min_dates_are_clickable(dash_dcc):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.DatePickerRange(
+                id="dps-initial-month",
+                start_date=datetime(2021, 1, 11),
+                end_date=datetime(2021, 1, 19),
+                max_date_allowed=datetime(2021, 1, 20),
+                min_date_allowed=datetime(2021, 1, 10),
+            )
+        ]
+    )
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.select_date_range("dps-initial-month", (10, 20))
+
+    dash_dcc.wait_for_text_to_equal(
+        '#dps-initial-month .DateInput_input.DateInput_input_1[placeholder="Start Date"]',
+        "01/10/2021",
+    )
+
+    dash_dcc.wait_for_text_to_equal(
+        '#dps-initial-month .DateInput_input.DateInput_input_1[placeholder="End Date"]',
+        "01/20/2021",
+    )
