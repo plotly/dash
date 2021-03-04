@@ -47,14 +47,15 @@ def test_cbpu001_aborted_callback(dash_duo):
     dash_duo.start_server(app)
 
     input_ = dash_duo.find_element("#input")
-    input_.send_keys("xyz")
-    dash_duo.wait_for_text_to_equal("#input", "initial inputxyz")
+    for i, key in enumerate("xyz"):
+        input_.send_keys(key)
+        until(
+            lambda: callback1_count.value == i + 2,
+            timeout=3,
+            msg="callback1 runs 4x (initial page load and 3x through send_keys)",
+        )
 
-    until(
-        lambda: callback1_count.value == 4,
-        timeout=3,
-        msg="callback1 runs 4x (initial page load and 3x through send_keys)",
-    )
+    dash_duo.wait_for_text_to_equal("#input", "initial inputxyz")
 
     assert (
         callback2_count.value == 0

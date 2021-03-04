@@ -1,10 +1,13 @@
 import pytest
+from multiprocessing import Lock, Value
+
 
 import dash_html_components as html
-
-# import dash_core_components as dcc
+import dash_core_components as dcc
 import dash
 from dash.dependencies import Input, Output, ALL, MATCH
+
+from dash.testing.wait import until
 
 debugging = dict(
     debug=True, use_reloader=False, use_debugger=True, dev_tools_hot_reload=False
@@ -25,7 +28,7 @@ def test_cbmo001_all_output(with_simple, dash_duo):
     )
 
     @app.callback(Output("content", "children"), [Input("items", "n_clicks")])
-    def content(n1):
+    def set_content(n1):
         return [html.Div(id={"i": i}) for i in range((n1 or 0) % 4)]
 
     # these two variants have identical results, but the internal behavior
@@ -99,7 +102,7 @@ def test_cbmo002_all_and_match_output(with_simple, dash_duo):
     )
 
     @app.callback(Output("content", "children"), [Input("items", "n_clicks")])
-    def content(n1):
+    def set_content(n1):
         return [
             html.Div(
                 [
@@ -258,4 +261,81 @@ def test_cbmo003_multi_all(dash_duo):
         dash_duo.wait_for_text_to_equal("#content2", content2)
         dash_duo.wait_for_text_to_equal("#output", output)
 
+    assert not dash_duo.get_logs()
+
+
+def test_cbmo004_removing_element_while_waiting_to_update(dash_duo):
+    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app.layout = html.Div(
+        [
+            dcc.RadioItems(
+                id="toc",
+                options=[{"label": i, "value": i} for i in ["1", "2"]],
+                value="1",
+            ),
+            html.Div(id="body"),
+        ]
+    )
+
+    call_counts = {"body": Value("i", 0), "button-output": Value("i", 0)}
+    lock = Lock()
+
+    @app.callback(Output("body", "children"), Input("toc", "value"))
+    def update_body(chapter):
+        call_counts["body"].value += 1
+        if chapter == "1":
+            return [
+                html.Div("Chapter 1", id="ch1-title"),
+                html.Button("clicking this button takes forever", id="button"),
+                html.Div(id="button-output"),
+            ]
+        elif chapter == "2":
+            return "Chapter 2"
+        else:
+            raise Exception("chapter is {}".format(chapter))
+
+    @app.callback(Output("button-output", "children"), Input("button", "n_clicks"))
+    def this_callback_takes_forever(n_clicks):
+        if not n_clicks:
+            # initial value is quick, only new value is slow
+            # also don't let the initial value increment call_counts
+            return "Initial Value"
+
+        with lock:
+            call_counts["button-output"].value += 1
+            return "New value!"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#ch1-title", "Chapter 1")
+    assert call_counts["body"].value == 1
+
+    # while that callback is resolving, switch the chapter,
+    # hiding the `button-output` tag
+    def chapter2_assertions():
+        dash_duo.wait_for_text_to_equal("#body", "Chapter 2")
+
+        layout = dash_duo.driver.execute_script(
+            "return JSON.parse(JSON.stringify(" "window.store.getState().layout" "))"
+        )
+
+        dcc_radio = layout["props"]["children"][0]
+        html_body = layout["props"]["children"][1]
+
+        assert dcc_radio["props"]["id"] == "toc"
+        assert dcc_radio["props"]["value"] == "2"
+
+        assert html_body["props"]["id"] == "body"
+        assert html_body["props"]["children"] == "Chapter 2"
+
+    with lock:
+        dash_duo.find_element("#button").click()
+
+        (dash_duo.find_elements('input[type="radio"]')[1]).click()
+        chapter2_assertions()
+        assert call_counts["button-output"].value == 0
+
+    until(lambda: call_counts["button-output"].value == 1, 3)
+    dash_duo._wait_for_callbacks()
+    chapter2_assertions()
     assert not dash_duo.get_logs()

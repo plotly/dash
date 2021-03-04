@@ -1,5 +1,3 @@
-from multiprocessing import Value
-
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -9,7 +7,6 @@ import dash_html_components as html
 
 def test_rdif001_sandbox_allow_scripts(dash_duo):
     app = dash.Dash(__name__)
-    call_count = Value("i")
 
     N_OUTPUTS = 50
 
@@ -26,7 +23,6 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
         if n_clicks is None:
             raise PreventUpdate
 
-        call_count.value += 1
         return ["{}={}".format(i, i + n_clicks) for i in range(N_OUTPUTS)]
 
     @app.server.after_request
@@ -38,6 +34,11 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
         return response
 
     dash_duo.start_server(app)
+
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_element("#output-0").text == "0=1"
+
+    assert dash_duo.get_logs() == []
 
     iframe = """
         <!DOCTYPE html>
@@ -53,8 +54,9 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
 
     dash_duo.driver.switch_to.frame(0)
 
-    dash_duo.wait_for_element("#output-0")
-    dash_duo.wait_for_element_by_id("btn").click()
-    dash_duo.wait_for_element("#output-0").text == "0=1"
+    assert dash_duo.get_logs() == []
 
-    assert len(dash_duo.get_logs()) != 0
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#output-0", "0=1")
+
+    assert dash_duo.get_logs() == []

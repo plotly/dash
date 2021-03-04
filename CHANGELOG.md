@@ -2,9 +2,54 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## UNRELEASED
+
+### Changed
+- [#1531](https://github.com/plotly/dash/pull/1531) Update the format of the docstrings to make them easier to read in the reference pages of Dash Docs and in the console.  This also addresses [#1205](https://github.com/plotly/dash/issues/1205)
+- [#1553](https://github.com/plotly/dash/pull/1553) Increase the z-index of the Dash error menu from 1001 to 1100 in order to make sure it appears above Bootstrap components.
+
 ### Fixed
+- [#1546](https://github.com/plotly/dash/pull/1546) Validate callback request `outputs` vs `output` to avoid a perceived security issue.
+
+## [1.19.0] - 2021-01-19
+
+## Dash and Dash Renderer
+### Added
+- [#1508](https://github.com/plotly/dash/pull/1508) Fix [#1403](https://github.com/plotly/dash/issues/1403): Adds an x button
+to close the error messages box.
+- [#1525](https://github.com/plotly/dash/pull/1525) Adds support for callbacks which have overlapping inputs and outputs. Combined with `dash.callback_context` this addresses many use cases which require circular callbacks.
+
+### Changed
+- [#1503](https://github.com/plotly/dash/pull/1506) Fix [#1466](https://github.com/plotly/dash/issues/1466): loosen `dash[testing]` requirements for easier integration in external projects. This PR also bumps many `dash[dev]` requirements.
+
+### Fixed
+- [#1530](https://github.com/plotly/dash/pull/1530) Dedent error messages more carefully.
+- [#1527](https://github.com/plotly/dash/issues/1527)🐛 `get_asset_url` now pulls from an external source if `assets_external_path` is set.
+  - updated `_add_assets_resource` to build asset urls the same way as `get_asset_url`.
+  - updated doc string for `assets_external_path` Dash argument to be more clear that it will allways be joined with the `assets_url_path` argument when determining the url to an external asset.
 - [#1493](https://github.com/plotly/dash/pull/1493) Fix [#1143](https://github.com/plotly/dash/issues/1143), a bug where having a file with one of several common names (test.py, code.py, org.py, etc) that imports a dash component package would make `import dash` fail with a cryptic error message asking whether you have a file named "dash.py"
+
+## Dash Core Components
+### Fixed
+- [#905](https://github.com/plotly/dash-core-components/pull/905) Make sure the `figure` prop of `dcc.Graph` receives updates from user interactions in the graph, by using the same `layout` object as provided in the prop rather than cloning it. Fixes [#879](https://github.com/plotly/dash-core-components/issues/879).
+- [#903](https://github.com/plotly/dash-core-components/pull/903) Part of fixing dash import bug https://github.com/plotly/dash/issues/1143
+
+### Updated
+- [#911](https://github.com/plotly/dash-core-components/pull/911), [#906](https://github.com/plotly/dash-core-components/pull/906)
+  - Upgraded Plotly.js to [1.58.4](https://github.com/plotly/plotly.js/releases/tag/v1.58.4)
+    - Patch Release [1.58.4](https://github.com/plotly/plotly.js/releases/tag/v1.58.4)
+    - Patch Release [1.58.3](https://github.com/plotly/plotly.js/releases/tag/v1.58.3)
+
+### Added
+- [#888](https://github.com/plotly/dash-core-components/pull/888) Adds a `drag_value` prop to `dcc.Slider`to be able to fire callbacks from dragging and releasing the slider.
+
+## Dash HTML Components
+### Fixed
+- [#169](https://github.com/plotly/dash-html-components/pull/169) - part of fixing dash import bug https://github.com/plotly/dash/issues/1143
+
+## Dash Table
+### Fixed
+- [#854](https://github.com/plotly/dash-table/pull/854) - part of fixing dash import bug https://github.com/plotly/dash/issues/1143
 
 ## [1.18.1] - 2020-12-09
 

@@ -81,5 +81,22 @@ window.dash_clientside.clientside = {
 
     states_list_to_str: function(val0, val1, st0, st1) {
         return JSON.stringify(dash_clientside.callback_context.states_list);
+    },
+
+    input_output_callback: function(inputValue) {
+        const triggered = dash_clientside.callback_context.triggered;
+        if (triggered.length==0){
+            return inputValue;
+        } else {
+            return inputValue + 1;
+        }
+    },
+
+    input_output_follower: function(inputValue) {
+        if (!window.callCount) {
+            window.callCount = 0
+        }
+        window.callCount += 1;
+        return inputValue.toString();
     }
 };

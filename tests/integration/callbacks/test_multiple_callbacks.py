@@ -305,3 +305,281 @@ def test_cbmt007_early_preventupdate_inputs_above_below(dash_duo):
     # as of https://github.com/plotly/dash/issues/1223, above-out would be 0
     dash_duo.wait_for_text_to_equal("#above-out", "42")
     dash_duo.wait_for_text_to_equal("#below-out", "44")
+
+
+def test_cbmt008_direct_chain(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input-1", value="input 1"),
+            dcc.Input(id="input-2"),
+            html.Div("test", id="output"),
+        ]
+    )
+
+    call_counts = {"output": Value("i", 0), "input-2": Value("i", 0)}
+
+    @app.callback(Output("input-2", "value"), Input("input-1", "value"))
+    def update_input(input1):
+        call_counts["input-2"].value += 1
+        return "<<{}>>".format(input1)
+
+    @app.callback(
+        Output("output", "children"),
+        Input("input-1", "value"),
+        Input("input-2", "value"),
+    )
+    def update_output(input1, input2):
+        call_counts["output"].value += 1
+        return "{} + {}".format(input1, input2)
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#input-1", "input 1")
+    dash_duo.wait_for_text_to_equal("#input-2", "<<input 1>>")
+    dash_duo.wait_for_text_to_equal("#output", "input 1 + <<input 1>>")
+    assert call_counts["output"].value == 1
+    assert call_counts["input-2"].value == 1
+
+    dash_duo.find_element("#input-1").send_keys("x")
+    dash_duo.wait_for_text_to_equal("#input-1", "input 1x")
+    dash_duo.wait_for_text_to_equal("#input-2", "<<input 1x>>")
+    dash_duo.wait_for_text_to_equal("#output", "input 1x + <<input 1x>>")
+    assert call_counts["output"].value == 2
+    assert call_counts["input-2"].value == 2
+
+    dash_duo.find_element("#input-2").send_keys("y")
+    dash_duo.wait_for_text_to_equal("#input-2", "<<input 1x>>y")
+    dash_duo.wait_for_text_to_equal("#output", "input 1x + <<input 1x>>y")
+    dash_duo.wait_for_text_to_equal("#input-1", "input 1x")
+    assert call_counts["output"].value == 3
+    assert call_counts["input-2"].value == 2
+
+
+def test_cbmt009_branched_chain(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(id="grandparent", value="input 1"),
+            dcc.Input(id="parent-a"),
+            dcc.Input(id="parent-b"),
+            html.Div(id="child-a"),
+            html.Div(id="child-b"),
+        ]
+    )
+    call_counts = {
+        "parent-a": Value("i", 0),
+        "parent-b": Value("i", 0),
+        "child-a": Value("i", 0),
+        "child-b": Value("i", 0),
+    }
+
+    @app.callback(Output("parent-a", "value"), Input("grandparent", "value"))
+    def update_parenta(value):
+        call_counts["parent-a"].value += 1
+        return "a: {}".format(value)
+
+    @app.callback(Output("parent-b", "value"), Input("grandparent", "value"))
+    def update_parentb(value):
+        time.sleep(0.2)
+        call_counts["parent-b"].value += 1
+        return "b: {}".format(value)
+
+    @app.callback(
+        Output("child-a", "children"),
+        Input("parent-a", "value"),
+        Input("parent-b", "value"),
+    )
+    def update_childa(parenta_value, parentb_value):
+        time.sleep(0.5)
+        call_counts["child-a"].value += 1
+        return "{} + {}".format(parenta_value, parentb_value)
+
+    @app.callback(
+        Output("child-b", "children"),
+        Input("parent-a", "value"),
+        Input("parent-b", "value"),
+        Input("grandparent", "value"),
+    )
+    def update_childb(parenta_value, parentb_value, grandparent_value):
+        call_counts["child-b"].value += 1
+        return "{} + {} + {}".format(parenta_value, parentb_value, grandparent_value)
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#child-a", "a: input 1 + b: input 1")
+    dash_duo.wait_for_text_to_equal("#child-b", "a: input 1 + b: input 1 + input 1")
+    dash_duo.wait_for_text_to_equal("#parent-a", "a: input 1")
+    dash_duo.wait_for_text_to_equal("#parent-b", "b: input 1")
+    assert call_counts["parent-a"].value == 1
+    assert call_counts["parent-b"].value == 1
+    assert call_counts["child-a"].value == 1
+    assert call_counts["child-b"].value == 1
+
+
+def test_cbmt010_shared_grandparent(dash_duo):
+    app = dash.Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Div("id", id="session-id"),
+            dcc.Dropdown(id="dropdown-1"),
+            dcc.Dropdown(id="dropdown-2"),
+            html.Div(id="output"),
+        ]
+    )
+
+    options = [{"value": "a", "label": "a"}]
+
+    call_counts = {"dropdown_1": Value("i", 0), "dropdown_2": Value("i", 0)}
+
+    @app.callback(
+        Output("dropdown-1", "options"),
+        [Input("dropdown-1", "value"), Input("session-id", "children")],
+    )
+    def dropdown_1(value, session_id):
+        call_counts["dropdown_1"].value += 1
+        return options
+
+    @app.callback(
+        Output("dropdown-2", "options"),
+        Input("dropdown-2", "value"),
+        Input("session-id", "children"),
+    )
+    def dropdown_2(value, session_id):
+        call_counts["dropdown_2"].value += 1
+        return options
+
+    @app.callback(
+        Output("output", "children"),
+        Input("dropdown-1", "value"),
+        Input("dropdown-2", "value"),
+    )
+    def set_output(v1, v2):
+        return (v1 or "b") + (v2 or "b")
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#output", "bb")
+    assert call_counts["dropdown_1"].value == 1
+    assert call_counts["dropdown_2"].value == 1
+
+    assert not dash_duo.get_logs()
+
+
+def test_cbmt011_callbacks_triggered_on_generated_output(dash_duo):
+    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+
+    call_counts = {"tab1": Value("i", 0), "tab2": Value("i", 0)}
+
+    app.layout = html.Div(
+        [
+            dcc.Dropdown(
+                id="outer-controls",
+                options=[{"label": i, "value": i} for i in ["a", "b"]],
+                value="a",
+            ),
+            dcc.RadioItems(
+                options=[
+                    {"label": "Tab 1", "value": 1},
+                    {"label": "Tab 2", "value": 2},
+                ],
+                value=1,
+                id="tabs",
+            ),
+            html.Div(id="tab-output"),
+        ]
+    )
+
+    @app.callback(Output("tab-output", "children"), Input("tabs", "value"))
+    def display_content(value):
+        return html.Div([html.Div(id="tab-{}-output".format(value))])
+
+    @app.callback(Output("tab-1-output", "children"), Input("outer-controls", "value"))
+    def display_tab1_output(value):
+        call_counts["tab1"].value += 1
+        return 'Selected "{}" in tab 1'.format(value)
+
+    @app.callback(Output("tab-2-output", "children"), Input("outer-controls", "value"))
+    def display_tab2_output(value):
+        call_counts["tab2"].value += 1
+        return 'Selected "{}" in tab 2'.format(value)
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#tab-output", 'Selected "a" in tab 1')
+    dash_duo.wait_for_text_to_equal("#tab-1-output", 'Selected "a" in tab 1')
+    assert call_counts["tab1"].value == 1
+    assert call_counts["tab2"].value == 0
+
+    dash_duo.find_elements('input[type="radio"]')[1].click()
+
+    dash_duo.wait_for_text_to_equal("#tab-output", 'Selected "a" in tab 2')
+    dash_duo.wait_for_text_to_equal("#tab-2-output", 'Selected "a" in tab 2')
+    assert call_counts["tab1"].value == 1
+    assert call_counts["tab2"].value == 1
+
+    assert not dash_duo.get_logs()
+
+
+@pytest.mark.parametrize("generate", [False, True])
+def test_cbmt012_initialization_with_overlapping_outputs(generate, dash_duo):
+    app = dash.Dash(__name__, suppress_callback_exceptions=generate)
+    block = html.Div(
+        [
+            html.Div(id="input-1", children="input-1"),
+            html.Div(id="input-2", children="input-2"),
+            html.Div(id="input-3", children="input-3"),
+            html.Div(id="input-4", children="input-4"),
+            html.Div(id="input-5", children="input-5"),
+            html.Div(id="output-1"),
+            html.Div(id="output-2"),
+            html.Div(id="output-3"),
+            html.Div(id="output-4"),
+        ]
+    )
+
+    call_counts = {
+        "container": Value("i", 0),
+        "output-1": Value("i", 0),
+        "output-2": Value("i", 0),
+        "output-3": Value("i", 0),
+        "output-4": Value("i", 0),
+    }
+
+    if generate:
+        app.layout = html.Div([html.Div(id="input"), html.Div(id="container")])
+
+        @app.callback(Output("container", "children"), Input("input", "children"))
+        def set_content(_):
+            call_counts["container"].value += 1
+            return block
+
+    else:
+        app.layout = block
+
+    def generate_callback(outputid):
+        def callback(*args):
+            call_counts[outputid].value += 1
+            return "{}, {}".format(*args)
+
+        return callback
+
+    for i in range(1, 5):
+        outputid = "output-{}".format(i)
+        app.callback(
+            Output(outputid, "children"),
+            Input("input-{}".format(i), "children"),
+            Input("input-{}".format(i + 1), "children"),
+        )(generate_callback(outputid))
+
+    dash_duo.start_server(app)
+
+    for i in range(1, 5):
+        outputid = "output-{}".format(i)
+        dash_duo.wait_for_text_to_equal(
+            "#{}".format(outputid), "input-{}, input-{}".format(i, i + 1)
+        )
+        assert call_counts[outputid].value == 1
+
+    assert call_counts["container"].value == (1 if generate else 0)

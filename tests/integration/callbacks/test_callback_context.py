@@ -154,6 +154,7 @@ def test_cbcx005_grouped_clicks(dash_duo):
         ActionChains(dash_duo.driver).move_to_element_with_offset(
             target, 5, 5
         ).click().perform()
+        dash_duo._wait_for_callbacks()
 
     dash_duo.start_server(app)
     click(dash_duo.find_element("#btn0"))

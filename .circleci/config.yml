@@ -13,7 +13,7 @@ jobs:
 
   artifacts:
     docker:
-      - image: circleci/python:3.7.6-stretch-node-browsers
+      - image: circleci/python:3.7.9-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -33,7 +33,7 @@ jobs:
   lint-unit-37: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7.6-stretch-node-browsers
+      - image: circleci/python:3.7.9-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -73,7 +73,7 @@ jobs:
   lint-unit-36:
       <<: *lint-unit
       docker:
-        - image: circleci/python:3.6.9-stretch-node-browsers
+        - image: circleci/python:3.6.12-stretch-node-browsers
           auth:
             username: dashautomation
             password: $DASH_PAT_DOCKERHUB
@@ -95,7 +95,7 @@ jobs:
   build-core-37: &build-core
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7.6-stretch-node-browsers
+      - image: circleci/python:3.7.9-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -133,7 +133,7 @@ jobs:
   build-core-36:
       <<: *build-core
       docker:
-        - image: circleci/python:3.6.9-stretch-node-browsers
+        - image: circleci/python:3.6.12-stretch-node-browsers
           auth:
             username: dashautomation
             password: $DASH_PAT_DOCKERHUB
@@ -153,7 +153,7 @@ jobs:
   build-misc-37: &build-misc
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7.6-stretch-node-browsers
+      - image: circleci/python:3.7.9-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -192,7 +192,7 @@ jobs:
   build-misc-36:
       <<: *build-misc
       docker:
-        - image: circleci/python:3.6.9-stretch-node-browsers
+        - image: circleci/python:3.6.12-stretch-node-browsers
           auth:
             username: dashautomation
             password: $DASH_PAT_DOCKERHUB
@@ -341,7 +341,7 @@ jobs:
   test-37: &test
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7.6-stretch-node-browsers
+      - image: circleci/python:3.7.9-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -386,7 +386,7 @@ jobs:
   test-36:
       <<: *test
       docker:
-        - image: circleci/python:3.6.9-stretch-node-browsers
+        - image: circleci/python:3.6.12-stretch-node-browsers
           auth:
             username: dashautomation
             password: $DASH_PAT_DOCKERHUB
@@ -409,28 +409,20 @@ workflows:
   version: 2
   python3.7:
     jobs:
-      - lint-unit-37:
-          context: dash-docker-hub
-      - build-core-37:
-          context: dash-docker-hub
-      - build-windows-37:
-          context: dash-docker-hub
-      - build-misc-37:
-          context: dash-docker-hub
-      - build-dashr:
-          context: dash-docker-hub
+      - lint-unit-37
+      - build-core-37
+      - build-windows-37
+      - build-misc-37
+      - build-dashr
       - test-37:
-          context: dash-docker-hub
           requires:
             - build-core-37
             - build-misc-37
       - percy-finalize:
-          context: dash-docker-hub
           requires:
             - build-dashr
             - test-37
       - artifacts:
-          context: dash-docker-hub
           requires:
             - percy-finalize
           filters:
@@ -443,27 +435,19 @@ workflows:
 
   python3.6:
     jobs:
-      - lint-unit-36:
-          context: dash-docker-hub
-      - build-core-36:
-          context: dash-docker-hub
-      - build-misc-36:
-          context: dash-docker-hub
+      - lint-unit-36
+      - build-core-36
+      - build-misc-36
       - test-36:
-          context: dash-docker-hub
           requires:
             - build-core-36
             - build-misc-36
   python2.7:
     jobs:
-      - lint-unit-27:
-          context: dash-docker-hub
-      - build-core-27:
-          context: dash-docker-hub
-      - build-misc-27:
-          context: dash-docker-hub
+      - lint-unit-27
+      - build-core-27
+      - build-misc-27
       - test-27:
-          context: dash-docker-hub
           requires:
             - build-core-27
             - build-misc-27

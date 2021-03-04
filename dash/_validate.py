@@ -1,5 +1,6 @@
 import collections
 import re
+from textwrap import dedent
 
 from .development.base_component import Component
 from . import exceptions
@@ -15,26 +16,26 @@ def validate_callback(output, inputs, state, extra_args, types):
     if extra_args:
         if not isinstance(extra_args[0], (Output, Input, State)):
             raise exceptions.IncorrectTypeException(
-                """
-                Callback arguments must be `Output`, `Input`, or `State` objects,
-                optionally wrapped in a list or tuple. We found (possibly after
-                unwrapping a list or tuple):
-                {}
-                """.format(
-                    repr(extra_args[0])
-                )
+                dedent(
+                    """
+                    Callback arguments must be `Output`, `Input`, or `State` objects,
+                    optionally wrapped in a list or tuple. We found (possibly after
+                    unwrapping a list or tuple):
+                    {}
+                    """
+                ).format(repr(extra_args[0]))
             )
 
         raise exceptions.IncorrectTypeException(
-            """
-            In a callback definition, you must provide all Outputs first,
-            then all Inputs, then all States. After this item:
-            {}
-            we found this item next:
-            {}
-            """.format(
-                repr((outputs + inputs + state)[-1]), repr(extra_args[0])
-            )
+            dedent(
+                """
+                In a callback definition, you must provide all Outputs first,
+                then all Inputs, then all States. After this item:
+                {}
+                we found this item next:
+                {}
+                """
+            ).format(repr((outputs + inputs + state)[-1]), repr(extra_args[0]))
         )
 
     for args in [outputs, inputs, state]:
@@ -45,11 +46,11 @@ def validate_callback(output, inputs, state, extra_args, types):
 def validate_callback_arg(arg):
     if not isinstance(getattr(arg, "component_property", None), _strings):
         raise exceptions.IncorrectTypeException(
-            """
-            component_property must be a string, found {!r}
-            """.format(
-                arg.component_property
-            )
+            dedent(
+                """
+                component_property must be a string, found {!r}
+                """
+            ).format(arg.component_property)
         )
 
     if hasattr(arg, "component_event"):
@@ -68,11 +69,11 @@ def validate_callback_arg(arg):
 
     else:
         raise exceptions.IncorrectTypeException(
-            """
-            component_id must be a string or dict, found {!r}
-            """.format(
-                arg.component_id
-            )
+            dedent(
+                """
+                component_id must be a string or dict, found {!r}
+                """
+            ).format(arg.component_id)
         )
 
 
@@ -85,12 +86,12 @@ def validate_id_dict(arg):
         # cause unwanted collisions
         if not isinstance(k, _strings):
             raise exceptions.IncorrectTypeException(
-                """
-                Wildcard ID keys must be non-empty strings,
-                found {!r} in id {!r}
-                """.format(
-                    k, arg_id
-                )
+                dedent(
+                    """
+                    Wildcard ID keys must be non-empty strings,
+                    found {!r} in id {!r}
+                    """
+                ).format(k, arg_id)
             )
 
 
@@ -110,16 +111,36 @@ def validate_id_string(arg):
         )
 
 
+def validate_output_spec(output, output_spec, Output):
+    """
+    This validation is for security and internal debugging, not for users,
+    so the messages are not intended to be clear.
+    `output` comes from the callback definition, `output_spec` from the request.
+    """
+    if not isinstance(output, (list, tuple)):
+        output, output_spec = [output], [output_spec]
+    elif len(output) != len(output_spec):
+        raise exceptions.CallbackException("Wrong length output_spec")
+
+    for outi, speci in zip(output, output_spec):
+        speci_list = speci if isinstance(speci, (list, tuple)) else [speci]
+        for specij in speci_list:
+            if not Output(specij["id"], specij["property"]) == outi:
+                raise exceptions.CallbackException(
+                    "Output does not match callback definition"
+                )
+
+
 def validate_multi_return(outputs_list, output_value, callback_id):
     if not isinstance(output_value, (list, tuple)):
         raise exceptions.InvalidCallbackReturnValue(
-            """
-            The callback {} is a multi-output.
-            Expected the output type to be a list or tuple but got:
-            {}.
-            """.format(
-                callback_id, repr(output_value)
-            )
+            dedent(
+                """
+                The callback {} is a multi-output.
+                Expected the output type to be a list or tuple but got:
+                {}.
+                """
+            ).format(callback_id, repr(output_value))
         )
 
     if len(output_value) != len(outputs_list):
@@ -137,26 +158,26 @@ def validate_multi_return(outputs_list, output_value, callback_id):
             vi = output_value[i]
             if not isinstance(vi, (list, tuple)):
                 raise exceptions.InvalidCallbackReturnValue(
-                    """
-                    The callback {} output {} is a wildcard multi-output.
-                    Expected the output type to be a list or tuple but got:
-                    {}.
-                    output spec: {}
-                    """.format(
-                        callback_id, i, repr(vi), repr(outi)
-                    )
+                    dedent(
+                        """
+                        The callback {} output {} is a wildcard multi-output.
+                        Expected the output type to be a list or tuple but got:
+                        {}.
+                        output spec: {}
+                        """
+                    ).format(callback_id, i, repr(vi), repr(outi))
                 )
 
             if len(vi) != len(outi):
                 raise exceptions.InvalidCallbackReturnValue(
-                    """
-                    Invalid number of output values for {} item {}.
-                    Expected {}, got {}
-                    output spec: {}
-                    output value: {}
-                    """.format(
-                        callback_id, i, len(vi), len(outi), repr(outi), repr(vi)
-                    )
+                    dedent(
+                        """
+                        Invalid number of output values for {} item {}.
+                        Expected {}, got {}
+                        output spec: {}
+                        output value: {}
+                        """
+                    ).format(callback_id, i, len(vi), len(outi), repr(outi), repr(vi))
                 )
 
 
@@ -170,34 +191,38 @@ def fail_callback_output(output_value, output):
         )
         outer_type = type(outer_val).__name__
         if toplevel:
-            location = """
-            The value in question is either the only value returned,
-            or is in the top level of the returned list,
-            """
+            location = dedent(
+                """
+                The value in question is either the only value returned,
+                or is in the top level of the returned list,
+                """
+            )
         else:
             index_string = "[*]" if index is None else "[{:d}]".format(index)
-            location = """
-            The value in question is located at
-            {} {} {}
-            {},
-            """.format(
-                index_string, outer_type, outer_id, path
-            )
+            location = dedent(
+                """
+                The value in question is located at
+                {} {} {}
+                {},
+                """
+            ).format(index_string, outer_type, outer_id, path)
 
         raise exceptions.InvalidCallbackReturnValue(
-            """
-            The callback for `{output}`
-            returned a {object:s} having type `{type}`
-            which is not JSON serializable.
+            dedent(
+                """
+                The callback for `{output}`
+                returned a {object:s} having type `{type}`
+                which is not JSON serializable.
 
-            {location}
-            and has string representation
-            `{bad_val}`
+                {location}
+                and has string representation
+                `{bad_val}`
 
-            In general, Dash properties can only be
-            dash components, strings, dictionaries, numbers, None,
-            or lists of those.
-            """.format(
+                In general, Dash properties can only be
+                dash components, strings, dictionaries, numbers, None,
+                or lists of those.
+                """
+            ).format(
                 output=repr(output),
                 object="tree with one value" if not toplevel else "value",
                 type=bad_type,

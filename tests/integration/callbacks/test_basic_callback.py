@@ -1,6 +1,7 @@
 import json
 from multiprocessing import Lock, Value
 import pytest
+import time
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -449,3 +450,249 @@ def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
     wait.until(
         lambda: dash_duo.find_element("#output").text == '[1, 2, "A"]', 3,
     )
+
+
+def test_cbsc010_event_properties(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div([html.Button("Click Me", id="button"), html.Div(id="output")])
+
+    call_count = Value("i", 0)
+
+    @app.callback(Output("output", "children"), [Input("button", "n_clicks")])
+    def update_output(n_clicks):
+        if not n_clicks:
+            raise PreventUpdate
+        call_count.value += 1
+        return "Click"
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#output", "")
+    assert call_count.value == 0
+
+    dash_duo.find_element("#button").click()
+    dash_duo.wait_for_text_to_equal("#output", "Click")
+    assert call_count.value == 1
+
+
+def test_cbsc011_one_call_for_multiple_outputs_initial(dash_duo):
+    app = dash.Dash(__name__)
+    call_count = Value("i", 0)
+
+    app.layout = html.Div(
+        [
+            html.Div(
+                [
+                    dcc.Input(value="Input {}".format(i), id="input-{}".format(i))
+                    for i in range(10)
+                ]
+            ),
+            html.Div(id="container"),
+            dcc.RadioItems(),
+        ]
+    )
+
+    @app.callback(
+        Output("container", "children"),
+        [Input("input-{}".format(i), "value") for i in range(10)],
+    )
+    def dynamic_output(*args):
+        call_count.value += 1
+        return json.dumps(args, indent=2)
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#input-9", "Input 9")
+
+    assert call_count.value == 1
+    dash_duo.percy_snapshot("test_rendering_layout_calls_callback_once_per_output")
+
+
+def test_cbsc012_one_call_for_multiple_outputs_update(dash_duo):
+    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    call_count = Value("i", 0)
+
+    app.layout = html.Div(
+        [
+            html.Button(id="display-content", children="Display Content"),
+            html.Div(id="container"),
+            dcc.RadioItems(),
+        ]
+    )
+
+    @app.callback(Output("container", "children"), Input("display-content", "n_clicks"))
+    def display_output(n_clicks):
+        if not n_clicks:
+            return ""
+        return html.Div(
+            [
+                html.Div(
+                    [
+                        dcc.Input(value="Input {}".format(i), id="input-{}".format(i))
+                        for i in range(10)
+                    ]
+                ),
+                html.Div(id="dynamic-output"),
+            ]
+        )
+
+    @app.callback(
+        Output("dynamic-output", "children"),
+        [Input("input-{}".format(i), "value") for i in range(10)],
+    )
+    def dynamic_output(*args):
+        call_count.value += 1
+        return json.dumps(args, indent=2)
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#display-content").click()
+
+    dash_duo.wait_for_text_to_equal("#input-9", "Input 9")
+    assert call_count.value == 1
+
+    dash_duo.percy_snapshot("test_rendering_new_content_calls_callback_once_per_output")
+
+
+def test_cbsc013_multi_output_out_of_order(dash_duo):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(id="input", n_clicks=0),
+            html.Div(id="output1"),
+            html.Div(id="output2"),
+        ]
+    )
+
+    call_count = Value("i", 0)
+    lock = Lock()
+
+    @app.callback(
+        Output("output1", "children"),
+        Output("output2", "children"),
+        Input("input", "n_clicks"),
+    )
+    def update_output(n_clicks):
+        call_count.value += 1
+        if n_clicks == 1:
+            with lock:
+                pass
+        return n_clicks, n_clicks + 1
+
+    dash_duo.start_server(app)
+
+    button = dash_duo.find_element("#input")
+    with lock:
+        button.click()
+        button.click()
+
+    dash_duo.wait_for_text_to_equal("#output1", "2")
+    dash_duo.wait_for_text_to_equal("#output2", "3")
+    assert call_count.value == 3
+    dash_duo.percy_snapshot(
+        "test_callbacks_called_multiple_times_and_out_of_order_multi_output"
+    )
+    assert dash_duo.driver.execute_script("return !window.store.getState().isLoading;")
+
+
+def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_duo):
+    call_count = Value("i", 0)
+    timestamp_1 = Value("d", -5)
+    timestamp_2 = Value("d", -5)
+
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(id="container"),
+            html.Button("Click", id="button-1", n_clicks=0, n_clicks_timestamp=-1),
+            html.Button("Click", id="button-2", n_clicks=0, n_clicks_timestamp=-1),
+        ]
+    )
+
+    @app.callback(
+        Output("container", "children"),
+        Input("button-1", "n_clicks"),
+        Input("button-1", "n_clicks_timestamp"),
+        Input("button-2", "n_clicks"),
+        Input("button-2", "n_clicks_timestamp"),
+    )
+    def update_output(n1, t1, n2, t2):
+        call_count.value += 1
+        timestamp_1.value = t1
+        timestamp_2.value = t2
+        return "{}, {}".format(n1, n2)
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#container", "0, 0")
+    assert timestamp_1.value == -1
+    assert timestamp_2.value == -1
+    assert call_count.value == 1
+    dash_duo.percy_snapshot("button initialization 1")
+
+    dash_duo.find_element("#button-1").click()
+    dash_duo.wait_for_text_to_equal("#container", "1, 0")
+    assert timestamp_1.value > ((time.time() - (24 * 60 * 60)) * 1000)
+    assert timestamp_2.value == -1
+    assert call_count.value == 2
+    dash_duo.percy_snapshot("button-1 click")
+    prev_timestamp_1 = timestamp_1.value
+
+    dash_duo.find_element("#button-2").click()
+    dash_duo.wait_for_text_to_equal("#container", "1, 1")
+    assert timestamp_1.value == prev_timestamp_1
+    assert timestamp_2.value > ((time.time() - 24 * 60 * 60) * 1000)
+    assert call_count.value == 3
+    dash_duo.percy_snapshot("button-2 click")
+    prev_timestamp_2 = timestamp_2.value
+
+    dash_duo.find_element("#button-2").click()
+    dash_duo.wait_for_text_to_equal("#container", "1, 2")
+    assert timestamp_1.value == prev_timestamp_1
+    assert timestamp_2.value > prev_timestamp_2
+    assert timestamp_2.value > timestamp_1.value
+    assert call_count.value == 4
+    dash_duo.percy_snapshot("button-2 click again")
+
+
+def test_cbsc015_input_output_callback(dash_duo):
+    lock = Lock()
+
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [html.Div("0", id="input-text"), dcc.Input(id="input", type="number", value=0)]
+    )
+
+    @app.callback(
+        Output("input", "value"), Input("input", "value"),
+    )
+    def circular_output(v):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            value = v
+        else:
+            value = v + 1
+        return value
+
+    call_count = Value("i", 0)
+
+    @app.callback(
+        Output("input-text", "children"), Input("input", "value"),
+    )
+    def follower_output(v):
+        with lock:
+            call_count.value = call_count.value + 1
+            return str(v)
+
+    dash_duo.start_server(app)
+
+    input_ = dash_duo.find_element("#input")
+    for key in "2":
+        with lock:
+            input_.send_keys(key)
+
+    wait.until(lambda: dash_duo.find_element("#input-text").text == "3", 2)
+
+    assert call_count.value == 2, "initial + changed once"
+
+    assert not dash_duo.redux_state_is_loading
+
+    assert dash_duo.get_logs() == []

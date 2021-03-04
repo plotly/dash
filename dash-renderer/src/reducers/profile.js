@@ -28,7 +28,7 @@ const defaultState = {
 const profile = (state = defaultState, action) => {
     if (action.type === 'UPDATE_RESOURCE_USAGE') {
         // Keep a record of the most recent change. This
-        // is subtly different from history.present becasue
+        // is subtly different from history.present because
         // it watches all props, not just inputs.
         const {id, usage, status} = action.payload;
         const statusMapped = STATUSMAP[status] || status;
