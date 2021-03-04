@@ -172,7 +172,7 @@ def get_jl_prop_types(type_object):
             )
         ),
         # React's PropTypes.objectOf
-        objectOf=lambda: ("Dict with Strings as keys and values of type {}").format(
+        objectOf=lambda: "Dict with Strings as keys and values of type {}".format(
             get_jl_type(type_object["value"])
         ),
         # React's PropTypes.shape
@@ -265,7 +265,7 @@ def create_docstring_jl(component_name, props, description):
     # Ensure props are ordered with children first
     props = reorder_props(props=props)
 
-    return ("A{n} {name} component.\n{description}\nKeyword arguments:\n{args}").format(
+    return "A{n} {name} component.\n{description}\nKeyword arguments:\n{args}".format(
         n="n" if component_name[0].lower() in "aeiou" else "",
         name=component_name,
         description=description,
