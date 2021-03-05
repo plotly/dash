@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## UNRELEASED
 
 ### Changed
-- [#1531](https://github.com/plotly/dash/pull/1531) Update the format of the docstrings to make them easier to read in the reference pages of Dash Docs and in the console.  This also addresses [#1205](https://github.com/plotly/dash/issues/1205)
+- [#1531](https://github.com/plotly/dash/pull/1531) Update the format of the docstrings to make them easier to read in the reference pages of Dash Docs and in the console. This also addresses [#1205](https://github.com/plotly/dash/issues/1205)
 - [#1553](https://github.com/plotly/dash/pull/1553) Increase the z-index of the Dash error menu from 1001 to 1100 in order to make sure it appears above Bootstrap components.
 
 ### Fixed
@@ -24,7 +24,7 @@ to close the error messages box.
 
 ### Fixed
 - [#1530](https://github.com/plotly/dash/pull/1530) Dedent error messages more carefully.
-- [#1527](https://github.com/plotly/dash/issues/1527)🐛 `get_asset_url` now pulls from an external source if `assets_external_path` is set.
+- [#1527](https://github.com/plotly/dash/issues/1527) 🐛 `get_asset_url` now pulls from an external source if `assets_external_path` is set.
   - updated `_add_assets_resource` to build asset urls the same way as `get_asset_url`.
   - updated doc string for `assets_external_path` Dash argument to be more clear that it will allways be joined with the `assets_url_path` argument when determining the url to an external asset.
 - [#1493](https://github.com/plotly/dash/pull/1493) Fix [#1143](https://github.com/plotly/dash/issues/1143), a bug where having a file with one of several common names (test.py, code.py, org.py, etc) that imports a dash component package would make `import dash` fail with a cryptic error message asking whether you have a file named "dash.py"
@@ -359,7 +359,7 @@ clientside JavaScript callbacks via inline strings.
 
 - [#724](https://github.com/plotly/dash/pull/724), [renderer#175](https://github.com/plotly/dash-renderer/pull/175) Undo/redo toolbar is removed by default, you can enable it with `app=Dash(show_undo_redo=true)`. The CSS hack `._dash-undo-redo:{display:none;}` is no longer needed
 
-- 💥[#709](https://github.com/plotly/dash/pull/709) Merge the `dash-renderer` project into the main dash repo to simplify feature dev workflow. We will keep the [deprecated one](https://github.com/plotly/dash-renderer) for archive purpose.
+- 💥 [#709](https://github.com/plotly/dash/pull/709) Merge the `dash-renderer` project into the main dash repo to simplify feature dev workflow. We will keep the [deprecated one](https://github.com/plotly/dash-renderer) for archive purpose.
 
 ## [0.43.0] - 2019-05-15
 ### Changed

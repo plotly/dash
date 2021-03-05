@@ -32,7 +32,7 @@ $ pip list | grep dash
 
 ### Dash-Renderer Beginner Guide
 
-`Dash Renderer` began as a separate repository. It was merged into the main  `Dash` repository as part of the 1.0 release. It is the common frontend for all Dash backends (**R** and **Python**), and manages React Component layout and backend event handling.
+`Dash Renderer` began as a separate repository. It was merged into the main `Dash` repository as part of the 1.0 release. It is the common frontend for all Dash backends (**R** and **Python**), and manages React Component layout and backend event handling.
 
 If you want to contribute or simply dig deeper into Dash, we encourage you to play and taste it. This is the most efficient way to learn and understand everything under the hood.
 
