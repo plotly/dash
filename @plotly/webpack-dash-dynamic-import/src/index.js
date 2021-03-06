@@ -1,4 +1,5 @@
 const fs = require('fs');
+const webpack = require('webpack');
 
 function getFingerprint() {
     const package = fs.readFileSync('./package.json');
@@ -78,10 +79,11 @@ class WebpackDashDynamicImport {
     apply(compiler) {
         compiler.hooks.compilation.tap('WebpackDashDynamicImport', compilation => {
             compilation.mainTemplate.hooks.requireExtensions.tap('WebpackDashDynamicImport > RequireExtensions', (source, chunk, hash) => {
-                return [
-                    source,
-                    resolveImportSource()
-                ]
+                if (/^5[.]/.test(webpack.version)) {
+                    return source + resolveImportSource();
+                } else {
+                    return [source, resolveImportSource()];
+                }
             });
         });
     }
