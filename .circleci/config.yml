@@ -312,7 +312,7 @@ jobs:
       - run:
           name: 🔎 run unit tests
           command: |
-              # unfortunately test that does not and will not support returning a status
+              # unfortunately testthat does not and will not support returning a status
               # code other than success, even when tests fail -- this is a workaround
               sudo Rscript -e 'res=devtools::test("dashR/tests/", reporter=default_reporter());df=as.data.frame(res);if(sum(df$failed) > 0 || any(df$error)) {q(status=1)}'
 
