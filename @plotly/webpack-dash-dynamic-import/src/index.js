@@ -79,11 +79,7 @@ class WebpackDashDynamicImport {
     apply(compiler) {
         compiler.hooks.compilation.tap('WebpackDashDynamicImport', compilation => {
             compilation.mainTemplate.hooks.requireExtensions.tap('WebpackDashDynamicImport > RequireExtensions', (source, chunk, hash) => {
-                if (/^5[.]/.test(webpack.version)) {
-                    return source + resolveImportSource();
-                } else {
-                    return [source, resolveImportSource()];
-                }
+                return source + resolveImportSource();
             });
         });
     }
