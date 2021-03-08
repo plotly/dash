@@ -1,5 +1,4 @@
 const fs = require('fs');
-const webpack = require('webpack');
 
 function getFingerprint() {
     const package = fs.readFileSync('./package.json');
