@@ -1053,6 +1053,29 @@ class Dash(object):
 
         return wrap_func
 
+
+    class callback_dict(dict):
+        @classmethod
+        def _property_to_key(cls, prop):
+            """Converts the property to our key format for dictionaries"""
+            if type(prop['id']) == dict:
+                return (frozenset(prop['id'].items()),prop['property'])
+            else:
+                return f"{prop['id']}.{prop['property']}"
+
+        def pget(self, key=None, property=None, **kwargs):
+            if not key:
+                key=kwargs
+            return self[self._property_to_key(dict(id=key, property=property))]
+            
+        def pset(self, key=None, property=None, value=None, **kwargs):
+            if not key:
+                key=kwargs
+            self[self._property_to_key(dict(id=key, property=property))]=value
+
+        def pkeys(self):
+            return [(dict(k[0]), k[1]) for k in self.keys() if isinstance(k, tuple)]
+        
     def dict_callback(self, *_args, **_kwargs):
         """
         Normally used as a decorator, `@app.dict_callback` provides a server-side
@@ -1092,24 +1115,8 @@ class Dash(object):
         # Helper Functions
         #
 
-        def property_to_key(prop):
-            """Converts the property to our key format for dictionaries"""
-            if type(prop['id']) == dict:
-                return f"{frozenset(prop['id'].items())}.{prop['property']}"
-            else:
-                return f"{prop['id']}.{prop['property']}"
-
-        class callback_dict(dict):
-            def pget(self, key=None, property=None, **kwargs):
-                if not key:
-                    key=kwargs
-                return self[property_to_key(dict(id=key, property=property))]
-            
-            def pset(self, key=None, property=None, value=None, **kwargs):
-                if not key:
-                    key=kwargs
-                self[property_to_key(dict(id=key, property=property))]=value
-                
+        property_to_key = self.callback_dict._property_to_key # Prevent defining twice
+        
         def to_dict(in_, prop_list, recurse=True):
             """
             Maps an values input list to a dict based on the list of properties.
@@ -1117,7 +1124,7 @@ class Dash(object):
             """
             if len(in_) != len(prop_list):
                 raise ValueError("List must have the same number of elements as keys")
-            out_dict = callback_dict()
+            out_dict = self.callback_dict()
             for prop, value in zip(prop_list, in_):
                 if isinstance(prop, (list, tuple)) and recurse:
                     out_dict.update(to_dict(value, prop, recurse=False))
