@@ -1055,6 +1055,31 @@ class Dash(object):
 
 
     class callback_dict(dict):
+        """
+        This class is a convenience class to work with dict_callback. It extends the
+        builtin dict class by adding three methods that can be used to more easily
+        interact with pattern matching component ids.
+
+        The private method _property_key_key converts an id/property dict to
+        our internal dict label. String id components have their property are
+        mapped to 'id.property' while pattern matched id's are flattened using
+        frozenset which guarantees the id dict will map to the same immutable object
+        regardless of the order of the keys. We use the hashable tuple
+        (frozenset, property) as the key. This mapping is centralize here.
+
+        The method pget is intended to be used with pattern matched components
+        but can be used with string id components. It can be accessed in two ways
+        the id can be supplied with the property or as long as there isn't a name
+        collision with the named parameters, the id components can be supplied by
+        themselves. For example, input.pget({type: 'btn', index: 1}, 'n_clicks')
+        or input.pget(type='btn', index=1, property='n_clicks') can be used.
+
+        The method pset is also mainly a pattern matched component convenience.
+        It sets a value in the dictionary. And has two modes of operation similar to pget.
+
+        Finally, pkeys unpacks all the pattern matched id/property into tuples of
+        ids and properties. But only lists the pattern matched component ids.
+        """
         @classmethod
         def _property_to_key(cls, prop):
             """Converts the property to our key format for dictionaries"""
@@ -1063,10 +1088,10 @@ class Dash(object):
             else:
                 return f"{prop['id']}.{prop['property']}"
 
-        def pget(self, key=None, property=None, **kwargs):
-            if not key:
-                key=kwargs
-            return self[self._property_to_key(dict(id=key, property=property))]
+        def pget(self, id_=None, property=None, **kwargs):
+            if not id_:
+                id_=kwargs
+            return self[self._property_to_key(dict(id=id_, property=property))]
             
         def pset(self, key=None, property=None, value=None, **kwargs):
             if not key:
@@ -1115,7 +1140,9 @@ class Dash(object):
         # Helper Functions
         #
 
-        property_to_key = self.callback_dict._property_to_key # Prevent defining twice
+        # property_to_key is defined in the callback_dict class. Rather than
+        # making two copies we refer to the original for maintainablility
+        property_to_key = self.callback_dict._property_to_key
         
         def to_dict(in_, prop_list, recurse=True):
             """
