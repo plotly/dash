@@ -35,7 +35,7 @@ export function updateSelectedNode(cy, id) {
         node.addClass('selected-node');
 
         // Find the subtree that the node belongs to. A subtree contains
-        // all all ancestors and descendents that are connected via Inputs
+        // all all ancestors and descendants that are connected via Inputs
         // or Outputs (but not State).
 
         // WARNING: No cycle detection!

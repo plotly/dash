@@ -35,9 +35,9 @@ With Dash Open Source, Dash apps run on your local laptop or workstation, but ca
 
 Scale up with Dash Enterprise when your Dash app is ready for department or company-wide consumption. Or, launch your initiative with Dash Enterprise from the start to unlock developer productivity gains and hands-on acceleration from Plotly's team.
 
-ML Ops Features: A one-stop shop for ML Ops: Horizontally scalable hosting, deployment, and authentication for your Dash apps. No IT or DevOps required. 
+ML Ops Features: A one-stop shop for ML Ops: Horizontally scalable hosting, deployment, and authentication for your Dash apps. No IT or DevOps required.
 - [**App manager**](https://plotly.com/dash/app-manager/) Deploy & manage Dash apps without needing IT or a DevOps team. App Manager gives you point & click control over all aspects of your Dash deployments.
-- [**Kubernetes scaling**](https://plotly.com/dash/kubernetes/) Ensure high availability of Dash apps and scale horizontally with Dash Enterprise’s Kubernetes architecture. No IT or Helm required. 
+- [**Kubernetes scaling**](https://plotly.com/dash/kubernetes/) Ensure high availability of Dash apps and scale horizontally with Dash Enterprise’s Kubernetes architecture. No IT or Helm required.
 - [**No code auth**](https://plotly.com/dash/authentication/) Control Dash app access in a few clicks. Dash Enterprise supports LDAP, AD, PKI, Okta, SAML, OpenID Connect, OAuth, SSO, and simple email authentication.
 - [**Job Queue**](https://plotly.com/dash/job-queue/) The Job Queue is the key to building scalable Dash apps. Move heavy computation from synchronous Dash callbacks to the Job Queue for asynchronous background processing.
 
@@ -52,7 +52,6 @@ Enterprise AI Features: Everything that your data science team needs to rapidly 
 - [**Big Data for Pything**](https://plotly.com/dash/big-data-for-python/) Connect to Python's most popular big data back ends: Dask, Databricks, NVIDIA RAPIDS, Snowflake, Postgres, Vaex, and more.
 - [**GPU & Dask Acceleration**](https://plotly.com/dash/gpu-dask-acceleration/) Dash Enterprise puts Python’s most popular HPC stack for GPU and parallel CPU computing in the hands of business users.
 - [**Data Science Workspaces**](https://plotly.com/dash/workspaces/) Be productive from Day 1. Write and execute Python, R, & Julia code from Dash Enterprise's onboard code editor.
-
 
 See [https://plotly.com/contact-us/](https://plotly.com/contact-us/) to get in touch.
 
