@@ -24,6 +24,13 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
                 children=[
                     dcc.Tab(label="Tab One", value="tab-1-example", id="tab-1"),
                     dcc.Tab(label="Tab Two", value="tab-2-example", id="tab-2"),
+                    dcc.Tab(
+                        label="Tab Three",
+                        value="tab-3-example",
+                        id="tab-3",
+                        disabled=True,
+                        disabled_className="disabled-tab",
+                    ),
                 ],
             ),
             html.Div(id="tabs-content-example"),
@@ -63,6 +70,9 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
 
     tab_one = dash_dcc.wait_for_element("#tab-1")
     tab_two = dash_dcc.wait_for_element("#tab-2")
+
+    # wait for disabled tab with custom className
+    dash_dcc.wait_for_element("#tab-3.disabled-tab")
 
     WebDriverWait(dash_dcc.driver, 10).until(
         EC.element_to_be_clickable((By.ID, "tab-2"))

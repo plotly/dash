@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - [#930](https://github.com/plotly/dash-core-components/pull/930) Fixed a bug [#867](https://github.com/plotly/dash-core-components/issues/867) with `DatePickerRange` that would sometimes shift the allowed dates by one day.
+- [#934](https://github.com/plotly/dash-core-components/pull/934) Fixed a bug in `EnhancedTab` component that ignored `disabled_className` property
 
 ## [1.15.0] - 2021-01-19
 ### Fixed

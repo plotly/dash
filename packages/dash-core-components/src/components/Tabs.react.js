@@ -218,7 +218,7 @@ export default class Tabs extends Component {
                         value={childProps.value}
                         disabled={childProps.disabled}
                         disabled_style={childProps.disabled_style}
-                        disabled_classname={childProps.disabled_className}
+                        disabled_className={childProps.disabled_className}
                         mobile_breakpoint={this.props.mobile_breakpoint}
                         vertical={this.props.vertical}
                         amountOfTabs={amountOfTabs}
