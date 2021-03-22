@@ -7,7 +7,7 @@ interface IAccumulator {
     count: number;
 }
 
-function renderFragment(cells: any[][] | null, offset: number = 0) {
+function renderFragment(cells: any[][] | null, offset = 0) {
     return cells ? (
         <table className='cell-table' tabIndex={-1}>
             <tbody>

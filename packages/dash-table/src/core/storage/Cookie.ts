@@ -22,7 +22,7 @@ export default class CookieStorage {
         }
     });
 
-    public static delete(id: string, domain: string = '', path: string = '/') {
+    public static delete(id: string, domain = '', path = '/') {
         if (!CookieStorage.enabled()) {
             return;
         }
@@ -58,12 +58,7 @@ export default class CookieStorage {
         ).value;
     }
 
-    public static set(
-        id: string,
-        value: string,
-        domain: string = '',
-        path: string = '/'
-    ) {
+    public static set(id: string, value: string, domain = '', path = '/') {
         if (!CookieStorage.enabled()) {
             return;
         }

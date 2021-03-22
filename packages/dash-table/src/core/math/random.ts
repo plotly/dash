@@ -1,5 +1,5 @@
 export default (seed: number | undefined = undefined) => {
-    let lcg = (a: number) => (a * 48271) % 2147483647;
+    const lcg = (a: number) => (a * 48271) % 2147483647;
 
     let safeSeed = seed !== undefined ? lcg(seed) : lcg(Math.random());
 

@@ -17,17 +17,17 @@ export default (
     columns_: Columns,
     visibleColumns: Columns,
     data: Data,
-    overflowColumns: boolean = true,
-    overflowRows: boolean = true
+    overflowColumns = true,
+    overflowRows = true
 ): {data: Data; columns: Columns} | void => {
     if (!overflowRows) {
         Logger.debug(
-            `Clipboard -- Sorting or filtering active, do not create new rows`
+            'Clipboard -- Sorting or filtering active, do not create new rows'
         );
     }
 
     if (!overflowColumns) {
-        Logger.debug(`Clipboard -- Do not create new columns`);
+        Logger.debug('Clipboard -- Do not create new columns');
     }
 
     // don't modify the data and columns directly -- we may abort the paste

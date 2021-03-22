@@ -25,7 +25,6 @@ module.exports = (options = {}) => {
         mode: mode,
         output: {
             path: path.resolve(__dirname, `./../../${dashLibraryName}`),
-            chunkFilename: '[name].js',
             filename: '[name].js',
             library: dashLibraryName,
             libraryTarget: 'window'
@@ -40,7 +39,10 @@ module.exports = (options = {}) => {
             rules: [
                 {
                     test: /demo[\\\/]index.html?$/,
-                    loader: 'file-loader?name=index.[ext]'
+                    loader: 'file-loader',
+                    options: {
+                        name: 'index.[ext]'
+                    }
                 },
                 {
                     test: /\.csv$/,
@@ -48,7 +50,7 @@ module.exports = (options = {}) => {
                 },
                 {
                     test: /\.ts(x?)$/,
-                    include: /node_modules[\\\/](highlight[.]js)[\\\/]/,
+                    include: /node_modules[\\\/](highlight[.]js|d3-format)[\\\/]/,
                     use: [
                         { loader: 'babel-loader', options: babel },
                         { loader: 'ts-loader', options: ts },
@@ -65,7 +67,7 @@ module.exports = (options = {}) => {
                 },
                 {
                     test: /\.js$/,
-                    include: /node_modules[\\\/](highlight[.]js)[\\\/]/,
+                    include: /node_modules[\\\/](highlight[.]js|d3-format)[\\\/]/,
                     use: [
                         { loader: 'babel-loader', options: babel }
                     ]
@@ -97,7 +99,6 @@ module.exports = (options = {}) => {
         },
         resolve: {
             alias: {
-                cypress: path.resolve('./tests/cypress/src'),
                 'dash-table': path.resolve('./src/dash-table'),
                 demo: path.resolve('./demo'),
                 core: path.resolve('./src/core'),
@@ -108,7 +109,7 @@ module.exports = (options = {}) => {
         optimization: {
             splitChunks: {
                 chunks: 'async',
-                name: true,
+                name: '[name].js',
                 cacheGroups: {
                     async: {
                         chunks: 'async',

@@ -80,8 +80,8 @@ export default class TableClipboardHelper {
         columns: Columns,
         visibleColumns: Columns,
         data: Data,
-        overflowColumns: boolean = true,
-        overflowRows: boolean = true,
+        overflowColumns = true,
+        overflowRows = true,
         includeHeaders: boolean
     ): {data: Data; columns: Columns} | void {
         const text = Clipboard.get(ev);

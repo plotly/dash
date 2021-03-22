@@ -36,7 +36,7 @@ export default class Markdown {
     private static hljsResolve: () => any;
     private static _isReady: Promise<boolean> | true = new Promise<boolean>(
         resolve => {
-            Markdown.hljsResolve = resolve;
+            Markdown.hljsResolve = resolve as any;
         }
     );
 

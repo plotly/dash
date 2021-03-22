@@ -1,5 +1,7 @@
 import dash
 
+from utils import read_write_modes
+
 from dash_table import DataTable
 
 from selenium.webdriver.common.keys import Keys
@@ -13,10 +15,10 @@ rawDf = pd.read_csv(url)
 df = rawDf.to_dict("records")
 
 
-def get_app():
+def get_app(props=dict()):
     app = dash.Dash(__name__)
 
-    app.layout = DataTable(
+    baseProps = dict(
         id="table",
         columns=[{"name": i, "id": i} for i in rawDf.columns],
         data=df,
@@ -30,11 +32,16 @@ def get_app():
         sort_action="native",
     )
 
+    baseProps.update(props)
+
+    app.layout = DataTable(**baseProps)
+
     return app
 
 
-def test_tbst001_get_cell(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst001_get_cell(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -44,8 +51,9 @@ def test_tbst001_get_cell(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst002_select_all_text(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst002_select_all_text(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -56,41 +64,59 @@ def test_tbst002_select_all_text(test):
 
 
 # https://github.com/plotly/dash-table/issues/50
-def test_tbst003_edit_on_enter(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", [dict(editable=False), dict(editable=True)])
+def test_tbst003_edit_on_enter(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
+    initial_text = target.cell(249, 0).get_text()
 
     target.cell(249, 0).click()
     test.send_keys("abc" + Keys.ENTER)
 
-    assert target.cell(249, 0).get_text() == "abc"
+    if props.get("editable"):
+        assert target.cell(249, 0).get_text() == "abc"
+    else:
+        assert target.cell(249, 0).get_text() == initial_text
+
     assert test.get_log_errors() == []
 
 
 # https://github.com/plotly/dash-table/issues/107
-def test_tbst004_edit_on_tab(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", [dict(editable=False), dict(editable=True)])
+def test_tbst004_edit_on_tab(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
+    initial_text = target.cell(249, 0).get_text()
 
     target.cell(249, 0).click()
     test.send_keys("abc" + Keys.TAB)
 
-    assert target.cell(249, 0).get_text() == "abc"
+    if props.get("editable"):
+        assert target.cell(249, 0).get_text() == "abc"
+    else:
+        assert target.cell(249, 0).get_text() == initial_text
+
     assert test.get_log_errors() == []
 
 
-def test_tbst005_edit_last_row_on_click_outside(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", [dict(editable=False), dict(editable=True)])
+def test_tbst005_edit_last_row_on_click_outside(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
+    initial_text = target.cell(249, 0).get_text()
 
     target.cell(249, 0).click()
     test.send_keys("abc")
     target.cell(248, 0).click()
 
-    assert target.cell(249, 0).get_text() == "abc"
+    if props.get("editable"):
+        assert target.cell(249, 0).get_text() == "abc"
+    else:
+        assert target.cell(249, 0).get_text() == initial_text
+
     assert test.get_log_errors() == []
 
 
@@ -150,8 +176,9 @@ def test_tbst009_active_focused_arrow_down(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst010_active_with_dblclick(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst010_active_with_dblclick(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -161,8 +188,9 @@ def test_tbst010_active_with_dblclick(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst011_delete_row(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst011_delete_row(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -173,8 +201,9 @@ def test_tbst011_delete_row(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst012_delete_sorted_row(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst012_delete_sorted_row(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -188,8 +217,11 @@ def test_tbst012_delete_sorted_row(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst013_select_row(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize(
+    "props", read_write_modes + [dict(editable=False, row_deletable=False),],
+)
+def test_tbst013_select_row(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -199,8 +231,11 @@ def test_tbst013_select_row(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst014_selected_sorted_row(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize(
+    "props", read_write_modes + [dict(editable=False, row_deletable=False),],
+)
+def test_tbst014_selected_sorted_row(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -212,8 +247,11 @@ def test_tbst014_selected_sorted_row(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst015_selected_row_respects_sort(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize(
+    "props", read_write_modes + [dict(editable=False, row_deletable=False),],
+)
+def test_tbst015_selected_row_respects_sort(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -232,8 +270,9 @@ def test_tbst015_selected_row_respects_sort(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst016_delete_cell(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst016_delete_cell(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -246,8 +285,9 @@ def test_tbst016_delete_cell(test):
 
 
 @pytest.mark.skip(reason="https://github.com/plotly/dash-table/issues/700")
-def test_tbst017_delete_cell_updates_while_selected(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst017_delete_cell_updates_while_selected(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -258,8 +298,9 @@ def test_tbst017_delete_cell_updates_while_selected(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst018_delete_multiple_cells(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst018_delete_multiple_cells(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -277,8 +318,9 @@ def test_tbst018_delete_multiple_cells(test):
 
 
 @pytest.mark.skip(reason="https://github.com/plotly/dash-table/issues/700")
-def test_tbst019_delete_multiple_cells_while_selected(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst019_delete_multiple_cells_while_selected(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -295,8 +337,9 @@ def test_tbst019_delete_multiple_cells_while_selected(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst020_sorted_table_delete_cell(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst020_sorted_table_delete_cell(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -312,8 +355,9 @@ def test_tbst020_sorted_table_delete_cell(test):
 
 
 @pytest.mark.skip(reason="https://github.com/plotly/dash-table/issues/700")
-def test_tbst021_sorted_table_delete_cell_updates_while_selected(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst021_sorted_table_delete_cell_updates_while_selected(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -327,8 +371,9 @@ def test_tbst021_sorted_table_delete_cell_updates_while_selected(test):
     assert test.get_log_errors() == []
 
 
-def test_tbst022_sorted_table_delete_multiple_cells(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst022_sorted_table_delete_multiple_cells(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 
@@ -349,8 +394,9 @@ def test_tbst022_sorted_table_delete_multiple_cells(test):
 
 
 @pytest.mark.skip(reason="https://github.com/plotly/dash-table/issues/700")
-def test_tbst023_sorted_table_delete_multiple_cells_while_selected(test):
-    test.start_server(get_app())
+@pytest.mark.parametrize("props", read_write_modes)
+def test_tbst023_sorted_table_delete_multiple_cells_while_selected(test, props):
+    test.start_server(get_app(props))
 
     target = test.table("table")
 

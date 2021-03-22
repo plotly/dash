@@ -70,7 +70,7 @@ class Wrappers {
                 data-dash-column={columnId}
                 colSpan={colSpan}
                 className={
-                    `dash-header ` +
+                    'dash-header ' +
                     `column-${columnIndex} ` +
                     (lastIndex ? 'cell--right-last ' : '')
                 }

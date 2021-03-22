@@ -1,4 +1,4 @@
-declare var module: any;
+declare let module: any;
 
 declare module '*.csv' {
     const value: any;
@@ -28,7 +28,7 @@ declare class Remarkable {
 }
 
 declare interface RemarkableCtor {
-    new(options?: any): Remarkable;
+    new (options?: any): Remarkable;
 }
 
 declare module 'remarkable' {

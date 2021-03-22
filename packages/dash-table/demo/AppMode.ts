@@ -2,7 +2,13 @@ import * as R from 'ramda';
 
 import Environment from 'core/environment';
 
-import { generateMockData, IDataMock, generateSpaceMockData, generateMarkdownMockData, generateMixedMarkdownMockData } from './data';
+import {
+    generateMockData,
+    IDataMock,
+    generateSpaceMockData,
+    generateMarkdownMockData,
+    generateMixedMarkdownMockData
+} from './data';
 import {
     PropsWithDefaults,
     ChangeAction,
@@ -12,7 +18,7 @@ import {
     IProps,
     Columns
 } from 'dash-table/components/Table/props';
-import { TooltipSyntax } from 'dash-table/tooltips/props';
+import {TooltipSyntax} from 'dash-table/tooltips/props';
 
 export enum AppMode {
     Actionable = 'actionable',
@@ -43,41 +49,41 @@ export enum AppFlavor {
     NoId = 'id=null'
 }
 
-export const ReadWriteModes = [
-    AppMode.Default,
-    AppMode.Virtualized
-];
+export const ReadWriteModes = [AppMode.Default, AppMode.Virtualized];
 
-export const BasicModes = [
-    ...ReadWriteModes,
-    AppMode.ReadOnly
-];
+export const BasicModes = [...ReadWriteModes, AppMode.ReadOnly];
 
 function getBaseTableProps(mock: IDataMock): Partial<IProps> {
     return {
         id: 'table',
-        columns: mock.columns.map((col: any) => R.merge(col, {
-            name: col.name || col.id,
-            on_change: {
-                action: ChangeAction.None
-            },
-            renamable: true,
-            deletable: true
-        })) as Columns,
+        columns: mock.columns.map((col: any) =>
+            R.merge(col, {
+                name: col.name || col.id,
+                on_change: {
+                    action: ChangeAction.None
+                },
+                renamable: true,
+                deletable: true
+            })
+        ) as Columns,
         dropdown: {
             bbb: {
                 clearable: true,
-                options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
-                    label: `label: ${i}`,
-                    value: i
-                }))
+                options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(
+                    i => ({
+                        label: `label: ${i}`,
+                        value: i
+                    })
+                )
             },
             'bbb-readonly': {
                 clearable: true,
-                options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
-                    label: `label: ${i}`,
-                    value: i
-                }))
+                options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(
+                    i => ({
+                        label: `label: ${i}`,
+                        value: i
+                    })
+                )
             }
         },
         page_action: TableAction.None,
@@ -93,9 +99,14 @@ function getBaseTableProps(mock: IDataMock): Partial<IProps> {
             width: 150
         },
         style_cell_conditional: [
-            { if: { column_id: 'rows' }, maxWidth: 60, minWidth: 60, width: 60 },
-            { if: { column_id: 'bbb' }, maxWidth: 200, minWidth: 200, width: 200 },
-            { if: { column_id: 'bbb-readonly' }, maxWidth: 200, minWidth: 200, width: 200 }
+            {if: {column_id: 'rows'}, maxWidth: 60, minWidth: 60, width: 60},
+            {if: {column_id: 'bbb'}, maxWidth: 200, minWidth: 200, width: 200},
+            {
+                if: {column_id: 'bbb-readonly'},
+                maxWidth: 200,
+                minWidth: 200,
+                width: 200
+            }
         ]
     };
 }
@@ -103,8 +114,8 @@ function getBaseTableProps(mock: IDataMock): Partial<IProps> {
 function getDefaultState(
     generateData: Function = generateMockData
 ): {
-    filter_query: string,
-    tableProps: Partial<PropsWithDefaults>
+    filter_query: string;
+    tableProps: Partial<PropsWithDefaults>;
 } {
     const mock = generateData(5000);
 
@@ -115,8 +126,8 @@ function getDefaultState(
             editable: true,
             sort_action: TableAction.Native,
             fill_width: false,
-            fixed_rows: { headers: true },
-            fixed_columns: { headers: true },
+            fixed_rows: {headers: true},
+            fixed_columns: {headers: true},
             merge_duplicate_headers: false,
             row_deletable: true,
             row_selectable: 'single',
@@ -178,39 +189,63 @@ function getTooltipsState() {
     state.tableProps.tooltip_delay = 250;
     state.tableProps.tooltip_duration = 1000;
     state.tableProps.tooltip_data = [
-        { ccc: { type: TooltipSyntax.Markdown, value: `### Go Proverb\nThe enemy's key point is yours` } },
-        { ccc: { type: TooltipSyntax.Markdown, value: `### Go Proverb\nPlay on the point of symmetry` } },
-        { ccc: { type: TooltipSyntax.Markdown, value: `### Go Proverb\nSente gains nothing` } },
-        { ccc: { type: TooltipSyntax.Text, value: `Beware of going back to patch up` } },
-        { ccc: { type: TooltipSyntax.Text, value: `When in doubt, Tenuki` } },
-        { ccc: `People in glass houses should not throw stones` }
+        {
+            ccc: {
+                type: TooltipSyntax.Markdown,
+                value: `### Go Proverb\nThe enemy's key point is yours`
+            }
+        },
+        {
+            ccc: {
+                type: TooltipSyntax.Markdown,
+                value: `### Go Proverb\nPlay on the point of symmetry`
+            }
+        },
+        {
+            ccc: {
+                type: TooltipSyntax.Markdown,
+                value: `### Go Proverb\nSente gains nothing`
+            }
+        },
+        {
+            ccc: {
+                type: TooltipSyntax.Text,
+                value: `Beware of going back to patch up`
+            }
+        },
+        {ccc: {type: TooltipSyntax.Text, value: `When in doubt, Tenuki`}},
+        {ccc: `People in glass houses should not throw stones`}
     ];
     state.tableProps.tooltip = {
-        ccc: { type: TooltipSyntax.Text, value: `There is death in the hane` },
-        ddd: { type: TooltipSyntax.Markdown, value: `Hane, Cut, Placement` },
+        ccc: {type: TooltipSyntax.Text, value: `There is death in the hane`},
+        ddd: {type: TooltipSyntax.Markdown, value: `Hane, Cut, Placement`},
         rows: `Learn the eyestealing tesuji`
     };
-    state.tableProps.tooltip_conditional = [{
-        if: {
-            column_id: 'aaa-readonly',
-            filter_query: `{aaa} is prime`
+    state.tableProps.tooltip_conditional = [
+        {
+            if: {
+                column_id: 'aaa-readonly',
+                filter_query: `{aaa} is prime`
+            },
+            type: TooltipSyntax.Markdown,
+            value: `### Go Proverbs\nCapture three to get an eye`
         },
-        type: TooltipSyntax.Markdown,
-        value: `### Go Proverbs\nCapture three to get an eye`
-    }, {
-        if: {
-            column_id: 'bbb-readonly',
-            row_index: 'odd'
+        {
+            if: {
+                column_id: 'bbb-readonly',
+                row_index: 'odd'
+            },
+            type: TooltipSyntax.Markdown,
+            value: `### Go Proverbs\nSix die but eight live`
         },
-        type: TooltipSyntax.Markdown,
-        value: `### Go Proverbs\nSix die but eight live`
-    }, {
-        if: {
-            column_id: 'bbb-readonly'
-        },
-        type: TooltipSyntax.Markdown,
-        value: `### Go Proverbs\nUrgent points before big points\n![Sensei](https://senseis.xmp.net/images/stone-hello.png)`
-    }];
+        {
+            if: {
+                column_id: 'bbb-readonly'
+            },
+            type: TooltipSyntax.Markdown,
+            value: `### Go Proverbs\nUrgent points before big points\n![Sensei](https://senseis.xmp.net/images/stone-hello.png)`
+        }
+    ];
 
     return state;
 }
@@ -260,7 +295,7 @@ function getDateState() {
         if (column.id === 'ccc') {
             column.name = ['Date', 'only'];
             column.type = ColumnType.Datetime;
-            column.validation = { allow_YY: true };
+            column.validation = {allow_YY: true};
             (state.tableProps.data || []).forEach((row, i) => {
                 const d = new Date(Date.UTC(2018, 0, 1));
                 // three day increment

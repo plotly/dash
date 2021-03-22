@@ -12,6 +12,7 @@ const baseConfig = require('./../.config/webpack/base.js')({
 });
 
 module.exports = {
+    core: { builder: 'webpack5' },
     stories: ['./../tests/visual/percy-storybook/**/*.percy.tsx'],
     webpackFinal: async (config, { configType }) => {
         // jerry rig everything
@@ -19,6 +20,9 @@ module.exports = {
         config.resolve.alias['dash-table'] = path.resolve(__dirname, './../src/dash-table')
 
         config.module = baseConfig.module;
+        config.stats = {
+            warnings: true
+        };
 
         return config;
     }

@@ -46,9 +46,9 @@ function rowSelectCell(
             key='select'
             className='dash-select-cell'
             style={{
-                width: `30px`,
-                maxWidth: `30px`,
-                minWidth: `30px`,
+                width: '30px',
+                maxWidth: '30px',
+                minWidth: '30px',
                 textAlign: 'center'
             }}
         >
@@ -85,7 +85,7 @@ function rowDeleteCell(doDelete: () => any) {
             key='delete'
             className='dash-delete-cell'
             onClick={() => doDelete()}
-            style={{width: `30px`, maxWidth: `30px`, minWidth: `30px`}}
+            style={{width: '30px', maxWidth: '30px', minWidth: '30px'}}
         >
             {'×'}
         </td>

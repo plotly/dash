@@ -11,7 +11,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 _validate_col = lambda col: (isinstance(col, str) and len(col) > 0) or (
     isinstance(col, int) and col >= 0
 )
-_validate_col_id = lambda col_id: isinstance(col_id, str) and len(col_id) > 0
 _validate_id = lambda id: isinstance(id, str) and len(id) > 0
 _validate_key = lambda key: isinstance(key, str) and len(key) == 1
 _validate_keys = lambda keys: isinstance(keys, str) and len(keys) > 0
@@ -64,6 +63,29 @@ class DataTableCellFacade(object):
         ac.double_click()
         return ac.perform()
 
+    def exists(self):
+        self.mixin._wait_for_table(self.id, self.state)
+
+        return (
+            len(
+                self.mixin.find_elements(
+                    '#{} {} tbody td.dash-cell.column-{}[data-dash-row="{}"]:not(.phantom-cell)'.format(
+                        self.id, self.state, self.col, self.row
+                    )
+                )
+            )
+            == 1
+            if isinstance(self.col, int)
+            else len(
+                self.mixin.find_elements(
+                    '#{} {} tbody td.dash-cell[data-dash-column="{}"][data-dash-row="{}"]:not(.phantom-cell)'.format(
+                        self.id, self.state, self.col, self.row
+                    )
+                )
+            )
+            == 1
+        )
+
     def get(self):
         self.mixin._wait_for_table(self.id, self.state)
 
@@ -80,6 +102,16 @@ class DataTableCellFacade(object):
                 )
             )
         )
+
+    def is_dropdown(self):
+        el = self.get().find_elements_by_css_selector(".Select-arrow")
+
+        return len(el) == 1
+
+    def is_input(self):
+        el = self.get().find_elements_by_css_selector(".dash-cell-value")
+
+        return len(el) == 1 and el[0].get_attribute("type") is not None
 
     def get_text(self):
         el = self._get_cell_value()
@@ -111,6 +143,11 @@ class DataTableCellFacade(object):
 
         return "focused" in cell.get_attribute("class").split(" ")
 
+    def is_value_focused(self):
+        el = self._get_cell_value()
+
+        return "focused" in el.get_attribute("class").split(" ")
+
     def open_dropdown(self):
         cell = self.get()
 
@@ -118,26 +155,79 @@ class DataTableCellFacade(object):
 
 
 class DataTableColumnFacade(object):
-    @preconditions(_validate_id, _validate_mixin, _validate_col_id, _validate_state)
-    def __init__(self, id, mixin, col_id, state=_ANY):
+    @preconditions(_validate_id, _validate_mixin, _validate_col, _validate_state)
+    def __init__(self, id, mixin, col, state=_ANY):
         self.id = id
         self.mixin = mixin
-        self.col_id = col_id
+        self.col = col
         self.state = state
 
     @preconditions(_validate_row)
     def get(self, row=0):
         self.mixin._wait_for_table(self.id, self.state)
 
-        return self.mixin.find_element(
-            '#{} {} tbody tr:nth-of-type({}) th.dash-header[data-dash-column="{}"]:not(.phantom-cell)'.format(
-                self.id, self.state, row + 1, self.col_id
+        return (
+            self.mixin.find_element(
+                "#{} {} tbody tr:nth-of-type({}) th.dash-header.column-{}:not(.phantom-cell)".format(
+                    self.id, self.state, row + 1, self.col
+                )
+            )
+            if isinstance(self.col, int)
+            else self.mixin.find_element(
+                '#{} {} tbody tr:nth-of-type({}) th.dash-header[data-dash-column="{}"]:not(.phantom-cell)'.format(
+                    self.id, self.state, row + 1, self.col
+                )
             )
         )
+
+    def exists(self, row=0):
+        self.mixin._wait_for_table(self.id, self.state)
+
+        els = (
+            self.mixin.find_elements(
+                "#{} {} tbody tr:nth-of-type({}) th.dash-header.column-{}:not(.phantom-cell)".format(
+                    self.id, self.state, row + 1, self.col
+                )
+            )
+            if isinstance(self.col, int)
+            else self.mixin.find_elements(
+                '#{} {} tbody tr:nth-of-type({}) th.dash-header[data-dash-column="{}"]:not(.phantom-cell)'.format(
+                    self.id, self.state, row + 1, self.col
+                )
+            )
+        )
+
+        return len(els) != 0
+
+    @preconditions(_validate_row)
+    def clear(self, row=0):
+        self.get(row).find_element_by_css_selector(".column-header--clear").click()
+
+    @preconditions(_validate_row)
+    def delete(self, row=0):
+        self.get(row).find_element_by_css_selector(".column-header--delete").click()
+
+    @preconditions(_validate_row)
+    def edit(self, row=0):
+        self.get(row).find_element_by_css_selector(".column-header--edit").click()
+
+    @preconditions(_validate_row)
+    def get_text(self, row=0):
+        el = self.get(row).find_element_by_css_selector("span.column-header-name")
+
+        return el.get_attribute("innerHTML") if el is not None else None
 
     @preconditions(_validate_row)
     def hide(self, row=0):
         self.get(row).find_element_by_css_selector(".column-header--hide").click()
+
+    @preconditions(_validate_row)
+    def is_selected(self, row=0):
+        return (
+            self.get(row)
+            .find_element_by_css_selector(".column-header--select input")
+            .is_selected()
+        )
 
     @preconditions(_validate_row)
     def move_to(self, row=0):
@@ -146,15 +236,46 @@ class DataTableColumnFacade(object):
         return ac.perform()
 
     @preconditions(_validate_row)
+    def select(self, row=0):
+        self.get(row).find_element_by_css_selector(
+            ".column-header--select input"
+        ).click()
+
+    @preconditions(_validate_row)
     def sort(self, row=0):
         self.get(row).find_element_by_css_selector(".column-header--sort").click()
 
     def filter(self):
-        return self.mixin.find_element(
-            '#{} {} tbody tr th.dash-filter[data-dash-column="{}"]:not(.phantom-cell)'.format(
-                self.id, self.state, self.col_id
+        return (
+            self.mixin.find_element(
+                "#{} {} tbody tr th.dash-filter.column-{}:not(.phantom-cell)".format(
+                    self.id, self.state, self.col
+                )
             )
-        ).click()
+            if isinstance(self.col, int)
+            else self.mixin.find_element(
+                '#{} {} tbody tr th.dash-filter[data-dash-column="{}"]:not(.phantom-cell)'.format(
+                    self.id, self.state, self.col
+                )
+            )
+        )
+
+    def filter_click(self):
+        self.filter().click()
+
+    def filter_invalid(self):
+        return "invalid" in self.filter().get_attribute("class").split(" ")
+
+    def filter_value(self, value=None):
+        if value is None:
+            return (
+                self.filter()
+                .find_element_by_css_selector("input")
+                .get_attribute("value")
+            )
+        else:
+            self.filter_click()
+            self.mixin.driver.switch_to.active_element.send_keys(value + Keys.ENTER)
 
 
 class DataTableRowFacade(object):
@@ -284,6 +405,40 @@ class DataTableTooltipFacade(object):
         )
 
 
+class DataTableToggleColumnsFacade(object):
+    @preconditions(_validate_id, _validate_mixin)
+    def __init__(self, id, mixin):
+        self.id = id
+        self.mixin = mixin
+
+    def open(self):
+        if not self.is_opened():
+            self.mixin.find_element("#{} .show-hide".format(self.id)).click()
+
+    def close(self):
+        if self.is_opened():
+            self.mixin.find_element("#{} .show-hide".format(self.id)).click()
+
+    def get_hidden(self):
+        els = self.mixin.find_elements("#table .show-hide-menu input")
+
+        return list(filter(lambda el: not el.is_selected(), els))
+
+    def get_hidden_values(self):
+        return [el.get_attribute("value") for el in self.get_hidden()]
+
+    def get_visible(self):
+        els = self.mixin.find_elements("#table .show-hide-menu input")
+
+        return list(filter(lambda el: el.is_selected(), els))
+
+    def get_visible_values(self):
+        return [el.get_attribute("value") for el in self.get_visible()]
+
+    def is_opened(self):
+        return len(self.mixin.find_elements("#{} .show-hide-menu".format(self.id))) != 0
+
+
 class DataTableFacade(object):
     @preconditions(_validate_id, _validate_mixin)
     def __init__(self, id, mixin):
@@ -297,13 +452,17 @@ class DataTableFacade(object):
     def cell(self, row, col, state=_ANY):
         return DataTableCellFacade(self.id, self.mixin, row, col, state)
 
-    @preconditions(_validate_col_id, _validate_state)
-    def column(self, col_id, state=_ANY):
-        return DataTableColumnFacade(self.id, self.mixin, col_id, state)
+    @preconditions(_validate_col, _validate_state)
+    def column(self, col, state=_ANY):
+        return DataTableColumnFacade(self.id, self.mixin, col, state)
 
     @preconditions(_validate_row, _validate_state)
     def row(self, row, state=_ANY):
         return DataTableRowFacade(self.id, self.mixin, row, state)
+
+    @preconditions(_validate_state)
+    def toggle_columns(self, state=_ANY):
+        return DataTableToggleColumnsFacade(self.id, self.mixin)
 
     def is_ready(self):
         return self.mixin._wait_for_table(self.id, _READY)
@@ -324,6 +483,17 @@ class DataTableMixin(object):
     @preconditions(_validate_id)
     def table(self, id):
         return DataTableFacade(id, self)
+
+    def get_table_ids(self):
+        return self.driver.execute_script(
+            """
+            return Array.from(
+                document.querySelectorAll('.dash-spreadsheet-container')
+            ).map(
+                e => e.parentElement.getAttribute('id')
+            )
+        """
+        )
 
     def copy(self):
         with self.hold(Keys.CONTROL):

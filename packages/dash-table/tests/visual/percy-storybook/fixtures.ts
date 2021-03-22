@@ -1,4 +1,4 @@
-import { ColumnType, Presentation } from 'dash-table/components/Table/props';
+import {ColumnType, Presentation} from 'dash-table/components/Table/props';
 
 export default [
     {
@@ -16,8 +16,8 @@ export default [
             dropdown: {
                 'column-1': {
                     options: [
-                        { label: 'Montréal', value: 'mtl' },
-                        { label: 'San Francisco', value: 'sf' }
+                        {label: 'Montréal', value: 'mtl'},
+                        {label: 'San Francisco', value: 'sf'}
                     ]
                 }
             },
@@ -27,12 +27,14 @@ export default [
                 {'column-1': 'mtl'},
                 {'column-1': 'boston'}
             ],
-            fixed_rows: { headers: true },
+            fixed_rows: {headers: true},
             editable: true,
-            css: [{
-                selector: '.dash-spreadsheet.dash-freeze-top',
-                rule: 'height: 110px;'
-            }]
+            css: [
+                {
+                    selector: '.dash-spreadsheet.dash-freeze-top',
+                    rule: 'height: 110px;'
+                }
+            ]
         }
     },
     {
@@ -45,9 +47,11 @@ export default [
     {
         name: 'minimal-data',
         props: {
-            data: [{
-                x: 1
-            }],
+            data: [
+                {
+                    x: 1
+                }
+            ],
             id: 'table'
         }
     },
@@ -55,10 +59,12 @@ export default [
     {
         name: 'minimal-columns',
         props: {
-            columns: [{
-                name: 'column 1',
-                id: 'column-1'
-            }],
+            columns: [
+                {
+                    name: 'column 1',
+                    id: 'column-1'
+                }
+            ],
             id: 'table'
         }
     },
@@ -140,8 +146,8 @@ export default [
             dropdown: {
                 'column-1': {
                     options: [
-                        { label: 'Montréal', value: 'mtl' },
-                        { label: 'San Francisco', value: 'sf' }
+                        {label: 'Montréal', value: 'mtl'},
+                        {label: 'San Francisco', value: 'sf'}
                     ]
                 }
             },
@@ -161,8 +167,8 @@ export default [
         props: {
             fill_width: false,
             style_data_conditional: [
-                { if: { column_id: 'column-2' }, width: 400 },
-                { if: { column_id: 'column-3' }, width: 80 }
+                {if: {column_id: 'column-2'}, width: 400},
+                {if: {column_id: 'column-3'}, width: 80}
             ],
             columns: [
                 {
@@ -187,20 +193,20 @@ export default [
             dropdown: {
                 'column-1': {
                     options: [
-                        { label: 'Montréal', value: 'mtl' },
-                        { label: 'San Francisco', value: 'sf' }
+                        {label: 'Montréal', value: 'mtl'},
+                        {label: 'San Francisco', value: 'sf'}
                     ]
                 },
                 'column-2': {
                     options: [
-                        { label: 'Montréal', value: 'mtl' },
-                        { label: 'San Francisco', value: 'sf' }
+                        {label: 'Montréal', value: 'mtl'},
+                        {label: 'San Francisco', value: 'sf'}
                     ]
                 },
                 'column-3': {
                     options: [
-                        { label: 'Montréal', value: 'mtl' },
-                        { label: 'San Francisco', value: 'sf' }
+                        {label: 'Montréal', value: 'mtl'},
+                        {label: 'San Francisco', value: 'sf'}
                     ]
                 }
             },
@@ -248,8 +254,8 @@ export default [
             dropdown: {
                 region: {
                     options: [
-                        { label: 'Hawaii', value: 'hawaii' },
-                        { label: 'Costa Rica', value: 'costa-rica' }
+                        {label: 'Hawaii', value: 'hawaii'},
+                        {label: 'Costa Rica', value: 'costa-rica'}
                     ]
                 }
             },
@@ -283,8 +289,8 @@ export default [
             id: 'table',
             fill_width: false,
             style_data_conditional: [
-                { if: { column_id: 'column-2' }, width: 400 },
-                { if: { column_id: 'column-3' }, width: '30%' }
+                {if: {column_id: 'column-2'}, width: 400},
+                {if: {column_id: 'column-3'}, width: '30%'}
             ],
             columns: [
                 {
@@ -312,7 +318,12 @@ export default [
         props: {
             id: 'table',
             editable: true,
-            selected_cells: [[1, 1], [1, 0], [0, 1], [0, 0]],
+            selected_cells: [
+                [1, 1],
+                [1, 0],
+                [0, 1],
+                [0, 0]
+            ],
             columns: [
                 {
                     name: 'Column 1',
@@ -335,7 +346,12 @@ export default [
         props: {
             id: 'table',
             editable: true,
-            selected_cells: [[1, 1], [1, 0], [0, 1], [0, 0]],
+            selected_cells: [
+                [1, 1],
+                [1, 0],
+                [0, 1],
+                [0, 0]
+            ],
             columns: [
                 {
                     name: 'Column 1',
@@ -360,7 +376,12 @@ export default [
             id: 'table',
             editable: true,
             active_cell: [2, 1],
-            selected_cells: [[2, 1], [2, 2], [1, 1], [1, 2]],
+            selected_cells: [
+                [2, 1],
+                [2, 2],
+                [1, 1],
+                [1, 2]
+            ],
             columns: [
                 {
                     name: 'Column 1',
@@ -380,10 +401,30 @@ export default [
                 }
             ],
             data: [
-                {'column-1': 1, 'column-2': 'alpha', 'column-3': 2, 'column-4': 1},
-                {'column-1': 2, 'column-2': 'bravo', 'column-3': 2, 'column-4': 1},
-                {'column-1': 3, 'column-2': 'charlie', 'column-3': 2, 'column-4': 1},
-                {'column-1': 4, 'column-2': 'delta', 'column-3': 2, 'column-4': 1}
+                {
+                    'column-1': 1,
+                    'column-2': 'alpha',
+                    'column-3': 2,
+                    'column-4': 1
+                },
+                {
+                    'column-1': 2,
+                    'column-2': 'bravo',
+                    'column-3': 2,
+                    'column-4': 1
+                },
+                {
+                    'column-1': 3,
+                    'column-2': 'charlie',
+                    'column-3': 2,
+                    'column-4': 1
+                },
+                {
+                    'column-1': 4,
+                    'column-2': 'delta',
+                    'column-3': 2,
+                    'column-4': 1
+                }
             ]
         }
     },
@@ -392,9 +433,7 @@ export default [
         name: 'per-cell dropdowns',
         props: {
             id: 'table',
-            style_data_conditional: [
-                { if: { column_id: 'column-1' }, width: 200 }
-            ],
+            style_data_conditional: [{if: {column_id: 'column-1'}, width: 200}],
             columns: [
                 {
                     id: 'column-1',
@@ -414,7 +453,8 @@ export default [
                 },
                 {
                     'column-1': 'blue',
-                    'column-2': 'Some really super long text that should overflow'
+                    'column-2':
+                        'Some really super long text that should overflow'
                 },
                 {
                     'column-1': 'apples',

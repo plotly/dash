@@ -11,9 +11,7 @@ interface IAdvancedFilterProps {
     value?: string;
 }
 
-export default class AdvancedFilter extends PureComponent<
-    IAdvancedFilterProps
-> {
+export default class AdvancedFilter extends PureComponent<IAdvancedFilterProps> {
     constructor(props: IAdvancedFilterProps) {
         super(props);
     }

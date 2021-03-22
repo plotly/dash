@@ -197,9 +197,7 @@ export const matchesDataOpCell = (
             style.matchesFilter(datum)
     );
 
-export const getFilterOpStyles: Filter<IConvertedStyle> = R.filter<
-    IConvertedStyle
->(
+export const getFilterOpStyles: Filter<IConvertedStyle> = R.filter<IConvertedStyle>(
     style =>
         !style.checksState() &&
         !style.checksDataRow() &&

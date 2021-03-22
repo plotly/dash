@@ -40,13 +40,13 @@ function validFSP(props: any) {
 export default (props: any): boolean => {
     if (!validFSP(props)) {
         Logger.error(
-            `Invalid combination of filter_action / sort_action / page_action`
+            'Invalid combination of filter_action / sort_action / page_action'
         );
         return false;
     }
 
     if (!validColumns(props)) {
-        Logger.error(`Invalid column format`);
+        Logger.error('Invalid column format');
         return false;
     }
 

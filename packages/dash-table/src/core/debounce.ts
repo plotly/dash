@@ -9,8 +9,8 @@ export default function <TArgs extends any[]>(
     let handle: any;
 
     return (...args: TArgs) => {
-        let now = Date.now();
-        let delay = Math.min(now - lastTimestamp, wait);
+        const now = Date.now();
+        const delay = Math.min(now - lastTimestamp, wait);
 
         if (handle) {
             Logger.debug('debounce -- clearTimeout');

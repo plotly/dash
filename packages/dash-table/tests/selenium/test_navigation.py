@@ -1,4 +1,5 @@
 import dash
+import dash.testing.wait as wait
 
 from dash_table import DataTable
 
@@ -124,7 +125,7 @@ def test_navg001_keyboard_through_9_10_cells(test, props):
 
     for row in range(9, 11):
         for col in range(1, 3):
-            assert target.cell(row, col).is_selected()
+            wait.until(lambda: target.cell(row, col).is_selected(), 3)
 
     assert target.cell(9, 1).is_focused()
     test.send_keys(Keys.ENTER)

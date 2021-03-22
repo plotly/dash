@@ -10,7 +10,7 @@ function rowSelectCell() {
         <th
             key='select'
             className='expanded-row--empty-cell dash-select-header'
-            style={{width: `30px`, maxWidth: `30px`, minWidth: `30px`}}
+            style={{width: '30px', maxWidth: '30px', minWidth: '30px'}}
         />
     );
 }
@@ -20,7 +20,7 @@ function rowDeleteHeader() {
         <th
             key='delete'
             className='expanded-row--empty-cell dash-delete-header'
-            style={{width: `30px`, maxWidth: `30px`, minWidth: `30px`}}
+            style={{width: '30px', maxWidth: '30px', minWidth: '30px'}}
         />
     );
 }

@@ -47,7 +47,8 @@ function makePaginator(params: IPaginatorParams | null): IPaginator {
         };
     }
 
-    let {setProps, page_current, page_count} = params;
+    const {setProps, page_count} = params;
+    let {page_current} = params;
 
     function updatePage() {
         setProps({

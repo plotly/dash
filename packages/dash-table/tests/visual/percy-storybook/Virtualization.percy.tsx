@@ -1,20 +1,20 @@
 import parser from 'papaparse';
 import * as R from 'ramda';
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import {storiesOf} from '@storybook/react';
 
 import dataset from './../../assets/16zpallagi-25cols-100klines.csv';
 
 import DataTable from 'dash-table/dash/DataTable';
-import { TableAction } from 'dash-table/components/Table/props';
+import {TableAction} from 'dash-table/components/Table/props';
 
-const setProps = () => { };
+const setProps = () => {};
 
-const { data, meta } = parser.parse(dataset, { delimiter: ',', header: true });
-const columns = R.map(i => ({ name: i, id: i }), meta.fields);
+const {data, meta} = parser.parse(dataset, {delimiter: ',', header: true});
+const columns = R.map(i => ({name: i, id: i}), meta.fields);
 
-storiesOf('DashTable/Virtualization', module)
-    .add('default', () => (<DataTable
+storiesOf('DashTable/Virtualization', module).add('default', () => (
+    <DataTable
         setProps={setProps}
         id='table'
         data={data}
@@ -22,7 +22,7 @@ storiesOf('DashTable/Virtualization', module)
         page_action={TableAction.None}
         virtualization={true}
         editable={true}
-        fixed_rows={{ headers: true }}
+        fixed_rows={{headers: true}}
         style_table={{
             height: 800,
             max_height: 800,
@@ -34,4 +34,5 @@ storiesOf('DashTable/Virtualization', module)
             max_width: 50,
             min_width: 50
         }}
-    />));
+    />
+));

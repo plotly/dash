@@ -1,6 +1,14 @@
 import dash
 import pytest
 
+from utils import (
+    basic_modes,
+    get_props,
+    generate_mock_data,
+    generate_markdown_mock_data,
+    generate_mixed_markdown_data,
+)
+
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from dash.testing import wait
@@ -85,6 +93,35 @@ def cells_are_same_width(target, table):
 
     if len(table_r1c0_cells) != 0:
         assert abs(target_cell.size["width"] - table_r1c0_cells[i].size["width"]) <= 1
+
+
+def szng003_on_prop_change_impl(
+    test, fixed_columns, fixed_rows, merge_duplicate_headers, callback_props
+):
+    props = {**base_props, **fixed_columns, **fixed_rows, **merge_duplicate_headers}
+
+    table = DataTable(**props, id="table")
+
+    app = dash.Dash(__name__)
+    app.layout = Div([Button(id="btn", children=["Update"]), table])
+
+    @app.callback(
+        [Output("table", key) for key in callback_props.keys()],
+        [Input("btn", "n_clicks")],
+        prevent_initial_call=True,
+    )
+    def callback(n_clicks):
+        return [callback_props.get(key) for key in callback_props.keys()]
+
+    test.start_server(app)
+
+    target = test.driver.find_element_by_css_selector("#table")
+    cells_are_same_width(target, target)
+
+    test.driver.find_element_by_css_selector("#btn").click()
+    cells_are_same_width(target, target)
+
+    assert test.get_log_errors() == []
 
 
 def test_szng001_widths_on_style_change(test):
@@ -257,76 +294,33 @@ def test_szng002_percentages_result_in_same_widths(test):
     assert test.get_log_errors() == []
 
 
+@pytest.mark.parametrize("props", basic_modes)
 @pytest.mark.parametrize(
-    "fixed_columns",
-    [
-        # dict(),
-        dict(fixed_columns=dict(headers=True)),
-        dict(fixed_columns=dict(headers=True, data=1)),
-    ],
+    "data_fn",
+    [generate_mock_data, generate_markdown_mock_data, generate_mixed_markdown_data],
 )
-@pytest.mark.parametrize(
-    "fixed_rows",
-    [
-        # dict(),
-        dict(fixed_rows=dict(headers=True)),
-        dict(fixed_rows=dict(headers=True, data=1)),
-    ],
-)
-@pytest.mark.parametrize(
-    "merge_duplicate_headers",
-    [dict(merge_duplicate_headers=True), dict(merge_duplicate_headers=False)],
-)
-@pytest.mark.parametrize(
-    "callback_props",
-    [
-        dict(
-            data=[
-                {"_": 0, "a": 85, "b": 601, "c": 891},
-                {"_": 0, "a": 967, "b": 189, "c": 514},
-                {"_": 0, "a": 398, "b": 262, "c": 743},
-                {
-                    "_": "SOME VERY LONG VALUE",
-                    "a": "SOME VERY LONG VALUE 2",
-                    "b": "SOME VERY LONG VALUE 3",
-                    "c": "SOME VERY LONG VALUE 4",
-                },
-                {"_": 0, "a": 89, "b": 560, "c": 582},
-                {"_": 0, "a": 809, "b": 591, "c": 511},
-            ]
-        ),
-        dict(merge_duplicate_headers=True),
-        # dict(fixed_rows=dict(headers=True)),
-        # dict(fixed_columns=dict(headers=True)),
-        dict(fixed_columns=dict(headers=True), fixed_rows=dict(headers=True)),
-        dict(style_cell=dict(width=200, minWidth=200, maxWidth=200)),
-        dict(style_table=dict(width=500, minWidth=500, maxWidth=500)),
-    ],
-)
-def test_szng003_on_prop_change(
-    test, fixed_columns, fixed_rows, merge_duplicate_headers, callback_props
-):
-    props = {**base_props, **fixed_columns, **fixed_rows, **merge_duplicate_headers}
-
-    table = DataTable(**props, id="table")
-
+def test_szng004_on_focus(test, props, data_fn):
     app = dash.Dash(__name__)
-    app.layout = Div([Button(id="btn", children=["Update"]), table])
 
-    @app.callback(
-        [Output("table", key) for key in callback_props.keys()],
-        [Input("btn", "n_clicks")],
-        prevent_initial_call=True,
-    )
-    def callback(n_clicks):
-        return [callback_props.get(key) for key in callback_props.keys()]
+    baseProps1 = get_props(data_fn=data_fn)
+    baseProps2 = get_props(data_fn=data_fn)
+
+    baseProps1.update(dict(**props, id="table1"))
+    baseProps2.update(dict(**props, id="table2"))
+
+    app.layout = Div([DataTable(**baseProps1), DataTable(**baseProps2),])
 
     test.start_server(app)
 
-    target = test.driver.find_element_by_css_selector("#table")
-    cells_are_same_width(target, target)
+    table2 = test.table("table2")
 
-    test.driver.find_element_by_css_selector("#btn").click()
-    cells_are_same_width(target, target)
+    for i in range(len(baseProps1.get("columns"))):
+        table2.cell(0, i).click()
+
+        t1 = test.driver.find_element_by_css_selector("#table1")
+        t2 = test.driver.find_element_by_css_selector("#table2")
+
+        cells_are_same_width(t1, t1)
+        cells_are_same_width(t1, t2)
 
     assert test.get_log_errors() == []

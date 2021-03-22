@@ -1,25 +1,26 @@
 import parser from 'papaparse';
 import * as R from 'ramda';
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import {storiesOf} from '@storybook/react';
 
 import DataTable from 'dash-table/dash/DataTable';
 
 import dataset from './../../assets/gapminder.csv';
 
-const result = parser.parse(dataset, { delimiter: ',', header: true });
+const result = parser.parse(dataset, {delimiter: ',', header: true});
 
-const getColumns = () => R.addIndex(R.map)(
-    (id, index) => ({
-        name: [
-            Math.floor(index / 4).toString(),
-            Math.floor(index / 2).toString(),
+const getColumns = () =>
+    R.addIndex(R.map)(
+        (id, index) => ({
+            name: [
+                Math.floor(index / 4).toString(),
+                Math.floor(index / 2).toString(),
+                id
+            ],
             id
-        ],
-        id
-    }),
-    result.meta.fields
-);
+        }),
+        result.meta.fields
+    );
 
 interface ITest {
     name: string;
@@ -32,8 +33,8 @@ const DEFAULT_PROPS = {
 };
 
 const variants: ITest[] = [
-    { name: 'merged', props: { merge_duplicate_headers: true } },
-    { name: 'unmerged', props: { merge_duplicate_headers: false } }
+    {name: 'merged', props: {merge_duplicate_headers: true}},
+    {name: 'unmerged', props: {merge_duplicate_headers: false}}
 ];
 
 const scenarios: ITest[] = [
@@ -160,13 +161,12 @@ const scenarios: ITest[] = [
 const tests = R.xprod(scenarios, variants);
 
 R.reduce(
-    (chain, [scenario, variant]) => chain.add(`${scenario.name} (${variant.name})`, () => (<DataTable
-        {...R.mergeAll([
-            DEFAULT_PROPS,
-            variant.props,
-            scenario.props
-        ])}
-    />)),
-    storiesOf(`DashTable/Hideable Columns`, module),
+    (chain, [scenario, variant]) =>
+        chain.add(`${scenario.name} (${variant.name})`, () => (
+            <DataTable
+                {...R.mergeAll([DEFAULT_PROPS, variant.props, scenario.props])}
+            />
+        )),
+    storiesOf('DashTable/Hideable Columns', module),
     tests
 );

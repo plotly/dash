@@ -1,13 +1,8 @@
 import * as R from 'ramda';
-import React, {Component, lazy, Suspense} from 'react';
+import React, {Component, Suspense} from 'react';
 import PropTypes from 'prop-types';
 import {asyncDecorator} from '@plotly/dash-component-plugins';
 
-import Logger from 'core/Logger';
-
-import genRandomId from 'dash-table/utils/generate';
-import isValidProps from './validate';
-import Sanitizer from './Sanitizer';
 import LazyLoader from 'dash-table/LazyLoader';
 
 /**

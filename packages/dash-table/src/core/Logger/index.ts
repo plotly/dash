@@ -36,7 +36,7 @@ function logFn(
     }
 
     let fn: LoggerFn;
-    let fnStyle: string = '';
+    let fnStyle = '';
 
     switch (level) {
         case LogLevel.TRACE:

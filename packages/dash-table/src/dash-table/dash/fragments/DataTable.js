@@ -1,9 +1,6 @@
-import * as R from 'ramda';
 import React, {Component} from 'react';
 
 import RealTable from 'dash-table/components/Table';
-
-import Logger from 'core/Logger';
 
 import genRandomId from 'dash-table/utils/generate';
 import isValidProps from '../validate';

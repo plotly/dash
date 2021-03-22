@@ -111,13 +111,7 @@ export class EdgesMatrix implements IEdgesMatrix {
         }
     }
 
-    setEdge(
-        i: number,
-        j: number,
-        edge: Edge,
-        weight: number,
-        force: boolean = false
-    ) {
+    setEdge(i: number, j: number, edge: Edge, weight: number, force = false) {
         if (i < 0 || j < 0 || i >= this.rows || j >= this.columns) {
             return;
         }

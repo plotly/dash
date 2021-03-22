@@ -10,14 +10,14 @@
             "dash-table/*": [
                 "src/dash-table/*"
             ],
-            "tests": [
-                "src/tests"
+            "tests/*": [
+                "tests/*"
             ]
         }
     },
     "include": [
-        "src/*",
-        "demo/*",
-        "@Types"
+        "src/**/*",
+        "demo/**/*",
+        "@Types/**/*"
     ]
 }

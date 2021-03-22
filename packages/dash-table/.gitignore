@@ -17,7 +17,6 @@ Project.toml
 
 # testing
 /coverage
-/tests/cypress/screenshots/**
 /storybook-static/**
 
 # misc
