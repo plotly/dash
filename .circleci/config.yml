@@ -130,16 +130,6 @@ jobs:
           paths:
             - packages/*.tar.gz
 
-  build-core-37:
-    <<: *build-core
-    docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYVERSION: python37xs
-
   build-core-36:
     <<: *build-core
     docker:
@@ -198,16 +188,6 @@ jobs:
           root: ~/dash
           paths:
             - packages/*.tar.gz
-
-  build-misc-37:
-    <<: *build-misc
-    docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYVERSION: python37
 
   build-misc-36:
     <<: *build-misc
@@ -365,7 +345,6 @@ jobs:
           password: $DASH_PAT_DOCKERHUB
         environment:
           PERCY_PARALLEL_TOTAL: -1
-          PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python39
     parallelism: 3
@@ -402,17 +381,6 @@ jobs:
           command: npx percy finalize --all
           when: on_fail
 
-  test-37:
-    <<: *test
-    docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYVERSION: python37
-          PERCY_ENABLE: 1
-
   test-36:
     <<: *test
     docker:
@@ -443,13 +411,7 @@ workflows:
       - build-core-39
       - build-windows-39
       - build-misc-39
-      - build-core-37
-      - build-misc-37
       - build-dashr
-      - test-37:
-          requires:
-            - build-core-37
-            - build-misc-37
       - test-39:
           requires:
             - build-core-39
@@ -458,7 +420,6 @@ workflows:
           requires:
             - build-dashr
             - test-39
-            - test-37
       - artifacts:
           requires:
             - percy-finalize
