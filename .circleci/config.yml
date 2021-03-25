@@ -365,6 +365,7 @@ jobs:
           password: $DASH_PAT_DOCKERHUB
         environment:
           PERCY_PARALLEL_TOTAL: -1
+          PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python39
     parallelism: 3
@@ -410,6 +411,7 @@ jobs:
           password: $DASH_PAT_DOCKERHUB
         environment:
           PYVERSION: python37
+          PERCY_ENABLE: 1
 
   test-36:
     <<: *test
