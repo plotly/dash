@@ -16,16 +16,16 @@ import prioritizedCallbacks from './observers/prioritizedCallbacks';
 import requestedCallbacks from './observers/requestedCallbacks';
 import storedCallbacks from './observers/storedCallbacks';
 
-export interface IStoreObserver {
-    observer: Observer<Store<IStoreState>>;
-    inputs: string[];
-}
-
 export interface IStoreState {
     callbacks: ICallbacksState;
     isLoading: IsLoadingState;
     loadingMap: LoadingMapState;
     [key: string]: any;
+}
+
+export interface IStoreObserver {
+    observer: Observer<Store<IStoreState>>;
+    inputs: string[];
 }
 
 export default class RendererStore {

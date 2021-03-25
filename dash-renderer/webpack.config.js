@@ -5,6 +5,7 @@ const packagejson = require('./package.json');
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
 const defaults = {
+    target: ['web', 'es5'],
     plugins: [],
     module: {
         rules: [
@@ -55,7 +56,7 @@ const rendererOptions = {
 };
 
 module.exports = (_, argv) => {
-    const devtool = argv.build === 'local' ? 'source-map' : 'none';
+    const devtool = argv.build === 'local' ? 'source-map' : undefined;
     return [
         R.mergeDeepLeft({ devtool }, rendererOptions),
         R.mergeDeepLeft({

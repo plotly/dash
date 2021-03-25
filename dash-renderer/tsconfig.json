@@ -5,7 +5,7 @@
         "emitDecoratorMetadata": false,
         "experimentalDecorators": true,
         "jsx": "react",
-        "lib": ["esnext", "dom", "es2018.promise"],
+        "lib": ["esnext", "dom"],
         "module": "esnext",
         "moduleResolution": "node",
         "noImplicitAny": true,
@@ -20,6 +20,6 @@
         "traceResolution": false
     },
     "include": [
-        "src/*"
+        "src/**/*"
     ]
 }
