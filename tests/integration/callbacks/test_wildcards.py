@@ -8,7 +8,7 @@ import dash
 from dash.testing import wait
 from dash.dependencies import Input, Output, State, ALL, ALLSMALLER, MATCH
 
-from ...assets.todo_app import todo_app
+from assets.todo_app import todo_app
 
 
 def css_escape(s):
