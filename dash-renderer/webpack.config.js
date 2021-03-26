@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const R = require('ramda');
 const path = require('path');
 const packagejson = require('./package.json');
@@ -6,7 +7,9 @@ const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
 const defaults = {
     target: ['web', 'es5'],
-    plugins: [],
+    plugins: [
+        new NodePolyfillPlugin()
+    ],
     module: {
         rules: [
             {

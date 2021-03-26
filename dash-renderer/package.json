@@ -29,6 +29,7 @@
     "cytoscape-fcose": "^1.2.3",
     "dependency-graph": "^0.9.0",
     "fast-isnumeric": "^1.1.4",
+    "node-polyfill-webpack-plugin": "^1.0.3",
     "prop-types": "15.7.2",
     "radium": "^0.26.0",
     "ramda": "^0.27.0",
