@@ -20,6 +20,7 @@
         "traceResolution": false
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "tests/**/*"
     ]
 }

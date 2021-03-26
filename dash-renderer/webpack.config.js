@@ -55,27 +55,23 @@ const rendererOptions = {
     ...defaults
 };
 
-module.exports = (_, argv) => {
-    const devtool = argv.build === 'local' ? 'source-map' : undefined;
-    return [
-        R.mergeDeepLeft({ devtool }, rendererOptions),
-        R.mergeDeepLeft({
-            devtool,
-            mode: 'production',
-            output: {
-                filename: `${dashLibraryName}.min.js`,
-            },
-            plugins: [
-                new webpack.NormalModuleReplacementPlugin(
-                    /(.*)GlobalErrorContainer.react(\.*)/,
-                    function (resource) {
-                        resource.request = resource.request.replace(
-                            /GlobalErrorContainer.react/,
-                            'GlobalErrorContainerPassthrough.react'
-                        );
-                    }
-                ),
-            ],
-        }, rendererOptions)
-    ];
-};
+module.exports = [
+    rendererOptions,
+    R.mergeDeepLeft({
+        mode: 'production',
+        output: {
+            filename: `${dashLibraryName}.min.js`,
+        },
+        plugins: [
+            new webpack.NormalModuleReplacementPlugin(
+                /(.*)GlobalErrorContainer.react(\.*)/,
+                function (resource) {
+                    resource.request = resource.request.replace(
+                        /GlobalErrorContainer.react/,
+                        'GlobalErrorContainerPassthrough.react'
+                    );
+                }
+            ),
+        ],
+    }, rendererOptions)
+];
