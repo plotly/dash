@@ -6,9 +6,9 @@
   "scripts": {
     "prepublishOnly": "rm -rf lib && babel src --extensions=\".ts,.tsx,.js,.jsx\" --out-dir lib --copy-files",
     "private::format.eslint": "eslint --quiet --fix src tests",
-    "private::format.prettier": "prettier --config .prettierrc --write \"{src,tests}/**/*.{js,jsx,ts,tsx}\"",
+    "private::format.prettier": "prettier --write \"{src,tests}/**/*.{js,jsx,ts,tsx}\"",
     "private::lint.eslint": "eslint src tests",
-    "private::lint.prettier": "prettier --config .prettierrc \"{src,tests}/**/*.{js,jsx,ts,tsx}\" --list-different",
+    "private::lint.prettier": "prettier \"{src,tests}/**/*.{js,jsx,ts,tsx}\" --list-different",
     "build:js": "webpack --mode production",
     "build:dev": "webpack --mode development",
     "build:local": "renderer build local",
@@ -24,6 +24,8 @@
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
     "@plotly/dash-component-plugins": "^1.2.0",
+    "@plotly/eslint-config-dash": "file:plotly-eslint-config-dash-0.0.1.tgz",
+    "@plotly/prettier-config-dash": "file:plotly-prettier-config-dash-0.0.1.tgz",
     "cookie": "^0.4.0",
     "cytoscape": "^3.14.1",
     "cytoscape-dagre": "^2.2.2",
@@ -88,5 +90,6 @@
   "files": [
     "/dash_renderer/*{.js,.map}",
     "/lib/**"
-  ]
+  ],
+  "prettier": "@plotly/prettier-config-dash"
 }

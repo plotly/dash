@@ -1,0 +1,12 @@
+{
+    "extends": [
+      "@plotly/eslint-config-dash/typescript",
+    ],
+    "rules": {
+      "no-constant-condition": 0,
+      "no-prototype-builtins": 0,
+      "no-unused-vars": 0,
+
+      "@typescript-eslint/no-var-requires": 0
+    }
+  }
