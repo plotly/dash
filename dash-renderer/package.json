@@ -22,6 +22,7 @@
   "author": "chriddyp",
   "license": "MIT",
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
     "@plotly/dash-component-plugins": "^1.2.0",
     "cookie": "^0.4.0",
     "cytoscape": "^3.14.1",
@@ -40,7 +41,8 @@
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
     "redux-actions": "^2.6.5",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "regenerator-runtime": "^0.13.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.13.10",
@@ -74,7 +76,6 @@
     "mocha": "^8.3.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
-    "regenerator-runtime": "^0.13.7",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.18",
     "typescript": "^4.2.3",

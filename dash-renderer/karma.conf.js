@@ -17,6 +17,6 @@ module.exports = config => {
         ],
         reporters: ["progress"],
         browsers: ["Chrome"],
-        webpack: require('./webpack.config.js')[0]
+        webpack: require('./webpack.test.config.js')[0]
     });
 }
