@@ -91,7 +91,7 @@ jl_base_version = {
     "DashBase": "0.1",
 }
 
-jl_component_include_string = 'include("{filename}.jl")'
+jl_component_include_string = 'include("{name}.jl")'
 
 jl_resource_tuple_string = """DashBase.Resource(
     relative_package_path = {relative_package_path},
@@ -340,10 +340,6 @@ def format_fn_name(prefix, name):
     return name.lower()
 
 
-def format_file_name(prefix, name):
-    return "comp_{}".format(format_fn_name(prefix, name))
-
-
 def generate_metadata_strings(resources, metatype):
     def nothing_or_string(v):
         return '"{}"'.format(v) if v else "nothing"
@@ -395,7 +391,7 @@ def generate_package_file(project_shortname, components, pkg_data, prefix):
         component_includes="\n".join(
             [
                 jl_component_include_string.format(
-                    filename=format_file_name(prefix, comp_name)
+                    name=format_fn_name(prefix, comp_name)
                 )
                 for comp_name in components
             ]
@@ -502,7 +498,7 @@ def generate_struct_file(name, props, description, project_shortname, prefix):
         name, props, description, project_shortname, prefix
     )
 
-    file_name = format_file_name(prefix, name) + ".jl"
+    file_name = format_fn_name(prefix, name) + ".jl"
 
     file_path = os.path.join("src", file_name)
     with open(file_path, "w") as f:
