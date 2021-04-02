@@ -37,7 +37,7 @@ prompt-toolkit==1.0.15
 ptyprocess==0.6.0
 pycodestyle==2.3.1
 pyflakes==1.6.0
-Pygments==2.2.0
+Pygments==2.7.4
 pylint==2.1.1
 python-dateutil==2.7.3
 pytz==2018.5
