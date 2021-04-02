@@ -100,12 +100,12 @@ Upload.propTypes = {
     disable_click: PropTypes.bool,
 
     /**
-     * Maximum file size. If `-1`, then infinite
+     * Maximum file size in bytes. If `-1`, then infinite
      */
     max_size: PropTypes.number,
 
     /**
-     * Minimum file size
+     * Minimum file size in bytes
      */
     min_size: PropTypes.number,
 
