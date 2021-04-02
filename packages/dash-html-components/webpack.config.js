@@ -44,6 +44,7 @@ module.exports = (env, argv) => {
     return {
         mode,
         entry,
+        target: ['web', 'es5'],
         output: {
             path: path.resolve(__dirname, dashLibraryName),
             filename,
@@ -59,21 +60,7 @@ module.exports = (env, argv) => {
                     use: {
                         loader: 'babel-loader',
                     },
-                },
-                {
-                    test: /\.css$/,
-                    use: [
-                        {
-                            loader: 'style-loader',
-                            options: {
-                                insertAt: 'top'
-                            }
-                        },
-                        {
-                            loader: 'css-loader',
-                        },
-                    ],
-                },
+                }
             ],
         },
         devtool

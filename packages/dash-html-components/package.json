@@ -30,37 +30,37 @@
   "author": "Chris Parmer <chris@plotly.com>",
   "maintainer": "Ryan Patrick Kyle <ryan@plotly.com>",
   "dependencies": {
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.3",
-    "babel-loader": "^7.1.4",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
-    "css-loader": "^0.28.11",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-react": "^7.11.1",
-    "prop-types": "^15.6.0",
-    "ramda": "^0.26.1",
-    "react-docgen": "^2.21.0",
-    "style-loader": "^0.21.0",
-    "webpack": "^4.24.0",
-    "webpack-cli": "^3.1.2",
-    "webpack-serve": "^2.0.2"
+    "prop-types": "^15.7.2",
+    "ramda": "^0.27.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "cheerio": "^0.20.0",
-    "cross-env": "^5.2.0",
-    "es-check": "^5.0.0",
-    "eslint": "^5.3.0",
+    "@babel/cli": "^7.13.10",
+    "@babel/core": "^7.13.10",
+    "@babel/preset-env": "^7.13.12",
+    "@babel/preset-react": "^7.12.13",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.2.2",
+    "cheerio": "^0.22.0",
+    "cross-env": "^7.0.3",
+    "es-check": "^5.2.3",
+    "eslint": "^7.22.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-react": "^7.23.1",
     "npm-run-all": "^4.1.5",
-    "request": "^2.72.0",
-    "string": "^3.3.1"
+    "react-docgen": "^5.3.1",
+    "request": "^2.88.2",
+    "string": "^3.3.3",
+    "webpack": "^5.28.0",
+    "webpack-cli": "^4.5.0",
+    "webpack-serve": "^3.2.0"
   },
   "files": [
     "/dash_html_components/*{.js,.map}"
   ],
   "peerDependencies": {
-    "react": "^15.4.0 || ^16.0.0",
-    "react-dom": "^15.4.0 || ^16.0.0"
+    "react": ">=17",
+    "react-dom": ">=17"
   }
 }

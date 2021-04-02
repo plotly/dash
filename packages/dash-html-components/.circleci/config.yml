@@ -68,7 +68,7 @@ jobs:
   python-3.6:
     <<: *test-template
     docker:
-      - image: circleci/python:3.6.12-stretch-node-browsers
+      - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -76,15 +76,15 @@ jobs:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
 
-  python-3.7:
+  python-3.9:
     <<: *test-template
     docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
+      - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYTHON_VERSION: py37
+          PYTHON_VERSION: py39
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
@@ -94,7 +94,7 @@ workflows:
     jobs:
       - python-2.7
       - python-3.6
-      - python-3.7
+      - python-3.9
       - percy-finalize:
           requires:
-            - python-3.7
+            - python-3.9
