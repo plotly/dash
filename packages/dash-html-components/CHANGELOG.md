@@ -2,9 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## UNRELEASED
+## [1.1.3] - 2021-04-08
 ### Fixed
-- [#179](https://github.com/plotly/dash-html-components/pull/178) - Fixes [#77](https://github.com/plotly/dash-html-components/issues/77) Added `allow` and `referrerPolicy` properties to `html.Iframe`
+- [#179](https://github.com/plotly/dash-html-components/pull/179) - Fixes [#77](https://github.com/plotly/dash-html-components/issues/77) Added `allow` and `referrerPolicy` properties to `html.Iframe`
 
 - [#178](https://github.com/plotly/dash-html-components/pull/178) - Fix [#161](https://github.com/plotly/dash-html-components/issues/161) <object> `data` property, and fix [#129](https://github.com/plotly/dash-html-components/issues/129) obsolete, deprecated, and discouraged elements. No elements were removed, but comments were added to the documentation about these elements detailing their limitations.
 
