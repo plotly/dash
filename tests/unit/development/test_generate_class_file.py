@@ -67,7 +67,6 @@ def test_class_string(expected_class_string, component_class_string):
             expected_class_string.splitlines(), component_class_string.splitlines()
         )
     )
-
     assert not has_trailing_space(component_class_string)
 
 

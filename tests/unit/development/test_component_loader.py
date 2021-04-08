@@ -103,7 +103,7 @@ METADATA = json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(
 
 
 @pytest.fixture
-def write_metada_file():
+def write_metadata_file():
     with open(METADATA_PATH, "w") as f:
         f.write(METADATA_STRING)
     yield
@@ -120,7 +120,7 @@ def make_namespace():
     shutil.rmtree("default_namespace")
 
 
-def test_loadcomponents(write_metada_file):
+def test_loadcomponents(write_metadata_file):
     my_component = generate_class(
         "MyComponent",
         METADATA["MyComponent.react.js"]["props"],
@@ -156,7 +156,7 @@ def test_loadcomponents(write_metada_file):
     assert repr(a_component(**a_kwargs)) == repr(c[1](**a_kwargs))
 
 
-def test_loadcomponents_from_generated_class(write_metada_file, make_namespace):
+def test_loadcomponents_from_generated_class(write_metadata_file, make_namespace):
     my_component_runtime = generate_class(
         "MyComponent",
         METADATA["MyComponent.react.js"]["props"],
