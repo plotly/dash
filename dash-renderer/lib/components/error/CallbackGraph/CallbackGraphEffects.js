@@ -39,7 +39,7 @@ function getEdgeTypes(node) {
 function updateSelectedNode(cy, id) {
   if (id) {
     // Find the subtree that the node belongs to. A subtree contains
-    // all all ancestors and descendents that are connected via Inputs
+    // all all ancestors and descendants that are connected via Inputs
     // or Outputs (but not State).
     // WARNING: No cycle detection!
     var ascend = function ascend(node, collection) {
