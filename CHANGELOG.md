@@ -22,7 +22,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 - [#923](https://github.com/plotly/dash-core-components/pull/923)
-  Set autoComplete to off in `dcc.Dropdown`. This fixes [#808](https://github.com/plotly/dash-core-components/issues/808)
+  Set `autoComplete` to off in `dcc.Dropdown`. This fixes [#808](https://github.com/plotly/dash-core-components/issues/808)
 
 ### Fixed
 - [#930](https://github.com/plotly/dash-core-components/pull/930) Fixed a bug [#867](https://github.com/plotly/dash-core-components/issues/867) with `DatePickerRange` that would sometimes shift the allowed dates by one day.
