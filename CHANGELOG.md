@@ -2,14 +2,42 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## UNRELEASED
+## [1.20.0] - 2021-04-08
 
+## Dash and Dash Renderer
 ### Changed
 - [#1531](https://github.com/plotly/dash/pull/1531) Update the format of the docstrings to make them easier to read in the reference pages of Dash Docs and in the console. This also addresses [#1205](https://github.com/plotly/dash/issues/1205)
 - [#1553](https://github.com/plotly/dash/pull/1553) Increase the z-index of the Dash error menu from 1001 to 1100 in order to make sure it appears above Bootstrap components.
 
 ### Fixed
 - [#1546](https://github.com/plotly/dash/pull/1546) Validate callback request `outputs` vs `output` to avoid a perceived security issue.
+
+## Dash Core Components
+### Added
+- [#863](https://github.com/plotly/dash-core-components/pull/863) Adds a new `Download` component. Along with this several utility functions are added to help construct the appropriate data format:
+  - `dcc.send_file` - send a file from disk
+  - `dcc.send_data_frame` - send a `DataFrame`, using one of its writer methods
+  - `dcc.send_bytes` - send a bytestring or the result of a bytestring writer
+  - `dcc.send_string` - send a string or the result of a string writer
+
+### Changed
+- [#923](https://github.com/plotly/dash-core-components/pull/923)
+  Set autoComplete to off in `dcc.Dropdown`. This fixes [#808](https://github.com/plotly/dash-core-components/issues/808)
+
+### Fixed
+- [#930](https://github.com/plotly/dash-core-components/pull/930) Fixed a bug [#867](https://github.com/plotly/dash-core-components/issues/867) with `DatePickerRange` that would sometimes shift the allowed dates by one day.
+- [#934](https://github.com/plotly/dash-core-components/pull/934) Fixed a bug in `EnhancedTab` component that ignored `disabled_className` property
+
+## Dash HTML Components
+### Fixed
+- [#179](https://github.com/plotly/dash-html-components/pull/178) - Fixes [#77](https://github.com/plotly/dash-html-components/issues/77) Added `allow` and `referrerPolicy` properties to `html.Iframe`
+
+- [#178](https://github.com/plotly/dash-html-components/pull/178) - Fix [#161](https://github.com/plotly/dash-html-components/issues/161) <object> `data` property, and fix [#129](https://github.com/plotly/dash-html-components/issues/129) obsolete, deprecated, and discouraged elements. No elements were removed, but comments were added to the documentation about these elements detailing their limitations.
+
+## Dash Table
+### Changed
+- [#862](https://github.com/plotly/dash-table/pull/862) - update docstrings per https://github.com/plotly/dash/issues/1205
+- [#878](https://github.com/plotly/dash-table/pull/878) - update build process to use Webpack 5 and other latest dependencies
 
 ## [1.19.0] - 2021-01-19
 
