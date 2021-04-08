@@ -29,15 +29,18 @@ expected_arg_strings = OrderedDict(
             "optionalObjectWithExactAndNestedDescription",
             "\n".join(
                 [
-                    "dict containing keys 'color', 'fontSize', 'figure'.",
-                    "Those keys have the following types:",
-                    "  - color (string; optional)",
-                    "  - fontSize (number; optional)",
-                    "  - figure (dict; optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",
+                    "dict with keys:\n",
+                    "    - color (string; optional)\n",
+                    "    - figure (dict; optional):",
+                    "        Figure is a plotly graph object.\n",
+                    "        `figure` is a dict with keys:\n",
                     # noqa: E501
-                    "Those keys have the following types:",
-                    "  - data (list of dicts; optional): data is a collection of traces",
-                    "  - layout (dict; optional): layout describes the rest of the figure",  # noqa: E501
+                    "        - data (list of dicts; optional):",
+                    "            data is a collection of traces.\n",
+                    "        - layout (dict; optional):",
+                    "            layout describes the rest of the figure.\n",
+                    # noqa: E501
+                    "    - fontSize (number; optional)",
                 ]
             ),
         ],
@@ -45,16 +48,19 @@ expected_arg_strings = OrderedDict(
             "optionalObjectWithShapeAndNestedDescription",
             "\n".join(
                 [
-                    "dict containing keys 'color', 'fontSize', 'figure'.",
-                    "Those keys have the following types:",
-                    "  - color (string; optional)",
-                    "  - fontSize (number; optional)",
-                    "  - figure (dict; optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",
+                    "dict with keys:\n",
+                    "    - color (string; optional)\n",
+                    "    - figure (dict; optional):",
+                    "        Figure is a plotly graph object.\n",
+                    "        `figure` is a dict with keys:\n",
                     # noqa: E501
-                    "Those keys have the following types:",
-                    "  - data (list of dicts; optional): data is a collection of traces",
-                    "  - layout (dict; optional): layout describes the rest of the figure",  # noqa: E501
-                ]
+                    "        - data (list of dicts; optional):",
+                    "            data is a collection of traces.\n",
+                    "        - layout (dict; optional):",
+                    "            layout describes the rest of the figure.\n",
+                    # noqa: E501
+                    "    - fontSize (number; optional)",
+                ],
             ),
         ],
         ["optionalAny", "boolean | number | string | dict | list"],

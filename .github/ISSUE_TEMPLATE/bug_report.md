@@ -13,7 +13,7 @@ We do our best to catch bugs during the release process, but we rely on your hel
 
 
 **Describe your context**
-Please provide us your environment so we can easily reproduce the issue.
+Please provide us your environment, so we can easily reproduce the issue.
 
 -  replace the result of `pip list | grep dash` below
 ```
