@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## UNRELEASED
+### Added
+- [#932](https://github.com/plotly/dash-core-components/pull/932). Adds a new copy to clipboard component.
+
+
 ## [1.16.0] - 2021-04-08
 ### Added
 - [#863](https://github.com/plotly/dash-core-components/pull/863) Adds a new `Download` component. Along with this several utility functions are added to help construct the appropriate data format:

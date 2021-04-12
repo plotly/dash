@@ -33,3 +33,20 @@ def dash_dcc(request, dash_thread_server, tmpdir):
         pause=request.config.getoption("pause"),
     ) as dc:
         yield dc
+
+
+@pytest.fixture
+def dash_dcc_headed(request, dash_thread_server, tmpdir):
+    with DashCoreComponentsComposite(
+        dash_thread_server,
+        browser=request.config.getoption("webdriver"),
+        remote=request.config.getoption("remote"),
+        remote_url=request.config.getoption("remote_url"),
+        headless=False,
+        options=request.config.hook.pytest_setup_options(),
+        download_path=tmpdir.mkdir("download").strpath,
+        percy_assets_root=request.config.getoption("percy_assets"),
+        percy_finalize=request.config.getoption("nopercyfinalize"),
+        pause=request.config.getoption("pause"),
+    ) as dc:
+        yield dc

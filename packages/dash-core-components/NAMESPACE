@@ -1,6 +1,7 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 export(dccChecklist)
+export(dccClipboard)
 export(dccConfirmDialog)
 export(dccConfirmDialogProvider)
 export(dccDatePickerRange)
