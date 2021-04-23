@@ -75,6 +75,13 @@ DatePickerRange.propTypes = {
     max_date_allowed: PropTypes.string,
 
     /**
+     * Specifies additional days between min_date_allowed and max_date_allowed
+     * that should be disabled. Accepted datetime.datetime objects or strings
+     * in the format 'YYYY-MM-DD'
+     */
+    disabled_days: PropTypes.arrayOf(PropTypes.string),
+
+    /**
      * Specifies the month that is initially presented when the user
      * opens the calendar. Accepts datetime.datetime objects or strings
      * in the format 'YYYY-MM-DD'
@@ -284,6 +291,7 @@ DatePickerRange.defaultProps = {
     updatemode: 'singledate',
     persisted_props: ['start_date', 'end_date'],
     persistence_type: 'local',
+    disabled_days: [],
 };
 
 export const propTypes = DatePickerRange.propTypes;

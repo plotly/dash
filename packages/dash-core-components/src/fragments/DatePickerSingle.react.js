@@ -16,14 +16,20 @@ export default class DatePickerSingle extends Component {
     }
 
     isOutsideRange(date) {
-        const {max_date_allowed, min_date_allowed} = convertToMoment(
-            this.props,
-            ['max_date_allowed', 'min_date_allowed']
-        );
+        const {
+            max_date_allowed,
+            min_date_allowed,
+            disabled_days,
+        } = convertToMoment(this.props, [
+            'max_date_allowed',
+            'min_date_allowed',
+            'disabled_days',
+        ]);
 
         return (
             (min_date_allowed && date.isBefore(min_date_allowed)) ||
-            (max_date_allowed && date.isAfter(max_date_allowed))
+            (max_date_allowed && date.isAfter(max_date_allowed)) ||
+            (disabled_days && disabled_days.some(d => date.isSame(d, 'day')))
         );
     }
 
