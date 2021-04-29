@@ -23,7 +23,6 @@ from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
 
 import plotly
-import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -47,6 +46,7 @@ from ._utils import (
     stringify_id,
     strip_relative_path,
 )
+from . import _dash_renderer
 from . import _validate
 from . import _watch
 
@@ -655,7 +655,7 @@ class Dash(object):
         mode = "dev" if self._dev_tools["props_check"] is True else "prod"
 
         deps = []
-        for js_dist_dependency in dash_renderer._js_dist_dependencies:
+        for js_dist_dependency in _dash_renderer._js_dist_dependencies:
             dep = {}
             for key, value in js_dist_dependency.items():
                 dep[key] = value[mode] if isinstance(value, dict) else value
@@ -671,7 +671,7 @@ class Dash(object):
             + self._collect_and_register_resources(
                 self.scripts.get_all_scripts(dev_bundles=dev)
                 + self.scripts._resources._filter_resources(
-                    dash_renderer._js_dist, dev_bundles=dev
+                    _dash_renderer._js_dist, dev_bundles=dev
                 )
             )
         )
@@ -1423,7 +1423,7 @@ class Dash(object):
             # on some Python versions https://bugs.python.org/issue14710
             packages = [
                 pkgutil.find_loader(x)
-                for x in list(ComponentRegistry.registry) + ["dash_renderer"]
+                for x in list(ComponentRegistry.registry)
                 if x != "__main__"
             ]
 
