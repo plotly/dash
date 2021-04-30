@@ -22,7 +22,7 @@ function updateRendererVersions() {
         let rendererDeps = fs.readFileSync('dash_renderer/__init__.py').toString().split('\n')
         rendererDeps = rendererDeps.slice(4).join('\n')
         return src('../dash/_dash_renderer.py')
-        .pipe(replace(/.*/g, rendererDeps))
+        .pipe(replace(/.*/s, rendererDeps))
         .pipe(dest('../dash/', { overwrite: true }))
     }
 
