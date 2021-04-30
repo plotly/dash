@@ -20,7 +20,7 @@
     "test": "jest",
     "format": "run-s private::format.*",
     "lint": "run-s private::lint.*",
-    "update": "gulp merge_renderer"
+    "update": "gulp merge_renderer && black ../dash/_dash_renderer.py"
   },
   "author": "chriddyp",
   "license": "MIT",
