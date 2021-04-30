@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## Dash and Dash Renderer
+### Changed
+- [#1611](https://github.com/plotly/dash/pull/1611) Package dash-renderer artifacts and dependencies with Dash, and source renderer resources from within Dash.
+
 ## [1.20.0] - 2021-04-08
 
 ## Dash and Dash Renderer
