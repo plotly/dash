@@ -468,7 +468,6 @@ export function executeCallback(
         clientside_function,
         one_way_bind
     } = cb.callback;
-    console.log('executeCallback', cb, cb.callback, cb.callback.one_way_bind);
 
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
