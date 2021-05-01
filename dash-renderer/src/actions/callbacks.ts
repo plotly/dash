@@ -198,6 +198,22 @@ const getVals = (input: any) =>
 const zipIfArray = (a: any, b: any) =>
     Array.isArray(a) ? zip(a, b) : [[a, b]];
 
+const handleBind = ({inputs, outputs}: ICallbackPayload) => {
+    const returnValue = inputs.map(getVals);
+    const result: any = {};
+
+    zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
+        zipIfArray(outi, reti).forEach(([outij, retij]) => {
+            const {id, property} = outij;
+            const idStr = stringifyId(id);
+            const dataForId = (result[idStr] = result[idStr] || {});
+            dataForId[property] = retij;
+        });
+    });
+
+    return result;
+};
+
 function handleClientside(
     dispatch: any,
     clientside_function: any,
@@ -445,7 +461,14 @@ export function executeCallback(
     {allOutputs}: any,
     dispatch: any
 ): IExecutingCallback {
-    const {output, inputs, state, clientside_function} = cb.callback;
+    const {
+        output,
+        inputs,
+        state,
+        clientside_function,
+        one_way_bind
+    } = cb.callback;
+    console.log('executeCallback', cb, cb.callback, cb.callback.one_way_bind);
 
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
@@ -500,7 +523,17 @@ export function executeCallback(
                         : undefined
                 };
 
-                if (clientside_function) {
+                if (one_way_bind) {
+                    try {
+                        resolve({
+                            data: handleBind(payload),
+                            payload
+                        });
+                    } catch (error) {
+                        resolve({error, payload});
+                    }
+                    return null;
+                } else if (clientside_function) {
                     try {
                         resolve({
                             data: handleClientside(
