@@ -500,7 +500,9 @@ def generate_struct_file(name, props, description, project_shortname, prefix):
 
     file_name = format_fn_name(prefix, name) + ".jl"
 
-    # put component files in src/jl subdir
+    # put component files in src/jl subdir,
+    # this also creates the Julia source directory for the package
+    # if it is missing
     if not os.path.exists("src/jl"):
         os.makedirs("src/jl")
 
@@ -516,12 +518,7 @@ def generate_struct_file(name, props, description, project_shortname, prefix):
 def generate_module(
     project_shortname, components, metadata, pkg_data, prefix, **kwargs
 ):
-    # the Julia source directory for the package won't exist on first call
-    # create the Julia directory if it is missing
-    if not os.path.exists("src"):
-        os.makedirs("src")
-
-    # now copy over all JS dependencies from the (Python) components dir
+    # copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
     # create this directory if it is missing
     if os.path.exists("deps"):
