@@ -2,7 +2,8 @@ const config = require('./index');
 
 config.extends = [
     ...config.extends,
-    'plugin:@typescript-eslint/recommended',
+    "plugin:@typescript-eslint/eslint-recommended",
+    'plugin:@typescript-eslint/recommended'
 ];
 
 config.plugins = [
@@ -18,6 +19,7 @@ config.parserOptions = {
 
 config.rules = {
     ...config.rules,
+    "no-unused-vars": 0,
     '@typescript-eslint/ban-types': 0,
     '@typescript-eslint/explicit-module-boundary-types': 0,
     '@typescript-eslint/array-type': 0,
