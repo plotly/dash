@@ -27,6 +27,31 @@ function getEdgeTypes(node) {
  * @returns {function} - cleanup function, for useEffect hook
  */
 export function updateSelectedNode(cy, id) {
+    function ascend(node, collection) {
+        // FIXME: Should we include State parents but non-recursively?
+        const type = node.data().type === 'callback' ? 'input' : 'output';
+        const edges = getEdgeTypes(node)[type];
+        const parents = edges.sources();
+        collection.merge(edges);
+        collection.merge(parents);
+        if (node.data().type === 'property') {
+            collection.merge(node.ancestors());
+        }
+        parents.forEach(node => ascend(node, collection));
+    }
+
+    function descend(node, collection) {
+        const type = node.data().type === 'callback' ? 'output' : 'input';
+        const edges = getEdgeTypes(node)[type];
+        const children = edges.targets();
+        collection.merge(edges);
+        collection.merge(children);
+        if (node.data().type === 'property') {
+            collection.merge(node.ancestors());
+        }
+        children.forEach(node => descend(node, collection));
+    }
+
     if (id) {
         const node = cy.getElementById(id);
 
@@ -39,31 +64,6 @@ export function updateSelectedNode(cy, id) {
         // or Outputs (but not State).
 
         // WARNING: No cycle detection!
-
-        function ascend(node, collection) {
-            // FIXME: Should we include State parents but non-recursively?
-            const type = node.data().type === 'callback' ? 'input' : 'output';
-            const edges = getEdgeTypes(node)[type];
-            const parents = edges.sources();
-            collection.merge(edges);
-            collection.merge(parents);
-            if (node.data().type === 'property') {
-                collection.merge(node.ancestors());
-            }
-            parents.forEach(node => ascend(node, collection));
-        }
-
-        function descend(node, collection) {
-            const type = node.data().type === 'callback' ? 'output' : 'input';
-            const edges = getEdgeTypes(node)[type];
-            const children = edges.targets();
-            collection.merge(edges);
-            collection.merge(children);
-            if (node.data().type === 'property') {
-                collection.merge(node.ancestors());
-            }
-            children.forEach(node => descend(node, collection));
-        }
 
         const subtree = cy.collection();
         subtree.merge(node);
