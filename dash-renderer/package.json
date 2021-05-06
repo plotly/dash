@@ -24,8 +24,6 @@
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
     "@plotly/dash-component-plugins": "^1.2.0",
-    "@plotly/eslint-config-dash": "file:plotly-eslint-config-dash-0.0.1.tgz",
-    "@plotly/prettier-config-dash": "file:plotly-prettier-config-dash-0.0.1.tgz",
     "cookie": "^0.4.0",
     "cytoscape": "^3.14.1",
     "cytoscape-dagre": "^2.2.2",
@@ -53,6 +51,8 @@
     "@babel/preset-env": "^7.13.12",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
+    "@plotly/eslint-config-dash": "0.0.1",
+    "@plotly/prettier-config-dash": "0.0.1",
     "@svgr/webpack": "^5.2.0",
     "@types/chai": "^4.2.15",
     "@types/mocha": "^8.2.2",
