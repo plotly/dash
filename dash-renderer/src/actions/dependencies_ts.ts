@@ -78,18 +78,17 @@ export function callbackPathExists(graphs:any, paths:any, fromCallback:ICallback
         ))
 
     if (!callbacks.length){
-        //we have reached the end of the DAG
+        //we have reached the end of the graph
         return false;
     }
 
+    // not exactly clear why this extra step was required
     const matches: ICallback[] = [];
     callbacks.forEach(
         addAllResolvedFromOutputs(resolveDeps(), paths, matches)
     );
 
-    const exists = matches.some((cb)=>{return callbackPathExists(graphs, paths, cb, toCallback)})
-    console.log('CALLDAG:callbackPathExists callbacks',exists);
-    return exists;
+    return matches.some((cb)=>{return callbackPathExists(graphs, paths, cb, toCallback)})
 }
 
 export function getCallbacksByInput(
@@ -345,15 +344,15 @@ export function includeObservers(
 
     var validCbs = [... flattenedCbs];
 
-    //TODO: not sure if this is optimal
-    // for(let i=0; i<validCbs.length; i++) {
-    //     for (let j=i+1; j<validCbs.length; j++) {
-    //         if (callbackPathExists(graphs, paths, validCbs[i], flattenedCbs[j])) {
-    //             //path exists remove the extra cb
-    //             validCbs.splice(j,1);
-    //         }
-    //     }
-    // }
+    //TODO: not sure if this is optimal, maybe some information already exists in graphs DS
+    for(let i=0; i<validCbs.length; i++) {
+        for (let j=i+1; j<validCbs.length; j++) {
+            if (callbackPathExists(graphs, paths, validCbs[i], validCbs[j])) {
+                //path exists remove the extra cb
+                validCbs.splice(j,1);
+            }
+        }
+    }
 
     console.log('CALLDAG:includeObservers: validCbs', validCbs);
 

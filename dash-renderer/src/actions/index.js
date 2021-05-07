@@ -7,7 +7,7 @@ import cookie from 'cookie';
 import {validateCallbacksToLayout} from './dependencies';
 import {includeObservers, getLayoutCallbacks} from './dependencies_ts';
 import {getPath} from './paths';
-import callbacks from '../reducers/callbacks';
+// import callbacks from '../reducers/callbacks';
 
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
@@ -66,11 +66,9 @@ function triggerDefaultState(dispatch, getState) {
             })
         );
     }
-    let callbacks = getLayoutCallbacks(graphs, paths, layout, {
+    const callbacks = getLayoutCallbacks(graphs, paths, layout, {
         outputsOnly: true
     })
-
-    console.log('CALLDAG:triggerDefaultState getLayoutCallbacks', callbacks)
 
     dispatch(
         addRequestedCallbacks(
@@ -106,12 +104,11 @@ function moveHistory(changeType) {
 }
 
 export function notifyObservers({id, props}) {
-
-    console.log(':notifyObservers, updating observers', props);
+    // console.log(':notifyObservers, updating observers', props);
     return async function(dispatch, getState) {
         const {graphs, paths} = getState();
-        let callbacks = includeObservers(id, props, graphs, paths)
-        console.log('CALLDAG: notification', callbacks)
+        const callbacks = includeObservers(id, props, graphs, paths)
+
         dispatch(
             addRequestedCallbacks(callbacks)
         );
