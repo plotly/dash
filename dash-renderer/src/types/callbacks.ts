@@ -41,7 +41,7 @@ export interface ICallback extends ICallbackTemplate {
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface IPrioritizedCallback extends ICallback {}
+export type IPrioritizedCallback = ICallback;
 
 export interface IBlockedCallback extends IPrioritizedCallback {
     allOutputs: ILayoutCallbackProperty[][];
@@ -54,7 +54,7 @@ export interface IExecutingCallback extends IPrioritizedCallback {
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface IWatchedCallback extends IExecutingCallback {}
+export type IWatchedCallback = IExecutingCallback;
 
 export interface IExecutedCallback extends IWatchedCallback {
     executionResult: CallbackResult | null;

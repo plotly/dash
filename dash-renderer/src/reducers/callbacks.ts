@@ -136,9 +136,9 @@ export default (
                 return s;
             } else if (a.type === CallbackAggregateActionType.AddCompleted) {
                 return mutateCompleted(s, a);
-            } else {
-                return mutateCallbacks(s, a);
             }
+
+            return mutateCallbacks(s, a);
         },
         state,
         action.type === CallbackAggregateActionType.Aggregate
