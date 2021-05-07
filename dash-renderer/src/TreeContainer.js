@@ -126,6 +126,8 @@ class BaseTreeContainer extends Component {
             (val, key) => !equals(val, oldProps[key]),
             newProps
         );
+
+        console.log("props", newProps, "old", oldProps);
         if (!isEmpty(changedProps)) {
             // Identify the modified props that are required for callbacks
             const watchedKeys = getWatchedKeys(

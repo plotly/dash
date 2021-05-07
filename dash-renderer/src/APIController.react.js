@@ -117,6 +117,7 @@ const UnconnectedContainer = props => {
 };
 
 function storeEffect(props, events, setErrorLoading) {
+
     const {
         appLifecycle,
         dependenciesRequest,

@@ -68,10 +68,14 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             callbacks: {requested}
         } = getState();
 
+
+        console.log("observer:requestedCallbacks: requested", requested);
+
         const initialRequested = requested.slice(0);
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
+        console.log("observer:requestedCallbacks: pending", pendingCallbacks);
         /*
             0. Prune circular callbacks that have completed the loop
             - cb.callback included in cb.predecessors
@@ -374,6 +378,9 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const added = difference(requested, initialRequested);
         const removed = difference(initialRequested, requested);
+        
+
+        console.log("requestedCallbacks: added", added, "removed", removed); 
 
         dispatch(
             aggregateCallbacks([
