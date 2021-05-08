@@ -39,10 +39,10 @@ export default class StoreObserver<TStore> {
 
             this.add(observer, inputs);
             return () => this.remove(observer);
-        } else {
-            this.add(observer.observer, observer.inputs);
-            return () => this.remove(observer.observer);
         }
+
+        this.add(observer.observer, observer.inputs);
+        return () => this.remove(observer.observer);
     };
 
     setStore = (store: Store<TStore>) => {

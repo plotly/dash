@@ -38,7 +38,7 @@ export function computePaths(subTree, startingPath, oldPaths, events) {
         }, oldObjs);
     }
 
-    crawlLayout(subTree, function assignPath(child, itempath) {
+    crawlLayout(subTree, (child, itempath) => {
         const id = path(['props', 'id'], child);
         if (id) {
             if (typeof id === 'object') {

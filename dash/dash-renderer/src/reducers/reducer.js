@@ -71,7 +71,7 @@ function getInputHistoryState(payload, state, recordChanges) {
 }
 
 function recordHistory(reducer) {
-    return function(state, action) {
+    return function (state, action) {
         // Record initial state
         const {type, payload} = action;
         if (type === 'ON_PROP_CHANGE') {
@@ -104,7 +104,7 @@ function recordHistory(reducer) {
 }
 
 function reloaderReducer(reducer) {
-    return function(state, action) {
+    return function (state, action) {
         const {history, config, hooks} = state || {};
         let newState = state;
         if (action.type === 'RELOAD') {

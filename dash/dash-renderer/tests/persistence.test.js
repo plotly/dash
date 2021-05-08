@@ -1,7 +1,6 @@
-/* eslint-disable no-magic-numbers */
-/* eslint-disable no-console */
+import {expect} from 'chai';
+import {afterEach, beforeEach, describe, it} from 'mocha';
 import {recordUiEdit, stores, storePrefix} from '../src/persistence';
-
 const longString = pow => {
     let s = 's';
     for (let i = 0; i < pow; i++) {
@@ -15,28 +14,28 @@ const fillStorage = (store, key) => {
     // then a binary search to find the exact point of failure
     const maxPow = 30;
     let pow = 0;
-    for(; pow < maxPow; pow++) {
+    for (; pow < maxPow; pow++) {
         try {
             store.setItem(key, longString(pow));
-        } catch(e) {
+        } catch (e) {
             break;
         }
     }
     pow--;
     let s = longString(pow);
-    for(pow--; pow >= 0; pow--) {
+    for (pow--; pow >= 0; pow--) {
         const s2 = s + longString(pow);
         try {
             store.setItem(key, s2);
             s = s2;
-        } catch(e) {
+        } catch (e) {
             // s remains as is, next time we'll add half as much
         }
     }
     // finally a sanity check that nothing more can be added
     try {
         store.setItem(key + '+', 'a');
-    } catch(e) {
+    } catch (e) {
         return;
     }
     throw new Error('Something still fits in the store?');
@@ -61,7 +60,6 @@ const layoutA = storeType => ({
     }
 });
 
-
 describe('storage fallbacks and equivalence', () => {
     const propVal = 42;
     const propStr = String(propVal);
@@ -70,9 +68,9 @@ describe('storage fallbacks and equivalence', () => {
     const _dispatch = evt => {
         // verify that dispatch is sending errors to the devtools,
         // and record the message sent
-        expect(evt.type).toEqual('ON_ERROR');
+        expect(evt.type).to.equal('ON_ERROR');
         dispatchCalls.push(evt.payload.error.message);
-    }
+    };
 
     beforeEach(() => {
         window.my_components = {
@@ -100,49 +98,53 @@ describe('storage fallbacks and equivalence', () => {
 
         const layout = layoutA(storeType);
 
-        test(`empty ${storeName} works`, () => {
+        it(`empty ${storeName} works`, () => {
             recordUiEdit(layout, {p1: propVal}, _dispatch);
-            expect(dispatchCalls).toEqual([]);
-            expect(store.getItem(`${storePrefix}a.p1.true`)).toBe(`[${propStr}]`);
+            expect(dispatchCalls).to.deep.equal([]);
+            expect(store.getItem(`${storePrefix}a.p1.true`)).to.equal(
+                `[${propStr}]`
+            );
         });
 
-        test(`${storeName} full from persistence works with warnings`, () => {
+        it(`${storeName} full from persistence works with warnings`, () => {
             fillStorage(store, `${storePrefix}x.x`);
 
             recordUiEdit(layout, {p1: propVal}, _dispatch);
-            expect(dispatchCalls).toEqual([
+            expect(dispatchCalls).to.deep.equal([
                 `${storeName} init first try failed; clearing and retrying`,
                 `${storeName} init set/get succeeded after clearing!`
             ]);
-            expect(store.getItem(`${storePrefix}a.p1.true`)).toBe(`[${propStr}]`);
+            expect(store.getItem(`${storePrefix}a.p1.true`)).to.equal(
+                `[${propStr}]`
+            );
             // Boolean so we don't see the very long value if test fails
             const x = Boolean(store.getItem(`${storePrefix}x.x`));
-            expect(x).toBe(false);
+            expect(x).to.equal(false);
         });
 
-        test(`${storeName} full from other stuff falls back on memory`, () => {
+        it(`${storeName} full from other stuff falls back on memory`, () => {
             fillStorage(store, 'not_ours');
 
             recordUiEdit(layout, {p1: propVal}, _dispatch);
-            expect(dispatchCalls).toEqual([
+            expect(dispatchCalls).to.deep.deep.equal([
                 `${storeName} init first try failed; clearing and retrying`,
                 `${storeName} init still failed, falling back to memory`
             ]);
-            expect(stores.memory.getItem('a.p1.true')).toEqual([propVal]);
+            expect(stores.memory.getItem('a.p1.true')).to.deep.equal([propVal]);
             const x = Boolean(store.getItem('not_ours'));
-            expect(x).toBe(true);
+            expect(x).to.equal(true);
         });
 
-        test(`${storeName} that fills up later on just logs an error`, () => {
+        it(`${storeName} that fills up later on just logs an error`, () => {
             // Maybe not ideal long-term behavior, but this is what happens
 
             // initialize and ensure the store is happy
             recordUiEdit(layout, {p1: propVal}, _dispatch);
-            expect(dispatchCalls).toEqual([]);
+            expect(dispatchCalls).to.deep.deep.equal([]);
 
             // now flood it.
             recordUiEdit(layout, {p1: longString(26)}, _dispatch);
-            expect(dispatchCalls).toEqual([
+            expect(dispatchCalls).to.deep.equal([
                 `a.p1.true failed to save in ${storeName}. Persisted props may be lost.`
             ]);
         });
@@ -152,28 +154,37 @@ describe('storage fallbacks and equivalence', () => {
         const layout = layoutA(storeType);
         const key = 'key';
 
-        test(`${storeType} primitives in/out match`, () => {
+        it(`${storeType} primitives in/out match`, () => {
             // ensure storage is instantiated
             recordUiEdit(layout, {p1: propVal}, _dispatch);
             const store = stores[storeType];
             [
-                0, 1, 1.1, true, false, null, undefined, '', 'hi', '0', '1'
+                0,
+                1,
+                1.1,
+                true,
+                false,
+                null,
+                undefined,
+                '',
+                'hi',
+                '0',
+                '1'
             ].forEach(val => {
                 store.setItem(key, val);
-                expect(store.getItem(key)).toBe(val);
+                expect(store.getItem(key)).to.equal(val);
             });
         });
 
-        test(`${storeType} arrays and objects in/out are clones`, () => {
+        it(`${storeType} arrays and objects in/out are clones`, () => {
             recordUiEdit(layout, {p1: propVal}, _dispatch);
             const store = stores[storeType];
 
             [[1, 2, 3], {a: 1, b: 2}].forEach(val => {
-
                 store.setItem(key, val);
                 const valOut = store.getItem(key);
-                expect(valOut).not.toBe(val);
-                expect(valOut).toEqual(val);
+                expect(valOut).not.to.equal(val);
+                expect(valOut).to.deep.equal(val);
             });
         });
     });

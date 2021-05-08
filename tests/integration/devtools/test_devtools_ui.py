@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output
 import dash.testing.wait as wait
 
 from dash_test_components import WidthComponent
-from ...assets.todo_app import todo_app
+from assets.todo_app import todo_app
 
 
 def test_dvui001_disable_props_check_config(dash_duo):
