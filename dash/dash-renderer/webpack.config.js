@@ -41,7 +41,7 @@ const rendererOptions = {
         main: ['whatwg-fetch', './src/index.js'],
     },
     output: {
-        path: path.resolve(__dirname, dashLibraryName),
+        path: path.resolve(__dirname, "..", "deps"),
         filename: `${dashLibraryName}.dev.js`,
         library: dashLibraryName,
         libraryTarget: 'window',

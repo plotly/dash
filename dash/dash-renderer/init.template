@@ -1,6 +1,3 @@
-import sys
-
-__file__
 __version__ = "$version"
 
 _js_dist_dependencies = [
@@ -21,35 +18,35 @@ _js_dist_dependencies = [
         },
         "relative_package_path": {
             "prod": [
-                "polyfill@$polyfill.min.js",
-                "react@$react.min.js",
-                "react-dom@$reactdom.min.js",
-                "prop-types@$proptypes.min.js",
+                "deps/polyfill@$polyfill.min.js",
+                "deps/react@$react.min.js",
+                "deps/react-dom@$reactdom.min.js",
+                "deps/prop-types@$proptypes.min.js",
             ],
             "dev": [
-                "polyfill@$polyfill.min.js",
-                "react@$react.js",
-                "react-dom@$reactdom.js",
-                "prop-types@$proptypes.js",
+                "deps/polyfill@$polyfill.min.js",
+                "deps/react@$react.js",
+                "deps/react-dom@$reactdom.js",
+                "deps/prop-types@$proptypes.js",
             ],
         },
-        "namespace": "dash_renderer",
+        "namespace": "dash",
     }
 ]
 
 
 _js_dist = [
     {
-        "relative_package_path": "{}.min.js".format(__name__),
-        "dev_package_path": "{}.dev.js".format(__name__),
+        "relative_package_path": "deps/dash_renderer.min.js",
+        "dev_package_path": "deps/dash_renderer.dev.js",
         "external_url": "https://unpkg.com/dash-renderer@$version"
         "/dash_renderer/dash_renderer.min.js",
-        "namespace": "dash_renderer",
+        "namespace": "dash",
     },
     {
-        "relative_package_path": "{}.min.js.map".format(__name__),
-        "dev_package_path": "{}.dev.js.map".format(__name__),
-        "namespace": "dash_renderer",
+        "relative_package_path": "deps/dash_renderer.min.js.map",
+        "dev_package_path": "deps/dash_renderer.dev.js.map",
+        "namespace": "dash",
         "dynamic": True,
     },
 ]

@@ -33,7 +33,7 @@ class BuildProcess(object):
             package = json.load(fp)
             self.version = package["version"]
             self.name = package["name"]
-            self.build_folder = self._concat(self.main, self.name.replace("-", "_"))
+            self.build_folder = self._concat(self.main, os.pardir, "deps")
             self.deps = package["dependencies"]
 
     @staticmethod
@@ -141,7 +141,9 @@ class BuildProcess(object):
         with open(self._concat(self.main, "init.template")) as fp:
             t = string.Template(fp.read())
 
-        with open(self._concat(self.build_folder, "__init__.py"), "w") as fp:
+        with open(
+            self._concat(self.build_folder, os.pardir, "_dash_renderer.py"), "w"
+        ) as fp:
             fp.write(t.safe_substitute(versions))
 
 
@@ -149,9 +151,7 @@ class Renderer(BuildProcess):
     def __init__(self):
         """dash-renderer's path is binding with the dash folder hierarchy."""
         super(Renderer, self).__init__(
-            self._concat(
-                os.path.dirname(__file__), os.pardir, os.pardir, "dash-renderer"
-            ),
+            self._concat(os.path.dirname(__file__), os.pardir, "dash-renderer"),
             (
                 ("@babel", "polyfill", "dist", "polyfill.min.js", None),
                 (None, "react", "umd", "react.production.min.js", None),
