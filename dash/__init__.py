@@ -3,6 +3,7 @@
 # must come before any other imports.
 __plotly_dash = True
 from .dash import Dash, no_update  # noqa: F401,E402
+from ._utils import stringify_id  # noqa: F401,E402
 from . import dependencies  # noqa: F401,E402
 from . import development  # noqa: F401,E402
 from . import exceptions  # noqa: F401,E402

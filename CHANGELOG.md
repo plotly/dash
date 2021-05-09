@@ -2,6 +2,15 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED] - YYYY-MM-DD
+
+### Added
+- [#1637](https://github.com/plotly/dash/pull/1637) Exposed the `stringify_id` function at top level, i.e. `dash.stringify_id(id)`.
+This function is especially useful in settings where `id` is a dictionary (i.e. used in pattern-matching callbaks),
+and you need the stringified ID that dash internally use in the DOM. The function now also takes an optional boolean parameter
+`escape_css` (default `False`) which on `True` escapes the returned string for CSS special characters such that it can be used
+directly in CSS selectors like `dash_duo.wait_for_element_by_id(dash.stringify_id(id, escape_css=True))`.
+
 ## [1.20.0] - 2021-04-08
 
 ## Dash and Dash Renderer
