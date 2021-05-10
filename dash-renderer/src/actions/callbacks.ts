@@ -134,7 +134,7 @@ function fillVals(
     cb: ICallback,
     specs: any,
     depType: any,
-    allowAllMissing: boolean = false
+    allowAllMissing = false
 ) {
     const getter = depType === 'Input' ? cb.getInputs : cb.getState;
     const errors: any[] = [];
@@ -341,7 +341,7 @@ function handleServerside(
 
                     timingHeaders.split(',').forEach((header: any) => {
                         const name = header.split(';')[0];
-                        const dur = header.match(/;dur=[0-9\.]+/);
+                        const dur = header.match(/;dur=[0-9.]+/);
 
                         if (dur) {
                             resources[name] = Number(dur[0].slice(5));
@@ -515,11 +515,11 @@ export function executeCallback(
                         resolve({error, payload});
                     }
                     return null;
-                } else {
-                    handleServerside(dispatch, hooks, config, payload)
-                        .then(data => resolve({data, payload}))
-                        .catch(error => resolve({error, payload}));
                 }
+
+                handleServerside(dispatch, hooks, config, payload)
+                    .then(data => resolve({data, payload}))
+                    .catch(error => resolve({error, payload}));
             } catch (error) {
                 resolve({error, payload: null});
             }

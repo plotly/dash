@@ -22,7 +22,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const {callbacks} = getState();
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
-        let {
+        const {
             callbacks: {stored}
         } = getState();
 
@@ -41,7 +41,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             filter(cb => !isNil(cb.executionGroup), pendingCallbacks)
         );
 
-        let dropped = reduce(
+        const dropped = reduce(
             (res, [executionGroup, executionGroupCallbacks]) =>
                 !pendingGroups[executionGroup]
                     ? concat(res, executionGroupCallbacks)

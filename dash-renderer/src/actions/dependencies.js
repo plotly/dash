@@ -778,7 +778,7 @@ export function computeGraphs(dependencies, dispatchError) {
         }
     }
 
-    parsedDependencies.forEach(function registerDependency(dependency) {
+    parsedDependencies.forEach(dependency => {
         const {outputs, inputs} = dependency;
 
         // new callback, add an empty array for its inputs and outputs
@@ -1248,9 +1248,7 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
             if (typeof id === 'string' && !removedArrayInputsOnly) {
                 handleOneId(id, graphs.outputMap[id], graphs.inputMap[id]);
             } else {
-                const keyStr = Object.keys(id)
-                    .sort()
-                    .join(',');
+                const keyStr = Object.keys(id).sort().join(',');
                 handleOneId(
                     id,
                     !removedArrayInputsOnly && graphs.outputPatterns[keyStr],

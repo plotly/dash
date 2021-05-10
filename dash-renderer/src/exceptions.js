@@ -43,7 +43,7 @@ export function propTypeErrorHandler(message, props, type) {
         if (props.id) {
             errorMessage += ` with ID "${props.id}"`;
         }
-        errorMessage += ` is required but it was not provided.`;
+        errorMessage += ' is required but it was not provided.';
     } else if (includes('Bad object', message)) {
         /*
          * Handle .exact errors

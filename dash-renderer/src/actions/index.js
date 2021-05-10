@@ -27,7 +27,7 @@ export const dispatchError = dispatch => (message, lines) =>
     );
 
 export function hydrateInitialOutputs() {
-    return function(dispatch, getState) {
+    return function (dispatch, getState) {
         validateCallbacksToLayout(getState(), dispatchError(dispatch));
         triggerDefaultState(dispatch, getState);
         dispatch(setAppLifecycle(getAppState('HYDRATED')));
@@ -80,7 +80,7 @@ export const undo = moveHistory('UNDO');
 export const revert = moveHistory('REVERT');
 
 function moveHistory(changeType) {
-    return function(dispatch, getState) {
+    return function (dispatch, getState) {
         const {history, paths} = getState();
         dispatch(createAction(changeType)());
         const {id, props} =
@@ -102,7 +102,7 @@ function moveHistory(changeType) {
 }
 
 export function notifyObservers({id, props}) {
-    return async function(dispatch, getState) {
+    return async function (dispatch, getState) {
         const {graphs, paths} = getState();
         dispatch(
             addRequestedCallbacks(includeObservers(id, props, graphs, paths))

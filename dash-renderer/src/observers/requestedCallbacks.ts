@@ -93,7 +93,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         */
 
         let rDuplicates: ICallback[] = [];
-        let rMergedDuplicates: ICallback[] = [];
+        const rMergedDuplicates: ICallback[] = [];
 
         forEach(group => {
             if (group.length === 1) {
@@ -122,7 +122,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     pluck('changedPropIds', groupWithoutInitial)
                                 ),
                                 executionGroup: filter(
-                                    exg => !!exg,
+                                    exg => Boolean(exg),
                                     pluck('executionGroup', groupWithoutInitial)
                                 ).slice(-1)[0]
                             },
