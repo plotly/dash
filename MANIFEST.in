@@ -4,5 +4,5 @@ include requires-*.txt
 include dash/favicon.ico
 include dash/extract-meta.js
 include dash/deps/*.js
-include dash/dash-renderer *
+recursive-include dash/dash-renderer *
 exclude dash/dash-renderer/node_modules/**
