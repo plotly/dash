@@ -64,7 +64,7 @@ module.exports = options => [
         {
             mode: 'production',
             output: {
-                path: path.resolve(__dirname, dashLibraryName),
+                path: path.resolve(__dirname, "..", "deps"),
                 filename: `${dashLibraryName}.min.js`,
                 library: dashLibraryName,
                 libraryTarget: 'window',

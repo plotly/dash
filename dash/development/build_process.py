@@ -33,7 +33,7 @@ class BuildProcess(object):
             package = json.load(fp)
             self.version = package["version"]
             self.name = package["name"]
-            self.build_folder = self._concat(self.main, os.pardir, "deps")
+            self.build_folder = self._concat(os.getcwd(), os.pardir, "deps")
             self.deps = package["dependencies"]
 
     @staticmethod
@@ -109,6 +109,8 @@ class BuildProcess(object):
                 logger.exception("🚨 having issues manipulating %s", self.build_folder)
                 sys.exit(1)
 
+        _targetFolder = self.build_folder
+
         self._parse_package(self.package_lock)
 
         getattr(self, "_bundles_extra", lambda: None)()
@@ -117,6 +119,7 @@ class BuildProcess(object):
             "version": self.version,
             "package": self.name.replace(" ", "_").replace("-", "_"),
         }
+
         for scope, name, subfolder, filename, target in self.deps_info:
             version = self.deps["/".join(filter(None, [scope, name]))]["version"]
             versions[name.replace("-", "").replace(".", "")] = version
@@ -128,14 +131,15 @@ class BuildProcess(object):
                 if target
                 else "{}@{}.{}".format(name, version, ext)
             )
+
             shutil.copyfile(
                 self._concat(self.npm_modules, scope, name, subfolder, filename),
-                self._concat(self.build_folder, target),
+                self._concat(_targetFolder, target),
             )
 
         _script = "build:dev" if build == "local" else "build:js"
         logger.info("run `npm run %s`", _script)
-        os.chdir(self.main)
+        os.chdir(self._concat(_targetFolder, os.pardir, "dash-renderer"))
         run_command_with_process("npm run {}".format(_script))
 
         logger.info("generate the `__init__.py` from template and versions")
@@ -143,7 +147,7 @@ class BuildProcess(object):
             t = string.Template(fp.read())
 
         with open(
-            self._concat(self.build_folder, os.pardir, "_dash_renderer.py"), "w"
+            self._concat(_targetFolder, os.pardir, "_dash_renderer.py"), "w"
         ) as fp:
             fp.write(t.safe_substitute(versions))
 
