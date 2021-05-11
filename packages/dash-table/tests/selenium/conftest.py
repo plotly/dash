@@ -1,3 +1,4 @@
+import platform
 import pytest
 
 from dash.testing.browser import Browser
@@ -260,6 +261,17 @@ class DataTableColumnFacade(object):
             )
         )
 
+    def filter_clear(self):
+        CMD = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
+
+        self.filter().find_element_by_css_selector("input").click()
+        ac = ActionChains(self.mixin.driver)
+        ac.key_down(CMD)
+        ac.send_keys("a")
+        ac.key_up(CMD)
+        ac.send_keys(Keys.DELETE)
+        ac.perform()
+
     def filter_click(self):
         self.filter().click()
 
@@ -273,8 +285,10 @@ class DataTableColumnFacade(object):
                 .find_element_by_css_selector("input")
                 .get_attribute("value")
             )
+        elif value == "":
+            self.filter_clear()
         else:
-            self.filter_click()
+            self.filter_clear()
             self.mixin.driver.switch_to.active_element.send_keys(value + Keys.ENTER)
 
 

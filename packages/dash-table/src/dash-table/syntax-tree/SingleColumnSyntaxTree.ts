@@ -1,9 +1,16 @@
+import * as R from 'ramda';
+
 import {RequiredPluck, OptionalPluck} from 'core/type';
 import SyntaxTree from 'core/syntax-tree';
 import {ILexemeResult, ILexerResult} from 'core/syntax-tree/lexer';
 import {LexemeType, boundLexeme} from 'core/syntax-tree/lexicon';
 
-import {ColumnType, IColumn} from 'dash-table/components/Table/props';
+import {
+    ColumnType,
+    FilterCase,
+    IColumn,
+    IFilterOptions
+} from 'dash-table/components/Table/props';
 
 import {fieldExpression} from './lexeme/expression';
 import {
@@ -15,13 +22,58 @@ import {
 
 import columnLexicon from './lexicon/column';
 
-function getImplicitLexeme(type: ColumnType = ColumnType.Any): ILexemeResult {
+const sensitiveRelationalOperators: string[] = [
+    RelationalOperator.Contains,
+    RelationalOperator.Equal,
+    RelationalOperator.GreaterOrEqual,
+    RelationalOperator.GreaterThan,
+    RelationalOperator.LessOrEqual,
+    RelationalOperator.LessThan,
+    RelationalOperator.NotEqual
+];
+
+function getFilterLexeme(
+    filterOptions: IFilterOptions | undefined,
+    lexeme: ILexemeResult
+): ILexemeResult {
+    const flags = R.isNil(filterOptions)
+        ? ''
+        : filterOptions.case === FilterCase.Insensitive
+        ? 'i'
+        : 's';
+
+    if (
+        lexeme.lexeme.type === LexemeType.RelationalOperator &&
+        lexeme.lexeme.subType &&
+        sensitiveRelationalOperators.indexOf(lexeme.lexeme.subType) !== -1 &&
+        lexeme.value &&
+        ['i', 's'].indexOf(lexeme.value[0]) === -1
+    ) {
+        return {
+            ...lexeme,
+            value: `${flags}${lexeme.value}`
+        };
+    }
+
+    return lexeme;
+}
+
+function getImplicitLexeme(
+    filterOptions: IFilterOptions | undefined,
+    type: ColumnType = ColumnType.Any
+): ILexemeResult {
+    const flags = R.isNil(filterOptions)
+        ? ''
+        : filterOptions.case === FilterCase.Insensitive
+        ? 'i'
+        : 's';
+
     switch (type) {
         case ColumnType.Any:
         case ColumnType.Text:
             return {
                 lexeme: boundLexeme(contains),
-                value: RelationalOperator.Contains
+                value: `${flags}${RelationalOperator.Contains}`
             };
         case ColumnType.Datetime:
             return {
@@ -31,7 +83,7 @@ function getImplicitLexeme(type: ColumnType = ColumnType.Any): ILexemeResult {
         case ColumnType.Numeric:
             return {
                 lexeme: boundLexeme(equal),
-                value: RelationalOperator.Equal
+                value: `${flags}${RelationalOperator.Equal}`
             };
     }
 }
@@ -58,7 +110,13 @@ function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
         return res;
     }
 
-    if (isBinary(res.lexemes) || isUnary(res.lexemes)) {
+    if (isBinary(res.lexemes)) {
+        res.lexemes = [
+            {lexeme: boundLexeme(fieldExpression), value: `{${config.id}}`},
+            getFilterLexeme(config.filter_options, res.lexemes[0]),
+            res.lexemes[1]
+        ];
+    } else if (isUnary(res.lexemes)) {
         res.lexemes = [
             {lexeme: boundLexeme(fieldExpression), value: `{${config.id}}`},
             ...res.lexemes
@@ -66,7 +124,7 @@ function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
     } else if (isExpression(res.lexemes)) {
         res.lexemes = [
             {lexeme: boundLexeme(fieldExpression), value: `{${config.id}}`},
-            getImplicitLexeme(config.type),
+            getImplicitLexeme(config.filter_options, config.type),
             ...res.lexemes
         ];
     }
@@ -75,6 +133,7 @@ function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
 }
 
 export type SingleColumnConfig = RequiredPluck<IColumn, 'id'> &
+    OptionalPluck<IColumn, 'filter_options'> &
     OptionalPluck<IColumn, 'type'>;
 
 export default class SingleColumnSyntaxTree extends SyntaxTree {

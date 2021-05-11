@@ -9,6 +9,8 @@ import HeaderFactory from 'dash-table/components/HeaderFactory';
 import {clearSelection} from 'dash-table/utils/actions';
 import {
     ControlledTableProps,
+    FilterCase,
+    IColumn,
     SetProps,
     SetState
 } from 'dash-table/components/Table/props';
@@ -26,15 +28,45 @@ const handleSetFilter = (
     setState({workFilter: {map, value: filter_query}, rawFilterQuery});
 };
 
-function propsAndMapFn(propsFn: () => ControlledTableProps, setFilter: any) {
+function propsAndMapFn(
+    propsFn: () => ControlledTableProps,
+    setFilter: any,
+    toggleFilterOptions: (column: IColumn) => IColumn
+) {
     const props = propsFn();
 
-    return R.merge(props, {map: props.workFilter.map, setFilter});
+    return R.merge(props, {
+        map: props.workFilter.map,
+        setFilter,
+        toggleFilterOptions
+    });
 }
 
 export default (propsFn: () => ControlledTableProps) => {
     const setFilter = memoizeOne((setProps: SetProps, setState: SetState) =>
         handleSetFilter.bind(undefined, setProps, setState)
+    );
+
+    const toggleFilterOptions = memoizeOne(
+        (setProps: SetProps, columns: IColumn[]) => (column: IColumn) => {
+            const newColumns = [...columns];
+            const iColumn = columns.indexOf(column);
+
+            const newColumn = {...newColumns[iColumn]};
+            newColumn.filter_options = {
+                ...newColumn.filter_options,
+                case:
+                    newColumn.filter_options.case === FilterCase.Insensitive
+                        ? FilterCase.Sensitive
+                        : FilterCase.Insensitive
+            };
+
+            newColumns.splice(iColumn, 1, newColumn);
+
+            setProps({columns: newColumns});
+
+            return newColumn;
+        }
     );
 
     const cellFactory = new CellFactory(propsFn);
@@ -44,7 +76,8 @@ export default (propsFn: () => ControlledTableProps) => {
 
         return propsAndMapFn(
             propsFn,
-            setFilter(props.setProps, props.setState)
+            setFilter(props.setProps, props.setState),
+            toggleFilterOptions(props.setProps, props.columns)
         );
     };
 

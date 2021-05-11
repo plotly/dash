@@ -1,4 +1,6 @@
-{
+var path = require('path');
+
+module.exports = {
     "extends": [
         "plugin:@typescript-eslint/recommended",
         "prettier"
@@ -7,7 +9,7 @@
         "@typescript-eslint"
     ],
     "parserOptions": {
-        "project": "./tsconfig.lint.json"
+        "project": path.join(__dirname, "tsconfig.lint.json"),
     },
     "rules": {
         "arrow-parens": [

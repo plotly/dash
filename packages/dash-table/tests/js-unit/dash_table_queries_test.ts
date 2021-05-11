@@ -265,6 +265,20 @@ describe('Dash Table Queries', () => {
                                 target: {a: '\r\n1\r\n'},
                                 valid: true,
                                 evaluate: true
+                            },
+                            {
+                                name: "compare 'abc' to 'ABC' (insensitive)",
+                                query: `${c.hideOperand ? '' : '{a} '}ieq ABC`,
+                                target: {a: 'abc'},
+                                valid: true,
+                                evaluate: true
+                            },
+                            {
+                                name: "compare 'abc' to 'ABC' (sensitive)",
+                                query: `${c.hideOperand ? '' : '{a} '}seq ABC`,
+                                target: {a: 'abc'},
+                                valid: true,
+                                evaluate: false
                             }
                         ]);
                     });
@@ -277,6 +291,15 @@ describe('Dash Table Queries', () => {
                                     c.hideOperand ? '' : '{a} '
                                 }contains 1`,
                                 target: {a: '11'},
+                                valid: true,
+                                evaluate: true
+                            },
+                            {
+                                name: 'insensitive compares "abc" to A',
+                                query: `${
+                                    c.hideOperand ? '' : '{a} '
+                                }icontains A`,
+                                target: {a: 'abc'},
                                 valid: true,
                                 evaluate: true
                             },
@@ -367,6 +390,42 @@ describe('Dash Table Queries', () => {
                                 query: `${
                                     c.hideOperand ? '' : '{a} '
                                 }contains "b "`,
+                                target: {a: 'ab c'},
+                                valid: true,
+                                evaluate: true
+                            },
+                            {
+                                name: "compare 'ab c' to 'B' (insensitive)",
+                                query: `${
+                                    c.hideOperand ? '' : '{a} '
+                                }icontains B`,
+                                target: {a: 'ab c'},
+                                valid: true,
+                                evaluate: true
+                            },
+                            {
+                                name: "compare 'ab c' to 'b' (insensitive)",
+                                query: `${
+                                    c.hideOperand ? '' : '{a} '
+                                }icontains b`,
+                                target: {a: 'ab c'},
+                                valid: true,
+                                evaluate: true
+                            },
+                            {
+                                name: "compare 'ab c' to 'B' (sensitive)",
+                                query: `${
+                                    c.hideOperand ? '' : '{a} '
+                                }scontains B`,
+                                target: {a: 'ab c'},
+                                valid: true,
+                                evaluate: false
+                            },
+                            {
+                                name: "compare 'ab c' to 'b' (sensitive)",
+                                query: `${
+                                    c.hideOperand ? '' : '{a} '
+                                }scontains b`,
                                 target: {a: 'ab c'},
                                 valid: true,
                                 evaluate: true

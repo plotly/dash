@@ -10,6 +10,7 @@ export interface ILexerResult {
 
 export interface ILexemeResult {
     lexeme: ILexeme;
+    flags?: string;
     value?: string;
 }
 
@@ -37,8 +38,10 @@ export default function lexer(lexicon: Lexicon, query: string): ILexerResult {
             return {lexemes: result, valid: false, error: query};
         }
 
-        const value = (query.match(next.regexp) || [])[next.regexpMatch || 0];
-        result.push({lexeme: next, value});
+        const match = query.match(next.regexp) ?? [];
+        const value = match[next.regexpMatch || 0];
+        const flags = match[next.regexpFlags || -1];
+        result.push({lexeme: next, flags, value});
 
         query = query.substring(value.length);
     }

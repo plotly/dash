@@ -51,6 +51,7 @@ def get_app():
                 row_deletable=True,
                 row_selectable=True,
                 sort_action="native",
+                style_cell=dict(width=100, min_width=100, max_width=100),
             ),
             html.Div(id="props_container", children=["Nothing yet"]),
         ]

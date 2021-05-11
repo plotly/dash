@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+- [#545](https://github.com/plotly/dash-table/issues/545)
+    - Case insensitive filtering
+    - New props: `filter_options` - to control case of all filters, `columns.filter_options` - to control filter case for each column
+    - New operators: `i=`, `ieq`, `i>=`, `ige`, `i>`, `igt`, `i<=`, `ile`, `i<`, `ilt`, `i!=`, `ine`, `icontains` - for case-insensitive filtering, `s=`, `seq`, `s>=`, `sge`, `s>`, `sgt`, `s<=`, `sle`, `s<`, `slt`, `s!=`, `sne`, `scontains` - to force case-sensitive filtering on case-insensitive columns
+
 ## [4.11.3] - 2021-04-08
 ### Changed
 - [#862](https://github.com/plotly/dash-table/pull/862) - update docstrings per https://github.com/plotly/dash/issues/1205

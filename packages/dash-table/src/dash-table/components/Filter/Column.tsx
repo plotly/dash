@@ -2,17 +2,20 @@ import React, {CSSProperties, PureComponent} from 'react';
 
 import IsolatedInput from 'core/components/IsolatedInput';
 
-import {ColumnId} from 'dash-table/components/Table/props';
+import {ColumnId, IFilterOptions} from 'dash-table/components/Table/props';
 import TableClipboardHelper from 'dash-table/utils/TableClipboardHelper';
+import FilterOptions from 'dash-table/components/Filter/FilterOptions';
 
 type SetFilter = (ev: any) => void;
 
 interface IColumnFilterProps {
     className: string;
     columnId: ColumnId;
+    filterOptions: IFilterOptions;
     isValid: boolean;
     setFilter: SetFilter;
     style?: CSSProperties;
+    toggleFilterOptions: () => void;
     value?: string;
 }
 
@@ -41,7 +44,15 @@ export default class ColumnFilter extends PureComponent<
     };
 
     render() {
-        const {className, columnId, isValid, style, value} = this.props;
+        const {
+            className,
+            columnId,
+            filterOptions,
+            isValid,
+            style,
+            toggleFilterOptions,
+            value
+        } = this.props;
 
         return (
             <th
@@ -61,6 +72,10 @@ export default class ColumnFilter extends PureComponent<
                     placeholder={'filter data...'}
                     stopPropagation={true}
                     submit={this.submit}
+                />
+                <FilterOptions
+                    filterOptions={filterOptions}
+                    toggleFilterOptions={toggleFilterOptions}
                 />
             </th>
         );

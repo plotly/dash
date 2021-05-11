@@ -1,2 +1,4 @@
-export default (tableFlag: boolean, columnFlag: boolean | undefined): boolean =>
-    columnFlag === undefined ? tableFlag : columnFlag;
+import * as R from 'ramda';
+
+export default <T>(tableFlag: T, columnFlag: T | null | undefined): T =>
+    R.isNil(columnFlag) ? tableFlag : columnFlag;

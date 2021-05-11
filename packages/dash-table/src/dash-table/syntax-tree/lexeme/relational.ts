@@ -7,7 +7,7 @@ import {ISyntaxTree} from 'core/syntax-tree/syntaxer';
 import {normalizeDate} from 'dash-table/type/date';
 import {IDateValidation} from 'dash-table/components/Table/props';
 
-function evaluator(target: any, tree: ISyntaxTree): [any, any] {
+function evaluator(target: any, tree: ISyntaxTree): [any, any, string] {
     Logger.trace('evaluate -> relational', target, tree);
 
     const t = tree as any;
@@ -16,7 +16,7 @@ function evaluator(target: any, tree: ISyntaxTree): [any, any] {
     const expValue = t.right.lexeme.resolve(target, t.right);
     Logger.trace(`opValue: ${opValue}, expValue: ${expValue}`);
 
-    return [opValue, expValue];
+    return [opValue, expValue, tree.value];
 }
 
 function relationalSyntaxer([left, lexeme, right]: any[]) {
@@ -44,17 +44,41 @@ const LEXEME_BASE = {
     type: LexemeType.RelationalOperator
 };
 
+const containsEval = (lhs: any, rhs: any, relOp: string): boolean =>
+    relOp[0] == 'i'
+        ? lhs.toString().toUpperCase().indexOf(rhs.toString().toUpperCase()) !==
+          -1
+        : lhs.toString().indexOf(rhs.toString()) !== -1;
+
+const equalEval = (lhs: any, rhs: any, relOp: string): boolean =>
+    isNumeric(lhs) && isNumeric(rhs)
+        ? +lhs === +rhs
+        : relOp[0] == 'i'
+        ? lhs.toString().toUpperCase() === rhs.toString().toUpperCase()
+        : lhs === rhs;
+
+const fnEval = (
+    fn: (lhs: any, rhs: any) => boolean,
+    lhs: any,
+    rhs: any,
+    relOp: string
+): boolean =>
+    relOp[0] == 'i'
+        ? fn(lhs.toString().toUpperCase(), rhs.toString().toUpperCase())
+        : fn(lhs, rhs);
+
 export const contains: IUnboundedLexeme = R.merge(
     {
         evaluate: relationalEvaluator(
-            ([op, exp]) =>
-                !R.isNil(exp) &&
-                !R.isNil(op) &&
-                (R.type(exp) === 'String' || R.type(op) === 'String') &&
-                op.toString().indexOf(exp.toString()) !== -1
+            ([lhs, rhs, relOp]) =>
+                !R.isNil(rhs) &&
+                !R.isNil(lhs) &&
+                (R.type(rhs) === 'String' || R.type(lhs) === 'String') &&
+                containsEval(lhs, rhs, relOp)
         ),
         subType: RelationalOperator.Contains,
-        regexp: /^((contains)(?=\s|$))/i,
+        regexp: /^((i|s)?contains)(?=\s|$)/i,
+        regexpFlags: 2,
         regexpMatch: 1
     },
     LEXEME_BASE
@@ -62,11 +86,12 @@ export const contains: IUnboundedLexeme = R.merge(
 
 export const equal: IUnboundedLexeme = R.merge(
     {
-        evaluate: relationalEvaluator(([op, exp]) =>
-            isNumeric(op) && isNumeric(exp) ? +op === +exp : op === exp
+        evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
+            equalEval(lhs, rhs, relOp)
         ),
         subType: RelationalOperator.Equal,
-        regexp: /^(=|(eq)(?=\s|$))/i,
+        regexp: /^((i|s)?(=|(eq)(?=\s|$)))/i,
+        regexpFlags: 2,
         regexpMatch: 1
     },
     LEXEME_BASE
@@ -74,9 +99,12 @@ export const equal: IUnboundedLexeme = R.merge(
 
 export const greaterOrEqual: IUnboundedLexeme = R.merge(
     {
-        evaluate: relationalEvaluator(([op, exp]) => op >= exp),
+        evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
+            fnEval((l, r) => l >= r, lhs, rhs, relOp)
+        ),
         subType: RelationalOperator.GreaterOrEqual,
-        regexp: /^(>=|(ge)(?=\s|$))/i,
+        regexp: /^((i|s)?(>=|(ge)(?=\s|$)))/i,
+        regexpFlags: 2,
         regexpMatch: 1
     },
     LEXEME_BASE
@@ -84,9 +112,12 @@ export const greaterOrEqual: IUnboundedLexeme = R.merge(
 
 export const greaterThan: IUnboundedLexeme = R.merge(
     {
-        evaluate: relationalEvaluator(([op, exp]) => op > exp),
+        evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
+            fnEval((l, r) => l > r, lhs, rhs, relOp)
+        ),
         subType: RelationalOperator.GreaterThan,
-        regexp: /^(>|(gt)(?=\s|$))/i,
+        regexp: /^((i|s)?(>|(gt)(?=\s|$)))/i,
+        regexpFlags: 2,
         regexpMatch: 1
     },
     LEXEME_BASE
@@ -121,9 +152,12 @@ export const dateStartsWith: IUnboundedLexeme = R.merge(
 
 export const lessOrEqual: IUnboundedLexeme = R.merge(
     {
-        evaluate: relationalEvaluator(([op, exp]) => op <= exp),
+        evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
+            fnEval((l, r) => l <= r, lhs, rhs, relOp)
+        ),
         subType: RelationalOperator.LessOrEqual,
-        regexp: /^(<=|(le)(?=\s|$))/i,
+        regexp: /^((i|s)?(<=|(le)(?=\s|$)))/i,
+        regexpFlags: 2,
         regexpMatch: 1
     },
     LEXEME_BASE
@@ -131,9 +165,12 @@ export const lessOrEqual: IUnboundedLexeme = R.merge(
 
 export const lessThan: IUnboundedLexeme = R.merge(
     {
-        evaluate: relationalEvaluator(([op, exp]) => op < exp),
+        evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
+            fnEval((l, r) => l < r, lhs, rhs, relOp)
+        ),
         subType: RelationalOperator.LessThan,
-        regexp: /^(<|(lt)(?=\s|$))/i,
+        regexp: /^((i|s)?(<|(lt)(?=\s|$)))/i,
+        regexpFlags: 2,
         regexpMatch: 1
     },
     LEXEME_BASE
@@ -141,9 +178,12 @@ export const lessThan: IUnboundedLexeme = R.merge(
 
 export const notEqual: IUnboundedLexeme = R.merge(
     {
-        evaluate: relationalEvaluator(([op, exp]) => op !== exp),
+        evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
+            fnEval((l, r) => l !== r, lhs, rhs, relOp)
+        ),
         subType: RelationalOperator.NotEqual,
-        regexp: /^(!=|(ne)(?=\s|$))/i,
+        regexp: /^((i|s)?(!=|(ne)(?=\s|$)))/i,
+        regexpFlags: 2,
         regexpMatch: 1
     },
     LEXEME_BASE
