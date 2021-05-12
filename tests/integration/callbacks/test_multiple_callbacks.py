@@ -10,6 +10,8 @@ import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
+import dash.testing.wait as wait
+
 
 def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
     app = dash.Dash(__name__)
@@ -583,3 +585,88 @@ def test_cbmt012_initialization_with_overlapping_outputs(generate, dash_duo):
         assert call_counts[outputid].value == 1
 
     assert call_counts["container"].value == (1 if generate else 0)
+
+
+def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
+    all_options = {
+        "America": ["New York City", "San Francisco", "Cincinnati"],
+        "Canada": ["Montréal", "Toronto", "Ottawa"],
+    }
+
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.RadioItems(
+                id="countries-radio",
+                options=[{"label": k, "value": k} for k in all_options.keys()],
+                value="America",
+            ),
+            html.Hr(),
+            dcc.RadioItems(id="cities-radio"),
+            html.Hr(),
+            html.Div(id="display-selected-values"),
+        ]
+    )
+
+    @app.callback(Output("cities-radio", "options"), Input("countries-radio", "value"))
+    def set_cities_options(selected_country):
+        return [{"label": i, "value": i} for i in all_options[selected_country]]
+
+    @app.callback(Output("cities-radio", "value"), Input("cities-radio", "options"))
+    def set_cities_value(available_options):
+        return available_options[0]["value"]
+
+    @app.callback(
+        Output("display-selected-values", "children"),
+        Input("countries-radio", "value"),
+        Input("cities-radio", "value"),
+    )
+    def set_display_children(selected_country, selected_city):
+        return "{} is a city in {}".format(selected_city, selected_country,)
+
+    dash_duo.start_server(app)
+
+    countries_radio = dash_duo.find_element("#countries-radio")
+    all_inputs = dash_duo.find_elements("input")
+
+    dash_duo.driver.set_network_conditions(
+        offline=False,
+        latency=5,  # additional latency (ms)
+        download_throughput=1 * 1024,  # maximal throughput
+        upload_throughput=1 * 1024,
+    )  # maximal throughput
+
+    current_text = dash_duo.find_element("#display-selected-values").get_attribute(
+        "innerText"
+    )
+    new_york_text = "New York City is a city in America"
+
+    assert current_text == new_york_text, f"{current_text} should equal {new_york_text}"
+
+    relevant_input = dash_duo.driver.execute_script(
+        """
+            var inp = arguments[0].filter((input)=>{
+                console.log(input.parentElement.innerText)
+                return input.parentElement.innerText=='Canada'
+            })
+            console.log("pringing something", inp)
+            return inp[0]
+        """,
+        all_inputs,
+    )
+
+    relevant_input.click()
+
+    canada_text = "Montréal is a city in Canada"
+    expected_text = [new_york_text, canada_text]
+
+    def wait_cond():
+        current_elem = dash_duo.find_element("#display-selected-values").get_attribute(
+            "innerText"
+        )
+        assert (
+            current_elem in expected_text
+        ), f"{current_elem} should be one of {expected_text}"
+        return current_elem == "Montréal is a city in Canada"
+
+    wait.until(wait_cond, 20)
