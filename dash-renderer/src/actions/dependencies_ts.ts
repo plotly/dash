@@ -1,10 +1,8 @@
 import {
     all,
     assoc,
-    call,
     concat,
     difference,
-    F,
     filter,
     flatten,
     forEach,
@@ -18,7 +16,7 @@ import {
     reduce,
     zipObj
 } from 'ramda';
-import callbacks from '../reducers/callbacks';
+// import callbacks from '../reducers/callbacks';
 import {
     ICallback,
     ICallbackProperty,
@@ -47,19 +45,30 @@ export const combineIdAndProp = ({id, property}: ICallbackProperty) =>
 // check if the relevant callback is in the callback path of the thing
 
 //TODO: override the interface for this, compare the signatures
-function isSimilar(paths:any, callbackA:ICallback, callbackB:ICallback):boolean{
-    
+function isSimilar(
+    paths: any,
+    callbackA: ICallback,
+    callbackB: ICallback
+): boolean {
     const outputsA = flatten(callbackA.getOutputs(paths));
     const inputsA = flatten(callbackA.getInputs(paths));
 
     const outputsB = flatten(callbackB.getOutputs(paths));
     const inputsB = flatten(callbackB.getInputs(paths));
 
-    return (JSON.stringify(inputsA)==JSON.stringify(inputsB) && JSON.stringify(outputsA)&&JSON.stringify(outputsB)) ? true: false;
+    return JSON.stringify(inputsA) == JSON.stringify(inputsB) &&
+        JSON.stringify(outputsA) &&
+        JSON.stringify(outputsB)
+        ? true
+        : false;
 }
 
-export function callbackPathExists(graphs:any, paths:any, fromCallback:ICallback, toCallback:ICallback): boolean {
-
+export function callbackPathExists(
+    graphs: any,
+    paths: any,
+    fromCallback: ICallback,
+    toCallback: ICallback
+): boolean {
     // check for base condition
     if (isSimilar(paths, fromCallback, toCallback)) {
         console.log('CALLDAG:callbackPathExists match found');
@@ -69,26 +78,24 @@ export function callbackPathExists(graphs:any, paths:any, fromCallback:ICallback
     const outputs = flatten(fromCallback.getOutputs(paths));
     console.log('CALLDAG:callbackPathExists outputs', outputs);
 
-    const callbacks =
-        flatten(map(
-            ({id, property}: any) => {
-                return graphs.inputMap[id][property];
-            },
-            outputs
-        ))
+    const callbacks = flatten(
+        map(({id, property}: any) => {
+            return graphs.inputMap[id][property];
+        }, outputs)
+    );
 
-    if (!callbacks.length){
+    if (!callbacks.length) {
         //we have reached the end of the graph
         return false;
     }
 
     // not exactly clear why this extra step was required
     const matches: ICallback[] = [];
-    callbacks.forEach(
-        addAllResolvedFromOutputs(resolveDeps(), paths, matches)
-    );
+    callbacks.forEach(addAllResolvedFromOutputs(resolveDeps(), paths, matches));
 
-    return matches.some((cb)=>{return callbackPathExists(graphs, paths, cb, toCallback)})
+    return matches.some(cb => {
+        return callbackPathExists(graphs, paths, cb, toCallback);
+    });
 }
 
 export function getCallbacksByInput(
@@ -102,7 +109,7 @@ export function getCallbacksByInput(
     const matches: ICallback[] = [];
     const idAndProp = combineIdAndProp({id, property: prop});
 
-    console.log("CALLDAG:getCallBackByInput:inputs ID", id, "PROP", prop);
+    console.log('CALLDAG:getCallBackByInput:inputs ID', id, 'PROP', prop);
 
     if (typeof id === 'string') {
         // standard id version
@@ -111,13 +118,18 @@ export function getCallbacksByInput(
             return [];
         }
 
-        console.log("CALLDAG:getCallBackByInput callbacks", callbacks);
+        console.log('CALLDAG:getCallBackByInput callbacks', callbacks);
 
         callbacks.forEach(
             addAllResolvedFromOutputs(resolveDeps(), paths, matches)
         );
 
-        console.log("CALLDAG:getCallBackByInput callbacks afterOutputs", callbacks, "matches", matches);
+        console.log(
+            'CALLDAG:getCallBackByInput callbacks afterOutputs',
+            callbacks,
+            'matches',
+            matches
+        );
     } else {
         // wildcard version
         const _keys = Object.keys(id).sort();
@@ -148,8 +160,11 @@ export function getCallbacksByInput(
         }
     });
 
-    console.log("CALLDAG:getCallBackByInput callbacks matches with priority", matches);
-    
+    console.log(
+        'CALLDAG:getCallBackByInput callbacks matches with priority',
+        matches
+    );
+
     return matches;
 }
 
@@ -179,7 +194,7 @@ export function getPriority(
             outputs
         );
 
-        console.log("CALLDAG:getPriority callback outputs", outputs);
+        console.log('CALLDAG:getPriority callback outputs', outputs);
 
         callbacks = flatten(
             map(
@@ -195,7 +210,10 @@ export function getPriority(
                 outputs
             )
         );
-        console.log("CALLDAG:getPriority callbacks after flattening", callbacks);
+        console.log(
+            'CALLDAG:getPriority callbacks after flattening',
+            callbacks
+        );
 
         if (callbacks.length) {
             priority.push(callbacks.length);
@@ -250,14 +268,19 @@ export const getReadyCallbacks = (
     paths: any,
     candidates: ICallback[],
     callbacks: ICallback[] = candidates,
-    graphs:any = {}
+    graphs: any = {}
 ): ICallback[] => {
     // Skip if there's no candidates
     if (!candidates.length) {
         return [];
     }
 
-    console.log("dependencies:getReadyCallbacks callbacks", callbacks, 'candidates', candidates);
+    console.log(
+        'dependencies:getReadyCallbacks callbacks',
+        callbacks,
+        'candidates',
+        candidates
+    );
     // Find all outputs of all active callbacks
     const outputs = map(
         combineIdAndProp,
@@ -268,64 +291,77 @@ export const getReadyCallbacks = (
         )
     );
 
-    console.log("dependencies:getReadyCallbacks outputs", outputs)
+    console.log('dependencies:getReadyCallbacks outputs', outputs);
 
     // Make `outputs` hash table for faster access
-    var outputsMap: {[key: string]: boolean} = {};
+    let outputsMap: {[key: string]: boolean} = {};
 
     forEach(output => (outputsMap[output] = true), outputs);
 
-
     // find all the outputs touched by activeCallbacks
     // remove this check if graph is accessible all the time
-    if(graphs) {
+
+    if (Object.keys(graphs).length) {
         //not sure if graph will be accessible all the time
-        const allTouchedOutputs:{[key:string]: boolean}[] = flatten(map(
-            (cb)=> getAllSubsequentOutputsForCallback(
-                graphs,
-                paths,
-                cb
-            ),
-            callbacks))
+        const allTouchedOutputs: {[key: string]: boolean}[] = flatten(
+            map(
+                cb => getAllSubsequentOutputsForCallback(graphs, paths, cb),
+                callbacks
+            )
+        );
 
-        console.log("dependencies:getReadyCallbacks allTouchedOutputs", allTouchedOutputs)
+        console.log(
+            'dependencies:getReadyCallbacks allTouchedOutputs',
+            allTouchedOutputs
+        );
 
-        outputsMap = Object.assign( ...allTouchedOutputs );
+        //this is only done to silence typescript errors
+        if (allTouchedOutputs.length > 0) {
+            outputsMap = Object.assign(
+                allTouchedOutputs[0],
+                ...allTouchedOutputs
+            );
+        }
     }
 
     // Find `requested` callbacks that do not depend on an outstanding output (as either input or state)
     // Outputs which overlap an input do not count as an outstanding output
 
-    let existsInCurrentCallbackPath = (cb:any)=>{
-       return outputsMap[combineIdAndProp(cb)]
-    }
+    const existsInCurrentCallbackPath = (cb: any) => {
+        return outputsMap[combineIdAndProp(cb)];
+    };
 
-    let outStandingCb = (cb:any) =>{
+    const outStandingCb = (cb: any) => {
         console.log('dependencies:getReadyCallbacks cb', cb);
 
-        let inputs = flatten(cb.getInputs(paths));
-        let outputs = flatten(cb.getOutputs(paths));
+        const inputs = flatten(cb.getInputs(paths));
+        const outputs = flatten(cb.getOutputs(paths));
 
         console.log('dependencies:getReadyCallbacks inputs', inputs);
         console.log('dependencies:getReadyCallbacks outputs', outputs);
- 
-        let IODifference = difference(inputs, outputs)
 
-        console.log('dependencies:getReadyCallbacks IODifference', IODifference);
+        const IODifference = difference(inputs, outputs);
 
-        let noOutstandingOutputExists = all<ILayoutCallbackProperty>(
+        console.log(
+            'dependencies:getReadyCallbacks IODifference',
+            IODifference
+        );
+
+        const noOutstandingOutputExists = all<ILayoutCallbackProperty>(
             cbp => !existsInCurrentCallbackPath(cbp),
             IODifference
-        )
+        );
 
-        console.log('dependencies:getReadyCallbacks outputsMap', outputsMap, 'outStandingOutputExists', noOutstandingOutputExists)
+        console.log(
+            'dependencies:getReadyCallbacks outputsMap',
+            outputsMap,
+            'outStandingOutputExists',
+            noOutstandingOutputExists
+        );
         return noOutstandingOutputExists;
-    }
+    };
 
-    return filter(
-        cb => outStandingCb(cb),
-        candidates
-    );
+    return filter(cb => outStandingCb(cb), candidates);
 };
 
 export const getLayoutCallbacks = (
@@ -400,46 +436,23 @@ export const getUniqueIdentifier = ({
         Array.isArray(anyVals) ? anyVals : anyVals === '' ? [] : [anyVals]
     ).join(',');
 
-
 export function includeObservers(
     id: any,
     properties: any,
     graphs: any,
     paths: any
 ): ICallback[] {
-    
+    const func = (propName: any) => {
+        const cbs = getCallbacksByInput(graphs, paths, id, propName);
+        console.log('CALLDAG:includeObservers callback', cbs);
+        return cbs;
+    };
 
-    console.log('CALLDAG:includeObservers properties', properties, keys(properties));
-
-    let func = (propName)=>{
-            let cbs = getCallbacksByInput(graphs, paths, id, propName);
-            console.log("CALLDAG:includeObservers callback", cbs);
-            return cbs;
-    }
-
-    const flattenedCbs = flatten(
-        map(
-            (propName)=> func(propName),
-            keys(properties)
-        )
-    );
-
-    var validCbs = [... flattenedCbs];
-
-    // //TODO: not sure if this is optimal, maybe some information already exists in graphs DS
-    // for(let i=0; i<validCbs.length; i++) {
-    //     for (let j=i+1; j<validCbs.length; j++) {
-    //         if (callbackPathExists(graphs, paths, validCbs[i], validCbs[j])) {
-    //             //path exists remove the extra cb
-    //             validCbs.splice(j,1);
-    //         }
-    //     }
-    // }
+    const validCbs = flatten(map(propName => func(propName), keys(properties)));
 
     console.log('CALLDAG:includeObservers: validCbs', validCbs);
 
     return validCbs;
-
 }
 
 /*

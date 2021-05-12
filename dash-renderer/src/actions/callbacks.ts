@@ -450,7 +450,7 @@ export function executeCallback(
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
 
-        console.log('ACTIONS: executing CB', cb)
+        console.log('ACTIONS: executing CB', cb);
         /* Prevent callback if there's no inputs */
         if (inVals === null) {
             return {
@@ -531,7 +531,7 @@ export function executeCallback(
             executionPromise: __promise
         };
 
-        console.log('ACTIONS: Executed CB done', cb)
+        console.log('ACTIONS: Executed CB done', cb);
 
         return newCb;
     } catch (error) {

@@ -68,13 +68,9 @@ function triggerDefaultState(dispatch, getState) {
     }
     const callbacks = getLayoutCallbacks(graphs, paths, layout, {
         outputsOnly: true
-    })
+    });
 
-    dispatch(
-        addRequestedCallbacks(
-            callbacks
-        )
-    );
+    dispatch(addRequestedCallbacks(callbacks));
 }
 
 export const redo = moveHistory('REDO');
@@ -105,13 +101,11 @@ function moveHistory(changeType) {
 
 export function notifyObservers({id, props}) {
     // console.log(':notifyObservers, updating observers', props);
-    return async function(dispatch, getState) {
+    return async function (dispatch, getState) {
         const {graphs, paths} = getState();
-        const callbacks = includeObservers(id, props, graphs, paths)
+        const callbacks = includeObservers(id, props, graphs, paths);
 
-        dispatch(
-            addRequestedCallbacks(callbacks)
-        );
+        dispatch(addRequestedCallbacks(callbacks));
     };
 }
 
