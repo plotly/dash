@@ -61,6 +61,7 @@ jobs:
           command: |
             . venv/bin/activate
             set -eo pipefail
+            cd dash/dash-renderer && renderer build && cd ../../
             pip install -e . --progress-bar off && pip list | grep dash
             npm install --production && npm run initialize
             npm run lint
