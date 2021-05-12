@@ -80,6 +80,13 @@ class BuildProcess(object):
 
     @job("compute the hash digest for assets")
     def digest(self):
+        if not os.path.exists(self.build_folder):
+            try:
+                os.makedirs(self.build_folder)
+            except OSError:
+                logger.exception("🚨 having issues manipulating %s", self.build_folder)
+                sys.exit(1)
+
         copies = tuple(
             _
             for _ in os.listdir(self.build_folder)
