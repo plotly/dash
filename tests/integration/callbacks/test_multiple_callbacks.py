@@ -590,7 +590,7 @@ def test_cbmt012_initialization_with_overlapping_outputs(generate, dash_duo):
 def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
     all_options = {
         "America": ["New York City", "San Francisco", "Cincinnati"],
-        "Canada": ["Montréal", "Toronto", "Ottawa"],
+        "Canada": ["Montreal", "Toronto", "Ottawa"],
     }
 
     app = dash.Dash(__name__)
@@ -626,22 +626,15 @@ def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
 
     dash_duo.start_server(app)
 
-    countries_radio = dash_duo.find_element("#countries-radio")
-    all_inputs = dash_duo.find_elements("input")
-
-    dash_duo.driver.set_network_conditions(
-        offline=False,
-        latency=5,  # additional latency (ms)
-        download_throughput=1 * 1024,  # maximal throughput
-        upload_throughput=1 * 1024,
-    )  # maximal throughput
-
+    new_york_text = "New York City is a city in America"
     current_text = dash_duo.find_element("#display-selected-values").get_attribute(
         "innerText"
     )
-    new_york_text = "New York City is a city in America"
+    assert current_text == new_york_text, "{} should equal {}".format(
+        current_text, new_york_text
+    )
 
-    assert current_text == new_york_text, f"{current_text} should equal {new_york_text}"
+    all_inputs = dash_duo.find_elements("input")
 
     relevant_input = dash_duo.driver.execute_script(
         """
@@ -655,18 +648,25 @@ def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
         all_inputs,
     )
 
+    dash_duo.driver.set_network_conditions(
+        offline=False,
+        latency=5,  # additional latency (ms)
+        download_throughput=1 * 1024,  # maximal throughput
+        upload_throughput=1 * 1024,
+    )  # maximal throughput
+
     relevant_input.click()
 
-    canada_text = "Montréal is a city in Canada"
+    canada_text = "Montreal is a city in Canada"
     expected_text = [new_york_text, canada_text]
 
     def wait_cond():
         current_elem = dash_duo.find_element("#display-selected-values").get_attribute(
             "innerText"
         )
-        assert (
-            current_elem in expected_text
-        ), f"{current_elem} should be one of {expected_text}"
-        return current_elem == "Montréal is a city in Canada"
+        assert current_elem in expected_text, "{} should be one of {}".format(
+            current_elem, expected_text
+        )
+        return current_elem == "Montreal is a city in Canada"
 
     wait.until(wait_cond, 20)
