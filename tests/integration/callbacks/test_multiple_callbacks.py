@@ -626,10 +626,20 @@ def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
 
     dash_duo.start_server(app)
 
+    not_null = (
+        lambda: dash_duo.find_element("#display-selected-values").get_attribute(
+            "innerText"
+        )
+        != ""
+    )
+
+    wait.until(not_null, 20)
+
     new_york_text = "New York City is a city in America"
     current_text = dash_duo.find_element("#display-selected-values").get_attribute(
         "innerText"
     )
+
     assert current_text == new_york_text, "{} should equal {}".format(
         current_text, new_york_text
     )
