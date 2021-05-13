@@ -192,10 +192,72 @@ def split_callback_id(callback_id):
     return {"id": id_, "property": prop}
 
 
-def stringify_id(id_):
-    if isinstance(id_, dict):
-        return json.dumps(id_, sort_keys=True, separators=(",", ":"))
-    return id_
+def css_escape(stringified_id):
+    """Escapes an ID string such that it can be used in CSS selectors.
+
+    The comments below in the different if-branches are taken from
+    https://drafts.csswg.org/cssom/#serialize-an-identifier.
+    """
+
+    def code_point_range(from_unicode, to_unicode):
+        return list(range(ord(from_unicode), ord(to_unicode) + 1))
+
+    CONTROL_CHARACTER_RANGE = code_point_range("\u0001", "\u001f") + [ord("\u007f")]
+    ALLOWED_FINITE_RANGES = (
+        code_point_range("\u0030", "\u0039")
+        + code_point_range("\u0041", "\u005a")
+        + code_point_range("\u0061", "\u007a")
+        + [ord("\u002d"), ord("\u005f")]
+    )
+
+    escaped_chars = []
+
+    for i, char in enumerate(stringified_id):
+        if char == "\u0000":
+            # If the character is NULL (U+0000), then the REPLACEMENT CHARACTER (U+FFFD).
+            escaped_chars.append("\ufffd")
+        elif ord(char) in CONTROL_CHARACTER_RANGE:
+            # If the character is in the range U+0001 to U+001F or is U+007F,
+            # then the character escaped as code point.
+            escaped_chars.append("\\" + hex(ord(char)).replace("0x", "") + " ")
+        elif i == 0 and char.isdigit():
+            # If the character is the first character and is in the range [0-9],
+            # then the character escaped as code point.
+            escaped_chars.append(r"\3" + char + " ")
+        elif i == 1 and char.isdigit() and stringified_id[0] == "-":
+            # If the character is the second character and is in the range [0-9]
+            # and the first character is a "-", then the character escaped as code point.
+            escaped_chars.append(r"\3" + char + " ")
+        elif i == 0 and char == "-" and len(stringified_id) == 1:
+            # If the character is the first character and is a "-",
+            # and there is no second character, then the escaped character.
+            escaped_chars.append("\\" + char)
+        elif ord(char) >= ord("\u0080") or ord(char) in ALLOWED_FINITE_RANGES:
+            # If the character is not handled by one of the above rules and is greater
+            # than or equal to U+0080, is "-" (U+002D) or "_" (U+005F), or is in one of
+            # the ranges [0-9] (U+0030 to U+0039), [A-Z] (U+0041 to U+005A),
+            # or \[a-z] (U+0061 to U+007A), then the character itself.
+            escaped_chars.append(char)
+        else:
+            # Otherwise, the escaped character.
+            escaped_chars.append("\\" + char)
+
+    return "".join(escaped_chars)
+
+
+def stringify_id(id_, escape_css=False):
+    """Converts a dictionary ID (used in pattern-matching callbacks) to the
+    corresponding stringified ID used in the DOM. Use escape_css=True if the
+    returned string is to be used in CSS selectors. See this link for details:
+    https://developer.mozilla.org/en-US/docs/Web/API/CSS/escape
+    """
+
+    stringified_id = (
+        json.dumps(id_, sort_keys=True, separators=(",", ":"))
+        if isinstance(id_, dict)
+        else id_
+    )
+    return css_escape(stringified_id) if escape_css else stringified_id
 
 
 def inputs_to_dict(inputs_list):
