@@ -4,6 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## UNRELEASED
+
+### Fixed
+
+- [#963](https://github.com/plotly/dash-core-components/pull/963) Fixes [#885](https://github.com/plotly/dash-core-components/issues/885)
+  
+  This applies the fix from [#878](https://github.com/plotly/dash-core-components/pull/878) to the RangeSlider. 
+  It not only fixes the bug where the tooltips were visible when slider was not, but it also reduces the lag in the 
+  tooltip when the slider handles are moved.
+
 ### Added
 - [#932](https://github.com/plotly/dash-core-components/pull/932). Adds a new copy to clipboard component.
 - [#948](https://github.com/plotly/dash-core-components/pull/948)] Adds `disabled_days` prop to `DatePickerRange` and `DatePickerSingle` components. With this prop you can specify days that should be made unselectable in the date picker, in addition to those that fall outside of the range specified by `min_date_allowed` and `max_date_allowed`.

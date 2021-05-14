@@ -162,6 +162,71 @@ def test_slsl005_slider_tooltip(dash_dcc):
     )
 
 
+def test_slsl005_rangeslider_tooltip(dash_dcc):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(
+                [
+                    html.Div(
+                        dcc.RangeSlider(
+                            min=0,
+                            max=100,
+                            value=[0, 65],
+                            tooltip={"always_visible": True, "placement": "top"},
+                        ),
+                        style=dict(height=100, marginTop=25),
+                    ),
+                    html.Div(
+                        dcc.RangeSlider(
+                            min=0,
+                            max=100,
+                            value=[0, 65],
+                            tooltip={"always_visible": True, "placement": "top"},
+                        ),
+                        style=dict(height=100),
+                    ),
+                    html.Div(
+                        dcc.RangeSlider(
+                            min=0,
+                            max=100,
+                            value=[0, 65],
+                            tooltip={"always_visible": True, "placement": "top"},
+                        ),
+                        style=dict(height=100),
+                    ),
+                    html.Div(
+                        dcc.RangeSlider(
+                            min=0,
+                            max=100,
+                            value=[0, 65],
+                            tooltip={"always_visible": True, "placement": "top"},
+                        ),
+                        style=dict(height=100),
+                    ),
+                    html.Div(
+                        dcc.RangeSlider(
+                            id="test-slider",
+                            min=0,
+                            max=100,
+                            value=[0, 65],
+                            tooltip={"always_visible": True, "placement": "top"},
+                        ),
+                        style=dict(height=100),
+                    ),
+                ],
+                style=dict(
+                    maxHeight=300, overflowX="scroll", backgroundColor="#edf9f7"
+                ),
+            )
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#test-slider")
+    dash_dcc.percy_snapshot("slsl005- dcc.RangeSlider tooltip position")
+
+
 def test_slsl006_drag_value_slider(dash_dcc):
     app = dash.Dash(__name__)
     app.layout = html.Div(
