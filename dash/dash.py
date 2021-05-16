@@ -1472,9 +1472,8 @@ class Dash(object):
                 if timing_information is None:
                     return response
 
-                timing_information_dash = timing_information.get("__dash_server", None)
-                if timing_information_dash is not None:
-                    dash_total = timing_information["__dash_server"]
+                dash_total = timing_information.get("__dash_server", None)
+                if dash_total is not None:
                     dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
 
                 for name, info in timing_information.items():
