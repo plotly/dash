@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+### Fixed
+- [#1640](https://github.com/plotly/dash/pull/1640) Fix [#1475](https://github.com/plotly/dash/issues/1475), missing `timing_information` after certain modifications to Flask behavior
+
 ## [1.20.0] - 2021-04-08
 
 ## Dash and Dash Renderer
