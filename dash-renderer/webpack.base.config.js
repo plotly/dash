@@ -59,10 +59,15 @@ module.exports = options => [
         rendererOptions
     ]),
     R.mergeAll([
+        options,
+        rendererOptions,
         {
             mode: 'production',
             output: {
+                path: path.resolve(__dirname, dashLibraryName),
                 filename: `${dashLibraryName}.min.js`,
+                library: dashLibraryName,
+                libraryTarget: 'window',
             },
             plugins: R.concat(
                 options.plugins || [],
@@ -78,8 +83,6 @@ module.exports = options => [
                     ),
                 ]
             ),
-        },
-        options,
-        rendererOptions
+        }
     ])
 ];
