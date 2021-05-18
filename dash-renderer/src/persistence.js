@@ -29,9 +29,11 @@
  *   stores `columns[i].name` for all columns `i`. Nested props also need
  *   entries in `persistenceTransforms` - see below.
  *
- * - `persistence_type`: one of "local", "session", or "memory", just like
- *   `dcc.Store`. But the default here should be "local" because the main use
- *   case is to maintain settings across reloads.
+ * - `persistence_type`: one of "local", "session", "memory", or "location",
+ *   just like `dcc.Store`. But the default here should be "local" because
+ *   the main use case is to maintain settings across reloads. "location" can
+ *   be used to store the values in the URL, such that the state can be
+ *   shared with other users.
  *
  * If any `persisted_props` are nested prop IDs, the component should define a
  * class property (not a React prop) `persistenceTransforms`, as an object:
@@ -195,6 +197,77 @@ class MemStore {
     }
 }
 
+/**
+ * The LocationStore uses the window location/history to persist values in the URL's search parameters.
+ */
+class LocationStore {
+    _getURL() {
+        return new URL(window.location);
+    }
+
+    _getSearchParams() {
+        return this._getURL().searchParams;
+    }
+
+    _setUrl(url) {
+        const searchVal = type(url.search) !== 'Undefined' ? url.search : '';
+        const hashVal = type(url.hash) !== 'Undefined' ? url.hash : '';
+        window.history.replaceState(
+            {},
+            '',
+            `${url.pathname}${searchVal}${hashVal}`
+        );
+    }
+
+    hasItem(key) {
+        return this._getSearchParams().has(key);
+    }
+
+    getItem(key) {
+        return _parse(this._getSearchParams().get(key));
+    }
+
+    _setItem(key, value) {
+        const url = this._getURL();
+        url.searchParams.set(key, _stringify(value));
+        this._setUrl(url);
+    }
+
+    setItem(key, value, dispatch) {
+        try {
+            this._setItem(key, value);
+        } catch (e) {
+            dispatch(
+                err(
+                    `${key} failed to save in location. Persisted props may be lost.`
+                )
+            );
+        }
+    }
+
+    removeItem(key) {
+        const url = this._getURL();
+        url.searchParams.delete(key);
+        this._setUrl(url);
+    }
+
+    clear(keyPrefix) {
+        const url = this._getURL();
+
+        const keyMatch = keyPrefix ? keyPrefixMatch(keyPrefix, '.') : _ => true;
+        const keysToRemove = [];
+        for (const key of url.searchParams.keys()) {
+            if (keyMatch(key)) {
+                keysToRemove.push(key);
+            }
+        }
+
+        forEach(k => url.searchParams.delete(k), keysToRemove);
+
+        this._setUrl(url);
+    }
+}
+
 // Make a string 2^16 characters long (*2 bytes/char = 130kB), to test storage.
 // That should be plenty for common persistence use cases,
 // without getting anywhere near typical browser limits
@@ -208,7 +281,8 @@ function longString() {
 }
 
 export const stores = {
-    memory: new MemStore()
+    memory: new MemStore(),
+    location: new LocationStore()
     // Defer testing & making local/session stores until requested.
     // That way if we have errors here they can show up in devtools.
 };
