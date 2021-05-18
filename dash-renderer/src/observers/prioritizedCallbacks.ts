@@ -159,6 +159,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     dispatch
                 );
 
+                console.log(
+                    'prioritizedCallBack: cb executing',
+                    executingCallback
+                );
+
                 dispatch(
                     aggregateCallbacks([
                         removeBlockedCallbacks([cb]),

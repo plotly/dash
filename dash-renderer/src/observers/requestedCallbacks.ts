@@ -54,6 +54,7 @@ import wait from './../utils/wait';
 
 import {getPendingCallbacks} from '../utils/callbacks';
 import {IStoreObserverDefinition} from '../StoreObserver';
+// import graphs from '../reducers/dependencyGraph';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: async ({dispatch, getState}) => {
@@ -62,16 +63,21 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const {
             callbacks,
             callbacks: {prioritized, blocked, executing, watched, stored},
-            paths
+            paths,
+            graphs
         } = getState();
         let {
             callbacks: {requested}
         } = getState();
 
+        console.log('observer:requestedCallbacks: requested', requested);
+
         const initialRequested = requested.slice(0);
 
+        // TODO: this should be a property rather than a property of a state, rather than a function
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
+        console.log('observer:requestedCallbacks: pending', pendingCallbacks);
         /*
             0. Prune circular callbacks that have completed the loop
             - cb.callback included in cb.predecessors
@@ -227,14 +233,23 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             it will be updated for real
         */
         requested = concat(difference(requested, rRemoved), rAdded);
-
+        console.log(
+            'observer:requestedCallbacks: requested after pruning',
+            requested
+        );
         /*
             4. Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
         */
         let readyCallbacks = getReadyCallbacks(
             paths,
             requested,
-            pendingCallbacks
+            pendingCallbacks,
+            graphs
+        );
+
+        console.log(
+            'observer:requestedCallbacks: readyCallbacks',
+            readyCallbacks
         );
 
         let oldBlocked: ICallback[] = [];
@@ -313,7 +328,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         */
 
         // Group by executionGroup, drop non-executionGroup callbacks
-        // those were not triggered by layout changes and don't have "strong" interdependency for
+        // those were not triggered by layout changes and don't have 'strong' interdependency for
         // callback chain completion
         const pendingGroups = groupBy<IStoredCallback>(
             cb => cb.executionGroup as any,
@@ -374,6 +389,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const added = difference(requested, initialRequested);
         const removed = difference(initialRequested, requested);
+
+        console.log('requestedCallbacks: added', added, 'removed', removed);
 
         dispatch(
             aggregateCallbacks([

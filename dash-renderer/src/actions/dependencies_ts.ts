@@ -16,6 +16,7 @@ import {
     reduce,
     zipObj
 } from 'ramda';
+// import callbacks from '../reducers/callbacks';
 import {
     ICallback,
     ICallbackProperty,
@@ -40,6 +41,63 @@ export const mergeMax = mergeWith(Math.max);
 export const combineIdAndProp = ({id, property}: ICallbackProperty) =>
     `${stringifyId(id)}.${property}`;
 
+// for everycallback returned,
+// check if the relevant callback is in the callback path of the thing
+
+//TODO: override the interface for this, compare the signatures
+function isSimilar(
+    paths: any,
+    callbackA: ICallback,
+    callbackB: ICallback
+): boolean {
+    const outputsA = flatten(callbackA.getOutputs(paths));
+    const inputsA = flatten(callbackA.getInputs(paths));
+
+    const outputsB = flatten(callbackB.getOutputs(paths));
+    const inputsB = flatten(callbackB.getInputs(paths));
+
+    return JSON.stringify(inputsA) == JSON.stringify(inputsB) &&
+        JSON.stringify(outputsA) &&
+        JSON.stringify(outputsB)
+        ? true
+        : false;
+}
+
+export function callbackPathExists(
+    graphs: any,
+    paths: any,
+    fromCallback: ICallback,
+    toCallback: ICallback
+): boolean {
+    // check for base condition
+    if (isSimilar(paths, fromCallback, toCallback)) {
+        console.log('CALLDAG:callbackPathExists match found');
+        return true;
+    }
+
+    const outputs = flatten(fromCallback.getOutputs(paths));
+    console.log('CALLDAG:callbackPathExists outputs', outputs);
+
+    const callbacks = flatten(
+        map(({id, property}: any) => {
+            return graphs.inputMap[id][property];
+        }, outputs)
+    );
+
+    if (!callbacks.length) {
+        //we have reached the end of the graph
+        return false;
+    }
+
+    // not exactly clear why this extra step was required
+    const matches: ICallback[] = [];
+    callbacks.forEach(addAllResolvedFromOutputs(resolveDeps(), paths, matches));
+
+    return matches.some(cb => {
+        return callbackPathExists(graphs, paths, cb, toCallback);
+    });
+}
+
 export function getCallbacksByInput(
     graphs: any,
     paths: any,
@@ -51,6 +109,8 @@ export function getCallbacksByInput(
     const matches: ICallback[] = [];
     const idAndProp = combineIdAndProp({id, property: prop});
 
+    console.log('CALLDAG:getCallBackByInput:inputs ID', id, 'PROP', prop);
+
     if (typeof id === 'string') {
         // standard id version
         const callbacks = (graphs.inputMap[id] || {})[prop];
@@ -58,8 +118,17 @@ export function getCallbacksByInput(
             return [];
         }
 
+        console.log('CALLDAG:getCallBackByInput callbacks', callbacks);
+
         callbacks.forEach(
             addAllResolvedFromOutputs(resolveDeps(), paths, matches)
+        );
+
+        console.log(
+            'CALLDAG:getCallBackByInput callbacks afterOutputs',
+            callbacks,
+            'matches',
+            matches
         );
     } else {
         // wildcard version
@@ -67,6 +136,7 @@ export function getCallbacksByInput(
         const vals = props(_keys, id);
         const keyStr = _keys.join(',');
         const patterns: any[] = (graphs.inputPatterns[keyStr] || {})[prop];
+
         if (!patterns) {
             return [];
         }
@@ -82,12 +152,19 @@ export function getCallbacksByInput(
             }
         });
     }
+
     matches.forEach(match => {
         match.changedPropIds[idAndProp] = changeType || DIRECT;
         if (withPriority) {
             match.priority = getPriority(graphs, paths, match);
         }
     });
+
+    console.log(
+        'CALLDAG:getCallBackByInput callbacks matches with priority',
+        matches
+    );
+
     return matches;
 }
 
@@ -117,6 +194,8 @@ export function getPriority(
             outputs
         );
 
+        console.log('CALLDAG:getPriority callback outputs', outputs);
+
         callbacks = flatten(
             map(
                 ({id, property}: any) =>
@@ -131,6 +210,10 @@ export function getPriority(
                 outputs
             )
         );
+        console.log(
+            'CALLDAG:getPriority callbacks after flattening',
+            callbacks
+        );
 
         if (callbacks.length) {
             priority.push(callbacks.length);
@@ -142,16 +225,62 @@ export function getPriority(
     return map(i => Math.min(i, 35).toString(36), priority).join('');
 }
 
+export function getAllSubsequentOutputsForCallback(
+    graphs: any,
+    paths: any,
+    callback: ICallback
+) {
+    let callbacks: ICallback[] = [callback];
+    let touchedOutputs: {[key: string]: boolean} = {};
+
+    while (callbacks.length) {
+        const outputs = filter(
+            o => !touchedOutputs[combineIdAndProp(o)],
+            flatten(map(cb => flatten(cb.getOutputs(paths)), callbacks))
+        );
+
+        touchedOutputs = reduce(
+            (touched, o) => assoc(combineIdAndProp(o), true, touched),
+            touchedOutputs,
+            outputs
+        );
+
+        callbacks = flatten(
+            map(
+                ({id, property}: any) =>
+                    getCallbacksByInput(
+                        graphs,
+                        paths,
+                        id,
+                        property,
+                        INDIRECT,
+                        false
+                    ),
+                outputs
+            )
+        );
+    }
+
+    return touchedOutputs;
+}
+
 export const getReadyCallbacks = (
     paths: any,
     candidates: ICallback[],
-    callbacks: ICallback[] = candidates
+    callbacks: ICallback[] = candidates,
+    graphs: any = {}
 ): ICallback[] => {
     // Skip if there's no candidates
     if (!candidates.length) {
         return [];
     }
 
+    console.log(
+        'dependencies:getReadyCallbacks callbacks',
+        callbacks,
+        'candidates',
+        candidates
+    );
     // Find all outputs of all active callbacks
     const outputs = map(
         combineIdAndProp,
@@ -162,23 +291,77 @@ export const getReadyCallbacks = (
         )
     );
 
+    console.log('dependencies:getReadyCallbacks outputs', outputs);
+
     // Make `outputs` hash table for faster access
-    const outputsMap: {[key: string]: boolean} = {};
+    let outputsMap: {[key: string]: boolean} = {};
+
     forEach(output => (outputsMap[output] = true), outputs);
 
-    // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
+    // find all the outputs touched by activeCallbacks
+    // remove this check if graph is accessible all the time
+
+    if (Object.keys(graphs).length) {
+        //not sure if graph will be accessible all the time
+        const allTouchedOutputs: {[key: string]: boolean}[] = flatten(
+            map(
+                cb => getAllSubsequentOutputsForCallback(graphs, paths, cb),
+                callbacks
+            )
+        );
+
+        console.log(
+            'dependencies:getReadyCallbacks allTouchedOutputs',
+            allTouchedOutputs
+        );
+
+        //this is only done to silence typescript errors
+        if (allTouchedOutputs.length > 0) {
+            outputsMap = Object.assign(
+                allTouchedOutputs[0],
+                ...allTouchedOutputs
+            );
+        }
+    }
+
+    // Find `requested` callbacks that do not depend on an outstanding output (as either input or state)
     // Outputs which overlap an input do not count as an outstanding output
-    return filter(
-        cb =>
-            all<ILayoutCallbackProperty>(
-                cbp => !outputsMap[combineIdAndProp(cbp)],
-                difference(
-                    flatten(cb.getInputs(paths)),
-                    flatten(cb.getOutputs(paths))
-                )
-            ),
-        candidates
-    );
+
+    const existsInCurrentCallbackPath = (cb: any) => {
+        return outputsMap[combineIdAndProp(cb)];
+    };
+
+    const outStandingCb = (cb: any) => {
+        console.log('dependencies:getReadyCallbacks cb', cb);
+
+        const inputs = flatten(cb.getInputs(paths));
+        const outputs = flatten(cb.getOutputs(paths));
+
+        console.log('dependencies:getReadyCallbacks inputs', inputs);
+        console.log('dependencies:getReadyCallbacks outputs', outputs);
+
+        const IODifference = difference(inputs, outputs);
+
+        console.log(
+            'dependencies:getReadyCallbacks IODifference',
+            IODifference
+        );
+
+        const noOutstandingOutputExists = all<ILayoutCallbackProperty>(
+            cbp => !existsInCurrentCallbackPath(cbp),
+            IODifference
+        );
+
+        console.log(
+            'dependencies:getReadyCallbacks outputsMap',
+            outputsMap,
+            'outStandingOutputExists',
+            noOutstandingOutputExists
+        );
+        return noOutstandingOutputExists;
+    };
+
+    return filter(cb => outStandingCb(cb), candidates);
 };
 
 export const getLayoutCallbacks = (
@@ -259,12 +442,17 @@ export function includeObservers(
     graphs: any,
     paths: any
 ): ICallback[] {
-    return flatten(
-        map(
-            propName => getCallbacksByInput(graphs, paths, id, propName),
-            keys(properties)
-        )
-    );
+    const func = (propName: any) => {
+        const cbs = getCallbacksByInput(graphs, paths, id, propName);
+        console.log('CALLDAG:includeObservers callback', cbs);
+        return cbs;
+    };
+
+    const validCbs = flatten(map(propName => func(propName), keys(properties)));
+
+    console.log('CALLDAG:includeObservers: validCbs', validCbs);
+
+    return validCbs;
 }
 
 /*

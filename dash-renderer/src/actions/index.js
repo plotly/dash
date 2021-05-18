@@ -7,6 +7,7 @@ import cookie from 'cookie';
 import {validateCallbacksToLayout} from './dependencies';
 import {includeObservers, getLayoutCallbacks} from './dependencies_ts';
 import {getPath} from './paths';
+// import callbacks from '../reducers/callbacks';
 
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
@@ -65,14 +66,11 @@ function triggerDefaultState(dispatch, getState) {
             })
         );
     }
+    const callbacks = getLayoutCallbacks(graphs, paths, layout, {
+        outputsOnly: true
+    });
 
-    dispatch(
-        addRequestedCallbacks(
-            getLayoutCallbacks(graphs, paths, layout, {
-                outputsOnly: true
-            })
-        )
-    );
+    dispatch(addRequestedCallbacks(callbacks));
 }
 
 export const redo = moveHistory('REDO');
@@ -102,11 +100,12 @@ function moveHistory(changeType) {
 }
 
 export function notifyObservers({id, props}) {
+    // console.log(':notifyObservers, updating observers', props);
     return async function (dispatch, getState) {
         const {graphs, paths} = getState();
-        dispatch(
-            addRequestedCallbacks(includeObservers(id, props, graphs, paths))
-        );
+        const callbacks = includeObservers(id, props, graphs, paths);
+
+        dispatch(addRequestedCallbacks(callbacks));
     };
 }
 
