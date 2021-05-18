@@ -5,6 +5,7 @@ export interface ICallbackDefinition {
         namespace: string;
         function_name: string;
     };
+    one_way_bind: boolean;
     input: string;
     inputs: ICallbackProperty[];
     output: string;

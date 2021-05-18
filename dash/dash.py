@@ -27,7 +27,7 @@ import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
-from .dependencies import handle_callback_args, Output
+from .dependencies import handle_callback_args, Input, Output
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
 from .version import __version__
@@ -873,6 +873,7 @@ class Dash(object):
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
             "clientside_function": None,
+            "one_way_bind": False,
             "prevent_initial_call": prevent_initial_call,
         }
         self.callback_map[callback_id] = {
@@ -979,6 +980,17 @@ class Dash(object):
             "namespace": namespace,
             "function_name": function_name,
         }
+
+    def bind(self, inputs, outputs):
+        if not isinstance(inputs, Input):
+            raise ValueError("input must be an Input")
+
+        if not isinstance(outputs, Output):
+            raise ValueError("output must be an Output")
+
+        self._insert_callback([outputs], [inputs], [], False)
+
+        self._callback_list[-1]["one_way_bind"] = True
 
     def callback(self, *_args, **_kwargs):
         """
