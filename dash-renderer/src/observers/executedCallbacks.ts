@@ -77,7 +77,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         }
 
         let requestedCallbacks: ICallback[] = [];
-        let storedCallbacks: IStoredCallback[] = [];
+        const storedCallbacks: IStoredCallback[] = [];
 
         forEach(cb => {
             const predecessors = concat(cb.predecessors ?? [], [cb.callback]);

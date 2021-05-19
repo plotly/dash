@@ -207,6 +207,23 @@ function CallbackGraph() {
         );
     };
 
+    function getComponent(id) {
+        // for now ignore pattern-matching IDs
+        // to do better we may need to store the *actual* IDs used for each
+        // callback invocation, since they need not match what's on the page now.
+        if (id.charAt(0) === '{') {
+            hasPatterns = true;
+            return undefined;
+        }
+        const idPath = getPath(paths, id);
+        return idPath ? path(idPath, layout) : undefined;
+    }
+
+    function getPropValue(data) {
+        const parent = getComponent(data.parent);
+        return parent ? parent.props[data.label] : undefined;
+    }
+
     function setPresetLayout({cy}) {
         const positions = {};
         cy.nodes().each(n => {
@@ -287,23 +304,6 @@ function CallbackGraph() {
     let hasPatterns = false;
 
     if (selected) {
-        function getComponent(id) {
-            // for now ignore pattern-matching IDs
-            // to do better we may need to store the *actual* IDs used for each
-            // callback invocation, since they need not match what's on the page now.
-            if (id.charAt(0) === '{') {
-                hasPatterns = true;
-                return undefined;
-            }
-            const idPath = getPath(paths, id);
-            return idPath ? path(idPath, layout) : undefined;
-        }
-
-        function getPropValue(data) {
-            const parent = getComponent(data.parent);
-            return parent ? parent.props[data.label] : undefined;
-        }
-
         const data = selected.data();
 
         switch (data.type) {

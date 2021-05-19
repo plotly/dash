@@ -46,7 +46,7 @@ export function getCallbacksByInput(
     id: any,
     prop: any,
     changeType?: any,
-    withPriority: boolean = true
+    withPriority = true
 ): ICallback[] {
     const matches: ICallback[] = [];
     const idAndProp = combineIdAndProp({id, property: prop});
@@ -103,7 +103,7 @@ export function getPriority(
 ): string {
     let callbacks: ICallback[] = [callback];
     let touchedOutputs: {[key: string]: boolean} = {};
-    let priority: number[] = [];
+    const priority: number[] = [];
 
     while (callbacks.length) {
         const outputs = filter(

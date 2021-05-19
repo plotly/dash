@@ -97,7 +97,7 @@ const stylesheet = [
             width: 'label',
             // height: 'label',
             shape: 'rectangle',
-            content: e => e.data().label.replace(/\"/g, ''),
+            content: e => e.data().label.replace(/"/g, ''),
             'text-valign': 'top',
             'background-color': '#B9C2CE'
         }
