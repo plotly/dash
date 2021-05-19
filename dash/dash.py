@@ -1468,10 +1468,15 @@ class Dash(object):
                 }
 
             def _after_request(response):
-                dash_total = flask.g.timing_information["__dash_server"]
-                dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+                timing_information = flask.g.get("timing_information", None)
+                if timing_information is None:
+                    return response
 
-                for name, info in flask.g.timing_information.items():
+                dash_total = timing_information.get("__dash_server", None)
+                if dash_total is not None:
+                    dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+
+                for name, info in timing_information.items():
 
                     value = name
                     if info.get("desc") is not None:

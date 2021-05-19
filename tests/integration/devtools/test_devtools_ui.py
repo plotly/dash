@@ -1,4 +1,5 @@
 from time import sleep
+import flask
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -224,3 +225,38 @@ def test_dvui006_no_undo_redo(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#b", "xyz")
     dash_duo.wait_for_no_elements("._dash-undo-redo")
+
+
+def test_dvui007_other_before_request_func(dash_thread_server, dash_br):
+    # won't use `bash_br`, because it expects an dash app, but it gets an static html page.
+    # we take only the selenium driver from `bash_br`, this driver has already been set-up.
+    driver = dash_br.driver
+
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [html.P(id="just_an_id", children="You should never see this")]
+    )
+
+    # create alternative response, for the endpoint '/'
+    # servering an alternative response, will disable further `before_request` functions e.g. those by dash
+    @app.server.before_request
+    def create_an_alternative_response():
+        if flask.request.endpoint == "/":
+            return flask.Response(
+                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">\n'
+                "<title>Alternative repsonse</title>\n"
+                '<h1 id="alternative_id">Alternative response header</h1>\n',
+                200,
+                mimetype="text/html",
+            )
+
+    dash_thread_server.start(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    driver.get(dash_thread_server.url)
+    driver.find_element_by_id("alternative_id")
