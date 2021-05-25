@@ -257,12 +257,7 @@ jobs:
             cd dash-html-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
             cd ../dash-core-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
             cd ../dash-table; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build); cd ..
-
-      - run:
-          name: 🔧 fix up dash metadata
-          command: |
-            sudo Rscript dashR/tests/circleci/fixup_metadata.R
-
+            
       - run:
           name: 🎛 set environment variables
           command: |
