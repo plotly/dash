@@ -18,7 +18,6 @@ The components in this package are all simple wrappers for HTML5 elements. Exten
 Here is an example of a simple HTML structure:
 
 ```r
-library(dashHtmlComponents)
 library(dash)
 
 htmlDiv(list(
@@ -45,9 +44,8 @@ which gets converted (behind the scenes) into the following HTML in your web app
 If you're not comfortable with HTML, don't worry! You can get 95% of the way there with just a few elements and attributes. Dash's core component library also supports [Markdown](https://daringfireball.net/projects/markdown/).
 
 ```r
-library(dashHtmlComponents)
-library(dashCoreComponents)
 library(dash)
+
 dccMarkdown('''
 #### Dash and Markdown
 Dash supports [Markdown](https://daringfireball.net/projects/markdown/).
@@ -76,8 +74,8 @@ All of these attributes are available in the R functions. The HTML elements and 
 Let's take a look at an example.
 
 ```r
-library(dashHtmlComponents)
 library(dash)
+
 htmlDiv(list(
     htmlDiv('Example Div', style=list('color' = 'blue', 'fontSize' = 14)),
     htmlP('Example P', className='my-class', id='my-p-element')

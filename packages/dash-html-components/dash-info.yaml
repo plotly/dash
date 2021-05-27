@@ -16,9 +16,8 @@ r_examples:
     - name: htmlA
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -36,12 +35,11 @@ r_examples:
     - name: htmlAbbr
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
-              
+
               app <- Dash$new()
-              
+
               app$layout(
                 htmlDiv(list(
                   htmlAbbr(children='Hello! htmlAbbr at work!',
@@ -49,15 +47,14 @@ r_examples:
                   )
                 )
               )
-              
+
               app$run_server()
             }
     - name: htmlAcronym
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -74,9 +71,8 @@ r_examples:
     - name: htmlAddress
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -95,9 +91,8 @@ r_examples:
             # The URL below has been chunked to comply with CRAN
             # requirements; the use of file.path is optional and not required
             # for this component.
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app$layout(
                 htmlDiv(list(
@@ -139,9 +134,8 @@ r_examples:
     - name: htmlArticle
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -166,9 +160,8 @@ r_examples:
     - name: htmlAside
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -193,9 +186,8 @@ r_examples:
     - name: htmlAudio
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -213,9 +205,8 @@ r_examples:
     - name: htmlB
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -232,9 +223,8 @@ r_examples:
     - name: htmlBase
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -251,7 +241,7 @@ r_examples:
     - name: htmlBasefont
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # This feature is obsolete. It may still work in some
               # browsers, but could stop working at any time. Try to
               # avoid using this component.
@@ -259,7 +249,6 @@ r_examples:
               # Instead, use CSS properties to set font, font-family,
               # font-size and color.
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -278,9 +267,8 @@ r_examples:
     - name: htmlBdi
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -298,12 +286,11 @@ r_examples:
     - name: htmlBdo
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # This element supports bidirectional text override.
               # We can force text to render from right to left instead
               # of left to right.
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -322,12 +309,11 @@ r_examples:
     - name: htmlBig
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # The <big> tag is not supported in HTML5.
               # Instead, use the font-size property in
               # CSS to enlarge text.
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -344,7 +330,7 @@ r_examples:
     - name: htmlBlink
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # The blink tag is now obsolete and deprecated.
               # It may not function properly in all browsers,
               # and it may cease working without warning.
@@ -352,7 +338,6 @@ r_examples:
               # This element is generally unsupported on all
               # modern browser releases.
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -369,9 +354,8 @@ r_examples:
     - name: htmlBlockquote
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {      
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -391,9 +375,8 @@ r_examples:
     - name: htmlBr
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -413,9 +396,8 @@ r_examples:
     - name: htmlButton
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -431,10 +413,9 @@ r_examples:
     - name: htmlCanvas
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # this component requires JavaScript code to draw on the canvas
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -450,9 +431,8 @@ r_examples:
     - name: htmlCaption
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -507,9 +487,8 @@ r_examples:
     - name: htmlCenter
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -525,9 +504,8 @@ r_examples:
     - name: htmlCite
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -543,9 +521,8 @@ r_examples:
     - name: htmlCode
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -562,10 +539,9 @@ r_examples:
     - name: htmlCol
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # Used within htmlColgroup to define columns.
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -594,9 +570,8 @@ r_examples:
     - name: htmlColgroup
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -634,9 +609,8 @@ r_examples:
     - name: htmlData
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -664,10 +638,8 @@ r_examples:
     - name: htmlDatalist
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
-              library(dashCoreComponents)
 
               app <- Dash$new()
 
@@ -691,9 +663,8 @@ r_examples:
     - name: htmlDd
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -712,9 +683,8 @@ r_examples:
     - name: htmlDel
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -731,9 +701,8 @@ r_examples:
     - name: htmlDetails
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -756,9 +725,8 @@ r_examples:
     - name: htmlDfn
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -775,9 +743,8 @@ r_examples:
     - name: htmlDialog
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -794,10 +761,9 @@ r_examples:
     - name: htmlDiv
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
-              
+
               app <- Dash$new()
 
               app$layout(
@@ -812,9 +778,8 @@ r_examples:
     - name: htmlDl
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -833,9 +798,8 @@ r_examples:
     - name: htmlDt
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -860,9 +824,8 @@ r_examples:
     - name: htmlEm
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -880,9 +843,8 @@ r_examples:
     - name: htmlEmbed
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -900,10 +862,8 @@ r_examples:
     - name: htmlFieldset
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
-              library(dashCoreComponents)
 
               app <- Dash$new()
 
@@ -928,9 +888,8 @@ r_examples:
     - name: htmlFigcaption
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -947,9 +906,8 @@ r_examples:
     - name: htmlFigure
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -975,9 +933,8 @@ r_examples:
     - name: htmlFooter
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -997,25 +954,23 @@ r_examples:
     - name: htmlForm
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
-              library(dashCoreComponents)
 
               app <- Dash$new()
 
               app$layout(htmlDiv(list(
                 htmlForm(children=list(
                   htmlP(children=list('Username: ',
-                                      dccInput(type='text', 
-                                               id='username', 
+                                      dccInput(type='text',
+                                               id='username',
                                                placeholder='username'))),
                   htmlP(children=list('Password: ',
-                                      dccInput(type='password', 
+                                      dccInput(type='password',
                                                id='password',
                                                placeholder='password'))),
-                  htmlButton(children=list('Login'), 
-                             type='submit', 
+                  htmlButton(children=list('Login'),
+                             type='submit',
                              id='login_button')
                       )
                     )
@@ -1023,7 +978,7 @@ r_examples:
                 )
               )
 
-              app$run_server()              
+              app$run_server()
             }
     - name: htmlFrame
       dontrun: FALSE
@@ -1036,9 +991,8 @@ r_examples:
     - name: htmlHeader
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1055,9 +1009,8 @@ r_examples:
     - name: htmlH1
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {      
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1077,9 +1030,8 @@ r_examples:
     - name: htmlH2
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1099,9 +1051,8 @@ r_examples:
     - name: htmlH3
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1121,9 +1072,8 @@ r_examples:
     - name: htmlH4
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1143,9 +1093,8 @@ r_examples:
     - name: htmlH5
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1165,9 +1114,8 @@ r_examples:
     - name: htmlH6
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1187,9 +1135,8 @@ r_examples:
     - name: htmlHgroup
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1210,9 +1157,8 @@ r_examples:
     - name: htmlHr
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1233,9 +1179,8 @@ r_examples:
     - name: htmlI
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1251,9 +1196,8 @@ r_examples:
     - name: htmlIframe
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1269,9 +1213,8 @@ r_examples:
     - name: htmlImg
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1288,9 +1231,8 @@ r_examples:
     - name: htmlIns
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1310,9 +1252,8 @@ r_examples:
     - name: htmlKbd
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1338,10 +1279,8 @@ r_examples:
     - name: htmlLabel
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
-              library(dashCoreComponents)
 
               app <- Dash$new()
 
@@ -1366,10 +1305,8 @@ r_examples:
     - name: htmlLegend
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
-              library(dashCoreComponents)
 
               app <- Dash$new()
 
@@ -1395,9 +1332,8 @@ r_examples:
     - name: htmlLi
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1421,9 +1357,8 @@ r_examples:
     - name: htmlLink
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1440,14 +1375,13 @@ r_examples:
     - name: htmlListing
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # Warning: The <listing> element was intended as a way to render HTML code on a page.
               # It was never properly supported, and is now deprecated. Using <listing> will almost
               # certainly result in unexpected results. Instead, use <code>, or place the content in
               # a <div> with the appropriate CSS styling.
 
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1466,9 +1400,8 @@ r_examples:
     - name: htmlMain
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1493,7 +1426,7 @@ r_examples:
             # The URL below has been chunked to comply with CRAN
             # requirements; the use of file.path is optional and not required
             # for this component.
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               app$layout(
                 htmlDiv(list(
                   htmlImg(src = file.path('https://upload.wikimedia.org',
@@ -1534,9 +1467,8 @@ r_examples:
     - name: htmlMark
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1554,13 +1486,12 @@ r_examples:
     - name: htmlMarquee
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # This feature is obsolete. It may still work in some
               # browsers, but could stop working at any time. Try to
               # avoid using this component.
 
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1576,9 +1507,8 @@ r_examples:
     - name: htmlMeta
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1596,9 +1526,8 @@ r_examples:
     - name: htmlMeter
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1626,9 +1555,8 @@ r_examples:
     - name: htmlNav
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1656,9 +1584,8 @@ r_examples:
     - name: htmlNobr
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1688,12 +1615,11 @@ r_examples:
     - name: htmlObjectEl
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # Note that htmlObjectEl generates the <object> HTML element;
               # for more information, please visit the link in this
               # component's description.
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1712,9 +1638,8 @@ r_examples:
     - name: htmlOl
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1733,9 +1658,8 @@ r_examples:
     - name: htmlOptgroup
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1760,9 +1684,8 @@ r_examples:
     - name: htmlOption
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1782,15 +1705,14 @@ r_examples:
     - name: htmlOutput
       dontrun: FALSE
       code: |
-            # This component works with htmlForm and htmlInput 
+            # This component works with htmlForm and htmlInput
             # and may be used to present the result of an
             # executed script.
     - name: htmlP
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1805,9 +1727,8 @@ r_examples:
     - name: htmlParam
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1831,9 +1752,8 @@ r_examples:
             # The URL below has been chunked to comply with CRAN
             # requirements; the use of file.path is optional and not required
             # for this component.
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1859,13 +1779,12 @@ r_examples:
     - name: htmlPlaintext
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               # Warning: The <plaintext> tag is obsolete,
               # it might not work as intended.
               # Use the <pre> tag instead.
 
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1884,9 +1803,8 @@ r_examples:
     - name: htmlPre
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1907,9 +1825,8 @@ r_examples:
     - name: htmlProgress
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1925,9 +1842,8 @@ r_examples:
     - name: htmlQ
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1945,9 +1861,8 @@ r_examples:
     - name: htmlRb
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1973,9 +1888,8 @@ r_examples:
     - name: htmlRp
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -1986,24 +1900,23 @@ r_examples:
                     htmlRp("("),
                     htmlRt("kan"),
                     htmlRp(")")
-                  )),  
+                  )),
                   htmlRuby(list(
                     "\U{5b57}",
                     htmlRp("("),
                     htmlRt("ji"),
                     htmlRp(")")
-                  ))   
-                ))   
-              )    
+                  ))
+                ))
+              )
 
               app$run_server()
             }
     - name: htmlRt
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2014,24 +1927,23 @@ r_examples:
                     htmlRp("("),
                     htmlRt("kan"),
                     htmlRp(")")
-                  )),  
+                  )),
                   htmlRuby(list(
                     "\U{5b57}",
                     htmlRp("("),
                     htmlRt("ji"),
                     htmlRp(")")
-                  ))   
-                ))   
-              )    
+                  ))
+                ))
+              )
 
               app$run_server()
             }
     - name: htmlRtc
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2049,9 +1961,8 @@ r_examples:
     - name: htmlRuby
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2066,9 +1977,8 @@ r_examples:
     - name: htmlS
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2085,9 +1995,8 @@ r_examples:
     - name: htmlSamp
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2108,9 +2017,8 @@ r_examples:
     - name: htmlSection
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2131,9 +2039,8 @@ r_examples:
     - name: htmlSelect
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2171,9 +2078,8 @@ r_examples:
     - name: htmlSmall
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2194,9 +2100,8 @@ r_examples:
             # The URL below has been chunked to comply with CRAN
             # requirements; the use of file.path is optional and not required
             # for this component.
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2219,7 +2124,7 @@ r_examples:
                 )
               )
 
-              app$run_server()              
+              app$run_server()
             }
     - name: htmlSpacer
       dontrun: FALSE
@@ -2230,9 +2135,8 @@ r_examples:
     - name: htmlSpan
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2253,9 +2157,8 @@ r_examples:
     - name: htmlStrike
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2272,9 +2175,8 @@ r_examples:
     - name: htmlStrong
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2292,9 +2194,8 @@ r_examples:
     - name: htmlSub
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2311,9 +2212,8 @@ r_examples:
     - name: htmlSummary
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2336,9 +2236,8 @@ r_examples:
     - name: htmlSup
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2355,9 +2254,8 @@ r_examples:
     - name: htmlTable
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2390,9 +2288,8 @@ r_examples:
     - name: htmlTbody
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2428,9 +2325,8 @@ r_examples:
     - name: htmlTd
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2463,9 +2359,8 @@ r_examples:
     - name: htmlTemplate
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2500,9 +2395,8 @@ r_examples:
     - name: htmlTextarea
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2521,9 +2415,8 @@ r_examples:
     - name: htmlTfoot
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2559,9 +2452,8 @@ r_examples:
     - name: htmlTh
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2587,9 +2479,8 @@ r_examples:
     - name: htmlThead
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2625,9 +2516,8 @@ r_examples:
     - name: htmlTime
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2657,9 +2547,8 @@ r_examples:
     - name: htmlTr
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2697,9 +2586,8 @@ r_examples:
             # The URL below has been chunked to comply with CRAN
             # requirements; the use of file.path is optional and not required
             # for this component.
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2709,14 +2597,14 @@ r_examples:
                     htmlSource(src = file.path("https://interactive-examples.mdn.mozilla.net",
                                               "media/examples",
                                               "friday.mp4",
-                                              fsep = "/"), 
+                                              fsep = "/"),
                               type = 'video/mp4'),
                     htmlTrack(kind = 'captions',
                               srcLang = 'en',
                               src = file.path("https://interactive-examples.mdn.mozilla.net",
                                               "media/examples",
                                               "friday.vtt",
-                                              fsep = "/"), 
+                                              fsep = "/"),
                               default = 'default',
                               label = 'English')
                   ),
@@ -2731,9 +2619,8 @@ r_examples:
     - name: htmlU
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2749,9 +2636,8 @@ r_examples:
     - name: htmlUl
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2774,9 +2660,8 @@ r_examples:
     - name: htmlVar
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2794,9 +2679,8 @@ r_examples:
     - name: htmlVideo
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2819,9 +2703,8 @@ r_examples:
     - name: htmlWbr
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 
@@ -2840,9 +2723,8 @@ r_examples:
     - name: htmlXmp
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
 
               app <- Dash$new()
 

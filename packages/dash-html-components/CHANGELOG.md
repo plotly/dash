@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## UNRELEASED
+
+### Changed
+- [#190](https://github.com/plotly/dash-core-components/pull/190) Updated R package vignettes and `dash-info.yaml` to regenerate examples without attaching now-deprecated core component packages (`dashHtmlComponents`, `dashCoreComponents`, or `dashTable`).
+
 ## [1.1.3] - 2021-04-08
 ### Fixed
 - [#179](https://github.com/plotly/dash-html-components/pull/179) - Fixes [#77](https://github.com/plotly/dash-html-components/issues/77) Added `allow` and `referrerPolicy` properties to `html.Iframe`
