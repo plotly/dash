@@ -88,7 +88,7 @@
     "whatwg-fetch": "^3.0.0"
   },
   "files": [
-    "/dash_renderer/*{.js,.map}",
+    "../deps/*{.js,.map}",
     "/lib/**"
   ],
   "prettier": "@plotly/prettier-config-dash"

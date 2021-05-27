@@ -33,7 +33,7 @@ class BuildProcess(object):
             package = json.load(fp)
             self.version = package["version"]
             self.name = package["name"]
-            self.build_folder = self._concat(os.getcwd(), os.pardir, "deps")
+            self.build_folder = self._concat(self.main, os.pardir, "deps")
             self.deps = package["dependencies"]
 
     @staticmethod
@@ -116,8 +116,6 @@ class BuildProcess(object):
                 logger.exception("🚨 having issues manipulating %s", self.build_folder)
                 sys.exit(1)
 
-        _targetFolder = self.build_folder
-
         self._parse_package(self.package_lock)
 
         getattr(self, "_bundles_extra", lambda: None)()
@@ -141,12 +139,12 @@ class BuildProcess(object):
 
             shutil.copyfile(
                 self._concat(self.npm_modules, scope, name, subfolder, filename),
-                self._concat(_targetFolder, target),
+                self._concat(self.build_folder, target),
             )
 
         _script = "build:dev" if build == "local" else "build:js"
         logger.info("run `npm run %s`", _script)
-        os.chdir(self._concat(_targetFolder, os.pardir, "dash-renderer"))
+        os.chdir(self._concat(self.build_folder, os.pardir, "dash-renderer"))
         run_command_with_process("npm run {}".format(_script))
 
         logger.info("generate the `__init__.py` from template and versions")
@@ -154,13 +152,13 @@ class BuildProcess(object):
             t = string.Template(fp.read())
 
         with open(
-            self._concat(_targetFolder, os.pardir, "_dash_renderer.py"), "w"
+            self._concat(self.build_folder, os.pardir, "_dash_renderer.py"), "w"
         ) as fp:
             fp.write(t.safe_substitute(versions))
 
     @job("clean node_modules directory 🧹")
     def cleanModules(self):
-        """Job to clean node_modules directory from installed Dash package."""
+        """Job to clean node_modules directory from Dash package."""
         os.chdir(self.main)
         run_command_with_process("rm -rf node_modules")
 
