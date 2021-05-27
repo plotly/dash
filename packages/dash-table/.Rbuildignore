@@ -19,6 +19,10 @@ lib/
 demo/.*\.js
 demo/.*\.html
 demo/.*\.css
+demo/.*\.ts
+demo/.*\.tsx
+demo/.*\.less
+
 
 # ignore Python files/folders
 setup.py

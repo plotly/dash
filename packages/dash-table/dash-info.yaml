@@ -4,12 +4,12 @@ pkg_help_description: >-
     <table/> markup, which makes it accessible, responsive, and easy
     to style. This component was written from scratch in 'React.js'
     specifically for the 'Dash' community. Its API was designed to be
-    ergonomic and its behaviour is completely customizable through its 
+    ergonomic and its behaviour is completely customizable through its
     properties.
 pkg_help_title: >-
     Core Interactive Table Component for 'Dash'
 pkg_authors: >-
-    c(person("Chris", "Parmer", email = "chris@plotly.com", role = c("aut")), person("Ryan Patrick", "Kyle", email = "ryan@plotly.com", role = c("cre"), comment = c(ORCID = "0000-0002-4958-2844")), person(family = "Plotly Technologies, Inc.", role = "cph")) 
+    c(person("Chris", "Parmer", email = "chris@plotly.com", role = c("aut")), person("Ryan Patrick", "Kyle", email = "ryan@plotly.com", role = c("cre"), comment = c(ORCID = "0000-0002-4958-2844")), person(family = "Plotly Technologies, Inc.", role = "cph"))
 pkg_copyright: >-
     Plotly Technologies, Inc.
 r_examples:
@@ -28,7 +28,6 @@ r_examples:
             # maintainers.
             if (interactive() && require(dash)) {
               library(dash)
-              library(dashTable)
 
               app <- Dash$new()
 
@@ -53,7 +52,7 @@ r_examples:
               )
 
               app$run_server()
-              
+
               app <- Dash$new()
 
               # We can also make rows and columns selectable/deletable

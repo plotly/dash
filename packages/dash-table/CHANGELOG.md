@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - New props: `filter_options` - to control case of all filters, `columns.filter_options` - to control filter case for each column
     - New operators: `i=`, `ieq`, `i>=`, `ige`, `i>`, `igt`, `i<=`, `ile`, `i<`, `ilt`, `i!=`, `ine`, `icontains` - for case-insensitive filtering, `s=`, `seq`, `s>=`, `sge`, `s>`, `sgt`, `s<=`, `sle`, `s<`, `slt`, `s!=`, `sne`, `scontains` - to force case-sensitive filtering on case-insensitive columns
 
+### Changed
+- [#901](https://github.com/plotly/dash-core-components/pull/901) Updated R package `dash-info.yaml` to regenerate example without attaching now-deprecated core component packages (`dashHtmlComponents`, `dashCoreComponents`, or `dashTable`).
+
 ## [4.11.3] - 2021-04-08
 ### Changed
 - [#862](https://github.com/plotly/dash-table/pull/862) - update docstrings per https://github.com/plotly/dash/issues/1205
