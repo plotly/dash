@@ -1054,20 +1054,30 @@ class Dash(object):
 
     def dispatch(self):
         body = flask.request.get_json()
-        flask.g.inputs_list = inputs = body.get("inputs", [])
-        flask.g.states_list = state = body.get("state", [])
+        flask.g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
+            "inputs", []
+        )
+        flask.g.states_list = state = body.get(  # pylint: disable=assigning-non-slot
+            "state", []
+        )
         output = body["output"]
         outputs_list = body.get("outputs") or split_callback_id(output)
-        flask.g.outputs_list = outputs_list
+        flask.g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
 
-        flask.g.input_values = input_values = inputs_to_dict(inputs)
-        flask.g.state_values = inputs_to_dict(state)
+        flask.g.input_values = (  # pylint: disable=assigning-non-slot
+            input_values
+        ) = inputs_to_dict(inputs)
+        flask.g.state_values = inputs_to_dict(  # pylint: disable=assigning-non-slot
+            state
+        )
         changed_props = body.get("changedPropIds", [])
-        flask.g.triggered_inputs = [
+        flask.g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
         ]
 
-        response = flask.g.dash_response = flask.Response(mimetype="application/json")
+        response = (
+            flask.g.dash_response  # pylint: disable=assigning-non-slot
+        ) = flask.Response(mimetype="application/json")
 
         args = inputs_to_vals(inputs + state)
 
@@ -1463,7 +1473,7 @@ class Dash(object):
         if debug and dev_tools.ui:
 
             def _before_request():
-                flask.g.timing_information = {
+                flask.g.timing_information = {  # pylint: disable=assigning-non-slot
                     "__dash_server": {"dur": time.time(), "desc": None}
                 }
 
