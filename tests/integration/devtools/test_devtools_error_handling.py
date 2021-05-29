@@ -7,7 +7,10 @@ from dash.exceptions import PreventUpdate
 
 
 def app_with_errors():
-    app = dash.Dash(__name__)
+    darkly = (
+        "https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/darkly/bootstrap.min.css"
+    )
+    app = dash.Dash(__name__, external_stylesheets=[darkly])
 
     app.layout = html.Div(
         [
@@ -63,7 +66,7 @@ def test_dveh001_python_errors(dash_duo):
     dash_duo.percy_snapshot("devtools - Python exception - 2 errors")
 
     dash_duo.find_element(".test-devtools-error-toggle").click()
-    dash_duo.percy_snapshot("devtools - Python exception - 2 errors open")
+    dash_duo.percy_snapshot("devtools - Python exception - 2 errors open -  dark theme")
 
     # the top (first) error is the most recent one - ie from the second click
     error0 = get_error_html(dash_duo, 0)
