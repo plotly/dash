@@ -39,7 +39,7 @@ def test_clp002_clipboard_text(dash_dcc_headed):
     copy_text = "Copy this text to the clipboard"
     app = dash.Dash(__name__, prevent_initial_callbacks=True)
     app.layout = html.Div(
-        [dcc.Clipboard(id="copy_icon", text=copy_text), dcc.Textarea(id="paste")]
+        [dcc.Clipboard(id="copy_icon", content=copy_text), dcc.Textarea(id="paste")]
     )
     dash_dcc_headed.start_server(app)
 

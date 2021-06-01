@@ -38,9 +38,9 @@ export default class Clipboard extends React.Component {
         return '{' + parts.join(',') + '}';
     }
 
-    async copySuccess(text) {
+    async copySuccess(content) {
         const showCopiedIcon = 1000;
-        await clipboardAPI.writeText(text);
+        await clipboardAPI.writeText(content);
         this.setState({copied: true});
         await wait(showCopiedIcon);
         this.setState({copied: false});
@@ -56,12 +56,12 @@ export default class Clipboard extends React.Component {
                     this.props.target_id
             );
         }
-        let text = target.innerText;
-        if (!text) {
-            text = target.value;
-            text = text === undefined ? null : text;
+        let content = target.innerText;
+        if (!content) {
+            content = target.value;
+            content = content === undefined ? null : content;
         }
-        return text;
+        return content;
     }
 
     async loading() {
@@ -75,16 +75,16 @@ export default class Clipboard extends React.Component {
             n_clicks: this.props.n_clicks + 1,
         });
 
-        let text;
+        let content;
         if (this.props.target_id) {
-            text = this.getTargetText();
+            content = this.getTargetText();
         } else {
             await wait(100); // gives time for callback to start
             await this.loading();
-            text = this.props.text;
+            content = this.props.content;
         }
-        if (text) {
-            this.copySuccess(text);
+        if (content) {
+            this.copySuccess(content);
         }
     }
 
@@ -118,7 +118,7 @@ export default class Clipboard extends React.Component {
 }
 
 Clipboard.defaultProps = {
-    text: null,
+    content: null,
     target_id: null,
     n_clicks: 0,
 };
@@ -139,7 +139,7 @@ Clipboard.propTypes = {
     /**
      * The text to  be copied to the clipboard if the `target_id` is None.
      */
-    text: PropTypes.string,
+    content: PropTypes.string,
 
     /**
      * The number of times copy button was clicked
