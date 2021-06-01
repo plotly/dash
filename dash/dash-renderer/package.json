@@ -2,7 +2,7 @@
   "name": "dash-renderer",
   "version": "1.9.1",
   "description": "render dash components in react",
-  "main": "dash_renderer/dash_renderer.min.js",
+  "main": "../deps/dash_renderer.min.js",
   "scripts": {
     "prepublishOnly": "rm -rf lib && babel src --extensions=\".ts,.tsx,.js,.jsx\" --out-dir lib --copy-files",
     "private::format.eslint": "eslint --quiet --fix src tests",
@@ -13,7 +13,7 @@
     "build:dev": "webpack",
     "build:local": "renderer build local",
     "build": "renderer build && npm run prepublishOnly",
-    "postbuild": "es-check es5 dash_renderer/*.js",
+    "postbuild": "es-check es5 ../deps/*.js",
     "start": "webpack-serve ./webpack.serve.config.js",
     "test": "karma start karma.conf.js --single-run",
     "format": "run-s private::format.*",
@@ -88,7 +88,7 @@
     "whatwg-fetch": "^3.0.0"
   },
   "files": [
-    "/dash_renderer/*{.js,.map}",
+    "../deps/*{.js,.map}",
     "/lib/**"
   ],
   "prettier": "@plotly/prettier-config-dash"

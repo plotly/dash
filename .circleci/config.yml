@@ -61,6 +61,7 @@ jobs:
           command: |
             . venv/bin/activate
             set -eo pipefail
+            cd dash/dash-renderer && renderer build && cd ../../
             pip install -e . --progress-bar off && pip list | grep dash
             npm install --production && npm run initialize
             npm run lint
@@ -121,7 +122,7 @@ jobs:
           name: ️️🏗️ build core
           command: |
             . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-            cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+            cd dash/dash-renderer && renderer build && cd ../../ && python setup.py sdist && mv dist/* packages/
             git clone --depth 1 https://github.com/plotly/dash-core-components.git
             cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
             ls -la packages
@@ -223,7 +224,7 @@ jobs:
           name: ️️🏗️ build core
           command: |
             pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
-            cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+            cd dash/dash-renderer && renderer build && cd ../../ && python setup.py sdist && mv dist/* packages/
             git clone --depth 1 https://github.com/plotly/dash-core-components.git
             cd dash-core-components && npm ci && npm run build && python setup.py sdist && cd ..
 
@@ -256,12 +257,7 @@ jobs:
             cd dash-html-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
             cd ../dash-core-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
             cd ../dash-table; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build); cd ..
-
-      - run:
-          name: 🔧 fix up dash metadata
-          command: |
-            sudo Rscript dashR/tests/circleci/fixup_metadata.R
-
+            
       - run:
           name: 🎛 set environment variables
           command: |
