@@ -97,11 +97,10 @@ jobs:
           command: |
             . venv/bin/activate && mkdir packages
             set -eo pipefail
-            # build main dash
+            # build main dash & renderer
             git clone --depth 1 https://github.com/plotly/dash.git dash-main
-            cd dash-main && pip install -e .[dev] --progress-bar off && python setup.py sdist && mv dist/* ../packages/
-            cd dash-renderer && npm ci && npm run build
-            python setup.py sdist && mv dist/* ../../packages/ && cd ../..
+            cd dash-main && pip install -e .[dev] --progress-bar off && renderer build
+            python setup.py sdist && mv dist/* ../packages/ && cd ..
             # build html
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
             cd dash-html-components && npm ci && npm run build
