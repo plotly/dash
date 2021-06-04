@@ -34,20 +34,46 @@ Keyword arguments:
 
 - submit_n_clicks_timestamp (number; default -1):
     Last time the submit button was clicked."""
+
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, message=Component.UNDEFINED, submit_n_clicks=Component.UNDEFINED, submit_n_clicks_timestamp=Component.UNDEFINED, cancel_n_clicks=Component.UNDEFINED, cancel_n_clicks_timestamp=Component.UNDEFINED, displayed=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'cancel_n_clicks', 'cancel_n_clicks_timestamp', 'displayed', 'message', 'submit_n_clicks', 'submit_n_clicks_timestamp']
-        self._type = 'ConfirmDialog'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'cancel_n_clicks', 'cancel_n_clicks_timestamp', 'displayed', 'message', 'submit_n_clicks', 'submit_n_clicks_timestamp']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        message=Component.UNDEFINED,
+        submit_n_clicks=Component.UNDEFINED,
+        submit_n_clicks_timestamp=Component.UNDEFINED,
+        cancel_n_clicks=Component.UNDEFINED,
+        cancel_n_clicks_timestamp=Component.UNDEFINED,
+        displayed=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "cancel_n_clicks",
+            "cancel_n_clicks_timestamp",
+            "displayed",
+            "message",
+            "submit_n_clicks",
+            "submit_n_clicks_timestamp",
+        ]
+        self._type = "ConfirmDialog"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "cancel_n_clicks",
+            "cancel_n_clicks_timestamp",
+            "displayed",
+            "message",
+            "submit_n_clicks",
+            "submit_n_clicks_timestamp",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(ConfirmDialog, self).__init__(**args)

@@ -47,5 +47,5 @@ __all__ = [
     "Tab",
     "Tabs",
     "Textarea",
-    "Upload"
+    "Upload",
 ]

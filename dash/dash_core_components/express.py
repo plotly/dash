@@ -6,6 +6,7 @@ from functools import partial
 # Py2 StringIO.StringIO handles unicode but io.StringIO doesn't
 try:
     from StringIO import StringIO as _StringIO
+
     py2 = True
 except ImportError:
     _StringIO = io.StringIO

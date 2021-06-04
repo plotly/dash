@@ -60,20 +60,49 @@ Keyword arguments:
 
 - style (dict; optional):
     User-defined inline styles for the rendered Markdown."""
+
     @_explicitize_args
-    def __init__(self, children=None, id=Component.UNDEFINED, className=Component.UNDEFINED, dangerously_allow_html=Component.UNDEFINED, dedent=Component.UNDEFINED, highlight_config=Component.UNDEFINED, loading_state=Component.UNDEFINED, style=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['children', 'id', 'className', 'dangerously_allow_html', 'dedent', 'highlight_config', 'loading_state', 'style']
-        self._type = 'Markdown'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['children', 'id', 'className', 'dangerously_allow_html', 'dedent', 'highlight_config', 'loading_state', 'style']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        children=None,
+        id=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        dangerously_allow_html=Component.UNDEFINED,
+        dedent=Component.UNDEFINED,
+        highlight_config=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "children",
+            "id",
+            "className",
+            "dangerously_allow_html",
+            "dedent",
+            "highlight_config",
+            "loading_state",
+            "style",
+        ]
+        self._type = "Markdown"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "children",
+            "id",
+            "className",
+            "dangerously_allow_html",
+            "dedent",
+            "highlight_config",
+            "loading_state",
+            "style",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Markdown, self).__init__(children=children, **args)

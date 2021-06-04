@@ -61,20 +61,46 @@ Keyword arguments:
 
 - style (dict; optional):
     Style of the button."""
+
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, label=Component.UNDEFINED, logout_url=Component.UNDEFINED, style=Component.UNDEFINED, method=Component.UNDEFINED, className=Component.UNDEFINED, loading_state=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'className', 'label', 'loading_state', 'logout_url', 'method', 'style']
-        self._type = 'LogoutButton'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'className', 'label', 'loading_state', 'logout_url', 'method', 'style']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        label=Component.UNDEFINED,
+        logout_url=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        method=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "className",
+            "label",
+            "loading_state",
+            "logout_url",
+            "method",
+            "style",
+        ]
+        self._type = "LogoutButton"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "className",
+            "label",
+            "loading_state",
+            "logout_url",
+            "method",
+            "style",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(LogoutButton, self).__init__(**args)

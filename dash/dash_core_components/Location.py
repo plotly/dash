@@ -30,20 +30,36 @@ Keyword arguments:
 
 - search (string; optional):
     search in window.location - e.g., \"?myargument=1\"."""
+
     @_explicitize_args
-    def __init__(self, id=Component.REQUIRED, pathname=Component.UNDEFINED, search=Component.UNDEFINED, hash=Component.UNDEFINED, href=Component.UNDEFINED, refresh=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'hash', 'href', 'pathname', 'refresh', 'search']
-        self._type = 'Location'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'hash', 'href', 'pathname', 'refresh', 'search']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.REQUIRED,
+        pathname=Component.UNDEFINED,
+        search=Component.UNDEFINED,
+        hash=Component.UNDEFINED,
+        href=Component.UNDEFINED,
+        refresh=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = ["id", "hash", "href", "pathname", "refresh", "search"]
+        self._type = "Location"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "hash",
+            "href",
+            "pathname",
+            "refresh",
+            "search",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
-        for k in ['id']:
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
+        for k in ["id"]:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Location, self).__init__(**args)

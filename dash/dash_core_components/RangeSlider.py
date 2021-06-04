@@ -131,20 +131,91 @@ Keyword arguments:
 
 - verticalHeight (number; default 400):
     The height, in px, of the slider if it is vertical."""
+
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, marks=Component.UNDEFINED, value=Component.UNDEFINED, drag_value=Component.UNDEFINED, allowCross=Component.UNDEFINED, className=Component.UNDEFINED, count=Component.UNDEFINED, disabled=Component.UNDEFINED, dots=Component.UNDEFINED, included=Component.UNDEFINED, min=Component.UNDEFINED, max=Component.UNDEFINED, pushable=Component.UNDEFINED, tooltip=Component.UNDEFINED, step=Component.UNDEFINED, vertical=Component.UNDEFINED, verticalHeight=Component.UNDEFINED, updatemode=Component.UNDEFINED, loading_state=Component.UNDEFINED, persistence=Component.UNDEFINED, persisted_props=Component.UNDEFINED, persistence_type=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'allowCross', 'className', 'count', 'disabled', 'dots', 'drag_value', 'included', 'loading_state', 'marks', 'max', 'min', 'persisted_props', 'persistence', 'persistence_type', 'pushable', 'step', 'tooltip', 'updatemode', 'value', 'vertical', 'verticalHeight']
-        self._type = 'RangeSlider'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'allowCross', 'className', 'count', 'disabled', 'dots', 'drag_value', 'included', 'loading_state', 'marks', 'max', 'min', 'persisted_props', 'persistence', 'persistence_type', 'pushable', 'step', 'tooltip', 'updatemode', 'value', 'vertical', 'verticalHeight']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        marks=Component.UNDEFINED,
+        value=Component.UNDEFINED,
+        drag_value=Component.UNDEFINED,
+        allowCross=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        count=Component.UNDEFINED,
+        disabled=Component.UNDEFINED,
+        dots=Component.UNDEFINED,
+        included=Component.UNDEFINED,
+        min=Component.UNDEFINED,
+        max=Component.UNDEFINED,
+        pushable=Component.UNDEFINED,
+        tooltip=Component.UNDEFINED,
+        step=Component.UNDEFINED,
+        vertical=Component.UNDEFINED,
+        verticalHeight=Component.UNDEFINED,
+        updatemode=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        persistence=Component.UNDEFINED,
+        persisted_props=Component.UNDEFINED,
+        persistence_type=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "allowCross",
+            "className",
+            "count",
+            "disabled",
+            "dots",
+            "drag_value",
+            "included",
+            "loading_state",
+            "marks",
+            "max",
+            "min",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "pushable",
+            "step",
+            "tooltip",
+            "updatemode",
+            "value",
+            "vertical",
+            "verticalHeight",
+        ]
+        self._type = "RangeSlider"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "allowCross",
+            "className",
+            "count",
+            "disabled",
+            "dots",
+            "drag_value",
+            "included",
+            "loading_state",
+            "marks",
+            "max",
+            "min",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "pushable",
+            "step",
+            "tooltip",
+            "updatemode",
+            "value",
+            "vertical",
+            "verticalHeight",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(RangeSlider, self).__init__(**args)

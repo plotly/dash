@@ -100,20 +100,73 @@ Keyword arguments:
 
 - vertical (boolean; default False):
     Renders the tabs vertically (on the side)."""
+
     @_explicitize_args
-    def __init__(self, children=None, id=Component.UNDEFINED, value=Component.UNDEFINED, className=Component.UNDEFINED, content_className=Component.UNDEFINED, parent_className=Component.UNDEFINED, style=Component.UNDEFINED, parent_style=Component.UNDEFINED, content_style=Component.UNDEFINED, vertical=Component.UNDEFINED, mobile_breakpoint=Component.UNDEFINED, colors=Component.UNDEFINED, loading_state=Component.UNDEFINED, persistence=Component.UNDEFINED, persisted_props=Component.UNDEFINED, persistence_type=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['children', 'id', 'className', 'colors', 'content_className', 'content_style', 'loading_state', 'mobile_breakpoint', 'parent_className', 'parent_style', 'persisted_props', 'persistence', 'persistence_type', 'style', 'value', 'vertical']
-        self._type = 'Tabs'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['children', 'id', 'className', 'colors', 'content_className', 'content_style', 'loading_state', 'mobile_breakpoint', 'parent_className', 'parent_style', 'persisted_props', 'persistence', 'persistence_type', 'style', 'value', 'vertical']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        children=None,
+        id=Component.UNDEFINED,
+        value=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        content_className=Component.UNDEFINED,
+        parent_className=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        parent_style=Component.UNDEFINED,
+        content_style=Component.UNDEFINED,
+        vertical=Component.UNDEFINED,
+        mobile_breakpoint=Component.UNDEFINED,
+        colors=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        persistence=Component.UNDEFINED,
+        persisted_props=Component.UNDEFINED,
+        persistence_type=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "children",
+            "id",
+            "className",
+            "colors",
+            "content_className",
+            "content_style",
+            "loading_state",
+            "mobile_breakpoint",
+            "parent_className",
+            "parent_style",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "style",
+            "value",
+            "vertical",
+        ]
+        self._type = "Tabs"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "children",
+            "id",
+            "className",
+            "colors",
+            "content_className",
+            "content_style",
+            "loading_state",
+            "mobile_breakpoint",
+            "parent_className",
+            "parent_style",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "style",
+            "value",
+            "vertical",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Tabs, self).__init__(children=children, **args)

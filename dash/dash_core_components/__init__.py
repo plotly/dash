@@ -14,7 +14,7 @@ package_name = package["name"].replace(" ", "_").replace("-", "_")
 __version__ = package["version"]
 
 # Module imports trigger a dash.development import, need to check this first
-if not hasattr(_dash, '__plotly_dash') and not hasattr(_dash, 'development'):
+if not hasattr(_dash, "__plotly_dash") and not hasattr(_dash, "development"):
     print(
         "Dash was not successfully imported. Make sure you don't have a file "
         "named \n'dash.py' in your current directory.",
@@ -24,7 +24,12 @@ if not hasattr(_dash, '__plotly_dash') and not hasattr(_dash, 'development'):
 
 from ._imports_ import *  # noqa: F401, F403, E402
 from ._imports_ import __all__  # noqa: E402
-from .express import send_bytes, send_data_frame, send_file, send_string  # noqa: F401, E402
+from .express import (
+    send_bytes,
+    send_data_frame,
+    send_file,
+    send_string,
+)  # noqa: F401, E402
 
 _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
@@ -46,7 +51,9 @@ _js_dist = []
 _js_dist.extend(
     [
         {
-            "relative_package_path": "dash_core_components/async-{}.js".format(async_resource),
+            "relative_package_path": "dash_core_components/async-{}.js".format(
+                async_resource
+            ),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/async-{}.js"
@@ -61,7 +68,9 @@ _js_dist.extend(
 _js_dist.extend(
     [
         {
-            "relative_package_path": "dash_core_components/async-{}.js.map".format(async_resource),
+            "relative_package_path": "dash_core_components/async-{}.js.map".format(
+                async_resource
+            ),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/async-{}.js.map"
@@ -84,7 +93,9 @@ _js_dist.extend(
             "namespace": "dash",
         },
         {
-            "relative_package_path": "dash_core_components/{}.min.js.map".format(__name__),
+            "relative_package_path": "dash_core_components/{}.min.js.map".format(
+                __name__
+            ),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/dash_core_components.min.js.map"
@@ -93,7 +104,9 @@ _js_dist.extend(
             "dynamic": True,
         },
         {
-            "relative_package_path": "dash_core_components/{}-shared.js".format(__name__),
+            "relative_package_path": "dash_core_components/{}-shared.js".format(
+                __name__
+            ),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/dash_core_components-shared.js"
@@ -101,7 +114,9 @@ _js_dist.extend(
             "namespace": "dash",
         },
         {
-            "relative_package_path": "dash_core_components/{}-shared.js.map".format(__name__),
+            "relative_package_path": "dash_core_components/{}-shared.js.map".format(
+                __name__
+            ),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/dash_core_components-shared.js.map"

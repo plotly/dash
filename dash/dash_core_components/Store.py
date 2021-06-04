@@ -31,20 +31,40 @@ Keyword arguments:
     on page refresh. local: window.localStorage, data is kept after
     the browser quit. session: window.sessionStorage, data is cleared
     once the browser quit."""
+
     @_explicitize_args
-    def __init__(self, id=Component.REQUIRED, storage_type=Component.UNDEFINED, data=Component.UNDEFINED, clear_data=Component.UNDEFINED, modified_timestamp=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'clear_data', 'data', 'modified_timestamp', 'storage_type']
-        self._type = 'Store'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'clear_data', 'data', 'modified_timestamp', 'storage_type']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.REQUIRED,
+        storage_type=Component.UNDEFINED,
+        data=Component.UNDEFINED,
+        clear_data=Component.UNDEFINED,
+        modified_timestamp=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "clear_data",
+            "data",
+            "modified_timestamp",
+            "storage_type",
+        ]
+        self._type = "Store"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "clear_data",
+            "data",
+            "modified_timestamp",
+            "storage_type",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
-        for k in ['id']:
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
+        for k in ["id"]:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Store, self).__init__(**args)

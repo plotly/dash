@@ -90,20 +90,85 @@ Keyword arguments:
 
 - style_reject (dict; default {    borderStyle: 'solid',    borderColor: '#c66',    backgroundColor: '#eee',}):
     CSS styles if rejected."""
+
     @_explicitize_args
-    def __init__(self, children=None, id=Component.UNDEFINED, contents=Component.UNDEFINED, filename=Component.UNDEFINED, last_modified=Component.UNDEFINED, accept=Component.UNDEFINED, disabled=Component.UNDEFINED, disable_click=Component.UNDEFINED, max_size=Component.UNDEFINED, min_size=Component.UNDEFINED, multiple=Component.UNDEFINED, className=Component.UNDEFINED, className_active=Component.UNDEFINED, className_reject=Component.UNDEFINED, className_disabled=Component.UNDEFINED, style=Component.UNDEFINED, style_active=Component.UNDEFINED, style_reject=Component.UNDEFINED, style_disabled=Component.UNDEFINED, loading_state=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['children', 'id', 'accept', 'className', 'className_active', 'className_disabled', 'className_reject', 'contents', 'disable_click', 'disabled', 'filename', 'last_modified', 'loading_state', 'max_size', 'min_size', 'multiple', 'style', 'style_active', 'style_disabled', 'style_reject']
-        self._type = 'Upload'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['children', 'id', 'accept', 'className', 'className_active', 'className_disabled', 'className_reject', 'contents', 'disable_click', 'disabled', 'filename', 'last_modified', 'loading_state', 'max_size', 'min_size', 'multiple', 'style', 'style_active', 'style_disabled', 'style_reject']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        children=None,
+        id=Component.UNDEFINED,
+        contents=Component.UNDEFINED,
+        filename=Component.UNDEFINED,
+        last_modified=Component.UNDEFINED,
+        accept=Component.UNDEFINED,
+        disabled=Component.UNDEFINED,
+        disable_click=Component.UNDEFINED,
+        max_size=Component.UNDEFINED,
+        min_size=Component.UNDEFINED,
+        multiple=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        className_active=Component.UNDEFINED,
+        className_reject=Component.UNDEFINED,
+        className_disabled=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        style_active=Component.UNDEFINED,
+        style_reject=Component.UNDEFINED,
+        style_disabled=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "children",
+            "id",
+            "accept",
+            "className",
+            "className_active",
+            "className_disabled",
+            "className_reject",
+            "contents",
+            "disable_click",
+            "disabled",
+            "filename",
+            "last_modified",
+            "loading_state",
+            "max_size",
+            "min_size",
+            "multiple",
+            "style",
+            "style_active",
+            "style_disabled",
+            "style_reject",
+        ]
+        self._type = "Upload"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "children",
+            "id",
+            "accept",
+            "className",
+            "className_active",
+            "className_disabled",
+            "className_reject",
+            "contents",
+            "disable_click",
+            "disabled",
+            "filename",
+            "last_modified",
+            "loading_state",
+            "max_size",
+            "min_size",
+            "multiple",
+            "style",
+            "style_active",
+            "style_disabled",
+            "style_reject",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Upload, self).__init__(children=children, **args)

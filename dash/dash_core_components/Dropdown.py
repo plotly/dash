@@ -115,20 +115,73 @@ Keyword arguments:
     the `options` property. If `multi` is True, then multiple values
     can be selected at once, and `value` is an array of items with
     values corresponding to those in the `options` prop."""
+
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, options=Component.UNDEFINED, value=Component.UNDEFINED, optionHeight=Component.UNDEFINED, className=Component.UNDEFINED, clearable=Component.UNDEFINED, disabled=Component.UNDEFINED, multi=Component.UNDEFINED, placeholder=Component.UNDEFINED, searchable=Component.UNDEFINED, search_value=Component.UNDEFINED, style=Component.UNDEFINED, loading_state=Component.UNDEFINED, persistence=Component.UNDEFINED, persisted_props=Component.UNDEFINED, persistence_type=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'className', 'clearable', 'disabled', 'loading_state', 'multi', 'optionHeight', 'options', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'search_value', 'searchable', 'style', 'value']
-        self._type = 'Dropdown'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'className', 'clearable', 'disabled', 'loading_state', 'multi', 'optionHeight', 'options', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'search_value', 'searchable', 'style', 'value']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        options=Component.UNDEFINED,
+        value=Component.UNDEFINED,
+        optionHeight=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        clearable=Component.UNDEFINED,
+        disabled=Component.UNDEFINED,
+        multi=Component.UNDEFINED,
+        placeholder=Component.UNDEFINED,
+        searchable=Component.UNDEFINED,
+        search_value=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        persistence=Component.UNDEFINED,
+        persisted_props=Component.UNDEFINED,
+        persistence_type=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "className",
+            "clearable",
+            "disabled",
+            "loading_state",
+            "multi",
+            "optionHeight",
+            "options",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "placeholder",
+            "search_value",
+            "searchable",
+            "style",
+            "value",
+        ]
+        self._type = "Dropdown"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "className",
+            "clearable",
+            "disabled",
+            "loading_state",
+            "multi",
+            "optionHeight",
+            "options",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "placeholder",
+            "search_value",
+            "searchable",
+            "style",
+            "value",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Dropdown, self).__init__(**args)

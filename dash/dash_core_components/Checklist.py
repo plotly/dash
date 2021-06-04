@@ -88,20 +88,64 @@ Keyword arguments:
 
 - value (list of string | numbers; optional):
     The currently selected value."""
+
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, options=Component.UNDEFINED, value=Component.UNDEFINED, className=Component.UNDEFINED, style=Component.UNDEFINED, inputStyle=Component.UNDEFINED, inputClassName=Component.UNDEFINED, labelStyle=Component.UNDEFINED, labelClassName=Component.UNDEFINED, loading_state=Component.UNDEFINED, persistence=Component.UNDEFINED, persisted_props=Component.UNDEFINED, persistence_type=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'className', 'inputClassName', 'inputStyle', 'labelClassName', 'labelStyle', 'loading_state', 'options', 'persisted_props', 'persistence', 'persistence_type', 'style', 'value']
-        self._type = 'Checklist'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'className', 'inputClassName', 'inputStyle', 'labelClassName', 'labelStyle', 'loading_state', 'options', 'persisted_props', 'persistence', 'persistence_type', 'style', 'value']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        options=Component.UNDEFINED,
+        value=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        inputStyle=Component.UNDEFINED,
+        inputClassName=Component.UNDEFINED,
+        labelStyle=Component.UNDEFINED,
+        labelClassName=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        persistence=Component.UNDEFINED,
+        persisted_props=Component.UNDEFINED,
+        persistence_type=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "className",
+            "inputClassName",
+            "inputStyle",
+            "labelClassName",
+            "labelStyle",
+            "loading_state",
+            "options",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "style",
+            "value",
+        ]
+        self._type = "Checklist"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "className",
+            "inputClassName",
+            "inputStyle",
+            "labelClassName",
+            "labelStyle",
+            "loading_state",
+            "options",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "style",
+            "value",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Checklist, self).__init__(**args)

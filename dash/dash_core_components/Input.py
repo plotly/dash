@@ -235,20 +235,130 @@ Keyword arguments:
 
 - value (string | number; optional):
     The value of the input."""
+
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, value=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, debounce=Component.UNDEFINED, type=Component.UNDEFINED, autoComplete=Component.UNDEFINED, autoFocus=Component.UNDEFINED, disabled=Component.UNDEFINED, inputMode=Component.UNDEFINED, list=Component.UNDEFINED, max=Component.UNDEFINED, maxLength=Component.UNDEFINED, min=Component.UNDEFINED, minLength=Component.UNDEFINED, multiple=Component.UNDEFINED, name=Component.UNDEFINED, pattern=Component.UNDEFINED, placeholder=Component.UNDEFINED, readOnly=Component.UNDEFINED, required=Component.UNDEFINED, selectionDirection=Component.UNDEFINED, selectionEnd=Component.UNDEFINED, selectionStart=Component.UNDEFINED, size=Component.UNDEFINED, spellCheck=Component.UNDEFINED, step=Component.UNDEFINED, n_submit=Component.UNDEFINED, n_submit_timestamp=Component.UNDEFINED, n_blur=Component.UNDEFINED, n_blur_timestamp=Component.UNDEFINED, loading_state=Component.UNDEFINED, persistence=Component.UNDEFINED, persisted_props=Component.UNDEFINED, persistence_type=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'autoComplete', 'autoFocus', 'className', 'debounce', 'disabled', 'inputMode', 'list', 'loading_state', 'max', 'maxLength', 'min', 'minLength', 'multiple', 'n_blur', 'n_blur_timestamp', 'n_submit', 'n_submit_timestamp', 'name', 'pattern', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'readOnly', 'required', 'selectionDirection', 'selectionEnd', 'selectionStart', 'size', 'spellCheck', 'step', 'style', 'type', 'value']
-        self._type = 'Input'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'autoComplete', 'autoFocus', 'className', 'debounce', 'disabled', 'inputMode', 'list', 'loading_state', 'max', 'maxLength', 'min', 'minLength', 'multiple', 'n_blur', 'n_blur_timestamp', 'n_submit', 'n_submit_timestamp', 'name', 'pattern', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'readOnly', 'required', 'selectionDirection', 'selectionEnd', 'selectionStart', 'size', 'spellCheck', 'step', 'style', 'type', 'value']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        value=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        debounce=Component.UNDEFINED,
+        type=Component.UNDEFINED,
+        autoComplete=Component.UNDEFINED,
+        autoFocus=Component.UNDEFINED,
+        disabled=Component.UNDEFINED,
+        inputMode=Component.UNDEFINED,
+        list=Component.UNDEFINED,
+        max=Component.UNDEFINED,
+        maxLength=Component.UNDEFINED,
+        min=Component.UNDEFINED,
+        minLength=Component.UNDEFINED,
+        multiple=Component.UNDEFINED,
+        name=Component.UNDEFINED,
+        pattern=Component.UNDEFINED,
+        placeholder=Component.UNDEFINED,
+        readOnly=Component.UNDEFINED,
+        required=Component.UNDEFINED,
+        selectionDirection=Component.UNDEFINED,
+        selectionEnd=Component.UNDEFINED,
+        selectionStart=Component.UNDEFINED,
+        size=Component.UNDEFINED,
+        spellCheck=Component.UNDEFINED,
+        step=Component.UNDEFINED,
+        n_submit=Component.UNDEFINED,
+        n_submit_timestamp=Component.UNDEFINED,
+        n_blur=Component.UNDEFINED,
+        n_blur_timestamp=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        persistence=Component.UNDEFINED,
+        persisted_props=Component.UNDEFINED,
+        persistence_type=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "autoComplete",
+            "autoFocus",
+            "className",
+            "debounce",
+            "disabled",
+            "inputMode",
+            "list",
+            "loading_state",
+            "max",
+            "maxLength",
+            "min",
+            "minLength",
+            "multiple",
+            "n_blur",
+            "n_blur_timestamp",
+            "n_submit",
+            "n_submit_timestamp",
+            "name",
+            "pattern",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "placeholder",
+            "readOnly",
+            "required",
+            "selectionDirection",
+            "selectionEnd",
+            "selectionStart",
+            "size",
+            "spellCheck",
+            "step",
+            "style",
+            "type",
+            "value",
+        ]
+        self._type = "Input"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "autoComplete",
+            "autoFocus",
+            "className",
+            "debounce",
+            "disabled",
+            "inputMode",
+            "list",
+            "loading_state",
+            "max",
+            "maxLength",
+            "min",
+            "minLength",
+            "multiple",
+            "n_blur",
+            "n_blur_timestamp",
+            "n_submit",
+            "n_submit_timestamp",
+            "name",
+            "pattern",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "placeholder",
+            "readOnly",
+            "required",
+            "selectionDirection",
+            "selectionEnd",
+            "selectionStart",
+            "size",
+            "spellCheck",
+            "step",
+            "style",
+            "type",
+            "value",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Input, self).__init__(**args)

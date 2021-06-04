@@ -149,20 +149,106 @@ Keyword arguments:
 - with_portal (boolean; default False):
     If True, calendar will open in a screen overlay portal, not
     supported on vertical calendar."""
+
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, date=Component.UNDEFINED, min_date_allowed=Component.UNDEFINED, max_date_allowed=Component.UNDEFINED, disabled_days=Component.UNDEFINED, initial_visible_month=Component.UNDEFINED, day_size=Component.UNDEFINED, calendar_orientation=Component.UNDEFINED, is_RTL=Component.UNDEFINED, placeholder=Component.UNDEFINED, reopen_calendar_on_clear=Component.UNDEFINED, number_of_months_shown=Component.UNDEFINED, with_portal=Component.UNDEFINED, with_full_screen_portal=Component.UNDEFINED, first_day_of_week=Component.UNDEFINED, stay_open_on_select=Component.UNDEFINED, show_outside_days=Component.UNDEFINED, month_format=Component.UNDEFINED, display_format=Component.UNDEFINED, disabled=Component.UNDEFINED, clearable=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, loading_state=Component.UNDEFINED, persistence=Component.UNDEFINED, persisted_props=Component.UNDEFINED, persistence_type=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'calendar_orientation', 'className', 'clearable', 'date', 'day_size', 'disabled', 'disabled_days', 'display_format', 'first_day_of_week', 'initial_visible_month', 'is_RTL', 'loading_state', 'max_date_allowed', 'min_date_allowed', 'month_format', 'number_of_months_shown', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'reopen_calendar_on_clear', 'show_outside_days', 'stay_open_on_select', 'style', 'with_full_screen_portal', 'with_portal']
-        self._type = 'DatePickerSingle'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'calendar_orientation', 'className', 'clearable', 'date', 'day_size', 'disabled', 'disabled_days', 'display_format', 'first_day_of_week', 'initial_visible_month', 'is_RTL', 'loading_state', 'max_date_allowed', 'min_date_allowed', 'month_format', 'number_of_months_shown', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'reopen_calendar_on_clear', 'show_outside_days', 'stay_open_on_select', 'style', 'with_full_screen_portal', 'with_portal']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        date=Component.UNDEFINED,
+        min_date_allowed=Component.UNDEFINED,
+        max_date_allowed=Component.UNDEFINED,
+        disabled_days=Component.UNDEFINED,
+        initial_visible_month=Component.UNDEFINED,
+        day_size=Component.UNDEFINED,
+        calendar_orientation=Component.UNDEFINED,
+        is_RTL=Component.UNDEFINED,
+        placeholder=Component.UNDEFINED,
+        reopen_calendar_on_clear=Component.UNDEFINED,
+        number_of_months_shown=Component.UNDEFINED,
+        with_portal=Component.UNDEFINED,
+        with_full_screen_portal=Component.UNDEFINED,
+        first_day_of_week=Component.UNDEFINED,
+        stay_open_on_select=Component.UNDEFINED,
+        show_outside_days=Component.UNDEFINED,
+        month_format=Component.UNDEFINED,
+        display_format=Component.UNDEFINED,
+        disabled=Component.UNDEFINED,
+        clearable=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        persistence=Component.UNDEFINED,
+        persisted_props=Component.UNDEFINED,
+        persistence_type=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "calendar_orientation",
+            "className",
+            "clearable",
+            "date",
+            "day_size",
+            "disabled",
+            "disabled_days",
+            "display_format",
+            "first_day_of_week",
+            "initial_visible_month",
+            "is_RTL",
+            "loading_state",
+            "max_date_allowed",
+            "min_date_allowed",
+            "month_format",
+            "number_of_months_shown",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "placeholder",
+            "reopen_calendar_on_clear",
+            "show_outside_days",
+            "stay_open_on_select",
+            "style",
+            "with_full_screen_portal",
+            "with_portal",
+        ]
+        self._type = "DatePickerSingle"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "calendar_orientation",
+            "className",
+            "clearable",
+            "date",
+            "day_size",
+            "disabled",
+            "disabled_days",
+            "display_format",
+            "first_day_of_week",
+            "initial_visible_month",
+            "is_RTL",
+            "loading_state",
+            "max_date_allowed",
+            "min_date_allowed",
+            "month_format",
+            "number_of_months_shown",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "placeholder",
+            "reopen_calendar_on_clear",
+            "show_outside_days",
+            "stay_open_on_select",
+            "style",
+            "with_full_screen_portal",
+            "with_portal",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(DatePickerSingle, self).__init__(**args)

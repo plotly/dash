@@ -308,20 +308,79 @@ Keyword arguments:
 
 - style (dict; optional):
     Generic style overrides on the plot div."""
+
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, responsive=Component.UNDEFINED, clickData=Component.UNDEFINED, clickAnnotationData=Component.UNDEFINED, hoverData=Component.UNDEFINED, clear_on_unhover=Component.UNDEFINED, selectedData=Component.UNDEFINED, relayoutData=Component.UNDEFINED, extendData=Component.UNDEFINED, prependData=Component.UNDEFINED, restyleData=Component.UNDEFINED, figure=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, animate=Component.UNDEFINED, animation_options=Component.UNDEFINED, config=Component.UNDEFINED, loading_state=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'animate', 'animation_options', 'className', 'clear_on_unhover', 'clickAnnotationData', 'clickData', 'config', 'extendData', 'figure', 'hoverData', 'loading_state', 'prependData', 'relayoutData', 'responsive', 'restyleData', 'selectedData', 'style']
-        self._type = 'Graph'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'animate', 'animation_options', 'className', 'clear_on_unhover', 'clickAnnotationData', 'clickData', 'config', 'extendData', 'figure', 'hoverData', 'loading_state', 'prependData', 'relayoutData', 'responsive', 'restyleData', 'selectedData', 'style']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        responsive=Component.UNDEFINED,
+        clickData=Component.UNDEFINED,
+        clickAnnotationData=Component.UNDEFINED,
+        hoverData=Component.UNDEFINED,
+        clear_on_unhover=Component.UNDEFINED,
+        selectedData=Component.UNDEFINED,
+        relayoutData=Component.UNDEFINED,
+        extendData=Component.UNDEFINED,
+        prependData=Component.UNDEFINED,
+        restyleData=Component.UNDEFINED,
+        figure=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        animate=Component.UNDEFINED,
+        animation_options=Component.UNDEFINED,
+        config=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "animate",
+            "animation_options",
+            "className",
+            "clear_on_unhover",
+            "clickAnnotationData",
+            "clickData",
+            "config",
+            "extendData",
+            "figure",
+            "hoverData",
+            "loading_state",
+            "prependData",
+            "relayoutData",
+            "responsive",
+            "restyleData",
+            "selectedData",
+            "style",
+        ]
+        self._type = "Graph"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "animate",
+            "animation_options",
+            "className",
+            "clear_on_unhover",
+            "clickAnnotationData",
+            "clickData",
+            "config",
+            "extendData",
+            "figure",
+            "hoverData",
+            "loading_state",
+            "prependData",
+            "relayoutData",
+            "responsive",
+            "restyleData",
+            "selectedData",
+            "style",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Graph, self).__init__(**args)

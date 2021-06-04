@@ -146,20 +146,127 @@ Keyword arguments:
 
 - wrap (string; optional):
     Indicates whether the text should be wrapped."""
+
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, value=Component.UNDEFINED, autoFocus=Component.UNDEFINED, cols=Component.UNDEFINED, disabled=Component.UNDEFINED, form=Component.UNDEFINED, maxLength=Component.UNDEFINED, minLength=Component.UNDEFINED, name=Component.UNDEFINED, placeholder=Component.UNDEFINED, readOnly=Component.UNDEFINED, required=Component.UNDEFINED, rows=Component.UNDEFINED, wrap=Component.UNDEFINED, accessKey=Component.UNDEFINED, className=Component.UNDEFINED, contentEditable=Component.UNDEFINED, contextMenu=Component.UNDEFINED, dir=Component.UNDEFINED, draggable=Component.UNDEFINED, hidden=Component.UNDEFINED, lang=Component.UNDEFINED, spellCheck=Component.UNDEFINED, style=Component.UNDEFINED, tabIndex=Component.UNDEFINED, title=Component.UNDEFINED, n_blur=Component.UNDEFINED, n_blur_timestamp=Component.UNDEFINED, n_clicks=Component.UNDEFINED, n_clicks_timestamp=Component.UNDEFINED, loading_state=Component.UNDEFINED, persistence=Component.UNDEFINED, persisted_props=Component.UNDEFINED, persistence_type=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'accessKey', 'autoFocus', 'className', 'cols', 'contentEditable', 'contextMenu', 'dir', 'disabled', 'draggable', 'form', 'hidden', 'lang', 'loading_state', 'maxLength', 'minLength', 'n_blur', 'n_blur_timestamp', 'n_clicks', 'n_clicks_timestamp', 'name', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'readOnly', 'required', 'rows', 'spellCheck', 'style', 'tabIndex', 'title', 'value', 'wrap']
-        self._type = 'Textarea'
-        self._namespace = 'dash_core_components'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'accessKey', 'autoFocus', 'className', 'cols', 'contentEditable', 'contextMenu', 'dir', 'disabled', 'draggable', 'form', 'hidden', 'lang', 'loading_state', 'maxLength', 'minLength', 'n_blur', 'n_blur_timestamp', 'n_clicks', 'n_clicks_timestamp', 'name', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'readOnly', 'required', 'rows', 'spellCheck', 'style', 'tabIndex', 'title', 'value', 'wrap']
-        self.available_wildcard_properties =            []
-        _explicit_args = kwargs.pop('_explicit_args')
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        value=Component.UNDEFINED,
+        autoFocus=Component.UNDEFINED,
+        cols=Component.UNDEFINED,
+        disabled=Component.UNDEFINED,
+        form=Component.UNDEFINED,
+        maxLength=Component.UNDEFINED,
+        minLength=Component.UNDEFINED,
+        name=Component.UNDEFINED,
+        placeholder=Component.UNDEFINED,
+        readOnly=Component.UNDEFINED,
+        required=Component.UNDEFINED,
+        rows=Component.UNDEFINED,
+        wrap=Component.UNDEFINED,
+        accessKey=Component.UNDEFINED,
+        className=Component.UNDEFINED,
+        contentEditable=Component.UNDEFINED,
+        contextMenu=Component.UNDEFINED,
+        dir=Component.UNDEFINED,
+        draggable=Component.UNDEFINED,
+        hidden=Component.UNDEFINED,
+        lang=Component.UNDEFINED,
+        spellCheck=Component.UNDEFINED,
+        style=Component.UNDEFINED,
+        tabIndex=Component.UNDEFINED,
+        title=Component.UNDEFINED,
+        n_blur=Component.UNDEFINED,
+        n_blur_timestamp=Component.UNDEFINED,
+        n_clicks=Component.UNDEFINED,
+        n_clicks_timestamp=Component.UNDEFINED,
+        loading_state=Component.UNDEFINED,
+        persistence=Component.UNDEFINED,
+        persisted_props=Component.UNDEFINED,
+        persistence_type=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "accessKey",
+            "autoFocus",
+            "className",
+            "cols",
+            "contentEditable",
+            "contextMenu",
+            "dir",
+            "disabled",
+            "draggable",
+            "form",
+            "hidden",
+            "lang",
+            "loading_state",
+            "maxLength",
+            "minLength",
+            "n_blur",
+            "n_blur_timestamp",
+            "n_clicks",
+            "n_clicks_timestamp",
+            "name",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "placeholder",
+            "readOnly",
+            "required",
+            "rows",
+            "spellCheck",
+            "style",
+            "tabIndex",
+            "title",
+            "value",
+            "wrap",
+        ]
+        self._type = "Textarea"
+        self._namespace = "dash_core_components"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "accessKey",
+            "autoFocus",
+            "className",
+            "cols",
+            "contentEditable",
+            "contextMenu",
+            "dir",
+            "disabled",
+            "draggable",
+            "form",
+            "hidden",
+            "lang",
+            "loading_state",
+            "maxLength",
+            "minLength",
+            "n_blur",
+            "n_blur_timestamp",
+            "n_clicks",
+            "n_clicks_timestamp",
+            "name",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
+            "placeholder",
+            "readOnly",
+            "required",
+            "rows",
+            "spellCheck",
+            "style",
+            "tabIndex",
+            "title",
+            "value",
+            "wrap",
+        ]
+        self.available_wildcard_properties = []
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Textarea, self).__init__(**args)
