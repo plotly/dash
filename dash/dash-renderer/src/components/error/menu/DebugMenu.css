@@ -163,6 +163,7 @@
     border-radius: 32px;
     background-color: white;
     padding: 4px;
+    color: rgb(50, 50, 50);
 }
 
 .dash-debug-error-count {
