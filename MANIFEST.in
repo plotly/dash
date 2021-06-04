@@ -5,3 +5,4 @@ include dash/favicon.ico
 include dash/extract-meta.js
 include dash/deps/*.js
 include dash/deps/*.map
+include dash/dash_core_components/*

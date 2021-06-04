@@ -23,6 +23,7 @@ from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
 
 import plotly
+import dash.dash_core_components as dcc
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -580,6 +581,20 @@ class Dash(object):
         # add the version number of the package as a query parameter
         # for cache busting
         def _relative_url_path(relative_package_path="", namespace=""):
+            if any(
+                x in relative_package_path
+                for x in [
+                    "dash_core_components"
+                    #    "dash_html_components",
+                    #    "dash_table"
+                ]
+            ):
+                relative_package_path = relative_package_path.replace("dash.", "")
+                version = importlib.import_module(
+                    "{}.{}".format(namespace, os.path.split(relative_package_path)[0])
+                ).__version__
+            else:
+                version = importlib.import_module(namespace).__version__
 
             module_path = os.path.join(
                 os.path.dirname(sys.modules[namespace].__file__), relative_package_path
@@ -590,11 +605,7 @@ class Dash(object):
             return "{}_dash-component-suites/{}/{}".format(
                 self.config.requests_pathname_prefix,
                 namespace,
-                build_fingerprint(
-                    relative_package_path,
-                    importlib.import_module(namespace).__version__,
-                    modified,
-                ),
+                build_fingerprint(relative_package_path, version, modified),
             )
 
         srcs = []
@@ -606,6 +617,16 @@ class Dash(object):
                 paths = [paths] if isinstance(paths, str) else paths
 
                 for rel_path in paths:
+                    if any(
+                        x in rel_path
+                        for x in [
+                            "dash_core_components",
+                            "dash_html_components",
+                            "dash_table",
+                        ]
+                    ):
+                        rel_path = rel_path.replace("dash.", "")
+
                     self.registered_paths[resource["namespace"]].add(rel_path)
 
                     if not is_dynamic_resource:
@@ -672,6 +693,9 @@ class Dash(object):
                 self.scripts.get_all_scripts(dev_bundles=dev)
                 + self.scripts._resources._filter_resources(
                     _dash_renderer._js_dist, dev_bundles=dev
+                )
+                + self.scripts._resources._filter_resources(
+                    dcc._js_dist, dev_bundles=dev
                 )
             )
         )
