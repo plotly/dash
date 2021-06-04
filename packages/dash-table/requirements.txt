@@ -47,7 +47,7 @@ six==1.11.0
 toml==0.9.6
 traitlets==4.3.2
 typed-ast==1.1.0
-urllib3==1.23
+urllib3==1.26.5
 wcwidth==0.1.7
 Werkzeug==0.15.6
 wrapt==1.10.11
