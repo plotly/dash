@@ -12,6 +12,7 @@ lib/
 .prettierrc
 .circleci
 .github
+.build_cache
 
 # demo folder has special meaning in R
 # this should hopefully make it still

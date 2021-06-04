@@ -134,8 +134,7 @@ __*Simple Slider Example*__
 An example of a basic slider tied to a callback.
 
 ```r
-library(dashCoreComponents)
-library(dashHtmlComponents)
+library(dash)
 
 app <- Dash$new()
 
@@ -202,8 +201,6 @@ dccSlider(
 __*Non-Linear Slider and Updatemode*__
 
 ```r
-library(dashCoreComponents)
-library(dashHtmlComponents)
 library(dash)
 
 transform_value = function(value){
@@ -245,8 +242,7 @@ __*Simple RangeSlider Example*__
 An example of a basic RangeSlider tied to a callback.
 
 ```r
-library(dashCoreComponents)
-library(dashHtmlComponents)
+library(dash)
 
 app <- Dash$new()
 
@@ -299,7 +295,8 @@ __*Included and Styling Marks*__
 By default, `included=TRUE`, meaning the rail trailing the handle will be highlighted. To have the handle act as a discrete value set `included=FALSE`. To style marks, include a style css attribute alongside the key value.
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 dccRangeSlider(
     min=0,
     max=100,
@@ -343,8 +340,6 @@ Create a logarithmic slider by setting `marks` to be logarithmic and adjusting t
 
 ```r
 library(dash)
-library(dashCoreComponents)
-library(dashHtmlComponents)
 
 transform_value = function(value){
   return(10 ** value)
@@ -384,8 +379,6 @@ app$run_server()
 __*Update Value on Keypress*__
 
 ```
-library(dashCoreComponents)
-library(dashHtmlComponents)
 library(dash)
 
 app <- Dash$new()
@@ -416,8 +409,6 @@ __*Update Value on Enter/Blur*__
 `dccInput` has properties `n_submit`, which updates when the enter button is pressed, and `n_blur`, which updates when the component loses focus (e.g. tab is pressed or the user clicks outside of the input field).
 
 ```r
-library(dashCoreComponents)
-library(dashHtmlComponents)
 library(dash)
 
 app <- Dash$new()
@@ -449,8 +440,8 @@ app$run_server()
 ### Textarea Component
 
 ```r
-library(dashCoreComponents)
 library(dash)
+
 dccTextarea(
   placeholder = "Enter a value...",
   value = "This is a TextArea component",
@@ -461,8 +452,8 @@ dccTextarea(
 ### Checklist Component
 
 ```r
-library(dashCoreComponents)
 library(dash)
+
 dccChecklist(
   options=list(
   list("label" = "New York City", "value" = "NYC"),
@@ -474,7 +465,8 @@ dccChecklist(
 ```
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 dccChecklist(
   options=list(
   list("label" = "New York City", "value" = "NYC"),
@@ -489,8 +481,8 @@ dccChecklist(
 ### RadioItems Component
 
 ```r
-library(dashCoreComponents)
 library(dash)
+
 dccRadioItems(
   options=list(
   list("label" = "New York City", "value" = "NYC"),
@@ -502,8 +494,8 @@ dccRadioItems(
 ```
 
 ```r
-library(dashCoreComponents)
 library(dash)
+
 dccRadioItems(
   options=list(
   list("label" = "New York City", "value" = "NYC"),
@@ -522,8 +514,6 @@ __*Button Basic Example*__
 An example of a default button without any extra properties and `n_clicks` in the callback. `n_clicks` is an integer that represents that number of times the button has been clicked. Note that the original value is `NULL`.
 
 ```r
-library(dashCoreComponents)
-library(dashHtmlComponents)
 library(dash)
 
 app <- Dash$new()
@@ -555,7 +545,6 @@ __*Button with n_clicks_timestamp*__
 This example utilizes the `n_clicks_timestamp` property, which returns an integer representation of time. This is useful for determining when the button was last clicked.
 
 ```r
-library(dashCoreComponents)
 library(dash)
 
 app <- Dash$new()
@@ -985,7 +974,8 @@ These examples are based on the [GitHub Markdown Guide](https://guides.github.co
 __*Headers*__
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 dccMarkdown('
 
 # This is an <h1> tag
@@ -996,7 +986,8 @@ dccMarkdown('
 ```
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 dccMarkdown('
 
   *This text will be italic*
@@ -1018,7 +1009,8 @@ __*Lists*__
 *Unordered*
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 dccMarkdown('
 * Item 1
 * Item 2
@@ -1030,7 +1022,8 @@ dccMarkdown('
 __*Block Quotes*__
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 dccMarkdown('
 >
 > Block quotes are used to highlight text.
@@ -1041,7 +1034,8 @@ dccMarkdown('
 __*Links*__
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 dccMarkdown('
 [Dash User Guide](https://dash.plotly.com/)')
 ```
@@ -1051,7 +1045,8 @@ __*Inline Code*__
 Any block of text surrounded by ` ` will rendered as inline-code.
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 dccMarkdown('
 Inline code snippet = `TRUE` ')
 ```
@@ -1619,7 +1614,8 @@ app$run_server()
 ConfirmDialog is used to display the browser's native 'confirm' modal, with an optional message and two buttons ('OK' and 'Cancel'). 
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 confirm <- dccConfirmDialog(
   id = "confirm",
   message = "Danger danger! Are you sure you want to continue?"
@@ -1629,8 +1625,6 @@ confirm <- dccConfirmDialog(
 This ConfirmDialog can be used in conjunction with buttons when the user is performing an action that should require an extra step of verification.
 
 ```r
-library(dashCoreComponents)
-library(dashHtmlComponents)
 library(dash)
 
 app = Dash$new()
@@ -1694,7 +1688,8 @@ The store component can be used to keep data in the visitor's browser. The data 
 * `session`: keep the data until the browser/tab closes. *For local/session, the data is serialized as json when stored.*
 
 ```r
-library(dashCoreComponents)
+library(dash)
+
 store <- dccStore(id = "my-store", data = list("my-data" = "data"))
 ```
 
@@ -1703,8 +1698,6 @@ store <- dccStore(id = "my-store", data = list("my-data" = "data"))
 Here’s a simple example that wraps the outputs for a couple of `Input` components in the `Loading` component. As you can see, you can define the type of spinner you would like to show (refer to the reference table below for all possible types of spinners). You can modify other attributes as well, such as `fullscreen=TRUE` if you would like the spinner to be displayed fullscreen. Notice that, the Loading component traverses all of it's children to find a loading state, as demonstrated in the second callback, so that even nested children will get picked up.
 
 ```
-library(dashCoreComponents)
-library(dashHtmlComponents)
 library(dash)
 
 app = Dash$new()

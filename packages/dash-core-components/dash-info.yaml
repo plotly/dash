@@ -14,10 +14,8 @@ r_examples:
     - name: dccChecklist
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
               library(dash)
-              library(dashHtmlComponents)
-              library(dashCoreComponents)
 
               app <- Dash$new()
 
@@ -38,10 +36,8 @@ r_examples:
     - name: dccInterval
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashHtmlComponents)
-                library(dashCoreComponents)
                 library(plotly)
 
                 app <- Dash$new()
@@ -89,10 +85,8 @@ r_examples:
     - name: dccSlider
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
 
                 app <- Dash$new()
 
@@ -127,10 +121,8 @@ r_examples:
     - name: dccConfirmDialog
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
 
                 app <- Dash$new()
 
@@ -164,10 +156,8 @@ r_examples:
     - name: dccLink
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
 
                 app <- Dash$new()
 
@@ -196,9 +186,7 @@ r_examples:
     - name: dccStore
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
+            if (interactive()) {
                 library(dash)
 
                 app <- Dash$new()
@@ -285,10 +273,8 @@ r_examples:
     - name: dccConfirmDialogProvider
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
 
                 app <- Dash$new()
 
@@ -296,15 +282,15 @@ r_examples:
                   dccConfirmDialogProvider(
                     children=htmlButton(
                       'Click Me',
-                      n_clicks = 0 
-                    ),  
+                      n_clicks = 0
+                    ),
                     id='danger-danger-provider',
                     message='Danger danger! Are you sure you want to continue?',
                     submit_n_clicks=NULL
-                  ),  
+                  ),
                   htmlDiv(id='output-provider',
                           children='Click the button to submit')
-                ))) 
+                )))
 
                 app$callback(
                   output = list(id = 'output-provider', property = 'children'),
@@ -314,20 +300,18 @@ r_examples:
                       return('')
                     } else {
                       paste0('That was a dangerous choice! Submitted ', submit_n_clicks, ' times.')
-                    }   
-                    }   
+                    }
+                    }
 
-                )   
+                )
 
               app$run_server()
             }
     - name: dccLoading
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
 
                 app <- Dash$new()
 
@@ -372,10 +356,8 @@ r_examples:
     - name: dccTab
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
 
                 app <- Dash$new()
 
@@ -409,9 +391,8 @@ r_examples:
     - name: dccDatePickerRange
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
 
                 app <- Dash$new()
 
@@ -428,10 +409,8 @@ r_examples:
     - name: dccLocation
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
 
                 app <- Dash$new()
 
@@ -462,10 +441,8 @@ r_examples:
     - name: dccTabs
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
 
                 app <- Dash$new()
 
@@ -499,9 +476,8 @@ r_examples:
     - name: dccDatePickerSingle
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
 
                 app <- Dash$new()
 
@@ -517,9 +493,8 @@ r_examples:
     - name: dccLogoutButton
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
 
                 app <- Dash$new()
 
@@ -532,9 +507,8 @@ r_examples:
     - name: dccTextarea
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
 
                 app <- Dash$new()
 
@@ -552,9 +526,8 @@ r_examples:
     - name: dccDropdown
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
 
                 app <- Dash$new()
 
@@ -576,10 +549,8 @@ r_examples:
     - name: dccMarkdown
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashHtmlComponents)
-                library(dashCoreComponents)
 
                 app <- Dash$new()
 
@@ -595,7 +566,6 @@ r_examples:
                       dccMarkdown(children = "
                       ```r
                       library(dash)
-                      library(dashHtmlComponents)
 
                       app <- Dash$new()
                       app$layout(htmlDiv('Dash app code wrapped within an app'))
@@ -610,10 +580,8 @@ r_examples:
     - name: dccUpload
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
-                library(dashHtmlComponents)
                 library(jsonlite)
 
                 app <- Dash$new()
@@ -677,9 +645,8 @@ r_examples:
     - name: dccGraph
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashCoreComponents)
                 library(plotly)
                 app <- Dash$new()
 
@@ -725,10 +692,8 @@ r_examples:
     - name: dccRadioItems
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashHtmlComponents)
-                library(dashCoreComponents)
 
                 app <- Dash$new()
 
@@ -750,10 +715,8 @@ r_examples:
     - name: dccInput
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashHtmlComponents)
-                library(dashCoreComponents)
 
                 app <- Dash$new()
 
@@ -772,10 +735,8 @@ r_examples:
     - name: dccRangeSlider
       dontrun: FALSE
       code: |
-            if (interactive() && require(dash)) {
+            if (interactive()) {
                 library(dash)
-                library(dashHtmlComponents)
-                library(dashCoreComponents)
 
                 app <- Dash$new()
 
