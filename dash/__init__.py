@@ -8,5 +8,7 @@ from . import development  # noqa: F401,E402
 from . import exceptions  # noqa: F401,E402
 from . import resources  # noqa: F401,E402
 from . import dash_core_components  # noqa: F401,E402
+from . import dash_html_components  # noqa: F401,E402
+from . import dash_table  # noqa: F401,E402
 from .version import __version__  # noqa: F401,E402
 from ._callback_context import callback_context  # noqa: F401,E402

@@ -1,11 +1,15 @@
 import dash
 import dash.dash_core_components as dcc
-import dash_html_components as html
+import dash.dash_html_components as html
+import dash.dash_table as dash_table
 from dash.dependencies import Input, Output
+import pandas as pd
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
 
 app.layout = html.Div([
     html.H6("Change the value in the text box to see callbacks in action!"),
@@ -13,7 +17,12 @@ app.layout = html.Div([
               dcc.Input(id='my-input', value='initial value', type='text')]),
     html.Br(),
     html.Div(id='my-output'),
-    dcc.Slider()
+    dcc.Slider(),
+    dash_table.DataTable(
+    id='table',
+    columns=[{"name": i, "id": i} for i in df.columns],
+    data=df.to_dict('records'),
+)
 ])
 
 

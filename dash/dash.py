@@ -24,6 +24,8 @@ from pkg_resources import get_distribution, parse_version
 
 import plotly
 import dash.dash_core_components as dcc
+import dash.dash_html_components as html
+import dash.dash_table as table
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -583,11 +585,7 @@ class Dash(object):
         def _relative_url_path(relative_package_path="", namespace=""):
             if any(
                 x in relative_package_path
-                for x in [
-                    "dash_core_components"
-                    #    "dash_html_components",
-                    #    "dash_table"
-                ]
+                for x in ["dash_core_components" "dash_html_components", "dash_table"]
             ):
                 relative_package_path = relative_package_path.replace("dash.", "")
                 version = importlib.import_module(
@@ -696,6 +694,12 @@ class Dash(object):
                 )
                 + self.scripts._resources._filter_resources(
                     dcc._js_dist, dev_bundles=dev
+                )
+                + self.scripts._resources._filter_resources(
+                    html._js_dist, dev_bundles=dev
+                )
+                + self.scripts._resources._filter_resources(
+                    table._js_dist, dev_bundles=dev
                 )
             )
         )
