@@ -23,7 +23,6 @@ from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
 
 import plotly
-import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -47,6 +46,7 @@ from ._utils import (
     stringify_id,
     strip_relative_path,
 )
+from . import _dash_renderer
 from . import _validate
 from . import _watch
 
@@ -655,7 +655,7 @@ class Dash(object):
         mode = "dev" if self._dev_tools["props_check"] is True else "prod"
 
         deps = []
-        for js_dist_dependency in dash_renderer._js_dist_dependencies:
+        for js_dist_dependency in _dash_renderer._js_dist_dependencies:
             dep = {}
             for key, value in js_dist_dependency.items():
                 dep[key] = value[mode] if isinstance(value, dict) else value
@@ -671,7 +671,7 @@ class Dash(object):
             + self._collect_and_register_resources(
                 self.scripts.get_all_scripts(dev_bundles=dev)
                 + self.scripts._resources._filter_resources(
-                    dash_renderer._js_dist, dev_bundles=dev
+                    _dash_renderer._js_dist, dev_bundles=dev
                 )
             )
         )
@@ -1054,20 +1054,30 @@ class Dash(object):
 
     def dispatch(self):
         body = flask.request.get_json()
-        flask.g.inputs_list = inputs = body.get("inputs", [])
-        flask.g.states_list = state = body.get("state", [])
+        flask.g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
+            "inputs", []
+        )
+        flask.g.states_list = state = body.get(  # pylint: disable=assigning-non-slot
+            "state", []
+        )
         output = body["output"]
         outputs_list = body.get("outputs") or split_callback_id(output)
-        flask.g.outputs_list = outputs_list
+        flask.g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
 
-        flask.g.input_values = input_values = inputs_to_dict(inputs)
-        flask.g.state_values = inputs_to_dict(state)
+        flask.g.input_values = (  # pylint: disable=assigning-non-slot
+            input_values
+        ) = inputs_to_dict(inputs)
+        flask.g.state_values = inputs_to_dict(  # pylint: disable=assigning-non-slot
+            state
+        )
         changed_props = body.get("changedPropIds", [])
-        flask.g.triggered_inputs = [
+        flask.g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
         ]
 
-        response = flask.g.dash_response = flask.Response(mimetype="application/json")
+        response = (
+            flask.g.dash_response  # pylint: disable=assigning-non-slot
+        ) = flask.Response(mimetype="application/json")
 
         args = inputs_to_vals(inputs + state)
 
@@ -1423,7 +1433,7 @@ class Dash(object):
             # on some Python versions https://bugs.python.org/issue14710
             packages = [
                 pkgutil.find_loader(x)
-                for x in list(ComponentRegistry.registry) + ["dash_renderer"]
+                for x in list(ComponentRegistry.registry)
                 if x != "__main__"
             ]
 
@@ -1463,7 +1473,7 @@ class Dash(object):
         if debug and dev_tools.ui:
 
             def _before_request():
-                flask.g.timing_information = {
+                flask.g.timing_information = {  # pylint: disable=assigning-non-slot
                     "__dash_server": {"dur": time.time(), "desc": None}
                 }
 

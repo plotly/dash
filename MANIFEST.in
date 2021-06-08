@@ -3,3 +3,5 @@ include LICENSE
 include requires-*.txt
 include dash/favicon.ico
 include dash/extract-meta.js
+include dash/deps/*.js
+include dash/deps/*.map
