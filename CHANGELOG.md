@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Dash and Dash Renderer
 ### Changed
 - [#1611](https://github.com/plotly/dash/pull/1611) Package dash-renderer artifacts and dependencies with Dash, and source renderer resources from within Dash.
+- [#1567](https://github.com/plotly/dash/pull/1567) Julia component generator puts components into `src/jl` - fixes an issue on case-insensitive filesystems when the component name and module name match (modulo case) and no prefix is used. Also reduces JS/Julia clutter in the overloaded `src` directory.
 
 ### Fixed
 - [#1664](https://github.com/plotly/dash/pull/1664) Fix [#1649](https://github.com/plotly/dash/issues/1649), makes the devtools readable with a dark theme.

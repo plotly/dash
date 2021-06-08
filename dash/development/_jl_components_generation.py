@@ -91,7 +91,7 @@ jl_base_version = {
     "DashBase": "0.1",
 }
 
-jl_component_include_string = 'include("{name}.jl")'
+jl_component_include_string = 'include("jl/{name}.jl")'
 
 jl_resource_tuple_string = """DashBase.Resource(
     relative_package_path = {relative_package_path},
@@ -500,7 +500,13 @@ def generate_struct_file(name, props, description, project_shortname, prefix):
 
     file_name = format_fn_name(prefix, name) + ".jl"
 
-    file_path = os.path.join("src", file_name)
+    # put component files in src/jl subdir,
+    # this also creates the Julia source directory for the package
+    # if it is missing
+    if not os.path.exists("src/jl"):
+        os.makedirs("src/jl")
+
+    file_path = os.path.join("src", "jl", file_name)
     with open(file_path, "w") as f:
         f.write(import_string)
         f.write(class_string)
@@ -512,12 +518,7 @@ def generate_struct_file(name, props, description, project_shortname, prefix):
 def generate_module(
     project_shortname, components, metadata, pkg_data, prefix, **kwargs
 ):
-    # the Julia source directory for the package won't exist on first call
-    # create the Julia directory if it is missing
-    if not os.path.exists("src"):
-        os.makedirs("src")
-
-    # now copy over all JS dependencies from the (Python) components dir
+    # copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
     # create this directory if it is missing
     if os.path.exists("deps"):
