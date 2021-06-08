@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1611](https://github.com/plotly/dash/pull/1611) Package dash-renderer artifacts and dependencies with Dash, and source renderer resources from within Dash.
 
 ### Fixed
+- [#1664](https://github.com/plotly/dash/pull/1664) Fix [#1649](https://github.com/plotly/dash/issues/1649), makes the devtools readable with a dark theme.
 - [#1640](https://github.com/plotly/dash/pull/1640) Fix [#1475](https://github.com/plotly/dash/issues/1475), missing `timing_information` after certain modifications to Flask behavior
 
 ## [1.20.0] - 2021-04-08
