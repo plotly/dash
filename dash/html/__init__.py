@@ -1,6 +1,8 @@
 """Vanilla HTML components for Dash"""
 
 from __future__ import print_function as _
+from ._imports_ import *  # noqa: E402, F401, F403
+from ._imports_ import __all__  # noqa: E402
 
 import json
 import os as _os
@@ -15,6 +17,7 @@ with open(_filepath) as f:
 package_name = package["name"].replace(" ", "_").replace("-", "_")
 __version__ = package["version"]
 
+
 # Module imports trigger a dash.development import, need to check this first
 if not hasattr(_dash, "__plotly_dash") and not hasattr(_dash, "development"):
     print(
@@ -24,20 +27,15 @@ if not hasattr(_dash, "__plotly_dash") and not hasattr(_dash, "development"):
     )
     _sys.exit(1)
 
-
-from ._imports_ import *  # noqa: E402, F401, F403
-from ._imports_ import __all__  # noqa: E402
-
-
 _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
 
-_this_module = _sys.modules[__name__]
+_this_module = "dash_html_components"
 
 
 _js_dist = [
     {
-        "relative_package_path": "dash_html_components/{}.min.js".format(__name__),
+        "relative_package_path": "html/{}.min.js".format(_this_module),
         "external_url": (
             "https://unpkg.com/dash-html-components@{}"
             "/dash_html_components/dash_html_components.min.js"
@@ -45,7 +43,7 @@ _js_dist = [
         "namespace": "dash",
     },
     {
-        "relative_package_path": "dash_html_components/{}.min.js.map".format(__name__),
+        "relative_package_path": "html/{}.min.js.map".format(_this_module),
         "external_url": (
             "https://unpkg.com/dash-html-components@{}"
             "/dash_html_components/dash_html_components.min.js.map"

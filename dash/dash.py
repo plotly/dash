@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from functools import wraps
 import os
 import sys
 import collections
@@ -13,19 +14,18 @@ import time
 import mimetypes
 import hashlib
 import base64
+import plotly
 
-from functools import wraps
 from future.moves.urllib.parse import urlparse
 
 import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
+from dash import dcc
+from dash import html
+from dash import dash_table
 
-import plotly
-import dash.dash_core_components as dcc
-import dash.dash_html_components as html
-import dash.dash_table as table
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -583,10 +583,7 @@ class Dash(object):
         # add the version number of the package as a query parameter
         # for cache busting
         def _relative_url_path(relative_package_path="", namespace=""):
-            if any(
-                x in relative_package_path
-                for x in ["dash_core_components" "dash_html_components", "dash_table"]
-            ):
+            if any(x in relative_package_path for x in ["dcc" "html", "dash_table"]):
                 relative_package_path = relative_package_path.replace("dash.", "")
                 version = importlib.import_module(
                     "{}.{}".format(namespace, os.path.split(relative_package_path)[0])
@@ -615,14 +612,7 @@ class Dash(object):
                 paths = [paths] if isinstance(paths, str) else paths
 
                 for rel_path in paths:
-                    if any(
-                        x in rel_path
-                        for x in [
-                            "dash_core_components",
-                            "dash_html_components",
-                            "dash_table",
-                        ]
-                    ):
+                    if any(x in rel_path for x in ["dcc", "html", "dash_table"]):
                         rel_path = rel_path.replace("dash.", "")
 
                     self.registered_paths[resource["namespace"]].add(rel_path)
@@ -699,7 +689,7 @@ class Dash(object):
                     html._js_dist, dev_bundles=dev
                 )
                 + self.scripts._resources._filter_resources(
-                    table._js_dist, dev_bundles=dev
+                    dash_table._js_dist, dev_bundles=dev
                 )
             )
         )

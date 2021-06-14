@@ -1,9 +1,6 @@
-import dash
-import dash.dash_core_components as dcc
-import dash.dash_html_components as html
-import dash.dash_table as dash_table
-from dash.dependencies import Input, Output
 import pandas as pd
+import dash
+from dash import Dash, dcc, html, dash_table, Input, Output
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 

@@ -5,6 +5,9 @@ import os as _os
 import sys as _sys
 import dash as _dash
 
+from ._imports_ import *  # noqa: F401, F403, E402
+from ._imports_ import __all__  # noqa: E402
+
 _basepath = _os.path.dirname(__file__)
 _filepath = _os.path.abspath(_os.path.join(_basepath, "package-info.json"))
 with open(_filepath) as f:
@@ -22,19 +25,11 @@ if not hasattr(_dash, "__plotly_dash") and not hasattr(_dash, "development"):
     )
     _sys.exit(1)
 
-from ._imports_ import *  # noqa: F401, F403, E402
-from ._imports_ import __all__  # noqa: E402
-from .express import (
-    send_bytes,
-    send_data_frame,
-    send_file,
-    send_string,
-)  # noqa: F401, E402
 
 _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
 
-_this_module = _sys.modules[__name__]
+_this_module = "dash_core_components"
 
 async_resources = [
     "datepicker",
@@ -51,9 +46,7 @@ _js_dist = []
 _js_dist.extend(
     [
         {
-            "relative_package_path": "dash_core_components/async-{}.js".format(
-                async_resource
-            ),
+            "relative_package_path": "dcc/async-{}.js".format(async_resource),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/async-{}.js"
@@ -68,9 +61,7 @@ _js_dist.extend(
 _js_dist.extend(
     [
         {
-            "relative_package_path": "dash_core_components/async-{}.js.map".format(
-                async_resource
-            ),
+            "relative_package_path": "dcc/async-{}.js.map".format(async_resource),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/async-{}.js.map"
@@ -85,7 +76,7 @@ _js_dist.extend(
 _js_dist.extend(
     [
         {
-            "relative_package_path": "dash_core_components/{}.min.js".format(__name__),
+            "relative_package_path": "dcc/{}.min.js".format(_this_module),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/dash_core_components.min.js"
@@ -93,9 +84,7 @@ _js_dist.extend(
             "namespace": "dash",
         },
         {
-            "relative_package_path": "dash_core_components/{}.min.js.map".format(
-                __name__
-            ),
+            "relative_package_path": "dcc/{}.min.js.map".format(_this_module),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/dash_core_components.min.js.map"
@@ -104,9 +93,7 @@ _js_dist.extend(
             "dynamic": True,
         },
         {
-            "relative_package_path": "dash_core_components/{}-shared.js".format(
-                __name__
-            ),
+            "relative_package_path": "dcc/{}-shared.js".format(_this_module),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/dash_core_components-shared.js"
@@ -114,9 +101,7 @@ _js_dist.extend(
             "namespace": "dash",
         },
         {
-            "relative_package_path": "dash_core_components/{}-shared.js.map".format(
-                __name__
-            ),
+            "relative_package_path": "dcc/{}-shared.js.map".format(_this_module),
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/dash_core_components-shared.js.map"
@@ -125,7 +110,7 @@ _js_dist.extend(
             "dynamic": True,
         },
         {
-            "relative_package_path": "dash_core_components/plotly.min.js",
+            "relative_package_path": "dcc/plotly.min.js",
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/plotly.min.js"
@@ -134,7 +119,7 @@ _js_dist.extend(
             "async": "eager",
         },
         {
-            "relative_package_path": "dash_core_components/async-plotlyjs.js",
+            "relative_package_path": "dcc/async-plotlyjs.js",
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/async-plotlyjs.js"
@@ -143,7 +128,7 @@ _js_dist.extend(
             "async": "lazy",
         },
         {
-            "relative_package_path": "dash_core_components/async-plotlyjs.js.map",
+            "relative_package_path": "dcc/async-plotlyjs.js.map",
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/async-plotlyjs.js.map"
