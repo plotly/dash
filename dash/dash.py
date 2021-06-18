@@ -50,6 +50,7 @@ from ._utils import (
 from . import _validate
 from . import _watch
 from . import _shared_callback_ops
+from . import g
 
 _flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
@@ -1028,6 +1029,11 @@ class Dash(object):
 
         self._generate_scripts_html()
         self._generate_css_dist_html()
+
+        # Copy over callback data structures from callbacks assigned with g.app
+        self._callback_list.extend(g._CALLBACK_LIST)
+        for k in g._CALLBACK_MAP:
+            self.callback_map[k] = g._CALLBACK_MAP[k]
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
