@@ -33,7 +33,7 @@ class BuildProcess(object):
             package = json.load(fp)
             self.version = package["version"]
             self.name = package["name"]
-            self.build_folder = self._concat(self.main, self.name.replace("-", "_"))
+            self.build_folder = self._concat(self.main, os.pardir, "deps")
             self.deps = package["dependencies"]
 
     @staticmethod
@@ -76,9 +76,17 @@ class BuildProcess(object):
         self.npm()
         self.bundles(build)
         self.digest()
+        self.cleanModules()
 
     @job("compute the hash digest for assets")
     def digest(self):
+        if not os.path.exists(self.build_folder):
+            try:
+                os.makedirs(self.build_folder)
+            except OSError:
+                logger.exception("🚨 having issues manipulating %s", self.build_folder)
+                sys.exit(1)
+
         copies = tuple(
             _
             for _ in os.listdir(self.build_folder)
@@ -116,6 +124,7 @@ class BuildProcess(object):
             "version": self.version,
             "package": self.name.replace(" ", "_").replace("-", "_"),
         }
+
         for scope, name, subfolder, filename, target in self.deps_info:
             version = self.deps["/".join(filter(None, [scope, name]))]["version"]
             versions[name.replace("-", "").replace(".", "")] = version
@@ -127,6 +136,7 @@ class BuildProcess(object):
                 if target
                 else "{}@{}.{}".format(name, version, ext)
             )
+
             shutil.copyfile(
                 self._concat(self.npm_modules, scope, name, subfolder, filename),
                 self._concat(self.build_folder, target),
@@ -134,24 +144,30 @@ class BuildProcess(object):
 
         _script = "build:dev" if build == "local" else "build:js"
         logger.info("run `npm run %s`", _script)
-        os.chdir(self.main)
+        os.chdir(self._concat(self.build_folder, os.pardir, "dash-renderer"))
         run_command_with_process("npm run {}".format(_script))
 
         logger.info("generate the `__init__.py` from template and versions")
         with open(self._concat(self.main, "init.template")) as fp:
             t = string.Template(fp.read())
 
-        with open(self._concat(self.build_folder, "__init__.py"), "w") as fp:
+        with open(
+            self._concat(self.build_folder, os.pardir, "_dash_renderer.py"), "w"
+        ) as fp:
             fp.write(t.safe_substitute(versions))
+
+    @job("clean node_modules directory 🧹")
+    def cleanModules(self):
+        """Job to clean node_modules directory from Dash package."""
+        os.chdir(self.main)
+        run_command_with_process("rm -rf node_modules")
 
 
 class Renderer(BuildProcess):
     def __init__(self):
         """dash-renderer's path is binding with the dash folder hierarchy."""
         super(Renderer, self).__init__(
-            self._concat(
-                os.path.dirname(__file__), os.pardir, os.pardir, "dash-renderer"
-            ),
+            self._concat(os.path.dirname(__file__), os.pardir, "dash-renderer"),
             (
                 ("@babel", "polyfill", "dist", "polyfill.min.js", None),
                 (None, "react", "umd", "react.production.min.js", None),
