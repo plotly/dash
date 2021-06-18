@@ -49,6 +49,7 @@ from ._utils import (
 )
 from . import _validate
 from . import _watch
+from . import _shared_callback_ops
 
 _flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
@@ -925,7 +926,11 @@ class Dash(object):
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
         output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-        self._insert_callback(output, inputs, state, prevent_initial_call)
+        _shared_callback_ops._insert_callback(
+            self._callback_list, self.callback_map,
+            self.config.prevent_initial_callbacks,
+            output, inputs, state, prevent_initial_call
+        )
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -970,6 +975,12 @@ class Dash(object):
 
 
         """
+        return _shared_callback_ops._register_callback(
+            self._callback_list,
+            self.callback_map,
+            self.config.prevent_initial_callbacks,
+            *_args,
+            **_kwargs
         )
 
     def dispatch(self):
