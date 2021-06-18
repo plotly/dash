@@ -17,9 +17,11 @@ class _NoUpdate(object):
 
 
 
-def _insert_callback(self, output, inputs, state, prevent_initial_call):
+def _insert_callback(callback_list, callback_map, config_prevent_initial_callbacks,
+        output, inputs, state, prevent_initial_call):
+
     if prevent_initial_call is None:
-        prevent_initial_call = self.config.prevent_initial_callbacks
+        prevent_initial_call = config_prevent_initial_callbacks
 
     callback_id = create_callback_id(output)
     callback_spec = {
@@ -29,19 +31,25 @@ def _insert_callback(self, output, inputs, state, prevent_initial_call):
         "clientside_function": None,
         "prevent_initial_call": prevent_initial_call,
     }
-    self.callback_map[callback_id] = {
+    callback_map[callback_id] = {
         "inputs": callback_spec["inputs"],
         "state": callback_spec["state"],
     }
-    self._callback_list.append(callback_spec)
+    callback_list.append(callback_spec)
 
     return callback_id
 
 
-def _callback(self, _args, _kwargs):
+def _register_callback(
+        callback_list, callback_map,
+        config_prevent_initial_callbacks,
+        *_args, **_kwargs):
     output, inputs, state, prevent_initial_call = handle_callback_args(
         _args, _kwargs
-    callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
+    )
+    callback_id = _insert_callback(
+        callback_list, callback_map, config_prevent_initial_callbacks,
+        output, inputs, state, prevent_initial_call)
     multi = isinstance(output, (list, tuple))
 
     def wrap_func(func):
@@ -90,7 +98,7 @@ def _callback(self, _args, _kwargs):
 
             return jsonResponse
 
-        self.callback_map[callback_id]["callback"] = add_context
+        callback_map[callback_id]["callback"] = add_context
 
         return add_context
 
