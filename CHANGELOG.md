@@ -5,7 +5,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ## Dash and Dash Renderer
+### Added
+- [#1675](https://github.com/plotly/dash/pull/1675) Add new `Dash` constructor argument `extra_hot_reload_paths`. This allows you to re-initialize the Python code of the app when non-Python files change, if you know that these files impact the app.
+
 ### Changed
+- [#1675](https://github.com/plotly/dash/pull/1675) Remove the constraint that `requests_pathname_prefix` ends with `routes_pathname_prefix`. When you are serving your app behind a reverse proxy that rewrites URLs that constraint needs to be violated.
 - [#1611](https://github.com/plotly/dash/pull/1611) Package dash-renderer artifacts and dependencies with Dash, and source renderer resources from within Dash.
 - [#1567](https://github.com/plotly/dash/pull/1567) Julia component generator puts components into `src/jl` - fixes an issue on case-insensitive filesystems when the component name and module name match (modulo case) and no prefix is used. Also reduces JS/Julia clutter in the overloaded `src` directory.
 
