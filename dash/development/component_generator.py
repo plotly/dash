@@ -50,7 +50,6 @@ def generate_components(
     rsuggests="",
     jlprefix=None,
     metadata=None,
-    quiet=False,
 ):
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
