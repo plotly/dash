@@ -49,6 +49,8 @@ def generate_components(
     rimports="",
     rsuggests="",
     jlprefix=None,
+    metadata=None,
+    quiet=False,
 ):
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
@@ -61,36 +63,37 @@ def generate_components(
 
     os.environ["NODE_PATH"] = "node_modules"
 
-    cmd = shlex.split(
-        'node {} "{}" "{}" {}'.format(
-            extract_path, ignore, reserved_patterns, components_source
-        ),
-        posix=not is_windows,
-    )
-
     shutil.copyfile(
         "package.json", os.path.join(project_shortname, package_info_filename)
     )
 
-    proc = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
-    )
-    out, err = proc.communicate()
-    status = proc.poll()
-
-    if err:
-        print(err.decode(), file=sys.stderr)
-
-    if not out:
-        print(
-            "Error generating metadata in {} (status={})".format(
-                project_shortname, status
+    if not metadata:
+        cmd = shlex.split(
+            'node {} "{}" "{}" {}'.format(
+                extract_path, ignore, reserved_patterns, components_source
             ),
-            file=sys.stderr,
+            posix=not is_windows,
         )
-        sys.exit(1)
 
-    metadata = safe_json_loads(out.decode("utf-8"))
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
+        )
+        out, err = proc.communicate()
+        status = proc.poll()
+
+        if err:
+            print(err.decode(), file=sys.stderr)
+
+        if not out:
+            print(
+                "Error generating metadata in {} (status={})".format(
+                    project_shortname, status
+                ),
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        metadata = safe_json_loads(out.decode("utf-8"))
 
     generator_methods = [generate_class_file]
 
@@ -148,7 +151,7 @@ def safe_json_loads(s):
     return byteify(jsondata_unicode)
 
 
-def cli():
+def component_build_arg_parser():
     parser = argparse.ArgumentParser(
         prog="dash-generate-components",
         formatter_class=_CombinedFormatter,
@@ -199,8 +202,11 @@ def cli():
         help="Specify a prefix for Dash for R component names, write "
         "components to R dir, create R package.",
     )
+    return parser
 
-    args = parser.parse_args()
+
+def cli():
+    args = component_build_arg_parser().parse_args()
     generate_components(
         args.components_source,
         args.project_shortname,
