@@ -50,6 +50,11 @@ function makePaginator(params: IPaginatorParams | null): IPaginator {
     const {setProps, page_count} = params;
     let {page_current} = params;
 
+    if (page_count && page_count - 1 < page_current) {
+        page_current = 0;
+        updatePage();
+    }
+
     function updatePage() {
         setProps({
             page_current,

@@ -1,6 +1,8 @@
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
+import dash_html_components as html
+import dash_core_components as dcc
 
 from dash_table import DataTable
 
@@ -205,3 +207,44 @@ def test_tpag010_limits_page(test):
 
     assert target.paging.current.get_value() == "10"
     assert test.get_log_errors() == []
+
+
+def get_app2():
+    app = dash.Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("i=20", id="button", n_clicks=0),
+            DataTable(
+                id="table",
+                page_size=5,
+                columns=[{"name": "i", "id": "i"}, {"name": "square", "id": "square"}],
+                data=[{"i": i, "square": i ** 2} for i in range(50 + 1)],
+                page_current=5,
+            ),
+            dcc.Graph(),
+        ]
+    )
+
+    @app.callback(Output("table", "data"), Input("button", "n_clicks"))
+    def update_table_data(n):
+        return (
+            [{"i": i, "square": i ** 2} for i in range(20 + 1)]
+            if n > 0
+            else dash.no_update
+        )
+
+    return app
+
+
+def test_tpag011_valid_page(test):
+    test.start_server(get_app2())
+
+    target = test.table("table")
+    test.find_element("#button").click()
+
+    assert target.paging.current.get_value() == "1"
+    assert test.get_log_errors() == []
+
+    test.table("table").is_ready()
+    test.percy_snapshot("test_tpag011 Pagination row visible")
