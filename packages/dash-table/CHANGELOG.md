@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ### Added
+- [#916](https://github.com/plotly/dash-table/pull/916) 
+  - Added `html` option to `markdown_options` prop. This enables the use of html tags in markdown text.
+  
 - [#545](https://github.com/plotly/dash-table/issues/545)
     - Case insensitive filtering
     - New props: `filter_options` - to control case of all filters, `columns.filter_options` - to control filter case for each column

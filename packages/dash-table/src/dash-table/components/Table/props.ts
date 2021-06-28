@@ -163,6 +163,7 @@ export interface INumberLocale {
 
 export interface IMarkdownOptions {
     link_target: '_blank' | '_parent' | '_self' | '_top' | string;
+    html?: boolean;
 }
 
 export type NumberFormat =
