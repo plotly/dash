@@ -84,7 +84,7 @@ class Component(with_metaclass(ComponentMeta, object)):
             # pylint: disable=no-member
             k_in_propnames = k in self._prop_names
             k_in_wildcards = any(
-                [k.startswith(w) for w in self._valid_wildcard_attributes]
+                k.startswith(w) for w in self._valid_wildcard_attributes
             )
             # e.g. "The dash_core_components.Dropdown component (version 1.6.0)
             # with the ID "my-dropdown"
