@@ -283,7 +283,11 @@ def create_docstring_jl(component_name, props, description):
 
 
 def create_prop_docstring_jl(
-    prop_name, type_object, required, description, indent_num,
+    prop_name,
+    type_object,
+    required,
+    description,
+    indent_num,
 ):
     """
     Create the Dash component prop docstring

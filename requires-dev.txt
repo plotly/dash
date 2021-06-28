@@ -8,7 +8,7 @@ PyYAML==5.3.1
 pylint==1.9.5;python_version<"3.7"
 pylint==2.6.0;python_version>="3.7"
 astroid==2.4.2;python_version>="3.7"
-black==19.10b0;python_version>="3.0"
+black==21.6b0;python_version>="3.0"
 virtualenv==20.2.2;python_version=="2.7"
 fire==0.3.1
 coloredlogs==15.0
