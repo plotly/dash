@@ -232,6 +232,11 @@ class Dash(object):
         and redo buttons for stepping through the history of the app state.
     :type show_undo_redo: boolean
 
+    :param extra_hot_reload_paths: A list of paths to watch for changes, in
+        addition to assets and known Python and JS code, if hot reloading is
+        enabled.
+    :type extra_hot_reload_paths: list of strings
+
     :param plugins: Extend Dash functionality by passing a list of objects
         with a ``plug`` method, taking a single argument: this app, which will
         be called after the Flask server is attached.
@@ -269,6 +274,7 @@ class Dash(object):
         suppress_callback_exceptions=None,
         prevent_initial_callbacks=False,
         show_undo_redo=False,
+        extra_hot_reload_paths=None,
         plugins=None,
         title="Dash",
         update_title="Updating...",
@@ -329,6 +335,7 @@ class Dash(object):
             ),
             prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
+            extra_hot_reload_paths=extra_hot_reload_paths or [],
             title=title,
             update_title=update_title,
         )
@@ -1729,5 +1736,15 @@ class Dash(object):
                 display_url = (protocol, host, ":{}".format(port), path)
 
             self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
+
+        if self.config.extra_hot_reload_paths:
+            extra_files = flask_run_options["extra_files"] = []
+            for path in self.config.extra_hot_reload_paths:
+                if os.path.isdir(path):
+                    for dirpath, _, filenames in os.walk(path):
+                        for fn in filenames:
+                            extra_files.append(os.path.join(dirpath, fn))
+                elif os.path.isfile(path):
+                    extra_files.append(path)
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
