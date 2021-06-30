@@ -76,7 +76,6 @@ class BuildProcess(object):
         self.npm()
         self.bundles(build)
         self.digest()
-        self.cleanModules()
 
     @job("compute the hash digest for assets")
     def digest(self):
@@ -155,12 +154,6 @@ class BuildProcess(object):
             self._concat(self.build_folder, os.pardir, "_dash_renderer.py"), "w"
         ) as fp:
             fp.write(t.safe_substitute(versions))
-
-    @job("clean node_modules directory 🧹")
-    def cleanModules(self):
-        """Job to clean node_modules directory from Dash package."""
-        os.chdir(self.main)
-        run_command_with_process("rm -rf node_modules")
 
 
 class Renderer(BuildProcess):
