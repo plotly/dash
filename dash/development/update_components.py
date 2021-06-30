@@ -40,14 +40,14 @@ def booststrap_components(components_source):
     if status == 0:
         print(
             "🟢 Finished bootstrapping the following component packages: {} (status={}) 🟢".format(
-                components_source, status
+                source_glob, status
             ),
             file=sys.stderr,
         )
     else:
         print(
             "Failed bootstrapping the following component packages {} (status={})".format(
-                components_source, status
+                source_glob, status
             ),
             file=sys.stderr,
         )
@@ -80,13 +80,13 @@ def build_components(components_source):
     if not out:
         print(
             "🟢 Finished updating the following component packages {} (status={}) 🟢".format(
-                components_source, status
+                source_glob, status
             ),
             file=sys.stderr,
         )
         sys.exit(1)
 
-    for package in components_source.split("|"):
+    for package in source_glob.split("|"):
         build_directory = os.path.join(
             "packages", package, package.replace("-", "_").rstrip("/\\")
         )
@@ -96,7 +96,7 @@ def build_components(components_source):
             if package == "dash-core-components"
             else "html"
             if package == "dash-html-components"
-            else "table"
+            else "dash_table"
         )
 
         if not os.path.exists(build_directory):
@@ -125,7 +125,7 @@ def cli():
     )
     parser.add_argument(
         "components_source",
-        help="A glob string that matches the Dash component libraries to be updated (eg.'dash-table' // 'dash-core-components|dash-html-components' // 'all').",
+        help="A glob string that matches the Dash component libraries to be updated (eg.'dash-table' // 'dash-core-components|dash-html-components' // 'all'). The default argument is 'all'.",
         default="all",
     )
 
