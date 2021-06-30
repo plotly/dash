@@ -37,11 +37,11 @@ _js_dist = []
 _js_dist.extend(
     [
         {
-            "relative_package_path": "dash_table/async-{}.js".format(async_resource),
+            "relative_package_path": "async-{}.js".format(async_resource),
             "external_url": (
                 "https://unpkg.com/dash-table@{}" "/dash_table/async-{}.js"
             ).format(__version__, async_resource),
-            "namespace": "dash",
+            "namespace": package_name,
             "async": True,
         }
         for async_resource in async_resources
@@ -51,13 +51,11 @@ _js_dist.extend(
 _js_dist.extend(
     [
         {
-            "relative_package_path": "dash_table/async-{}.js.map".format(
-                async_resource
-            ),
+            "relative_package_path": "async-{}.js.map".format(async_resource),
             "external_url": (
                 "https://unpkg.com/dash-table@{}" "/dash_table/async-{}.js.map"
             ).format(__version__, async_resource),
-            "namespace": "dash",
+            "namespace": package_name,
             "dynamic": True,
         }
         for async_resource in async_resources
@@ -67,18 +65,18 @@ _js_dist.extend(
 _js_dist.extend(
     [
         {
-            "relative_package_path": "dash_table/bundle.js",
+            "relative_package_path": "bundle.js",
             "external_url": (
                 "https://unpkg.com/dash-table@{}/dash_table/bundle.js"
             ).format(__version__),
-            "namespace": "dash",
+            "namespace": package_name,
         },
         {
-            "relative_package_path": "dash_table/bundle.js.map",
+            "relative_package_path": "bundle.js.map",
             "external_url": (
                 "https://unpkg.com/dash-table@{}/dash_table/bundle.js.map"
             ).format(__version__),
-            "namespace": "dash",
+            "namespace": package_name,
             "dynamic": True,
         },
     ]

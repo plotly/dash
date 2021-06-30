@@ -258,7 +258,7 @@
         ],
         "params": [
           {
-            "name": "text",
+            "name": "content",
             "type": null
           }
         ],
@@ -317,7 +317,7 @@
           "computed": false
         }
       },
-      "text": {
+      "content": {
         "type": {
           "name": "string"
         },

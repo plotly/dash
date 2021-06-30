@@ -15,6 +15,10 @@ Keyword arguments:
 - className (string; optional):
     The class  name of the icon element.
 
+- content (string; optional):
+    The text to  be copied to the clipboard if the `target_id` is
+    None.
+
 - loading_state (dict; optional):
     Object that holds the loading state object coming from
     dash-renderer.
@@ -42,10 +46,6 @@ Keyword arguments:
     the clipboard.  If none, then the text from the  `value` prop will
     be copied.
 
-- text (string; optional):
-    The text to  be copied to the clipboard if the `target_id` is
-    None.
-
 - title (string; optional):
     The text shown as a tooltip when hovering over the copy icon."""
 
@@ -54,7 +54,7 @@ Keyword arguments:
         self,
         id=Component.UNDEFINED,
         target_id=Component.UNDEFINED,
-        text=Component.UNDEFINED,
+        content=Component.UNDEFINED,
         n_clicks=Component.UNDEFINED,
         title=Component.UNDEFINED,
         style=Component.UNDEFINED,
@@ -65,11 +65,11 @@ Keyword arguments:
         self._prop_names = [
             "id",
             "className",
+            "content",
             "loading_state",
             "n_clicks",
             "style",
             "target_id",
-            "text",
             "title",
         ]
         self._type = "Clipboard"
@@ -78,11 +78,11 @@ Keyword arguments:
         self.available_properties = [
             "id",
             "className",
+            "content",
             "loading_state",
             "n_clicks",
             "style",
             "target_id",
-            "text",
             "title",
         ]
         self.available_wildcard_properties = []
