@@ -31,6 +31,8 @@ def test_dtpr001_initial_month_provided(dash_dcc):
         1,
     )
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_dtpr002_no_initial_month_min_date(dash_dcc):
     app = dash.Dash(__name__)
@@ -56,6 +58,8 @@ def test_dtpr002_no_initial_month_min_date(dash_dcc):
         "January 2010",
     )
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_dtpr003_no_initial_month_no_min_date_start_date(dash_dcc):
     app = dash.Dash(__name__)
@@ -80,6 +84,8 @@ def test_dtpr003_no_initial_month_no_min_date_start_date(dash_dcc):
         "#dps-initial-month .CalendarMonth.CalendarMonth_1[data-visible=true] strong",
         "August 2019",
     )
+
+    assert dash_dcc.get_logs() == []
 
 
 def test_dtpr004_max_and_min_dates_are_clickable(dash_dcc):
@@ -109,6 +115,8 @@ def test_dtpr004_max_and_min_dates_are_clickable(dash_dcc):
         '#dps-initial-month .DateInput_input.DateInput_input_1[placeholder="End Date"]',
         "01/20/2021",
     )
+
+    assert dash_dcc.get_logs() == []
 
 
 def test_dtpr005_disabled_days_arent_clickable(dash_dcc):

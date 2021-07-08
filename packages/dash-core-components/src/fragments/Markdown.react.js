@@ -35,7 +35,7 @@ export default class DashMarkdown extends Component {
 
             if (MarkdownHighlighter.hljs) {
                 for (let i = 0; i < nodes.length; i++) {
-                    MarkdownHighlighter.hljs.highlightBlock(nodes[i]);
+                    MarkdownHighlighter.hljs.highlightElement(nodes[i]);
                 }
             } else {
                 MarkdownHighlighter.loadhljs();

@@ -59,3 +59,5 @@ def test_state_and_inputs(dash_dcc):
     assert dash_dcc.wait_for_text_to_equal(
         "#output", 'input="Initial Inputxy", state="Initial Statex"'
     ), "input value triggers callback, and the last state change is kept"
+
+    assert dash_dcc.get_logs() == []

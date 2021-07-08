@@ -28,15 +28,8 @@ import './css/logout.css';
  */
 export default class LogoutButton extends React.Component {
     render() {
-        const {
-            id,
-            logout_url,
-            label,
-            className,
-            style,
-            method,
-            loading_state,
-        } = this.props;
+        const {id, logout_url, label, className, style, method, loading_state} =
+            this.props;
 
         let url, submitMethod;
         if (!logout_url) {

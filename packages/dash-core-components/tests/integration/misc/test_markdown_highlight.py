@@ -22,6 +22,8 @@ def test_msmh001_no_window_variable(dash_dcc):
     window_hljs = dash_dcc.driver.execute_script("return window.hljs")
     assert window_hljs is None
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_msmh002_window_override(dash_dcc):
     app = dash.Dash(__name__)
@@ -38,9 +40,11 @@ def test_msmh002_window_override(dash_dcc):
     dash_dcc.start_server(app)
 
     dash_dcc.driver.execute_script(
-        'window.hljs = {highlightBlock: (block) => {block.innerHTML="hljs override"}};'
+        'window.hljs = {highlightElement: (block) => {block.innerHTML="hljs override"}};'
     )
 
     dash_dcc.find_element("#md-trigger").click()
     dash_dcc.wait_for_text_to_equal("#md-container code", "hljs override")
     dash_dcc.percy_snapshot("md_code_highlight_override")
+
+    assert dash_dcc.get_logs() == []

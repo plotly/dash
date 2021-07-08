@@ -25,3 +25,5 @@ def test_ddsv001_search_value(dash_duo):
 
     input_.send_keys("x")
     dash_duo.wait_for_text_to_equal("#output", 'search_value="x"')
+
+    assert dash_duo.get_logs() == []

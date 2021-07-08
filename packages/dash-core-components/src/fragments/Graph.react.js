@@ -71,7 +71,7 @@ const filterEventData = (gd, eventData, event) => {
 
         for (let i = 0; i < eventData.points.length; i++) {
             const fullPoint = eventData.points[i];
-            const pointData = filter(function(o) {
+            const pointData = filter(function (o) {
                 return !includes(type(o), ['Object', 'Array']);
             }, fullPoint);
             if (

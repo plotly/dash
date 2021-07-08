@@ -35,3 +35,5 @@ def test_upca001_upload_children_gallery(dash_dcc):
     dash_dcc.start_server(app)
     time.sleep(0.5)
     dash_dcc.percy_snapshot("upca001 children gallery")
+
+    assert dash_dcc.get_logs() == []

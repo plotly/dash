@@ -51,3 +51,5 @@ def test_grgp001_clean_purge(dash_dcc, is_eager):
 
     tog.click()
     dash_dcc.wait_for_text_to_equal("#out .gtitle", "A graph!")
+
+    assert dash_dcc.get_logs() == []

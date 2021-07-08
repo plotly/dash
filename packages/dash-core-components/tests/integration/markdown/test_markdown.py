@@ -4,7 +4,7 @@ import dash_html_components as html
 
 
 def test_mkdw001_img(dash_dcc):
-    app = dash.Dash(__name__, eager_loading=True)
+    app = dash.Dash(__name__, eager_loading=True, assets_folder="../../assets")
 
     app.layout = html.Div(
         [
@@ -20,9 +20,11 @@ def test_mkdw001_img(dash_dcc):
     dash_dcc.start_server(app)
     dash_dcc.percy_snapshot("mkdw001 - image display")
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_mkdw002_dcclink(dash_dcc):
-    app = dash.Dash(__name__, eager_loading=True)
+    app = dash.Dash(__name__, eager_loading=True, assets_folder="../../assets")
 
     app.layout = html.Div(
         [
@@ -91,3 +93,5 @@ def test_mkdw002_dcclink(dash_dcc):
 
     dash_dcc.start_server(app)
     dash_dcc.percy_snapshot("mkdw002 - markdowns display")
+
+    assert dash_dcc.get_logs() == []

@@ -1,6 +1,6 @@
 const path = require('path');
-const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const WebpackDashDynamicImport = require('@plotly/webpack-dash-dynamic-import');
 
 const packagejson = require('./package.json');
@@ -30,8 +30,7 @@ module.exports = (env, argv) => {
 
     let filename = (overrides.output || {}).filename;
     if (!filename) {
-        const modeSuffix = mode === 'development' ? 'dev' : 'min';
-        filename = `${dashLibraryName}.${modeSuffix}.js`;
+        filename = `${dashLibraryName}.js`;
     }
 
     const entry = overrides.entry || { main: './src/index.js' };
@@ -45,6 +44,7 @@ module.exports = (env, argv) => {
     return {
         mode,
         entry,
+        target: ['web', 'es5'],
         output: {
             path: path.resolve(__dirname, dashLibraryName),
             chunkFilename: '[name].js',
@@ -65,7 +65,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.jsx?$/,
-                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js)[\\\/]/,
+                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|is-plain-obj)[\\\/]/,
                     use: {
                         loader: 'babel-loader',
                         options: {
@@ -84,7 +84,23 @@ module.exports = (env, argv) => {
                         {
                             loader: 'style-loader',
                             options: {
-                                insertAt: 'top'
+                                insert: function insertAtTop(element) {
+                                    var parent = document.querySelector('head');
+                                    // eslint-disable-next-line no-underscore-dangle
+                                    var lastInsertedElement =
+                                        window._lastElementInsertedByStyleLoader;
+
+                                    if (!lastInsertedElement) {
+                                        parent.insertBefore(element, parent.firstChild);
+                                    } else if (lastInsertedElement.nextSibling) {
+                                        parent.insertBefore(element, lastInsertedElement.nextSibling);
+                                    } else {
+                                        parent.appendChild(element);
+                                    }
+
+                                    // eslint-disable-next-line no-underscore-dangle
+                                    window._lastElementInsertedByStyleLoader = element;
+                                }
                             }
                         },
                         {
@@ -100,19 +116,8 @@ module.exports = (env, argv) => {
             }
         },
         optimization: {
-            minimizer: [
-                new TerserPlugin({
-                    sourceMap: true,
-                    parallel: true,
-                    cache: './.build_cache/terser',
-                    terserOptions: {
-                        warnings: false,
-                        ie8: false
-                    }
-                })
-            ],
             splitChunks: {
-                name: true,
+                name: '[name].js',
                 cacheGroups: {
                     async: {
                         chunks: 'async',
@@ -135,7 +140,8 @@ module.exports = (env, argv) => {
             new webpack.SourceMapDevToolPlugin({
                 filename: '[file].map',
                 exclude: ['async-plotlyjs']
-            })
+            }),
+            new NodePolyfillPlugin()
         ]
     }
 };

@@ -73,6 +73,8 @@ def test_grva001_candlestick(dash_dcc, is_eager):
         "candlestick - 2 click ({})".format("eager" if is_eager else "lazy")
     )
 
+    assert dash_dcc.get_logs() == []
+
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
@@ -120,7 +122,8 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
     )
 
     @app.callback(
-        Output("restyle-data", "children"), [Input("example-graph", "restyleData")],
+        Output("restyle-data", "children"),
+        [Input("example-graph", "restyleData")],
     )
     def show_restyle_data(data):
         if data is None:  # ignore initial
@@ -128,7 +131,8 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
         return json.dumps(data)
 
     @app.callback(
-        Output("relayout-data", "children"), [Input("example-graph", "relayoutData")],
+        Output("relayout-data", "children"),
+        [Input("example-graph", "relayoutData")],
     )
     def show_relayout_data(data):
         if data is None or "autosize" in data:  # ignore initial & auto width
@@ -157,6 +161,8 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
     autoscale.click()
     autoscale.click()
     dash_dcc.wait_for_text_to_equal("#relayout-data", '{"xaxis.autorange": true}')
+
+    assert dash_dcc.get_logs() == []
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -190,6 +196,8 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
     dash_dcc.percy_snapshot(
         "render-empty-graph ({})".format("eager" if is_eager else "lazy")
     )
+
+    assert dash_dcc.get_logs() == []
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -343,7 +351,12 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     )
 
     comparison = json.dumps(
-        [dict(x=[5, 6, 7, 8, 9, 10, 11], y=[0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5],)]
+        [
+            dict(
+                x=[5, 6, 7, 8, 9, 10, 11],
+                y=[0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5],
+            )
+        ]
     )
     dash_dcc.wait_for_text_to_equal(
         "#output_trace_will_prepend_with_max_points", comparison
@@ -355,6 +368,8 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     dash_dcc.wait_for_text_to_equal(
         "#output_trace_will_allow_repeated_prepend", comparison
     )
+
+    assert dash_dcc.get_logs() == []
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -506,7 +521,12 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
     dash_dcc.wait_for_text_to_equal("#output_trace_will_extend_selectively", comparison)
 
     comparison = json.dumps(
-        [dict(x=[3, 4, 5, 6, 7, 8, 9], y=[0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],)]
+        [
+            dict(
+                x=[3, 4, 5, 6, 7, 8, 9],
+                y=[0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],
+            )
+        ]
     )
     dash_dcc.wait_for_text_to_equal(
         "#output_trace_will_extend_with_max_points", comparison
@@ -518,6 +538,8 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
     dash_dcc.wait_for_text_to_equal(
         "#output_trace_will_allow_repeated_extend", comparison
     )
+
+    assert dash_dcc.get_logs() == []
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -612,11 +634,10 @@ def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
     # resize
     dash_dcc.driver.set_window_size(800, 600)
 
-    for entry in dash_dcc.get_logs():
-        raise Exception("browser error logged during test", entry)
-
     # set back to original size
     dash_dcc.driver.set_window_size(window_size["width"], window_size["height"])
+
+    assert dash_dcc.get_logs() == []
 
 
 def test_grva007_external_plotlyjs_prevents_lazy(dash_dcc):
@@ -658,6 +679,8 @@ def test_grva007_external_plotlyjs_prevents_lazy(dash_dcc):
     scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
     assert findSyncPlotlyJs(scripts) is None
     assert findAsyncPlotlyJs(scripts) is None
+
+    assert dash_dcc.get_logs() == []
 
 
 def test_grva008_shapes_not_lost(dash_dcc):
@@ -713,6 +736,8 @@ def test_grva008_shapes_not_lost(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#output", "1")
     button.click()
     dash_dcc.wait_for_text_to_equal("#output", "2")
+
+    assert dash_dcc.get_logs() == []
 
 
 @pytest.mark.parametrize("mutate_fig", [True, False])
@@ -823,3 +848,5 @@ def test_grva009_originals_maintained_for_responsive_override(mutate_fig, dash_d
     dash_dcc.wait_for_text_to_equal("#output", "3 true")
     dash_dcc.wait_for_text_to_equal(".gtitle", "3")
     assert graph_dims() == responsive_size
+
+    assert dash_dcc.get_logs() == []

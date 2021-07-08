@@ -90,7 +90,10 @@ def platter_app():
             dcc.Input(value="", placeholder="type here", id="textinput"),
             html.Label("Disabled Text Input"),
             dcc.Input(
-                value="disabled", type="text", id="disabled-textinput", disabled=True,
+                value="disabled",
+                type="text",
+                id="disabled-textinput",
+                disabled=True,
             ),
             html.Label("Slider"),
             dcc.Slider(

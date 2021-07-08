@@ -63,6 +63,8 @@ def test_stda001_data_types(dash_dcc):
         button.click()
         dash_dcc.wait_for_text_to_equal("#output", json.dumps(data_type[1]))
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_stda002_nested_data(dash_dcc):
     app = dash.Dash(__name__)
@@ -118,6 +120,8 @@ def test_stda002_nested_data(dash_dcc):
     list_btn.click()
     dash_dcc.wait_for_text_to_equal("#output", json.dumps(nested_list))
 
+    assert dash_dcc.get_logs() == []
+
 
 @pytest.mark.skipif(
     sys.version_info < (3, 6),
@@ -159,3 +163,5 @@ def test_stda003_large_data_size(storage_type, csv_5mb, dash_dcc):
 
     dash_dcc.find_element("#btn").click()
     dash_dcc.wait_for_text_to_equal("#out", fingerprint(csv_5mb))
+
+    assert dash_dcc.get_logs() == []

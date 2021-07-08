@@ -1,5 +1,3 @@
-/* global window:true */
-
 import PropTypes from 'prop-types';
 
 import React, {Component} from 'react';

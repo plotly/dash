@@ -24,5 +24,6 @@ dash_core_components_base/plotly.min.js
 /man
 /R
 /src/*.jl
+/src/jl/
 DESCRIPTION
 NAMESPACE

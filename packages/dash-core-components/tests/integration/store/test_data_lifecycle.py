@@ -40,3 +40,5 @@ def test_stdl001_data_lifecycle_with_different_condition(store_app, dash_dcc):
     assert dash_dcc.get_session_storage() == {
         "n_clicks": nclicks
     }, "session storage should be specific per browser tab window"
+
+    assert dash_dcc.get_logs() == []

@@ -26,6 +26,8 @@ def test_loca001_callbacks(dash_dcc):
 
     dash_dcc.wait_for_text_to_equal("#div", "/")
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_loca002_location_link(dash_dcc):
     app = dash.Dash(__name__)
@@ -139,3 +141,5 @@ def test_loca002_location_link(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#test-search", "?queryA=valueA")
     dash_dcc.wait_for_text_to_equal("#test-hash", "")
     dash_dcc.percy_snapshot("link -- /test/pathname/a?queryA=valueA")
+
+    assert dash_dcc.get_logs() == []

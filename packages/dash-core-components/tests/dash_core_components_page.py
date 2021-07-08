@@ -32,7 +32,9 @@ class DashCoreComponentsMixin(object):
             filtered = [_ for _ in days if _.text == str(day) and is_month_valid(_)]
             if not filtered or len(filtered) > 1:
                 logger.error(
-                    "cannot find the matched day with index=%s, day=%s", index, day,
+                    "cannot find the matched day with index=%s, day=%s",
+                    index,
+                    day,
                 )
             matched = filtered[0]
         else:

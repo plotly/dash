@@ -74,3 +74,5 @@ def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
         "but initial month is"
     )
     reset_input(dt_input_4)
+
+    assert dash_dcc.get_logs() == []

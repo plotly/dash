@@ -27,6 +27,8 @@ def test_grbs001_graph_without_ids(dash_dcc, is_eager):
         "id"
     ), "the graph should contain no more auto-generated id"
 
+    assert dash_dcc.get_logs() == []
+
 
 @pytest.mark.DCC608
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -86,6 +88,8 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc, is_eager):
     # in for now.
     assert call_count.value == 2
 
+    assert dash_dcc.get_logs() == []
+
 
 @pytest.mark.DCC672
 def test_grbs003_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
@@ -125,7 +129,7 @@ def test_grbs003_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
 
     dash_dcc.wait_for_element("#my-graph .main-svg")
 
-    assert not dash_dcc.get_logs()
+    assert dash_dcc.get_logs() == []
 
 
 @pytest.mark.DCC837
@@ -159,4 +163,4 @@ def test_grbs004_graph_loading_state_updates(dash_dcc):
 
     dash_dcc.wait_for_element("#my-graph:not([data-dash-is-loading])")
 
-    assert not dash_dcc.get_logs()
+    assert dash_dcc.get_logs() == []

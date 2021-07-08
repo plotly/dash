@@ -2,11 +2,10 @@
 
 import pytest
 import dash
+from dash.testing import wait
 from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
-
-from utils import wait_for
 
 
 @pytest.mark.DCC793
@@ -50,38 +49,25 @@ def test_ddot001_option_title(dash_dcc, multi):
     dropdown_title_input = dash_dcc.wait_for_element("#dropdown_title_input")
 
     # Empty string title ('') (default for no title)
-    wait_for(
-        lambda: dropdown_option_element.get_attribute("title") == "",
-        lambda: "`title` is {}, expected {}".format(
-            dropdown_option_element.get_attribute("title"), "",
-        ),
-    )
+
+    wait.until(lambda: dropdown_option_element.get_attribute("title") == "", 3)
 
     dropdown_title_input.send_keys("The Big Apple")
 
-    wait_for(
-        lambda: dropdown_option_element.get_attribute("title") == "The Big Apple",
-        lambda: "`title` is {}, expected {}".format(
-            dropdown_option_element.get_attribute("title"), "The Big Apple",
-        ),
+    wait.until(
+        lambda: dropdown_option_element.get_attribute("title") == "The Big Apple", 3
     )
 
     dash_dcc.clear_input(dropdown_title_input)
 
     dropdown_title_input.send_keys("Gotham City?")
 
-    wait_for(
-        lambda: dropdown_option_element.get_attribute("title") == "Gotham City?",
-        lambda: "`title` is {}, expected {}".format(
-            dropdown_option_element.get_attribute("title"), "Gotham City?",
-        ),
+    wait.until(
+        lambda: dropdown_option_element.get_attribute("title") == "Gotham City?", 3
     )
 
     dash_dcc.clear_input(dropdown_title_input)
 
-    wait_for(
-        lambda: dropdown_option_element.get_attribute("title") == "",
-        lambda: "`title` is {}, expected {}".format(
-            dropdown_option_element.get_attribute("title"), "",
-        ),
-    )
+    wait.until(lambda: dropdown_option_element.get_attribute("title") == "", 3)
+
+    assert dash_dcc.get_logs() == []

@@ -39,6 +39,8 @@ def test_ddcf001_clearable_false_single(dash_duo):
 
     assert len(dash_duo.find_element("#dropdown-value").text) > 0
 
+    assert dash_duo.get_logs() == []
+
 
 def test_ddcf002_clearable_false_multi(dash_duo):
     app = dash.Dash(__name__)
@@ -74,3 +76,5 @@ def test_ddcf002_clearable_false_multi(dash_duo):
     dash_duo.find_element("#dropdown-value").click()
 
     assert len(dash_duo.find_element("#dropdown-value").text) > 0
+
+    assert dash_duo.get_logs() == []

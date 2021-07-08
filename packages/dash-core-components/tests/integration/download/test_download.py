@@ -32,3 +32,5 @@ def test_dltx001_download_text(dash_dcc):
     with open(fp, "r") as f:
         content = f.read()
     assert content == text
+
+    assert dash_dcc.get_logs() == []

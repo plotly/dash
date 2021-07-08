@@ -27,3 +27,5 @@ def test_liti001_prop(dash_dcc):
     title_exists = dash_dcc.find_element("#link1").get_attribute("title")
 
     assert title_exists == "This is a test title!"
+
+    assert dash_dcc.get_logs() == []

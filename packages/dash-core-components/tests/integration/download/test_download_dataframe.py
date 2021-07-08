@@ -54,3 +54,5 @@ def test_dldf001_download_dataframe(fmt, dash_dcc):
     assert df.columns.equals(df_download.columns)
     assert df.index.equals(df_download.index)
     np.testing.assert_array_equal(df.values, df_download.values)
+
+    assert dash_dcc.get_logs() == []

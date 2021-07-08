@@ -175,3 +175,5 @@ def test_msps001_basic_persistence(dash_dcc):
     # now reload the page - all of these settings should persist
     dash_dcc.wait_for_page()
     dash_dcc.wait_for_text_to_equal("#settings", json.dumps(edited_settings))
+
+    assert dash_dcc.get_logs() == []

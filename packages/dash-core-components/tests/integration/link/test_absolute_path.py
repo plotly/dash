@@ -26,6 +26,8 @@ def test_lipa001_path(dash_dcc):
 
     dash_dcc.wait_for_text_to_equal("#content", "/google.com")
 
+    assert dash_dcc.get_logs() == []
+
 
 @pytest.mark.DCC782
 def test_lipa002_path(dash_dcc):
@@ -52,3 +54,5 @@ def test_lipa002_path(dash_dcc):
     )
 
     assert location == "https://www.google.com/"
+
+    assert dash_dcc.get_logs() == []

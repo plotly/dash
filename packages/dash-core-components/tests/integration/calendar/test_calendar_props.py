@@ -42,6 +42,8 @@ def test_cdpr001_date_clearable_true_works(dash_dcc):
     (single_date,) = dash_dcc.get_date_range("dps")
     assert not single_date, "date should be cleared"
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_cdpr002_updatemodes(dash_dcc):
     app = dash.Dash(__name__)
@@ -109,3 +111,5 @@ def test_cdpr002_updatemodes(dash_dcc):
         )
         == date_tokens
     ), "date should match the callback output"
+
+    assert dash_dcc.get_logs() == []

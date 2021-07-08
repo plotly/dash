@@ -19,6 +19,8 @@ def test_lich001_default(dash_dcc):
 
     dash_dcc.wait_for_text_to_equal("#link1", "/page-1")
 
+    assert dash_dcc.get_logs() == []
+
 
 @pytest.mark.DCC776
 def test_lich002_children(dash_dcc):
@@ -38,3 +40,5 @@ def test_lich002_children(dash_dcc):
     dash_dcc.start_server(app)
 
     dash_dcc.wait_for_text_to_equal("#content", "test children")
+
+    assert dash_dcc.get_logs() == []

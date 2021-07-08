@@ -38,7 +38,8 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
     )
 
     @app.callback(
-        Output("tabs-content-example", "children"), [Input("tabs-example", "value")],
+        Output("tabs-content-example", "children"),
+        [Input("tabs-example", "value")],
     )
     def render_content(tab):
         if tab == "tab-1-example":
@@ -118,6 +119,8 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
         )
     )
 
+    assert dash_dcc.get_logs() == []
+
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_tabs_render_without_selected(dash_dcc, is_eager):
@@ -193,6 +196,8 @@ def test_tabs_render_without_selected(dash_dcc, is_eager):
     # and have access to Graph and plotly.js
     check_graph_config_shape(dash_dcc)
 
+    assert dash_dcc.get_logs() == []
+
 
 def check_graph_config_shape(dash_dcc):
     config_schema = dash_dcc.driver.execute_script(
@@ -224,3 +229,5 @@ def check_graph_config_shape(dash_dcc):
                 crawl(item, props[item_name]["value"])
 
     crawl(config_schema, config_prop_shape)
+
+    assert dash_dcc.get_logs() == []

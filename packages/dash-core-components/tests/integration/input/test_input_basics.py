@@ -56,6 +56,8 @@ def test_inbs001_all_types(dash_dcc):
 
     dash_dcc.percy_snapshot("inbs001 - callback output rendering")
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_inbs002_user_class(dash_dcc):
     app = dash.Dash(__name__, assets_folder="../../assets")
@@ -66,3 +68,5 @@ def test_inbs002_user_class(dash_dcc):
 
     dash_dcc.find_element(".test-input-css")
     dash_dcc.percy_snapshot("styled input - width: 100%, border-color: hotpink")
+
+    assert dash_dcc.get_logs() == []

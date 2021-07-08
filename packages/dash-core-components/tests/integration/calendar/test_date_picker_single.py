@@ -36,6 +36,8 @@ def test_dtps001_simple_click(dash_dcc):
         "dps", index=3
     ), "Component should be clickable to choose a valid date"
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_dtps010_local_and_session_persistence(dash_dcc):
     app = dash.Dash(__name__)
@@ -68,6 +70,8 @@ def test_dtps010_local_and_session_persistence(dash_dcc):
             and dash_dcc.find_element("#dps-session input").get_attribute("value")
             == session
         ), "the date value should be consistent after refresh"
+
+    assert dash_dcc.get_logs() == []
 
 
 def test_dtps011_memory_persistence(dash_dcc):
@@ -119,6 +123,8 @@ def test_dtps011_memory_persistence(dash_dcc):
     switched = dash_dcc.find_element("#dps-none input").get_attribute("value")
     assert switched != amnesiaed and switched == ""
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_dtps012_initial_month(dash_dcc):
     app = dash.Dash(__name__)
@@ -140,6 +146,8 @@ def test_dtps012_initial_month(dash_dcc):
         "#dps-initial-month .CalendarMonth.CalendarMonth_1[data-visible=true] strong",
         "January 2010",
     )
+
+    assert dash_dcc.get_logs() == []
 
 
 def test_dtps013_disabled_days_arent_clickable(dash_dcc):

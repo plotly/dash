@@ -28,6 +28,8 @@ def test_stcp001_clear_data_on_all_types(store_app, dash_dcc):
         and not dash_dcc.get_session_storage()
     ), "set clear_data=True should clear all data in three storage types"
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_stcp002_modified_ts(store_app, dash_dcc):
     app = dash.Dash(__name__)
@@ -40,7 +42,8 @@ def test_stcp002_modified_ts(store_app, dash_dcc):
     )
 
     @app.callback(
-        Output("initial-storage", "data"), [Input("set-init-storage", "n_clicks")],
+        Output("initial-storage", "data"),
+        [Input("set-init-storage", "n_clicks")],
     )
     def on_init(n_clicks):
         if n_clicks is None:
@@ -73,6 +76,8 @@ def test_stcp002_modified_ts(store_app, dash_dcc):
     assert ts == approx(
         output_data.get("ts"), abs=40
     ), "the modified_timestamp should be updated right after the click action"
+
+    assert dash_dcc.get_logs() == []
 
 
 def test_stcp003_initial_falsy(dash_dcc):
@@ -113,7 +118,7 @@ def test_stcp003_initial_falsy(dash_dcc):
         assert getter("null-" + storage_type) is None, storage_type
         assert getter("empty-" + storage_type) == "", storage_type
 
-    assert not dash_dcc.get_logs()
+    assert dash_dcc.get_logs() == []
 
 
 def test_stcp004_remount_store_component(dash_dcc):
@@ -201,4 +206,4 @@ def test_stcp004_remount_store_component(dash_dcc):
         "#output", '[{"n_clicks": 1}, {"n_clicks": 1}, {"n_clicks": 1}]'
     )
 
-    assert not dash_dcc.get_logs()
+    assert dash_dcc.get_logs() == []

@@ -9,15 +9,15 @@ jobs:
     steps:
       - run: percy finalize --all
 
-  lint-unit-37: &lint-unit
+  lint-unit-39: &lint-unit
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
+      - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYTHON_VERSION: py37
+          PYTHON_VERSION: py39
     steps:
       - checkout
       - run: echo $PYTHON_VERSION > ver.txt
@@ -28,7 +28,7 @@ jobs:
           command: |
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
+            pip install --progress-bar off -e git+https://github.com/plotly/dash.git@deps-update-20210628#egg=dash[dev,testing]
             pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -41,16 +41,11 @@ jobs:
             set -eo pipefail
             npm ci
             npm run lint
-      - run:
-          name: 🔎 Unit Tests
-          command: |
-            set -eo pipefail
-            npm run test-unit
 
   lint-unit-36:
     <<: *lint-unit
     docker:
-      - image: circleci/python:3.6.12-stretch-node-browsers
+      - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -67,15 +62,15 @@ jobs:
         environment:
           PYTHON_VERSION: py27
 
-  build-dash-37: &build-dash
+  build-dash-39: &build-dash
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
+      - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-            PYTHON_VERSION: py37
+            PYTHON_VERSION: py39
     steps:
       - checkout
       - run: echo $PYTHON_VERSION > ver.txt
@@ -115,7 +110,7 @@ jobs:
   build-dash-36:
     <<: *build-dash
     docker:
-      - image: circleci/python:3.6.12-stretch-node-browsers
+      - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -132,16 +127,17 @@ jobs:
         environment:
           PYTHON_VERSION: py27
 
-  test-37: &test
+  test-39: &test
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
+      - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-            PYTHON_VERSION: py37
+            PYTHON_VERSION: py39
             PERCY_PARALLEL_TOTAL: -1
+            PERCY_ENABLE: 1
     parallelism: 3
     steps:
       - checkout
@@ -159,6 +155,7 @@ jobs:
             find . -name "dash_*.gz" | xargs pip install -I --progress-bar off --no-cache-dir
             pip install --no-cache-dir --progress-bar off main.tar.gz[dev,testing]
             pip list | grep dash | xargs pip show && cd ..
+            echo $(python -V 2>&1) | grep 3. && python -m unittest tests/test_dash_import.py
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
@@ -171,7 +168,7 @@ jobs:
   test-36:
     <<: *test
     docker:
-      - image: circleci/python:3.6.12-stretch-node-browsers
+      - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -190,80 +187,18 @@ jobs:
           PYTHON_VERSION: py27
           PERCY_ENABLE: 0
 
-  test-legacy-37: &test-legacy
-    working_directory: ~/project
-    docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-            PYTHON_VERSION: py37
-            PERCY_PARALLEL_TOTAL: -1
-    parallelism: 2
-    steps:
-      - checkout
-      - run: echo $PYTHON_VERSION > ver.txt
-      - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
-      - attach_workspace:
-          at: ~/project
-      - run:
-          name: 🧪 Run Legacy Integration Tests
-          command: |
-            . venv/bin/activate && rm -rf dash_core_components && ls -la
-            set -eo pipefail
-            cd packages && mv dash-*.tar.gz main.tar.gz && ls -la
-            find . -name "dash_*.gz" | xargs pip install -I --progress-bar off --no-cache-dir
-            pip install --no-cache-dir --progress-bar off main.tar.gz[dev,testing]
-            pip list | grep dash | xargs pip show && cd ..
-            echo $(python -V 2>&1) | grep 3. && python -m unittest tests/test_dash_import.py
-            TESTFILES=$(circleci tests glob "tests/test_integration_*.py" | circleci tests split --split-by=timings)
-            pytest --durations=10 --junitxml=test-reports/junit_legacy.xml ${TESTFILES}
-      - store_artifacts:
-          path: test-reports
-      - store_test_results:
-          path: test-reports
-      - store_artifacts:
-          path: /tmp/dash_artifacts
-
-  test-legacy-36:
-    <<: *test-legacy
-    docker:
-      - image: circleci/python:3.6.12-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYTHON_VERSION: py36
-          PERCY_ENABLE: 0
-  test-legacy-27:
-    <<: *test-legacy
-    docker:
-      - image: circleci/python:2.7.18-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYTHON_VERSION: py27
-          PERCY_ENABLE: 0
-
 workflows:
   version: 2
-  python3.7:
+  python3.9:
     jobs:
-      - lint-unit-37
-      - build-dash-37
-      - test-37:
+      - lint-unit-39
+      - build-dash-39
+      - test-39:
           requires:
-            - build-dash-37
-      - test-legacy-37:
-          requires:
-            - build-dash-37
+            - build-dash-39
       - percy-finalize:
           requires:
-            - test-37
-            - test-legacy-37
+            - test-39
 
   python3.6:
     jobs:
@@ -272,17 +207,11 @@ workflows:
       - test-36:
           requires:
             - build-dash-36
-      - test-legacy-36:
-          requires:
-            - build-dash-36
 
   python2.7:
     jobs:
       - lint-unit-27
       - build-dash-27
       - test-27:
-          requires:
-            - build-dash-27
-      - test-legacy-27:
           requires:
             - build-dash-27

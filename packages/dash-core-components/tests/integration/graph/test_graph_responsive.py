@@ -5,7 +5,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from utils import wait_for
+from dash.testing import wait
 
 
 @pytest.mark.parametrize("responsive", [True, False, None])
@@ -46,7 +46,11 @@ def test_grrs001_graph(dash_dcc, responsive, autosize, height, width, is_respons
                 figure=dict(
                     layout=dict(autosize=autosize, height=height, width=width),
                     data=[
-                        dict(x=[1, 2, 3, 4], y=[5, 4, 3, 6], line=dict(shape="spline"),)
+                        dict(
+                            x=[1, 2, 3, 4],
+                            y=[5, 4, 3, 6],
+                            line=dict(shape="spline"),
+                        )
                     ],
                 ),
             )
@@ -115,23 +119,20 @@ def test_grrs001_graph(dash_dcc, responsive, autosize, height, width, is_respons
         else height
     )
 
-    wait_for(
-        # 500px card minus (100px header + 20px padding) minus (20px padding on container) -> 360px left
+    # 500px card minus (100px header + 20px padding) minus (20px padding on container) -> 360px left
+    wait.until(
         lambda: dash_dcc.wait_for_element("#graph svg.main-svg").size.get("height", -1)
         == initial_height,
-        lambda: "initial graph height {}, expected {}".format(
-            dash_dcc.wait_for_element("#graph svg.main-svg").size.get("height", -1),
-            initial_height,
-        ),
+        3,
     )
+
     dash_dcc.wait_for_element("#resize").click()
 
-    wait_for(
-        # 500px card minus (200px header + 20px padding) minus (20px padding on container) -> 260px left
+    # 500px card minus (200px header + 20px padding) minus (20px padding on container) -> 260px left
+    wait.until(
         lambda: dash_dcc.wait_for_element("#graph svg.main-svg").size.get("height", -1)
         == resize_height,
-        lambda: "resized graph height {}, expected {}".format(
-            dash_dcc.wait_for_element("#graph svg.main-svg").size.get("height", -1),
-            resize_height,
-        ),
+        3,
     )
+
+    assert dash_dcc.get_logs() == []

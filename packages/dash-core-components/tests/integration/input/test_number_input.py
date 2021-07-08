@@ -25,6 +25,8 @@ def test_inni001_invalid_numbers(ninput_app, dash_dcc):
 
             dash_dcc.clear_input(elem)
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_inni002_invalid_numbers_ui(dash_dcc, ninput_app):
     dash_dcc.start_server(ninput_app)
@@ -40,6 +42,8 @@ def test_inni002_invalid_numbers_ui(dash_dcc, ninput_app):
     assert dash_dcc.find_element("#div_false").text != "0.0"
     time.sleep(0.5)
     dash_dcc.percy_snapshot("inni002 - input invalid number")
+
+    assert dash_dcc.get_logs() == []
 
 
 def test_inni003_invalid_numbers_range(dash_dcc, input_range_app):
@@ -60,6 +64,8 @@ def test_inni003_invalid_numbers_range(dash_dcc, input_range_app):
     time.sleep(0.5)
     dash_dcc.percy_snapshot("inni003 - number out of range")
 
+    assert dash_dcc.get_logs() == []
+
 
 def test_inni010_valid_numbers(dash_dcc, ninput_app):
     dash_dcc.start_server(ninput_app)
@@ -76,3 +82,5 @@ def test_inni010_valid_numbers(dash_dcc, ninput_app):
             "#div_false", str(op(num))
         ), "the valid number should be converted to expected form in callback"
         dash_dcc.clear_input(elem)
+
+    assert dash_dcc.get_logs() == []

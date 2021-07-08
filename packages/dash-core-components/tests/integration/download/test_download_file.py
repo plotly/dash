@@ -34,3 +34,5 @@ def test_dlfi001_download_file(dash_dcc):
     with open(os.path.join(asset_folder, filename), "rb") as f:
         original = f.read()
     assert content == original
+
+    assert dash_dcc.get_logs() == []

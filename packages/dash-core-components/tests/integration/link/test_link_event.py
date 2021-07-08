@@ -1,4 +1,7 @@
+from multiprocessing import Value
+from selenium.webdriver.common.keys import Keys
 import dash
+from dash.testing import wait
 from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
@@ -56,3 +59,45 @@ def test_link001_event(dash_dcc):
 
     assert link_counter == 1
     assert history_counter == 1
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_link002_scroll(dash_dcc):
+    app = dash.Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Location(id="test-url", refresh=False),
+            html.Div(
+                id="push-to-bottom",
+                children=[],
+                style={"display": "block", "height": "200vh"},
+            ),
+            html.Div(id="page-content"),
+            dcc.Link("Test link", href="/test-link", id="test-link"),
+        ]
+    )
+
+    call_count = Value("i", 0)
+
+    @app.callback(Output("page-content", "children"), [Input("test-url", "pathname")])
+    def display_page(pathname):
+        call_count.value = call_count.value + 1
+        return "You are on page {}".format(pathname)
+
+    dash_dcc.start_server(app)
+
+    wait.until(lambda: call_count.value == 1, 3)
+
+    test_link = dash_dcc.wait_for_element("#test-link")
+    test_link.send_keys(Keys.NULL)
+    test_link.click()
+
+    dash_dcc.wait_for_text_to_equal("#page-content", "You are on page /test-link")
+
+    wait.until(
+        lambda: test_link.get_attribute("href") == "http://localhost:8050/test-link", 3
+    )
+    wait.until(lambda: call_count.value == 2, 3)
+
+    assert dash_dcc.get_logs() == []

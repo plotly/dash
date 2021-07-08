@@ -3,6 +3,10 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {has, is, isNil} from 'ramda';
 
+// some weird interaction btwn styled-jsx 3.4 and babel
+// see https://github.com/vercel/styled-jsx/pull/716
+import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
+
 // EnhancedTab is defined here instead of in Tab.react.js because if exported there,
 // it will mess up the Python imports and metadata.json
 const EnhancedTab = ({
@@ -250,22 +254,25 @@ export default class Tabs extends Component {
                         this.props.loading_state.is_loading) ||
                     undefined
                 }
-                className={`${tabParentClass} ${this.props.parent_className ||
-                    ''}`}
+                className={`${tabParentClass} ${
+                    this.props.parent_className || ''
+                }`}
                 style={this.props.parent_style}
                 id={`${this.props.id}-parent`}
             >
                 <div
-                    className={`${tabContainerClass} ${this.props.className ||
-                        ''}`}
+                    className={`${tabContainerClass} ${
+                        this.props.className || ''
+                    }`}
                     style={this.props.style}
                     id={this.props.id}
                 >
                     {EnhancedTabs}
                 </div>
                 <div
-                    className={`${tabContentClass} ${this.props
-                        .content_className || ''}`}
+                    className={`${tabContentClass} ${
+                        this.props.content_className || ''
+                    }`}
                     style={this.props.content_style}
                 >
                     {selectedTabContent || ''}
