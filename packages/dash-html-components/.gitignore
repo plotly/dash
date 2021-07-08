@@ -15,8 +15,7 @@ lib/metadata.json
 Project.toml
 .idea
 
-/scripts/data
-!/scripts/data/elements.txt
+/scripts/data/attributes.html
 
 /src
 

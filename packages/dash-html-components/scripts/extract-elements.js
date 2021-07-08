@@ -25,9 +25,9 @@ function extractElements($) {
         'portal'
     ];
     // `<section>` is for some reason missing from the reference tables.
-    // `<command>` and `element` are obsolete and has been removed from the
-    // reference table, but we had them in the past so we should wait for a
-    // major to remove
+    // `<command>`, `<element>`, `<isindex>`, `<listing>`, `<multicol>`, `<nextid>`
+    // are obsolete and have been removed from the reference table, but we had
+    // them in the past so we should wait for a major to remove
     const addElements = [
         'base',
         'command',
@@ -39,7 +39,11 @@ function extractElements($) {
         'h4',
         'h5',
         'h6',
-        'iframe'
+        'iframe',
+        'isindex',
+        'listing',
+        'multicol',
+        'nextid'
     ];
 
     return $('td:first-child')
@@ -69,6 +73,19 @@ request(refUrl, (error, response, html) => {
     const $ = cheerio.load(html);
     const elements = extractElements($);
     if (elements.length !== expectedElCount) {
+        try {
+            const prevEls = fs.readFileSync(dataPath, 'utf8').split('\n');
+            const added = elements.filter(n => prevEls.indexOf(n) === -1);
+            const removed = prevEls.filter(n => elements.indexOf(n) === -1);
+
+            throw new Error(
+                'Found new elements not seen before: [' + added.join(',') +
+                '] and did not find expected elements: [' + removed.join(',') + ']'
+            );
+        }
+        catch(e) {
+            console.log('no previous elements found');
+        }
         throw new Error(
             'Unexpected number of elements extracted from ' + refUrl +
             ' - Found ' + elements.length + ' but expected ' + expectedElCount +
