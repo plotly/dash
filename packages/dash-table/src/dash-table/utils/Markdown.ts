@@ -4,27 +4,29 @@ import LazyLoader from 'dash-table/LazyLoader';
 import {IMarkdownOptions} from 'dash-table/components/Table/props';
 
 export default class Markdown {
-    private readonly md: Remarkable = new Remarkable({
-        highlight: (str: string, lang: string) => {
-            if (Markdown.hljs) {
-                if (lang && Markdown.hljs.getLanguage(lang)) {
+    private readonly md: Remarkable;
+
+    constructor(private readonly options: IMarkdownOptions) {
+        this.md = new Remarkable({
+            highlight: (str: string, lang: string) => {
+                if (Markdown.hljs) {
+                    if (lang && Markdown.hljs.getLanguage(lang)) {
+                        try {
+                            return Markdown.hljs.highlight(lang, str).value;
+                        } catch (err) {}
+                    }
+
                     try {
-                        return Markdown.hljs.highlight(lang, str).value;
+                        return Markdown.hljs.highlightAuto(str).value;
                     } catch (err) {}
+                } else {
+                    Markdown.loadhljs();
                 }
-
-                try {
-                    return Markdown.hljs.highlightAuto(str).value;
-                } catch (err) {}
-            } else {
-                Markdown.loadhljs();
-            }
-            return '';
-        },
-        ...objPropsToCamel(this.options)
-    });
-
-    constructor(private readonly options: IMarkdownOptions) {}
+                return '';
+            },
+            ...objPropsToCamel(this.options)
+        });
+    }
 
     public render = (value: string) => this.md.render(value);
 

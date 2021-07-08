@@ -111,9 +111,7 @@ function getBaseTableProps(mock: IDataMock): Partial<IProps> {
     };
 }
 
-function getDefaultState(
-    generateData: Function = generateMockData
-): {
+function getDefaultState(generateData: Function = generateMockData): {
     filter_query: string;
     tableProps: Partial<PropsWithDefaults>;
 } {

@@ -2,11 +2,12 @@ import dash
 import dash.testing.wait as wait
 from dash_table import DataTable
 
+import os
 import pandas as pd
 import pytest
 from selenium.webdriver.common.keys import Keys
 
-df = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/solar.csv")
+df = pd.read_csv(os.path.join(os.path.dirname(__file__), "assets/solar.csv"))
 
 base_props = dict(
     id="table",

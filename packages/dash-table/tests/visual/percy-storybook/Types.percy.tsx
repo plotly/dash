@@ -90,42 +90,34 @@ storiesOf('DashTable/Types', module)
             editable={false}
             dropdown={{
                 string: {
-                    options: R.map(i => ({label: `label: ${i}`, value: i}), [
-                        'Montreal',
-                        'Vermont',
-                        'New York City',
-                        'Boston'
-                    ])
+                    options: R.map(
+                        i => ({label: `label: ${i}`, value: i}),
+                        ['Montreal', 'Vermont', 'New York City', 'Boston']
+                    )
                 },
                 number: {
-                    options: R.map(i => ({label: `label: ${i}`, value: i}), [
-                        1,
-                        2,
-                        3,
-                        4
-                    ])
+                    options: R.map(
+                        i => ({label: `label: ${i}`, value: i}),
+                        [1, 2, 3, 4]
+                    )
                 },
                 date: {
-                    options: R.map(i => ({label: `label: ${i}`, value: i}), [
-                        '2015-01-01',
-                        '2015-10-24',
-                        '2016-05-10',
-                        '2017-11-11'
-                    ])
+                    options: R.map(
+                        i => ({label: `label: ${i}`, value: i}),
+                        ['2015-01-01', '2015-10-24', '2016-05-10', '2017-11-11']
+                    )
                 },
                 boolean: {
-                    options: R.map(i => ({label: `label: ${i}`, value: i}), [
-                        true,
-                        false
-                    ])
+                    options: R.map(
+                        i => ({label: `label: ${i}`, value: i}),
+                        [true, false]
+                    )
                 },
                 any: {
-                    options: R.map(i => ({label: `label: ${i}`, value: i}), [
-                        'Montreal',
-                        1,
-                        '2015-01-01',
-                        true
-                    ])
+                    options: R.map(
+                        i => ({label: `label: ${i}`, value: i}),
+                        ['Montreal', 1, '2015-01-01', true]
+                    )
                 }
             }}
         />

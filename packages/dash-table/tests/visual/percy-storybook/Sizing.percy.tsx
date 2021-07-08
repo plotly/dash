@@ -32,14 +32,10 @@ const data = [
     }
 ];
 
-const columns = R.map(i => ({name: i, id: i}), [
-    'Date',
-    'Rep',
-    'Dem',
-    'Ind',
-    'Region',
-    'Election Polling Organization'
-]);
+const columns = R.map(
+    i => ({name: i, id: i}),
+    ['Date', 'Rep', 'Dem', 'Ind', 'Region', 'Election Polling Organization']
+);
 
 const props = {
     setProps,

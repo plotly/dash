@@ -162,25 +162,29 @@ export function resolveStyle(styles: IConvertedStyle[]): CSSProperties {
     return R.omit(BORDER_PROPERTIES_AND_FRAGMENTS, res);
 }
 
-export const getDataCellStyle = (
-    datum: Datum,
-    i: number,
-    column: IColumn,
-    active: boolean,
-    selected: boolean
-) => (styles: IConvertedStyle[]) =>
-    resolveStyle(matchesDataCell(datum, i, column, active, selected)(styles));
-export const getDataOpCellStyle = (datum: Datum, i: number) => (
-    styles: IConvertedStyle[]
-) => resolveStyle(matchesDataOpCell(datum, i)(styles));
-export const getFilterCellStyle = (column: IColumn) => (
-    styles: IConvertedStyle[]
-) => resolveStyle(matchesFilterCell(column)(styles));
+export const getDataCellStyle =
+    (
+        datum: Datum,
+        i: number,
+        column: IColumn,
+        active: boolean,
+        selected: boolean
+    ) =>
+    (styles: IConvertedStyle[]) =>
+        resolveStyle(
+            matchesDataCell(datum, i, column, active, selected)(styles)
+        );
+export const getDataOpCellStyle =
+    (datum: Datum, i: number) => (styles: IConvertedStyle[]) =>
+        resolveStyle(matchesDataOpCell(datum, i)(styles));
+export const getFilterCellStyle =
+    (column: IColumn) => (styles: IConvertedStyle[]) =>
+        resolveStyle(matchesFilterCell(column)(styles));
 export const getFilterOpCellStyle = () => (styles: IConvertedStyle[]) =>
     resolveStyle(getFilterOpStyles(styles));
-export const getHeaderCellStyle = (i: number, column: IColumn) => (
-    styles: IConvertedStyle[]
-) => resolveStyle(matchesHeaderCell(i, column)(styles));
-export const getHeaderOpCellStyle = (i: number) => (
-    styles: IConvertedStyle[]
-) => resolveStyle(getHeaderOpStyles(i)(styles));
+export const getHeaderCellStyle =
+    (i: number, column: IColumn) => (styles: IConvertedStyle[]) =>
+        resolveStyle(matchesHeaderCell(i, column)(styles));
+export const getHeaderOpCellStyle =
+    (i: number) => (styles: IConvertedStyle[]) =>
+        resolveStyle(getHeaderOpStyles(i)(styles));

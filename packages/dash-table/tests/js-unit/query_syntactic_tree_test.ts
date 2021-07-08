@@ -71,51 +71,54 @@ describe('Query Syntax Tree', () => {
     };
 
     describe('special whitespace characters are valid', () => {
-        processCases((query: string) => new QuerySyntaxTree(query), [
-            {
-                name: 'suports new line',
-                query: '{a}\neq\n"0"',
-                target: data0,
-                valid: true,
-                evaluate: true
-            },
-            {
-                name: 'suports carriage return',
-                query: '{a}\req\r"0"',
-                target: data0,
-                valid: true,
-                evaluate: true
-            },
-            {
-                name: 'suports new line ad carriage return combination',
-                target: data0,
-                query: '{a}\r\neq\r\n"0"',
-                valid: true,
-                evaluate: true
-            },
-            {
-                name: 'supports tab',
-                query: '{a}\teq\t"0"',
-                target: data0,
-                valid: true,
-                evaluate: true
-            },
-            // some random non-standard whitespace character from https://en.wikipedia.org/wiki/Whitespace_character
-            {
-                name: 'supports ogham space mark',
-                query: '{a}\u1680eq\u1680"0"',
-                target: data0,
-                valid: true,
-                evaluate: true
-            },
-            {
-                name: 'supports all',
-                query: '{a}\r\n\t\u1680eq\r\n\t\u1680"0"',
-                target: data0,
-                valid: true,
-                evaluate: true
-            }
-        ]);
+        processCases(
+            (query: string) => new QuerySyntaxTree(query),
+            [
+                {
+                    name: 'suports new line',
+                    query: '{a}\neq\n"0"',
+                    target: data0,
+                    valid: true,
+                    evaluate: true
+                },
+                {
+                    name: 'suports carriage return',
+                    query: '{a}\req\r"0"',
+                    target: data0,
+                    valid: true,
+                    evaluate: true
+                },
+                {
+                    name: 'suports new line ad carriage return combination',
+                    target: data0,
+                    query: '{a}\r\neq\r\n"0"',
+                    valid: true,
+                    evaluate: true
+                },
+                {
+                    name: 'supports tab',
+                    query: '{a}\teq\t"0"',
+                    target: data0,
+                    valid: true,
+                    evaluate: true
+                },
+                // some random non-standard whitespace character from https://en.wikipedia.org/wiki/Whitespace_character
+                {
+                    name: 'supports ogham space mark',
+                    query: '{a}\u1680eq\u1680"0"',
+                    target: data0,
+                    valid: true,
+                    evaluate: true
+                },
+                {
+                    name: 'supports all',
+                    query: '{a}\r\n\t\u1680eq\r\n\t\u1680"0"',
+                    target: data0,
+                    valid: true,
+                    evaluate: true
+                }
+            ]
+        );
     });
 
     describe('expressions', () => {

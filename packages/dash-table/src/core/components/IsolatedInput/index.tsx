@@ -82,13 +82,8 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
         this.props.submit(this.state.value);
 
     render() {
-        const {
-            onCopy,
-            onPaste,
-            placeholder,
-            updateOnBlur,
-            updateOnSubmit
-        } = this.propsWithDefaults;
+        const {onCopy, onPaste, placeholder, updateOnBlur, updateOnSubmit} =
+            this.propsWithDefaults;
 
         const props = {
             onBlur: updateOnBlur ? this.submit : undefined,

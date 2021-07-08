@@ -99,7 +99,7 @@ class Dropdowns {
     /**
      * Evaluate if the query matches the cell's data.
      */
-    private readonly evaluation = memoizerCache<
-        [ColumnId, number]
-    >()((ast: QuerySyntaxTree, datum: Datum) => ast.evaluate(datum));
+    private readonly evaluation = memoizerCache<[ColumnId, number]>()(
+        (ast: QuerySyntaxTree, datum: Datum) => ast.evaluate(datum)
+    );
 }

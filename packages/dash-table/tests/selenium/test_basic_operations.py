@@ -218,7 +218,11 @@ def test_tbst012_delete_sorted_row(test, props):
 
 
 @pytest.mark.parametrize(
-    "props", read_write_modes + [dict(editable=False, row_deletable=False),],
+    "props",
+    read_write_modes
+    + [
+        dict(editable=False, row_deletable=False),
+    ],
 )
 def test_tbst013_select_row(test, props):
     test.start_server(get_app(props))
@@ -232,7 +236,11 @@ def test_tbst013_select_row(test, props):
 
 
 @pytest.mark.parametrize(
-    "props", read_write_modes + [dict(editable=False, row_deletable=False),],
+    "props",
+    read_write_modes
+    + [
+        dict(editable=False, row_deletable=False),
+    ],
 )
 def test_tbst014_selected_sorted_row(test, props):
     test.start_server(get_app(props))
@@ -248,7 +256,11 @@ def test_tbst014_selected_sorted_row(test, props):
 
 
 @pytest.mark.parametrize(
-    "props", read_write_modes + [dict(editable=False, row_deletable=False),],
+    "props",
+    read_write_modes
+    + [
+        dict(editable=False, row_deletable=False),
+    ],
 )
 def test_tbst015_selected_row_respects_sort(test, props):
     test.start_server(get_app(props))

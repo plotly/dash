@@ -109,7 +109,7 @@ export default class FilterFactory {
     private wrapperStyles = memoizeOne(
         (styles: any[], edges: IEdgesMatrices | undefined) =>
             arrayMap(styles, (s, j) =>
-                R.merge(s, edges && edges.getStyle(0, j))
+                R.mergeRight(s, (edges && edges.getStyle(0, j)) || {})
             )
     );
 

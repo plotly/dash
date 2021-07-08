@@ -24,7 +24,10 @@ from test_sizing import szng003_on_prop_change_impl
     [dict(merge_duplicate_headers=True), dict(merge_duplicate_headers=False)],
 )
 @pytest.mark.parametrize(
-    "callback_props", [dict(style_table=dict(width=500, minWidth=500, maxWidth=500)),],
+    "callback_props",
+    [
+        dict(style_table=dict(width=500, minWidth=500, maxWidth=500)),
+    ],
 )
 def test_szng003_e_on_prop_change(
     test, fixed_columns, fixed_rows, merge_duplicate_headers, callback_props

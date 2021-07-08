@@ -136,8 +136,7 @@ const scenarios: ITest[] = [
         }
     },
     {
-        name:
-            'with header / filter / cell (data) style - filter wins on header, filter wins on cell (data)',
+        name: 'with header / filter / cell (data) style - filter wins on header, filter wins on cell (data)',
         props: {
             filter_action: TableAction.Native,
             style_cell: {
@@ -152,8 +151,7 @@ const scenarios: ITest[] = [
         }
     },
     {
-        name:
-            'with header / data / cell (filter) style - header wins on cell (filter), data wins on cell (filter)',
+        name: 'with header / data / cell (filter) style - header wins on cell (filter), data wins on cell (filter)',
         props: {
             filter_action: TableAction.Native,
             style_data: {
@@ -168,8 +166,7 @@ const scenarios: ITest[] = [
         }
     },
     {
-        name:
-            'with cell (header) / filter / data style - filter wins on cell (header), data wins on filter',
+        name: 'with cell (header) / filter / data style - filter wins on cell (header), data wins on filter',
         props: {
             filter_action: TableAction.Native,
             style_data: {
@@ -196,8 +193,7 @@ const scenarios: ITest[] = [
         }
     },
     {
-        name:
-            'with header / filter / data style - data wins on filter, filter wins on header',
+        name: 'with header / filter / data style - data wins on filter, filter wins on header',
         props: {
             filter_action: TableAction.Native,
             style_data: {
@@ -243,8 +239,7 @@ const scenarios: ITest[] = [
         }
     },
     {
-        name:
-            'horizontal border between active cell (0, 0) and header should be pink',
+        name: 'horizontal border between active cell (0, 0) and header should be pink',
         props: {
             css: [{selector: 'th', rule: 'border: 1px solid red'}],
             active_cell: {
@@ -413,8 +408,7 @@ const ops_scenarios: ITest[] = [
         }
     },
     {
-        name:
-            'horizontal border between header and column A should be dashed blue',
+        name: 'horizontal border between header and column A should be dashed blue',
         props: {
             css: [{selector: 'th', rule: 'border: 1px solid red'}],
             style_data_conditional: [
@@ -426,8 +420,7 @@ const ops_scenarios: ITest[] = [
         }
     },
     {
-        name:
-            'vertical border between active cell (0, 0) and cell on column B should be pink',
+        name: 'vertical border between active cell (0, 0) and cell on column B should be pink',
         props: {
             css: [
                 {

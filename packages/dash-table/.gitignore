@@ -11,6 +11,7 @@
 /man
 /R
 /src/*.jl
+/src/jl/
 DESCRIPTION
 NAMESPACE
 Project.toml

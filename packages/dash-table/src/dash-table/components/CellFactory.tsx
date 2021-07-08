@@ -231,12 +231,12 @@ export default class CellFactory {
         ) => {
             return React.cloneElement(wrapper, {
                 children: [content],
-                style: R.merge(style, {
+                style: R.mergeRight(style || {}, {
                     borderBottom,
                     borderLeft,
                     borderRight,
                     borderTop
-                })
+                } as any)
             });
         }
     );

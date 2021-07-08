@@ -9,7 +9,8 @@ import {IReconciliation} from './reconcile';
 // (simplified - no international calendars for now)
 // https://github.com/plotly/plotly.js/blob/master/src/lib/dates.js
 // Note we allow timezone info but ignore it - at least for now.
-const DATETIME_REGEXP = /^\s*(-?\d{4}|\d{2})(-(\d{1,2})(-(\d{1,2})([ Tt]([01]?\d|2[0-3])(:([0-5]\d)(:([0-5]\d(\.\d+)?))?(Z|z|[+\-]\d{2}:?\d{2})?)?)?)?)?\s*$/m;
+const DATETIME_REGEXP =
+    /^\s*(-?\d{4}|\d{2})(-(\d{1,2})(-(\d{1,2})([ Tt]([01]?\d|2[0-3])(:([0-5]\d)(:([0-5]\d(\.\d+)?))?(Z|z|[+\-]\d{2}:?\d{2})?)?)?)?)?\s*$/m;
 
 // for 2-digit years, the first year we map them onto
 // Also pulled from plotly.js - see discussion there for details

@@ -625,8 +625,7 @@ describe('Dash Table Queries', () => {
                                 evaluate: true
                             },
                             {
-                                name:
-                                    'yyyy-mm-dd hh:mm:ss.xxxxxxxxx in yyyy-mm',
+                                name: 'yyyy-mm-dd hh:mm:ss.xxxxxxxxx in yyyy-mm',
                                 query: `${
                                     c.hideOperand ? '' : '{a} '
                                 }datestartswith 2005-01`,
@@ -635,8 +634,7 @@ describe('Dash Table Queries', () => {
                                 evaluate: true
                             },
                             {
-                                name:
-                                    'yyyy-mm-dd hh:mm:ss.xxx in yyyy-mm-ddThh:mm:ss.xxx',
+                                name: 'yyyy-mm-dd hh:mm:ss.xxx in yyyy-mm-ddThh:mm:ss.xxx',
                                 query: `${
                                     c.hideOperand ? '' : '{a} '
                                 }datestartswith 2005-01-01T10:00:00.000`,
@@ -645,8 +643,7 @@ describe('Dash Table Queries', () => {
                                 evaluate: true
                             },
                             {
-                                name:
-                                    'yyyy-mm-dd hh:mm:ss.xxx in yyyy-mm-ddThh:mm:ss.xxx000',
+                                name: 'yyyy-mm-dd hh:mm:ss.xxx in yyyy-mm-ddThh:mm:ss.xxx000',
                                 query: `${
                                     c.hideOperand ? '' : '{a} '
                                 }datestartswith 2005-01-01T10:00:00.000000`,
@@ -655,8 +652,7 @@ describe('Dash Table Queries', () => {
                                 evaluate: false
                             },
                             {
-                                name:
-                                    'yyyy-mm-dd hh:mm:ss.xxx in yyyy-mm-ddThh:mm:ss.xxx111',
+                                name: 'yyyy-mm-dd hh:mm:ss.xxx in yyyy-mm-ddThh:mm:ss.xxx111',
                                 query: `${
                                     c.hideOperand ? '' : '{a} '
                                 }datestartswith 2005-01-01T10:00:00.000111`,
@@ -702,8 +698,7 @@ describe('Dash Table Queries', () => {
                                 evaluate: false
                             },
                             {
-                                name:
-                                    'yyyy-mm-dd hh:mm:00 in yyyy-mm-dd hh:mm:01',
+                                name: 'yyyy-mm-dd hh:mm:00 in yyyy-mm-dd hh:mm:01',
                                 query: `${
                                     c.hideOperand ? '' : '{a} '
                                 }datestartswith 2005-01-01T00:00:01`,
@@ -712,8 +707,7 @@ describe('Dash Table Queries', () => {
                                 evaluate: false
                             },
                             {
-                                name:
-                                    'yyyy-mm-dd hh:mm:ss.000 in yyyy-mm-dd hh:mm:ss.001',
+                                name: 'yyyy-mm-dd hh:mm:ss.000 in yyyy-mm-dd hh:mm:ss.001',
                                 query: `${
                                     c.hideOperand ? '' : '{a} '
                                 }datestartswith 2005-01-01T00:00:00.001`,

@@ -106,18 +106,9 @@ storiesOf('DashTable/With Data', module)
         />
     ));
 
-const columnsA2J = [
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f',
-    'g',
-    'h',
-    'i',
-    'j'
-].map(id => ({id: id, name: id.toUpperCase()}));
+const columnsA2J = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'].map(
+    id => ({id: id, name: id.toUpperCase()})
+);
 
 const idMap: {[key: string]: string} = {
     a: 'A',
@@ -132,18 +123,9 @@ const idMap: {[key: string]: string} = {
     j: 'D'
 };
 
-const mergedColumns = [
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f',
-    'g',
-    'h',
-    'i',
-    'j'
-].map(id => ({id: id, name: [idMap[id], id.toUpperCase()]}));
+const mergedColumns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'].map(
+    id => ({id: id, name: [idMap[id], id.toUpperCase()]})
+);
 
 const dataA2J = (() => {
     const r = random(1);

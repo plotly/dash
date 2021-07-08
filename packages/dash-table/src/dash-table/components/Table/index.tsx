@@ -127,12 +127,12 @@ export default class Table extends Component<
 
     private readonly __setProps = memoizeOne((setProps?: SetProps) => {
         return setProps
-            ? (newProps: any) => {
+            ? (newProps: Partial<SanitizedAndDerivedProps>) => {
                   /*#if DEV*/
                   const props: any = this.props;
                   R.forEach(
                       key =>
-                          props[key] === newProps[key] &&
+                          props[key] === (newProps as any)[key] &&
                           Logger.fatal(`Updated prop ${key} was mutated`),
                       R.keysIn(newProps)
                   );
@@ -162,8 +162,8 @@ export default class Table extends Component<
               };
     });
 
-    private readonly __setState = memoizeOne(() => (state: Partial<IState>) =>
-        this.setState(state as IState)
+    private readonly __setState = memoizeOne(
+        () => (state: Partial<IState>) => this.setState(state as IState)
     );
 
     private readonly filterMap = derivedFilterMap();

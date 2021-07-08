@@ -697,13 +697,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     };
 
     deleteCell = (event: any) => {
-        const {
-            data,
-            selected_cells,
-            setProps,
-            viewport,
-            visibleColumns
-        } = this.props;
+        const {data, selected_cells, setProps, viewport, visibleColumns} =
+            this.props;
 
         event.preventDefault();
 

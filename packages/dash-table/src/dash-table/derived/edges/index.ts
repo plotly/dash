@@ -28,29 +28,31 @@ function resolveEdges(
     return res;
 }
 
-export const getDataCellEdges = (
-    datum: Datum,
-    i: number,
-    column: IColumn,
-    active: boolean,
-    selected: boolean,
-    priority?: number
-) => (styles: IConvertedStyle[]) =>
-    resolveEdges(
-        matchesDataCell(datum, i, column, active, selected)(styles),
-        priority
-    );
-export const getDataOpCellEdges = (datum: Datum, i: number) => (
-    styles: IConvertedStyle[]
-) => resolveEdges(matchesDataOpCell(datum, i)(styles));
-export const getFilterCellEdges = (column: IColumn) => (
-    styles: IConvertedStyle[]
-) => resolveEdges(matchesFilterCell(column)(styles));
+export const getDataCellEdges =
+    (
+        datum: Datum,
+        i: number,
+        column: IColumn,
+        active: boolean,
+        selected: boolean,
+        priority?: number
+    ) =>
+    (styles: IConvertedStyle[]) =>
+        resolveEdges(
+            matchesDataCell(datum, i, column, active, selected)(styles),
+            priority
+        );
+export const getDataOpCellEdges =
+    (datum: Datum, i: number) => (styles: IConvertedStyle[]) =>
+        resolveEdges(matchesDataOpCell(datum, i)(styles));
+export const getFilterCellEdges =
+    (column: IColumn) => (styles: IConvertedStyle[]) =>
+        resolveEdges(matchesFilterCell(column)(styles));
 export const getFilterOpCellEdges = () => (styles: IConvertedStyle[]) =>
     resolveEdges(getFilterOpStyles(styles));
-export const getHeaderCellEdges = (i: number, column: IColumn) => (
-    styles: IConvertedStyle[]
-) => resolveEdges(matchesHeaderCell(i, column)(styles));
-export const getHeaderOpCellEdges = (i: number) => (
-    styles: IConvertedStyle[]
-) => resolveEdges(getHeaderOpStyles(i)(styles));
+export const getHeaderCellEdges =
+    (i: number, column: IColumn) => (styles: IConvertedStyle[]) =>
+        resolveEdges(matchesHeaderCell(i, column)(styles));
+export const getHeaderOpCellEdges =
+    (i: number) => (styles: IConvertedStyle[]) =>
+        resolveEdges(getHeaderOpStyles(i)(styles));

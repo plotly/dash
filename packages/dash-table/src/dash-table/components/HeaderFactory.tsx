@@ -167,7 +167,10 @@ export default class HeaderFactory {
             matrixMap3(wrappers, styles, contents, (w, s, c, i, j) =>
                 React.cloneElement(w, {
                     children: [c],
-                    style: R.mergeAll([s, edges && edges.getStyle(i, j)])
+                    style: R.mergeRight(
+                        s || {},
+                        (edges && edges.getStyle(i, j)) || {}
+                    )
                 })
             )
     );

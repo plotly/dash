@@ -107,11 +107,31 @@ def generate_mock_data(rows=100):
     return dict(
         columns=[
             dict(id="rows", type="numeric", editable=False),
-            dict(id="ccc", name=["City", "Canada", "Toronto"], type="numeric",),
-            dict(id="ddd", name=["City", "Canada", "Montréal"], type="numeric",),
-            dict(id="eee", name=["City", "America", "New York City"], type="numeric",),
-            dict(id="fff", name=["City", "America", "Boston"], type="numeric",),
-            dict(id="ggg", name=["City", "France", "Paris"], type="numeric",),
+            dict(
+                id="ccc",
+                name=["City", "Canada", "Toronto"],
+                type="numeric",
+            ),
+            dict(
+                id="ddd",
+                name=["City", "Canada", "Montréal"],
+                type="numeric",
+            ),
+            dict(
+                id="eee",
+                name=["City", "America", "New York City"],
+                type="numeric",
+            ),
+            dict(
+                id="fff",
+                name=["City", "America", "Boston"],
+                type="numeric",
+            ),
+            dict(
+                id="ggg",
+                name=["City", "France", "Paris"],
+                type="numeric",
+            ),
             dict(
                 id="bbb",
                 name=["", "Weather", "Climate"],
@@ -166,19 +186,25 @@ def generate_mock_data(rows=100):
         },
         style_cell_conditional=[
             {
-                "if": dict(column_id="rows",),
+                "if": dict(
+                    column_id="rows",
+                ),
                 "maxWidth": 60,
                 "minWidth": 60,
                 "width": 60,
             },
             {
-                "if": dict(column_id="bbb",),
+                "if": dict(
+                    column_id="bbb",
+                ),
                 "maxWidth": 200,
                 "minWidth": 200,
                 "width": 200,
             },
             {
-                "if": dict(column_id="bbb-readonly",),
+                "if": dict(
+                    column_id="bbb-readonly",
+                ),
                 "maxWidth": 200,
                 "minWidth": 200,
                 "width": 200,

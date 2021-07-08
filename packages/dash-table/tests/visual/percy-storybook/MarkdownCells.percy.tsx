@@ -78,8 +78,7 @@ chain.add(`Links and images${name}`, () => (
                 b: 'normal link with title'
             },
             {
-                a:
-                    '![the github logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png)',
+                a: '![the github logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png)',
                 b: 'logo with alt text'
             }
         ]}
@@ -133,13 +132,11 @@ variants.forEach(variant => {
                 id='table'
                 data={[
                     {
-                        a:
-                            '1. Ordered list\n  - with subitem\n    * and sub sub item\n  - and another subitem\n2. and another item',
+                        a: '1. Ordered list\n  - with subitem\n    * and sub sub item\n  - and another subitem\n2. and another item',
                         b: 'ordered'
                     },
                     {
-                        a:
-                            '* Unordered list\n  - with subitem\n    * and sub sub item\n  * and another subitem\n- and another item',
+                        a: '* Unordered list\n  - with subitem\n    * and sub sub item\n  * and another subitem\n- and another item',
                         b: 'unordered'
                     }
                 ]}
@@ -181,7 +178,7 @@ variants.forEach(variant => {
                     },
                     {
                         a: [
-                            '```http',
+                            '```html',
                             '<html>',
                             '  <body>',
                             '    <div>Hello World</div>',
@@ -189,7 +186,7 @@ variants.forEach(variant => {
                             '</html>',
                             '```'
                         ].join('\n'),
-                        b: 'http'
+                        b: 'html'
                     },
                     {
                         a: [

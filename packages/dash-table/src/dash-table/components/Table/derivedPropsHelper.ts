@@ -110,7 +110,8 @@ export default () => {
         }
 
         if (!viewportSelectedColumnsCached) {
-            newProps.derived_viewport_selected_columns = viewport_selected_columns;
+            newProps.derived_viewport_selected_columns =
+                viewport_selected_columns;
         }
 
         if (!viewportSelectedRowsCached) {

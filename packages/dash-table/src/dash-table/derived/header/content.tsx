@@ -23,63 +23,65 @@ import * as actions from 'dash-table/utils/actions';
 import {SingleColumnSyntaxTree} from 'dash-table/syntax-tree';
 import {clearColumnsFilter} from '../filter/map';
 
-const doAction = (
-    action: (
+const doAction =
+    (
+        action: (
+            column: IColumn,
+            columns: Columns,
+            visibleColumns: Columns,
+            columnRowIndex: any,
+            mergeDuplicateHeaders: boolean,
+            data: Data
+        ) => any,
+        selected_columns: string[],
         column: IColumn,
         columns: Columns,
+        operator: FilterLogicalOperator,
         visibleColumns: Columns,
         columnRowIndex: any,
         mergeDuplicateHeaders: boolean,
+        setFilter: SetFilter,
+        setProps: SetProps,
+        map: Map<string, SingleColumnSyntaxTree>,
         data: Data
-    ) => any,
-    selected_columns: string[],
-    column: IColumn,
-    columns: Columns,
-    operator: FilterLogicalOperator,
-    visibleColumns: Columns,
-    columnRowIndex: any,
-    mergeDuplicateHeaders: boolean,
-    setFilter: SetFilter,
-    setProps: SetProps,
-    map: Map<string, SingleColumnSyntaxTree>,
-    data: Data
-) => () => {
-    const props = action(
-        column,
-        columns,
-        visibleColumns,
-        columnRowIndex,
-        mergeDuplicateHeaders,
-        data
-    );
+    ) =>
+    () => {
+        const props = action(
+            column,
+            columns,
+            visibleColumns,
+            columnRowIndex,
+            mergeDuplicateHeaders,
+            data
+        );
 
-    const affectedColumIds = actions.getAffectedColumns(
-        column,
-        columns,
-        columnRowIndex,
-        mergeDuplicateHeaders
-    );
+        const affectedColumIds = actions.getAffectedColumns(
+            column,
+            columns,
+            columnRowIndex,
+            mergeDuplicateHeaders
+        );
 
-    if (action === actions.deleteColumn) {
-        if (R.intersection(selected_columns, affectedColumIds).length > 0) {
-            props.selected_columns = R.without(
-                affectedColumIds,
-                selected_columns
-            );
+        if (action === actions.deleteColumn) {
+            if (R.intersection(selected_columns, affectedColumIds).length > 0) {
+                props.selected_columns = R.without(
+                    affectedColumIds,
+                    selected_columns
+                );
+            }
         }
-    }
-    setProps(props);
+        setProps(props);
 
-    const affectedColumns: Columns = [];
-    R.forEach(id => {
-        const affectedColumn = columns.find(c => c.id === id);
-        if (affectedColumn) {
-            affectedColumns.push(affectedColumn);
-        }
-    }, affectedColumIds);
+        const affectedColumns: Columns = [];
+        R.forEach(id => {
+            const affectedColumn = columns.find(c => c.id === id);
+            if (affectedColumn) {
+                affectedColumns.push(affectedColumn);
+            }
+        }, affectedColumIds);
 
-    clearColumnsFilter(map, affectedColumns, operator, setFilter);
-};
+        clearColumnsFilter(map, affectedColumns, operator, setFilter);
+    };
 
 function doSort(
     columnId: ColumnId,
@@ -400,19 +402,21 @@ function getter(
                                         spansAllColumns
                                             ? undefined
                                             : () => {
-                                                  const ids = actions.getColumnIds(
-                                                      column,
-                                                      visibleColumns,
-                                                      headerRowIndex,
-                                                      mergeDuplicateHeaders
-                                                  );
+                                                  const ids =
+                                                      actions.getColumnIds(
+                                                          column,
+                                                          visibleColumns,
+                                                          headerRowIndex,
+                                                          mergeDuplicateHeaders
+                                                      );
 
-                                                  const hidden_columns = hiddenColumns
-                                                      ? R.union(
-                                                            hiddenColumns,
-                                                            ids
-                                                        )
-                                                      : ids;
+                                                  const hidden_columns =
+                                                      hiddenColumns
+                                                          ? R.union(
+                                                                hiddenColumns,
+                                                                ids
+                                                            )
+                                                          : ids;
 
                                                   setProps({hidden_columns});
                                               }

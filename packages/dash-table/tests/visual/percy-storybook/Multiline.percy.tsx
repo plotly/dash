@@ -82,8 +82,7 @@ const scenarios: ITest[] = [
                     Rep: 1,
                     Dem: 10,
                     Ind: 2,
-                    Region:
-                        'Northern New York State to the Southern Appalachian Mountains'
+                    Region: 'Northern New York State to the Southern Appalachian Mountains'
                 },
                 {
                     Date: 'July 12th, 2013 - August 25th, 2013',

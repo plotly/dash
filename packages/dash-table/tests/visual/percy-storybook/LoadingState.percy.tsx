@@ -12,11 +12,10 @@ const data = [
     {City: 'Los Angeles', Neighborhood: 'Venice', 'Temperature (F)': 90}
 ];
 
-const columns = R.map(i => ({name: i, id: i, presentation: 'dropdown'}), [
-    'City',
-    'Neighborhood',
-    'Temperature (F)'
-]);
+const columns = R.map(
+    i => ({name: i, id: i, presentation: 'dropdown'}),
+    ['City', 'Neighborhood', 'Temperature (F)']
+);
 
 storiesOf('DashTable/Dropdown', module)
     .add('dropdown when data are loading (disabled)', () => (
@@ -29,29 +28,26 @@ storiesOf('DashTable/Dropdown', module)
             dropdown_data={[
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Brooklyn',
-                            'Queens',
-                            'Staten Island'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Brooklyn', 'Queens', 'Staten Island']
+                        )
                     }
                 },
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Mile End',
-                            'Plateau',
-                            'Hochelaga'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Mile End', 'Plateau', 'Hochelaga']
+                        )
                     }
                 },
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Venice',
-                            'Hollywood',
-                            'Los Feliz'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Venice', 'Hollywood', 'Los Feliz']
+                        )
                     }
                 }
             ]}
@@ -72,29 +68,26 @@ storiesOf('DashTable/Dropdown', module)
             dropdown_data={[
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Brooklyn',
-                            'Queens',
-                            'Staten Island'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Brooklyn', 'Queens', 'Staten Island']
+                        )
                     }
                 },
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Mile End',
-                            'Plateau',
-                            'Hochelaga'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Mile End', 'Plateau', 'Hochelaga']
+                        )
                     }
                 },
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Venice',
-                            'Hollywood',
-                            'Los Feliz'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Venice', 'Hollywood', 'Los Feliz']
+                        )
                     }
                 }
             ]}
@@ -115,29 +108,26 @@ storiesOf('DashTable/Dropdown', module)
             dropdown_data={[
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Brooklyn',
-                            'Queens',
-                            'Staten Island'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Brooklyn', 'Queens', 'Staten Island']
+                        )
                     }
                 },
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Mile End',
-                            'Plateau',
-                            'Hochelaga'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Mile End', 'Plateau', 'Hochelaga']
+                        )
                     }
                 },
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Venice',
-                            'Hollywood',
-                            'Los Feliz'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Venice', 'Hollywood', 'Los Feliz']
+                        )
                     }
                 }
             ]}

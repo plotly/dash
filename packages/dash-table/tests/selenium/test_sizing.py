@@ -308,7 +308,12 @@ def test_szng004_on_focus(test, props, data_fn):
     baseProps1.update(dict(**props, id="table1"))
     baseProps2.update(dict(**props, id="table2"))
 
-    app.layout = Div([DataTable(**baseProps1), DataTable(**baseProps2),])
+    app.layout = Div(
+        [
+            DataTable(**baseProps1),
+            DataTable(**baseProps2),
+        ]
+    )
 
     test.start_server(app)
 

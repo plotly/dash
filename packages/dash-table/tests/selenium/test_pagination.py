@@ -240,6 +240,8 @@ def get_app2():
 def test_tpag011_valid_page(test):
     test.start_server(get_app2())
 
+    test.find_element(".js-plotly-plot")
+
     target = test.table("table")
     test.find_element("#button").click()
 

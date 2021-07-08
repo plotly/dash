@@ -1,4 +1,4 @@
-dash-bootstrap-components==0.10.7
+dash-bootstrap-components==0.12.2
 pandas
 preconditions
-xlrd<2
+openpyxl

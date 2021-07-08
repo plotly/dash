@@ -160,7 +160,12 @@ def test_knav007_can_select_down_then_right(test, props):
 
 @pytest.mark.parametrize("props", read_write_modes)
 @pytest.mark.parametrize(
-    "keys,row,col", [(Keys.ENTER, 4, 1), ("abc" + Keys.ENTER, 4, 1), (Keys.TAB, 3, 2),]
+    "keys,row,col",
+    [
+        (Keys.ENTER, 4, 1),
+        ("abc" + Keys.ENTER, 4, 1),
+        (Keys.TAB, 3, 2),
+    ],
 )
 def test_knav008_focus_cell_on_enter(test, props, keys, row, col):
     test.start_server(get_app(props))

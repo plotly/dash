@@ -197,13 +197,14 @@ export const matchesDataOpCell = (
             style.matchesFilter(datum)
     );
 
-export const getFilterOpStyles: Filter<IConvertedStyle> = R.filter<IConvertedStyle>(
-    style =>
-        !style.checksState() &&
-        !style.checksDataRow() &&
-        !style.checksHeaderRow() &&
-        !style.checksColumn()
-);
+export const getFilterOpStyles: Filter<IConvertedStyle> =
+    R.filter<IConvertedStyle>(
+        style =>
+            !style.checksState() &&
+            !style.checksDataRow() &&
+            !style.checksHeaderRow() &&
+            !style.checksColumn()
+    );
 
 export const getHeaderOpStyles = (i: number): Filter<IConvertedStyle> =>
     R.filter<IConvertedStyle>(

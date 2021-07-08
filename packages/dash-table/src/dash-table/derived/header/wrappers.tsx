@@ -53,9 +53,7 @@ class Wrappers {
     /**
      * Returns the wrapper for a header cell.
      */
-    private wrapper = memoizerCache<
-        [number, number]
-    >()(
+    private wrapper = memoizerCache<[number, number]>()(
         (
             columnIndex: number,
             columnId: ColumnId,

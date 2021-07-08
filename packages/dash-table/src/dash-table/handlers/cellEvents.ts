@@ -99,13 +99,8 @@ export const handleDoubleClick = (
     i: number,
     e: any
 ) => {
-    const {
-        is_focused,
-        setProps,
-        viewport,
-        virtualized,
-        visibleColumns
-    } = propsFn();
+    const {is_focused, setProps, viewport, virtualized, visibleColumns} =
+        propsFn();
 
     const c = visibleColumns[i];
 

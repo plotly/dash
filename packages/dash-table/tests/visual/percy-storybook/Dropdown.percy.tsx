@@ -19,17 +19,15 @@ const data2 = [
     {City: 'Los Angeles', Neighborhood: 'Venice', 'Temperature (F)': 90}
 ];
 
-const columns = R.map(i => ({name: i, id: i, presentation: 'dropdown'}), [
-    'climate',
-    'temperature',
-    'city'
-]);
+const columns = R.map(
+    i => ({name: i, id: i, presentation: 'dropdown'}),
+    ['climate', 'temperature', 'city']
+);
 
-const columns2 = R.map(i => ({name: i, id: i, presentation: 'dropdown'}), [
-    'City',
-    'Neighborhood',
-    'Temperature (F)'
-]);
+const columns2 = R.map(
+    i => ({name: i, id: i, presentation: 'dropdown'}),
+    ['City', 'Neighborhood', 'Temperature (F)']
+);
 
 storiesOf('DashTable/Dropdown', module)
     .add('readonly dropdown shows label', () => (
@@ -41,18 +39,16 @@ storiesOf('DashTable/Dropdown', module)
             editable={false}
             dropdown={{
                 climate: {
-                    options: R.map(i => ({label: `label: ${i}`, value: i}), [
-                        'Sunny',
-                        'Snowy',
-                        'Rainy'
-                    ])
+                    options: R.map(
+                        i => ({label: `label: ${i}`, value: i}),
+                        ['Sunny', 'Snowy', 'Rainy']
+                    )
                 },
                 city: {
-                    options: R.map(i => ({label: `label: ${i}`, value: i}), [
-                        'NYC',
-                        'Montreal',
-                        'Miami'
-                    ])
+                    options: R.map(
+                        i => ({label: `label: ${i}`, value: i}),
+                        ['NYC', 'Montreal', 'Miami']
+                    )
                 }
             }}
         />
@@ -66,18 +62,16 @@ storiesOf('DashTable/Dropdown', module)
             editable={true}
             dropdown={{
                 climate: {
-                    options: R.map(i => ({label: `label: ${i}`, value: i}), [
-                        'Sunny',
-                        'Snowy',
-                        'Rainy'
-                    ])
+                    options: R.map(
+                        i => ({label: `label: ${i}`, value: i}),
+                        ['Sunny', 'Snowy', 'Rainy']
+                    )
                 },
                 city: {
-                    options: R.map(i => ({label: `label: ${i}`, value: i}), [
-                        'NYC',
-                        'Montreal',
-                        'Miami'
-                    ])
+                    options: R.map(
+                        i => ({label: `label: ${i}`, value: i}),
+                        ['NYC', 'Montreal', 'Miami']
+                    )
                 }
             }}
         />
@@ -91,18 +85,16 @@ storiesOf('DashTable/Dropdown', module)
             editable={true}
             dropdown={{
                 climate: {
-                    options: R.map(i => ({label: i, value: i}), [
-                        'Sunny',
-                        'Snowy',
-                        'Rainy'
-                    ])
+                    options: R.map(
+                        i => ({label: i, value: i}),
+                        ['Sunny', 'Snowy', 'Rainy']
+                    )
                 },
                 city: {
-                    options: R.map(i => ({label: i, value: i}), [
-                        'NYC',
-                        'Montreal',
-                        'Miami'
-                    ])
+                    options: R.map(
+                        i => ({label: i, value: i}),
+                        ['NYC', 'Montreal', 'Miami']
+                    )
                 }
             }}
         />
@@ -120,33 +112,30 @@ storiesOf('DashTable/Dropdown', module)
                         column_id: 'Neighborhood',
                         filter_query: '{City} eq "NYC"'
                     },
-                    options: R.map(i => ({label: i, value: i}), [
-                        'Brooklyn',
-                        'Queens',
-                        'Staten Island'
-                    ])
+                    options: R.map(
+                        i => ({label: i, value: i}),
+                        ['Brooklyn', 'Queens', 'Staten Island']
+                    )
                 },
                 {
                     if: {
                         column_id: 'Neighborhood',
                         filter_query: '{City} eq "Montreal"'
                     },
-                    options: R.map(i => ({label: i, value: i}), [
-                        'Mile End',
-                        'Plateau',
-                        'Hochelaga'
-                    ])
+                    options: R.map(
+                        i => ({label: i, value: i}),
+                        ['Mile End', 'Plateau', 'Hochelaga']
+                    )
                 },
                 {
                     if: {
                         column_id: 'Neighborhood',
                         filter_query: '{City} eq "Los Angeles"'
                     },
-                    options: R.map(i => ({label: i, value: i}), [
-                        'Venice',
-                        'Hollywood',
-                        'Los Feliz'
-                    ])
+                    options: R.map(
+                        i => ({label: i, value: i}),
+                        ['Venice', 'Hollywood', 'Los Feliz']
+                    )
                 }
             ]}
         />
@@ -161,29 +150,26 @@ storiesOf('DashTable/Dropdown', module)
             dropdown_data={[
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Brooklyn',
-                            'Queens',
-                            'Staten Island'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Brooklyn', 'Queens', 'Staten Island']
+                        )
                     }
                 },
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Mile End',
-                            'Plateau',
-                            'Hochelaga'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Mile End', 'Plateau', 'Hochelaga']
+                        )
                     }
                 },
                 {
                     Neighborhood: {
-                        options: R.map(i => ({label: i, value: i}), [
-                            'Venice',
-                            'Hollywood',
-                            'Los Feliz'
-                        ])
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Venice', 'Hollywood', 'Los Feliz']
+                        )
                     }
                 }
             ]}

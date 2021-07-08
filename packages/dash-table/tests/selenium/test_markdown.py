@@ -145,7 +145,8 @@ def test_mark005_table(test):
 
 
 @pytest.mark.parametrize(
-    "filter", ["Learn about 97", "/wiki/97"],
+    "filter",
+    ["Learn about 97", "/wiki/97"],
 )
 def test_mark006_filter_link_text(test, filter):
     test.start_server(get_app())
