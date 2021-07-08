@@ -292,7 +292,8 @@ def test_port_env_fail_range(empty_environ):
 
 
 @pytest.mark.parametrize(
-    "setlevel_warning", [False, True],
+    "setlevel_warning",
+    [False, True],
 )
 def test_no_proxy_success(mocker, caplog, empty_environ, setlevel_warning):
     app = Dash()

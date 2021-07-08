@@ -22,11 +22,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         */
 
         const loadingPaths: ILayoutCallbackProperty[] = flatten(
-            map(cb => cb.getOutputs(paths), [
-                ...executing,
-                ...watched,
-                ...executed
-            ])
+            map(
+                cb => cb.getOutputs(paths),
+                [...executing, ...watched, ...executed]
+            )
         );
 
         const nextMap: any = isEmpty(loadingPaths)
