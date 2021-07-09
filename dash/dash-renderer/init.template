@@ -37,15 +37,15 @@ _js_dist_dependencies = [
 
 _js_dist = [
     {
-        "relative_package_path": "deps/dash_renderer.min.js",
-        "dev_package_path": "deps/dash_renderer.dev.js",
+        "relative_package_path": "dash-renderer/build/dash_renderer.min.js",
+        "dev_package_path": "dash-renderer/build/dash_renderer.dev.js",
         "external_url": "https://unpkg.com/dash-renderer@$version"
-        "/dash_renderer/dash_renderer.min.js",
+        "/build/dash_renderer.min.js",
         "namespace": "dash",
     },
     {
-        "relative_package_path": "deps/dash_renderer.min.js.map",
-        "dev_package_path": "deps/dash_renderer.dev.js.map",
+        "relative_package_path": "dash-renderer/build/dash_renderer.min.js.map",
+        "dev_package_path": "dash-renderer/build/dash_renderer.dev.js.map",
         "namespace": "dash",
         "dynamic": True,
     },
