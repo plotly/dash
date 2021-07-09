@@ -40,7 +40,7 @@ _js_dist = [
         "relative_package_path": "dash-renderer/build/dash_renderer.min.js",
         "dev_package_path": "dash-renderer/build/dash_renderer.dev.js",
         "external_url": "https://unpkg.com/dash-renderer@1.9.1"
-        "/dash_renderer/dash_renderer.min.js",
+        "/build/dash_renderer.min.js",
         "namespace": "dash",
     },
     {
