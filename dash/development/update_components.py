@@ -28,11 +28,11 @@ def booststrap_components(components_source):
         "npx lerna bootstrap --scope *@({})*".format(source_glob), posix=not is_windows,
     )
 
-    proc = subprocess.Popen(
+    with subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
-    )
-    out, err = proc.communicate()
-    status = proc.poll()
+    ) as proc:
+        out, err = proc.communicate()
+        status = proc.poll()
 
     if err:
         print(err.decode(), file=sys.stderr)
@@ -44,7 +44,7 @@ def booststrap_components(components_source):
             ),
             file=sys.stderr,
         )
-    else:
+    if not out:
         print(
             "Failed bootstrapping the following component packages {} (status={})".format(
                 source_glob, status
@@ -68,11 +68,11 @@ def build_components(components_source):
         posix=not is_windows,
     )
 
-    proc = subprocess.Popen(
+    with subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
-    )
-    out, err = proc.communicate()
-    status = proc.poll()
+    ) as proc:
+        out, err = proc.communicate()
+        status = proc.poll()
 
     if err:
         print(err.decode(), file=sys.stderr)

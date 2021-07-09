@@ -10,7 +10,7 @@ import logging
 import io
 import json
 from functools import wraps
-import future.utils as utils
+from future import utils
 from . import exceptions
 
 logger = logging.getLogger()
@@ -217,16 +217,16 @@ def inputs_to_vals(inputs):
 
 def run_command_with_process(cmd):
     is_win = sys.platform == "win32"
-    proc = subprocess.Popen(shlex.split(cmd, posix=is_win), shell=is_win)
-    proc.wait()
-    if proc.poll() is None:
-        logger.warning("🚨 trying to terminate subprocess in safe way")
-        try:
-            proc.communicate()
-        except Exception:  # pylint: disable=broad-except
-            logger.exception("🚨 first try communicate failed")
-            proc.kill()
-            proc.communicate()
+    with subprocess.Popen(shlex.split(cmd, posix=is_win), shell=is_win) as proc:
+        proc.wait()
+        if proc.poll() is None:
+            logger.warning("🚨 trying to terminate subprocess in safe way")
+            try:
+                proc.communicate()
+            except Exception:  # pylint: disable=broad-except
+                logger.exception("🚨 first try communicate failed")
+                proc.kill()
+                proc.communicate()
 
 
 def compute_md5(path):

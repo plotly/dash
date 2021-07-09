@@ -11,12 +11,12 @@ import logging
 import inspect
 
 import runpy
-import future.utils as utils
 import flask
 import requests
 
+from future import utils
 from dash.testing.errors import NoAppFoundError, TestingTimeoutError, ServerCloseError
-import dash.testing.wait as wait
+from dash.testing import wait
 
 
 logger = logging.getLogger(__name__)
@@ -202,7 +202,7 @@ class ProcessRunner(BaseDashRunner):
         logger.debug("start dash process with %s", args)
 
         try:
-            self.proc = subprocess.Popen(
+            self.proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
@@ -323,7 +323,7 @@ class RRunner(ProcessRunner):
         logger.debug("start dash process with %s", args)
 
         try:
-            self.proc = subprocess.Popen(
+            self.proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -423,7 +423,7 @@ class JuliaRunner(ProcessRunner):
         logger.debug("start Dash.jl process with %s", args)
 
         try:
-            self.proc = subprocess.Popen(
+            self.proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

@@ -583,7 +583,7 @@ class Dash(object):
         # add the version number of the package as a query parameter
         # for cache busting
         def _relative_url_path(relative_package_path="", namespace=""):
-            if any(x in relative_package_path for x in ["dcc" "html", "dash_table"]):
+            if any(x in relative_package_path for x in ["dcc", "html", "dash_table"]):
                 relative_package_path = relative_package_path.replace("dash.", "")
                 version = importlib.import_module(
                     "{}.{}".format(namespace, os.path.split(relative_package_path)[0])

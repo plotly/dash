@@ -72,11 +72,11 @@ def generate_components(
         "package.json", os.path.join(project_shortname, package_info_filename)
     )
 
-    proc = subprocess.Popen(
+    with subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
-    )
-    out, err = proc.communicate()
-    status = proc.poll()
+    ) as proc:
+        out, err = proc.communicate()
+        status = proc.poll()
 
     if err:
         print(err.decode(), file=sys.stderr)

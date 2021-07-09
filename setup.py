@@ -2,7 +2,7 @@ import io
 from setuptools import setup, find_packages
 
 main_ns = {}
-exec(open("dash/version.py").read(), main_ns)  # pylint: disable=exec-used
+exec(open("dash/version.py").read(), main_ns)  # pylint: disable=exec-used, consider-using-with
 
 
 def read_req_file(req_type):
@@ -23,7 +23,7 @@ setup(
         "A Python framework for building reactive web-apps. "
         "Developed by Plotly."
     ),
-    long_description=io.open("README.md", encoding="utf-8").read(),
+    long_description=io.open("README.md", encoding="utf-8").read(),  # pylint: disable=consider-using-with
     long_description_content_type="text/markdown",
     install_requires=read_req_file("install"),
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*",

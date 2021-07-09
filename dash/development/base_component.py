@@ -83,7 +83,7 @@ class Component(with_metaclass(ComponentMeta, object)):
         for k, v in list(kwargs.items()):
             # pylint: disable=no-member
             k_in_propnames = k in self._prop_names
-            k_in_wildcards = any(
+            k_in_wildcards = any(  # pylint: disable=use-a-generator
                 [k.startswith(w) for w in self._valid_wildcard_attributes]
             )
             # e.g. "The dash_core_components.Dropdown component (version 1.6.0)
