@@ -6,7 +6,7 @@
     "private::format.renderer": "cd dash/dash-renderer && npm run format",
     "private::initialize.renderer": "cd dash/dash-renderer && npm ci",
     "private::lint.black": "if [ ${PYLINTRC:-x} != '.pylintrc' ]; then black dash tests --exclude metadata_test.py --check; fi",
-    "private::lint.flake8": "flake8 --exclude=metadata_test.py,dash/html/I.py dash tests",
+    "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
     "private::lint.pylint-dash": "PYLINTRC=${PYLINTRC:=.pylintrc39} && pylint dash setup.py --rcfile=$PYLINTRC",
     "private::lint.pylint-tests": "PYLINTRC=${PYLINTRC:=.pylintrc39} && pylint tests/unit tests/integration -d all --rcfile=$PYLINTRC",
     "private::lint.renderer": "cd dash/dash-renderer && npm run lint",
