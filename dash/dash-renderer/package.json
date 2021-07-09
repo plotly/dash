@@ -2,7 +2,7 @@
   "name": "dash-renderer",
   "version": "1.9.1",
   "description": "render dash components in react",
-  "main": "../deps/dash_renderer.min.js",
+  "main": "build/dash_renderer.min.js",
   "scripts": {
     "prepublishOnly": "rm -rf lib && babel src --extensions=\".ts,.tsx,.js,.jsx\" --out-dir lib --copy-files",
     "private::format.eslint": "eslint --quiet --fix src tests",
@@ -85,7 +85,7 @@
     "whatwg-fetch": "^3.6.2"
   },
   "files": [
-    "../deps/*{.js,.map}",
+    "build/*{.js,.map}",
     "/lib/**"
   ],
   "prettier": "@plotly/prettier-config-dash"
