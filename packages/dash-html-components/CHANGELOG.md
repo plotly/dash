@@ -2,9 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## UNRELEASED
+## [1.1.4] - 2021-07-09
 
 ### Changed
+- [#194](https://github.com/plotly/dash-html-components/pull/194) Updated dependencies and build process
 - [#190](https://github.com/plotly/dash-core-components/pull/190) Updated R package vignettes and `dash-info.yaml` to regenerate examples without attaching now-deprecated core component packages (`dashHtmlComponents`, `dashCoreComponents`, or `dashTable`).
 
 ## [1.1.3] - 2021-04-08
