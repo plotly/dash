@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [1.21.0] - 2021-07-09
 
 ## Dash and Dash Renderer
 ### Added
@@ -16,6 +16,69 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - [#1664](https://github.com/plotly/dash/pull/1664) Fix [#1649](https://github.com/plotly/dash/issues/1649), makes the devtools readable with a dark theme.
 - [#1640](https://github.com/plotly/dash/pull/1640) Fix [#1475](https://github.com/plotly/dash/issues/1475), missing `timing_information` after certain modifications to Flask behavior
+
+## Dash Core Components
+### Fixed
+
+- [#963](https://github.com/plotly/dash-core-components/pull/963) Fixes [#885](https://github.com/plotly/dash-core-components/issues/885)
+
+  This applies the fix from [#878](https://github.com/plotly/dash-core-components/pull/878) to the RangeSlider.
+  It not only fixes the bug where the tooltips were visible when slider was not, but it also reduces the lag in the
+  tooltip when the slider handles are moved.
+
+### Updated
+- [#939](https://github.com/plotly/dash-core-components/pull/939) Upgrade Plotly.js to v2.2.1. Note that this is a major version upgrade to Plotly.js, however we are not treating this as a breaking change for DCC as the majority of breaking changes in Plotly.js do not affect the Dash API. The one exception is that several trace types that have long been deprecated are removed entirely.
+  - [Major release 2.0.0](https://github.com/plotly/plotly.js/releases/tag/v2.0.0):
+    - Stop exporting d3 as `Plotly.d3`, and remove many other deep pieces of the public API. This does not affect the `dcc.Graph` component, but if you make use of `Plotly` from the global scope in some other way you may be affected.
+    - Drop the deprecated trace types `contourgl` and `area`, as well as legacy pre-`scatterpolar` polar attributes `bar.r`, `bar.t`, `scatter.r`, `scatter.t`, `layout.radialaxis`, `layout.angularaxis`. Use `scatterpolar`, `barpolar`, and `polar` subplots instead.
+    - `heatmapgl` and `pointcloud` trace types, and the `transform` attribute are deprecated, and will be removed in a future release.
+    - Increase CSP safety by removing function constructors. 3D plots still use function constructors, but if you place one of the non-3D bundles (including the new `strict` bundle) in your `assets` folder you will have no function constructors.
+    - Remove "Aa" text in legends.
+    - Default `hovermode` to "closest".
+    - Default `textposition` to "auto" in `bar` traces. If you previously used the `bar.text` attribute for hover only, you will need to explicitly set `textposition="none"`.
+    - Add `bar.marker.pattern`, `image.zsmooth`, and various other features and bugfixes.
+  - [Feature release 2.1.0](https://github.com/plotly/plotly.js/releases/tag/v2.1.0):
+    - New `icicle` trace type.
+    - New `legendrank` trace attribute.
+    - Several other additions and bug fixes.
+  - [Feature release 2.2.0](https://github.com/plotly/plotly.js/releases/tag/v2.2.0):
+    - Legend group titles
+    - Half-year directive (`%h`) for date formatting
+    - Several other bug fixes and performance improvements
+  - [Patch release 2.2.1](https://github.com/plotly/plotly.js/releases/tag/v2.2.1) containing a security fix.
+
+### Added
+- [#932](https://github.com/plotly/dash-core-components/pull/932) Adds a new copy to clipboard component.
+- [#948](https://github.com/plotly/dash-core-components/pull/948)] Adds `disabled_days` prop to `DatePickerRange` and `DatePickerSingle` components. With this prop you can specify days that should be made unselectable in the date picker, in addition to those that fall outside of the range specified by `min_date_allowed` and `max_date_allowed`.
+
+### Changed
+- [#972](https://github.com/plotly/dash-core-components/pull/972) Updated R package vignettes and `dash-info.yaml` to regenerate examples without attaching now-deprecated core component packages (`dashHtmlComponents`, `dashCoreComponents`, or `dashTable`).
+
+## Dash HTML Components
+### Changed
+- [#194](https://github.com/plotly/dash-html-components/pull/194) Updated dependencies and build process
+- [#190](https://github.com/plotly/dash-core-components/pull/190) Updated R package vignettes and `dash-info.yaml` to regenerate examples without attaching now-deprecated core component packages (`dashHtmlComponents`, `dashCoreComponents`, or `dashTable`).
+
+## Dash Table
+### Fixed
+- [#907](https://github.com/plotly/dash-table/pull/907)
+  - Fix a bug where pagination did not work or was not visible. [#834](https://github.com/plotly/dash-table/issues/834)
+  - Fix a bug where if you are on a page that no longer exists after the data is updated, no data is displayed. [#892](https://github.com/plotly/dash-table/issues/892)
+
+
+### Added
+- [#916](https://github.com/plotly/dash-table/pull/916)
+  - Added `html` option to `markdown_options` prop. This enables the use of html tags in markdown text.
+
+- [#545](https://github.com/plotly/dash-table/issues/545)
+    - Case insensitive filtering
+    - New props: `filter_options` - to control case of all filters, `columns.filter_options` - to control filter case for each column
+    - New operators: `i=`, `ieq`, `i>=`, `ige`, `i>`, `igt`, `i<=`, `ile`, `i<`, `ilt`, `i!=`, `ine`, `icontains` - for case-insensitive filtering, `s=`, `seq`, `s>=`, `sge`, `s>`, `sgt`, `s<=`, `sle`, `s<`, `slt`, `s!=`, `sne`, `scontains` - to force case-sensitive filtering on case-insensitive columns
+
+### Changed
+- [#918](https://github.com/plotly/dash-core-components/pull/918) Updated all dependencies. In particular the `highlight.js` upgrade changes code highlighting in markdown: we have long used their "github" style, this has been updated to more closely match current github styles.
+- [#901](https://github.com/plotly/dash-core-components/pull/901) Updated R package `dash-info.yaml` to regenerate example without attaching now-deprecated core component packages (`dashHtmlComponents`, `dashCoreComponents`, or `dashTable`).
+
 
 ## [1.20.0] - 2021-04-08
 
