@@ -1,4 +1,5 @@
 numpy
+openpyxl
 pandas
 pyarrow<3;python_version<"3.7"
 pyarrow;python_version>="3.7"
