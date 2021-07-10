@@ -1,5 +1,4 @@
 Flask>=1.0.4
 flask-compress
 plotly
-dash-table==4.11.3
 future

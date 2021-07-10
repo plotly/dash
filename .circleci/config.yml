@@ -64,6 +64,7 @@ jobs:
             pip install -e . --progress-bar off && pip list | grep dash
             cd dash/dash-renderer && renderer build && cd ../../
             npm install --production && npm run initialize
+            cat /home/circleci/dash/.pylintrc
             npm run lint
       - run:
           name: 🐍 Python Unit Tests & ☕ JS Unit Tests
