@@ -3,7 +3,7 @@ from dash.testing.browser import Browser
 
 class DashComposite(Browser):
     def __init__(self, server, **kwargs):
-        super(DashComposite, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.server = server
 
     def start_server(self, app, **kwargs):
@@ -18,7 +18,7 @@ class DashComposite(Browser):
 
 class DashRComposite(Browser):
     def __init__(self, server, **kwargs):
-        super(DashRComposite, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.server = server
 
     def start_server(self, app, cwd=None):
@@ -33,7 +33,7 @@ class DashRComposite(Browser):
 
 class DashJuliaComposite(Browser):
     def __init__(self, server, **kwargs):
-        super(DashJuliaComposite, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.server = server
 
     def start_server(self, app, cwd=None):

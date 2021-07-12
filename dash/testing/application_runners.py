@@ -42,13 +42,15 @@ def import_app(app_file, application_name="app"):
     try:
         app_module = runpy.run_module(app_file)
         app = app_module[application_name]
-    except KeyError:
+    except KeyError as app_name_missing:
         logger.exception("the app name cannot be found")
-        raise NoAppFoundError("No dash `app` instance was found in {}".format(app_file))
+        raise NoAppFoundError(
+            "No dash `app` instance was found in {}".format(app_file)
+        ) from app_name_missing
     return app
 
 
-class BaseDashRunner(object):
+class BaseDashRunner:
     """Base context manager class for running applications."""
 
     def __init__(self, keep_open, stop_timeout):
@@ -83,10 +85,10 @@ class BaseDashRunner(object):
             try:
                 logger.info("killing the app runner")
                 self.stop()
-            except TestingTimeoutError:
+            except TestingTimeoutError as cannot_stop_server:
                 raise ServerCloseError(
                     "Cannot stop server within {}s timeout".format(self.stop_timeout)
-                )
+                ) from cannot_stop_server
         logger.info("__exit__ complete")
 
     @property
@@ -110,9 +112,7 @@ class ThreadedRunner(BaseDashRunner):
     """
 
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(ThreadedRunner, self).__init__(
-            keep_open=keep_open, stop_timeout=stop_timeout
-        )
+        super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.stop_route = "/_stop-{}".format(uuid.uuid4().hex)
         self.thread = None
 
@@ -169,9 +169,7 @@ class ProcessRunner(BaseDashRunner):
     """
 
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(ProcessRunner, self).__init__(
-            keep_open=keep_open, stop_timeout=stop_timeout
-        )
+        super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.proc = None
 
     # pylint: disable=arguments-differ
@@ -245,7 +243,7 @@ class ProcessRunner(BaseDashRunner):
 
 class RRunner(ProcessRunner):
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(RRunner, self).__init__(keep_open=keep_open, stop_timeout=stop_timeout)
+        super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.proc = None
 
     # pylint: disable=arguments-differ
@@ -342,9 +340,7 @@ class RRunner(ProcessRunner):
 
 class JuliaRunner(ProcessRunner):
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(JuliaRunner, self).__init__(
-            keep_open=keep_open, stop_timeout=stop_timeout
-        )
+        super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.proc = None
 
     # pylint: disable=arguments-differ

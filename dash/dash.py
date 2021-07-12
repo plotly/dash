@@ -94,7 +94,7 @@ _re_index_scripts_id = 'src="[^"]*dash[-_]renderer[^"]*"', "dash-renderer"
 _re_renderer_scripts_id = 'id="_dash-renderer', "new DashRenderer"
 
 
-class _NoUpdate(object):
+class _NoUpdate:
     # pylint: disable=too-few-public-methods
     pass
 
@@ -112,7 +112,7 @@ ns["{function_name}"] = {clientside_function};
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
-class Dash(object):
+class Dash:
     """Dash is a framework for building analytical web applications.
     No JavaScript required.
 
@@ -1101,9 +1101,9 @@ class Dash(object):
 
         try:
             func = self.callback_map[output]["callback"]
-        except KeyError:
+        except KeyError as callback_function_missing:
             msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
-            raise KeyError(msg.format(output))
+            raise KeyError(msg.format(output)) from callback_function_missing
         response.set_data(func(*args, outputs_list=outputs_list))
         return response
 

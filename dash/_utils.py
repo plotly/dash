@@ -61,9 +61,9 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 def get_relative_path(requests_pathname, path):
     if requests_pathname == "/" and path == "":
         return "/"
-    elif requests_pathname != "/" and path == "":
+    if requests_pathname != "/" and path == "":
         return requests_pathname
-    elif not path.startswith("/"):
+    if not path.startswith("/"):
         raise exceptions.UnsupportedRelativePath(
             """
             Paths that aren't prefixed with a leading / are not supported.
@@ -78,7 +78,7 @@ def get_relative_path(requests_pathname, path):
 def strip_relative_path(requests_pathname, path):
     if path is None:
         return None
-    elif (
+    if (
         requests_pathname != "/" and not path.startswith(requests_pathname.rstrip("/"))
     ) or (requests_pathname == "/" and not path.startswith("/")):
         raise exceptions.UnsupportedRelativePath(
@@ -151,7 +151,7 @@ class AttributeDict(dict):
         if final_msg and key not in self:
             raise AttributeError(final_msg, key)
 
-        return super(AttributeDict, self).__setitem__(key, val)
+        return super().__setitem__(key, val)
 
     # pylint: disable=inconsistent-return-statements
     def first(self, *names):

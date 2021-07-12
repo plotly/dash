@@ -343,7 +343,7 @@ class Browser(DashPageMixin):
             self.wait_for_element_by_css_selector(
                 self.dash_entry_locator, timeout=timeout
             )
-        except TimeoutException:
+        except TimeoutException as exc:
             logger.exception("dash server is not loaded within %s seconds", timeout)
             logger.debug(self.get_logs())
             raise DashAppLoadingError(
@@ -354,7 +354,7 @@ class Browser(DashPageMixin):
                     ),
                     "\n".join((str(log) for log in self.get_logs())),
                 )
-            )
+            ) from exc
 
         if self._pause:
             try:
