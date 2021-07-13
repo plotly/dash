@@ -23,7 +23,6 @@ from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
 
 import plotly
-import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -47,6 +46,7 @@ from ._utils import (
     stringify_id,
     strip_relative_path,
 )
+from . import _dash_renderer
 from . import _validate
 from . import _watch
 
@@ -232,6 +232,11 @@ class Dash(object):
         and redo buttons for stepping through the history of the app state.
     :type show_undo_redo: boolean
 
+    :param extra_hot_reload_paths: A list of paths to watch for changes, in
+        addition to assets and known Python and JS code, if hot reloading is
+        enabled.
+    :type extra_hot_reload_paths: list of strings
+
     :param plugins: Extend Dash functionality by passing a list of objects
         with a ``plug`` method, taking a single argument: this app, which will
         be called after the Flask server is attached.
@@ -269,6 +274,7 @@ class Dash(object):
         suppress_callback_exceptions=None,
         prevent_initial_callbacks=False,
         show_undo_redo=False,
+        extra_hot_reload_paths=None,
         plugins=None,
         title="Dash",
         update_title="Updating...",
@@ -329,6 +335,7 @@ class Dash(object):
             ),
             prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
+            extra_hot_reload_paths=extra_hot_reload_paths or [],
             title=title,
             update_title=update_title,
         )
@@ -655,7 +662,7 @@ class Dash(object):
         mode = "dev" if self._dev_tools["props_check"] is True else "prod"
 
         deps = []
-        for js_dist_dependency in dash_renderer._js_dist_dependencies:
+        for js_dist_dependency in _dash_renderer._js_dist_dependencies:
             dep = {}
             for key, value in js_dist_dependency.items():
                 dep[key] = value[mode] if isinstance(value, dict) else value
@@ -671,7 +678,7 @@ class Dash(object):
             + self._collect_and_register_resources(
                 self.scripts.get_all_scripts(dev_bundles=dev)
                 + self.scripts._resources._filter_resources(
-                    dash_renderer._js_dist, dev_bundles=dev
+                    _dash_renderer._js_dist, dev_bundles=dev
                 )
             )
         )
@@ -1054,20 +1061,30 @@ class Dash(object):
 
     def dispatch(self):
         body = flask.request.get_json()
-        flask.g.inputs_list = inputs = body.get("inputs", [])
-        flask.g.states_list = state = body.get("state", [])
+        flask.g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
+            "inputs", []
+        )
+        flask.g.states_list = state = body.get(  # pylint: disable=assigning-non-slot
+            "state", []
+        )
         output = body["output"]
         outputs_list = body.get("outputs") or split_callback_id(output)
-        flask.g.outputs_list = outputs_list
+        flask.g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
 
-        flask.g.input_values = input_values = inputs_to_dict(inputs)
-        flask.g.state_values = inputs_to_dict(state)
+        flask.g.input_values = (  # pylint: disable=assigning-non-slot
+            input_values
+        ) = inputs_to_dict(inputs)
+        flask.g.state_values = inputs_to_dict(  # pylint: disable=assigning-non-slot
+            state
+        )
         changed_props = body.get("changedPropIds", [])
-        flask.g.triggered_inputs = [
+        flask.g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
         ]
 
-        response = flask.g.dash_response = flask.Response(mimetype="application/json")
+        response = (
+            flask.g.dash_response  # pylint: disable=assigning-non-slot
+        ) = flask.Response(mimetype="application/json")
 
         args = inputs_to_vals(inputs + state)
 
@@ -1423,7 +1440,7 @@ class Dash(object):
             # on some Python versions https://bugs.python.org/issue14710
             packages = [
                 pkgutil.find_loader(x)
-                for x in list(ComponentRegistry.registry) + ["dash_renderer"]
+                for x in list(ComponentRegistry.registry)
                 if x != "__main__"
             ]
 
@@ -1463,15 +1480,20 @@ class Dash(object):
         if debug and dev_tools.ui:
 
             def _before_request():
-                flask.g.timing_information = {
+                flask.g.timing_information = {  # pylint: disable=assigning-non-slot
                     "__dash_server": {"dur": time.time(), "desc": None}
                 }
 
             def _after_request(response):
-                dash_total = flask.g.timing_information["__dash_server"]
-                dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+                timing_information = flask.g.get("timing_information", None)
+                if timing_information is None:
+                    return response
 
-                for name, info in flask.g.timing_information.items():
+                dash_total = timing_information.get("__dash_server", None)
+                if dash_total is not None:
+                    dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+
+                for name, info in timing_information.items():
 
                     value = name
                     if info.get("desc") is not None:
@@ -1714,5 +1736,15 @@ class Dash(object):
                 display_url = (protocol, host, ":{}".format(port), path)
 
             self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
+
+        if self.config.extra_hot_reload_paths:
+            extra_files = flask_run_options["extra_files"] = []
+            for path in self.config.extra_hot_reload_paths:
+                if os.path.isdir(path):
+                    for dirpath, _, filenames in os.walk(path):
+                        for fn in filenames:
+                            extra_files.append(os.path.join(dirpath, fn))
+                elif os.path.isfile(path):
+                    extra_files.append(path)
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)

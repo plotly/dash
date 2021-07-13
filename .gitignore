@@ -42,6 +42,7 @@ coverage.xml
 # Distribution / packaging
 .Python
 build/
+dash/deps/
 develop-eggs/
 dist/
 downloads/

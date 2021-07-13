@@ -21,19 +21,20 @@ class BuildProcess(object):
     def __init__(self, main, deps_info):
         self.logger = logger
         self.main = main
+        self.build_folder = self._concat(self.main, "build")
         self.deps_info = deps_info
         self.npm_modules = self._concat(self.main, "node_modules")
         self.package_lock = self._concat(self.main, "package-lock.json")
         self.package = self._concat(self.main, "package.json")
         self._parse_package(path=self.package)
-        self.asset_paths = (self.build_folder, self.npm_modules)
+        self.asset_paths = (self.deps_folder, self.npm_modules)
 
     def _parse_package(self, path):
         with open(path, "r") as fp:
             package = json.load(fp)
             self.version = package["version"]
             self.name = package["name"]
-            self.build_folder = self._concat(self.main, self.name.replace("-", "_"))
+            self.deps_folder = self._concat(self.main, os.pardir, "deps")
             self.deps = package["dependencies"]
 
     @staticmethod
@@ -79,18 +80,27 @@ class BuildProcess(object):
 
     @job("compute the hash digest for assets")
     def digest(self):
-        copies = tuple(
-            _
-            for _ in os.listdir(self.build_folder)
-            if os.path.splitext(_)[-1] in {".js", ".map"}
-        )
-        logger.info("bundles in %s %s", self.build_folder, copies)
+        if not os.path.exists(self.deps_folder):
+            try:
+                os.makedirs(self.deps_folder)
+            except OSError:
+                logger.exception("🚨 having issues manipulating %s", self.deps_folder)
+                sys.exit(1)
 
         payload = {self.name: self.version}
-        for copy in copies:
-            payload["MD5 ({})".format(copy)] = compute_md5(
-                self._concat(self.build_folder, copy)
+
+        for folder in (self.deps_folder, self.build_folder):
+            copies = tuple(
+                _
+                for _ in os.listdir(folder)
+                if os.path.splitext(_)[-1] in {".js", ".map"}
             )
+            logger.info("bundles in %s %s", folder, copies)
+
+            for copy in copies:
+                payload["MD5 ({})".format(copy)] = compute_md5(
+                    self._concat(folder, copy)
+                )
 
         with open(self._concat(self.main, "digest.json"), "w") as fp:
             json.dump(payload, fp, sort_keys=True, indent=4, separators=(",", ":"))
@@ -101,11 +111,11 @@ class BuildProcess(object):
 
     @job("copy and generate the bundles")
     def bundles(self, build=None):
-        if not os.path.exists(self.build_folder):
+        if not os.path.exists(self.deps_folder):
             try:
-                os.makedirs(self.build_folder)
+                os.makedirs(self.deps_folder)
             except OSError:
-                logger.exception("🚨 having issues manipulating %s", self.build_folder)
+                logger.exception("🚨 having issues manipulating %s", self.deps_folder)
                 sys.exit(1)
 
         self._parse_package(self.package_lock)
@@ -116,6 +126,7 @@ class BuildProcess(object):
             "version": self.version,
             "package": self.name.replace(" ", "_").replace("-", "_"),
         }
+
         for scope, name, subfolder, filename, target in self.deps_info:
             version = self.deps["/".join(filter(None, [scope, name]))]["version"]
             versions[name.replace("-", "").replace(".", "")] = version
@@ -127,9 +138,10 @@ class BuildProcess(object):
                 if target
                 else "{}@{}.{}".format(name, version, ext)
             )
+
             shutil.copyfile(
                 self._concat(self.npm_modules, scope, name, subfolder, filename),
-                self._concat(self.build_folder, target),
+                self._concat(self.deps_folder, target),
             )
 
         _script = "build:dev" if build == "local" else "build:js"
@@ -141,7 +153,9 @@ class BuildProcess(object):
         with open(self._concat(self.main, "init.template")) as fp:
             t = string.Template(fp.read())
 
-        with open(self._concat(self.build_folder, "__init__.py"), "w") as fp:
+        with open(
+            self._concat(self.deps_folder, os.pardir, "_dash_renderer.py"), "w"
+        ) as fp:
             fp.write(t.safe_substitute(versions))
 
 
@@ -149,9 +163,7 @@ class Renderer(BuildProcess):
     def __init__(self):
         """dash-renderer's path is binding with the dash folder hierarchy."""
         super(Renderer, self).__init__(
-            self._concat(
-                os.path.dirname(__file__), os.pardir, os.pardir, "dash-renderer"
-            ),
+            self._concat(os.path.dirname(__file__), os.pardir, "dash-renderer"),
             (
                 ("@babel", "polyfill", "dist", "polyfill.min.js", None),
                 (None, "react", "umd", "react.production.min.js", None),

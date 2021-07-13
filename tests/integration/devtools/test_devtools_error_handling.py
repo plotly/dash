@@ -7,7 +7,10 @@ from dash.exceptions import PreventUpdate
 
 
 def app_with_errors():
-    app = dash.Dash(__name__)
+    darkly = (
+        "https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/darkly/bootstrap.min.css"
+    )
+    app = dash.Dash(__name__, external_stylesheets=[darkly])
 
     app.layout = html.Div(
         [
