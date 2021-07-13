@@ -49,7 +49,6 @@ downloads/
 eggs/
 .eggs/
 lib/
-!dash-renderer/lib
 lib64/
 parts/
 sdist/
@@ -81,3 +80,7 @@ VERSION.txt
 
 # vim
 *.swp
+
+# main-branch artifacts to explicitly include
+!dash/dash-renderer/build
+!dash/deps
