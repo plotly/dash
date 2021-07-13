@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
     "private::lint.eslint": "eslint src",
     "private::lint.flake8": "flake8 --exclude=dash_core_components,node_modules,venv",
     "private::lint.prettier": "prettier --config .prettierrc src/**/*.js --list-different",
-    "prepublishOnly": "rm -rf lib && babel src --out-dir lib --copy-files",
+    "prepublishOnly": "rm -rf lib && babel src --out-dir lib --copy-files && rm -rf lib/jl/ lib/*.jl",
     "prepare": "husky install",
     "test": "run-s -c lint test:intg test:pyimport",
     "test:intg": "pytest --nopercyfinalize --headless tests/integration",
@@ -95,7 +95,7 @@
   },
   "files": [
     "/dash_core_components/*{.js,.map}",
-    "/lib/**/!(*.jl)"
+    "/lib/"
   ],
   "peerDependencies": {
     "react": "^16.9",
