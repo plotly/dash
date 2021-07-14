@@ -27,6 +27,7 @@ workflows:
             packages/dash-html-components/.* dash-html-components-modified true
           config-path: packages/dash-html-components/.circleci/config.yml
       - path-filtering/filter:
+          name: dash-table-modified
           base-revision: dev
           mapping: |
             packages/dash-table/.* dash-table-modified true
