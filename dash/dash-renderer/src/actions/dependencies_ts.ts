@@ -330,33 +330,34 @@ export function resolveDeps(
     refVals?: any,
     refPatternVals?: string
 ) {
-    return (paths: any) => ({id: idPattern, property}: ICallbackProperty) => {
-        if (typeof idPattern === 'string') {
-            const path = getPath(paths, idPattern);
-            return path ? [{id: idPattern, property, path}] : [];
-        }
-        const _keys = Object.keys(idPattern).sort();
-        const patternVals = props(_keys, idPattern);
-        const keyStr = _keys.join(',');
-        const keyPaths = paths.objs[keyStr];
-        if (!keyPaths) {
-            return [];
-        }
-        const result: ILayoutCallbackProperty[] = [];
-        keyPaths.forEach(({values: vals, path}: any) => {
-            if (
-                idMatch(
-                    _keys,
-                    vals,
-                    patternVals,
-                    refKeys,
-                    refVals,
-                    refPatternVals
-                )
-            ) {
-                result.push({id: zipObj(_keys, vals), property, path});
+    return (paths: any) =>
+        ({id: idPattern, property}: ICallbackProperty) => {
+            if (typeof idPattern === 'string') {
+                const path = getPath(paths, idPattern);
+                return path ? [{id: idPattern, property, path}] : [];
             }
-        });
-        return result;
-    };
+            const _keys = Object.keys(idPattern).sort();
+            const patternVals = props(_keys, idPattern);
+            const keyStr = _keys.join(',');
+            const keyPaths = paths.objs[keyStr];
+            if (!keyPaths) {
+                return [];
+            }
+            const result: ILayoutCallbackProperty[] = [];
+            keyPaths.forEach(({values: vals, path}: any) => {
+                if (
+                    idMatch(
+                        _keys,
+                        vals,
+                        patternVals,
+                        refKeys,
+                        refVals,
+                        refPatternVals
+                    )
+                ) {
+                    result.push({id: zipObj(_keys, vals), property, path});
+                }
+            });
+            return result;
+        };
 }

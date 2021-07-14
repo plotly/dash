@@ -181,11 +181,8 @@ class BaseTreeContainer extends Component {
     }
 
     getComponent(_dashprivate_layout, children, loading_state, setProps) {
-        const {
-            _dashprivate_config,
-            _dashprivate_dispatch,
-            _dashprivate_error
-        } = this.props;
+        const {_dashprivate_config, _dashprivate_dispatch, _dashprivate_error} =
+            this.props;
 
         if (isEmpty(_dashprivate_layout)) {
             return null;

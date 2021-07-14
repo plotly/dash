@@ -40,7 +40,7 @@ const rendererOptions = {
         main: ['whatwg-fetch', './src/index.js'],
     },
     output: {
-        path: path.resolve(__dirname, "..", "deps"),
+        path: path.resolve(__dirname, "build"),
         filename: `${dashLibraryName}.dev.js`,
         library: dashLibraryName,
         libraryTarget: 'window',
@@ -64,7 +64,7 @@ module.exports = options => [
         {
             mode: 'production',
             output: {
-                path: path.resolve(__dirname, "..", "deps"),
+                path: path.resolve(__dirname, "build"),
                 filename: `${dashLibraryName}.min.js`,
                 library: dashLibraryName,
                 libraryTarget: 'window',

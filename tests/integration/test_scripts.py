@@ -1,8 +1,6 @@
 import time
 import pytest
 
-from selenium.webdriver.common.by import By
-
 import dash_html_components as html
 import dash_core_components as dcc
 
@@ -12,20 +10,26 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 
-def findSyncPlotlyJs(scripts):
-    for script in scripts:
-        if "dash_core_components/plotly" in script.get_attribute("src"):
-            return script
+def get_script_sources(dash_duo):
+    return [s.get_attribute("src") for s in dash_duo.find_elements("script")]
 
 
-def findAsyncPlotlyJs(scripts):
-    for script in scripts:
-        if "dash_core_components/async-plotlyjs" in script.get_attribute("src"):
-            return script
+def hasSyncPlotlyJs(dash_duo):
+    return any("dash_core_components/plotly" in s for s in get_script_sources(dash_duo))
+
+
+def hasAsyncPlotlyJs(dash_duo):
+    return any(
+        "dash_core_components/async-plotlyjs" in s for s in get_script_sources(dash_duo)
+    )
+
+
+def hasWindowPlotly(dash_duo):
+    return dash_duo.driver.execute_script("return !!window.Plotly")
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
-def test_scripts(dash_duo, is_eager):
+def test_scri001_scripts(dash_duo, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div([dcc.Graph(id="output", figure={"data": [{"y": [3, 1, 2]}]})])
 
@@ -37,16 +41,18 @@ def test_scripts(dash_duo, is_eager):
         dev_tools_hot_reload=False,
     )
 
-    # Give time for the async dependency to be requested (if any)
-    time.sleep(2)
+    # Wait for the graph to appear
+    dash_duo.find_element(".js-plotly-plot")
 
-    scripts = dash_duo.driver.find_elements(By.CSS_SELECTOR, "script")
+    assert hasSyncPlotlyJs(dash_duo) is is_eager
 
-    assert (findSyncPlotlyJs(scripts) is None) is not is_eager
-    assert (findAsyncPlotlyJs(scripts) is None) is is_eager
+    # Webpack 5 deletes the script tag immediately after evaluating it
+    # https://github.com/plotly/dash/pull/1685#issuecomment-877199466
+    assert hasAsyncPlotlyJs(dash_duo) is False
+    assert hasWindowPlotly(dash_duo) is True
 
 
-def test_scripts_on_request(dash_duo):
+def test_scri002_scripts_on_request(dash_duo):
     app = Dash(__name__, eager_loading=False)
     app.layout = html.Div(id="div", children=[html.Button(id="btn")])
 
@@ -68,15 +74,16 @@ def test_scripts_on_request(dash_duo):
     # Give time for the async dependency to be requested (if any)
     time.sleep(2)
 
-    scripts = dash_duo.driver.find_elements(By.CSS_SELECTOR, "script")
-    assert findSyncPlotlyJs(scripts) is None
-    assert findAsyncPlotlyJs(scripts) is None
+    assert hasSyncPlotlyJs(dash_duo) is False
+    assert hasAsyncPlotlyJs(dash_duo) is False
+    assert hasWindowPlotly(dash_duo) is False
 
     dash_duo.find_element("#btn").click()
 
-    # Give time for the async dependency to be requested (if any)
-    time.sleep(2)
+    # Wait for the graph to appear
+    dash_duo.find_element(".js-plotly-plot")
 
-    scripts = dash_duo.driver.find_elements(By.CSS_SELECTOR, "script")
-    assert findSyncPlotlyJs(scripts) is None
-    assert findAsyncPlotlyJs(scripts) is not None
+    assert hasSyncPlotlyJs(dash_duo) is False
+    # Again, webpack 5 deletes the script tag immediately after evaluating it
+    assert hasAsyncPlotlyJs(dash_duo) is False
+    assert hasWindowPlotly(dash_duo) is True

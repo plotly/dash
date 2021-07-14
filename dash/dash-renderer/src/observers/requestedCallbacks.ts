@@ -125,7 +125,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     exg => Boolean(exg),
                                     pluck('executionGroup', groupWithoutInitial)
                                 ).slice(-1)[0]
-                            },
+                            } as any,
                             groupWithoutInitial.slice(-1)[0]
                         ) as ICallback
                     );

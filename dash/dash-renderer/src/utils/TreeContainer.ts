@@ -48,9 +48,12 @@ export function getLoadingState(
 }
 
 export const getLoadingHash = (componentPath: any, loadingMap: any) =>
-    (((loadingMap &&
-        (path(componentPath, loadingMap) as any)?.__dashprivate__idprops__) ??
-        []) as any[])
+    (
+        ((loadingMap &&
+            (path(componentPath, loadingMap) as any)
+                ?.__dashprivate__idprops__) ??
+            []) as any[]
+    )
         .map(({id, property}) => `${id}.${property}`)
         .join(',');
 

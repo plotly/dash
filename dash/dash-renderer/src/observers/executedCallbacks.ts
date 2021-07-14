@@ -227,10 +227,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     : output;
                 let message = `Callback error updating ${outputs}`;
                 if (clientside_function) {
-                    const {
-                        namespace: ns,
-                        function_name: fn
-                    } = clientside_function;
+                    const {namespace: ns, function_name: fn} =
+                        clientside_function;
                     message += ` via clientside function ${ns}.${fn}`;
                 }
 

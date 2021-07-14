@@ -117,9 +117,5 @@ def pathname_configs(
         raise exceptions.InvalidConfig(
             "`requests_pathname_prefix` needs to start with `/`"
         )
-    if not requests_pathname_prefix.endswith(routes_pathname_prefix):
-        raise exceptions.InvalidConfig(
-            "`requests_pathname_prefix` needs to ends with `routes_pathname_prefix`."
-        )
 
     return url_base_pathname, routes_pathname_prefix, requests_pathname_prefix

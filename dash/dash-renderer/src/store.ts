@@ -96,7 +96,8 @@ export default class RendererStore {
         if ((module as any).hot) {
             // Enable hot module replacement for reducers
             (module as any).hot.accept('./reducers/reducer', () => {
-                const nextRootReducer = require('./reducers/reducer').createReducer();
+                const nextRootReducer =
+                    require('./reducers/reducer').createReducer();
 
                 this.__store.replaceReducer(nextRootReducer);
             });

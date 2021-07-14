@@ -394,7 +394,8 @@ def test_clsd009_clientside_callback_context_triggered(dash_duo):
     dash_duo.find_element("#btn0").click()
 
     dash_duo.wait_for_text_to_equal(
-        "#output-clientside", "btn0.n_clicks = 1",
+        "#output-clientside",
+        "btn0.n_clicks = 1",
     )
 
     dash_duo.find_element("button[id*='btn1\":0']").click()
@@ -405,7 +406,8 @@ def test_clsd009_clientside_callback_context_triggered(dash_duo):
     dash_duo.find_element("button[id*='btn1\":2']").click()
 
     dash_duo.wait_for_text_to_equal(
-        "#output-clientside", '{"btn1":2}.n_clicks = 1',
+        "#output-clientside",
+        '{"btn1":2}.n_clicks = 1',
     )
 
 

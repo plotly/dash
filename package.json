@@ -26,6 +26,7 @@
     "private::update.update-components": "",
     "format": "run-s private::format.*",
     "initialize": "run-s private::initialize.*",
+    "prepare": "husky install",
     "lint": "run-s private::lint.*",
     "setup-tests.py": "run-s private::test.py.deploy-*",
     "setup-tests.R": "run-s private::test.R.deploy-*",
@@ -34,7 +35,7 @@
     "test": "pytest && cd dash/dash-renderer && npm run test"
   },
   "devDependencies": {
-    "husky": "4.2.3",
+    "husky": "7.0.0",
     "lerna": "^4.0.0",
     "@lerna/filter-options": "^4.0.0"
   },

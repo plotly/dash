@@ -438,17 +438,20 @@ def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
     dash_duo.wait_for_element("#d").click()
 
     wait.until(
-        lambda: dash_duo.find_element("#output").text == '[null, 1, "A"]', 3,
+        lambda: dash_duo.find_element("#output").text == '[null, 1, "A"]',
+        3,
     )
 
     dash_duo.wait_for_element("#n").click()
     wait.until(
-        lambda: dash_duo.find_element("#output").text == '[1, 1, "A"]', 3,
+        lambda: dash_duo.find_element("#output").text == '[1, 1, "A"]',
+        3,
     )
 
     dash_duo.wait_for_element("#d").click()
     wait.until(
-        lambda: dash_duo.find_element("#output").text == '[1, 2, "A"]', 3,
+        lambda: dash_duo.find_element("#output").text == '[1, 2, "A"]',
+        3,
     )
 
 
@@ -662,7 +665,8 @@ def test_cbsc015_input_output_callback(dash_duo):
     )
 
     @app.callback(
-        Output("input", "value"), Input("input", "value"),
+        Output("input", "value"),
+        Input("input", "value"),
     )
     def circular_output(v):
         ctx = dash.callback_context
@@ -675,7 +679,8 @@ def test_cbsc015_input_output_callback(dash_duo):
     call_count = Value("i", 0)
 
     @app.callback(
-        Output("input-text", "children"), Input("input", "value"),
+        Output("input-text", "children"),
+        Input("input", "value"),
     )
     def follower_output(v):
         with lock:

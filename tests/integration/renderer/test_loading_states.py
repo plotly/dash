@@ -252,7 +252,8 @@ def test_rdls003_update_title(
 
 
 @pytest.mark.parametrize(
-    "update_title", [None, "Custom Update Title"],
+    "update_title",
+    [None, "Custom Update Title"],
 )
 def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
     initial_title = "Initial Title"

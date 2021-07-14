@@ -412,7 +412,8 @@ class Browser(DashPageMixin):
         try:
             return getattr(self, "_get_{}".format(self._browser))()
         except WebDriverException:
-            return logger.exception("<<<Webdriver not initialized correctly>>>")
+            logger.exception("<<<Webdriver not initialized correctly>>>")
+            return None
 
     def _get_wd_options(self):
         options = (
