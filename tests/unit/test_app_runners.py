@@ -3,8 +3,8 @@ import sys
 import requests
 import pytest
 
-import dash_html_components as html
 import dash
+from dash import html
 
 
 def test_threaded_server_smoke(dash_thread_server):

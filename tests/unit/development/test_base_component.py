@@ -3,7 +3,7 @@ import json
 import plotly
 import pytest
 
-import dash_html_components as html
+from dash import html
 from dash.development.base_component import Component
 
 Component._prop_names = ("id", "a", "children", "style")

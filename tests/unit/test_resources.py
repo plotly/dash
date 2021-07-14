@@ -1,7 +1,7 @@
 import mock
-import dash_core_components as dcc
-import dash_html_components as html  # noqa: F401
 import dash
+from dash import dcc, html  # noqa: F401
+
 from dash.development.base_component import ComponentRegistry
 
 _monkey_patched_js_dist = [

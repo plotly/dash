@@ -10,13 +10,13 @@ parameters:
     default: true
   dash-core-components-modified:
     type: boolean
-    default: true
+    default: false
   dash-html-components-modified:
     type: boolean
-    default: true
+    default: false
   dash-table-modified:
     type: boolean
-    default: true
+    default: false
 
 
 jobs:
