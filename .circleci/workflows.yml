@@ -368,12 +368,12 @@ jobs:
 workflows:
   version: 2
   python3.9:
-  when:
-    or:
-      - << pipeline.parameters.dash-modified >>
-      - << pipeline.parameters.dash-core-components-modified >>
-      - << pipeline.parameters.dash-html-components-modified >>
-      - << pipeline.parameters.dash-table-modified >>
+    when:
+      or:
+        - << pipeline.parameters.dash-modified >>
+        - << pipeline.parameters.dash-core-components-modified >>
+        - << pipeline.parameters.dash-html-components-modified >>
+        - << pipeline.parameters.dash-table-modified >>
     jobs:
       - lint-unit-39
       - build-core-39
@@ -400,12 +400,12 @@ workflows:
               only: /v*/
 
   python3.6:
-  when:
-    or:
-      - << pipeline.parameters.dash-modified >>
-      - << pipeline.parameters.dash-core-components-modified >>
-      - << pipeline.parameters.dash-html-components-modified >>
-      - << pipeline.parameters.dash-table-modified >>
+    when:
+      or:
+        - << pipeline.parameters.dash-modified >>
+        - << pipeline.parameters.dash-core-components-modified >>
+        - << pipeline.parameters.dash-html-components-modified >>
+        - << pipeline.parameters.dash-table-modified >>
     jobs:
       - lint-unit-36
       - build-core-36
