@@ -8,6 +8,16 @@ parameters:
   dash-modified:
     type: boolean
     default: true
+  dash-core-components-modified:
+    type: boolean
+    default: true
+  dash-html-components-modified:
+    type: boolean
+    default: true
+  dash-table-modified:
+    type: boolean
+    default: true
+
 
 jobs:
   percy-finalize:
