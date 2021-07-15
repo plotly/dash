@@ -286,14 +286,12 @@ workflows:
       - build-core-39
       - build-windows-39
       - build-misc-39
-      - build-dashr
       - test-39:
           requires:
             - build-core-39
             - build-misc-39
       - percy-finalize:
           requires:
-            - build-dashr
             - test-39
       - artifacts:
           requires:

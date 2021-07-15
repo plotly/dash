@@ -5,31 +5,31 @@ from dash.development.base_component import Component, _explicitize_args
 
 class Location(Component):
     """A Location component.
-Update and track the current window.location object through the window.history state.
-Use in conjunction with the `dash_core_components.Link` component to make apps with multiple pages.
+    Update and track the current window.location object through the window.history state.
+    Use in conjunction with the `dash_core_components.Link` component to make apps with multiple pages.
 
-Keyword arguments:
+    Keyword arguments:
 
-- id (string; required):
-    The ID of this component, used to identify dash components in
-    callbacks. The ID needs to be unique across all of the components
-    in an app.
+    - id (string; required):
+        The ID of this component, used to identify dash components in
+        callbacks. The ID needs to be unique across all of the components
+        in an app.
 
-- hash (string; optional):
-    hash in window.location - e.g., \"#myhash\".
+    - hash (string; optional):
+        hash in window.location - e.g., \"#myhash\".
 
-- href (string; optional):
-    href in window.location - e.g.,
-    \"/my/full/pathname?myargument=1#myhash\".
+    - href (string; optional):
+        href in window.location - e.g.,
+        \"/my/full/pathname?myargument=1#myhash\".
 
-- pathname (string; optional):
-    pathname in window.location - e.g., \"/my/full/pathname\".
+    - pathname (string; optional):
+        pathname in window.location - e.g., \"/my/full/pathname\".
 
-- refresh (boolean; default True):
-    Refresh the page when the location is updated?.
+    - refresh (boolean; default True):
+        Refresh the page when the location is updated?.
 
-- search (string; optional):
-    search in window.location - e.g., \"?myargument=1\"."""
+    - search (string; optional):
+        search in window.location - e.g., \"?myargument=1\"."""
 
     @_explicitize_args
     def __init__(

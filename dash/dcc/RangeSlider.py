@@ -5,132 +5,132 @@ from dash.development.base_component import Component, _explicitize_args
 
 class RangeSlider(Component):
     """A RangeSlider component.
-A double slider with two handles.
-Used for specifying a range of numerical values.
+    A double slider with two handles.
+    Used for specifying a range of numerical values.
 
-Keyword arguments:
+    Keyword arguments:
 
-- id (string; optional):
-    The ID of this component, used to identify dash components in
-    callbacks. The ID needs to be unique across all of the components
-    in an app.
+    - id (string; optional):
+        The ID of this component, used to identify dash components in
+        callbacks. The ID needs to be unique across all of the components
+        in an app.
 
-- allowCross (boolean; optional):
-    allowCross could be set as True to allow those handles to cross.
+    - allowCross (boolean; optional):
+        allowCross could be set as True to allow those handles to cross.
 
-- className (string; optional):
-    Additional CSS class for the root DOM node.
+    - className (string; optional):
+        Additional CSS class for the root DOM node.
 
-- count (number; optional):
-    Determine how many ranges to render, and multiple handles will be
-    rendered (number + 1).
+    - count (number; optional):
+        Determine how many ranges to render, and multiple handles will be
+        rendered (number + 1).
 
-- disabled (boolean; optional):
-    If True, the handles can't be moved.
+    - disabled (boolean; optional):
+        If True, the handles can't be moved.
 
-- dots (boolean; optional):
-    When the step value is greater than 1, you can set the dots to
-    True if you want to render the slider with dots.
+    - dots (boolean; optional):
+        When the step value is greater than 1, you can set the dots to
+        True if you want to render the slider with dots.
 
-- drag_value (list of numbers; optional):
-    The value of the input during a drag.
+    - drag_value (list of numbers; optional):
+        The value of the input during a drag.
 
-- included (boolean; optional):
-    If the value is True, it means a continuous value is included.
-    Otherwise, it is an independent value.
+    - included (boolean; optional):
+        If the value is True, it means a continuous value is included.
+        Otherwise, it is an independent value.
 
-- loading_state (dict; optional):
-    Object that holds the loading state object coming from
-    dash-renderer.
+    - loading_state (dict; optional):
+        Object that holds the loading state object coming from
+        dash-renderer.
 
-    `loading_state` is a dict with keys:
+        `loading_state` is a dict with keys:
 
-    - component_name (string; optional):
-        Holds the name of the component that is loading.
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
-    - is_loading (boolean; optional):
-        Determines if the component is loading or not.
+        - is_loading (boolean; optional):
+            Determines if the component is loading or not.
 
-    - prop_name (string; optional):
-        Holds which property is loading.
+        - prop_name (string; optional):
+            Holds which property is loading.
 
-- marks (dict; optional):
-    Marks on the slider. The key determines the position (a number),
-    and the value determines what will show. If you want to set the
-    style of a specific mark point, the value should be an object
-    which contains style and label properties.
+    - marks (dict; optional):
+        Marks on the slider. The key determines the position (a number),
+        and the value determines what will show. If you want to set the
+        style of a specific mark point, the value should be an object
+        which contains style and label properties.
 
-    `marks` is a dict with strings as keys and values of type string |
-    dict with keys:
+        `marks` is a dict with strings as keys and values of type string |
+        dict with keys:
 
-    - label (string; optional)
+        - label (string; optional)
 
-    - style (dict; optional)
+        - style (dict; optional)
 
-- max (number; optional):
-    Maximum allowed value of the slider.
+    - max (number; optional):
+        Maximum allowed value of the slider.
 
-- min (number; optional):
-    Minimum allowed value of the slider.
+    - min (number; optional):
+        Minimum allowed value of the slider.
 
-- persisted_props (list of a value equal to: 'value's; default ['value']):
-    Properties whose user interactions will persist after refreshing
-    the component or the page. Since only `value` is allowed this prop
-    can normally be ignored.
+    - persisted_props (list of a value equal to: 'value's; default ['value']):
+        Properties whose user interactions will persist after refreshing
+        the component or the page. Since only `value` is allowed this prop
+        can normally be ignored.
 
-- persistence (boolean | string | number; optional):
-    Used to allow user interactions in this component to be persisted
-    when the component - or the page - is refreshed. If `persisted` is
-    truthy and hasn't changed from its previous value, a `value` that
-    the user has changed while using the app will keep that change, as
-    long as the new `value` also matches what was given originally.
-    Used in conjunction with `persistence_type`.
+    - persistence (boolean | string | number; optional):
+        Used to allow user interactions in this component to be persisted
+        when the component - or the page - is refreshed. If `persisted` is
+        truthy and hasn't changed from its previous value, a `value` that
+        the user has changed while using the app will keep that change, as
+        long as the new `value` also matches what was given originally.
+        Used in conjunction with `persistence_type`.
 
-- persistence_type (a value equal to: 'local', 'session', 'memory'; default 'local'):
-    Where persisted user changes will be stored: memory: only kept in
-    memory, reset on page refresh. local: window.localStorage, data is
-    kept after the browser quit. session: window.sessionStorage, data
-    is cleared once the browser quit.
+    - persistence_type (a value equal to: 'local', 'session', 'memory'; default 'local'):
+        Where persisted user changes will be stored: memory: only kept in
+        memory, reset on page refresh. local: window.localStorage, data is
+        kept after the browser quit. session: window.sessionStorage, data
+        is cleared once the browser quit.
 
-- pushable (boolean | number; optional):
-    pushable could be set as True to allow pushing of surrounding
-    handles when moving an handle. When set to a number, the number
-    will be the minimum ensured distance between handles.
+    - pushable (boolean | number; optional):
+        pushable could be set as True to allow pushing of surrounding
+        handles when moving an handle. When set to a number, the number
+        will be the minimum ensured distance between handles.
 
-- step (number; optional):
-    Value by which increments or decrements are made.
+    - step (number; optional):
+        Value by which increments or decrements are made.
 
-- tooltip (dict; optional):
-    Configuration for tooltips describing the current slider values.
+    - tooltip (dict; optional):
+        Configuration for tooltips describing the current slider values.
 
-    `tooltip` is a dict with keys:
+        `tooltip` is a dict with keys:
 
-    - always_visible (boolean; optional):
-        Determines whether tooltips should always be visible (as
-        opposed to the default, visible on hover).
+        - always_visible (boolean; optional):
+            Determines whether tooltips should always be visible (as
+            opposed to the default, visible on hover).
 
-    - placement (a value equal to: 'left', 'right', 'top', 'bottom', 'topLeft', 'topRight', 'bottomLeft', 'bottomRight'; optional):
-        Determines the placement of tooltips See
-        https://github.com/react-component/tooltip#api top/bottom{*}
-        sets the _origin_ of the tooltip, so e.g. `topLeft` will in
-        reality appear to be on the top right of the handle.
+        - placement (a value equal to: 'left', 'right', 'top', 'bottom', 'topLeft', 'topRight', 'bottomLeft', 'bottomRight'; optional):
+            Determines the placement of tooltips See
+            https://github.com/react-component/tooltip#api top/bottom{*}
+            sets the _origin_ of the tooltip, so e.g. `topLeft` will in
+            reality appear to be on the top right of the handle.
 
-- updatemode (a value equal to: 'mouseup', 'drag'; default 'mouseup'):
-    Determines when the component should update its `value` property.
-    If `mouseup` (the default) then the slider will only trigger its
-    value when the user has finished dragging the slider. If `drag`,
-    then the slider will update its value continuously as it is being
-    dragged. Note that for the latter case, the `drag_value` property
-    could be used instead.
+    - updatemode (a value equal to: 'mouseup', 'drag'; default 'mouseup'):
+        Determines when the component should update its `value` property.
+        If `mouseup` (the default) then the slider will only trigger its
+        value when the user has finished dragging the slider. If `drag`,
+        then the slider will update its value continuously as it is being
+        dragged. Note that for the latter case, the `drag_value` property
+        could be used instead.
 
-- value (list of numbers; optional):
-    The value of the input.
+    - value (list of numbers; optional):
+        The value of the input.
 
-- vertical (boolean; optional):
-    If True, the slider will be vertical.
+    - vertical (boolean; optional):
+        If True, the slider will be vertical.
 
-- verticalHeight (number; default 400):
-    The height, in px, of the slider if it is vertical."""
+    - verticalHeight (number; default 400):
+        The height, in px, of the slider if it is vertical."""
 
     @_explicitize_args
     def __init__(

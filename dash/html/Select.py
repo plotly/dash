@@ -5,126 +5,126 @@ from dash.development.base_component import Component, _explicitize_args
 
 class Select(Component):
     """A Select component.
-Select is a wrapper for the <select> HTML5 element.
-For detailed attribute info see:
-https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select
+    Select is a wrapper for the <select> HTML5 element.
+    For detailed attribute info see:
+    https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select
 
-Keyword arguments:
+    Keyword arguments:
 
-- children (a list of or a singular dash component, string or number; optional):
-    The children of this component.
+    - children (a list of or a singular dash component, string or number; optional):
+        The children of this component.
 
-- id (string; optional):
-    The ID of this component, used to identify dash components in
-    callbacks. The ID needs to be unique across all of the components
-    in an app.
+    - id (string; optional):
+        The ID of this component, used to identify dash components in
+        callbacks. The ID needs to be unique across all of the components
+        in an app.
 
-- accessKey (string; optional):
-    Keyboard shortcut to activate or add focus to the element.
+    - accessKey (string; optional):
+        Keyboard shortcut to activate or add focus to the element.
 
-- aria-* (string; optional):
-    A wildcard aria attribute.
+    - aria-* (string; optional):
+        A wildcard aria attribute.
 
-- autoComplete (string; optional):
-    Indicates whether controls in this form can by default have their
-    values automatically completed by the browser.
+    - autoComplete (string; optional):
+        Indicates whether controls in this form can by default have their
+        values automatically completed by the browser.
 
-- autoFocus (a value equal to: 'autoFocus', 'autofocus', 'AUTOFOCUS' | boolean; optional):
-    The element should be automatically focused after the page loaded.
+    - autoFocus (a value equal to: 'autoFocus', 'autofocus', 'AUTOFOCUS' | boolean; optional):
+        The element should be automatically focused after the page loaded.
 
-- className (string; optional):
-    Often used with CSS to style elements with common properties.
+    - className (string; optional):
+        Often used with CSS to style elements with common properties.
 
-- contentEditable (string; optional):
-    Indicates whether the element's content is editable.
+    - contentEditable (string; optional):
+        Indicates whether the element's content is editable.
 
-- contextMenu (string; optional):
-    Defines the ID of a <menu> element which will serve as the
-    element's context menu.
+    - contextMenu (string; optional):
+        Defines the ID of a <menu> element which will serve as the
+        element's context menu.
 
-- data-* (string; optional):
-    A wildcard data attribute.
+    - data-* (string; optional):
+        A wildcard data attribute.
 
-- dir (string; optional):
-    Defines the text direction. Allowed values are ltr (Left-To-Right)
-    or rtl (Right-To-Left).
+    - dir (string; optional):
+        Defines the text direction. Allowed values are ltr (Left-To-Right)
+        or rtl (Right-To-Left).
 
-- disabled (a value equal to: 'disabled', 'DISABLED' | boolean; optional):
-    Indicates whether the user can interact with the element.
+    - disabled (a value equal to: 'disabled', 'DISABLED' | boolean; optional):
+        Indicates whether the user can interact with the element.
 
-- draggable (string; optional):
-    Defines whether the element can be dragged.
+    - draggable (string; optional):
+        Defines whether the element can be dragged.
 
-- form (string; optional):
-    Indicates the form that is the owner of the element.
+    - form (string; optional):
+        Indicates the form that is the owner of the element.
 
-- hidden (a value equal to: 'hidden', 'HIDDEN' | boolean; optional):
-    Prevents rendering of given element, while keeping child elements,
-    e.g. script elements, active.
+    - hidden (a value equal to: 'hidden', 'HIDDEN' | boolean; optional):
+        Prevents rendering of given element, while keeping child elements,
+        e.g. script elements, active.
 
-- key (string; optional):
-    A unique identifier for the component, used to improve performance
-    by React.js while rendering components See
-    https://reactjs.org/docs/lists-and-keys.html for more info.
+    - key (string; optional):
+        A unique identifier for the component, used to improve performance
+        by React.js while rendering components See
+        https://reactjs.org/docs/lists-and-keys.html for more info.
 
-- lang (string; optional):
-    Defines the language used in the element.
+    - lang (string; optional):
+        Defines the language used in the element.
 
-- loading_state (dict; optional):
-    Object that holds the loading state object coming from
-    dash-renderer.
+    - loading_state (dict; optional):
+        Object that holds the loading state object coming from
+        dash-renderer.
 
-    `loading_state` is a dict with keys:
+        `loading_state` is a dict with keys:
 
-    - component_name (string; optional):
-        Holds the name of the component that is loading.
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
-    - is_loading (boolean; optional):
-        Determines if the component is loading or not.
+        - is_loading (boolean; optional):
+            Determines if the component is loading or not.
 
-    - prop_name (string; optional):
-        Holds which property is loading.
+        - prop_name (string; optional):
+            Holds which property is loading.
 
-- multiple (a value equal to: 'multiple', 'MULTIPLE' | boolean; optional):
-    Indicates whether multiple values can be entered in an input of
-    the type email or file.
+    - multiple (a value equal to: 'multiple', 'MULTIPLE' | boolean; optional):
+        Indicates whether multiple values can be entered in an input of
+        the type email or file.
 
-- n_clicks (number; default 0):
-    An integer that represents the number of times that this element
-    has been clicked on.
+    - n_clicks (number; default 0):
+        An integer that represents the number of times that this element
+        has been clicked on.
 
-- n_clicks_timestamp (number; default -1):
-    An integer that represents the time (in ms since 1970) at which
-    n_clicks changed. This can be used to tell which button was
-    changed most recently.
+    - n_clicks_timestamp (number; default -1):
+        An integer that represents the time (in ms since 1970) at which
+        n_clicks changed. This can be used to tell which button was
+        changed most recently.
 
-- name (string; optional):
-    Name of the element. For example used by the server to identify
-    the fields in form submits.
+    - name (string; optional):
+        Name of the element. For example used by the server to identify
+        the fields in form submits.
 
-- required (a value equal to: 'required', 'REQUIRED' | boolean; optional):
-    Indicates whether this element is required to fill out or not.
+    - required (a value equal to: 'required', 'REQUIRED' | boolean; optional):
+        Indicates whether this element is required to fill out or not.
 
-- role (string; optional):
-    The ARIA role attribute.
+    - role (string; optional):
+        The ARIA role attribute.
 
-- size (string | number; optional):
-    Defines the width of the element (in pixels). If the element's
-    type attribute is text or password then it's the number of
-    characters.
+    - size (string | number; optional):
+        Defines the width of the element (in pixels). If the element's
+        type attribute is text or password then it's the number of
+        characters.
 
-- spellCheck (string; optional):
-    Indicates whether spell checking is allowed for the element.
+    - spellCheck (string; optional):
+        Indicates whether spell checking is allowed for the element.
 
-- style (dict; optional):
-    Defines CSS styles which will override styles previously set.
+    - style (dict; optional):
+        Defines CSS styles which will override styles previously set.
 
-- tabIndex (string; optional):
-    Overrides the browser's default tab order and follows the one
-    specified instead.
+    - tabIndex (string; optional):
+        Overrides the browser's default tab order and follows the one
+        specified instead.
 
-- title (string; optional):
-    Text to be displayed in a tooltip when hovering over the element."""
+    - title (string; optional):
+        Text to be displayed in a tooltip when hovering over the element."""
 
     @_explicitize_args
     def __init__(

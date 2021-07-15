@@ -25,7 +25,8 @@ def booststrap_components(components_source):
     )
 
     cmd = shlex.split(
-        "npx lerna bootstrap --scope *@({})*".format(source_glob), posix=not is_windows,
+        "npx lerna bootstrap --scope *@({})*".format(source_glob),
+        posix=not is_windows,
     )
 
     with subprocess.Popen(
