@@ -3,17 +3,23 @@ from multiprocessing import Lock, Value
 import pytest
 import time
 
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table
-import dash
 from dash_test_components import (
     AsyncComponent,
     CollapseComponent,
     DelayedEventComponent,
     FragmentComponent,
 )
-from dash.dependencies import Input, Output, State
+from dash import (
+    Dash,
+    Input,
+    Output,
+    State,
+    html,
+    dcc,
+    dash_table,
+    no_update,
+    callback_context,
+)
 from dash.exceptions import PreventUpdate
 from dash.testing import wait
 
@@ -21,7 +27,7 @@ from dash.testing import wait
 def test_cbsc001_simple_callback(dash_duo):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="input", value="initial value"),
@@ -62,7 +68,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
     """Modify the DOM tree by adding new components in the callbacks."""
 
     # some components don't exist in the initial render
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [dcc.Input(id="input", value="initial value"), html.Div(id="output")]
     )
@@ -152,7 +158,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
 
 
 def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
-    app = dash.Dash()
+    app = Dash()
     app.layout = html.Div(
         children=[
             dcc.Tabs(
@@ -185,7 +191,7 @@ def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
 
 
 def test_cbsc004_callback_using_unloaded_async_component(dash_duo):
-    app = dash.Dash()
+    app = Dash()
     app.layout = html.Div(
         [
             dcc.Tabs(
@@ -249,7 +255,7 @@ def test_cbsc004_callback_using_unloaded_async_component(dash_duo):
 
 
 def test_cbsc005_children_types(dash_duo):
-    app = dash.Dash()
+    app = Dash()
     app.layout = html.Div([html.Button(id="btn"), html.Div("init", id="out")])
 
     outputs = [
@@ -266,7 +272,7 @@ def test_cbsc005_children_types(dash_duo):
     @app.callback(Output("out", "children"), [Input("btn", "n_clicks")])
     def set_children(n):
         if n is None or n > len(outputs):
-            return dash.no_update
+            return no_update
         return outputs[n - 1][0]
 
     dash_duo.start_server(app)
@@ -278,7 +284,7 @@ def test_cbsc005_children_types(dash_duo):
 
 
 def test_cbsc006_array_of_objects(dash_duo):
-    app = dash.Dash()
+    app = Dash()
     app.layout = html.Div(
         [html.Button(id="btn"), dcc.Dropdown(id="dd"), html.Div(id="out")]
     )
@@ -316,7 +322,7 @@ def test_cbsc007_parallel_updates(refresh, dash_duo):
     # any callbacks that depend on pathname, despite the new front-end-provided
     # value.
 
-    app = dash.Dash()
+    app = Dash()
 
     app.layout = html.Div(
         [
@@ -359,7 +365,7 @@ def test_cbsc007_parallel_updates(refresh, dash_duo):
 def test_cbsc008_wildcard_prop_callbacks(dash_duo):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="input", value="initial value"),
@@ -413,7 +419,7 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
 
 
 def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = FragmentComponent(
         [
             CollapseComponent([AsyncComponent(id="async", value="A")]),
@@ -456,7 +462,7 @@ def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
 
 
 def test_cbsc010_event_properties(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([html.Button("Click Me", id="button"), html.Div(id="output")])
 
     call_count = Value("i", 0)
@@ -478,7 +484,7 @@ def test_cbsc010_event_properties(dash_duo):
 
 
 def test_cbsc011_one_call_for_multiple_outputs_initial(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     call_count = Value("i", 0)
 
     app.layout = html.Div(
@@ -510,7 +516,7 @@ def test_cbsc011_one_call_for_multiple_outputs_initial(dash_duo):
 
 
 def test_cbsc012_one_call_for_multiple_outputs_update(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     call_count = Value("i", 0)
 
     app.layout = html.Div(
@@ -556,7 +562,7 @@ def test_cbsc012_one_call_for_multiple_outputs_update(dash_duo):
 
 
 def test_cbsc013_multi_output_out_of_order(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button(id="input", n_clicks=0),
@@ -601,7 +607,7 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     timestamp_1 = Value("d", -5)
     timestamp_2 = Value("d", -5)
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(id="container"),
@@ -659,7 +665,7 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
 def test_cbsc015_input_output_callback(dash_duo):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.Div("0", id="input-text"), dcc.Input(id="input", type="number", value=0)]
     )
@@ -669,7 +675,7 @@ def test_cbsc015_input_output_callback(dash_duo):
         Input("input", "value"),
     )
     def circular_output(v):
-        ctx = dash.callback_context
+        ctx = callback_context
         if not ctx.triggered:
             value = v
         else:

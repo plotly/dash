@@ -1,10 +1,7 @@
 from time import sleep
 import flask
 
-import dash_core_components as dcc
-import dash_html_components as html
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
 import dash.testing.wait as wait
 
 from dash_test_components import WidthComponent
@@ -12,7 +9,7 @@ from assets.todo_app import todo_app
 
 
 def test_dvui001_disable_props_check_config(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.P(id="tcid", children="Hello Props Check"),
@@ -40,7 +37,7 @@ def test_dvui001_disable_props_check_config(dash_duo):
 
 
 def test_dvui002_disable_ui_config(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.P(id="tcid", children="Hello Disable UI"),
@@ -129,7 +126,7 @@ def test_dvui003_callback_graph(dash_duo):
 
 
 def test_dvui004_width_props(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [html.Button(["Click me!"], id="btn"), WidthComponent(id="width")]
@@ -177,7 +174,7 @@ def test_dvui005_undo_redo(dash_duo):
         for el, text in zip(els, texts):
             assert el.text == text
 
-    app = dash.Dash(__name__, show_undo_redo=True)
+    app = Dash(__name__, show_undo_redo=True)
     app.layout = html.Div([dcc.Input(id="a"), html.Div(id="b")])
 
     @app.callback(Output("b", "children"), Input("a", "value"))
@@ -212,7 +209,7 @@ def test_dvui005_undo_redo(dash_duo):
 
 
 def test_dvui006_no_undo_redo(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([dcc.Input(id="a"), html.Div(id="b")])
 
     @app.callback(Output("b", "children"), Input("a", "value"))
@@ -232,7 +229,7 @@ def test_dvui007_other_before_request_func(dash_thread_server, dash_br):
     # we take only the selenium driver from `bash_br`, this driver has already been set-up.
     driver = dash_br.driver
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.P(id="just_an_id", children="You should never see this")]
     )

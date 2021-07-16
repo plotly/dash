@@ -1,9 +1,6 @@
 import json
 
-import dash_html_components as html
-import dash_core_components as dcc
-from dash import Dash
-from dash.dependencies import Output, Input
+from dash import Dash, Output, Input, html, dcc
 
 
 def test_rdrh001_request_hooks(dash_duo):

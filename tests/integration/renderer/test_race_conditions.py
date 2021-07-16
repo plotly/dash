@@ -3,11 +3,7 @@ import time
 import flask
 import pytest
 
-import dash_html_components as html
-import dash_core_components as dcc
-from dash import Dash
-from dash.dependencies import Input, Output
-
+from dash import Dash, html, dcc, Input, Output
 
 DELAY_TIME = 0.2
 

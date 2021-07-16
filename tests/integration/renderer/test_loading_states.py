@@ -1,18 +1,14 @@
 from multiprocessing import Lock
 
 import pytest
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
 from dash.testing.wait import until
-
-import dash_core_components as dcc
-import dash_html_components as html
 
 
 def test_rdls001_multi_loading_components(dash_duo):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         children=[
@@ -75,7 +71,7 @@ def test_rdls001_multi_loading_components(dash_duo):
 
 def test_rdls002_chained_loading_states(dash_duo):
     lock1, lock2, lock34 = Lock(), Lock(), Lock()
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     def loading_wrapped_div(_id, color):
         return html.Div(
@@ -187,7 +183,7 @@ def test_rdls002_chained_loading_states(dash_duo):
 def test_rdls003_update_title(
     dash_duo, kwargs, expected_update_title, clientside_title
 ):
-    app = dash.Dash("Dash", **kwargs)
+    app = Dash("Dash", **kwargs)
     lock = Lock()
 
     app.layout = html.Div(
@@ -257,7 +253,7 @@ def test_rdls003_update_title(
 )
 def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
     initial_title = "Initial Title"
-    app = dash.Dash("Dash", title=initial_title, update_title=update_title)
+    app = Dash("Dash", title=initial_title, update_title=update_title)
     lock = Lock()
 
     app.layout = html.Div(

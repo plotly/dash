@@ -4,10 +4,7 @@ import pytest
 import flask_talisman
 from selenium.common.exceptions import NoSuchElementException
 
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
 
 
 @contextlib.contextmanager
@@ -28,7 +25,7 @@ def does_not_raise():
 def test_incs001_csp_hashes_inline_scripts(
     dash_duo, add_hashes, hash_algorithm, expectation
 ):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [dcc.Input(id="input_element", type="text"), html.Div(id="output_element")]

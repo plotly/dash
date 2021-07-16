@@ -1,10 +1,7 @@
 import os
 import json
 from multiprocessing import Value
-import dash_core_components as dcc
-import dash_html_components as html
-from dash import Dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
 import dash.testing.wait as wait
 
 

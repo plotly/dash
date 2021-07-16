@@ -1,10 +1,6 @@
 import pytest
 
-import dash_html_components as html
-
-from dash import Dash
-
-from dash.dependencies import Input, Output, State
+from dash import Dash, Input, Output, State, html
 from dash.exceptions import InvalidCallbackReturnValue, IncorrectTypeException
 
 
@@ -62,7 +58,7 @@ def test_cbva001_callback_dep_types():
         Input("in2", "children"),
         State("state2", "children"),
     )
-    def f2(i):
+    def f3(i):
         return i
 
     # all OK with lists
@@ -71,7 +67,7 @@ def test_cbva001_callback_dep_types():
         [Input("in3", "children")],
         [State("state3", "children")],
     )
-    def f3(i):
+    def f4(i):
         return i
 
 

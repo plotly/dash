@@ -1,14 +1,11 @@
 from multiprocessing import Value
 import time
-import dash_html_components as html
-import dash_core_components as dcc
-import dash
-from dash.dependencies import Input, Output, State
+from dash import Dash, Input, Output, State, html, dcc
 import dash.testing.wait as wait
 
 
 def test_rdsi001_state_and_inputs(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(value="Initial Input", id="input"),
@@ -61,7 +58,7 @@ def test_rdsi001_state_and_inputs(dash_duo):
 
 
 def test_rdsi002_event_properties_state_and_inputs(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button("Click Me", id="button"),

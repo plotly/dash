@@ -2,11 +2,9 @@ import pytest
 import re
 from selenium.webdriver.common.keys import Keys
 
-import dash_html_components as html
-import dash_core_components as dcc
-import dash
 from dash.testing import wait
-from dash.dependencies import Input, Output, State, ALL, ALLSMALLER, MATCH
+import dash
+from dash import Dash, Input, Output, State, ALL, ALLSMALLER, MATCH, html, dcc
 
 from assets.todo_app import todo_app
 
@@ -123,7 +121,7 @@ def fibonacci_app(clientside):
     # This app tests 2 things in particular:
     # - clientside callbacks work the same as server-side
     # - callbacks using ALLSMALLER as an input to MATCH of the exact same id/prop
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="n", type="number", min=0, max=10, value=4),
@@ -224,7 +222,7 @@ def test_cbwc002_fibonacci_app(clientside, dash_duo):
 
 
 def test_cbwc003_same_keys(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
         [
@@ -282,7 +280,7 @@ def test_cbwc003_same_keys(dash_duo):
 
 
 def test_cbwc004_layout_chunk_changed_props(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id={"type": "input", "index": 1}, value="input-1"),

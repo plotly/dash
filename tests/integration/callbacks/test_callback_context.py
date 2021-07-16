@@ -2,12 +2,7 @@ import json
 import operator
 import pytest
 
-import dash_html_components as html
-import dash_core_components as dcc
-
-from dash import Dash, callback_context
-
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc, callback_context
 
 from dash.exceptions import PreventUpdate, MissingCallbackContextException
 import dash.testing.wait as wait

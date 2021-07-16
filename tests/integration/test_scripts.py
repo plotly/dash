@@ -1,12 +1,7 @@
 import time
 import pytest
 
-import dash_html_components as html
-import dash_core_components as dcc
-
-from dash import Dash
-
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc
 from dash.exceptions import PreventUpdate
 
 

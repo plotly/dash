@@ -1,12 +1,9 @@
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html
 from dash.exceptions import PreventUpdate
-
-import dash_html_components as html
 
 
 def test_rdif001_sandbox_allow_scripts(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     N_OUTPUTS = 50
 
