@@ -98,8 +98,8 @@
     "/lib/"
   ],
   "peerDependencies": {
-    "react": "^16.9",
-    "react-dom": "^16.9"
+    "react": ">=16",
+    "react-dom": ">=16"
   },
   "browserslist": [
     "defaults"
