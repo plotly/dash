@@ -39,6 +39,15 @@ There is a relatively small set of routes (urls/url patterns) that a Dash server
 - `_favicon.ico`: the favicon, the title bar icon for the page, normally the Plotly logo.
 - `assets/<path>`: static files to use on the page, potentially nested. CSS and JS files in this directory should be included in the HTML index page, and any file in this directory should be served if requested by the page. In Python this is handled by the `register_blueprint` call.
 
+## Choosing a web server
+
+You'll need to choose an HTTP(S) server for the programming language that you're adding to the Dash framework. For example, here are the HTTP(S) servers currently uses for the existing known distributions of Dash:
+
+- [Dash Python](https://github.com/plotly/dash) uses [Flask](https://github.com/pallets/flask/) (though there is also a [community-maintained version that uses Django](https://github.com/GibbsConsulting/django-plotly-dash))
+- [Dash Julia](https://github.com/plotly/dash.jl) uses [HTTP.jl](https://github.com/JuliaWeb/HTTP.jl)
+- [Dash.NET](https://github.com/plotly/dash.net) uses [Giraffe](https://github.com/giraffe-fsharp/Giraffe)
+- [Dash.R](https://github.com/plotly/dashr) uses [Fiery](https://github.com/thomasp85/fiery)
+
 ## Dash App Objects
 
 In Python, users first create a dash object:
@@ -72,3 +81,16 @@ Any new back end needs to provide all of that functionality, one way or another.
 The `Dash()` constructor has lots of options. They’re all listed and documented [here]( https://github.com/plotly/dash/blob/357f22167d40ef00c92ff165aa6df23c622799f6/dash/dash.py#L113-L253) - some are Python-specific (`name`, `server`, `plugins`), others should eventually be replicated but many can be left out of the first proof-of-concept implementation.
 
 Similarly the `app.run_server` method has a lot of options, listed [here](https://github.com/plotly/dash/blob/357f22167d40ef00c92ff165aa6df23c622799f6/dash/dash.py#L1596-L1671) - again some are Python-specific (`flask_run_options`) and others can be added over time. Notice that many of these are simply passed on to `self.enable_dev_tools` - that’s because in Python the flask `server.run` command (called at the end of `app.run_server`) is normally only used in development, in production a more powerful server such as gunicorn is used, but a user may still want to enable devtools using a production server. You’re the expert on the new back end language, only you know if such a split makes sense. We don't want to write our own web server framework, you should be able to choose an existing one. Ideally this server should be easy to install on all major operating systems / platforms where your language is used, and for production scalability it should be able to run multiple workers or otherwise make full use of a multi-core machine. If it has the ability in development mode to create friendly error messages with stack traces to help debugging, that's a plus, but if not we can probably build that ourselves. 
+
+## Contributing your own backends
+
+We're very happy to work with anyone who is interested in making their own back end for Dash! Please get in touch through the [community forum](https://community.plotly.com/c/dash/) if you have started such an endeavor. In our experience, adding a new language to the Dash framework is not a weekend project, though we are constantly working to make this easier. At the moment, please anticipate a few months of work (including writing documentation). So far, mature Dash back ends exist for:
+
+- [Python](https://github.com/plotly/dash)
+- [Julia](https://github.com/plotly/dash.jl)
+- [F#/.NET](https://github.com/plotly/dash.net)
+- [R](https://github.com/plotly/dashr)
+
+MATLAB, Scala, and SAS are examples of other scientific programming languages that could one day benefit from Dash's low-code, front end framework for creating AI and data science apps.
+
+Happy coding!
