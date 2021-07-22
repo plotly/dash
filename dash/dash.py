@@ -1469,6 +1469,13 @@ class Dash:
                 for package in packages
             ]
 
+            for i, package in enumerate(packages):
+                if "dash/dash" in os.path.dirname(package.path):
+                    component_packages_dist[i : i + 1] = [
+                        os.path.join(os.path.dirname(package.path), x)
+                        for x in ["dcc", "html", "dash_table"]
+                    ]
+
             _reload.watch_thread = threading.Thread(
                 target=lambda: _watch.watch(
                     [self.config.assets_folder] + component_packages_dist,
