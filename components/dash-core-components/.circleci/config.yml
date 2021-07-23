@@ -24,9 +24,10 @@ jobs:
         environment:
           PYTHON_VERSION: py39
     steps:
-      - checkout:
-            path: ~/dash/components/dash-core-components
-      - run: echo $PYTHON_VERSION > ver.txt
+      - checkout
+      - run: |
+          echo $PYTHON_VERSION > ver.txt
+          cd components/dash-core-components
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - run:
@@ -78,8 +79,7 @@ jobs:
         environment:
             PYTHON_VERSION: py39
     steps:
-      - checkout:
-            path: ~/dash/components/dash-core-components
+      - checkout
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -147,8 +147,7 @@ jobs:
             PERCY_ENABLE: 1
     parallelism: 3
     steps:
-      - checkout:
-            path: ~/dash/components/dash-core-components
+      - checkout
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
