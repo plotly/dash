@@ -147,8 +147,7 @@ def test_cbva003_list_single_output(dash_duo):
 
 
 @pytest.mark.parametrize("named_out", [True, False])
-@pytest.mark.parametrize("named_in", [True, False])
-@pytest.mark.parametrize("named_state", [True, False])
+@pytest.mark.parametrize("named_in,named_state", [(True, True), (False, False)])
 def test_cbva004_named_args(named_out, named_in, named_state, dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
