@@ -1,6 +1,7 @@
 import json
 
 from ._validate import validate_callback
+from ._grouping import flatten_grouping, make_grouping_by_index
 
 
 class _Wildcard:  # pylint: disable=too-few-public-methods
@@ -135,6 +136,173 @@ class ClientsideFunction:  # pylint: disable=too-few-public-methods
 
     def __repr__(self):
         return "ClientsideFunction({}, {})".format(self.namespace, self.function_name)
+
+
+def extract_grouped_output_callback_args(args, kwargs):
+    if "output" in kwargs:
+        parameters = kwargs["output"]
+        # Normalize list of multiple positional outputs to a tuple
+        if isinstance(parameters, list):
+            parameters = tuple(parameters)
+
+        # Make sure dependency grouping contains only Output objects
+        for dep in flatten_grouping(parameters):
+            if not isinstance(dep, Output):
+                raise ValueError(
+                    f"Invalid value provided where an Output dependency "
+                    f"object was expected: {dep}"
+                )
+
+        return parameters
+    else:
+        parameters = []
+        while args:
+            next_deps = flatten_grouping(args[0])
+            if all(isinstance(d, Output) for d in next_deps):
+                parameters.append(args.pop(0))
+            else:
+                break
+        return tuple(parameters)
+
+
+def extract_grouped_input_state_callback_args_from_kwargs(kwargs):
+    input_parameters = kwargs["inputs"]
+    if isinstance(input_parameters, DashDependency):
+        input_parameters = [input_parameters]
+
+    state_parameters = kwargs.get("state", None)
+    if isinstance(state_parameters, DashDependency):
+        state_parameters = [state_parameters]
+
+    if isinstance(input_parameters, dict):
+        # Wrapped function will be called with named keyword arguments
+        if state_parameters:
+            if not isinstance(state_parameters, dict):
+                raise ValueError(
+                    "The input argument to app.callback was a dict, "
+                    "but the state argument was not.\n"
+                    "input and state arguments must have the same type"
+                )
+
+            # Merge into state dependencies
+            parameters = state_parameters
+            parameters.update(input_parameters)
+        else:
+            parameters = input_parameters
+
+        return parameters
+    elif isinstance(input_parameters, (list, tuple)):
+        # Wrapped function will be called with positional arguments
+        parameters = list(input_parameters)
+        if state_parameters:
+            if not isinstance(state_parameters, (list, tuple)):
+                raise ValueError(
+                    "The input argument to app.callback was a list, "
+                    "but the state argument was not.\n"
+                    "input and state arguments must have the same type"
+                )
+
+            parameters += list(state_parameters)
+
+        return tuple(parameters)
+    else:
+        raise ValueError(
+            "The input argument to app.callback may be a dict, list, or tuple,\n"
+            f"but received value of type {type(input_parameters)}"
+        )
+
+
+def extract_grouped_input_state_callback_args_from_args(args):
+    # Collect input and state from args
+    parameters = []
+    while args:
+        next_deps = flatten_grouping(args[0])
+        if all(isinstance(d, (Input, State)) for d in next_deps):
+            parameters.append(args.pop(0))
+        else:
+            break
+
+    if len(parameters) == 1:
+        # Only one output grouping, return as-is
+        return parameters[0]
+    else:
+        # Multiple output groupings, return wrap in tuple
+        return tuple(parameters)
+
+
+def extract_grouped_input_state_callback_args(args, kwargs):
+    if "inputs" in kwargs:
+        return extract_grouped_input_state_callback_args_from_kwargs(kwargs)
+    else:
+        if "state" in kwargs:
+            # Not valid to provide state as kwarg without input as kwarg
+            print(args, kwargs)
+            raise ValueError(
+                "The state keyword argument may not be provided without "
+                "the input keyword argument"
+            )
+        return extract_grouped_input_state_callback_args_from_args(args)
+
+
+def compute_input_state_grouping_indices(input_state_grouping):
+    # Flatten grouping of Input and State dependencies into a flat list
+    flat_deps = flatten_grouping(input_state_grouping)
+
+    # Split into separate flat lists of Input and State dependencies
+    flat_inputs = [dep for dep in flat_deps if isinstance(dep, Input)]
+    flat_state = [dep for dep in flat_deps if isinstance(dep, State)]
+
+    # For each entry in the grouping, compute the index into the
+    # concatenation of flat_inputs and flat_state
+    total_inputs = len(flat_inputs)
+    input_count = 0
+    state_count = 0
+    flat_inds = []
+    for dep in flat_deps:
+        if isinstance(dep, Input):
+            flat_inds.append(input_count)
+            input_count += 1
+        else:
+            flat_inds.append(total_inputs + state_count)
+            state_count += 1
+
+    # Reshape this flat list of indices to match the input grouping
+    grouping_inds = make_grouping_by_index(input_state_grouping, flat_inds)
+    return flat_inputs, flat_state, grouping_inds
+
+
+def handle_grouped_callback_args(args, kwargs):
+    """Split args into outputs, inputs and states"""
+    prevent_initial_call = kwargs.get("prevent_initial_call", None)
+    if prevent_initial_call is None and args and isinstance(args[-1], bool):
+        args, prevent_initial_call = args[:-1], args[-1]
+
+    # flatten args, to support the older syntax where outputs, inputs, and states
+    # each needed to be in their own list
+    flat_args = []
+    for arg in args:
+        flat_args += arg if isinstance(arg, (list, tuple)) else [arg]
+
+    outputs = extract_grouped_output_callback_args(flat_args, kwargs)
+    flat_outputs = flatten_grouping(outputs)
+
+    if isinstance(outputs, tuple) and len(outputs) == 1:
+        out0 = kwargs.get("output", args[0] if args else None)
+        if not isinstance(out0, (list, tuple)):
+            # unless it was explicitly provided as a list, a single output
+            # should be unwrapped. That ensures the return value of the
+            # callback is also not expected to be wrapped in a list.
+            outputs = outputs[0]
+
+    inputs_state = extract_grouped_input_state_callback_args(flat_args, kwargs)
+    flat_inputs, flat_state, input_state_indices = compute_input_state_grouping_indices(
+        inputs_state
+    )
+
+    types = Input, Output, State
+    validate_callback(flat_outputs, flat_inputs, flat_state, flat_args, types)
+
+    return outputs, flat_inputs, flat_state, input_state_indices, prevent_initial_call
 
 
 def extract_callback_args(args, kwargs, name, type_):

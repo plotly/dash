@@ -26,7 +26,11 @@ import plotly
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
-from .dependencies import handle_callback_args, Output
+from .dependencies import (
+    handle_callback_args,
+    handle_grouped_callback_args,
+    Output,
+)
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
 from .version import __version__
@@ -49,6 +53,10 @@ from ._utils import (
 from . import _dash_renderer
 from . import _validate
 from . import _watch
+from ._grouping import (
+    flatten_grouping,
+    validate_grouping,
+)
 
 _flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
@@ -1001,34 +1009,63 @@ class Dash(object):
 
 
         """
-        output, inputs, state, prevent_initial_call = handle_callback_args(
-            _args, _kwargs
+        (
+            output,
+            flat_inputs,
+            flat_state,
+            inputs_state_indices,
+            prevent_initial_call,
+        ) = handle_grouped_callback_args(_args, _kwargs)
+        if isinstance(output, Output):
+            # Insert callback with scalar (non-multi) Output
+            insert_output = output
+            multi = False
+        else:
+            # Insert callback as multi Output
+            insert_output = flatten_grouping(output)
+            multi = True
+
+        callback_id = self._insert_callback(
+            insert_output, flat_inputs, flat_state, prevent_initial_call
         )
-        callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
-        multi = isinstance(output, (list, tuple))
 
         def wrap_func(func):
             @wraps(func)
             def add_context(*args, **kwargs):
                 output_spec = kwargs.pop("outputs_list")
-                _validate.validate_output_spec(output, output_spec, Output)
+                _validate.validate_output_spec(insert_output, output_spec, Output)
+
+                func_args, func_kwargs = _validate.validate_and_group_input_args(
+                    args, inputs_state_indices
+                )
 
                 # don't touch the comment on the next line - used by debugger
-                output_value = func(*args, **kwargs)  # %% callback invoked %%
+                output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
 
                 if isinstance(output_value, _NoUpdate):
                     raise PreventUpdate
 
-                # wrap single outputs so we can treat them all the same
-                # for validation and response creation
                 if not multi:
                     output_value, output_spec = [output_value], [output_spec]
+                    flat_output_values = output_value
+                else:
+                    if isinstance(output_value, list):
+                        # For multi-output, allow top-level collection to be
+                        # list or tuple
+                        output_value = tuple(output_value)
 
-                _validate.validate_multi_return(output_spec, output_value, callback_id)
+                    flat_output_values = flatten_grouping(output_value, output)
+
+                # Validate grouping structure
+                validate_grouping(output_value, output)
+
+                _validate.validate_multi_return(
+                    output_spec, flat_output_values, callback_id
+                )
 
                 component_ids = collections.defaultdict(dict)
                 has_update = False
-                for val, spec in zip(output_value, output_spec):
+                for val, spec in zip(flat_output_values, output_spec):
                     if isinstance(val, _NoUpdate):
                         continue
                     for vali, speci in (
