@@ -5,8 +5,8 @@ orbs:
 
 jobs:
   dcc-percy-finalize:
-    working_directory: ~/dash/components/dash-core-components
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: percyio/agent
         auth:
           username: dashautomation
@@ -15,8 +15,8 @@ jobs:
       - run: percy finalize --all
 
   dcc-lint-unit-39: &lint-unit
-    working_directory: ~/dash/components/dash-core-components
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
@@ -34,7 +34,7 @@ jobs:
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
-            cd components/dash-core-components && pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
+            pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
@@ -42,7 +42,6 @@ jobs:
       - run:
           name: 🌸 Lint
           command: |
-            cd components/dash-core-components
             . venv/bin/activate
             set -eo pipefail
             npm ci
@@ -51,6 +50,7 @@ jobs:
   dcc-lint-unit-36:
     <<: *lint-unit
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
@@ -61,6 +61,7 @@ jobs:
   dcc-lint-unit-27:
     <<: *lint-unit
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
@@ -69,8 +70,8 @@ jobs:
           PYTHON_VERSION: py27
 
   dcc-build-dash-39: &build-dash
-    working_directory: ~/dash/components/dash-core-components
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
@@ -88,7 +89,7 @@ jobs:
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
             set -eo pipefail
-            cd components/dash-core-components && pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
+            pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
@@ -96,7 +97,6 @@ jobs:
       - run:
           name: 🏗️ build dash
           command: |
-            cd components/dash-core-components
             . venv/bin/activate && mkdir packages
             set -eo pipefail
             # build main dash & renderer
@@ -117,6 +117,7 @@ jobs:
   dcc-build-dash-36:
     <<: *build-dash
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
@@ -127,6 +128,7 @@ jobs:
   dcc-build-dash-27:
     <<: *build-dash
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
@@ -135,8 +137,8 @@ jobs:
           PYTHON_VERSION: py27
 
   dcc-test-39: &test
-    working_directory: ~/dash/components/dash-core-components
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
@@ -156,7 +158,6 @@ jobs:
       - run:
           name: 🧪 Run Integration Tests
           command: |
-            cd components/dash-core-components
             . venv/bin/activate && rm -rf dash_core_components && ls -la
             set -eo pipefail
             cd packages && mv dash-*.tar.gz main.tar.gz && ls -la
@@ -176,6 +177,7 @@ jobs:
   dcc-test-36:
     <<: *test
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
@@ -187,6 +189,7 @@ jobs:
   dcc-test-27:
     <<: *test
     docker:
+      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
