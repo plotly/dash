@@ -192,7 +192,6 @@ jobs:
           PERCY_ENABLE: 0
 
 workflows:
-  version: 2.1
   dcc-python3.9:
     jobs:
       - dcc-lint-unit-39

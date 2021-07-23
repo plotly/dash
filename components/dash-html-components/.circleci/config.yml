@@ -13,7 +13,7 @@ jobs:
     steps:
       - run: percy finalize --all
 
-  html-python-2.7: &test-template
+  html-python-27: &test-template
     docker:
       - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
@@ -68,7 +68,7 @@ jobs:
               python --version
               npm run test
 
-  html-python-3.6:
+  html-python-36:
     <<: *test-template
     docker:
       - image: circleci/python:3.6.13-stretch-node-browsers
@@ -79,7 +79,7 @@ jobs:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
 
-  html-python-3.9:
+  html-python-39:
     <<: *test-template
     docker:
       - image: circleci/python:3.9.2-buster-node-browsers
@@ -92,12 +92,11 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
 
 workflows:
-  version: 2.1
   html-build:
     jobs:
-      - html-python-2.7
-      - html-python-3.6
-      - html-python-3.9
+      - html-python-27
+      - html-python-36
+      - html-python-39
       - html-percy-finalize:
           requires:
-            - html-python-3.9
+            - html-python-39

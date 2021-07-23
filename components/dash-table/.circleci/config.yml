@@ -147,7 +147,6 @@ jobs:
                 when: always
 
 workflows:
-    version: 2
     table-build:
         jobs:
             - "table-node"
