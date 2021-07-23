@@ -19,6 +19,8 @@ jobs:
             - image: circleci/python:3.9.2-buster-node-browsers
               environment:
                 PERCY_PARALLEL_TOTAL: -1
+
+        working_directory: ~/dash/components/dash-table
         parallelism: 4
         steps:
             - checkout
@@ -67,6 +69,7 @@ jobs:
                 path: /tmp/dash_artifacts
 
     "table-unit-test":
+        working_directory: ~/dash/components/dash-table
         docker:
             - image: circleci/python:3.9.2-buster-node-browsers
         steps:
@@ -94,6 +97,7 @@ jobs:
                     npm run test.unit
 
     "table-visual-test":
+        working_directory: ~/dash/components/dash-table
         docker:
             - image: circleci/node:14-browsers
         steps:
@@ -117,6 +121,7 @@ jobs:
                 path: storybook-static
 
     "table-node":
+        working_directory: ~/dash/components/dash-table
         docker:
             - image: circleci/python:3.9.2-node
         steps:

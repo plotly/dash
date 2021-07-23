@@ -5,6 +5,7 @@ orbs:
 
 jobs:
   html-percy-finalize:
+    working_directory: ~/dash/components/dash-html-components
     docker:
       - image: percyio/agent
         auth:
@@ -23,7 +24,7 @@ jobs:
           PYTHON_VERSION: py27
           PERCY_ENABLE: 0
 
-    working_directory: ~/repo
+    working_directory: ~/dash/components/dash-html-components
 
     steps:
       - checkout

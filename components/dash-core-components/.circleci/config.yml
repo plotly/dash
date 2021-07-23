@@ -5,6 +5,7 @@ orbs:
 
 jobs:
   dcc-percy-finalize:
+    working_directory: ~/dash/components/dash-core-components
     docker:
       - image: percyio/agent
         auth:
@@ -14,7 +15,7 @@ jobs:
       - run: percy finalize --all
 
   dcc-lint-unit-39: &lint-unit
-    working_directory: ~/project
+    working_directory: ~/dash/components/dash-core-components
     docker:
       - image: circleci/python:3.9.2-buster-node-browsers
         auth:
@@ -67,7 +68,7 @@ jobs:
           PYTHON_VERSION: py27
 
   dcc-build-dash-39: &build-dash
-    working_directory: ~/project
+    working_directory: ~/dash/components/dash-core-components
     docker:
       - image: circleci/python:3.9.2-buster-node-browsers
         auth:
@@ -132,7 +133,7 @@ jobs:
           PYTHON_VERSION: py27
 
   dcc-test-39: &test
-    working_directory: ~/project
+    working_directory: ~/dash/components/dash-core-components
     docker:
       - image: circleci/python:3.9.2-buster-node-browsers
         auth:
