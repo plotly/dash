@@ -2,22 +2,6 @@ version: 2.1
 
 orbs:
   win: circleci/windows@2.4.0
-  path-filtering: circleci/path-filtering@0.0.2
-
-parameters:
-  dash-modified:
-    type: boolean
-    default: true
-  dash-core-components-modified:
-    type: boolean
-    default: false
-  dash-html-components-modified:
-    type: boolean
-    default: false
-  dash-table-modified:
-    type: boolean
-    default: false
-
 
 jobs:
   percy-finalize:
@@ -275,12 +259,6 @@ jobs:
 workflows:
   version: 2
   python3.9:
-    when:
-      or:
-        - << pipeline.parameters.dash-modified >>
-        - << pipeline.parameters.dash-core-components-modified >>
-        - << pipeline.parameters.dash-html-components-modified >>
-        - << pipeline.parameters.dash-table-modified >>
     jobs:
       - lint-unit-39
       - build-core-39
@@ -305,12 +283,6 @@ workflows:
               only: /v*/
 
   python3.6:
-    when:
-      or:
-        - << pipeline.parameters.dash-modified >>
-        - << pipeline.parameters.dash-core-components-modified >>
-        - << pipeline.parameters.dash-html-components-modified >>
-        - << pipeline.parameters.dash-table-modified >>
     jobs:
       - lint-unit-36
       - build-core-36
