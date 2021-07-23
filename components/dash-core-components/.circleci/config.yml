@@ -27,7 +27,6 @@ jobs:
       - checkout
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
-          cd components/dash-core-components
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - run:
           name: 🐍 pip dev requirements
@@ -37,7 +36,6 @@ jobs:
             pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
             cd components/dash-core-components && pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
-          cd components/dash-core-components
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
               - venv
@@ -83,7 +81,6 @@ jobs:
       - checkout
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
-          cd components/dash-core-components
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - run:
           name: 🐍 pip dev requirements
@@ -93,7 +90,6 @@ jobs:
             set -eo pipefail
             cd components/dash-core-components && pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
-          cd components/dash-core-components
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
               - venv
