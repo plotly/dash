@@ -1710,18 +1710,6 @@
     "displayName": "PlotlyGraph",
     "methods": [
       {
-        "name": "UNSAFE_componentWillReceiveProps",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "nextProps",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
         "name": "clearState",
         "docblock": null,
         "modifiers": [],
@@ -2286,25 +2274,6 @@
     "displayName": "Input",
     "methods": [
       {
-        "name": "UNSAFE_componentWillReceiveProps",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "nextProps",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "UNSAFE_componentWillMount",
-        "docblock": null,
-        "modifiers": [],
-        "params": [],
-        "returns": null
-      },
-      {
         "name": "setInputValue",
         "docblock": null,
         "modifiers": [],
@@ -2423,7 +2392,7 @@
           "name": "enum",
           "value": [
             {
-              "value": "\"text\"",
+              "value": "'text'",
               "computed": false
             },
             {
@@ -2533,47 +2502,47 @@
           "name": "enum",
           "value": [
             {
-              "value": "\"verbatim\"",
+              "value": "'verbatim'",
               "computed": false
             },
             {
-              "value": "\"latin\"",
+              "value": "'latin'",
               "computed": false
             },
             {
-              "value": "\"latin-name\"",
+              "value": "'latin-name'",
               "computed": false
             },
             {
-              "value": "\"latin-prose\"",
+              "value": "'latin-prose'",
               "computed": false
             },
             {
-              "value": "\"full-width-latin\"",
+              "value": "'full-width-latin'",
               "computed": false
             },
             {
-              "value": "\"kana\"",
+              "value": "'kana'",
               "computed": false
             },
             {
-              "value": "\"katakana\"",
+              "value": "'katakana'",
               "computed": false
             },
             {
-              "value": "\"numeric\"",
+              "value": "'numeric'",
               "computed": false
             },
             {
-              "value": "\"tel\"",
+              "value": "'tel'",
               "computed": false
             },
             {
-              "value": "\"email\"",
+              "value": "'email'",
               "computed": false
             },
             {
-              "value": "\"url\"",
+              "value": "'url'",
               "computed": false
             }
           ]
@@ -2991,18 +2960,6 @@
         "modifiers": [],
         "params": [],
         "returns": null
-      },
-      {
-        "name": "UNSAFE_componentWillReceiveProps",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "nextProps",
-            "type": null
-          }
-        ],
-        "returns": null
       }
     ],
     "props": {
@@ -3329,18 +3286,6 @@
         "docblock": null,
         "modifiers": [],
         "params": [],
-        "returns": null
-      },
-      {
-        "name": "UNSAFE_componentWillReceiveProps",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "nextProps",
-            "type": null
-          }
-        ],
         "returns": null
       }
     ],
@@ -4467,13 +4412,6 @@
             "type": null
           }
         ],
-        "returns": null
-      },
-      {
-        "name": "UNSAFE_componentWillMount",
-        "docblock": null,
-        "modifiers": [],
-        "params": [],
         "returns": null
       }
     ],

@@ -41,7 +41,7 @@ class Input(Component):
         is an HTML boolean attribute - it is enabled by a boolean or
         'disabled'. Alternative capitalizations `DISABLED`.
 
-    - inputMode (a value equal to: "verbatim", "latin", "latin-name", "latin-prose", "full-width-latin", "kana", "katakana", "numeric", "tel", "email", "url"; optional):
+    - inputMode (a value equal to: 'verbatim', 'latin', 'latin-name', 'latin-prose', 'full-width-latin', 'kana', 'katakana', 'numeric', 'tel', 'email', 'url'; optional):
         Provides a hint to the browser as to the type of data that might
         be entered by the user while editing the element or its contents.
 
@@ -230,7 +230,7 @@ class Input(Component):
     - style (dict; optional):
         The input's inline styles.
 
-    - type (a value equal to: "text", 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden'; default 'text'):
+    - type (a value equal to: 'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden'; default 'text'):
         The type of control to render.
 
     - value (string | number; optional):
