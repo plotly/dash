@@ -89,7 +89,7 @@ def build_components(components_source):
 
     for package in source_glob.split("|"):
         build_directory = os.path.join(
-            "packages", package, package.replace("-", "_").rstrip("/\\")
+            "components", package, package.replace("-", "_").rstrip("/\\")
         )
 
         dest_dir = (
