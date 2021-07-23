@@ -42,9 +42,9 @@ jobs:
       - run:
           name: 🌸 Lint
           command: |
+            cd components/dash-core-components
             . venv/bin/activate
             set -eo pipefail
-            cd components/dash-core-components
             npm ci
             npm run lint
 
