@@ -25,13 +25,16 @@ jobs:
           PYTHON_VERSION: py39
     steps:
       - checkout:
-            path: ~/dash/components
+            path: ~/dash
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - run:
           name: 🐍 pip dev requirements
           command: |
+            ls -a
+            pwd
+            echo HERE
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
