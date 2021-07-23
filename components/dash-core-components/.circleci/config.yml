@@ -25,10 +25,9 @@ jobs:
           PYTHON_VERSION: py39
     steps:
       - checkout
-      - run: |
-          echo $PYTHON_VERSION > ver.txt
-          cd components/dash-core-components
+      - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
+          cd components/dash-core-components
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - run:
           name: 🐍 pip dev requirements
@@ -36,8 +35,9 @@ jobs:
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
-            pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
+            cd components/dash-core-components && pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
+          cd components/dash-core-components
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
               - venv
@@ -46,6 +46,7 @@ jobs:
           command: |
             . venv/bin/activate
             set -eo pipefail
+            cd components/dash-core-components
             npm ci
             npm run lint
 
@@ -82,6 +83,7 @@ jobs:
       - checkout
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
+          cd components/dash-core-components
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - run:
           name: 🐍 pip dev requirements
@@ -89,14 +91,16 @@ jobs:
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
             set -eo pipefail
-            pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
+            cd components/dash-core-components && pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
+          cd components/dash-core-components
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
               - venv
       - run:
           name: 🏗️ build dash
           command: |
+            cd components/dash-core-components
             . venv/bin/activate && mkdir packages
             set -eo pipefail
             # build main dash & renderer
@@ -156,6 +160,7 @@ jobs:
       - run:
           name: 🧪 Run Integration Tests
           command: |
+            cd components/dash-core-components
             . venv/bin/activate && rm -rf dash_core_components && ls -la
             set -eo pipefail
             cd packages && mv dash-*.tar.gz main.tar.gz && ls -la
