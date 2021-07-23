@@ -668,13 +668,19 @@ class DataTable(Component):
             implemented using d3's   currency format, but you can use this
             for other symbols such as measurement units.
 
-    - markdown_options (dict; default {    link_target: '_blank'}):
+    - markdown_options (dict; default {    link_target: '_blank',    html: False}):
         The `markdown_options` property allows customization of the
         markdown cells behavior.
 
         `markdown_options` is a dict with keys:
 
-        - link_target (string | a value equal to: '_blank', '_parent', '_self', '_top'; required):
+        - html (boolean; optional):
+            (default: False)  If True, html may be used in markdown cells
+            Be careful enabling html if the content being rendered can
+            come from an untrusted user, as this may create an XSS
+            vulnerability.
+
+        - link_target (string | a value equal to: '_blank', '_parent', '_self', '_top'; optional):
             (default: '_blank').  The link's behavior (_blank opens the
             link in a new tab, _parent opens the link in the parent frame,
             _self opens the link in the current tab, and _top opens the

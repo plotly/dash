@@ -539,14 +539,19 @@
                 }
               ],
               "description": "(default: '_blank').  The link's behavior (_blank opens the link in a\nnew tab, _parent opens the link in the parent frame, _self opens the link in the\ncurrent tab, and _top opens the link in the top frame) or a string",
-              "required": true
+              "required": false
+            },
+            "html": {
+              "name": "bool",
+              "description": "(default: False)  If True, html may be used in markdown cells\nBe careful enabling html if the content being rendered can come\nfrom an untrusted user, as this may create an XSS vulnerability.",
+              "required": false
             }
           }
         },
         "required": false,
         "description": "The `markdown_options` property allows customization of the markdown cells behavior.",
         "defaultValue": {
-          "value": "{\n    link_target: '_blank'\n}",
+          "value": "{\n    link_target: '_blank',\n    html: false\n}",
           "computed": false
         }
       },
