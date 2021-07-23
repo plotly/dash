@@ -32,7 +32,6 @@ _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
 _this_module = "dash_html_components"
 
-
 _js_dist = [
     {
         "relative_package_path": "html/{}.min.js".format(_this_module),
