@@ -18,17 +18,17 @@ workflows:
           name: dash-core-components-modified
           base-revision: dev
           mapping: |
-            packages/dash-core-components/.* dash-core-components-modified true
+            /packages/dash-core-components/.* dash-core-components-modified true
           config-path: packages/dash-core-components/.circleci/config.yml
       - path-filtering/filter:
           name: dash-html-components-modified
           base-revision: dev
           mapping: |
-            packages/dash-html-components/.* dash-html-components-modified true
-          config-path: packages/dash-html-components/.circleci/config.yml
+            /packages/dash-html-components/.* dash-html-components-modified true
+          config-path: /packages/dash-html-components/.circleci/config.yml
       - path-filtering/filter:
           name: dash-table-modified
           base-revision: dev
           mapping: |
-            packages/dash-table/.* dash-table-modified true
-          config-path: packages/dash-table/.circleci/config.yml
+            /packages/dash-table/.* dash-table-modified true
+          config-path: /packages/dash-table/.circleci/config.yml
