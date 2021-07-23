@@ -31,6 +31,7 @@ jobs:
       - run:
           name: 🐍 pip dev requirements
           command: |
+            pwd
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
