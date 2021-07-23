@@ -1,4 +1,23 @@
-version: 2
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.4.0
+  path-filtering: circleci/path-filtering@0.0.2
+
+parameters:
+  dash-modified:
+    type: boolean
+    default: true
+  dash-core-components-modified:
+    type: boolean
+    default: false
+  dash-html-components-modified:
+    type: boolean
+    default: false
+  dash-table-modified:
+    type: boolean
+    default: false
+
 
 jobs:
   percy-finalize:
@@ -89,8 +108,11 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
 
 workflows:
-  version: 2
+  version: 2.1
   build:
+    when:
+    or:
+      - << pipeline.parameters.dash-core-components-modified >>
     jobs:
       - python-2.7
       - python-3.6
