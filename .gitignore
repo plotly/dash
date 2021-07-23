@@ -80,3 +80,7 @@ VERSION.txt
 
 # vim
 *.swp
+
+# main-branch artifacts to explicitly include
+!dash/dash-renderer/build
+!dash/deps
