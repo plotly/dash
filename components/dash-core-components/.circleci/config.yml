@@ -24,7 +24,8 @@ jobs:
         environment:
           PYTHON_VERSION: py39
     steps:
-      - checkout
+      - checkout:
+            path: ~/dash/components/dash-core-components
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -34,7 +35,7 @@ jobs:
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
-            cd components/dash-core-components && pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
+            pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
@@ -77,7 +78,8 @@ jobs:
         environment:
             PYTHON_VERSION: py39
     steps:
-      - checkout
+      - checkout:
+            path: ~/dash/components/dash-core-components
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -145,7 +147,8 @@ jobs:
             PERCY_ENABLE: 1
     parallelism: 3
     steps:
-      - checkout
+      - checkout:
+            path: ~/dash/components/dash-core-components
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
