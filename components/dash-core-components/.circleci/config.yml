@@ -5,8 +5,8 @@ orbs:
 
 jobs:
   dcc-percy-finalize:
+    working_directory: ~/dash/components/dash-core-components
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: percyio/agent
         auth:
           username: dashautomation
@@ -15,8 +15,8 @@ jobs:
       - run: percy finalize --all
 
   dcc-lint-unit-39: &lint-unit
+    working_directory: ~/dash/components/dash-core-components
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
@@ -24,7 +24,8 @@ jobs:
         environment:
           PYTHON_VERSION: py39
     steps:
-      - checkout
+      - checkout:
+            path: ~/dash/components
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -50,7 +51,6 @@ jobs:
   dcc-lint-unit-36:
     <<: *lint-unit
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
@@ -61,7 +61,6 @@ jobs:
   dcc-lint-unit-27:
     <<: *lint-unit
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
@@ -70,8 +69,8 @@ jobs:
           PYTHON_VERSION: py27
 
   dcc-build-dash-39: &build-dash
+    working_directory: ~/dash/components/dash-core-components
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
@@ -117,7 +116,6 @@ jobs:
   dcc-build-dash-36:
     <<: *build-dash
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
@@ -128,7 +126,6 @@ jobs:
   dcc-build-dash-27:
     <<: *build-dash
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
@@ -137,8 +134,8 @@ jobs:
           PYTHON_VERSION: py27
 
   dcc-test-39: &test
+    working_directory: ~/dash/components/dash-core-components
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
@@ -177,7 +174,6 @@ jobs:
   dcc-test-36:
     <<: *test
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
@@ -189,7 +185,6 @@ jobs:
   dcc-test-27:
     <<: *test
     docker:
-      - working_directory: ~/dash/components/dash-core-components
       - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
           username: dashautomation
