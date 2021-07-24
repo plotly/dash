@@ -12,6 +12,8 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
     steps:
+      - checkout:
+            path: ~/dash
       - run: percy finalize --all
 
   dcc-lint-unit-39: &lint-unit
@@ -32,9 +34,6 @@ jobs:
       - run:
           name: 🐍 pip dev requirements
           command: |
-            ls -a
-            pwd
-            echo HERE
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
@@ -81,7 +80,8 @@ jobs:
         environment:
             PYTHON_VERSION: py39
     steps:
-      - checkout
+      - checkout:
+            path: ~/dash
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -149,7 +149,8 @@ jobs:
             PERCY_ENABLE: 1
     parallelism: 3
     steps:
-      - checkout
+      - checkout:
+            path: ~/dash
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
