@@ -12,9 +12,12 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
     steps:
+      - checkout:
+            path: ~/dash
       - run: percy finalize --all
 
   html-python-27: &test-template
+    working_directory: ~/dash/components/dash-html-components
     docker:
       - image: circleci/python:2.7.18-stretch-node-browsers
         auth:
@@ -24,10 +27,9 @@ jobs:
           PYTHON_VERSION: py27
           PERCY_ENABLE: 0
 
-    working_directory: ~/dash/components/dash-html-components
-
     steps:
-      - checkout
+      - checkout:
+            path: ~/dash
 
       - run:
           name: ✍️ Write job name
