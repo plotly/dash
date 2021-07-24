@@ -100,11 +100,11 @@ jobs:
             cd dash-html-components && npm ci && npm run build
             python setup.py sdist && mv dist/* ../packages && cd ..
             # build dcc
-            npm ci && npm run build && python setup.py sdist && mv dist/* ./packages && ls -la packages
+            npm ci && npm run build && python setup.py sdist && mv dist/* ./packages && ls -la packages && pwd
       - persist_to_workspace:
-          root: ~/dash
+          root: ~/dash/components/dash-core-components
           paths:
-            - components/dash-core-components/packages
+            - packages
 
   dcc-build-dash-36:
     <<: *build-dash
