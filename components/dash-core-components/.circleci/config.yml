@@ -102,9 +102,9 @@ jobs:
             # build dcc
             npm ci && npm run build && python setup.py sdist && mv dist/* ./packages && ls -la packages
       - persist_to_workspace:
-          root: ~/project
+          root: ~/dash
           paths:
-            - packages
+            - components/dash/dash-core-components/packages
 
   dcc-build-dash-36:
     <<: *build-dash
