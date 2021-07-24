@@ -104,7 +104,7 @@ jobs:
       - persist_to_workspace:
           root: ~/dash
           paths:
-            - components/dash/dash-core-components/packages
+            - components/dash-core-components/packages
 
   dcc-build-dash-36:
     <<: *build-dash
