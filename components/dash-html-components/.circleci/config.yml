@@ -16,15 +16,15 @@ jobs:
             path: ~/dash
       - run: percy finalize --all
 
-  html-python-27: &test-template
+  html-python-36: &test-template
     working_directory: ~/dash/components/dash-html-components
     docker:
-      - image: circleci/python:2.7.18-stretch-node-browsers
+      - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYTHON_VERSION: py27
+          PYTHON_VERSION: py36
           PERCY_ENABLE: 0
 
     steps:
@@ -71,17 +71,6 @@ jobs:
               python --version
               npm run test
 
-  html-python-36:
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.6.13-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYTHON_VERSION: py36
-          PERCY_ENABLE: 0
-
   html-python-39:
     <<: *test-template
     docker:
@@ -97,7 +86,6 @@ jobs:
 workflows:
   html-build:
     jobs:
-      - html-python-27
       - html-python-36
       - html-python-39
       - html-percy-finalize:

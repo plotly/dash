@@ -60,16 +60,6 @@ jobs:
         environment:
           PYTHON_VERSION: py36
 
-  dcc-lint-unit-27:
-    <<: *lint-unit
-    docker:
-      - image: circleci/python:2.7.18-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYTHON_VERSION: py27
-
   dcc-build-dash-39: &build-dash
     working_directory: ~/dash/components/dash-core-components
     docker:
@@ -126,16 +116,6 @@ jobs:
         environment:
           PYTHON_VERSION: py36
 
-  dcc-build-dash-27:
-    <<: *build-dash
-    docker:
-      - image: circleci/python:2.7.18-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYTHON_VERSION: py27
-
   dcc-test-39: &test
     working_directory: ~/dash/components/dash-core-components
     docker:
@@ -186,17 +166,6 @@ jobs:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
 
-  dcc-test-27:
-    <<: *test
-    docker:
-      - image: circleci/python:2.7.18-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYTHON_VERSION: py27
-          PERCY_ENABLE: 0
-
 workflows:
   dcc-python3.9:
     jobs:
@@ -216,11 +185,3 @@ workflows:
       - dcc-test-36:
           requires:
             - dcc-build-dash-36
-
-  dcc-python2.7:
-    jobs:
-      - dcc-lint-unit-27
-      - dcc-build-dash-27
-      - dcc-test-27:
-          requires:
-            - dcc-build-dash-27
