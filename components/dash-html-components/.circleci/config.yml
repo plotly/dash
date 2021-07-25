@@ -61,7 +61,7 @@ jobs:
           command: |
               . venv/bin/activate
               python --version
-              pip install dash-table
+              pip install dash-table==4.12.0
               npm run clean
               npm run build
 
