@@ -51,7 +51,7 @@ jobs:
               git clone --depth 1 git@github.com:plotly/dash-core-components.git
               git clone --depth 1 git@github.com:plotly/dash-table.git
               . venv/bin/activate
-              pip install -e ./dash-main[testing,dev] --quiet
+              pip install -e ./dash-main[testing,dev] --quiet --upgrade --force-reinstall
               renderer build
               cd dash-core-components && npm ci && npm run build && pip install -e . && cd ..
               cd dash-table && npm ci && npm run build && pip install -e . && cd ..
