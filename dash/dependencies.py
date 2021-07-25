@@ -154,15 +154,15 @@ def extract_grouped_output_callback_args(args, kwargs):
                 )
 
         return parameters
-    else:
-        parameters = []
-        while args:
-            next_deps = flatten_grouping(args[0])
-            if all(isinstance(d, Output) for d in next_deps):
-                parameters.append(args.pop(0))
-            else:
-                break
-        return tuple(parameters)
+
+    parameters = []
+    while args:
+        next_deps = flatten_grouping(args[0])
+        if all(isinstance(d, Output) for d in next_deps):
+            parameters.append(args.pop(0))
+        else:
+            break
+    return tuple(parameters)
 
 
 def extract_grouped_input_state_callback_args_from_kwargs(kwargs):
@@ -191,7 +191,8 @@ def extract_grouped_input_state_callback_args_from_kwargs(kwargs):
             parameters = input_parameters
 
         return parameters
-    elif isinstance(input_parameters, (list, tuple)):
+
+    if isinstance(input_parameters, (list, tuple)):
         # Wrapped function will be called with positional arguments
         parameters = list(input_parameters)
         if state_parameters:
@@ -205,11 +206,11 @@ def extract_grouped_input_state_callback_args_from_kwargs(kwargs):
             parameters += list(state_parameters)
 
         return tuple(parameters)
-    else:
-        raise ValueError(
-            "The input argument to app.callback may be a dict, list, or tuple,\n"
-            f"but received value of type {type(input_parameters)}"
-        )
+
+    raise ValueError(
+        "The input argument to app.callback may be a dict, list, or tuple,\n"
+        f"but received value of type {type(input_parameters)}"
+    )
 
 
 def extract_grouped_input_state_callback_args_from_args(args):
@@ -225,23 +226,23 @@ def extract_grouped_input_state_callback_args_from_args(args):
     if len(parameters) == 1:
         # Only one output grouping, return as-is
         return parameters[0]
-    else:
-        # Multiple output groupings, return wrap in tuple
-        return tuple(parameters)
+
+    # Multiple output groupings, return wrap in tuple
+    return tuple(parameters)
 
 
 def extract_grouped_input_state_callback_args(args, kwargs):
     if "inputs" in kwargs:
         return extract_grouped_input_state_callback_args_from_kwargs(kwargs)
-    else:
-        if "state" in kwargs:
-            # Not valid to provide state as kwarg without input as kwarg
-            print(args, kwargs)
-            raise ValueError(
-                "The state keyword argument may not be provided without "
-                "the input keyword argument"
-            )
-        return extract_grouped_input_state_callback_args_from_args(args)
+
+    if "state" in kwargs:
+        # Not valid to provide state as kwarg without input as kwarg
+        raise ValueError(
+            "The state keyword argument may not be provided without "
+            "the input keyword argument"
+        )
+
+    return extract_grouped_input_state_callback_args_from_args(args)
 
 
 def compute_input_state_grouping_indices(input_state_grouping):

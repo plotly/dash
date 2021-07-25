@@ -37,14 +37,15 @@ def flatten_grouping(grouping, schema=None):
             for group_el, schema_el in zip(grouping, schema)
             for g in flatten_grouping(group_el, schema_el)
         ]
-    elif isinstance(schema, dict):
+
+    if isinstance(schema, dict):
         return [
             g
             for group_el, schema_el in zip(grouping.values(), schema.values())
             for g in flatten_grouping(group_el, schema_el)
         ]
-    else:
-        return [grouping]
+
+    return [grouping]
 
 
 def grouping_len(grouping):
@@ -58,10 +59,11 @@ def grouping_len(grouping):
     """
     if isinstance(grouping, tuple):
         return sum([grouping_len(group_el) for group_el in grouping])
-    elif isinstance(grouping, dict):
+
+    if isinstance(grouping, dict):
         return sum([grouping_len(group_el) for group_el in grouping.values()])
-    else:
-        return 1
+
+    return 1
 
 
 def make_grouping_by_index(schema, flat_values):
@@ -82,13 +84,14 @@ def make_grouping_by_index(schema, flat_values):
                 _perform_make_grouping_like(el, next_values)
                 for i, el in enumerate(value)
             )
-        elif isinstance(value, dict):
+
+        if isinstance(value, dict):
             return {
                 k: _perform_make_grouping_like(v, next_values)
                 for i, (k, v) in enumerate(value.items())
             }
-        else:
-            return next_values.pop(0)
+
+        return next_values.pop(0)
 
     if not isinstance(flat_values, list):
         raise ValueError(
@@ -124,10 +127,11 @@ def map_grouping(fn, grouping):
     """
     if isinstance(grouping, tuple):
         return tuple(map_grouping(fn, g) for g in grouping)
-    elif isinstance(grouping, dict):
+
+    if isinstance(grouping, dict):
         return {k: map_grouping(fn, g) for k, g in grouping.items()}
-    else:
-        return fn(grouping)
+
+    return fn(grouping)
 
 
 def make_grouping_by_key(schema, source, default=None):
