@@ -100,7 +100,7 @@ jobs:
             cd dash-html-components && npm ci && npm run build
             python setup.py sdist && mv dist/* ../packages && cd ..
             # build dcc
-            npm ci && npm run build && python setup.py sdist && mv dist/* ./packages && ls -la packages && pwd
+            npm ci && npm run build && python setup.py sdist && mv dist/* ./packages && ls -la packages
       - persist_to_workspace:
           root: ~/dash/components/dash-core-components
           paths:
@@ -135,7 +135,7 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - attach_workspace:
-          at: ~/project
+          at: ~/dash/components/dash-core-components
       - run:
           name: 🧪 Run Integration Tests
           command: |
@@ -149,9 +149,9 @@ jobs:
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
-          path: test-reports
+          path: ~/dash/components/dash-core-components/test-reports
       - store_test_results:
-          path: test-reports
+          path: ~/dash/components/dash-core-components/test-reports
       - store_artifacts:
           path: /tmp/dash_artifacts
 
