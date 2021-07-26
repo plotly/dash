@@ -1,17 +1,14 @@
 # -*- coding: UTF-8 -*-
 
 import pytest
-import dash
 from dash.testing import wait
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 
 @pytest.mark.DCC793
 @pytest.mark.parametrize("multi", [True, False])
 def test_ddot001_option_title(dash_dcc, multi):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(

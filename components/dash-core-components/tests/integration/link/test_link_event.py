@@ -1,14 +1,11 @@
 from multiprocessing import Value
 from selenium.webdriver.common.keys import Keys
-import dash
 from dash.testing import wait
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 
 def test_link001_event(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Link("Page 1", id="link1", href="/page-1"),
@@ -64,7 +61,7 @@ def test_link001_event(dash_dcc):
 
 
 def test_link002_scroll(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Location(id="test-url", refresh=False),

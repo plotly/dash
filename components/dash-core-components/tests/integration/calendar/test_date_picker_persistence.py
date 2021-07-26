@@ -1,13 +1,10 @@
 from datetime import datetime
 
-import dash
-import dash_html_components as html
-import dash_core_components as dcc
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc
 
 
 def test_rdpr001_persisted_dps(dash_dcc):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Button("fire callback", id="btn", n_clicks=1),
@@ -43,7 +40,7 @@ def test_rdpr001_persisted_dps(dash_dcc):
 
 
 def test_rdpr002_persisted_dpr(dash_dcc):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Button("fire callback", id="btn", n_clicks=1),

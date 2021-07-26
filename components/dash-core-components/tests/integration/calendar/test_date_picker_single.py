@@ -1,15 +1,12 @@
 from datetime import datetime, timedelta
 
 import pytest
-import dash
-import dash_html_components as html
-import dash_core_components as dcc
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc, no_update
 
 
 @pytest.mark.DCC652
 def test_dtps001_simple_click(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Label("Operating Date"),
@@ -40,7 +37,7 @@ def test_dtps001_simple_click(dash_dcc):
 
 
 def test_dtps010_local_and_session_persistence(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.DatePickerSingle(id="dps-local", persistence=True, day_size=47),
@@ -75,7 +72,7 @@ def test_dtps010_local_and_session_persistence(dash_dcc):
 
 
 def test_dtps011_memory_persistence(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.Button(id="switch", children="Switch"), html.Div(id="out")]
     )
@@ -83,7 +80,7 @@ def test_dtps011_memory_persistence(dash_dcc):
     @app.callback(Output("out", "children"), [Input("switch", "n_clicks")])
     def cb(clicks):
         if clicks is None:
-            return dash.no_update
+            return no_update
         if clicks % 2 == 1:
             return [
                 dcc.DatePickerSingle(
@@ -127,7 +124,7 @@ def test_dtps011_memory_persistence(dash_dcc):
 
 
 def test_dtps012_initial_month(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.DatePickerSingle(
@@ -151,7 +148,7 @@ def test_dtps012_initial_month(dash_dcc):
 
 
 def test_dtps013_disabled_days_arent_clickable(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Label("Operating Date"),

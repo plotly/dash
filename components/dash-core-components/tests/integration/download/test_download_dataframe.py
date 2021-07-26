@@ -1,12 +1,9 @@
 import os
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
+
 import pytest
 import pandas as pd
 import numpy as np
-
-from dash.dependencies import Input, Output
 
 from dash.testing.wait import until
 
@@ -20,7 +17,7 @@ def test_dldf001_download_dataframe(fmt, dash_dcc):
     writer = getattr(df, "to_{}".format(fmt))  # e.g. to_csv
     filename = "df.{}".format(fmt)
     # Create app.
-    app = dash.Dash(__name__, prevent_initial_callbacks=True)
+    app = Dash(__name__, prevent_initial_callbacks=True)
     app.layout = html.Div(
         [html.Button("Click me", id="btn"), dcc.Download(id="download")]
     )

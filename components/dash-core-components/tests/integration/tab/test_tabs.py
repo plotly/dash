@@ -1,11 +1,8 @@
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 
 def test_tabs001_in_vertical_mode(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Tabs(
@@ -44,7 +41,7 @@ def test_tabs001_in_vertical_mode(dash_dcc):
 
 
 def test_tabs002_without_children(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.H1("Dash Tabs component demo"),
@@ -61,8 +58,8 @@ def test_tabs002_without_children(dash_dcc):
     )
 
     @app.callback(
-        dash.dependencies.Output("tabs-content", "children"),
-        [dash.dependencies.Input("tabs", "value")],
+        Output("tabs-content", "children"),
+        [Input("tabs", "value")],
     )
     def render_content(tab):
         if tab == "tab-1":
@@ -80,7 +77,7 @@ def test_tabs002_without_children(dash_dcc):
 
 
 def test_tabs003_without_children_undefined(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.H1("Dash Tabs component demo"),
@@ -96,7 +93,7 @@ def test_tabs003_without_children_undefined(dash_dcc):
 
 
 def test_tabs004_without_value(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -128,7 +125,7 @@ def test_tabs004_without_value(dash_dcc):
 
 
 def test_tabs005_disabled(dash_dcc):
-    app = dash.Dash(__name__, assets_folder="../../assets")
+    app = Dash(__name__, assets_folder="../../assets")
     app.layout = html.Div(
         [
             html.H1("Dash Tabs component with disabled tab demo"),

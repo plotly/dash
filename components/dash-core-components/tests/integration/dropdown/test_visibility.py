@@ -1,7 +1,7 @@
 from dash import Dash
-from dash_core_components import Dropdown
-from dash_html_components import Div
-from dash_table import DataTable
+from dash.dcc import Dropdown
+from dash.html import Div
+from dash.dash_table import DataTable
 
 import pytest
 

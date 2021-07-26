@@ -1,6 +1,5 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, html, dcc
+
 import dash.testing.wait as wait
 import time
 
@@ -11,7 +10,7 @@ from selenium.webdriver.common.keys import Keys
 
 def test_clp001_clipboard_text(dash_dcc_headed):
     copy_text = "Hello, Dash!"
-    app = dash.Dash(__name__, prevent_initial_callbacks=True)
+    app = Dash(__name__, prevent_initial_callbacks=True)
     app.layout = html.Div(
         [
             html.Div(copy_text, id="copy"),
@@ -37,7 +36,7 @@ def test_clp001_clipboard_text(dash_dcc_headed):
 
 def test_clp002_clipboard_text(dash_dcc_headed):
     copy_text = "Copy this text to the clipboard"
-    app = dash.Dash(__name__, prevent_initial_callbacks=True)
+    app = Dash(__name__, prevent_initial_callbacks=True)
     app.layout = html.Div(
         [dcc.Clipboard(id="copy_icon", content=copy_text), dcc.Textarea(id="paste")]
     )

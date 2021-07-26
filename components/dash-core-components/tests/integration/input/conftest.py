@@ -1,13 +1,10 @@
 import pytest
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 
 @pytest.fixture(scope="module")
 def ninput_app():
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(
@@ -40,7 +37,7 @@ def ninput_app():
 
 @pytest.fixture(scope="module")
 def input_range_app():
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(

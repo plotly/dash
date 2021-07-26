@@ -1,13 +1,10 @@
-import dash
 from dash.testing import wait
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 import time
 
 
 def test_intv001_interval(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(id="output"),
@@ -28,7 +25,7 @@ def test_intv001_interval(dash_dcc):
 
 
 def test_intv002_restart(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Interval(

@@ -1,16 +1,12 @@
 from multiprocessing import Lock
-
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
 from dash.testing import wait
-import dash_core_components as dcc
-import dash_html_components as html
 
 
 def test_ldcp001_loading_component_initialization(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [dcc.Loading([html.Div(id="div-1")], className="loading")], id="root"
@@ -35,7 +31,7 @@ def test_ldcp001_loading_component_initialization(dash_dcc):
 def test_ldcp002_loading_component_action(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [dcc.Loading([html.Div(id="div-1")], className="loading")], id="root"
@@ -67,7 +63,7 @@ def test_ldcp002_loading_component_action(dash_dcc):
 def test_ldcp003_multiple_loading_components(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -78,7 +74,7 @@ def test_ldcp003_multiple_loading_components(dash_dcc):
     )
 
     @app.callback(Output("btn-1", "children"), [Input("btn-2", "n_clicks")])
-    def updateDiv(n_clicks):
+    def updateDiv1(n_clicks):
         if n_clicks is not None:
             with lock:
                 return "changed 1"
@@ -86,7 +82,7 @@ def test_ldcp003_multiple_loading_components(dash_dcc):
         return "content 1"
 
     @app.callback(Output("btn-2", "children"), [Input("btn-1", "n_clicks")])
-    def updateDiv(n_clicks):
+    def updateDiv2(n_clicks):
         if n_clicks is not None:
             with lock:
                 return "changed 2"
@@ -120,7 +116,7 @@ def test_ldcp003_multiple_loading_components(dash_dcc):
 def test_ldcp004_nested_loading_components(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -136,7 +132,7 @@ def test_ldcp004_nested_loading_components(dash_dcc):
     )
 
     @app.callback(Output("btn-1", "children"), [Input("btn-2", "n_clicks")])
-    def updateDiv(n_clicks):
+    def updateDiv1(n_clicks):
         if n_clicks is not None:
             with lock:
                 return "changed 1"
@@ -144,7 +140,7 @@ def test_ldcp004_nested_loading_components(dash_dcc):
         return "content 1"
 
     @app.callback(Output("btn-2", "children"), [Input("btn-1", "n_clicks")])
-    def updateDiv(n_clicks):
+    def updateDiv2(n_clicks):
         if n_clicks is not None:
             with lock:
                 return "changed 2"
@@ -178,7 +174,7 @@ def test_ldcp004_nested_loading_components(dash_dcc):
 def test_ldcp005_dynamic_loading_component(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div([html.Button(id="btn-1"), html.Div(id="div-1")])
 
@@ -227,7 +223,7 @@ def test_ldcp005_dynamic_loading_component(dash_dcc):
 def test_ldcp006_children_identity(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button("click", id="btn"),
@@ -290,7 +286,7 @@ def test_ldcp006_children_identity(dash_dcc):
 def test_ldcp007_class_and_style_props(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -334,7 +330,7 @@ def test_ldcp007_class_and_style_props(dash_dcc):
 def test_ldcp008_graph_in_loading_fits_container_height(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         className="outer-container",

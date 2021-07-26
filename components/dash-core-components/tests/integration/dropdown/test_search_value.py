@@ -1,11 +1,8 @@
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 
 def test_ddsv001_search_value(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [dcc.Dropdown(id="dropdown", search_value="something"), html.Div(id="output")]
     )

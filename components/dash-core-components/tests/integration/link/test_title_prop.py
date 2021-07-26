@@ -1,13 +1,10 @@
 import pytest
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 
 @pytest.mark.DCC768
 def test_liti001_prop(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Link(

@@ -4,12 +4,9 @@ import os
 import pytest
 import pandas as pd
 
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
 
-import dash_core_components as dcc
-import dash_html_components as html
-from dash_table import DataTable
+from dash.dash_table import DataTable
 
 
 pre_style = {"whiteSpace": "pre-wrap", "wordBreak": "break-all"}
@@ -55,7 +52,7 @@ def test_upft001_test_upload_with_different_file_types(filetype, dash_dcc):
         "upft001.{}".format(filetype),
     )
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [

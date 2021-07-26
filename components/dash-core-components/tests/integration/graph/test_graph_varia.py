@@ -2,10 +2,7 @@
 import pytest
 import time
 import json
-import dash
-from dash.dependencies import Input, Output, State
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import Dash, Input, Output, State, dcc, html
 from dash.exceptions import PreventUpdate
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -26,7 +23,7 @@ def findAsyncPlotlyJs(scripts):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva001_candlestick(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
         [
             html.Button(id="button", children="Update Candlestick", n_clicks=0),
@@ -78,7 +75,7 @@ def test_grva001_candlestick(dash_dcc, is_eager):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
         [
             dcc.Graph(
@@ -167,7 +164,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva003_empty_graph(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
 
     app.layout = html.Div(
         [
@@ -180,9 +177,9 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
     )
 
     @app.callback(
-        dash.dependencies.Output("graph", "figure"),
-        [dash.dependencies.Input("click", "n_clicks")],
-        [dash.dependencies.State("graph", "figure")],
+        Output("graph", "figure"),
+        [Input("click", "n_clicks")],
+        [State("graph", "figure")],
     )
     def render_content(click, prev_graph):
         if click:
@@ -202,7 +199,7 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
 
     def generate_with_id(id, data=None):
         if data is None:
@@ -374,7 +371,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva005_graph_extend_trace(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
 
     def generate_with_id(id, data=None):
         if data is None:
@@ -544,7 +541,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
 
     app.layout = html.Div(
         children=[
@@ -641,7 +638,7 @@ def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
 
 
 def test_grva007_external_plotlyjs_prevents_lazy(dash_dcc):
-    app = dash.Dash(
+    app = Dash(
         __name__,
         eager_loading=False,
         external_scripts=["https://unpkg.com/plotly.js/dist/plotly.min.js"],
@@ -685,7 +682,7 @@ def test_grva007_external_plotlyjs_prevents_lazy(dash_dcc):
 
 def test_grva008_shapes_not_lost(dash_dcc):
     # See issue #879 and pr #905
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     fig = {"data": [], "layout": {"dragmode": "drawrect"}}
     graph = dcc.Graph(id="graph", figure=fig, style={"height": "400px"})
@@ -746,7 +743,7 @@ def test_grva009_originals_maintained_for_responsive_override(mutate_fig, dash_d
     # This test makes sure that the overrides applied by the `responsive`
     # prop are "undone" when the `responsive` prop changes.
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     graph = dcc.Graph(
         id="graph",

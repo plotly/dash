@@ -1,14 +1,11 @@
-import dash
-from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 import flask
 import time
 
 
 def test_llgo001_location_logout(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     @app.server.route("/_logout", methods=["POST"])
     def on_logout():

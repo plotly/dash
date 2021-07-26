@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import pytest
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, dcc, html
 
 
 OPTIONS = [
@@ -17,7 +15,7 @@ OPTIONS = [
 
 @pytest.fixture(scope="module")
 def platter_app():
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [

@@ -1,10 +1,8 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, dcc, html
 
 
 def test_mkdw001_img(dash_dcc):
-    app = dash.Dash(__name__, eager_loading=True, assets_folder="../../assets")
+    app = Dash(__name__, eager_loading=True, assets_folder="../../assets")
 
     app.layout = html.Div(
         [
@@ -24,7 +22,7 @@ def test_mkdw001_img(dash_dcc):
 
 
 def test_mkdw002_dcclink(dash_dcc):
-    app = dash.Dash(__name__, eager_loading=True, assets_folder="../../assets")
+    app = Dash(__name__, eager_loading=True, assets_folder="../../assets")
 
     app.layout = html.Div(
         [

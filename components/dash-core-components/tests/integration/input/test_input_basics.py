@@ -1,9 +1,7 @@
 import pytest
 from selenium.common.exceptions import WebDriverException
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
+
 
 ALLOWED_TYPES = (
     "text",
@@ -22,7 +20,7 @@ def test_inbs001_all_types(dash_dcc):
     def input_id(type_):
         return "input_{}".format(type_)
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id=input_id(_), type=_, placeholder="input type {}".format(_))
@@ -60,7 +58,7 @@ def test_inbs001_all_types(dash_dcc):
 
 
 def test_inbs002_user_class(dash_dcc):
-    app = dash.Dash(__name__, assets_folder="../../assets")
+    app = Dash(__name__, assets_folder="../../assets")
 
     app.layout = html.Div(className="test-input-css", children=[dcc.Input()])
 

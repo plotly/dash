@@ -1,7 +1,5 @@
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc
 from dash.exceptions import PreventUpdate
-import dash_core_components as dcc
 
 
 def test_dddo001_dynamic_options(dash_dcc):
@@ -11,7 +9,7 @@ def test_dddo001_dynamic_options(dash_dcc):
         {"label": "San Francisco", "value": "SF"},
     ]
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = dcc.Dropdown(id="my-dynamic-dropdown", options=[])
 
     @app.callback(

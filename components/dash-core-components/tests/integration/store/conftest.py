@@ -2,18 +2,16 @@ import sys
 import json
 import pytest
 import uuid
-import dash
-from dash.dependencies import Input, Output, State
+from dash import Dash, Input, State, Output, dcc, html
 from dash.exceptions import PreventUpdate
-import dash_core_components as dcc
-import dash_html_components as html
+
 
 UUID = "store-test-{}".format(uuid.uuid4().hex)
 
 
 @pytest.fixture(scope="module")
 def store_app():
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.uuid = UUID
     app.layout = html.Div(
         [

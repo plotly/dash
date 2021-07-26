@@ -1,12 +1,9 @@
 from multiprocessing import Lock
-import dash
-from dash.dependencies import Input, Output
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import Dash, Input, Output, dcc, html
 
 
 def test_slsl001_always_visible_slider(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Slider(
@@ -38,7 +35,7 @@ def test_slsl001_always_visible_slider(dash_dcc):
 
 
 def test_slsl002_always_visible_rangeslider(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         style={"width": "400px"},
         children=[
@@ -72,7 +69,7 @@ def test_slsl002_always_visible_rangeslider(dash_dcc):
 
 def test_slsl003_out_of_range_marks_slider(dash_dcc):
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Slider(
@@ -90,7 +87,7 @@ def test_slsl003_out_of_range_marks_slider(dash_dcc):
 
 def test_slsl004_out_of_range_marks_rangeslider(dash_dcc):
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.RangeSlider(
@@ -107,7 +104,7 @@ def test_slsl004_out_of_range_marks_rangeslider(dash_dcc):
 
 
 def test_slsl005_slider_tooltip(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(
@@ -174,7 +171,7 @@ def test_slsl005_slider_tooltip(dash_dcc):
 
 
 def test_slsl006_rangeslider_tooltip(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(
@@ -242,7 +239,7 @@ def test_slsl006_rangeslider_tooltip(dash_dcc):
 
 
 def test_slsl007_drag_value_slider(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Slider(
@@ -259,11 +256,11 @@ def test_slsl007_drag_value_slider(dash_dcc):
     )
 
     @app.callback(Output("out-drag-value", "children"), [Input("slider", "drag_value")])
-    def update_output(value):
+    def update_output1(value):
         return "You have dragged {}".format(value)
 
     @app.callback(Output("out-value", "children"), [Input("slider", "value")])
-    def update_output(value):
+    def update_output2(value):
         return "You have selected {}".format(value)
 
     dash_dcc.start_server(app)
@@ -285,7 +282,7 @@ def test_slsl007_drag_value_slider(dash_dcc):
 
 
 def test_slsl008_drag_value_rangeslider(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.RangeSlider(
@@ -302,12 +299,12 @@ def test_slsl008_drag_value_rangeslider(dash_dcc):
     )
 
     @app.callback(Output("out-drag-value", "children"), [Input("slider", "drag_value")])
-    def update_output(value):
+    def update_output1(value):
         value = value or (None, None)
         return "You have dragged {}-{}".format(*value)
 
     @app.callback(Output("out-value", "children"), [Input("slider", "value")])
-    def update_output(value):
+    def update_output2(value):
         return "You have selected {}-{}".format(*value)
 
     dash_dcc.start_server(app)
@@ -329,7 +326,7 @@ def test_slsl008_drag_value_rangeslider(dash_dcc):
 def test_slsl009_loading_state(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button(id="test-btn"),
@@ -368,7 +365,7 @@ def test_slsl009_loading_state(dash_dcc):
 def test_slsl010_range_loading_state(dash_dcc):
     lock = Lock()
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button(id="test-btn"),
@@ -415,7 +412,7 @@ def test_slsl010_range_loading_state(dash_dcc):
 
 
 def test_slsl011_horizontal_slider(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Label("Horizontal Slider"),
@@ -440,7 +437,7 @@ def test_slsl011_horizontal_slider(dash_dcc):
 
 
 def test_slsl012_vertical_slider(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Label("Vertical Slider"),
@@ -467,7 +464,7 @@ def test_slsl012_vertical_slider(dash_dcc):
 
 
 def test_slsl013_horizontal_range_slider(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Label("Horizontal Range Slider"),
@@ -497,7 +494,7 @@ def test_slsl013_horizontal_range_slider(dash_dcc):
 
 
 def test_slsl014_vertical_range_slider(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Label("Vertical Range Slider"),

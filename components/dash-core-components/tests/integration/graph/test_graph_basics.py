@@ -4,16 +4,14 @@ from multiprocessing import Value, Lock
 import numpy as np
 from time import sleep
 
-import dash
-import dash_html_components as html
-import dash_core_components as dcc
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
+
 import dash.testing.wait as wait
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grbs001_graph_without_ids(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
         [dcc.Graph(className="graph-no-id-1"), dcc.Graph(className="graph-no-id-2")]
     )
@@ -40,7 +38,7 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc, is_eager):
         "layout": {"xaxis": {"scaleanchor": "y"}},
     }
 
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
         style={
             "backgroundColor": "red",
@@ -93,7 +91,7 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc, is_eager):
 
 @pytest.mark.DCC672
 def test_grbs003_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.H1("subplot issue"),
@@ -135,7 +133,7 @@ def test_grbs003_graph_wrapped_in_loading_component_does_not_fail(dash_dcc):
 @pytest.mark.DCC837
 def test_grbs004_graph_loading_state_updates(dash_dcc):
     lock = Lock()
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.H1(id="title", children="loading state updates"),

@@ -1,8 +1,5 @@
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
 from dash.exceptions import PreventUpdate
-import dash_core_components as dcc
-import dash_html_components as html
 import json
 import os
 import pytest
@@ -14,7 +11,7 @@ import time
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
         [
             html.H1("Dash Tabs component demo"),
@@ -124,7 +121,7 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_tabs_render_without_selected(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
 
     menu = html.Div([html.Div("one", id="one"), html.Div("two", id="two")])
 

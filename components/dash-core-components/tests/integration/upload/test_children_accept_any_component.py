@@ -1,11 +1,9 @@
 import time
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, dcc, html
 
 
 def test_upca001_upload_children_gallery(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(id="waitfor"),

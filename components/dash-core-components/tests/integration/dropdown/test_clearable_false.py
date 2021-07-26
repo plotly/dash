@@ -1,13 +1,10 @@
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 from selenium.webdriver.common.keys import Keys
 
 
 def test_ddcf001_clearable_false_single(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Dropdown(
@@ -43,7 +40,7 @@ def test_ddcf001_clearable_false_single(dash_duo):
 
 
 def test_ddcf002_clearable_false_multi(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Dropdown(

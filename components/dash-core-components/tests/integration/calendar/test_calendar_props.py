@@ -1,17 +1,14 @@
 import itertools
 import pytest
 
-import dash_core_components as dcc
-import dash_html_components as html
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc
 import dash.testing.wait as wait
 
 
 @pytest.mark.DCC594
 def test_cdpr001_date_clearable_true_works(dash_dcc):
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.DatePickerRange(id="dpr", clearable=True),
@@ -46,7 +43,7 @@ def test_cdpr001_date_clearable_true_works(dash_dcc):
 
 
 def test_cdpr002_updatemodes(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [

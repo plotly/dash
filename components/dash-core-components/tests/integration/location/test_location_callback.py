@@ -1,15 +1,13 @@
 import pytest
-import dash
-from dash.dependencies import Input, Output, State
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, State, dcc, html
+
 
 from dash.testing.wait import until
 
 
 @pytest.mark.DCC774
 def test_loca001_callbacks(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Location(id="location", refresh=False),
@@ -30,7 +28,7 @@ def test_loca001_callbacks(dash_dcc):
 
 
 def test_loca002_location_link(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [

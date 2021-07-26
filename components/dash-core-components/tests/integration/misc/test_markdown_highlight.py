@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 
 md_text = """```python
@@ -13,7 +10,7 @@ print('hello, world!')
 
 
 def test_msmh001_no_window_variable(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(dcc.Markdown(md_text))
     dash_dcc.start_server(app)
 
@@ -26,7 +23,7 @@ def test_msmh001_no_window_variable(dash_dcc):
 
 
 def test_msmh002_window_override(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([html.Button(id="md-trigger"), html.Div(id="md-container")])
 
     # we can't run the script below until after the page has loaded,

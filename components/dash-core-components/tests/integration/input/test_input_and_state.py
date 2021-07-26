@@ -1,14 +1,12 @@
 import time
 from multiprocessing import Value
-import dash
-from dash.dependencies import Input, Output, State
+from dash import Dash, Input, Output, State, dcc, html
+
 import dash.testing.wait as wait
-import dash_core_components as dcc
-import dash_html_components as html
 
 
 def test_state_and_inputs(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(value="Initial Input", id="input"),

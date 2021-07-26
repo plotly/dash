@@ -1,13 +1,10 @@
 import pytest
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 
 @pytest.mark.DCC782
 def test_lipa001_path(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Link("Relative Path", id="link1", href="google.com"),
@@ -31,7 +28,7 @@ def test_lipa001_path(dash_dcc):
 
 @pytest.mark.DCC782
 def test_lipa002_path(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Link(

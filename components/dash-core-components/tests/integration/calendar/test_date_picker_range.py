@@ -1,12 +1,10 @@
 from datetime import datetime
 
-import dash
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import Dash, html, dcc
 
 
 def test_dtpr001_initial_month_provided(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.DatePickerRange(
@@ -35,7 +33,7 @@ def test_dtpr001_initial_month_provided(dash_dcc):
 
 
 def test_dtpr002_no_initial_month_min_date(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.DatePickerRange(
@@ -62,7 +60,7 @@ def test_dtpr002_no_initial_month_min_date(dash_dcc):
 
 
 def test_dtpr003_no_initial_month_no_min_date_start_date(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.DatePickerRange(
@@ -89,7 +87,7 @@ def test_dtpr003_no_initial_month_no_min_date_start_date(dash_dcc):
 
 
 def test_dtpr004_max_and_min_dates_are_clickable(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.DatePickerRange(
@@ -120,7 +118,7 @@ def test_dtpr004_max_and_min_dates_are_clickable(dash_dcc):
 
 
 def test_dtpr005_disabled_days_arent_clickable(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Label("Operating Date"),

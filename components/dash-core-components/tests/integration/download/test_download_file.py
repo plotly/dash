@@ -1,9 +1,5 @@
 import os
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
 
 from dash.testing.wait import until
 
@@ -12,7 +8,7 @@ def test_dlfi001_download_file(dash_dcc):
     filename = "Lenna.jpeg"
     asset_folder = os.path.join(os.path.dirname(__file__), "download-assets")
     # Create app.
-    app = dash.Dash(__name__, prevent_initial_callbacks=True)
+    app = Dash(__name__, prevent_initial_callbacks=True)
     app.layout = html.Div([html.Button("Click", id="btn"), dcc.Download(id="download")])
 
     @app.callback(Output("download", "data"), Input("btn", "n_clicks"))

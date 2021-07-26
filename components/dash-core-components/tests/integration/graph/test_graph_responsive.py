@@ -1,9 +1,7 @@
 import pytest
 
-import dash
-import dash_html_components as html
-import dash_core_components as dcc
-from dash.dependencies import Input, Output, State
+from dash import Dash, Input, Output, State, dcc, html
+
 from dash.exceptions import PreventUpdate
 from dash.testing import wait
 
@@ -14,7 +12,7 @@ from dash.testing import wait
 @pytest.mark.parametrize("width", [600, None])
 @pytest.mark.parametrize("is_responsive", [True, False, "auto"])
 def test_grrs001_graph(dash_dcc, responsive, autosize, height, width, is_responsive):
-    app = dash.Dash(__name__, eager_loading=True)
+    app = Dash(__name__, eager_loading=True)
 
     header_style = dict(padding="10px", backgroundColor="yellow", flex="0 0 100px")
 

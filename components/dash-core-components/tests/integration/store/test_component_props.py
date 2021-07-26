@@ -1,12 +1,9 @@
 import json
 import time
 from pytest import approx
-import dash
-from dash.dependencies import Input, Output, State
+from dash import Dash, Input, State, Output, dcc, html
 from dash.exceptions import PreventUpdate
 import dash.testing.wait as wait
-import dash_core_components as dcc
-import dash_html_components as html
 
 
 def test_stcp001_clear_data_on_all_types(store_app, dash_dcc):
@@ -32,7 +29,7 @@ def test_stcp001_clear_data_on_all_types(store_app, dash_dcc):
 
 
 def test_stcp002_modified_ts(store_app, dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Store(id="initial-storage", storage_type="session"),
@@ -81,7 +78,7 @@ def test_stcp002_modified_ts(store_app, dash_dcc):
 
 
 def test_stcp003_initial_falsy(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(
@@ -122,7 +119,7 @@ def test_stcp003_initial_falsy(dash_dcc):
 
 
 def test_stcp004_remount_store_component(dash_dcc):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
 
     content = html.Div(
         [

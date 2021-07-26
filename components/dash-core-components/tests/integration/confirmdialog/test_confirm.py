@@ -1,10 +1,7 @@
 from multiprocessing import Value
-import dash
-from dash import callback_context
+
 from dash.testing import wait
-from dash.dependencies import Input, Output, State
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, State, dcc, html, callback_context
 import pytest
 import time
 
@@ -30,7 +27,7 @@ import time
     ],
 )
 def test_cnfd001_dialog(dash_dcc, confirm_callback, confirms, components):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(components + [html.Div(id="confirmed")])
 
     @app.callback(Output("confirm", "displayed"), [Input("button", "n_clicks")])
@@ -92,7 +89,7 @@ def test_cnfd001_dialog(dash_dcc, confirm_callback, confirms, components):
 
 
 def test_cnfd002_injected_confirm(dash_dcc):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button(id="button", children="Send confirm"),

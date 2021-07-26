@@ -3,15 +3,12 @@ import time
 
 from selenium.webdriver.common.keys import Keys
 
-import dash
-from dash.dependencies import Input, Output
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, Input, Output, dcc, html
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grgp001_clean_purge(dash_dcc, is_eager):
-    app = dash.Dash(__name__, eager_loading=is_eager)
+    app = Dash(__name__, eager_loading=is_eager)
 
     app.layout = html.Div(
         [html.Button("toggle children", id="tog"), html.Div(id="out")]
