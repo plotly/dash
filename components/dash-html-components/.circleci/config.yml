@@ -47,11 +47,10 @@ jobs:
       - run:
           name: 🏗️ Install dependencies (dash)
           command: |
-              git clone --depth 1 git@github.com:plotly/dash.git dash-main
+              git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
               git clone --depth 1 git@github.com:plotly/dash-core-components.git
               git clone --depth 1 git@github.com:plotly/dash-table.git
               . venv/bin/activate
-              cd dash-main && git checkout dash-monorepo && cd ../
               pip install -e ./dash-main[testing,dev] --quiet
               renderer build
               cd dash-core-components && npm ci && npm run build && pip install -e . && cd ..
