@@ -97,8 +97,9 @@ jobs:
             python setup.py sdist && mv dist/* ../packages/ && cd ..
             # build html
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
-            cd dash-html-components && npm ci && npm run build
-            python setup.py sdist && mv dist/* ../packages && cd ..
+            git clone --depth 1 git@github.com:plotly/dash-table.git
+            cd dash-html-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages && cd ..
+            cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages && cd ..
             # build dcc
             npm ci && npm run build && python setup.py sdist && mv dist/* ./packages && ls -la packages
       - persist_to_workspace:
