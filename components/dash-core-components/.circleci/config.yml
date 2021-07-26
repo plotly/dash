@@ -92,7 +92,7 @@ jobs:
             . venv/bin/activate && mkdir packages
             set -eo pipefail
             # build main dash & renderer
-            git clone --depth 1 https://github.com/plotly/dash.git dash-main
+            git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
             cd dash-main && pip install -e .[dev] --progress-bar off && renderer build
             python setup.py sdist && mv dist/* ../packages/ && cd ..
             # build html

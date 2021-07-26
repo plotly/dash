@@ -70,8 +70,6 @@ jobs:
           command: |
               . venv/bin/activate
               python --version
-              ls -a
-              ls dash-main/dash
               npm run test
 
   html-python-39:
