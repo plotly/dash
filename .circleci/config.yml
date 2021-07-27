@@ -97,7 +97,7 @@ orbs:
                 # If `shared-config` exists, append it at the end of `modules`
                 if [ -f << parameters.shared-config >> ]
                 then
-                  cp "<< parameters.modules >>" ./temp-modules.txt && cat "<< parameters.shared-config >>" ./temp-modules.txt > "<< parameters.modules >>"
+                  cp "<< parameters.modules >>" ./temp-modules.txt && cat ./temp-modules.txt "<< parameters.shared-config >>" > "<< parameters.modules >>"
                 fi
                 xargs -a "<< parameters.modules >>" yq -y -s 'reduce .[] as $item ({}; . * $item)' | tee "<< parameters.continue-config >>"
     jobs:
