@@ -76,11 +76,11 @@ orbs:
           shared-config:
             description: Path to the config providing shared resources (such as prerequisite jobs and common commands)
             type: string
-            default: .circleci/workflows.yml
+            default: .circleci/config.yml
           continue-config:
             description: Path to the internally-used config for continuation
             type: string
-            default: .circleci/continue-config.yml
+            default: .circleci/workflows.yml
         steps:
           - run:
               name: Merge configs
@@ -97,7 +97,7 @@ orbs:
                 # If `shared-config` exists, append it at the end of `modules`
                 if [ -f << parameters.shared-config >> ]
                 then
-                  cp "<< parameters.modules >>" ./temp-modules.txt && cat ./temp-modules.txt "<< parameters.shared-config >>" > "<< parameters.modules >>"
+                  echo "<< parameters.shared-config >>" >> "<< parameters.modules >>"
                 fi
                 xargs -a "<< parameters.modules >>" yq -y -s 'reduce .[] as $item ({}; . * $item)' | tee "<< parameters.continue-config >>"
     jobs:
