@@ -1,13 +1,10 @@
-pytest>=6.0.2;python_version>="3.0"
-pytest>=4.6,<5;python_version=="2.7"
+pytest>=6.0.2
 pytest-sugar>=0.9.4
-pytest-mock>=3.2.0;python_version>="3.0"
-pytest-mock>=2.0.0,<3;python_version=="2.7"
+pytest-mock>=3.2.0
 lxml>=4.6.2
 selenium>=3.141.0
 percy>=2.0.2
 cryptography<3.4;python_version<"3.7"
 requests[security]>=2.21.0
-beautifulsoup4>=4.8.2,<=4.9.3;python_version=="2.7"
-beautifulsoup4>=4.8.2;python_version>="3.0"
+beautifulsoup4>=4.8.2
 waitress>=1.4.4
