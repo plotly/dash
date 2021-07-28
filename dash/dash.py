@@ -645,7 +645,7 @@ class Dash(object):
             [
                 format_tag("link", link, opened=True)
                 if isinstance(link, dict)
-                else '<link rel="stylesheet" href="{}">'.format(link)
+                else f'<link rel="stylesheet" href="{link}">'
                 for link in (external_links + links)
             ]
         )
