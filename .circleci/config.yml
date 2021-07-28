@@ -155,10 +155,6 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
             - venv
-      - persist_to_workspace:
-          root: ~/dash
-          paths:
-            - packages/*.tar.gz
 
   build-misc-36:
     <<: *build-misc
