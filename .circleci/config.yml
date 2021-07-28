@@ -214,6 +214,8 @@ jobs:
           command: |
             . venv/bin/activate
             pip install --no-cache-dir --upgrade --ignore-installed -e .[dev,testing] --progress-bar off
+            cd dash/dash-renderer && renderer build && cd ../../
+            ls dash/deps
             npm run citest.integration
       - store_artifacts:
           path: test-reports
