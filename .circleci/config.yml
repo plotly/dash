@@ -82,17 +82,6 @@ jobs:
           PYLINTRC: .pylintrc
           PYVERSION: python36
 
-  lint-unit-27:
-    <<: *lint-unit
-    docker:
-      - image: circleci/python:2.7.18-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYLINTRC: .pylintrc
-          PYVERSION: python27
-
   build-core-39: &build-core
     working_directory: ~/dash
     docker:
@@ -140,16 +129,6 @@ jobs:
           password: $DASH_PAT_DOCKERHUB
         environment:
           PYVERSION: python36
-
-  build-core-27:
-    <<: *build-core
-    docker:
-      - image: circleci/python:2.7.18-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYVERSION: python27
 
   build-misc-39: &build-misc
     working_directory: ~/dash
@@ -199,16 +178,6 @@ jobs:
           password: $DASH_PAT_DOCKERHUB
         environment:
           PYVERSION: python36
-
-  build-misc-27:
-    <<: *build-misc
-    docker:
-      - image: circleci/python:2.7.18-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYVERSION: python27
 
   build-windows-39:
     working_directory: ~/dash
@@ -284,17 +253,6 @@ jobs:
           PERCY_ENABLE: 0
           PYVERSION: python36
 
-  test-27:
-    <<: *test
-    docker:
-      - image: circleci/python:2.7.18-stretch-node-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PERCY_ENABLE: 0
-          PYVERSION: python27
-
 workflows:
   version: 2
   python3.9:
@@ -330,12 +288,3 @@ workflows:
           requires:
             - build-core-36
             - build-misc-36
-  python2.7:
-    jobs:
-      - lint-unit-27
-      - build-core-27
-      - build-misc-27
-      - test-27:
-          requires:
-            - build-core-27
-            - build-misc-27
