@@ -278,7 +278,7 @@ class Dash(object):
         plugins=None,
         title="Dash",
         update_title="Updating...",
-        **obsolete
+        **obsolete,
     ):
         _validate.check_obsolete(obsolete)
 
@@ -1591,7 +1591,7 @@ class Dash(object):
         dev_tools_hot_reload_max_retry=None,
         dev_tools_silence_routes_logging=None,
         dev_tools_prune_errors=None,
-        **flask_run_options
+        **flask_run_options,
     ):
         """Start the flask server in local mode, you should not run this on a
         production server, use gunicorn/waitress instead.
