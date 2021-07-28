@@ -207,15 +207,13 @@ jobs:
             . venv/bin/activate
             npm install --production
             pip install --no-cache-dir --upgrade --ignore-installed -e .[dev,testing] --progress-bar off
+            cd dash/dash-renderer && renderer build && cd ../../
             sed -i '/dash/d' requires-install.txt
             pip list | grep dash
       - run:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate
-            pip install --no-cache-dir --upgrade --ignore-installed -e .[dev,testing] --progress-bar off
-            cd dash/dash-renderer && renderer build && cd ../../
-            ls dash/deps
             npm run citest.integration
       - store_artifacts:
           path: test-reports
@@ -328,7 +326,8 @@ jobs:
             set -eo pipefail
             # build main dash & renderer
             git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
-            cd dash-main && pip install -e .[dev] --progress-bar off && renderer build
+            cd dash-main && pip install -e .[dev] --progress-bar off
+            cd dash/dash-renderer && renderer build && cd ../../
             python setup.py sdist && mv dist/* ../packages/ && cd ..
             # build html
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
