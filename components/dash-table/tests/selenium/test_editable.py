@@ -1,5 +1,6 @@
 import dash
-from dash import Input, Output, PreventUpdate, html, dcc
+from dash import Input, Output, html, dcc
+from dash.exceptions import PreventUpdate
 
 from dash.dash_table import DataTable
 
