@@ -206,7 +206,7 @@ jobs:
           command: |
             . venv/bin/activate
             npm install --production
-            pip install --no-cache-dir --upgrade --ignore installed -e .[dev,testing] --progress-bar off
+            pip install --no-cache-dir --upgrade --ignore-installed -e .[dev,testing] --progress-bar off
             sed -i '/dash/d' requires-install.txt
             pip list | grep dash
       - run:
