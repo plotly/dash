@@ -114,8 +114,6 @@ jobs:
           command: |
             . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
             cd dash/dash-renderer && renderer build && cd ../../ && python setup.py sdist && mv dist/* packages/
-            git clone --depth 1 https://github.com/plotly/dash-core-components.git
-            cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
             ls -la packages
       - persist_to_workspace:
           root: ~/dash
@@ -157,15 +155,6 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
             - venv
-      - run:
-          name: ️️🏗️ build misc
-          command: |
-            . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-            git clone --depth 1 https://github.com/plotly/dash-table.git
-            cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-            git clone --depth 1 https://github.com/plotly/dash-html-components.git
-            cd dash-html-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-            ls -la packages
       - persist_to_workspace:
           root: ~/dash
           paths:
@@ -195,9 +184,7 @@ jobs:
           name: ️️🏗️ build core
           command: |
             pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
-            cd dash/dash-renderer && renderer build && cd ../../ && python setup.py sdist && mv dist/* packages/
-            git clone --depth 1 https://github.com/plotly/dash-core-components.git
-            cd dash-core-components && npm ci && npm run build && python setup.py sdist && cd ..
+            cd dash/dash-renderer && renderer build && cd ../../
 
   test-39: &test
     working_directory: ~/dash
@@ -223,15 +210,15 @@ jobs:
           command: |
             . venv/bin/activate
             npm install --production
-            cd packages && ls -la
-            find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && cd ..
+            pip install --no-cache-dir --upgrade --ignore installed -e .[dev,testing] --progress-bar off
             sed -i '/dash/d' requires-install.txt
-            pip install --no-cache-dir --ignore-installed .
             pip list | grep dash
       - run:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate
+            ls -la
+            ls components
             npm run citest.integration
       - store_artifacts:
           path: test-reports
