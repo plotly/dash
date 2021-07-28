@@ -213,8 +213,7 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate
-            ls -la
-            ls components
+            pip install --no-cache-dir --upgrade --ignore-installed -e .[dev,testing] --progress-bar off
             npm run citest.integration
       - store_artifacts:
           path: test-reports
