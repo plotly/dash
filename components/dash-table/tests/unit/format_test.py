@@ -1,8 +1,8 @@
 import unittest
 
-import dash_table.Format as f
-from dash_table.Format import Format
-import dash_table.FormatTemplate as FormatTemplate
+import dash.dash_table.Format as f
+from dash.dash_table.Format import Format
+import dash.dash_table.FormatTemplate as FormatTemplate
 
 
 class FormatTest(unittest.TestCase):

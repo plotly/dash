@@ -3,7 +3,7 @@ from dash.testing import wait
 
 from utils import get_props
 
-from dash_table import DataTable
+from dash.dash_table import DataTable
 
 import pytest
 

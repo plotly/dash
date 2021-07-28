@@ -1,10 +1,7 @@
 import dash
-from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
+from dash import Input, Output, PreventUpdate, html, dcc
 
-import dash_core_components as dcc
-import dash_html_components as html
-from dash_table import DataTable
+from dash.dash_table import DataTable
 
 from multiprocessing import Lock
 from selenium.webdriver.common.keys import Keys

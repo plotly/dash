@@ -2,7 +2,7 @@ import dash
 
 from utils import get_props, generate_mock_data, generate_mock_data_with_date
 
-from dash_table import DataTable
+from dash.dash_table import DataTable
 from selenium.webdriver.common.keys import Keys
 
 

@@ -2,7 +2,7 @@ import dash
 
 from utils import basic_modes, get_props, generate_mock_data, read_write_modes
 
-from dash_table import DataTable
+from dash.dash_table import DataTable
 
 from selenium.webdriver.common.keys import Keys
 

@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import pytest
-import dash_table
+import dash.dash_table
 import dash
 import dash.testing.wait as wait
 

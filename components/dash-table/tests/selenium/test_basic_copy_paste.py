@@ -3,8 +3,8 @@ import pytest
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-import dash_html_components as html
-from dash_table import DataTable
+from dash import html
+from dash.dash_table import DataTable
 
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains

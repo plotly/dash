@@ -1,10 +1,7 @@
 import dash
-from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import Input, Output, html, dcc, PreventUpdate
 
-from dash_table import DataTable
+from dash.dash_table import DataTable
 
 import pytest
 from selenium.webdriver.common.keys import Keys

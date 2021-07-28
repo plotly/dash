@@ -3,7 +3,7 @@ import math
 import pytest
 import time
 import dash.testing.wait as wait
-from dash_table import DataTable
+from dash.dash_table import DataTable
 
 columns = [dict(id=str(i), name="Column {}".format(i)) for i in range(1, 30)]
 

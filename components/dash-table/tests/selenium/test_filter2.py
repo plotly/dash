@@ -3,8 +3,8 @@ from dash.dependencies import Input, Output
 
 from utils import get_props
 
-from dash_table import DataTable
-from dash_html_components import Div, Button
+from dash.dash_table import DataTable
+from dash.html import Div, Button
 from selenium.webdriver.common.action_chains import ActionChains
 import pytest
 

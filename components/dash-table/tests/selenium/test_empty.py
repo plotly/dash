@@ -2,8 +2,8 @@ import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
-from dash_table import DataTable
-from dash_html_components import Button, Div
+from dash.dash_table import DataTable
+from dash.html import Button, Div
 
 
 def get_app():

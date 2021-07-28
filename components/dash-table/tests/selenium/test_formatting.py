@@ -2,7 +2,7 @@ import dash
 
 from utils import get_props
 
-from dash_table import DataTable
+from dash.dash_table import DataTable
 from selenium.webdriver.common.keys import Keys
 
 

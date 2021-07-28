@@ -1,6 +1,6 @@
 import dash
 from dash.testing import wait
-from dash_table import DataTable
+from dash.dash_table import DataTable
 
 import pandas as pd
 

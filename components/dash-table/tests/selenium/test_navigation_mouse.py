@@ -9,7 +9,7 @@ from utils import (
     generate_mixed_markdown_data,
 )
 
-from dash_table import DataTable
+from dash.dash_table import DataTable
 
 import pytest
 

@@ -1,8 +1,8 @@
 import dash
 from dash.testing import wait
 
-from dash_table import DataTable
-from dash_html_components import Div
+from dash.dash_table import DataTable
+from dash.html import Div
 
 from selenium.webdriver.common.keys import Keys
 

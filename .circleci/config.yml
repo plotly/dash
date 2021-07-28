@@ -521,9 +521,9 @@ jobs:
                   python -m venv venv
                   . venv/bin/activate
                   pip install -r dev-requirements.txt --quiet
-                  git clone --depth 1 -b dev git@github.com:plotly/dash.git dash-main
+                  git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
                   pip install -e ./dash-main[dev,testing] --quiet
-                  renderer build
+                  cd dash-main/dash/dash-renderer && renderer build && cd ../../../
           - run:
               name: Build
               command: |
@@ -568,7 +568,9 @@ jobs:
                   python -m venv venv
                   . venv/bin/activate
                   pip install -r dev-requirements.txt --quiet
-                  pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
+                  git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
+                  cd dash-main && pip install -e .[dev] --progress-bar off
+                  cd dash/dash-renderer && renderer build && cd ../../
           - run:
               name: Run tests
               command: |
@@ -624,7 +626,9 @@ jobs:
               command: |
                   . venv/bin/activate
                   pip install -r dev-requirements.txt --quiet
-                  pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
+                  git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
+                  cd dash-main && pip install -e .[dev] --progress-bar off
+                  cd dash/dash-renderer && renderer build && cd ../../
           - run:
               name: Run eslint
               command: |

@@ -12,8 +12,8 @@ from utils import (
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from dash.testing import wait
-from dash_table import DataTable
-from dash_html_components import Button, Div
+from dash.dash_table import DataTable
+from dash.html import Button, Div
 
 base_props = dict(
     columns=[
