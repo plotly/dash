@@ -377,7 +377,6 @@ jobs:
             . venv/bin/activate && rm -rf dash_core_components && ls -la
             set -eo pipefail
             cd packages && mv dash-*.tar.gz main.tar.gz && ls -la
-            find . -name "dash_*.gz" | xargs pip install -I --progress-bar off --no-cache-dir
             pip install --no-cache-dir --progress-bar off main.tar.gz[dev,testing]
             pip list | grep dash | xargs pip show && cd ..
             echo $(python -V 2>&1) | grep 3.
