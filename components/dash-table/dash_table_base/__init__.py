@@ -52,7 +52,9 @@ _js_dist.extend(
 _js_dist.extend(
     [
         {
-            "relative_package_path": "dash_table/async-{}.js.map".format(async_resource),
+            "relative_package_path": "dash_table/async-{}.js.map".format(
+                async_resource
+            ),
             "external_url": (
                 "https://unpkg.com/dash-table@{}" "/dash_table/async-{}.js.map"
             ).format(__version__, async_resource),
