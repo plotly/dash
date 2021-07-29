@@ -523,6 +523,7 @@ jobs:
                   pip install -r dev-requirements.txt --quiet
                   git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
                   cd dash-main && pip install -e .[dev] --progress-bar off && renderer build && dash-update-components 'dash-table' && cd ../
+                  pip uninstall -y dash-html-components dash-core-components
           - run:
               name: Build
               command: |
