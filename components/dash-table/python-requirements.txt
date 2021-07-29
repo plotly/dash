@@ -8,3 +8,5 @@ percy
 selenium
 flake8
 pylint
+pytest
+bs4
