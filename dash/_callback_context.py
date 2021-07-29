@@ -54,6 +54,16 @@ class CallbackContext:
 
     @property
     @has_context
+    def args_grouping(self):
+        return getattr(flask.g, "args_grouping", [])
+
+    @property
+    @has_context
+    def outputs_grouping(self):
+        return getattr(flask.g, "outputs_grouping", [])
+
+    @property
+    @has_context
     def outputs_list(self):
         return getattr(flask.g, "outputs_list", [])
 
