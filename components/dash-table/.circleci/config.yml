@@ -45,18 +45,14 @@ jobs:
                     python -m venv venv
                     . venv/bin/activate
                     pip install -r dev-requirements.txt --quiet
-                    git clone --depth 1 -b dev git@github.com:plotly/dash.git dash-main
-                    pip install -e ./dash-main[dev,testing] --quiet
-                    renderer build
+                    git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
+                    cd dash-main && pip install -e .[dev] --progress-bar off && renderer build && cd ../
             - run:
                 name: Build
                 command: |
                     . venv/bin/activate
                     npm run private::build:js-test
                     npm run private::build:backends
-                    python setup.py sdist
-                    cd dist
-                    find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && cd ..
             - run:
                 name: Run tests
                 command: |
