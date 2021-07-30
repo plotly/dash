@@ -7,7 +7,7 @@ import string
 import pytest
 from fixtures import (  # noqa: F401
     scalar_grouping_size,
-    tuple_grouping_size,
+    list_grouping_size,
     dict_grouping_size,
     mixed_grouping_size,
 )
@@ -65,11 +65,11 @@ def test_callback_output_scalar(scalar_grouping_size):
     check_output_for_grouping(scalar_grouping_size[0])
 
 
-def test_callback_output_tuple(tuple_grouping_size):
-    if tuple_grouping_size[1] == 0:
+def test_callback_output_tuple(list_grouping_size):
+    if list_grouping_size[1] == 0:
         pytest.skip("Empty output grouping is not valid")
 
-    check_output_for_grouping(tuple_grouping_size[0])
+    check_output_for_grouping(list_grouping_size[0])
 
 
 def test_callback_output_dict(dict_grouping_size):
@@ -113,7 +113,7 @@ def check_callback_inputs_for_grouping(grouping):
     if isinstance(grouping, dict):
         # Check that user callback function was called with named keyword arguments
         mock_fn.assert_called_once_with(**grouping)
-    elif isinstance(grouping, tuple):
+    elif isinstance(grouping, (tuple, list)):
         # Check that user callback function was called with positional arguments
         mock_fn.assert_called_once_with(*grouping)
     else:
@@ -128,11 +128,11 @@ def test_callback_input_scalar_grouping(scalar_grouping_size):
     check_callback_inputs_for_grouping(scalar_grouping_size[0])
 
 
-def test_callback_input_tuple_grouping(tuple_grouping_size):
-    if tuple_grouping_size[1] == 0:
+def test_callback_input_list_grouping(list_grouping_size):
+    if list_grouping_size[1] == 0:
         pytest.skip("Empty input grouping is not valid")
 
-    check_callback_inputs_for_grouping(tuple_grouping_size[0])
+    check_callback_inputs_for_grouping(list_grouping_size[0])
 
 
 def test_callback_input_dict_grouping(dict_grouping_size):

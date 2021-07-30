@@ -26,17 +26,6 @@ def test_cbva001_callback_dep_types():
 
     with pytest.raises(IncorrectTypeException) as err:
 
-        @app.callback([[Output("out1", "children")]], [Input("in1", "children")])
-        def f(i):
-            return i
-
-        pytest.fail("extra output nesting")
-
-    assert "must be `Output`, `Input`, or `State`" in err.value.args[0]
-    assert "[<Output `out1.children`>]" in err.value.args[0]
-
-    with pytest.raises(IncorrectTypeException) as err:
-
         @app.callback(Input("in1", "children"), Output("out1", "children"))
         def f2(i):
             return i

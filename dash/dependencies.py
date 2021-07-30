@@ -141,9 +141,9 @@ class ClientsideFunction:  # pylint: disable=too-few-public-methods
 def extract_grouped_output_callback_args(args, kwargs):
     if "output" in kwargs:
         parameters = kwargs["output"]
-        # Normalize list of multiple positional outputs to a tuple
-        if isinstance(parameters, list):
-            parameters = tuple(parameters)
+        # Normalize list/tuple of multiple positional outputs to a tuple
+        if isinstance(parameters, (list, tuple)):
+            parameters = list(parameters)
 
         # Make sure dependency grouping contains only Output objects
         for dep in flatten_grouping(parameters):
@@ -162,7 +162,7 @@ def extract_grouped_output_callback_args(args, kwargs):
             parameters.append(args.pop(0))
         else:
             break
-    return tuple(parameters)
+    return parameters
 
 
 def extract_grouped_input_state_callback_args_from_kwargs(kwargs):
@@ -205,7 +205,7 @@ def extract_grouped_input_state_callback_args_from_kwargs(kwargs):
 
             parameters += list(state_parameters)
 
-        return tuple(parameters)
+        return parameters
 
     raise ValueError(
         "The input argument to app.callback may be a dict, list, or tuple,\n"
@@ -228,7 +228,7 @@ def extract_grouped_input_state_callback_args_from_args(args):
         return parameters[0]
 
     # Multiple output groupings, return wrap in tuple
-    return tuple(parameters)
+    return parameters
 
 
 def extract_grouped_input_state_callback_args(args, kwargs):
@@ -287,7 +287,7 @@ def handle_grouped_callback_args(args, kwargs):
     outputs = extract_grouped_output_callback_args(flat_args, kwargs)
     flat_outputs = flatten_grouping(outputs)
 
-    if isinstance(outputs, tuple) and len(outputs) == 1:
+    if isinstance(outputs, (list, tuple)) and len(outputs) == 1:
         out0 = kwargs.get("output", args[0] if args else None)
         if not isinstance(out0, (list, tuple)):
             # unless it was explicitly provided as a list, a single output

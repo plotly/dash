@@ -12,7 +12,7 @@ from dash._grouping import (
 )
 from fixtures import (  # noqa: F401
     scalar_grouping_size,
-    tuple_grouping_size,
+    list_grouping_size,
     dict_grouping_size,
     mixed_grouping_size,
 )
@@ -29,8 +29,8 @@ def test_flatten_scalar(scalar_grouping_size):
     assert len(result) == grouping_len(grouping)
 
 
-def test_flatten_tuple(tuple_grouping_size):
-    grouping, size = tuple_grouping_size
+def test_flatten_list(list_grouping_size):
+    grouping, size = list_grouping_size
     expected = list(range(size))
     result = flatten_grouping(grouping)
     assert expected == result
@@ -76,11 +76,11 @@ def test_make_grouping_by_position_scalar(scalar_grouping_size):
     assert expected == result
 
 
-def test_make_grouping_by_position_tuple(tuple_grouping_size):
-    grouping, size = tuple_grouping_size
+def test_make_grouping_by_position_list(list_grouping_size):
+    grouping, size = list_grouping_size
     flat_values = make_flat_values(size)
     result = make_grouping_by_index(grouping, flat_values)
-    expected = tuple(flat_values)
+    expected = flat_values
     assert expected == result
 
 
@@ -106,9 +106,8 @@ def test_make_grouping_by_position_mixed(mixed_grouping_size):
     while groupings:
         next_grouping = groupings.pop(0)
         next_result = results.pop(0)
-        print("check {} with {}".format(next_result, next_grouping))
-        if isinstance(next_grouping, tuple):
-            assert isinstance(next_result, tuple)
+        if isinstance(next_grouping, (tuple, list)):
+            assert isinstance(next_result, (tuple, list))
             assert len(next_grouping) == len(next_result)
             groupings.extend(next_grouping)
             results.extend(next_result)
@@ -130,10 +129,10 @@ def test_map_grouping_scalar(scalar_grouping_size):
     assert expected == result
 
 
-def test_map_grouping_tuple(tuple_grouping_size):
-    grouping, size = tuple_grouping_size
+def test_map_grouping_list(list_grouping_size):
+    grouping, size = list_grouping_size
     result = map_grouping(lambda x: x * 2 + 5, grouping)
-    expected = tuple(g * 2 + 5 for g in grouping)
+    expected = [g * 2 + 5 for g in grouping]
     assert expected == result
 
 
@@ -167,15 +166,14 @@ def test_make_grouping_by_key_scalar(scalar_grouping_size):
     source = make_key_source(size)
     result = make_grouping_by_key(grouping, source)
     expected = source[0]
-    print(grouping, source, result)
     assert expected == result
 
 
-def test_make_grouping_by_key_tuple(tuple_grouping_size):
-    grouping, size = tuple_grouping_size
+def test_make_grouping_by_key_list(list_grouping_size):
+    grouping, size = list_grouping_size
     source = make_key_source(size)
     result = make_grouping_by_key(grouping, source)
-    expected = tuple(source[i] for i in range(size))
+    expected = [source[i] for i in range(size)]
     assert expected == result
 
 
@@ -198,9 +196,8 @@ def test_make_grouping_by_key_mixed(mixed_grouping_size):
     while groupings:
         next_grouping = groupings.pop(0)
         next_result = results.pop(0)
-        print("check {} with {}".format(next_result, next_grouping))
-        if isinstance(next_grouping, tuple):
-            assert isinstance(next_result, tuple)
+        if isinstance(next_grouping, (list, tuple)):
+            assert isinstance(next_result, (list, tuple))
             assert len(next_grouping) == len(next_result)
             groupings.extend(next_grouping)
             results.extend(next_result)
@@ -217,12 +214,12 @@ def test_make_grouping_by_key_default():
     grouping = (0, {"A": 1, "B": 2})
     source = make_key_source(2)
     result = make_grouping_by_key(grouping, source)
-    expected = ("a", {"A": "b", "B": None})
+    expected = ["a", {"A": "b", "B": None}]
     assert expected == result
 
     # Custom default
     result = make_grouping_by_key(grouping, source, default="_missing_")
-    expected = ("a", {"A": "b", "B": "_missing_"})
+    expected = ["a", {"A": "b", "B": "_missing_"}]
     assert expected == result
 
 
@@ -244,8 +241,8 @@ def test_validate_schema_grouping_scalar(scalar_grouping_size):
     validate_grouping({"a": 0}, schema)
 
 
-def test_validate_schema_grouping_tuple(tuple_grouping_size):
-    grouping, size = tuple_grouping_size
+def test_validate_schema_grouping_list(list_grouping_size):
+    grouping, size = list_grouping_size
     schema = make_schema_with_nones(grouping)
     validate_grouping(grouping, schema)
 
@@ -285,8 +282,8 @@ def test_validate_schema_mixed(mixed_grouping_size):
     with pytest.raises(SchemaTypeValidationError):
         validate_grouping(None, schema)
 
-    # Check invalid tuple value
-    if isinstance(schema, tuple):
+    # Check invalid list/tuple value
+    if isinstance(schema, (list, tuple)):
         err = SchemaLengthValidationError
     else:
         err = SchemaTypeValidationError

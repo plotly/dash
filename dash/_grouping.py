@@ -4,7 +4,7 @@ groupings.
 
 Terminology:
 
-For the purpose of grouping and ungrouping, tuples and dictionaries are considered
+For the purpose of grouping and ungrouping, tuples/lists and dictionaries are considered
 "composite values" and all other values are considered "scalar values".
 
 A "grouping value" is either composite or scalar.
@@ -31,7 +31,7 @@ def flatten_grouping(grouping, schema=None):
     if schema is None:
         schema = grouping
 
-    if isinstance(schema, tuple):
+    if isinstance(schema, (tuple, list)):
         return [
             g
             for group_el, schema_el in zip(grouping, schema)
@@ -57,7 +57,7 @@ def grouping_len(grouping):
     :param grouping: The grouping value to calculate the length of
     :return: non-negative integer
     """
-    if isinstance(grouping, tuple):
+    if isinstance(grouping, (tuple, list)):
         return sum([grouping_len(group_el) for group_el in grouping])
 
     if isinstance(grouping, dict):
@@ -79,8 +79,8 @@ def make_grouping_by_index(schema, flat_values):
     """
 
     def _perform_make_grouping_like(value, next_values):
-        if isinstance(value, tuple):
-            return tuple(
+        if isinstance(value, (tuple, list)):
+            return list(
                 _perform_make_grouping_like(el, next_values)
                 for i, el in enumerate(value)
             )
@@ -125,8 +125,8 @@ def map_grouping(fn, grouping):
     :return: A new grouping with the same structure as input grouping with scalar
         values updated by the input function.
     """
-    if isinstance(grouping, tuple):
-        return tuple(map_grouping(fn, g) for g in grouping)
+    if isinstance(grouping, (tuple, list)):
+        return [map_grouping(fn, g) for g in grouping]
 
     if isinstance(grouping, dict):
         return {k: map_grouping(fn, g) for k, g in grouping.items()}
@@ -216,8 +216,8 @@ def validate_grouping(grouping, schema, full_schema=None, path=()):
     if full_schema is None:
         full_schema = schema
 
-    if isinstance(schema, tuple):
-        SchemaTypeValidationError.check(grouping, full_schema, path, tuple)
+    if isinstance(schema, (tuple, list)):
+        SchemaTypeValidationError.check(grouping, full_schema, path, (tuple, list))
         SchemaLengthValidationError.check(grouping, full_schema, path, len(schema))
 
         for i, (g, s) in enumerate(zip(grouping, schema)):

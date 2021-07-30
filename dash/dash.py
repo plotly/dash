@@ -1070,10 +1070,10 @@ class Dash(object):
                     output_value, output_spec = [output_value], [output_spec]
                     flat_output_values = output_value
                 else:
-                    if isinstance(output_value, list):
+                    if isinstance(output_value, (list, tuple)):
                         # For multi-output, allow top-level collection to be
                         # list or tuple
-                        output_value = tuple(output_value)
+                        output_value = list(output_value)
 
                     flat_output_values = flatten_grouping(output_value, output)
 
