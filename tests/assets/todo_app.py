@@ -66,8 +66,8 @@ def todo_app(content_callback=False):
             new_spec.append((new_item, []))
 
         # Check callback context use of grouping
-        assert not dash.callback_context._using_args_grouping
-        assert not dash.callback_context._using_outputs_grouping
+        assert not dash.callback_context.using_args_grouping
+        assert not dash.callback_context.using_outputs_grouping
 
         new_list = [
             html.Div(

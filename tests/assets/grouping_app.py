@@ -60,8 +60,8 @@ def grouping_app():
             new_spec.append(items["new"])
 
         # Check callback context use of grouping
-        assert dash.callback_context._using_args_grouping
-        assert dash.callback_context._using_outputs_grouping
+        assert dash.callback_context.using_args_grouping
+        assert dash.callback_context.using_outputs_grouping
 
         new_list = [
             html.Div(

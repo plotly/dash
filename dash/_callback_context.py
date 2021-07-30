@@ -67,7 +67,7 @@ class CallbackContext:
     @property
     @has_context
     def outputs_list(self):
-        if self._using_outputs_grouping:
+        if self.using_outputs_grouping:
             warnings.warn(
                 "outputs_list is deprecated, use outputs_grouping instead",
                 DeprecationWarning,
@@ -78,7 +78,7 @@ class CallbackContext:
     @property
     @has_context
     def inputs_list(self):
-        if self._using_args_grouping:
+        if self.using_args_grouping:
             warnings.warn(
                 "inputs_list is deprecated, use args_grouping instead",
                 DeprecationWarning,
@@ -89,7 +89,7 @@ class CallbackContext:
     @property
     @has_context
     def states_list(self):
-        if self._using_args_grouping:
+        if self.using_args_grouping:
             warnings.warn(
                 "states_list is deprecated, use args_grouping instead",
                 DeprecationWarning,
@@ -127,21 +127,21 @@ class CallbackContext:
 
     @property
     @has_context
-    def _using_args_grouping(self):
+    def using_args_grouping(self):
         """
         Return True if this callback is using dictionary or nested groupings for
         Input/State dependencies.
         """
-        return getattr(flask.g, "_using_args_grouping", [])
+        return getattr(flask.g, "using_args_grouping", [])
 
     @property
     @has_context
-    def _using_outputs_grouping(self):
+    def using_outputs_grouping(self):
         """
         Return True if this callback is using dictionary or nested groupings for
         Output dependencies.
         """
-        return getattr(flask.g, "_using_outputs_grouping", [])
+        return getattr(flask.g, "using_outputs_grouping", [])
 
 
 callback_context = CallbackContext()
