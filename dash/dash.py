@@ -1159,7 +1159,10 @@ class Dash(object):
             flask.g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
             flask.g.using_args_grouping = (  # pylint: disable=assigning-non-slot
                 not isinstance(inputs_state_indices, int)
-                and flatten_grouping(inputs_state_indices) != inputs_state_indices
+                and (
+                    inputs_state_indices
+                    != list(range(grouping_len(inputs_state_indices)))
+                )
             )
 
             # Add outputs_grouping
@@ -1177,7 +1180,7 @@ class Dash(object):
             )
             flask.g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
                 not isinstance(outputs_indices, int)
-                and flatten_grouping(outputs_indices) != outputs_indices
+                and outputs_indices != list(range(grouping_len(outputs_indices)))
             )
 
         except KeyError:

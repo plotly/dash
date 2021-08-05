@@ -130,7 +130,7 @@ class CallbackContext:
     def using_args_grouping(self):
         """
         Return True if this callback is using dictionary or nested groupings for
-        Input/State dependencies.
+        Input/State dependencies, or if Input and State dependencies are interleaved
         """
         return getattr(flask.g, "using_args_grouping", [])
 
