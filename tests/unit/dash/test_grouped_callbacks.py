@@ -1,6 +1,6 @@
 import dash
 from dash._grouping import make_grouping_by_index, grouping_len, flatten_grouping
-from dash.dependencies import Input, State, Output
+from dash.dependencies import Input, State, Output, ClientsideFunction
 import mock
 import json
 import string
@@ -144,3 +144,52 @@ def test_callback_input_dict_grouping(dict_grouping_size):
 
 def test_callback_input_mixed_grouping(mixed_grouping_size):
     check_callback_inputs_for_grouping(mixed_grouping_size[0])
+
+
+@pytest.mark.parametrize(
+    "grouping",
+    [
+        [[0, 1], 2],
+        dict(a=[0, 1], b=2),
+    ],
+)
+def test_clientside_callback_grouping_validation(grouping):
+    """
+    Clientside callbacks do not support dependency groupings yet, so we make sure that
+    these are not allowed through validation.
+
+    This test should be removed when grouping support is added for clientside
+    callbacks.
+    """
+    app = dash.Dash()
+
+    # Should pass validation with no groupings
+    app.clientside_callback(
+        ClientsideFunction("foo", "bar"),
+        Output("output-a", "prop"),
+        Input("input-a", "prop"),
+    )
+
+    # Validation error with output is a grouping
+    with pytest.raises(dash.exceptions.IncorrectTypeException):
+        app.clientside_callback(
+            ClientsideFunction("foo", "bar"),
+            make_dependency_grouping(grouping, [Output]),
+            Input("input-a", "prop"),
+        )
+
+    # Validation error with input is a grouping
+    with pytest.raises(dash.exceptions.IncorrectTypeException):
+        app.clientside_callback(
+            ClientsideFunction("foo", "bar"),
+            Output("output-a", "prop"),
+            make_dependency_grouping(grouping, [Input]),
+        )
+
+    # Validation error when both are groupings
+    with pytest.raises(dash.exceptions.IncorrectTypeException):
+        app.clientside_callback(
+            ClientsideFunction("foo", "bar"),
+            make_dependency_grouping(grouping, [Output]),
+            make_dependency_grouping(grouping, [Input]),
+        )
