@@ -149,21 +149,16 @@ def make_grouping_by_key(schema, source, default=None):
     return map_grouping(lambda s: source.get(s, default), schema)
 
 
-class SchemaValidationError(InvalidCallbackReturnValue):
-    def __init__(self, msg):
-        super().__init__(msg=msg)
-
-
-class SchemaTypeValidationError(SchemaValidationError):
+class SchemaTypeValidationError(InvalidCallbackReturnValue):
     def __init__(self, value, full_schema, path, expected_type):
         super().__init__(
-            msg=(
-                f"    Schema: {full_schema}\n"
-                f"    Path: {repr(path)}\n"
-                f"    Expected type: {expected_type}\n"
-                f"    Received value of type {type(value)}:\n"
-                f"        {repr(value)}\n"
-            )
+            msg=f"""
+                Schema: {full_schema}
+                Path: {repr(path)}
+                Expected type: {expected_type}
+                Received value of type {type(value)}:
+                    {repr(value)}
+                """
         )
 
     @classmethod
@@ -172,16 +167,16 @@ class SchemaTypeValidationError(SchemaValidationError):
             raise SchemaTypeValidationError(value, full_schema, path, expected_type)
 
 
-class SchemaLengthValidationError(SchemaValidationError):
+class SchemaLengthValidationError(InvalidCallbackReturnValue):
     def __init__(self, value, full_schema, path, expected_len):
         super().__init__(
-            msg=(
-                f"    Schema: {full_schema}\n"
-                f"    Path: {repr(path)}\n"
-                f"    Expected length: {expected_len}\n"
-                f"    Received value of length {len(value)}:\n"
-                f"        {repr(value)}\n"
-            )
+            msg=f"""
+                Schema: {full_schema}
+                Path: {repr(path)}
+                Expected length: {expected_len}
+                Received value of length {len(value)}:
+                    {repr(value)}
+                """
         )
 
     @classmethod
@@ -190,16 +185,16 @@ class SchemaLengthValidationError(SchemaValidationError):
             raise SchemaLengthValidationError(value, full_schema, path, expected_len)
 
 
-class SchemaKeysValidationError(SchemaValidationError):
+class SchemaKeysValidationError(InvalidCallbackReturnValue):
     def __init__(self, value, full_schema, path, expected_keys):
         super().__init__(
-            msg=(
-                f"    Schema: {full_schema}\n"
-                f"    Path: {repr(path)}\n"
-                f"    Expected keys: {expected_keys}\n"
-                f"    Received value with keys {set(value.keys())}:\n"
-                f"        {repr(value)}\n"
-            )
+            msg=f"""
+                Schema: {full_schema}
+                Path: {repr(path)}
+                Expected keys: {expected_keys}
+                Received value with keys {set(value.keys())}:
+                    {repr(value)}
+                """
         )
 
     @classmethod
