@@ -55,7 +55,6 @@ from . import _validate
 from . import _watch
 from ._grouping import (
     flatten_grouping,
-    validate_grouping,
     map_grouping,
     make_grouping_by_index,
     grouping_len,
@@ -1075,10 +1074,8 @@ class Dash(object):
                         # list or tuple
                         output_value = list(output_value)
 
+                    # Flatten grouping and validate grouping structure
                     flat_output_values = flatten_grouping(output_value, output)
-
-                # Validate grouping structure
-                validate_grouping(output_value, output)
 
                 _validate.validate_multi_return(
                     output_spec, flat_output_values, callback_id
