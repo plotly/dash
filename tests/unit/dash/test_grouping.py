@@ -45,6 +45,17 @@ def test_flatten_dict(dict_grouping_size):
     assert len(result) == grouping_len(grouping)
 
 
+def test_flatten_dict_key_order(dict_grouping_size):
+    grouping, size = dict_grouping_size
+    expected = list(range(size))
+
+    # Reverse key order of value dict to make sure order is preserved
+    rev_grouping = {k: grouping[k] for k in reversed(grouping)}
+    result = flatten_grouping(rev_grouping, grouping)
+    assert expected == result
+    assert len(result) == grouping_len(grouping)
+
+
 def test_flatten_mixed(mixed_grouping_size):
     grouping, size = mixed_grouping_size
     expected = list(range(size))
