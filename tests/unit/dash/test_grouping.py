@@ -50,7 +50,7 @@ def test_flatten_dict_key_order(dict_grouping_size):
     expected = list(range(size))
 
     # Reverse key order of value dict to make sure order is preserved
-    rev_grouping = {k: grouping[k] for k in reversed(grouping)}
+    rev_grouping = {k: grouping[k] for k in reversed(list(grouping.keys()))}
     result = flatten_grouping(rev_grouping, grouping)
     assert expected == result
     assert len(result) == grouping_len(grouping)
