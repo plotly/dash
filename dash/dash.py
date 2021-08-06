@@ -400,6 +400,7 @@ class Dash(object):
         self._layout = None
         self._layout_is_function = False
         self.validation_layout = None
+        self._extra_components = []
 
         self._setup_dev_tools()
         self._hot_reload = AttributeDict(
@@ -491,7 +492,17 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
-        return self._layout() if self._layout_is_function else self._layout
+        layout = self._layout() if self._layout_is_function else self._layout
+
+        # Add extra hidden components
+        if self._extra_components:
+            if not hasattr(layout, "children"):
+                setattr(layout, "children", [])
+            for c in self._extra_components:
+                if c not in layout.children:
+                    layout.children.append(c)
+
+        return layout
 
     @layout.setter
     def layout(self, value):
