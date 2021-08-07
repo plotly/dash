@@ -81,6 +81,11 @@ class Dialog(Component):
         n_clicks changed. This can be used to tell which button was
         changed most recently.
 
+    - open (a value equal to: 'open', 'OPEN' | boolean; optional):
+        Indicates whether the the contents are currently visible (in the
+        case of a <details> element) or whether the dialog is active and
+        can be interacted with (in the case of a <dialog> element).
+
     - role (string; optional):
         The ARIA role attribute.
 
@@ -106,6 +111,7 @@ class Dialog(Component):
         n_clicks_timestamp=Component.UNDEFINED,
         key=Component.UNDEFINED,
         role=Component.UNDEFINED,
+        open=Component.UNDEFINED,
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
@@ -138,6 +144,7 @@ class Dialog(Component):
             "loading_state",
             "n_clicks",
             "n_clicks_timestamp",
+            "open",
             "role",
             "spellCheck",
             "style",
@@ -164,6 +171,7 @@ class Dialog(Component):
             "loading_state",
             "n_clicks",
             "n_clicks_timestamp",
+            "open",
             "role",
             "spellCheck",
             "style",

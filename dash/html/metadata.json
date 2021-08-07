@@ -6962,7 +6962,7 @@
           ]
         },
         "required": false,
-        "description": "Indicates whether the details will be shown on page load."
+        "description": "Indicates whether the the contents are currently visible (in the case of a <details> element) or whether the dialog is active and can be interacted with (in the case of a <dialog> element)."
       },
       "accessKey": {
         "type": {
@@ -7371,6 +7371,31 @@
         },
         "required": false,
         "description": "A wildcard aria attribute"
+      },
+      "open": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'open'",
+                  "computed": false
+                },
+                {
+                  "value": "'OPEN'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
+        },
+        "required": false,
+        "description": "Indicates whether the the contents are currently visible (in the case of a <details> element) or whether the dialog is active and can be interacted with (in the case of a <dialog> element)."
       },
       "accessKey": {
         "type": {
@@ -14799,6 +14824,13 @@
         },
         "required": false,
         "description": ""
+      },
+      "type": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the type of the element."
       },
       "accessKey": {
         "type": {

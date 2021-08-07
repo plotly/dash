@@ -508,9 +508,10 @@
         },
         "open": {
             "elements": [
-                "details"
+                "details",
+                "dialog"
             ],
-            "description": "Indicates whether the details will be shown on page load."
+            "description": "Indicates whether the the contents are currently visible (in the case of a <details> element) or whether the dialog is active and can be interacted with (in the case of a <dialog> element)."
         },
         "optimum": {
             "elements": [
@@ -750,7 +751,8 @@
                 "script",
                 "source",
                 "style",
-                "menu"
+                "menu",
+                "link"
             ],
             "description": "Defines the type of the element."
         },
@@ -1015,7 +1017,8 @@
             "media",
             "referrerPolicy",
             "rel",
-            "sizes"
+            "sizes",
+            "type"
         ],
         "object": [
             "data",
@@ -1130,6 +1133,9 @@
             "value"
         ],
         "details": [
+            "open"
+        ],
+        "dialog": [
             "open"
         ],
         "ol": [

@@ -82,7 +82,9 @@ class Details(Component):
         changed most recently.
 
     - open (a value equal to: 'open', 'OPEN' | boolean; optional):
-        Indicates whether the details will be shown on page load.
+        Indicates whether the the contents are currently visible (in the
+        case of a <details> element) or whether the dialog is active and
+        can be interacted with (in the case of a <dialog> element).
 
     - role (string; optional):
         The ARIA role attribute.

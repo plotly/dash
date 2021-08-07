@@ -121,7 +121,10 @@ class Link(Component):
         specified instead.
 
     - title (string; optional):
-        Text to be displayed in a tooltip when hovering over the element."""
+        Text to be displayed in a tooltip when hovering over the element.
+
+    - type (string; optional):
+        Defines the type of the element."""
 
     @_explicitize_args
     def __init__(
@@ -140,6 +143,7 @@ class Link(Component):
         referrerPolicy=Component.UNDEFINED,
         rel=Component.UNDEFINED,
         sizes=Component.UNDEFINED,
+        type=Component.UNDEFINED,
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
@@ -185,6 +189,7 @@ class Link(Component):
             "style",
             "tabIndex",
             "title",
+            "type",
         ]
         self._type = "Link"
         self._namespace = "dash_html_components"
@@ -219,6 +224,7 @@ class Link(Component):
             "style",
             "tabIndex",
             "title",
+            "type",
         ]
         self.available_wildcard_properties = ["data-", "aria-"]
         _explicit_args = kwargs.pop("_explicit_args")

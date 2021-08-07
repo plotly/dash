@@ -12,7 +12,6 @@
   "homepage": "https://github.com/plotly/dash-table",
   "main": "dash_table/bundle.js",
   "scripts": {
-    "prepare": "husky install",
     "preprivate::test.server": "run-s private::wait_dash*",
     "private::build": "node --max_old_space_size=4096 node_modules/webpack/bin/webpack --bail",
     "private::build:js": "run-s \"private::build -- --mode production\"",
@@ -82,7 +81,6 @@
     "fast-isnumeric": "^1.1.4",
     "file-loader": "^6.2.0",
     "highlight.js": "^11.0.1",
-    "husky": "^7.0.1",
     "karma": "^6.3.4",
     "karma-chrome-launcher": "^3.1.0",
     "karma-mocha": "^2.0.1",

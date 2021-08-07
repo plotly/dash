@@ -25,7 +25,7 @@ def booststrap_components(components_source):
     )
 
     cmd = shlex.split(
-        "npx lerna bootstrap --scope *@({})*".format(source_glob),
+        "npx lerna exec --scope *@({})* -- npm i".format(source_glob),
         posix=not is_windows,
     )
 
@@ -40,14 +40,14 @@ def booststrap_components(components_source):
 
     if status == 0:
         print(
-            "🟢 Finished bootstrapping the following component packages: {} (status={}) 🟢".format(
+            "🟢 Finished installing npm dependencies for the following component packages: {} (status={}) 🟢".format(
                 source_glob, status
             ),
             file=sys.stderr,
         )
     if not out:
         print(
-            "Failed bootstrapping the following component packages {} (status={})".format(
+            "Failed installing npm dependencies for the following component packages {} (status={})".format(
                 source_glob, status
             ),
             file=sys.stderr,
