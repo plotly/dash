@@ -30,6 +30,8 @@ from .dependencies import (
     handle_callback_args,
     handle_grouped_callback_args,
     Output,
+    State,
+    Input,
 )
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
@@ -59,6 +61,7 @@ from ._grouping import (
     make_grouping_by_index,
     grouping_len,
 )
+
 
 _flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
@@ -399,6 +402,7 @@ class Dash(object):
         self._layout = None
         self._layout_is_function = False
         self.validation_layout = None
+        self._extra_components = []
 
         self._setup_dev_tools()
         self._hot_reload = AttributeDict(
@@ -410,6 +414,7 @@ class Dash(object):
         )
 
         self._assets_files = []
+        self._long_callback_count = 0
 
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
@@ -490,7 +495,17 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
-        return self._layout() if self._layout_is_function else self._layout
+        layout = self._layout() if self._layout_is_function else self._layout
+
+        # Add extra hidden components
+        if self._extra_components:
+            if not hasattr(layout, "children"):
+                setattr(layout, "children", [])
+            for c in self._extra_components:
+                if c not in layout.children:
+                    layout.children.append(c)
+
+        return layout
 
     @layout.setter
     def layout(self, value):
@@ -1113,6 +1128,145 @@ class Dash(object):
             return add_context
 
         return wrap_func
+
+    def long_callback(self, callback_manager, *_args, **_kwargs):
+        from . import callback_context  # pylint: disable=import-outside-toplevel
+        import dash_core_components as dcc  # pylint: disable=import-outside-toplevel
+
+        # Extract special long_callback kwargs
+        running = _kwargs.pop("running", ())
+        cancel = _kwargs.pop("cancel", ())
+        progress = _kwargs.pop("progress", ())
+        progress_default = _kwargs.pop("progress_default", None)
+        interval_time = _kwargs.pop("interval", 1000)
+
+        # Parse remaining args just like app.callback
+        (
+            output,
+            flat_inputs,
+            flat_state,
+            inputs_state_indices,
+            prevent_initial_call,
+        ) = handle_grouped_callback_args(_args, _kwargs)
+        inputs_and_state = flat_inputs + flat_state
+        args_deps = map_grouping(lambda i: inputs_and_state[i], inputs_state_indices)
+
+        # Get unique id for this long_callback definition.  This increment is not
+        # thread safe, but it doesn't need to be because callback definitions
+        # happen on the main thread before the app starts
+        self._long_callback_count += 1
+        long_callback_id = self._long_callback_count
+
+        # Create Interval and Store for long callback and add them to the app's
+        # _extra_components list
+        interval_id = f"_long_callback_interval_{long_callback_id}"
+        interval_component = dcc.Interval(id=interval_id, interval=interval_time)
+        store_id = f"_long_callback_store_{long_callback_id}"
+        store_component = dcc.Store(id=store_id, data=dict())
+        self._extra_components.extend([interval_component, store_component])
+
+        # Compute full component plus property name for the cancel dependencies
+        cancel_prop_ids = tuple(
+            ".".join([dep.component_id, dep.component_property]) for dep in cancel
+        )
+
+        def wrapper(fn):
+            background_fn = callback_manager.make_background_fn(
+                fn, progress=bool(progress)
+            )
+
+            def callback(_triggers, user_store_data, user_callback_args):
+                result_key = user_store_data.get("cache_result_key", None)
+                if result_key is None:
+                    # Build result cache key from inputs
+                    result_key = callback_manager.build_cache_key(
+                        fn, user_callback_args
+                    )
+                    user_store_data["cache_result_key"] = result_key
+
+                should_cancel = any(
+                    [
+                        trigger["prop_id"] in cancel_prop_ids
+                        for trigger in callback_context.triggered
+                    ]
+                )
+
+                # Compute grouping of values to set the progress component's to
+                # when cleared
+                if progress_default is None:
+                    clear_progress = (
+                        map_grouping(lambda x: None, progress) if progress else ()
+                    )
+                else:
+                    clear_progress = progress_default
+
+                if should_cancel and result_key is not None:
+                    if callback_manager.has_future(result_key):
+                        callback_manager.delete_future(result_key)
+                    return dict(
+                        user_callback_output=map_grouping(lambda x: no_update, output),
+                        interval_disabled=True,
+                        in_progress=[val for (_, _, val) in running],
+                        progress=clear_progress,
+                        user_store_data=user_store_data,
+                    )
+
+                progress_value = callback_manager.get_progress(result_key)
+
+                if callback_manager.result_ready(result_key):
+                    result = callback_manager.get_result(result_key)
+                    # Clear result key
+                    user_store_data["cache_result_key"] = None
+                    return dict(
+                        user_callback_output=result,
+                        interval_disabled=True,
+                        in_progress=[val for (_, _, val) in running],
+                        progress=clear_progress,
+                        user_store_data=user_store_data,
+                    )
+                elif progress_value:
+                    return dict(
+                        user_callback_output=map_grouping(lambda x: no_update, output),
+                        interval_disabled=False,
+                        in_progress=[val for (_, val, _) in running],
+                        progress=progress_value or {},
+                        user_store_data=user_store_data,
+                    )
+                else:
+                    callback_manager.terminate_unhealthy_future(result_key)
+                    if not callback_manager.has_future(result_key):
+                        callback_manager.call_and_register_background_fn(
+                            result_key, background_fn, user_callback_args
+                        )
+
+                    return dict(
+                        user_callback_output=map_grouping(lambda x: no_update, output),
+                        interval_disabled=False,
+                        in_progress=[val for (_, val, _) in running],
+                        progress=clear_progress,
+                        user_store_data=user_store_data,
+                    )
+
+            return self.callback(
+                inputs=dict(
+                    _triggers=dict(
+                        n_intervals=Input(interval_id, "n_intervals"),
+                        cancel=cancel,
+                    ),
+                    user_store_data=State(store_id, "data"),
+                    user_callback_args=args_deps,
+                ),
+                output=dict(
+                    user_callback_output=output,
+                    interval_disabled=Output(interval_id, "disabled"),
+                    in_progress=[dep for (dep, _, _) in running],
+                    progress=progress,
+                    user_store_data=Output(store_id, "data"),
+                ),
+                prevent_initial_call=prevent_initial_call,
+            )(callback)
+
+        return wrapper
 
     def dispatch(self):
         body = flask.request.get_json()
