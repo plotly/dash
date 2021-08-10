@@ -388,7 +388,7 @@ jobs:
             . venv/bin/activate && rm -rf dash_core_components && ls -la
             set -eo pipefail
             pip install dash-package/dash-package.tar.gz[dev,testing]
-            pip list | grep dash | xargs pip show && cd ..
+            pip list | grep dash | xargs pip show
             echo $(python -V 2>&1) | grep 3.
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
