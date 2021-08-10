@@ -43,6 +43,9 @@ coverage.xml
 .Python
 build/
 dash/deps/
+dash/html/
+dash/dcc/
+dash/dash_table/
 develop-eggs/
 dist/
 downloads/
