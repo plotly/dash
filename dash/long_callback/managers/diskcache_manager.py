@@ -1,37 +1,29 @@
-import platform
 from . import BaseLongCallbackManager
 
 
 class DiskcacheLongCallbackManager(BaseLongCallbackManager):
     def __init__(self, cache, cache_by=None, expire=None):
-        import diskcache  # pylint: disable=import-outside-toplevel
+        try:
+            import diskcache  # pylint: disable=import-outside-toplevel
+            from multiprocess import (  # pylint: disable=import-outside-toplevel
+                Process,
+            )
+        except ImportError:
+            raise ImportError(
+                """\
+DiskcacheLongCallbackManager requires the multiprocess and diskcache packages which
+can be installed using pip...
+
+    $ pip install multiprocess diskcache
+
+or conda.
+
+    $ conda install -c conda-forge multiprocess diskcache\n"""
+            )
 
         if not isinstance(cache, diskcache.Cache):
             raise ValueError("First argument must be a diskcache.Cache object")
         super().__init__(cache_by)
-
-        # Handle process class import
-        if platform.system() == "Windows":
-            try:
-                from multiprocess import (  # pylint: disable=import-outside-toplevel
-                    Process,
-                )
-            except ImportError:
-                raise ImportError(
-                    """\
-    When running on Windows, the long_callback decorator requires the
-    multiprocess package which can be install using pip...
-
-        $ pip install multiprocess
-
-    or conda.
-
-        $ conda install -c conda-forge multiprocess\n"""
-                )
-        else:
-            from multiprocessing import (  # pylint: disable=import-outside-toplevel
-                Process,
-            )
 
         self.Process = Process
         self.cache = cache
