@@ -1177,9 +1177,7 @@ class Dash(object):
 
             def callback(_triggers, user_store_data, user_callback_args):
                 # Build result cache key from inputs
-                pending_key = callback_manager.build_cache_key(
-                    fn, user_callback_args
-                )
+                pending_key = callback_manager.build_cache_key(fn, user_callback_args)
                 current_key = user_store_data.get("current_key", None)
 
                 should_cancel = pending_key == current_key or any(

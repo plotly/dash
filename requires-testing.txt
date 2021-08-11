@@ -8,3 +8,4 @@ cryptography<3.4;python_version<"3.7"
 requests[security]>=2.21.0
 beautifulsoup4>=4.8.2
 waitress>=1.4.4
+diskcache=>5.2.1
