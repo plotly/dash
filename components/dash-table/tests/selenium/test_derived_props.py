@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 
 import json
 import pandas as pd
+import time
 
 url = "https://github.com/plotly/datasets/raw/master/" "26k-consumer-complaints.csv"
 rawDf = pd.read_csv(url, nrows=100)
@@ -344,6 +345,7 @@ def test_tdrp004_navigate_selected_cells(test):
                 )
             )
     target.cell(0, 1).click()
+    time.sleep(5)
     for row in range(3):
         for col in range(3):
             active = dict(
