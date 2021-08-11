@@ -343,7 +343,7 @@ def test_tdrp004_navigate_selected_cells(test):
                     row=row, column=col, column_id=rawDf.columns[col], row_id=row + 3000
                 )
             )
-
+    target.cell(0, 1).click()
     for row in range(3):
         for col in range(3):
             active = dict(
