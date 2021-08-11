@@ -1176,15 +1176,13 @@ class Dash(object):
             )
 
             def callback(_triggers, user_store_data, user_callback_args):
-                result_key = user_store_data.get("cache_result_key", None)
-                if result_key is None:
-                    # Build result cache key from inputs
-                    result_key = callback_manager.build_cache_key(
-                        fn, user_callback_args
-                    )
-                    user_store_data["cache_result_key"] = result_key
+                # Build result cache key from inputs
+                pending_key = callback_manager.build_cache_key(
+                    fn, user_callback_args
+                )
+                current_key = user_store_data.get("current_key", None)
 
-                should_cancel = any(
+                should_cancel = pending_key == current_key or any(
                     [
                         trigger["prop_id"] in cancel_prop_ids
                         for trigger in callback_context.triggered
@@ -1200,9 +1198,12 @@ class Dash(object):
                 else:
                     clear_progress = progress_default
 
-                if should_cancel and result_key is not None:
-                    if callback_manager.has_future(result_key):
-                        callback_manager.delete_future(result_key)
+                if should_cancel:
+                    user_store_data["current_key"] = None
+                    user_store_data["pending_key"] = None
+
+                    if pending_key and callback_manager.has_future(pending_key):
+                        callback_manager.delete_future(pending_key)
                     return dict(
                         user_callback_output=map_grouping(lambda x: no_update, output),
                         interval_disabled=True,
@@ -1211,15 +1212,16 @@ class Dash(object):
                         user_store_data=user_store_data,
                     )
 
-                progress_value = callback_manager.get_progress(result_key)
+                progress_value = callback_manager.get_progress(pending_key)
 
-                if callback_manager.result_ready(result_key):
-                    result = callback_manager.get_result(result_key)
-                    # Clear result key
-                    user_store_data["cache_result_key"] = None
+                if callback_manager.result_ready(pending_key):
+                    result = callback_manager.get_result(pending_key)
+                    # Set current key (hash of data stored in client)
+                    # to pending key (hash of data requested by client)
+                    user_store_data["current_key"] = pending_key
                     return dict(
                         user_callback_output=result,
-                        interval_disabled=True,
+                        interval_disabled=False,
                         in_progress=[val for (_, _, val) in running],
                         progress=clear_progress,
                         user_store_data=user_store_data,
@@ -1233,10 +1235,11 @@ class Dash(object):
                         user_store_data=user_store_data,
                     )
                 else:
-                    callback_manager.terminate_unhealthy_future(result_key)
-                    if not callback_manager.has_future(result_key):
+                    user_store_data["pending_key"] = pending_key
+                    callback_manager.terminate_unhealthy_future(pending_key)
+                    if not callback_manager.has_future(pending_key):
                         callback_manager.call_and_register_background_fn(
-                            result_key, background_fn, user_callback_args
+                            pending_key, background_fn, user_callback_args
                         )
 
                     return dict(
