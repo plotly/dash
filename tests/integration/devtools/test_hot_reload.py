@@ -89,7 +89,7 @@ def test_dvhr001_hot_reload(dash_duo):
     try:
         until(
             lambda: dash_duo.driver.execute_script("return window.cheese") == "gouda",
-            timeout=3,
+            timeout=10,
         )
     finally:
         sleep(1)  # ensure a new mod time
@@ -98,7 +98,7 @@ def test_dvhr001_hot_reload(dash_duo):
 
     until(
         lambda: dash_duo.driver.execute_script("return window.cheese") == "roquefort",
-        timeout=3,
+        timeout=10,
     )
 
     # we've done a hard reload so someVar is gone

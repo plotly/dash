@@ -5,6 +5,7 @@ import os
 import sys
 import collections
 import importlib
+from importlib.machinery import ModuleSpec
 import json
 import pkgutil
 import threading
@@ -17,6 +18,7 @@ import base64
 import plotly
 
 from future.moves.urllib.parse import urlparse
+from _pytest.assertion.rewrite import AssertionRewritingHook
 
 import flask
 from flask_compress import Compress
@@ -1462,8 +1464,20 @@ class Dash:
                 if x != "__main__"
             ]
 
+            # # additional condition to account for AssertionRewritingHook object
+            # # loader when running pytest
+            for index, package in enumerate(packages):
+                if isinstance(package, AssertionRewritingHook):
+                    print("YES")
+                    dash_spec = importlib.util.find_spec("dash")
+                    dash_test_path = dash_spec.submodule_search_locations[0]
+                    setattr(dash_spec, "path", dash_test_path)
+                    packages[index] = dash_spec
+
             component_packages_dist = [
-                os.path.dirname(package.path)
+                dash_test_path
+                if isinstance(package, ModuleSpec)
+                else os.path.dirname(package.path)
                 if hasattr(package, "path")
                 else package.filename
                 for package in packages
