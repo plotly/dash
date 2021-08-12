@@ -684,7 +684,10 @@ class Dash(object):
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
             ]
-            + ["<script>{}</script>".format(src) for src in self._inline_scripts]
+            + [
+                "<script>{}</script>".format(src)
+                for src in (self._inline_scripts + _callback.GLOBAL_INLINE_SCRIPTS)
+            ]
         )
 
     def _generate_config_html(self):
@@ -1053,7 +1056,6 @@ class Dash(object):
         self._generate_css_dist_html()
 
         # Copy over global callback data structures assigned with `dash.callback`
-        self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
         for k in _callback.GLOBAL_CALLBACK_MAP:
 
             if k in self.callback_map:
@@ -1065,6 +1067,7 @@ class Dash(object):
                 )
 
             self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP[k]
+        self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
@@ -1150,7 +1153,9 @@ class Dash(object):
                     method(script.encode("utf-8")).digest()
                 ).decode("utf-8"),
             )
-            for script in self._inline_scripts + [self.renderer]
+            for script in (
+                self._inline_scripts + [self.renderer] + _callback.GLOBAL_INLINE_SCRIPTS
+            )
         ]
 
     def get_asset_url(self, path):

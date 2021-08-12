@@ -23,6 +23,7 @@ from . import _validate
 
 GLOBAL_CALLBACK_LIST = []
 GLOBAL_CALLBACK_MAP = {}
+GLOBAL_INLINE_SCRIPTS = []
 
 
 def callback(*_args, **_kwargs):
@@ -244,3 +245,15 @@ def register_clientside_callback(
         "namespace": namespace,
         "function_name": function_name,
     }
+
+
+def clientside_callback(clientside_function, *args, **kwargs):
+    return register_clientside_callback(
+        GLOBAL_CALLBACK_LIST,
+        GLOBAL_CALLBACK_MAP,
+        False,
+        GLOBAL_INLINE_SCRIPTS,
+        clientside_function,
+        *args,
+        **kwargs,
+    )
