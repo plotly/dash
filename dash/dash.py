@@ -4,7 +4,6 @@ import os
 import sys
 import collections
 import importlib
-import json
 import pkgutil
 import threading
 import re
@@ -21,8 +20,6 @@ import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
-
-import plotly
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -547,7 +544,10 @@ class Dash(object):
         layout = self._layout_value()
 
         # TODO - Set browser cache limit - pass hash into frontend
-        return flask.Response(to_json_plotly(layout), mimetype="application/json",)
+        return flask.Response(
+            to_json_plotly(layout),
+            mimetype="application/json",
+        )
 
     def _config(self):
         # pieces of config needed by the front end
