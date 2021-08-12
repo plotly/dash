@@ -20,6 +20,30 @@ from ._utils import (
 
 from . import _validate
 
+_GLOBAL_CALLBACK_LIST = []
+_GLOBAL_CALLBACK_MAP = {}
+
+
+def callback(*_args, **_kwargs):
+    """
+    Normally used as a decorator, `@app.callback` provides a server-side
+    callback relating the values of one or more `Output` items to one or
+    more `Input` items which will trigger the callback when they change,
+    and optionally `State` items which provide additional information but
+    do not trigger the callback directly.
+
+    The last, optional argument `prevent_initial_call` causes the callback
+    not to fire when its outputs are first added to the page. Defaults to
+    `False` unless `prevent_initial_callbacks=True` at the app level.
+    """
+    return register_callback(
+        _GLOBAL_CALLBACK_LIST,
+        _GLOBAL_CALLBACK_MAP,
+        False,
+        *_args,
+        **_kwargs,
+    )
+
 
 class NoUpdate(object):
     # pylint: disable=too-few-public-methods
@@ -59,8 +83,9 @@ def insert_callback(
     return callback_id
 
 
-def callback(
-    callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
+def register_callback(
+    callback_list, callback_map, config_prevent_initial_callbacks,
+    *_args, **_kwargs
 ):
     (
         output,

@@ -990,7 +990,7 @@ class Dash(object):
 
 
         """
-        return _callback.callback(
+        return _callback.register_callback(
             self._callback_list,
             self.callback_map,
             self.config.prevent_initial_callbacks,
@@ -1088,6 +1088,20 @@ class Dash(object):
 
         self._generate_scripts_html()
         self._generate_css_dist_html()
+
+        # Copy over global callback data structures assigned with `dash.callback`
+        self._callback_list.extend(_callback._GLOBAL_CALLBACK_LIST)
+        for k in _callback._GLOBAL_CALLBACK_MAP:
+            
+            if k in self.callback_map:
+                raise DuplicateCallback(
+                    'A callback provided with `dash.callback` was already ' +
+                    'assigned with `app.callback`.' +
+                    'The callback ID looks like: \n' + 
+                    k
+                )
+
+            self.callback_map[k] = _callback._GLOBAL_CALLBACK_MAP[k]
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
