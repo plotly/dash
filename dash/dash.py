@@ -1202,7 +1202,7 @@ class Dash:
 
         except KeyError:
             msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
-            raise KeyError(msg.format(output)) from callback_function_missing
+            raise KeyError(msg.format(output))
         response.set_data(func(*args, outputs_list=outputs_list))
         return response
 
