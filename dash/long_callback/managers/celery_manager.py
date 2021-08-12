@@ -36,8 +36,8 @@ class CeleryLongCallbackManager(BaseLongCallbackManager):
     def make_background_fn(self, fn, progress=False):
         return make_celery_fn(fn, self.celery_app, progress)
 
-    def call_and_register_background_fn(self, key, background_fn, *args, **kwargs):
-        future = background_fn.delay(*args, **kwargs)
+    def call_and_register_background_fn(self, key, background_fn, args):
+        future = background_fn.delay(args)
         self.callback_futures[key] = future
 
     def get_progress(self, key):
@@ -53,8 +53,8 @@ class CeleryLongCallbackManager(BaseLongCallbackManager):
         future = self.get_future(key)
         if future:
             return future.ready()
-        else:
-            return False
+
+        return False
 
     def get_result(self, key):
         future = self.callback_futures.get(key, None)
