@@ -1200,9 +1200,9 @@ class Dash:
                 and outputs_indices != list(range(grouping_len(outputs_indices)))
             )
 
-        except KeyError:
+        except KeyError as missing_callback_function:
             msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
-            raise KeyError(msg.format(output))
+            raise KeyError(msg.format(output)) from missing_callback_function
         response.set_data(func(*args, outputs_list=outputs_list))
         return response
 
