@@ -25,9 +25,6 @@ import plotly
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
-from .dependencies import (
-    handle_callback_args,
-)
 from .development.base_component import ComponentRegistry
 from .exceptions import (
     PreventUpdate,
@@ -102,13 +99,6 @@ _re_renderer_scripts_id = 'id="_dash-renderer', "new DashRenderer"
 
 # Singleton signal to not update an output, alternative to PreventUpdate
 no_update = _callback.NoUpdate()  # pylint: disable=protected-access
-
-
-_inline_clientside_template = """
-var clientside = window.dash_clientside = window.dash_clientside || {{}};
-var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
-ns["{function_name}"] = {clientside_function};
-"""
 
 
 # pylint: disable=too-many-instance-attributes
@@ -940,51 +930,14 @@ class Dash(object):
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
         return _callback.register_clientside_callback(
-            clientside_function, *args, **kwargs
-        )
-
-
-        output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-        _callback.insert_callback(
             self._callback_list,
             self.callback_map,
             self.config.prevent_initial_callbacks,
-            output,
-            None,
-            inputs,
-            state,
-            None,
-            prevent_initial_call,
+            self._inline_scripts,
+            clientside_function,
+            *args,
+            **kwargs,
         )
-
-        # If JS source is explicitly given, create a namespace and function
-        # name, then inject the code.
-        if isinstance(clientside_function, str):
-
-            out0 = output
-            if isinstance(output, (list, tuple)):
-                out0 = output[0]
-
-            namespace = "_dashprivate_{}".format(out0.component_id)
-            function_name = "{}".format(out0.component_property)
-
-            self._inline_scripts.append(
-                _inline_clientside_template.format(
-                    namespace=namespace.replace('"', '\\"'),
-                    function_name=function_name.replace('"', '\\"'),
-                    clientside_function=clientside_function,
-                )
-            )
-
-        # Callback is stored in an external asset.
-        else:
-            namespace = clientside_function.namespace
-            function_name = clientside_function.function_name
-
-        self._callback_list[-1]["clientside_function"] = {
-            "namespace": namespace,
-            "function_name": function_name,
-        }
 
     def callback(self, *_args, **_kwargs):
         """
