@@ -891,8 +891,8 @@ class Dash(object):
         app.clientside_callback(
             ClientsideFunction('my_clientside_library', 'my_function'),
             Output('my-div' 'children'),
-            [Input('my-input', 'value'),
-             Input('another-input', 'value')]
+            Input('my-input', 'value'),
+            Input('another-input', 'value')
         )
         ```
 
@@ -930,8 +930,8 @@ class Dash(object):
             }
             ''',
             Output('my-div' 'children'),
-            [Input('my-input', 'value'),
-             Input('another-input', 'value')]
+            Input('my-input', 'value'),
+            Input('another-input', 'value')
         )
         ```
 
@@ -939,6 +939,11 @@ class Dash(object):
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
+        return _callback.register_clientside_callback(
+            clientside_function, *args, **kwargs
+        )
+
+
         output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
         _callback.insert_callback(
             self._callback_list,
