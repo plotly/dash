@@ -34,7 +34,7 @@ or conda.
         if key in self.callback_futures:
             future = self.callback_futures.pop(key, None)
             if future:
-                future.kill()
+                future.terminate()
                 future.join()
                 return True
         return False
