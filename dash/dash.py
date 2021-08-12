@@ -1060,10 +1060,10 @@ class Dash(object):
 
             if k in self.callback_map:
                 raise DuplicateCallback(
-                    "A callback provided with `dash.callback` was already "
+                    "The callback `{}` provided with `dash.callback` was already ".format(
+                        k
+                    )
                     + "assigned with `app.callback`."
-                    + "The callback ID looks like: \n"
-                    + k
                 )
 
             self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP[k]
