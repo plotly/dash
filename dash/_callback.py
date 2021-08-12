@@ -20,25 +20,31 @@ from ._utils import (
 
 from . import _validate
 
-_GLOBAL_CALLBACK_LIST = []
-_GLOBAL_CALLBACK_MAP = {}
+GLOBAL_CALLBACK_LIST = []
+GLOBAL_CALLBACK_MAP = {}
 
 
 def callback(*_args, **_kwargs):
     """
-    Normally used as a decorator, `@app.callback` provides a server-side
+    Normally used as a decorator, `@dash.callback` provides a server-side
     callback relating the values of one or more `Output` items to one or
     more `Input` items which will trigger the callback when they change,
     and optionally `State` items which provide additional information but
     do not trigger the callback directly.
 
+    `@dash.callback` is an alternative to `@app.callback` (where `app = dash.Dash()`)
+    introduced in Dash 2.0.
+    It allows you to register callbacks without defining or importing the `app`
+    object. The call signature is identical and it can be used instead of `app.callback`
+    in all cases.
+
     The last, optional argument `prevent_initial_call` causes the callback
     not to fire when its outputs are first added to the page. Defaults to
-    `False` unless `prevent_initial_callbacks=True` at the app level.
+    `False` and unlike `app.callback` is not configurable at the app level.
     """
     return register_callback(
-        _GLOBAL_CALLBACK_LIST,
-        _GLOBAL_CALLBACK_MAP,
+        GLOBAL_CALLBACK_LIST,
+        GLOBAL_CALLBACK_MAP,
         False,
         *_args,
         **_kwargs,
@@ -84,8 +90,7 @@ def insert_callback(
 
 
 def register_callback(
-    callback_list, callback_map, config_prevent_initial_callbacks,
-    *_args, **_kwargs
+    callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
 ):
     (
         output,

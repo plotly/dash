@@ -29,7 +29,12 @@ from .dependencies import (
     handle_callback_args,
 )
 from .development.base_component import ComponentRegistry
-from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
+from .exceptions import (
+    PreventUpdate,
+    InvalidResourceError,
+    ProxyError,
+    DuplicateCallback,
+)
 from .version import __version__
 from ._configs import get_combined_config, pathname_configs
 from ._utils import (
@@ -1090,18 +1095,18 @@ class Dash(object):
         self._generate_css_dist_html()
 
         # Copy over global callback data structures assigned with `dash.callback`
-        self._callback_list.extend(_callback._GLOBAL_CALLBACK_LIST)
-        for k in _callback._GLOBAL_CALLBACK_MAP:
-            
+        self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
+        for k in _callback.GLOBAL_CALLBACK_MAP:
+
             if k in self.callback_map:
                 raise DuplicateCallback(
-                    'A callback provided with `dash.callback` was already ' +
-                    'assigned with `app.callback`.' +
-                    'The callback ID looks like: \n' + 
-                    k
+                    "A callback provided with `dash.callback` was already "
+                    + "assigned with `app.callback`."
+                    + "The callback ID looks like: \n"
+                    + k
                 )
 
-            self.callback_map[k] = _callback._GLOBAL_CALLBACK_MAP[k]
+            self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP[k]
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
