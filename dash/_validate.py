@@ -2,16 +2,13 @@ import collections
 import re
 from textwrap import dedent
 
+from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
 from ._utils import patch_collections_abc, _strings, stringify_id
 
 
-def validate_callback(output, inputs, state, extra_args, types):
-    is_multi = isinstance(output, (list, tuple))
-
-    outputs = output if is_multi else [output]
-
+def validate_callback(outputs, inputs, state, extra_args, types):
     Input, Output, State = types
     if extra_args:
         if not isinstance(extra_args[0], (Output, Input, State)):
@@ -129,6 +126,25 @@ def validate_output_spec(output, output_spec, Output):
                 raise exceptions.CallbackException(
                     "Output does not match callback definition"
                 )
+
+
+def validate_and_group_input_args(flat_args, arg_index_grouping):
+    if grouping_len(arg_index_grouping) != len(flat_args):
+        raise exceptions.CallbackException("Inputs do not match callback definition")
+
+    args_grouping = map_grouping(lambda ind: flat_args[ind], arg_index_grouping)
+    if isinstance(arg_index_grouping, dict):
+        func_args = []
+        func_kwargs = args_grouping
+    elif isinstance(arg_index_grouping, (tuple, list)):
+        func_args = list(args_grouping)
+        func_kwargs = dict()
+    else:
+        # Scalar input
+        func_args = [args_grouping]
+        func_kwargs = dict()
+
+    return func_args, func_kwargs
 
 
 def validate_multi_return(outputs_list, output_value, callback_id):

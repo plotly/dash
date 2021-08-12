@@ -31,7 +31,11 @@ from dash import dash_table
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
-from .dependencies import handle_callback_args, Output
+from .dependencies import (
+    handle_callback_args,
+    handle_grouped_callback_args,
+    Output,
+)
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
 from .version import __version__
@@ -54,6 +58,12 @@ from ._utils import (
 from . import _dash_renderer
 from . import _validate
 from . import _watch
+from ._grouping import (
+    flatten_grouping,
+    map_grouping,
+    make_grouping_by_index,
+    grouping_len,
+)
 
 _flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
@@ -283,7 +293,7 @@ class Dash:
         plugins=None,
         title="Dash",
         update_title="Updating...",
-        **obsolete
+        **obsolete,
     ):
         _validate.check_obsolete(obsolete)
 
@@ -656,7 +666,7 @@ class Dash:
             [
                 format_tag("link", link, opened=True)
                 if isinstance(link, dict)
-                else '<link rel="stylesheet" href="{}">'.format(link)
+                else f'<link rel="stylesheet" href="{link}">'
                 for link in (external_links + links)
             ]
         )
@@ -890,7 +900,15 @@ class Dash:
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(self, output, inputs, state, prevent_initial_call):
+    def _insert_callback(
+        self,
+        output,
+        outputs_indices,
+        inputs,
+        state,
+        inputs_state_indices,
+        prevent_initial_call,
+    ):
         if prevent_initial_call is None:
             prevent_initial_call = self.config.prevent_initial_callbacks
 
@@ -905,6 +923,8 @@ class Dash:
         self.callback_map[callback_id] = {
             "inputs": callback_spec["inputs"],
             "state": callback_spec["state"],
+            "outputs_indices": outputs_indices,
+            "inputs_state_indices": inputs_state_indices,
         }
         self._callback_list.append(callback_spec)
 
@@ -976,7 +996,7 @@ class Dash:
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
         output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-        self._insert_callback(output, inputs, state, prevent_initial_call)
+        self._insert_callback(output, None, inputs, state, None, prevent_initial_call)
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -1021,34 +1041,69 @@ class Dash:
 
 
         """
-        output, inputs, state, prevent_initial_call = handle_callback_args(
-            _args, _kwargs
+        (
+            output,
+            flat_inputs,
+            flat_state,
+            inputs_state_indices,
+            prevent_initial_call,
+        ) = handle_grouped_callback_args(_args, _kwargs)
+        if isinstance(output, Output):
+            # Insert callback with scalar (non-multi) Output
+            insert_output = output
+            multi = False
+        else:
+            # Insert callback as multi Output
+            insert_output = flatten_grouping(output)
+            multi = True
+
+        output_indices = make_grouping_by_index(
+            output, list(range(grouping_len(output)))
         )
-        callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
-        multi = isinstance(output, (list, tuple))
+        callback_id = self._insert_callback(
+            insert_output,
+            output_indices,
+            flat_inputs,
+            flat_state,
+            inputs_state_indices,
+            prevent_initial_call,
+        )
 
         def wrap_func(func):
             @wraps(func)
             def add_context(*args, **kwargs):
                 output_spec = kwargs.pop("outputs_list")
-                _validate.validate_output_spec(output, output_spec, Output)
+                _validate.validate_output_spec(insert_output, output_spec, Output)
+
+                func_args, func_kwargs = _validate.validate_and_group_input_args(
+                    args, inputs_state_indices
+                )
 
                 # don't touch the comment on the next line - used by debugger
-                output_value = func(*args, **kwargs)  # %% callback invoked %%
+                output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
 
                 if isinstance(output_value, _NoUpdate):
                     raise PreventUpdate
 
-                # wrap single outputs so we can treat them all the same
-                # for validation and response creation
                 if not multi:
                     output_value, output_spec = [output_value], [output_spec]
+                    flat_output_values = output_value
+                else:
+                    if isinstance(output_value, (list, tuple)):
+                        # For multi-output, allow top-level collection to be
+                        # list or tuple
+                        output_value = list(output_value)
 
-                _validate.validate_multi_return(output_spec, output_value, callback_id)
+                    # Flatten grouping and validate grouping structure
+                    flat_output_values = flatten_grouping(output_value, output)
+
+                _validate.validate_multi_return(
+                    output_spec, flat_output_values, callback_id
+                )
 
                 component_ids = collections.defaultdict(dict)
                 has_update = False
-                for val, spec in zip(output_value, output_spec):
+                for val, spec in zip(flat_output_values, output_spec):
                     if isinstance(val, _NoUpdate):
                         continue
                     for vali, speci in (
@@ -1109,8 +1164,43 @@ class Dash:
         args = inputs_to_vals(inputs + state)
 
         try:
-            func = self.callback_map[output]["callback"]
-        except KeyError as callback_function_missing:
+            cb = self.callback_map[output]
+            func = cb["callback"]
+
+            # Add args_grouping
+            inputs_state_indices = cb["inputs_state_indices"]
+            inputs_state = inputs + state
+            args_grouping = map_grouping(
+                lambda ind: inputs_state[ind], inputs_state_indices
+            )
+            flask.g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
+            flask.g.using_args_grouping = (  # pylint: disable=assigning-non-slot
+                not isinstance(inputs_state_indices, int)
+                and (
+                    inputs_state_indices
+                    != list(range(grouping_len(inputs_state_indices)))
+                )
+            )
+
+            # Add outputs_grouping
+            outputs_indices = cb["outputs_indices"]
+            if not isinstance(outputs_list, list):
+                flat_outputs = [outputs_list]
+            else:
+                flat_outputs = outputs_list
+
+            outputs_grouping = map_grouping(
+                lambda ind: flat_outputs[ind], outputs_indices
+            )
+            flask.g.outputs_grouping = (  # pylint: disable=assigning-non-slot
+                outputs_grouping
+            )
+            flask.g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
+                not isinstance(outputs_indices, int)
+                and outputs_indices != list(range(grouping_len(outputs_indices)))
+            )
+
+        except KeyError:
             msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg.format(output)) from callback_function_missing
         response.set_data(func(*args, outputs_list=outputs_list))
@@ -1630,7 +1720,7 @@ class Dash:
         dev_tools_hot_reload_max_retry=None,
         dev_tools_silence_routes_logging=None,
         dev_tools_prune_errors=None,
-        **flask_run_options
+        **flask_run_options,
     ):
         """Start the flask server in local mode, you should not run this on a
         production server, use gunicorn/waitress instead.
