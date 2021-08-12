@@ -1185,7 +1185,9 @@ class Dash(object):
                 properties specified in `progress` will be set to `None` when the
                 callback is not running.
         """
-        from . import callback_context  # pylint: disable=import-outside-toplevel
+        from dash._callback_context import (  # pylint: disable=import-outside-toplevel
+            callback_context,
+        )
         import dash_core_components as dcc  # pylint: disable=import-outside-toplevel
 
         # Extract special long_callback kwargs
@@ -1236,10 +1238,8 @@ class Dash(object):
                 current_key = user_store_data.get("current_key", None)
 
                 should_cancel = pending_key == current_key or any(
-                    [
-                        trigger["prop_id"] in cancel_prop_ids
-                        for trigger in callback_context.triggered
-                    ]
+                    trigger["prop_id"] in cancel_prop_ids
+                    for trigger in callback_context.triggered
                 )
 
                 # Compute grouping of values to set the progress component's to
