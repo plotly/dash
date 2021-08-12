@@ -1,8 +1,35 @@
-def _insert_callback(
+import collections
+from functools import wraps
+import json
+import plotly
+
+from .dependencies import (
+    handle_grouped_callback_args,
+    Output,
+)
+from .exceptions import PreventUpdate
+from ._grouping import (
+    flatten_grouping,
+    make_grouping_by_index,
+    grouping_len,
+)
+from ._utils import (
+    create_callback_id,
+    stringify_id,
+)
+
+from . import _validate
+
+
+class NoUpdate(object):
+    # pylint: disable=too-few-public-methods
+    pass
+
+
+def insert_callback(
     callback_list,
     callback_map,
     config_prevent_initial_callbacks,
-
     output,
     outputs_indices,
     inputs,
@@ -11,7 +38,7 @@ def _insert_callback(
     prevent_initial_call,
 ):
     if prevent_initial_call is None:
-        prevent_initial_call = prevent_initial_callbacks
+        prevent_initial_call = config_prevent_initial_callbacks
 
     callback_id = create_callback_id(output)
     callback_spec = {
@@ -32,12 +59,8 @@ def _insert_callback(
     return callback_id
 
 
-def _callback(
-    callback_list,
-    callback_map,
-    config_prevent_initial_callbacks,
-
-    *_args, **_kwargs
+def callback(
+    callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
 ):
     (
         output,
@@ -55,14 +78,11 @@ def _callback(
         insert_output = flatten_grouping(output)
         multi = True
 
-    output_indices = make_grouping_by_index(
-        output, list(range(grouping_len(output)))
-    )
-    callback_id = _insert_callback(
+    output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
+    callback_id = insert_callback(
         callback_list,
         callback_map,
         config_prevent_initial_callbacks,
-    
         insert_output,
         output_indices,
         flat_inputs,
@@ -71,6 +91,7 @@ def _callback(
         prevent_initial_call,
     )
 
+    # pylint: disable=too-many-locals
     def wrap_func(func):
         @wraps(func)
         def add_context(*args, **kwargs):
@@ -84,7 +105,7 @@ def _callback(
             # don't touch the comment on the next line - used by debugger
             output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
 
-            if isinstance(output_value, _NoUpdate):
+            if isinstance(output_value, NoUpdate):
                 raise PreventUpdate
 
             if not multi:
@@ -106,12 +127,12 @@ def _callback(
             component_ids = collections.defaultdict(dict)
             has_update = False
             for val, spec in zip(flat_output_values, output_spec):
-                if isinstance(val, _NoUpdate):
+                if isinstance(val, NoUpdate):
                     continue
                 for vali, speci in (
                     zip(val, spec) if isinstance(spec, list) else [[val, spec]]
                 ):
-                    if not isinstance(vali, _NoUpdate):
+                    if not isinstance(vali, NoUpdate):
                         has_update = True
                         id_str = stringify_id(speci["id"])
                         component_ids[id_str][speci["property"]] = vali
@@ -122,15 +143,13 @@ def _callback(
             response = {"response": component_ids, "multi": True}
 
             try:
-                jsonResponse = json.dumps(
-                    response, cls=plotly.utils.PlotlyJSONEncoder
-                )
+                jsonResponse = json.dumps(response, cls=plotly.utils.PlotlyJSONEncoder)
             except TypeError:
                 _validate.fail_callback_output(output_value, output)
 
             return jsonResponse
 
-        self.callback_map[callback_id]["callback"] = add_context
+        callback_map[callback_id]["callback"] = add_context
 
         return add_context
 

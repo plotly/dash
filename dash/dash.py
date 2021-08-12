@@ -14,7 +14,6 @@ import mimetypes
 import hashlib
 import base64
 
-from functools import wraps
 from future.moves.urllib.parse import urlparse
 
 import flask
@@ -28,8 +27,6 @@ from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
 from .dependencies import (
     handle_callback_args,
-    handle_grouped_callback_args,
-    Output,
 )
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
@@ -37,7 +34,6 @@ from .version import __version__
 from ._configs import get_combined_config, pathname_configs
 from ._utils import (
     AttributeDict,
-    create_callback_id,
     format_tag,
     generate_hash,
     get_asset_path,
@@ -47,16 +43,14 @@ from ._utils import (
     interpolate_str,
     patch_collections_abc,
     split_callback_id,
-    stringify_id,
     strip_relative_path,
 )
+from . import _callback
 from . import _dash_renderer
 from . import _validate
 from . import _watch
 from ._grouping import (
-    flatten_grouping,
     map_grouping,
-    make_grouping_by_index,
     grouping_len,
 )
 
@@ -101,13 +95,8 @@ _re_index_scripts_id = 'src="[^"]*dash[-_]renderer[^"]*"', "dash-renderer"
 _re_renderer_scripts_id = 'id="_dash-renderer', "new DashRenderer"
 
 
-class _NoUpdate(object):
-    # pylint: disable=too-few-public-methods
-    pass
-
-
 # Singleton signal to not update an output, alternative to PreventUpdate
-no_update = _NoUpdate()
+no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
 
 _inline_clientside_template = """
@@ -946,12 +935,16 @@ class Dash(object):
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
         output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-        _callback._insert_callback(
+        _callback.insert_callback(
             self._callback_list,
             self.callback_map,
             self.config.prevent_initial_callbacks,
-        
-            output, None, inputs, state, None, prevent_initial_call
+            output,
+            None,
+            inputs,
+            state,
+            None,
+            prevent_initial_call,
         )
 
         # If JS source is explicitly given, create a namespace and function
@@ -997,15 +990,13 @@ class Dash(object):
 
 
         """
-        return _callback._callback(
+        return _callback.callback(
             self._callback_list,
             self.callback_map,
             self.config.prevent_initial_callbacks,
-
-            *_args, **_kwargs
+            *_args,
+            **_kwargs,
         )
-
-
 
     def dispatch(self):
         body = flask.request.get_json()
