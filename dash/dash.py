@@ -1130,6 +1130,61 @@ class Dash(object):
         return wrap_func
 
     def long_callback(self, callback_manager, *_args, **_kwargs):
+        """
+        Normally used as a decorator, `@app.long_callback` is an alternative to
+        `@app.callback` designed for callbacks that take a long time to run,
+        without locking up the Dash app or timing out.
+
+        `@long_callback` is designed to support multiple callback managers.
+        Two long callback managers are currently implemented:
+
+            - A diskcache manager (`DiskcacheLongCallbackManager`) that runs callback
+              logic in a separate process and stores the results to disk using the
+              diskcache library. This is the easiest backend to use for local
+              development.
+            - A Celery manager (`CeleryLongCallbackManager`) that runs callback logic
+              in a celery worker and returns results to the Dash app through a Celery
+              broker like RabbitMQ or Redis.
+
+        The first argument to `@long_callback` should be a callback manager instance.
+
+        :param callback_manager:
+            A long callback manager instance. Currently one of
+            `DiskcacheLongCallbackManager` or `CeleryLongCallbackManager`
+
+        The following arguments may include any valid arguments to `@app.callback`.
+        In addition, `@app.long_callback` supports the following optional
+        keyword arguments:
+
+        :Keyword Arguments:
+            :param running:
+                A list of 3-element tuples. The first element of each tuple should be
+                an `Output` dependency object referencing a property of a component in
+                the app layout. The second element is the value that the property
+                should be set to while the callback is running, and the third element
+                is the value the property should be set to when the callback completes.
+            :param cancel:
+                A list of `Input` dependency objects that reference a property of a
+                component in the app's layout.  When the value of this property changes
+                while a callback is running, the callback is canceled.
+                Note that the value of the property is not significant, any change in
+                value will result in the cancellation of the running job (if any).
+            :param progress:
+                An `Output` dependency grouping that references properties of
+                components in the app's layout. When provided, the decorated function
+                will be called with an extra argument as the first argument to the
+                function.  This argument, is a function handle that the decorated
+                function should call in order to provide updates to the app on its
+                current progress. This function accepts a single argument, which
+                correspond to the grouping of properties specified in the provided
+                `Output` dependency grouping
+            :param progress_default:
+                A grouping of values that should be assigned to the components
+                specified by the `progress` argument when the callback is not in
+                progress. If `progress_default` is not provided, all the dependency
+                properties specified in `progress` will be set to `None` when the
+                callback is not running.
+        """
         from . import callback_context  # pylint: disable=import-outside-toplevel
         import dash_core_components as dcc  # pylint: disable=import-outside-toplevel
 
