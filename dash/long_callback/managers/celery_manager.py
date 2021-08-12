@@ -1,6 +1,7 @@
 import json
-from dash_labs.plugins.long_callback.managers import BaseLongCallbackManager
+
 from _plotly_utils.utils import PlotlyJSONEncoder
+from dash.long_callback.managers import BaseLongCallbackManager
 
 
 class CeleryLongCallbackManager(BaseLongCallbackManager):
