@@ -946,7 +946,13 @@ class Dash(object):
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
         output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-        self._insert_callback(output, None, inputs, state, None, prevent_initial_call)
+        _callback._insert_callback(
+            self._callback_list,
+            self.callback_map,
+            self.config.prevent_initial_callbacks,
+        
+            output, None, inputs, state, None, prevent_initial_call
+        )
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -991,7 +997,13 @@ class Dash(object):
 
 
         """
-        return _callback._callback(*_args, **_kwargs)
+        return _callback._callback(
+            self._callback_list,
+            self.callback_map,
+            self.config.prevent_initial_callbacks,
+
+            *_args, **_kwargs
+        )
 
 
 

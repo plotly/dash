@@ -1,4 +1,8 @@
 def _insert_callback(
+    callback_list,
+    callback_map,
+    config_prevent_initial_callbacks,
+
     output,
     outputs_indices,
     inputs,
@@ -7,7 +11,7 @@ def _insert_callback(
     prevent_initial_call,
 ):
     if prevent_initial_call is None:
-        prevent_initial_call = self.config.prevent_initial_callbacks
+        prevent_initial_call = prevent_initial_callbacks
 
     callback_id = create_callback_id(output)
     callback_spec = {
@@ -17,18 +21,24 @@ def _insert_callback(
         "clientside_function": None,
         "prevent_initial_call": prevent_initial_call,
     }
-    self.callback_map[callback_id] = {
+    callback_map[callback_id] = {
         "inputs": callback_spec["inputs"],
         "state": callback_spec["state"],
         "outputs_indices": outputs_indices,
         "inputs_state_indices": inputs_state_indices,
     }
-    self._callback_list.append(callback_spec)
+    callback_list.append(callback_spec)
 
     return callback_id
 
 
-def _callback(*_args, **_kwargs):
+def _callback(
+    callback_list,
+    callback_map,
+    config_prevent_initial_callbacks,
+
+    *_args, **_kwargs
+):
     (
         output,
         flat_inputs,
@@ -48,7 +58,11 @@ def _callback(*_args, **_kwargs):
     output_indices = make_grouping_by_index(
         output, list(range(grouping_len(output)))
     )
-    callback_id = self._insert_callback(
+    callback_id = _insert_callback(
+        callback_list,
+        callback_map,
+        config_prevent_initial_callbacks,
+    
         insert_output,
         output_indices,
         flat_inputs,
