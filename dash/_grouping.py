@@ -30,6 +30,8 @@ def flatten_grouping(grouping, schema=None):
     """
     if schema is None:
         schema = grouping
+    else:
+        validate_grouping(grouping, schema)
 
     if isinstance(schema, (tuple, list)):
         return [
@@ -39,11 +41,7 @@ def flatten_grouping(grouping, schema=None):
         ]
 
     if isinstance(schema, dict):
-        return [
-            g
-            for group_el, schema_el in zip(grouping.values(), schema.values())
-            for g in flatten_grouping(group_el, schema_el)
-        ]
+        return [g for k in schema for g in flatten_grouping(grouping[k], schema[k])]
 
     return [grouping]
 
