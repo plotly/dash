@@ -1,13 +1,10 @@
 from multiprocessing import Value
-
 import dash
-import dash_html_components as html
-import dash_core_components as dcc
-from dash.dependencies import Input, State, Output, ALL
+from dash import Dash, html, dcc, Input, State, Output, ALL
 
 
 def grouping_app():
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     content = html.Div(
         [
