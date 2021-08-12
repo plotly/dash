@@ -2,12 +2,160 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [1.21.0] - 2021-07-09
+
+## Dash and Dash Renderer
+### Added
+- [#1675](https://github.com/plotly/dash/pull/1675) Add new `Dash` constructor argument `extra_hot_reload_paths`. This allows you to re-initialize the Python code of the app when non-Python files change, if you know that these files impact the app.
+
+### Changed
+- [#1675](https://github.com/plotly/dash/pull/1675) Remove the constraint that `requests_pathname_prefix` ends with `routes_pathname_prefix`. When you are serving your app behind a reverse proxy that rewrites URLs that constraint needs to be violated.
+- [#1611](https://github.com/plotly/dash/pull/1611) and [#1685](https://github.com/plotly/dash/pull/1685) Package dash-renderer artifacts and dependencies with Dash, and source renderer resources from within Dash.
+- [#1567](https://github.com/plotly/dash/pull/1567) Julia component generator puts components into `src/jl` - fixes an issue on case-insensitive filesystems when the component name and module name match (modulo case) and no prefix is used. Also reduces JS/Julia clutter in the overloaded `src` directory.
+
+### Fixed
+- [#1664](https://github.com/plotly/dash/pull/1664) Fix [#1649](https://github.com/plotly/dash/issues/1649), makes the devtools readable with a dark theme.
+- [#1640](https://github.com/plotly/dash/pull/1640) Fix [#1475](https://github.com/plotly/dash/issues/1475), missing `timing_information` after certain modifications to Flask behavior
+
+## Dash Core Components
+### Fixed
+
+- [#963](https://github.com/plotly/dash-core-components/pull/963) Fixes [#885](https://github.com/plotly/dash-core-components/issues/885)
+
+  This applies the fix from [#878](https://github.com/plotly/dash-core-components/pull/878) to the RangeSlider.
+  It not only fixes the bug where the tooltips were visible when slider was not, but it also reduces the lag in the
+  tooltip when the slider handles are moved.
+
+### Updated
+- [#939](https://github.com/plotly/dash-core-components/pull/939) Upgrade Plotly.js to v2.2.1. Note that this is a major version upgrade to Plotly.js, however we are not treating this as a breaking change for DCC as the majority of breaking changes in Plotly.js do not affect the Dash API. The one exception is that several trace types that have long been deprecated are removed entirely.
+  - [Major release 2.0.0](https://github.com/plotly/plotly.js/releases/tag/v2.0.0):
+    - Stop exporting d3 as `Plotly.d3`, and remove many other deep pieces of the public API. This does not affect the `dcc.Graph` component, but if you make use of `Plotly` from the global scope in some other way you may be affected.
+    - Drop the deprecated trace types `contourgl` and `area`, as well as legacy pre-`scatterpolar` polar attributes `bar.r`, `bar.t`, `scatter.r`, `scatter.t`, `layout.radialaxis`, `layout.angularaxis`. Use `scatterpolar`, `barpolar`, and `polar` subplots instead.
+    - `heatmapgl` and `pointcloud` trace types, and the `transform` attribute are deprecated, and will be removed in a future release.
+    - Increase CSP safety by removing function constructors. 3D plots still use function constructors, but if you place one of the non-3D bundles (including the new `strict` bundle) in your `assets` folder you will have no function constructors.
+    - Remove "Aa" text in legends.
+    - Default `hovermode` to "closest".
+    - Default `textposition` to "auto" in `bar` traces. If you previously used the `bar.text` attribute for hover only, you will need to explicitly set `textposition="none"`.
+    - Add `bar.marker.pattern`, `image.zsmooth`, and various other features and bugfixes.
+  - [Feature release 2.1.0](https://github.com/plotly/plotly.js/releases/tag/v2.1.0):
+    - New `icicle` trace type.
+    - New `legendrank` trace attribute.
+    - Several other additions and bug fixes.
+  - [Feature release 2.2.0](https://github.com/plotly/plotly.js/releases/tag/v2.2.0):
+    - Legend group titles
+    - Half-year directive (`%h`) for date formatting
+    - Several other bug fixes and performance improvements
+  - [Patch release 2.2.1](https://github.com/plotly/plotly.js/releases/tag/v2.2.1) containing a security fix.
+
+### Added
+- [#932](https://github.com/plotly/dash-core-components/pull/932) Adds a new copy to clipboard component.
+- [#948](https://github.com/plotly/dash-core-components/pull/948)] Adds `disabled_days` prop to `DatePickerRange` and `DatePickerSingle` components. With this prop you can specify days that should be made unselectable in the date picker, in addition to those that fall outside of the range specified by `min_date_allowed` and `max_date_allowed`.
+
+### Changed
+- [#972](https://github.com/plotly/dash-core-components/pull/972) Updated R package vignettes and `dash-info.yaml` to regenerate examples without attaching now-deprecated core component packages (`dashHtmlComponents`, `dashCoreComponents`, or `dashTable`).
+
+## Dash HTML Components
+### Changed
+- [#194](https://github.com/plotly/dash-html-components/pull/194) Updated dependencies and build process
+- [#190](https://github.com/plotly/dash-core-components/pull/190) Updated R package vignettes and `dash-info.yaml` to regenerate examples without attaching now-deprecated core component packages (`dashHtmlComponents`, `dashCoreComponents`, or `dashTable`).
+
+## Dash Table
+### Fixed
+- [#907](https://github.com/plotly/dash-table/pull/907)
+  - Fix a bug where pagination did not work or was not visible. [#834](https://github.com/plotly/dash-table/issues/834)
+  - Fix a bug where if you are on a page that no longer exists after the data is updated, no data is displayed. [#892](https://github.com/plotly/dash-table/issues/892)
+
+
+### Added
+- [#916](https://github.com/plotly/dash-table/pull/916)
+  - Added `html` option to `markdown_options` prop. This enables the use of html tags in markdown text.
+
+- [#545](https://github.com/plotly/dash-table/issues/545)
+    - Case insensitive filtering
+    - New props: `filter_options` - to control case of all filters, `columns.filter_options` - to control filter case for each column
+    - New operators: `i=`, `ieq`, `i>=`, `ige`, `i>`, `igt`, `i<=`, `ile`, `i<`, `ilt`, `i!=`, `ine`, `icontains` - for case-insensitive filtering, `s=`, `seq`, `s>=`, `sge`, `s>`, `sgt`, `s<=`, `sle`, `s<`, `slt`, `s!=`, `sne`, `scontains` - to force case-sensitive filtering on case-insensitive columns
+
+### Changed
+- [#918](https://github.com/plotly/dash-core-components/pull/918) Updated all dependencies. In particular the `highlight.js` upgrade changes code highlighting in markdown: we have long used their "github" style, this has been updated to more closely match current github styles.
+- [#901](https://github.com/plotly/dash-core-components/pull/901) Updated R package `dash-info.yaml` to regenerate example without attaching now-deprecated core component packages (`dashHtmlComponents`, `dashCoreComponents`, or `dashTable`).
+
+
+## [1.20.0] - 2021-04-08
+
+## Dash and Dash Renderer
+### Changed
+- [#1531](https://github.com/plotly/dash/pull/1531) Update the format of the docstrings to make them easier to read in the reference pages of Dash Docs and in the console. This also addresses [#1205](https://github.com/plotly/dash/issues/1205)
+- [#1553](https://github.com/plotly/dash/pull/1553) Increase the z-index of the Dash error menu from 1001 to 1100 in order to make sure it appears above Bootstrap components.
+
+### Fixed
+- [#1546](https://github.com/plotly/dash/pull/1546) Validate callback request `outputs` vs `output` to avoid a perceived security issue.
+
+## Dash Core Components
+### Added
+- [#863](https://github.com/plotly/dash-core-components/pull/863) Adds a new `Download` component. Along with this several utility functions are added to help construct the appropriate data format:
+  - `dcc.send_file` - send a file from disk
+  - `dcc.send_data_frame` - send a `DataFrame`, using one of its writer methods
+  - `dcc.send_bytes` - send a bytestring or the result of a bytestring writer
+  - `dcc.send_string` - send a string or the result of a string writer
+
+### Changed
+- [#923](https://github.com/plotly/dash-core-components/pull/923)
+  Set `autoComplete` to off in `dcc.Dropdown`. This fixes [#808](https://github.com/plotly/dash-core-components/issues/808)
+
+### Fixed
+- [#930](https://github.com/plotly/dash-core-components/pull/930) Fixed a bug [#867](https://github.com/plotly/dash-core-components/issues/867) with `DatePickerRange` that would sometimes shift the allowed dates by one day.
+- [#934](https://github.com/plotly/dash-core-components/pull/934) Fixed a bug in `EnhancedTab` component that ignored `disabled_className` property
+
+## Dash HTML Components
+### Fixed
+- [#179](https://github.com/plotly/dash-html-components/pull/179) - Fixes [#77](https://github.com/plotly/dash-html-components/issues/77) Added `allow` and `referrerPolicy` properties to `html.Iframe`
+
+- [#178](https://github.com/plotly/dash-html-components/pull/178) - Fix [#161](https://github.com/plotly/dash-html-components/issues/161) <object> `data` property, and fix [#129](https://github.com/plotly/dash-html-components/issues/129) obsolete, deprecated, and discouraged elements. No elements were removed, but comments were added to the documentation about these elements detailing their limitations.
+
+## Dash Table
+### Changed
+- [#862](https://github.com/plotly/dash-table/pull/862) - update docstrings per https://github.com/plotly/dash/issues/1205
+- [#878](https://github.com/plotly/dash-table/pull/878) - update build process to use Webpack 5 and other latest dependencies
+
+## [1.19.0] - 2021-01-19
+
+## Dash and Dash Renderer
+### Added
+- [#1508](https://github.com/plotly/dash/pull/1508) Fix [#1403](https://github.com/plotly/dash/issues/1403): Adds an x button
+to close the error messages box.
+- [#1525](https://github.com/plotly/dash/pull/1525) Adds support for callbacks which have overlapping inputs and outputs. Combined with `dash.callback_context` this addresses many use cases which require circular callbacks.
+
 ### Changed
 - [#1503](https://github.com/plotly/dash/pull/1506) Fix [#1466](https://github.com/plotly/dash/issues/1466): loosen `dash[testing]` requirements for easier integration in external projects. This PR also bumps many `dash[dev]` requirements.
 
 ### Fixed
+- [#1530](https://github.com/plotly/dash/pull/1530) Dedent error messages more carefully.
+- [#1527](https://github.com/plotly/dash/issues/1527) 🐛 `get_asset_url` now pulls from an external source if `assets_external_path` is set.
+  - updated `_add_assets_resource` to build asset urls the same way as `get_asset_url`.
+  - updated doc string for `assets_external_path` Dash argument to be more clear that it will always be joined with the `assets_url_path` argument when determining the url to an external asset.
 - [#1493](https://github.com/plotly/dash/pull/1493) Fix [#1143](https://github.com/plotly/dash/issues/1143), a bug where having a file with one of several common names (test.py, code.py, org.py, etc) that imports a dash component package would make `import dash` fail with a cryptic error message asking whether you have a file named "dash.py"
+
+## Dash Core Components
+### Fixed
+- [#905](https://github.com/plotly/dash-core-components/pull/905) Make sure the `figure` prop of `dcc.Graph` receives updates from user interactions in the graph, by using the same `layout` object as provided in the prop rather than cloning it. Fixes [#879](https://github.com/plotly/dash-core-components/issues/879).
+- [#903](https://github.com/plotly/dash-core-components/pull/903) Part of fixing dash import bug https://github.com/plotly/dash/issues/1143
+
+### Updated
+- [#911](https://github.com/plotly/dash-core-components/pull/911), [#906](https://github.com/plotly/dash-core-components/pull/906)
+  - Upgraded Plotly.js to [1.58.4](https://github.com/plotly/plotly.js/releases/tag/v1.58.4)
+    - Patch Release [1.58.4](https://github.com/plotly/plotly.js/releases/tag/v1.58.4)
+    - Patch Release [1.58.3](https://github.com/plotly/plotly.js/releases/tag/v1.58.3)
+
+### Added
+- [#888](https://github.com/plotly/dash-core-components/pull/888) Adds a `drag_value` prop to `dcc.Slider`to be able to fire callbacks from dragging and releasing the slider.
+
+## Dash HTML Components
+### Fixed
+- [#169](https://github.com/plotly/dash-html-components/pull/169) - part of fixing dash import bug https://github.com/plotly/dash/issues/1143
+
+## Dash Table
+### Fixed
+- [#854](https://github.com/plotly/dash-table/pull/854) - part of fixing dash import bug https://github.com/plotly/dash/issues/1143
 
 ## [1.18.1] - 2020-12-09
 
@@ -317,7 +465,7 @@ clientside JavaScript callbacks via inline strings.
 
 - [#724](https://github.com/plotly/dash/pull/724), [renderer#175](https://github.com/plotly/dash-renderer/pull/175) Undo/redo toolbar is removed by default, you can enable it with `app=Dash(show_undo_redo=true)`. The CSS hack `._dash-undo-redo:{display:none;}` is no longer needed
 
-- 💥[#709](https://github.com/plotly/dash/pull/709) Merge the `dash-renderer` project into the main dash repo to simplify feature dev workflow. We will keep the [deprecated one](https://github.com/plotly/dash-renderer) for archive purpose.
+- 💥 [#709](https://github.com/plotly/dash/pull/709) Merge the `dash-renderer` project into the main dash repo to simplify feature dev workflow. We will keep the [deprecated one](https://github.com/plotly/dash-renderer) for archive purpose.
 
 ## [0.43.0] - 2019-05-15
 ### Changed

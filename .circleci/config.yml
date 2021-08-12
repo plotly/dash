@@ -13,12 +13,12 @@ jobs:
 
   artifacts:
     docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
+      - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python37
+          PYVERSION: python39
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
@@ -30,16 +30,16 @@ jobs:
           path: ~/dash/packages
           destination: /tmp/packages
 
-  lint-unit-37: &lint-unit
+  lint-unit-39: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
+      - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc37
-          PYVERSION: python37
+          PYLINTRC: .pylintrc39
+          PYVERSION: python39
 
     steps:
       - checkout
@@ -55,12 +55,13 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
-              - venv
+            - venv
       - run:
           name: 🌸 Python & JS Lint
           command: |
             . venv/bin/activate
             set -eo pipefail
+            cd dash/dash-renderer && renderer build && cd ../../
             pip install -e . --progress-bar off && pip list | grep dash
             npm install --production && npm run initialize
             npm run lint
@@ -71,43 +72,32 @@ jobs:
             npm run citest.unit
 
   lint-unit-36:
-      <<: *lint-unit
-      docker:
-        - image: circleci/python:3.6.12-stretch-node-browsers
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-          environment:
-            PYLINTRC: .pylintrc
-            PYVERSION: python36
-
-  lint-unit-27:
-      <<: *lint-unit
-      docker:
-        - image: circleci/python:2.7.18-stretch-node-browsers
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-          environment:
-            PYLINTRC: .pylintrc
-            PYVERSION: python27
-
-  build-core-37: &build-core
-    working_directory: ~/dash
+    <<: *lint-unit
     docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
+      - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python37
+          PYLINTRC: .pylintrc
+          PYVERSION: python36
+
+  build-core-39: &build-core
+    working_directory: ~/dash
+    docker:
+      - image: circleci/python:3.9.2-buster-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYVERSION: python39
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
-          name: ️️🏗️ pip dev requirements
+          name: ️🏗️ pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
@@ -116,49 +106,39 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
-              - venv
+            - venv
       - run:
           name: ️️🏗️ build core
           command: |
-              . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-              cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-core-components.git
-              cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
-              ls -la packages
+            . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
+            cd dash/dash-renderer && renderer build && cd ../../ && python setup.py sdist && mv dist/* packages/
+            git clone --depth 1 https://github.com/plotly/dash-core-components.git
+            cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
+            ls -la packages
       - persist_to_workspace:
           root: ~/dash
           paths:
             - packages/*.tar.gz
 
   build-core-36:
-      <<: *build-core
-      docker:
-        - image: circleci/python:3.6.12-stretch-node-browsers
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-          environment:
-            PYVERSION: python36
-
-  build-core-27:
-      <<: *build-core
-      docker:
-        - image: circleci/python:2.7.18-stretch-node-browsers
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-          environment:
-            PYVERSION: python27
-
-  build-misc-37: &build-misc
-    working_directory: ~/dash
+    <<: *build-core
     docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
+      - image: circleci/python:3.6.13-stretch-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python37
+          PYVERSION: python36
+
+  build-misc-39: &build-misc
+    working_directory: ~/dash
+    docker:
+      - image: circleci/python:3.9.2-buster-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYVERSION: python39
 
     steps:
       - checkout
@@ -174,181 +154,60 @@ jobs:
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
-              - venv
+            - venv
       - run:
           name: ️️🏗️ build misc
           command: |
-              . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-              git clone --depth 1 https://github.com/plotly/dash-table.git
-              cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-html-components.git
-              cd dash-html-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              ls -la packages
+            . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
+            git clone --depth 1 https://github.com/plotly/dash-table.git
+            cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+            git clone --depth 1 https://github.com/plotly/dash-html-components.git
+            cd dash-html-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+            ls -la packages
       - persist_to_workspace:
           root: ~/dash
           paths:
             - packages/*.tar.gz
 
   build-misc-36:
-      <<: *build-misc
-      docker:
-        - image: circleci/python:3.6.12-stretch-node-browsers
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-          environment:
-            PYVERSION: python36
+    <<: *build-misc
+    docker:
+      - image: circleci/python:3.6.13-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYVERSION: python36
 
-  build-misc-27:
-      <<: *build-misc
-      docker:
-        - image: circleci/python:2.7.18-stretch-node-browsers
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-          environment:
-            PYVERSION: python27
-
-  build-windows-37:
+  build-windows-39:
     working_directory: ~/dash
     executor:
       name: win/default
       shell: bash.exe
     environment:
-      PYVERSION: python37
+      PYVERSION: python39
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - run:
           name: ️️🏗️ build core
           command: |
-              pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
-              cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-core-components.git
-              cd dash-core-components && npm ci && npm run build && python setup.py sdist && cd ..
-
-  build-dashr:
-    working_directory: ~/dashr
-    docker:
-      - image: plotly/dashr:ci
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PERCY_PARALLEL_TOTAL: -1
-          PYVERSION: python37
-          _R_CHECK_FORCE_SUGGESTS_: FALSE
-
-    steps:
-      - checkout
-
-      - run:
-          name: ️️🏭 clone and npm build core for R
-          command: |
-            python -m venv venv
-            . venv/bin/activate
-            npm ci
             pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
-            git clone --depth 1 https://github.com/plotly/dashR.git -b dev dashR
-            git clone --depth 1 https://github.com/plotly/dash-html-components.git
+            cd dash/dash-renderer && renderer build && cd ../../ && python setup.py sdist && mv dist/* packages/
             git clone --depth 1 https://github.com/plotly/dash-core-components.git
-            git clone --depth 1 https://github.com/plotly/dash-table.git
-            shopt -s extglob
-            cd dash-html-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
-            cd ../dash-core-components; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build)
-            cd ../dash-table; npm ci && npm run build; rm -rf !(.|..|DESCRIPTION|LICENSE.txt|LICENSE|NAMESPACE|.Rbuildignore|R|man|inst|vignettes|build); cd ..
+            cd dash-core-components && npm ci && npm run build && python setup.py sdist && cd ..
 
-      - run:
-          name: 🔧fix up dash metadata
-          command: |
-            sudo Rscript dashR/tests/circleci/fixup_metadata.R
-
-      - run:
-          name: 🎛 set environment variables
-          command: |
-            Rscript --vanilla \
-              -e 'dash_dsc <- read.dcf("dashR/DESCRIPTION")' \
-              -e 'cat(sprintf("export DASH_TARBALL=%s_%s.tar.gz\n", dash_dsc[,"Package"], dash_dsc[,"Version"]))' \
-              -e 'cat(sprintf("export DASH_CHECK_DIR=%s.Rcheck\n", dash_dsc[,"Package"]))' \
-              -e 'dhc_dsc <- read.dcf("dash-html-components/DESCRIPTION")' \
-              -e 'cat(sprintf("export DHC_TARBALL=%s_%s.tar.gz\n", dhc_dsc[,"Package"], dhc_dsc[,"Version"]))' \
-              -e 'cat(sprintf("export DHC_CHECK_DIR=%s.Rcheck\n", dhc_dsc[,"Package"]))' \
-              -e 'dcc_dsc <- read.dcf("dash-core-components/DESCRIPTION")' \
-              -e 'cat(sprintf("export DCC_TARBALL=%s_%s.tar.gz\n", dcc_dsc[,"Package"], dcc_dsc[,"Version"]))' \
-              -e 'cat(sprintf("export DCC_CHECK_DIR=%s.Rcheck\n", dcc_dsc[,"Package"]))' \
-              -e 'dt_dsc <- read.dcf("dash-table/DESCRIPTION")' \
-              -e 'cat(sprintf("export DT_TARBALL=%s_%s.tar.gz\n", dt_dsc[,"Package"], dt_dsc[,"Version"]))' \
-              -e 'cat(sprintf("export DT_CHECK_DIR=%s.Rcheck\n", dt_dsc[,"Package"]))' \
-              >> ${BASH_ENV}
-
-      - run:
-          name: ️️📋 run CRAN package checks
-          command: |
-            R CMD build dash-core-components
-            R CMD build dash-html-components
-            R CMD build dash-table
-            R CMD build dashR
-            sudo R CMD INSTALL dash-core-components
-            sudo R CMD INSTALL dash-html-components
-            sudo R CMD INSTALL dash-table
-            sudo R CMD INSTALL dashR
-            R CMD check "${DHC_TARBALL}" --as-cran --no-manual
-            R CMD check "${DCC_TARBALL}" --as-cran --no-manual
-            R CMD check "${DT_TARBALL}" --as-cran --no-manual
-            R CMD check "${DASH_TARBALL}" --as-cran --no-manual
-
-      - run:
-          name: 🕵 detect failures
-          command: |
-            Rscript -e "message(devtools::check_failures(path = '${DHC_CHECK_DIR}'))"
-            Rscript -e "message(devtools::check_failures(path = '${DCC_CHECK_DIR}'))"
-            Rscript -e "message(devtools::check_failures(path = '${DT_CHECK_DIR}'))"
-            Rscript -e "message(devtools::check_failures(path = '${DASH_CHECK_DIR}'))"
-            # warnings are errors; enabled for stricter CRAN checks, disable if noisy
-            # if grep -q -R "WARNING" "${DHC_CHECK_DIR}/00check.log"; then exit 1; fi
-            # if grep -q -R "WARNING" "${DCC_CHECK_DIR}/00check.log"; then exit 1; fi
-            # if grep -q -R "WARNING" "${DT_CHECK_DIR}/00check.log"; then exit 1; fi
-            # if grep -q -R "WARNING" "${DASH_CHECK_DIR}/00check.log"; then exit 1; fi
-
-      - run:
-          name: 🔎 run unit tests
-          command: |
-              # unfortunately testthat does not and will not support returning a status
-              # code other than success, even when tests fail -- this is a workaround
-              sudo Rscript -e 'res=devtools::test("dashR/tests/", reporter=default_reporter());df=as.data.frame(res);if(sum(df$failed) > 0 || any(df$error)) {q(status=1)}'
-
-      - run:
-          name: ⚙️ Integration tests
-          command: |
-            python -m venv venv
-            . venv/bin/activate
-            npm run setup-tests.R
-            export PATH=$PATH:/home/circleci/.local/bin/
-            pytest --nopercyfinalize --junitxml=test-reports/dashr.xml dashR/tests/integration/dopsa/
-      - store_artifacts:
-          path: test-reports
-      - store_test_results:
-          path: test-reports
-      - store_artifacts:
-          path: /tmp/dash_artifacts
-
-      - run:
-          name: 🦔 percy finalize
-          command: npx percy finalize --all
-          when: on_fail
-
-
-  test-37: &test
+  test-39: &test
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.7.9-stretch-node-browsers
+      - image: circleci/python:3.9.2-buster-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python37
+          PYVERSION: python39
     parallelism: 3
     steps:
       - checkout
@@ -358,7 +217,7 @@ jobs:
       - attach_workspace:
           at: ~/dash
       - run:
-          name: ️️🏗️  Install packages
+          name: ️️🏗️ Install packages
           command: |
             . venv/bin/activate
             npm install --production
@@ -384,53 +243,32 @@ jobs:
           when: on_fail
 
   test-36:
-      <<: *test
-      docker:
-        - image: circleci/python:3.6.12-stretch-node-browsers
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-          environment:
-            PERCY_ENABLE: 0
-            PYVERSION: python36
-
-  test-27:
-      <<: *test
-      docker:
-        - image: circleci/python:2.7.18-stretch-node-browsers
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-          environment:
-            PERCY_ENABLE: 0
-            PYVERSION: python27
+    <<: *test
+    docker:
+      - image: circleci/python:3.6.13-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PERCY_ENABLE: 0
+          PYVERSION: python36
 
 workflows:
   version: 2
-  python3.7:
+  python3.9:
     jobs:
-      - lint-unit-37:
-          context: dash-docker-hub
-      - build-core-37:
-          context: dash-docker-hub
-      - build-windows-37:
-          context: dash-docker-hub
-      - build-misc-37:
-          context: dash-docker-hub
-      - build-dashr:
-          context: dash-docker-hub
-      - test-37:
-          context: dash-docker-hub
+      - lint-unit-39
+      - build-core-39
+      - build-windows-39
+      - build-misc-39
+      - test-39:
           requires:
-            - build-core-37
-            - build-misc-37
+            - build-core-39
+            - build-misc-39
       - percy-finalize:
-          context: dash-docker-hub
           requires:
-            - build-dashr
-            - test-37
+            - test-39
       - artifacts:
-          context: dash-docker-hub
           requires:
             - percy-finalize
           filters:
@@ -443,27 +281,10 @@ workflows:
 
   python3.6:
     jobs:
-      - lint-unit-36:
-          context: dash-docker-hub
-      - build-core-36:
-          context: dash-docker-hub
-      - build-misc-36:
-          context: dash-docker-hub
+      - lint-unit-36
+      - build-core-36
+      - build-misc-36
       - test-36:
-          context: dash-docker-hub
           requires:
             - build-core-36
             - build-misc-36
-  python2.7:
-    jobs:
-      - lint-unit-27:
-          context: dash-docker-hub
-      - build-core-27:
-          context: dash-docker-hub
-      - build-misc-27:
-          context: dash-docker-hub
-      - test-27:
-          context: dash-docker-hub
-          requires:
-            - build-core-27
-            - build-misc-27

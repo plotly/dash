@@ -87,7 +87,7 @@ def test_cbpu002_multi_output_no_update(dash_duo):
         [Input("btn", "n_clicks")],
     )
     def show_clicks(n):
-        # partial or complete cancelation of updates via no_update
+        # partial or complete cancellation of updates via no_update
         return [
             no_update if n and n > 4 else n,
             no_update if n and n > 2 else n,

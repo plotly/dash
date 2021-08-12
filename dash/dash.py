@@ -23,11 +23,14 @@ from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
 
 import plotly
-import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
-from .dependencies import handle_callback_args
+from .dependencies import (
+    handle_callback_args,
+    handle_grouped_callback_args,
+    Output,
+)
 from .development.base_component import ComponentRegistry
 from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
 from .version import __version__
@@ -48,8 +51,15 @@ from ._utils import (
     strip_relative_path,
     to_json_plotly,
 )
+from . import _dash_renderer
 from . import _validate
 from . import _watch
+from ._grouping import (
+    flatten_grouping,
+    map_grouping,
+    make_grouping_by_index,
+    grouping_len,
+)
 
 _flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
@@ -151,10 +161,12 @@ class Dash(object):
     :type assets_ignore: string
 
     :param assets_external_path: an absolute URL from which to load assets.
-        Use with ``serve_locally=False``. Dash can still find js and css to
-        automatically load if you also keep local copies in your assets
-        folder that Dash can index, but external serving can improve
-        performance and reduce load on the Dash server.
+        Use with ``serve_locally=False``. assets_external_path is joined
+        with assets_url_path to determine the absolute url to the
+        asset folder. Dash can still find js and css to automatically load
+        if you also keep local copies in your assets folder that Dash can index,
+        but external serving can improve performance and reduce load on
+        the Dash server.
         env: ``DASH_ASSETS_EXTERNAL_PATH``
     :type assets_external_path: string
 
@@ -231,6 +243,11 @@ class Dash(object):
         and redo buttons for stepping through the history of the app state.
     :type show_undo_redo: boolean
 
+    :param extra_hot_reload_paths: A list of paths to watch for changes, in
+        addition to assets and known Python and JS code, if hot reloading is
+        enabled.
+    :type extra_hot_reload_paths: list of strings
+
     :param plugins: Extend Dash functionality by passing a list of objects
         with a ``plug`` method, taking a single argument: this app, which will
         be called after the Flask server is attached.
@@ -268,10 +285,11 @@ class Dash(object):
         suppress_callback_exceptions=None,
         prevent_initial_callbacks=False,
         show_undo_redo=False,
+        extra_hot_reload_paths=None,
         plugins=None,
         title="Dash",
         update_title="Updating...",
-        **obsolete
+        **obsolete,
     ):
         _validate.check_obsolete(obsolete)
 
@@ -328,6 +346,7 @@ class Dash(object):
             ),
             prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
+            extra_hot_reload_paths=extra_hot_reload_paths or [],
             title=title,
             update_title=update_title,
         )
@@ -634,7 +653,7 @@ class Dash(object):
             [
                 format_tag("link", link, opened=True)
                 if isinstance(link, dict)
-                else '<link rel="stylesheet" href="{}">'.format(link)
+                else f'<link rel="stylesheet" href="{link}">'
                 for link in (external_links + links)
             ]
         )
@@ -651,7 +670,7 @@ class Dash(object):
         mode = "dev" if self._dev_tools["props_check"] is True else "prod"
 
         deps = []
-        for js_dist_dependency in dash_renderer._js_dist_dependencies:
+        for js_dist_dependency in _dash_renderer._js_dist_dependencies:
             dep = {}
             for key, value in js_dist_dependency.items():
                 dep[key] = value[mode] if isinstance(value, dict) else value
@@ -667,7 +686,7 @@ class Dash(object):
             + self._collect_and_register_resources(
                 self.scripts.get_all_scripts(dev_bundles=dev)
                 + self.scripts._resources._filter_resources(
-                    dash_renderer._js_dist, dev_bundles=dev
+                    _dash_renderer._js_dist, dev_bundles=dev
                 )
             )
         )
@@ -859,7 +878,15 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(self, output, inputs, state, prevent_initial_call):
+    def _insert_callback(
+        self,
+        output,
+        outputs_indices,
+        inputs,
+        state,
+        inputs_state_indices,
+        prevent_initial_call,
+    ):
         if prevent_initial_call is None:
             prevent_initial_call = self.config.prevent_initial_callbacks
 
@@ -874,6 +901,8 @@ class Dash(object):
         self.callback_map[callback_id] = {
             "inputs": callback_spec["inputs"],
             "state": callback_spec["state"],
+            "outputs_indices": outputs_indices,
+            "inputs_state_indices": inputs_state_indices,
         }
         self._callback_list.append(callback_spec)
 
@@ -945,7 +974,7 @@ class Dash(object):
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
         output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-        self._insert_callback(output, inputs, state, prevent_initial_call)
+        self._insert_callback(output, None, inputs, state, None, prevent_initial_call)
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -990,33 +1019,69 @@ class Dash(object):
 
 
         """
-        output, inputs, state, prevent_initial_call = handle_callback_args(
-            _args, _kwargs
+        (
+            output,
+            flat_inputs,
+            flat_state,
+            inputs_state_indices,
+            prevent_initial_call,
+        ) = handle_grouped_callback_args(_args, _kwargs)
+        if isinstance(output, Output):
+            # Insert callback with scalar (non-multi) Output
+            insert_output = output
+            multi = False
+        else:
+            # Insert callback as multi Output
+            insert_output = flatten_grouping(output)
+            multi = True
+
+        output_indices = make_grouping_by_index(
+            output, list(range(grouping_len(output)))
         )
-        callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
-        multi = isinstance(output, (list, tuple))
+        callback_id = self._insert_callback(
+            insert_output,
+            output_indices,
+            flat_inputs,
+            flat_state,
+            inputs_state_indices,
+            prevent_initial_call,
+        )
 
         def wrap_func(func):
             @wraps(func)
             def add_context(*args, **kwargs):
                 output_spec = kwargs.pop("outputs_list")
+                _validate.validate_output_spec(insert_output, output_spec, Output)
+
+                func_args, func_kwargs = _validate.validate_and_group_input_args(
+                    args, inputs_state_indices
+                )
 
                 # don't touch the comment on the next line - used by debugger
-                output_value = func(*args, **kwargs)  # %% callback invoked %%
+                output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
 
                 if isinstance(output_value, _NoUpdate):
                     raise PreventUpdate
 
-                # wrap single outputs so we can treat them all the same
-                # for validation and response creation
                 if not multi:
                     output_value, output_spec = [output_value], [output_spec]
+                    flat_output_values = output_value
+                else:
+                    if isinstance(output_value, (list, tuple)):
+                        # For multi-output, allow top-level collection to be
+                        # list or tuple
+                        output_value = list(output_value)
 
-                _validate.validate_multi_return(output_spec, output_value, callback_id)
+                    # Flatten grouping and validate grouping structure
+                    flat_output_values = flatten_grouping(output_value, output)
+
+                _validate.validate_multi_return(
+                    output_spec, flat_output_values, callback_id
+                )
 
                 component_ids = collections.defaultdict(dict)
                 has_update = False
-                for val, spec in zip(output_value, output_spec):
+                for val, spec in zip(flat_output_values, output_spec):
                     if isinstance(val, _NoUpdate):
                         continue
                     for vali, speci in (
@@ -1047,25 +1112,70 @@ class Dash(object):
 
     def dispatch(self):
         body = flask.request.get_json()
-        flask.g.inputs_list = inputs = body.get("inputs", [])
-        flask.g.states_list = state = body.get("state", [])
+        flask.g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
+            "inputs", []
+        )
+        flask.g.states_list = state = body.get(  # pylint: disable=assigning-non-slot
+            "state", []
+        )
         output = body["output"]
         outputs_list = body.get("outputs") or split_callback_id(output)
-        flask.g.outputs_list = outputs_list
+        flask.g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
 
-        flask.g.input_values = input_values = inputs_to_dict(inputs)
-        flask.g.state_values = inputs_to_dict(state)
+        flask.g.input_values = (  # pylint: disable=assigning-non-slot
+            input_values
+        ) = inputs_to_dict(inputs)
+        flask.g.state_values = inputs_to_dict(  # pylint: disable=assigning-non-slot
+            state
+        )
         changed_props = body.get("changedPropIds", [])
-        flask.g.triggered_inputs = [
+        flask.g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
         ]
 
-        response = flask.g.dash_response = flask.Response(mimetype="application/json")
+        response = (
+            flask.g.dash_response  # pylint: disable=assigning-non-slot
+        ) = flask.Response(mimetype="application/json")
 
         args = inputs_to_vals(inputs + state)
 
         try:
-            func = self.callback_map[output]["callback"]
+            cb = self.callback_map[output]
+            func = cb["callback"]
+
+            # Add args_grouping
+            inputs_state_indices = cb["inputs_state_indices"]
+            inputs_state = inputs + state
+            args_grouping = map_grouping(
+                lambda ind: inputs_state[ind], inputs_state_indices
+            )
+            flask.g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
+            flask.g.using_args_grouping = (  # pylint: disable=assigning-non-slot
+                not isinstance(inputs_state_indices, int)
+                and (
+                    inputs_state_indices
+                    != list(range(grouping_len(inputs_state_indices)))
+                )
+            )
+
+            # Add outputs_grouping
+            outputs_indices = cb["outputs_indices"]
+            if not isinstance(outputs_list, list):
+                flat_outputs = [outputs_list]
+            else:
+                flat_outputs = outputs_list
+
+            outputs_grouping = map_grouping(
+                lambda ind: flat_outputs[ind], outputs_indices
+            )
+            flask.g.outputs_grouping = (  # pylint: disable=assigning-non-slot
+                outputs_grouping
+            )
+            flask.g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
+                not isinstance(outputs_indices, int)
+                and outputs_indices != list(range(grouping_len(outputs_indices)))
+            )
+
         except KeyError:
             msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg.format(output))
@@ -1094,9 +1204,7 @@ class Dash(object):
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:
-            res["external_url"] = "{}{}".format(
-                self.config.assets_external_path, url_path
-            )
+            res["external_url"] = self.get_asset_url(url_path.lstrip("/"))
         self._assets_files.append(file_path)
         return res
 
@@ -1181,11 +1289,12 @@ class Dash(object):
         ]
 
     def get_asset_url(self, path):
-        asset = get_asset_path(
-            self.config.requests_pathname_prefix,
-            path,
-            self.config.assets_url_path.lstrip("/"),
-        )
+        if self.config.assets_external_path:
+            prefix = self.config.assets_external_path
+        else:
+            prefix = self.config.requests_pathname_prefix
+
+        asset = get_asset_path(prefix, path, self.config.assets_url_path.lstrip("/"))
 
         return asset
 
@@ -1417,7 +1526,7 @@ class Dash(object):
             # on some Python versions https://bugs.python.org/issue14710
             packages = [
                 pkgutil.find_loader(x)
-                for x in list(ComponentRegistry.registry) + ["dash_renderer"]
+                for x in list(ComponentRegistry.registry)
                 if x != "__main__"
             ]
 
@@ -1457,15 +1566,20 @@ class Dash(object):
         if debug and dev_tools.ui:
 
             def _before_request():
-                flask.g.timing_information = {
+                flask.g.timing_information = {  # pylint: disable=assigning-non-slot
                     "__dash_server": {"dur": time.time(), "desc": None}
                 }
 
             def _after_request(response):
-                dash_total = flask.g.timing_information["__dash_server"]
-                dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+                timing_information = flask.g.get("timing_information", None)
+                if timing_information is None:
+                    return response
 
-                for name, info in flask.g.timing_information.items():
+                dash_total = timing_information.get("__dash_server", None)
+                if dash_total is not None:
+                    dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+
+                for name, info in timing_information.items():
 
                     value = name
                     if info.get("desc") is not None:
@@ -1563,7 +1677,7 @@ class Dash(object):
         dev_tools_hot_reload_max_retry=None,
         dev_tools_silence_routes_logging=None,
         dev_tools_prune_errors=None,
-        **flask_run_options
+        **flask_run_options,
     ):
         """Start the flask server in local mode, you should not run this on a
         production server, use gunicorn/waitress instead.
@@ -1708,5 +1822,15 @@ class Dash(object):
                 display_url = (protocol, host, ":{}".format(port), path)
 
             self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
+
+        if self.config.extra_hot_reload_paths:
+            extra_files = flask_run_options["extra_files"] = []
+            for path in self.config.extra_hot_reload_paths:
+                if os.path.isdir(path):
+                    for dirpath, _, filenames in os.walk(path):
+                        for fn in filenames:
+                            extra_files.append(os.path.join(dirpath, fn))
+                elif os.path.isfile(path):
+                    extra_files.append(path)
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)

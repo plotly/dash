@@ -3,13 +3,13 @@
   "license": "UNLICENSED",
   "scripts": {
     "private::format.black": "black dash tests --exclude metadata_test.py",
-    "private::format.renderer": "cd dash-renderer && npm run format",
-    "private::initialize.renderer": "cd dash-renderer && npm ci",
+    "private::format.renderer": "cd dash/dash-renderer && npm run format",
+    "private::initialize.renderer": "cd dash/dash-renderer && npm ci",
     "private::lint.black": "if [ ${PYLINTRC:-x} != '.pylintrc' ]; then black dash tests --exclude metadata_test.py --check; fi",
     "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
-    "private::lint.pylint-dash": "PYLINTRC=${PYLINTRC:=.pylintrc37} && pylint dash setup.py --rcfile=$PYLINTRC",
-    "private::lint.pylint-tests": "PYLINTRC=${PYLINTRC:=.pylintrc37} && pylint tests/unit tests/integration -d all --rcfile=$PYLINTRC",
-    "private::lint.renderer": "cd dash-renderer && npm run lint",
+    "private::lint.pylint-dash": "PYLINTRC=${PYLINTRC:=.pylintrc39} && pylint dash setup.py --rcfile=$PYLINTRC",
+    "private::lint.pylint-tests": "PYLINTRC=${PYLINTRC:=.pylintrc39} && pylint tests/unit tests/integration -d all --rcfile=$PYLINTRC",
+    "private::lint.renderer": "cd dash/dash-renderer && npm run lint",
     "private::test.setup-components": "cd \\@plotly/dash-test-components && npm ci && npm run build",
     "private::test.setup-nested": "cd \\@plotly/dash-generator-test-component-nested && npm ci && npm run build",
     "private::test.setup-standard": "cd \\@plotly/dash-generator-test-component-standard && npm ci && npm run build",
@@ -20,20 +20,21 @@
     "private::test.R.deploy-nested": "npm run private::test.setup-nested && cd \\@plotly/dash-generator-test-component-nested && sudo R CMD INSTALL .",
     "private::test.R.deploy-standard": "npm run private::test.setup-standard && cd \\@plotly/dash-generator-test-component-standard && sudo R CMD INSTALL .",
     "private::test.unit-dash": "pytest tests/unit",
-    "private::test.unit-renderer": "cd dash-renderer && npm run test",
+    "private::test.unit-renderer": "cd dash/dash-renderer && npm run test",
     "private::test.integration-dash": "TESTFILES=$(circleci tests glob \"tests/integration/**/test_*.py\" | circleci tests split --split-by=timings) && pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}",
     "private::test.integration-dash-import": "cd tests/integration/dash && python dash_import_test.py",
     "format": "run-s private::format.*",
     "initialize": "run-s private::initialize.*",
+    "prepare": "husky install",
     "lint": "run-s private::lint.*",
     "setup-tests.py": "run-s private::test.py.deploy-*",
     "setup-tests.R": "run-s private::test.R.deploy-*",
     "citest.integration": "run-s setup-tests.py private::test.integration-*",
     "citest.unit": "run-s private::test.unit-**",
-    "test": "pytest && cd dash-renderer && npm run test"
+    "test": "pytest && cd dash/dash-renderer && npm run test"
   },
   "devDependencies": {
-    "husky": "4.2.3"
+    "husky": "7.0.0"
   },
   "dependencies": {
     "npm-run-all": "4.1.5"

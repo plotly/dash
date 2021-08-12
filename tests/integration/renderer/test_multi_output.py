@@ -153,7 +153,10 @@ def test_rdmo005_set_props_behavior(dash_duo):
     app.layout = html.Div(
         [
             dcc.Input(id="id", value=""),
-            html.Div(id="container", children=dcc.Input(value=""),),
+            html.Div(
+                id="container",
+                children=dcc.Input(value=""),
+            ),
         ]
     )
 

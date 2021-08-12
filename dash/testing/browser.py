@@ -77,10 +77,10 @@ class Browser(DashPageMixin):
             )
             self.percy_runner.initialize_build()
 
-        logger.info("initialize browser with arguments")
-        logger.info("  headless => %s", self._headless)
-        logger.info("  download_path => %s", self._download_path)
-        logger.info("  percy asset root => %s", os.path.abspath(percy_assets_root))
+        logger.debug("initialize browser with arguments")
+        logger.debug("  headless => %s", self._headless)
+        logger.debug("  download_path => %s", self._download_path)
+        logger.debug("  percy asset root => %s", os.path.abspath(percy_assets_root))
 
     def __enter__(self):
         return self
@@ -413,6 +413,7 @@ class Browser(DashPageMixin):
             return getattr(self, "_get_{}".format(self._browser))()
         except WebDriverException:
             logger.exception("<<<Webdriver not initialized correctly>>>")
+            return None
 
     def _get_wd_options(self):
         options = (

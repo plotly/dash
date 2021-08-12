@@ -394,7 +394,8 @@ def test_clsd009_clientside_callback_context_triggered(dash_duo):
     dash_duo.find_element("#btn0").click()
 
     dash_duo.wait_for_text_to_equal(
-        "#output-clientside", "btn0.n_clicks = 1",
+        "#output-clientside",
+        "btn0.n_clicks = 1",
     )
 
     dash_duo.find_element("button[id*='btn1\":0']").click()
@@ -405,7 +406,8 @@ def test_clsd009_clientside_callback_context_triggered(dash_duo):
     dash_duo.find_element("button[id*='btn1\":2']").click()
 
     dash_duo.wait_for_text_to_equal(
-        "#output-clientside", '{"btn1":2}.n_clicks = 1',
+        "#output-clientside",
+        '{"btn1":2}.n_clicks = 1',
     )
 
 
@@ -683,3 +685,37 @@ def test_clsd013_clientside_callback_context_states_list(dash_duo):
             '{"id":{"in1":2},"property":"value","value":"test 2"}]]'
         ),
     )
+
+
+def test_clsd014_input_output_callback(dash_duo):
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [html.Div(id="input-text"), dcc.Input(id="input", type="number", value=0)]
+    )
+
+    app.clientside_callback(
+        ClientsideFunction(
+            namespace="clientside", function_name="input_output_callback"
+        ),
+        Output("input", "value"),
+        Input("input", "value"),
+    )
+
+    app.clientside_callback(
+        ClientsideFunction(
+            namespace="clientside", function_name="input_output_follower"
+        ),
+        Output("input-text", "children"),
+        Input("input", "value"),
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#input").send_keys("2")
+    dash_duo.wait_for_text_to_equal("#input-text", "3")
+    call_count = dash_duo.driver.execute_script("return window.callCount;")
+
+    assert call_count == 2, "initial + changed once"
+
+    assert dash_duo.get_logs() == []

@@ -83,7 +83,7 @@ def test_repr_multiple_arguments(component_class):
     # Note how the order in which keyword arguments are supplied is
     # not always equal to the order in the repr of the component
     c = component_class(id="my id", optionalArray=[1, 2, 3])
-    assert repr(c) == "Table(optionalArray=[1, 2, 3], id='my id')"
+    assert repr(c) == "Table(id='my id', optionalArray=[1, 2, 3])"
 
 
 def test_repr_nested_arguments(component_class):

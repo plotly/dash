@@ -26,17 +26,6 @@ def test_cbva001_callback_dep_types():
 
     with pytest.raises(IncorrectTypeException) as err:
 
-        @app.callback([[Output("out1", "children")]], [Input("in1", "children")])
-        def f(i):
-            return i
-
-        pytest.fail("extra output nesting")
-
-    assert "must be `Output`, `Input`, or `State`" in err.value.args[0]
-    assert "[<Output `out1.children`>]" in err.value.args[0]
-
-    with pytest.raises(IncorrectTypeException) as err:
-
         @app.callback(Input("in1", "children"), Output("out1", "children"))
         def f2(i):
             return i
@@ -147,8 +136,7 @@ def test_cbva003_list_single_output(dash_duo):
 
 
 @pytest.mark.parametrize("named_out", [True, False])
-@pytest.mark.parametrize("named_in", [True, False])
-@pytest.mark.parametrize("named_state", [True, False])
+@pytest.mark.parametrize("named_in,named_state", [(True, True), (False, False)])
 def test_cbva004_named_args(named_out, named_in, named_state, dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
