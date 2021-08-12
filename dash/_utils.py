@@ -19,14 +19,11 @@ logger = logging.getLogger()
 # note because we import unicode_literals u"" and "" are both unicode
 _strings = (type(""), type(utils.bytes_to_native_str(b"")))
 
-try:
-    # pylint: disable=unused-import
-    from plotly.io.json import to_json_plotly
-except ImportError:
-    from plotly.utils import PlotlyJSONEncoder
 
-    def to_json_plotly(value):
-        return json.dumps(value, cls=PlotlyJSONEncoder)
+def to_json(value):
+    from plotly.io.json import to_json_plotly
+
+    return to_json_plotly(value)
 
 
 def interpolate_str(template, **data):
