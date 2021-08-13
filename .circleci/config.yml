@@ -258,18 +258,6 @@ jobs:
           PERCY_ENABLE: 0
           PYVERSION: python36
 
-  dcc-percy-finalize:
-      working_directory: ~/dash/components/dash-core-components
-      docker:
-        - image: percyio/agent
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-      steps:
-        - checkout:
-              path: ~/dash
-        - run: percy finalize --all
-
   dcc-lint-unit-39: &lint-unit
     working_directory: ~/dash/components/dash-core-components
     docker:
@@ -410,18 +398,6 @@ jobs:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
 
-  html-percy-finalize:
-    working_directory: ~/dash/components/dash-html-components
-    docker:
-      - image: percyio/agent
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-    steps:
-      - checkout:
-            path: ~/dash
-      - run: percy finalize --all
-
   html-python-36: &test-template
     working_directory: ~/dash/components/dash-html-components
     docker:
@@ -481,16 +457,6 @@ jobs:
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
-  table-percy-finalize:
-      working_directory: ~/dash/components/dash-table
-      docker:
-          - image: percyio/agent
-      steps:
-          - run:
-              name: Inject Percy Environment variables
-              command: |
-                echo 'export PERCY_TOKEN="$PERCY_TOKEN_E2E"' >> $BASH_ENV
-          - run: percy finalize --all
 
   table-server-test:
       working_directory: ~/dash/components/dash-table
@@ -691,7 +657,7 @@ workflows:
           requires:
             - install-dependencies
             - dcc-build-dash-39
-      - dcc-percy-finalize:
+      - percy-finalize:
           requires:
             - dcc-test-39
 
@@ -718,7 +684,7 @@ workflows:
       - html-python-39:
           requires:
             - install-dependencies
-      - html-percy-finalize:
+      - percy-finalize:
           requires:
             - html-python-39
 
@@ -735,6 +701,6 @@ workflows:
               requires:
                 - install-dependencies
           - table-visual-test
-          - table-percy-finalize:
+          - percy-finalize:
               requires:
                   - table-server-test
