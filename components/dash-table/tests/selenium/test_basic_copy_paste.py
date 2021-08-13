@@ -73,7 +73,9 @@ def get_app():
     return app
 
 
-@pytest.mark.skip(reason="Prop `data_previous` is not correctly updated with copy+paste")
+@pytest.mark.skip(
+    reason="Prop `data_previous` is not correctly updated with copy+paste"
+)
 def test_tbcp001_copy_paste_callback(test):
     test.start_server(get_app())
 
@@ -89,7 +91,9 @@ def test_tbcp001_copy_paste_callback(test):
     assert test.get_log_errors() == []
 
 
-@pytest.mark.skip(reason="Prop `data_previous` is not correctly updated with copy+paste")
+@pytest.mark.skip(
+    reason="Prop `data_previous` is not correctly updated with copy+paste"
+)
 def test_tbcp002_sorted_copy_paste_callback(test):
     test.start_server(get_app())
 
@@ -119,7 +123,9 @@ def test_tbcp002_sorted_copy_paste_callback(test):
 
 
 @pytest.mark.parametrize("mouse_navigation", [True, False])
-@pytest.mark.skip(reason="Prop `data_previous` is not correctly updated with copy+paste")
+@pytest.mark.skip(
+    reason="Prop `data_previous` is not correctly updated with copy+paste"
+)
 def test_tbcp003_copy_multiple_rows(test, mouse_navigation):
     test.start_server(get_app())
 
@@ -168,7 +174,9 @@ def test_tbcp004_copy_9_and_10(test):
     assert test.get_log_errors() == []
 
 
-@pytest.mark.skip(reason="Prop `data_previous` is not correctly updated with copy+paste")
+@pytest.mark.skip(
+    reason="Prop `data_previous` is not correctly updated with copy+paste"
+)
 def test_tbcp005_copy_multiple_rows_and_columns(test):
     test.start_server(get_app())
 
@@ -191,7 +199,9 @@ def test_tbcp005_copy_multiple_rows_and_columns(test):
     assert test.get_log_errors() == []
 
 
-@pytest.mark.skip(reason="Prop `data_previous` is not correctly updated with copy+paste")
+@pytest.mark.skip(
+    reason="Prop `data_previous` is not correctly updated with copy+paste"
+)
 def test_tbcp006_copy_paste_between_tables(test):
     test.start_server(get_app())
 
@@ -216,7 +226,9 @@ def test_tbcp006_copy_paste_between_tables(test):
     assert test.get_log_errors() == []
 
 
-@pytest.mark.skip(reason="Prop `data_previous` is not correctly updated with copy+paste")
+@pytest.mark.skip(
+    reason="Prop `data_previous` is not correctly updated with copy+paste"
+)
 def test_tbcp007_copy_paste_with_hidden_column(test):
     test.start_server(get_app())
 
@@ -241,7 +253,9 @@ def test_tbcp007_copy_paste_with_hidden_column(test):
     assert test.get_log_errors() == []
 
 
-@pytest.mark.skip(reason="Prop `data_previous` is not correctly updated with copy+paste")
+@pytest.mark.skip(
+    reason="Prop `data_previous` is not correctly updated with copy+paste"
+)
 def test_tbcp008_copy_paste_between_tables_with_hidden_columns(test):
     test.start_server(get_app())
 
