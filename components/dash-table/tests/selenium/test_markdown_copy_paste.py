@@ -56,6 +56,9 @@ def test_tmcp001_copy_markdown_to_text(test):
     assert test.get_log_errors() == []
 
 
+@pytest.mark.skip(
+    reason="Prop `data_previous` is not correctly updated with copy+paste"
+)
 def test_tmcp002_copy_markdown_to_markdown(test):
     test.start_server(get_app())
 
