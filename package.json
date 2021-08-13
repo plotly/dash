@@ -26,7 +26,7 @@
     "format": "run-s private::format.*",
     "initialize": "run-s private::initialize.*",
     "prepare": "husky install",
-    "lint": "echo",
+    "lint": "run-s private::lint.*",
     "setup-tests.py": "run-s private::test.py.deploy-*",
     "setup-tests.R": "run-s private::test.R.deploy-*",
     "citest.integration": "run-s setup-tests.py private::test.integration-*",
