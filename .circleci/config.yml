@@ -621,10 +621,6 @@ workflows:
       - percy-finalize:
           requires:
             - test-39
-            - dcc-test-39
-            - html-python-39
-            - table-server-test
-
       - artifacts:
           requires:
             - percy-finalize
@@ -661,6 +657,9 @@ workflows:
           requires:
             - install-dependencies
             - dcc-build-dash-39
+      - percy-finalize:
+          requires:
+            - dcc-test-39
 
   dcc-python3.6:
     jobs:
@@ -685,7 +684,9 @@ workflows:
       - html-python-39:
           requires:
             - install-dependencies
-
+      - percy-finalize:
+          requires:
+            - html-python-39
 
   table-build:
       jobs:
@@ -700,3 +701,6 @@ workflows:
               requires:
                 - install-dependencies
           - table-visual-test
+          - percy-finalize:
+              requires:
+                  - table-server-test
