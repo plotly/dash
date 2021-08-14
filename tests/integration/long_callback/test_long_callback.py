@@ -9,6 +9,9 @@ import time
 
 from dash.testing.application_runners import import_app
 import psutil
+import redis
+
+parent_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 def kill(proc_pid):
@@ -27,6 +30,17 @@ def manager(request):
 def setup_long_callback_app(manager_name, app_name):
     if manager_name == "celery":
         os.environ["LONG_CALLBACK_MANAGER"] = "celery"
+        os.environ["CELERY_BROKER"] = "redis://localhost:6379/0"
+        os.environ["CELERY_BACKEND"] = "redis://localhost:6379/1"
+
+        # Clear redis of cached values
+        redis_conn = redis.Redis(host="localhost", port=6379, db=1)
+        cache_keys = redis_conn.keys()
+        if cache_keys:
+            redis_conn.delete(*cache_keys)
+
+        print(f"parent_dir: {parent_dir}")
+
         worker = subprocess.Popen(
             [
                 "celery",
@@ -38,6 +52,7 @@ def setup_long_callback_app(manager_name, app_name):
                 "--loglevel=info",
             ],
             preexec_fn=os.setpgrp,
+            cwd=parent_dir,
         )
         try:
             yield import_app(app_name)
@@ -46,6 +61,8 @@ def setup_long_callback_app(manager_name, app_name):
             # Sleep for 1 interval of time
             time.sleep(0.5)
             os.environ.pop("LONG_CALLBACK_MANAGER")
+            os.environ.pop("CELERY_BROKER")
+            os.environ.pop("CELERY_BACKEND")
             kill(worker.pid)
 
     elif manager_name == "diskcache":
@@ -200,46 +217,46 @@ def test_lcb005_long_callback_caching(dash_duo, manager):
         dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
         dash_duo.wait_for_text_to_equal("#result", "Result for 'BBB'", 4)
 
-        # # Update input text box back to AAA
-        # input_ = dash_duo.find_element("#input")
-        # dash_duo.clear_input(input_)
-        # for key in "AAA":
-        #     with lock:
-        #         input_.send_keys(key)
-        #
-        # # Click run button and this time the cached result is used,
-        # # So we can get the result right away
-        # dash_duo.find_element("#run-button").click()
-        # dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
-        # dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 4)
+        # Update input text box back to AAA
+        input_ = dash_duo.find_element("#input")
+        dash_duo.clear_input(input_)
+        for key in "AAA":
+            with lock:
+                input_.send_keys(key)
 
-        # # Update input text box back to BBB
-        # input_ = dash_duo.find_element("#input")
-        # dash_duo.clear_input(input_)
-        # for key in "BBB":
-        #     with lock:
-        #         input_.send_keys(key)
-        #
-        # # Click run button and this time the cached result is used,
-        # # So we can get the result right away
-        # dash_duo.find_element("#run-button").click()
-        # dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
-        # dash_duo.wait_for_text_to_equal("#result", "Result for 'BBB'", 4)
-        #
-        # # Update input text box back to AAA
-        # input_ = dash_duo.find_element("#input")
-        # dash_duo.clear_input(input_)
-        # for key in "AAA":
-        #     with lock:
-        #         input_.send_keys(key)
-        #
-        # # Change cache key
-        # app._cache_key.value = 1
-        #
-        # dash_duo.find_element("#run-button").click()
-        # dash_duo.wait_for_text_to_equal("#status", "Progress 2/4", 20)
-        # dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
-        # dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 4)
-        #
-        # assert not dash_duo.redux_state_is_loading
-        # assert dash_duo.get_logs() == []
+        # Click run button and this time the cached result is used,
+        # So we can get the result right away
+        dash_duo.find_element("#run-button").click()
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
+        dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 4)
+
+        # Update input text box back to BBB
+        input_ = dash_duo.find_element("#input")
+        dash_duo.clear_input(input_)
+        for key in "BBB":
+            with lock:
+                input_.send_keys(key)
+
+        # Click run button and this time the cached result is used,
+        # So we can get the result right away
+        dash_duo.find_element("#run-button").click()
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
+        dash_duo.wait_for_text_to_equal("#result", "Result for 'BBB'", 4)
+
+        # Update input text box back to AAA
+        input_ = dash_duo.find_element("#input")
+        dash_duo.clear_input(input_)
+        for key in "AAA":
+            with lock:
+                input_.send_keys(key)
+
+        # Change cache key
+        app._cache_key.value = 1
+
+        dash_duo.find_element("#run-button").click()
+        dash_duo.wait_for_text_to_equal("#status", "Progress 2/4", 20)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
+        dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 4)
+
+        assert not dash_duo.redux_state_is_loading
+        assert dash_duo.get_logs() == []

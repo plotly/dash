@@ -11,8 +11,8 @@ def get_long_callback_manager():
 
         celery_app = Celery(
             __name__,
-            broker="redis://localhost:6379/0",
-            backend="redis://localhost:6379/1",
+            broker=os.environ.get("CELERY_BROKER"),
+            backend=os.environ.get("CELERY_BACKEND"),
         )
         long_callback_manager = CeleryLongCallbackManager(celery_app)
     elif os.environ.get("LONG_CALLBACK_MANAGER", None) == "diskcache":

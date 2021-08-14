@@ -40,6 +40,7 @@ app.layout = html.Div(
     progress=Output("status", "children"),
     progress_default="Finished",
     interval=500,
+    cache_args_to_ignore=0,
 )
 def update_output(set_progress, _n_clicks, value):
     for i in range(4):

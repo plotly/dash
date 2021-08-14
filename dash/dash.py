@@ -1184,6 +1184,11 @@ class Dash(object):
                 progress. If `progress_default` is not provided, all the dependency
                 properties specified in `progress` will be set to `None` when the
                 callback is not running.
+            :param cache_args_to_ignore:
+                Arguments to ignore when caching is enabled. If callback is configured
+                with keyword arguments (Input/State provided in a dict),
+                this should be a list of argument names as strings. Otherwise,
+                this should be a list of argument indices as integers.
         """
         from dash._callback_context import (  # pylint: disable=import-outside-toplevel
             callback_context,
@@ -1196,6 +1201,7 @@ class Dash(object):
         progress = _kwargs.pop("progress", ())
         progress_default = _kwargs.pop("progress_default", None)
         interval_time = _kwargs.pop("interval", 1000)
+        cache_args_to_ignore = _kwargs.pop("cache_args_to_ignore", [])
 
         # Parse remaining args just like app.callback
         (
@@ -1232,7 +1238,9 @@ class Dash(object):
 
             def callback(_triggers, user_store_data, user_callback_args):
                 # Build result cache key from inputs
-                pending_key = callback_manager.build_cache_key(fn, user_callback_args)
+                pending_key = callback_manager.build_cache_key(
+                    fn, user_callback_args, cache_args_to_ignore
+                )
                 current_key = user_store_data.get("current_key", None)
                 pending_job = user_store_data.get("pending_job", None)
 
@@ -1276,9 +1284,16 @@ class Dash(object):
                     # Set current key (hash of data stored in client)
                     # to pending key (hash of data requested by client)
                     user_store_data["current_key"] = pending_key
+
+                    # Disable interval if this value was pulled from cache.
+                    # If this value was the result of a background calculation, don't
+                    # disable yet. If no other calculations are in progress,
+                    # interval will be disabled in should_cancel logic above
+                    # the next time the interval fires.
+                    interval_disabled = pending_job is None
                     return dict(
                         user_callback_output=result,
-                        interval_disabled=False,
+                        interval_disabled=interval_disabled,
                         in_progress=[val for (_, _, val) in running],
                         progress=clear_progress,
                         user_store_data=user_store_data,
