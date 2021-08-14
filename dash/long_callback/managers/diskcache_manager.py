@@ -42,7 +42,10 @@ or conda.
                 for proc in process.children(recursive=True):
                     proc.kill()
                 process.kill()
-                process.wait(1)
+                try:
+                    process.wait(0.5)
+                except psutil.TimeoutExpired:
+                    pass
 
     def terminate_unhealthy_job(self, job):
         import psutil  # pylint: disable=import-outside-toplevel
