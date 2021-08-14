@@ -710,6 +710,10 @@ workflows:
           - percy-finalize:
               requires:
                 - test-39
+                - dcc-test-39
+                - dcc-build-dash-39
+                - html-python-39
+                - table-server-test
           - artifacts:
               requires:
                 - percy-finalize
