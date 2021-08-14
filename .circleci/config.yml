@@ -259,33 +259,33 @@ jobs:
 
 workflows:
   version: 2
-#  python3.9:
-#    jobs:
-#      - lint-unit-39
-#      - build-core-39
-#      - build-windows-39
-#      - build-misc-39
-#      - test-39:
-#          requires:
-#            - build-core-39
-#            - build-misc-39
-#      - percy-finalize:
-#          requires:
-#            - test-39
-#      - artifacts:
-#          requires:
-#            - percy-finalize
-#          filters:
-#            branches:
-#              only:
-#                - master
-#                - dev
-#            tags:
-#              only: /v*/
+  python3.9:
+    jobs:
+      - lint-unit-39
+      - build-core-39
+      - build-windows-39
+      - build-misc-39
+      - test-39:
+          requires:
+            - build-core-39
+            - build-misc-39
+      - percy-finalize:
+          requires:
+            - test-39
+      - artifacts:
+          requires:
+            - percy-finalize
+          filters:
+            branches:
+              only:
+                - master
+                - dev
+            tags:
+              only: /v*/
 
   python3.6:
     jobs:
-#      - lint-unit-36
+      - lint-unit-36
       - build-core-36
       - build-misc-36
       - test-36:
