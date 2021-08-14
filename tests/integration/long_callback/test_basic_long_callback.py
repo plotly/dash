@@ -21,12 +21,14 @@ def kill(proc_pid):
     process.kill()
 
 
-@pytest.fixture(
-    params=[
-        # "diskcache",
-        "celery"
-    ]
-)
+if "REDIS_URL" in os.environ:
+    managers = ["diskcache", "celery"]
+else:
+    print("Skipping celery tests because REDIS_URL is not defined")
+    managers = ["diskcache"]
+
+
+@pytest.fixture(params=managers)
 def manager(request):
     return request.param
 
@@ -35,8 +37,9 @@ def manager(request):
 def setup_long_callback_app(manager_name, app_name):
     if manager_name == "celery":
         os.environ["LONG_CALLBACK_MANAGER"] = "celery"
-        os.environ["CELERY_BROKER"] = "redis://localhost:6379/0"
-        os.environ["CELERY_BACKEND"] = "redis://localhost:6379/1"
+        redis_url = os.environ["REDIS_URL"].rstrip("/")
+        os.environ["CELERY_BROKER"] = f"{redis_url}/0"
+        os.environ["CELERY_BACKEND"] = f"{redis_url}/1"
 
         # Clear redis of cached values
         redis_conn = redis.Redis(host="localhost", port=6379, db=1)
