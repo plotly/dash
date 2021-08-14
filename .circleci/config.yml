@@ -258,6 +258,18 @@ jobs:
           PERCY_ENABLE: 0
           PYVERSION: python36
 
+  dcc-percy-finalize:
+      working_directory: ~/dash/components/dash-core-components
+      docker:
+        - image: percyio/agent
+          auth:
+            username: dashautomation
+            password: $DASH_PAT_DOCKERHUB
+      steps:
+        - checkout:
+              path: ~/dash
+        - run: percy finalize --all
+
   dcc-lint-unit-39: &lint-unit
     working_directory: ~/dash/components/dash-core-components
     docker:
@@ -398,6 +410,18 @@ jobs:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
 
+  html-percy-finalize:
+    working_directory: ~/dash/components/dash-html-components
+    docker:
+      - image: percyio/agent
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+    steps:
+      - checkout:
+            path: ~/dash
+      - run: percy finalize --all
+
   html-python-36: &test-template
     working_directory: ~/dash/components/dash-html-components
     docker:
@@ -457,6 +481,16 @@ jobs:
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
+  table-percy-finalize:
+      working_directory: ~/dash/components/dash-table
+      docker:
+          - image: percyio/agent
+      steps:
+          - run:
+              name: Inject Percy Environment variables
+              command: |
+                echo 'export PERCY_TOKEN="$PERCY_TOKEN_E2E"' >> $BASH_ENV
+          - run: percy finalize --all
 
   table-server-test:
       working_directory: ~/dash/components/dash-table
@@ -606,33 +640,16 @@ jobs:
 
 workflows:
   version: 2
-  python3.9:
+  dash-python3.9:
     jobs:
       - install-dependencies
       - lint-unit-39
       - build-core-39
       - build-windows-39
       - build-misc-39
-      - test-39:
-          requires:
-            - install-dependencies
-            - build-core-39
-            - build-misc-39
-      - percy-finalize:
-          requires:
-            - test-39
-      - artifacts:
-          requires:
-            - percy-finalize
-          filters:
-            branches:
-              only:
-                - master
-                - dev
-            tags:
-              only: /v*/
 
-  python3.6:
+
+  dash-python3.6:
     jobs:
       - install-dependencies
       - lint-unit-36
@@ -650,16 +667,6 @@ workflows:
       - dcc-lint-unit-39:
           requires:
             - install-dependencies
-      - dcc-build-dash-39:
-          requires:
-            - install-dependencies
-      - dcc-test-39:
-          requires:
-            - install-dependencies
-            - dcc-build-dash-39
-      - percy-finalize:
-          requires:
-            - dcc-test-39
 
   dcc-python3.6:
     jobs:
@@ -681,12 +688,7 @@ workflows:
       - html-python-36:
           requires:
             - install-dependencies
-      - html-python-39:
-          requires:
-            - install-dependencies
-      - percy-finalize:
-          requires:
-            - html-python-39
+
 
   table-build:
       jobs:
@@ -694,13 +696,40 @@ workflows:
           - table-node:
               requires:
                 - install-dependencies
-          - table-server-test:
-              requires:
-                - install-dependencies
           - table-unit-test:
               requires:
                 - install-dependencies
           - table-visual-test
+
+  percy-tests:
+      jobs:
+          - install-dependencies
+          - test-39:
+              requires:
+                - install-dependencies
           - percy-finalize:
               requires:
-                  - table-server-test
+                - test-39
+          - artifacts:
+              requires:
+                - percy-finalize
+              filters:
+                branches:
+                  only:
+                    - master
+                    - dev
+                tags:
+                  only: /v*/
+          - table-server-test:
+              requires:
+                - install-dependencies
+          - html-python-39:
+              requires:
+                - install-dependencies
+          - dcc-build-dash-39:
+              requires:
+                - install-dependencies
+          - dcc-test-39:
+              requires:
+                - install-dependencies
+                - dcc-build-dash-39
