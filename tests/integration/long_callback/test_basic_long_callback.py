@@ -11,8 +11,6 @@ from dash.testing.application_runners import import_app
 import psutil
 import redis
 
-parent_dir = os.path.dirname(os.path.realpath(__file__))
-
 
 def kill(proc_pid):
     process = psutil.Process(proc_pid)
@@ -47,23 +45,20 @@ def setup_long_callback_app(manager_name, app_name):
         if cache_keys:
             redis_conn.delete(*cache_keys)
 
-        print(f"parent_dir: {parent_dir}")
-
         worker = subprocess.Popen(
             [
                 "celery",
                 "-A",
-                f"{app_name}:handle",
+                f"tests.integration.long_callback.{app_name}:handle",
                 "worker",
                 "--concurrency",
                 "1",
                 "--loglevel=info",
             ],
             preexec_fn=os.setpgrp,
-            cwd=parent_dir,
         )
         try:
-            yield import_app(app_name)
+            yield import_app(f"tests.integration.long_callback.{app_name}")
         finally:
             # Interval may run one more time after settling on final app state
             # Sleep for 1 interval of time
@@ -79,7 +74,7 @@ def setup_long_callback_app(manager_name, app_name):
         print(cache_directory)
         os.environ["DISKCACHE_DIR"] = cache_directory
         try:
-            yield import_app(app_name)
+            yield import_app(f"tests.integration.long_callback.{app_name}")
         finally:
             # Interval may run one more time after settling on final app state
             # Sleep for 1 interval of time

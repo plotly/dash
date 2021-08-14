@@ -5,7 +5,7 @@ import dash_core_components as dcc
 import time
 from multiprocessing import Value
 
-from utils import get_long_callback_manager
+from tests.integration.long_callback.utils import get_long_callback_manager
 
 long_callback_manager = get_long_callback_manager()
 handle = long_callback_manager.handle
