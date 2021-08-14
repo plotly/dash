@@ -1,99 +1,110 @@
 from . import BaseLongCallbackManager
 
+_pending_value = "__$pending__"
+
 
 class DiskcacheLongCallbackManager(BaseLongCallbackManager):
     def __init__(self, cache, cache_by=None, expire=None):
         try:
             import diskcache  # pylint: disable=import-outside-toplevel
-            from multiprocess import (  # pylint: disable=import-outside-toplevel
-                Process,
-            )
+            import psutil  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-variable
+            import multiprocess  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-variable
         except ImportError:
             raise ImportError(
                 """\
-DiskcacheLongCallbackManager requires the multiprocess and diskcache packages which
-can be installed using pip...
+DiskcacheLongCallbackManager requires the multiprocess, diskcache, and psutil packages
+which can be installed using pip...
 
     $ pip install multiprocess diskcache
 
 or conda.
 
-    $ conda install -c conda-forge multiprocess diskcache\n"""
+    $ conda install -c conda-forge multiprocess diskcache psutil\n"""
             )
 
         if not isinstance(cache, diskcache.Cache):
             raise ValueError("First argument must be a diskcache.Cache object")
         super().__init__(cache_by)
-
-        self.Process = Process
-        self.cache = cache
-        self.callback_futures = dict()
+        self.handle = cache
         self.expire = expire
 
-    def delete_future(self, key):
-        if key in self.callback_futures:
-            future = self.callback_futures.pop(key, None)
-            if future:
-                future.terminate()
-                future.join()
+    def terminate_job(self, job):
+        import psutil  # pylint: disable=import-outside-toplevel
+
+        if job is None:
+            return
+
+        # Use diskcache transaction so multiple process don't try to kill the
+        # process at the same time
+        with self.handle.transact():
+            if psutil.pid_exists(job):
+                process = psutil.Process(job)
+                for proc in process.children(recursive=True):
+                    proc.kill()
+                process.kill()
+                process.wait(1)
+
+    def terminate_unhealthy_job(self, job):
+        import psutil  # pylint: disable=import-outside-toplevel
+
+        if job and psutil.pid_exists(job):
+            if not self.job_running(job):
+                self.terminate_job(job)
                 return True
+
         return False
+
+    def job_running(self, job):
+        import psutil  # pylint: disable=import-outside-toplevel
+
+        if job and psutil.pid_exists(job):
+            proc = psutil.Process(job)
+            return proc.status() != psutil.STATUS_ZOMBIE
+        return False
+
+    def make_job_fn(self, fn, progress=False):
+        return _make_job_fn(fn, self.handle, progress)
 
     def clear_cache_entry(self, key):
-        self.cache.delete(key)
+        self.handle.delete(key)
 
-    def terminate_unhealthy_future(self, key):
-        return False
-
-    def has_future(self, key):
-        return self.callback_futures.get(key, None) is not None
-
-    def get_future(self, key, default=None):
-        return self.callback_futures.get(key, default)
-
-    def make_background_fn(self, fn, progress=False):
-        return make_update_cache(fn, self.cache, progress, self.expire)
-
-    @staticmethod
-    def _make_progress_key(key):
-        return key + "-progress"
-
-    def call_and_register_background_fn(self, key, background_fn, args):
-        self.delete_future(key)
-        future = self.Process(
-            target=background_fn, args=(key, self._make_progress_key(key), args)
+    def call_job_fn(self, key, job_fn, args):
+        from multiprocess import (  # pylint: disable=import-outside-toplevel,no-name-in-module
+            Process,
         )
-        future.start()
-        self.callback_futures[key] = future
+
+        proc = Process(target=job_fn, args=(key, self._make_progress_key(key), args))
+        proc.start()
+        return proc.pid
 
     def get_progress(self, key):
-        future = self.get_future(key)
-        if future is not None:
-            progress_key = self._make_progress_key(key)
-            return self.cache.get(progress_key)
-        return None
+        progress_key = self._make_progress_key(key)
+        return self.handle.get(progress_key)
 
     def result_ready(self, key):
-        return self.cache.get(key) not in (None, "__undefined__")
+        return self.handle.get(key) is not None
 
-    def get_result(self, key):
+    def get_result(self, key, job):
         # Get result value
-        result = self.cache.get(key)
-        if result == "__undefined__":
-            result = None
+        result = self.handle.get(key)
+        if result is None:
+            return None
 
         # Clear result if not caching
-        if self.cache_by is None and result is not None:
+        if self.cache_by is None:
             self.clear_cache_entry(key)
+        else:
+            if self.expire:
+                self.handle.touch(key, expire=self.expire)
 
-        # Always delete_future (even if we didn't clear cache) so that we can
-        # handle the case where cache entry is cleared externally.
-        self.delete_future(key)
+        self.clear_cache_entry(self._make_progress_key(key))
+
+        self.terminate_job(job)
         return result
 
 
-def make_update_cache(fn, cache, progress, expire):
-    def _callback(result_key, progress_key, user_callback_args):
+def _make_job_fn(fn, cache, progress):
+    def job_fn(result_key, progress_key, user_callback_args):
         def _set_progress(progress_value):
             cache.set(progress_key, progress_value)
 
@@ -104,6 +115,6 @@ def make_update_cache(fn, cache, progress, expire):
             user_callback_output = fn(*maybe_progress, *user_callback_args)
         else:
             user_callback_output = fn(*maybe_progress, user_callback_args)
-        cache.set(result_key, user_callback_output, expire=expire)
+        cache.set(result_key, user_callback_output)
 
-    return _callback
+    return job_fn

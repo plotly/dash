@@ -10,22 +10,19 @@ class BaseLongCallbackManager(ABC):
 
         self.cache_by = cache_by
 
-    def delete_future(self, key):
+    def terminate_job(self, job):
         raise NotImplementedError
 
-    def terminate_unhealthy_future(self, key):
+    def terminate_unhealthy_job(self, job):
         raise NotImplementedError
 
-    def has_future(self, key):
+    def job_running(self, job):
         raise NotImplementedError
 
-    def get_future(self, key, default=None):
+    def make_job_fn(self, fn, progress):
         raise NotImplementedError
 
-    def make_background_fn(self, fn, progress):
-        raise NotImplementedError
-
-    def call_and_register_background_fn(self, key, background_fn, args):
+    def call_job_fn(self, key, job_fn, args):
         raise NotImplementedError
 
     def get_progress(self, key):
@@ -34,7 +31,7 @@ class BaseLongCallbackManager(ABC):
     def result_ready(self, key):
         raise NotImplementedError
 
-    def get_result(self, key):
+    def get_result(self, key, job):
         raise NotImplementedError
 
     def build_cache_key(self, fn, args):
@@ -48,3 +45,7 @@ class BaseLongCallbackManager(ABC):
                 hash_dict[f"cache_key_{i}"] = cache_item()
 
         return hashlib.sha1(str(hash_dict).encode("utf-8")).hexdigest()
+
+    @staticmethod
+    def _make_progress_key(key):
+        return key + "-progress"

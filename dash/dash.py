@@ -1228,14 +1228,13 @@ class Dash(object):
         )
 
         def wrapper(fn):
-            background_fn = callback_manager.make_background_fn(
-                fn, progress=bool(progress)
-            )
+            background_fn = callback_manager.make_job_fn(fn, progress=bool(progress))
 
             def callback(_triggers, user_store_data, user_callback_args):
                 # Build result cache key from inputs
                 pending_key = callback_manager.build_cache_key(fn, user_callback_args)
                 current_key = user_store_data.get("current_key", None)
+                pending_job = user_store_data.get("pending_job", None)
 
                 should_cancel = pending_key == current_key or any(
                     trigger["prop_id"] in cancel_prop_ids
@@ -1254,9 +1253,10 @@ class Dash(object):
                 if should_cancel:
                     user_store_data["current_key"] = None
                     user_store_data["pending_key"] = None
+                    user_store_data["pending_job"] = None
 
-                    if pending_key and callback_manager.has_future(pending_key):
-                        callback_manager.delete_future(pending_key)
+                    callback_manager.terminate_job(pending_job)
+
                     return dict(
                         user_callback_output=map_grouping(lambda x: no_update, output),
                         interval_disabled=True,
@@ -1265,10 +1265,14 @@ class Dash(object):
                         user_store_data=user_store_data,
                     )
 
-                progress_value = callback_manager.get_progress(pending_key)
+                # Look up progress value if a job is in progress
+                if pending_job:
+                    progress_value = callback_manager.get_progress(pending_key)
+                else:
+                    progress_value = None
 
                 if callback_manager.result_ready(pending_key):
-                    result = callback_manager.get_result(pending_key)
+                    result = callback_manager.get_result(pending_key, pending_job)
                     # Set current key (hash of data stored in client)
                     # to pending key (hash of data requested by client)
                     user_store_data["current_key"] = pending_key
@@ -1288,10 +1292,20 @@ class Dash(object):
                         user_store_data=user_store_data,
                     )
                 else:
+                    # Check if there is a running calculation that can now
+                    # be canceled
+                    old_pending_key = user_store_data.get("pending_key", None)
+                    if (
+                        old_pending_key
+                        and old_pending_key != pending_key
+                        and callback_manager.job_running(pending_job)
+                    ):
+                        callback_manager.terminate_job(pending_job)
+
                     user_store_data["pending_key"] = pending_key
-                    callback_manager.terminate_unhealthy_future(pending_key)
-                    if not callback_manager.has_future(pending_key):
-                        callback_manager.call_and_register_background_fn(
+                    callback_manager.terminate_unhealthy_job(pending_job)
+                    if not callback_manager.job_running(pending_job):
+                        user_store_data["pending_job"] = callback_manager.call_job_fn(
                             pending_key, background_fn, user_callback_args
                         )
 
