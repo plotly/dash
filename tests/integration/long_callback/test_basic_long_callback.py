@@ -361,7 +361,7 @@ def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
         # Check for cache miss for second long_callback
         dash_duo.find_element("#run-button2").click()
         dash_duo.wait_for_text_to_equal("#status2", "Progress 2/4", 20)
-        dash_duo.wait_for_text_to_equal("#status2", "Finished", 4)
+        dash_duo.wait_for_text_to_equal("#status2", "Finished", 8)
         dash_duo.wait_for_text_to_equal("#result2", "Result for 'aaa'", 4)
 
         assert not dash_duo.redux_state_is_loading
