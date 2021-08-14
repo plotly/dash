@@ -263,6 +263,10 @@ class Dash(object):
     Set to None or '' if you don't want the document.title to change or if you
     want to control the document.title through a separate component or
     clientside callback.
+
+    :param long_callback_manager: Long callback manager instance to support the
+    ``@app.long_callback`` decorator. Currently one of
+    ``DiskcacheLongCallbackManager`` or ``CeleryLongCallbackManager``
     """
 
     def __init__(
@@ -291,6 +295,7 @@ class Dash(object):
         plugins=None,
         title="Dash",
         update_title="Updating...",
+        long_callback_manager=None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -415,6 +420,7 @@ class Dash(object):
 
         self._assets_files = []
         self._long_callback_count = 0
+        self._long_callback_manager = long_callback_manager
 
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
@@ -1129,7 +1135,7 @@ class Dash(object):
 
         return wrap_func
 
-    def long_callback(self, callback_manager, *_args, **_kwargs):
+    def long_callback(self, *_args, **_kwargs):
         """
         Normally used as a decorator, `@app.long_callback` is an alternative to
         `@app.callback` designed for callbacks that take a long time to run,
@@ -1146,17 +1152,16 @@ class Dash(object):
               in a celery worker and returns results to the Dash app through a Celery
               broker like RabbitMQ or Redis.
 
-        The first argument to `@long_callback` should be a callback manager instance.
-
-        :param callback_manager:
-            A long callback manager instance. Currently one of
-            `DiskcacheLongCallbackManager` or `CeleryLongCallbackManager`
-
         The following arguments may include any valid arguments to `@app.callback`.
         In addition, `@app.long_callback` supports the following optional
         keyword arguments:
 
         :Keyword Arguments:
+            :param manager:
+                A long callback manager instance. Currently one of
+                `DiskcacheLongCallbackManager` or `CeleryLongCallbackManager`.
+                Defaults to the `long_callback_manager` instance provided to the
+                `dash.Dash constructor`.
             :param running:
                 A list of 3-element tuples. The first element of each tuple should be
                 an `Output` dependency object referencing a property of a component in
@@ -1194,6 +1199,17 @@ class Dash(object):
             callback_context,
         )
         import dash_core_components as dcc  # pylint: disable=import-outside-toplevel
+
+        # Get long callback manager
+        callback_manager = _kwargs.pop("manager", self._long_callback_manager)
+        if callback_manager is None:
+            raise ValueError(
+                "The @app.long_callback decorator requires a long callback manager\n"
+                "instance.  This may be provided to the app using the \n"
+                "long_callback_manager argument to the dash.Dash constructor, or\n"
+                "it may be provided to the @app.long_callback decorator as the \n"
+                "manager argument"
+            )
 
         # Extract special long_callback kwargs
         running = _kwargs.pop("running", ())

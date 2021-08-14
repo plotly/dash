@@ -11,7 +11,7 @@ long_callback_manager = get_long_callback_manager()
 handle = long_callback_manager.handle
 
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, long_callback_manager=long_callback_manager)
 app._cache_key = Value("i", 0)
 
 
@@ -34,7 +34,6 @@ app.layout = html.Div(
 
 
 @app.long_callback(
-    long_callback_manager,
     Output("result", "children"),
     [Input("run-button", "n_clicks"), State("input", "value")],
     progress=Output("status", "children"),

@@ -8,7 +8,7 @@ from utils import get_long_callback_manager
 long_callback_manager = get_long_callback_manager()
 handle = long_callback_manager.handle
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, long_callback_manager=long_callback_manager)
 app.layout = html.Div(
     [
         html.Button(id="button-1", children="Click Here", n_clicks=0),
@@ -19,7 +19,6 @@ app.layout = html.Div(
 
 
 @app.long_callback(
-    long_callback_manager,
     Output("result", "children"),
     [Input("button-1", "n_clicks")],
     running=[(Output("status", "children"), "Running", "Finished")],

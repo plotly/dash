@@ -19,10 +19,10 @@ app.layout = html.Div(
 
 
 @app.long_callback(
-    long_callback_manager,
     Output("output-1", "children"),
     [Input("input", "value")],
     interval=500,
+    manager=long_callback_manager,
 )
 def update_output(value):
     time.sleep(0.1)

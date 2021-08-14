@@ -1,4 +1,6 @@
 import json
+import inspect
+import hashlib
 
 from _plotly_utils.utils import PlotlyJSONEncoder
 from dash.long_callback.managers import BaseLongCallbackManager
@@ -88,8 +90,14 @@ class CeleryLongCallbackManager(BaseLongCallbackManager):
 def _make_job_fn(fn, celery_app, progress):
     cache = celery_app.backend
 
-    @celery_app.task
-    def job_fn(result_key, progress_key, user_callback_args):
+    # Hash function source and module to create a unique (but stable) celery task name
+    fn_source = inspect.getsource(fn)
+    fn_module = fn.__module__
+    fn_str = fn_module + "\n" + fn_source
+    fn_hash = hashlib.sha1(fn_str.encode("utf-8")).hexdigest()
+
+    @celery_app.task(name=fn_hash)
+    def job_fn(result_key, progress_key, user_callback_args, fn=fn):
         def _set_progress(progress_value):
             cache.set(progress_key, json.dumps(progress_value, cls=PlotlyJSONEncoder))
 

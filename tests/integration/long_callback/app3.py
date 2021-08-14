@@ -22,12 +22,12 @@ app.layout = html.Div(
 
 
 @app.long_callback(
-    long_callback_manager,
     Output("result", "children"),
     [Input("run-button", "n_clicks"), State("input", "value")],
     running=[(Output("status", "children"), "Running", "Finished")],
     cancel=[Input("cancel-button", "n_clicks")],
     interval=500,
+    manager=long_callback_manager,
 )
 def update_output(n_clicks, value):
     time.sleep(2)
