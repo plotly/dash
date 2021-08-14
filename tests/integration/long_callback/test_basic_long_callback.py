@@ -51,6 +51,8 @@ def setup_long_callback_app(manager_name, app_name):
                 "-A",
                 f"tests.integration.long_callback.{app_name}:handle",
                 "worker",
+                "-P",
+                "prefork",
                 "--concurrency",
                 "1",
                 "--loglevel=info",
