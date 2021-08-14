@@ -8,7 +8,7 @@ from dash.long_callback.managers import BaseLongCallbackManager
 
 class CeleryLongCallbackManager(BaseLongCallbackManager):
     def __init__(self, celery_app, cache_by=None, expire=None):
-        import celery
+        import celery  # pylint: disable=import-outside-toplevel
 
         if not isinstance(celery_app, celery.Celery):
             raise ValueError("First argument must be a celery.Celery object")
@@ -45,8 +45,8 @@ class CeleryLongCallbackManager(BaseLongCallbackManager):
     def get_task(self, job):
         if job:
             return self.handle.AsyncResult(job)
-        else:
-            return None
+
+        return None
 
     def clear_cache_entry(self, key):
         self.handle.backend.delete(key)
@@ -60,8 +60,8 @@ class CeleryLongCallbackManager(BaseLongCallbackManager):
         progress_data = self.handle.backend.get(progress_key)
         if progress_data:
             return json.loads(progress_data)
-        else:
-            return None
+
+        return None
 
     def result_ready(self, key):
         return self.handle.backend.get(key) is not None

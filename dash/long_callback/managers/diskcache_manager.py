@@ -7,8 +7,8 @@ class DiskcacheLongCallbackManager(BaseLongCallbackManager):
     def __init__(self, cache, cache_by=None, expire=None):
         try:
             import diskcache  # pylint: disable=import-outside-toplevel
-            import psutil  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-variable
-            import multiprocess  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-variable
+            import psutil  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
+            import multiprocess  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
         except ImportError:
             raise ImportError(
                 """\
