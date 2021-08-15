@@ -635,7 +635,7 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_1.value == -1
     assert timestamp_2.value == -1
     assert call_count.value == 1
-    dash_duo.percy_snapshot("button initialization 1")
+    dash_duo.percy_snapshot("button-1 initialization 1")
 
     dash_duo.find_element("#button-1").click()
     dash_duo.wait_for_text_to_equal("#container", "1, 0")

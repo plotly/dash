@@ -36,7 +36,7 @@ def test_tabs001_in_vertical_mode(dash_dcc):
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#tab-3", "Tab three")
-    dash_dcc.percy_snapshot("Tabs - vertical mode")
+    dash_dcc.percy_snapshot("Core Tabs - vertical mode")
     assert dash_dcc.get_logs() == []
 
 
@@ -69,7 +69,7 @@ def test_tabs002_without_children(dash_dcc):
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#tabs-content", "Test content 2")
-    dash_dcc.percy_snapshot("initial tab - tab 2")
+    dash_dcc.percy_snapshot("Core initial tab - tab 2")
 
     dash_dcc.wait_for_element("#tab-1").click()
     dash_dcc.wait_for_text_to_equal("#tabs-content", "Test content 1")
@@ -88,7 +88,7 @@ def test_tabs003_without_children_undefined(dash_dcc):
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_element("#tabs-content")
-    dash_dcc.percy_snapshot("Tabs component with children undefined")
+    dash_dcc.percy_snapshot("Core Tabs component with children undefined")
     assert dash_dcc.get_logs() == []
 
 
@@ -120,7 +120,7 @@ def test_tabs004_without_value(dash_dcc):
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#tabs-content", "Default selected Tab content 1")
-    dash_dcc.percy_snapshot("Tab 1 should be selected by default")
+    dash_dcc.percy_snapshot("Core Tab 1 should be selected by default")
     assert dash_dcc.get_logs() == []
 
 
