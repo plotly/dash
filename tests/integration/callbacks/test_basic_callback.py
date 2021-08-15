@@ -650,7 +650,7 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_1.value == prev_timestamp_1
     assert timestamp_2.value > ((time.time() - 24 * 60 * 60) * 1000)
     assert call_count.value == 3
-    dash_duo.percy_snapshot("button-2 click")
+    dash_duo.percy_snapshot("Dash button-2 click")
     prev_timestamp_2 = timestamp_2.value
 
     dash_duo.find_element("#button-2").click()
