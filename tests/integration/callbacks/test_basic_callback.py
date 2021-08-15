@@ -635,14 +635,14 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_1.value == -1
     assert timestamp_2.value == -1
     assert call_count.value == 1
-    dash_duo.percy_snapshot("button-1 initialization 1")
+    dash_duo.percy_snapshot("Dash button-1 initialization 1")
 
     dash_duo.find_element("#button-1").click()
     dash_duo.wait_for_text_to_equal("#container", "1, 0")
     assert timestamp_1.value > ((time.time() - (24 * 60 * 60)) * 1000)
     assert timestamp_2.value == -1
     assert call_count.value == 2
-    dash_duo.percy_snapshot("button-1 click")
+    dash_duo.percy_snapshot("Dash button-1 click")
     prev_timestamp_1 = timestamp_1.value
 
     dash_duo.find_element("#button-2").click()
@@ -659,7 +659,7 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_2.value > prev_timestamp_2
     assert timestamp_2.value > timestamp_1.value
     assert call_count.value == 4
-    dash_duo.percy_snapshot("button-2 click again")
+    dash_duo.percy_snapshot("Dash button-2 click again")
 
 
 def test_cbsc015_input_output_callback(dash_duo):
