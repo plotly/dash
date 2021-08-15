@@ -35,7 +35,7 @@ def test_llgo001_location_logout(dash_dcc):
 
     dash_dcc.start_server(app)
     time.sleep(1)
-    dash_dcc.percy_snapshot("Logout button")
+    dash_dcc.percy_snapshot("Core Logout button")
 
     assert dash_dcc.driver.get_cookie("logout-cookie")["value"] == "logged-in"
 

@@ -42,7 +42,7 @@ def test_inbs001_all_types(dash_dcc):
         dash_dcc.find_element("#input_hidden").get_attribute("type") == "hidden"
     ), "hidden input element should present with hidden type"
 
-    dash_dcc.percy_snapshot("intp001 - init state")
+    dash_dcc.percy_snapshot("intp001 - dcc init state")
 
     for atype in ALLOWED_TYPES[:-1]:
         dash_dcc.find_element("#input_{}".format(atype)).send_keys(
@@ -52,7 +52,7 @@ def test_inbs001_all_types(dash_dcc):
     with pytest.raises(WebDriverException):
         dash_dcc.find_element("#input_hidden").send_keys("no interaction")
 
-    dash_dcc.percy_snapshot("inbs001 - callback output rendering")
+    dash_dcc.percy_snapshot("inbs001 - dcc callback output rendering")
 
     assert dash_dcc.get_logs() == []
 
@@ -65,6 +65,6 @@ def test_inbs002_user_class(dash_dcc):
     dash_dcc.start_server(app)
 
     dash_dcc.find_element(".test-input-css")
-    dash_dcc.percy_snapshot("styled input - width: 100%, border-color: hotpink")
+    dash_dcc.percy_snapshot("dcc styled input - width: 100%, border-color: hotpink")
 
     assert dash_dcc.get_logs() == []
