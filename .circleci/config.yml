@@ -2,16 +2,17 @@ version: 2.1
 
 orbs:
   win: circleci/windows@2.4.0
+  percy: percy/agent@0.1.3
 
 jobs:
-  percy-finalize:
-    docker:
-      - image: percyio/agent
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-    steps:
-      - run: percy finalize --all
+  # percy-finalize:
+  #   docker:
+  #     - image: percyio/agent
+  #       auth:
+  #         username: dashautomation
+  #         password: $DASH_PAT_DOCKERHUB
+  #   steps:
+  #     - run: percy finalize --all
 
   artifacts:
     docker:
@@ -214,7 +215,7 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python39
-    # parallelism: 3
+    parallelism: 3
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
@@ -460,7 +461,7 @@ jobs:
             environment:
               PERCY_PARALLEL_TOTAL: -1
 
-      # parallelism: 4
+      parallelism: 4
 
       steps:
           - checkout:
@@ -665,7 +666,7 @@ workflows:
   percy-tests:
       jobs:
           - install-dependencies
-          - percy-finalize:
+          - percy/finalize_all:
               requires:
                 - test-39
                 - dcc-test-39
