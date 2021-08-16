@@ -674,7 +674,7 @@ workflows:
                 - table-server-test
           - artifacts:
               requires:
-                - percy-finalize
+                - percy/finalize_all
               filters:
                 branches:
                   only:
