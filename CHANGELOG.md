@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Dash and Dash Renderer
 
+### Added
+- [#1514](https://github.com/plotly/dash/pull/1514) Perform json encoding using the active plotly JSON engine.  This will default to the faster orjson encoder if the `orjson` package is installed.
+
+
+
 ### Changed
 - [#1707](https://github.com/plotly/dash/pull/1707) Change the default value of the `compress` argument to the `dash.Dash` constructor to `False`. This change reduces CPU usage, and was made in recognition of the fact that many deployment platforms (e.g. Dash Enterprise) already apply their own compression. If deploying to an environment that does not already provide compression, the Dash 1 behavior may be restored by adding `compress=True` to the `dash.Dash` constructor. 
 
