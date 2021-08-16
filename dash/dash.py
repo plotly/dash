@@ -1199,6 +1199,9 @@ class Dash(object):
             callback_context,
         )
         import dash_core_components as dcc  # pylint: disable=import-outside-toplevel
+        from dash.exceptions import (  # pylint: disable=import-outside-toplevel
+            WildcardInLongCallback,
+        )
 
         # Get long callback manager
         callback_manager = _kwargs.pop("manager", self._long_callback_manager)
@@ -1229,6 +1232,17 @@ class Dash(object):
         ) = handle_grouped_callback_args(_args, _kwargs)
         inputs_and_state = flat_inputs + flat_state
         args_deps = map_grouping(lambda i: inputs_and_state[i], inputs_state_indices)
+
+        # Disallow wildcard dependencies
+        for deps in [output, flat_inputs, flat_state]:
+            for dep in flatten_grouping(deps):
+                if dep.has_wildcard():
+                    raise WildcardInLongCallback(
+                        f"""
+                        @app.long_callback does not support dependencies with
+                        pattern-matching ids
+                            Received: {repr(dep)}\n"""
+                    )
 
         # Get unique id for this long_callback definition.  This increment is not
         # thread safe, but it doesn't need to be because callback definitions
