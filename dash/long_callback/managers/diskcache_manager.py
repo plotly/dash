@@ -65,8 +65,8 @@ or conda.
             return proc.status() != psutil.STATUS_ZOMBIE
         return False
 
-    def make_job_fn(self, fn, progress=False):
-        return _make_job_fn(fn, self.handle, progress)
+    def make_job_fn(self, fn, progress, args_deps):
+        return _make_job_fn(fn, self.handle, progress, args_deps)
 
     def clear_cache_entry(self, key):
         self.handle.delete(key)
@@ -106,15 +106,15 @@ or conda.
         return result
 
 
-def _make_job_fn(fn, cache, progress):
+def _make_job_fn(fn, cache, progress, args_deps):
     def job_fn(result_key, progress_key, user_callback_args):
         def _set_progress(progress_value):
             cache.set(progress_key, progress_value)
 
         maybe_progress = [_set_progress] if progress else []
-        if isinstance(user_callback_args, dict):
+        if isinstance(args_deps, dict):
             user_callback_output = fn(*maybe_progress, **user_callback_args)
-        elif isinstance(user_callback_args, (list, tuple)):
+        elif isinstance(args_deps, (list, tuple)):
             user_callback_output = fn(*maybe_progress, *user_callback_args)
         else:
             user_callback_output = fn(*maybe_progress, user_callback_args)

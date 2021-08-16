@@ -1250,7 +1250,7 @@ class Dash(object):
         )
 
         def wrapper(fn):
-            background_fn = callback_manager.make_job_fn(fn, progress=bool(progress))
+            background_fn = callback_manager.make_job_fn(fn, bool(progress), args_deps)
 
             def callback(_triggers, user_store_data, user_callback_args):
                 # Build result cache key from inputs

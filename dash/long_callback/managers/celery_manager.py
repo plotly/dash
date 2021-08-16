@@ -39,8 +39,8 @@ class CeleryLongCallbackManager(BaseLongCallbackManager):
             "PROGRESS",
         )
 
-    def make_job_fn(self, fn, progress=False):
-        return _make_job_fn(fn, self.handle, progress)
+    def make_job_fn(self, fn, progress, args_deps):
+        return _make_job_fn(fn, self.handle, progress, args_deps)
 
     def get_task(self, job):
         if job:
@@ -87,7 +87,7 @@ class CeleryLongCallbackManager(BaseLongCallbackManager):
         return result
 
 
-def _make_job_fn(fn, celery_app, progress):
+def _make_job_fn(fn, celery_app, progress, args_deps):
     cache = celery_app.backend
 
     # Hash function source and module to create a unique (but stable) celery task name
@@ -102,9 +102,9 @@ def _make_job_fn(fn, celery_app, progress):
             cache.set(progress_key, json.dumps(progress_value, cls=PlotlyJSONEncoder))
 
         maybe_progress = [_set_progress] if progress else []
-        if isinstance(user_callback_args, dict):
+        if isinstance(args_deps, dict):
             user_callback_output = fn(*maybe_progress, **user_callback_args)
-        elif isinstance(user_callback_args, list):
+        elif isinstance(args_deps, (list, tuple)):
             user_callback_output = fn(*maybe_progress, *user_callback_args)
         else:
             user_callback_output = fn(*maybe_progress, user_callback_args)
