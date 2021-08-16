@@ -9,9 +9,15 @@ from dash.long_callback.managers import BaseLongCallbackManager
 class CeleryLongCallbackManager(BaseLongCallbackManager):
     def __init__(self, celery_app, cache_by=None, expire=None):
         import celery  # pylint: disable=import-outside-toplevel
+        from celery.backends.base import (  # pylint: disable=import-outside-toplevel
+            DisabledBackend,
+        )
 
         if not isinstance(celery_app, celery.Celery):
             raise ValueError("First argument must be a celery.Celery object")
+
+        if isinstance(celery_app.backend, DisabledBackend):
+            raise ValueError("Celery instance must be configured with a result backend")
 
         super().__init__(cache_by)
         self.handle = celery_app
