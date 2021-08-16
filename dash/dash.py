@@ -501,15 +501,13 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
+        from dash_html_components import Div  # pylint: disable=import-outside-toplevel
+
         layout = self._layout() if self._layout_is_function else self._layout
 
-        # Add extra hidden components
+        # Add any extra components
         if self._extra_components:
-            if not hasattr(layout, "children"):
-                setattr(layout, "children", [])
-            for c in self._extra_components:
-                if c not in layout.children:
-                    layout.children.append(c)
+            layout = Div(children=[layout] + self._extra_components)
 
         return layout
 
