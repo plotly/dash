@@ -5,6 +5,22 @@ _pending_value = "__$pending__"
 
 class DiskcacheLongCallbackManager(BaseLongCallbackManager):
     def __init__(self, cache, cache_by=None, expire=None):
+        """
+        Long callback manager that runs callback logic in a subprocess and stores
+        results on disk using diskcache
+
+        :param cache:
+            A diskcache.Cache or diskcache.FanoutCache instance. See the diskcache
+            documentation for information on configuration options.
+        :param cache_by:
+            A list of zero-argument functions.  When provided, caching is enabled and
+            the return values of these functions are combined with the callback
+            function's input arguments and source code to generate cache keys.
+        :param expire:
+            If provided, a cache entry will be removed when it has not been accessed
+            for ``expire`` seconds.  If not provided, the lifetime of cache entries
+            is determined by the default behavior of the ``cache`` instance.
+        """
         try:
             import diskcache  # pylint: disable=import-outside-toplevel
             import psutil  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
@@ -15,14 +31,14 @@ class DiskcacheLongCallbackManager(BaseLongCallbackManager):
 DiskcacheLongCallbackManager requires the multiprocess, diskcache, and psutil packages
 which can be installed using pip...
 
-    $ pip install multiprocess diskcache
+    $ pip install multiprocess diskcache psutil
 
 or conda.
 
     $ conda install -c conda-forge multiprocess diskcache psutil\n"""
             )
 
-        if not isinstance(cache, diskcache.Cache):
+        if not isinstance(cache, (diskcache.Cache, diskcache.FanoutCache)):
             raise ValueError("First argument must be a diskcache.Cache object")
         super().__init__(cache_by)
         self.handle = cache
