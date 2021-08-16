@@ -242,10 +242,6 @@ jobs:
           path: test-reports
       - store_artifacts:
           path: /tmp/dash_artifacts
-      - run:
-          name: 🦔 percy finalize
-          command: npx percy finalize --all
-          when: on_fail
 
   test-36:
     <<: *test
@@ -257,18 +253,6 @@ jobs:
         environment:
           PERCY_ENABLE: 0
           PYVERSION: python36
-
-  dcc-percy-finalize:
-      working_directory: ~/dash/components/dash-core-components
-      docker:
-        - image: percyio/agent
-          auth:
-            username: dashautomation
-            password: $DASH_PAT_DOCKERHUB
-      steps:
-        - checkout:
-              path: ~/dash
-        - run: percy finalize --all
 
   dcc-lint-unit-39: &lint-unit
     working_directory: ~/dash/components/dash-core-components
@@ -410,18 +394,6 @@ jobs:
           PYTHON_VERSION: py36
           PERCY_ENABLE: 0
 
-  html-percy-finalize:
-    working_directory: ~/dash/components/dash-html-components
-    docker:
-      - image: percyio/agent
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-    steps:
-      - checkout:
-            path: ~/dash
-      - run: percy finalize --all
-
   html-python-36: &test-template
     working_directory: ~/dash/components/dash-html-components
     docker:
@@ -480,17 +452,6 @@ jobs:
           PYTHON_VERSION: py39
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
-
-  table-percy-finalize:
-      working_directory: ~/dash/components/dash-table
-      docker:
-          - image: percyio/agent
-      steps:
-          - run:
-              name: Inject Percy Environment variables
-              command: |
-                echo 'export PERCY_TOKEN="$PERCY_TOKEN_E2E"' >> $BASH_ENV
-          - run: percy finalize --all
 
   table-server-test:
       working_directory: ~/dash/components/dash-table
@@ -704,9 +665,6 @@ workflows:
   percy-tests:
       jobs:
           - install-dependencies
-          - test-39:
-              requires:
-                - install-dependencies
           - percy-finalize:
               requires:
                 - test-39
@@ -724,6 +682,9 @@ workflows:
                     - dev
                 tags:
                   only: /v*/
+          - test-39:
+              requires:
+                - install-dependencies
           - table-server-test:
               requires:
                 - install-dependencies
