@@ -399,6 +399,7 @@ class Dash(object):
         self._layout = None
         self._layout_is_function = False
         self.validation_layout = None
+        self._extra_components = []
 
         self._setup_dev_tools()
         self._hot_reload = AttributeDict(
@@ -490,7 +491,15 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
-        return self._layout() if self._layout_is_function else self._layout
+        from dash_html_components import Div  # pylint: disable=import-outside-toplevel
+
+        layout = self._layout() if self._layout_is_function else self._layout
+
+        # Add any extra components
+        if self._extra_components:
+            layout = Div(children=[layout] + self._extra_components)
+
+        return layout
 
     @layout.setter
     def layout(self, value):

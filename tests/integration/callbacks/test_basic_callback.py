@@ -701,3 +701,40 @@ def test_cbsc015_input_output_callback(dash_duo):
     assert not dash_duo.redux_state_is_loading
 
     assert dash_duo.get_logs() == []
+
+
+def test_cbsc016_extra_components_callback(dash_duo):
+    lock = Lock()
+
+    app = dash.Dash(__name__)
+    app._extra_components.append(dcc.Store(id="extra-store", data=123))
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value="initial value"),
+            html.Div(html.Div([1.5, None, "string", html.Div(id="output-1")])),
+        ]
+    )
+    store_data = Value("i", 0)
+
+    @app.callback(
+        Output("output-1", "children"),
+        [Input("input", "value"), Input("extra-store", "data")],
+    )
+    def update_output(value, data):
+        with lock:
+            store_data.value = data
+            return value
+
+    dash_duo.start_server(app)
+
+    assert dash_duo.find_element("#output-1").text == "initial value"
+
+    input_ = dash_duo.find_element("#input")
+    dash_duo.clear_input(input_)
+    input_.send_keys("A")
+
+    wait.until(lambda: dash_duo.find_element("#output-1").text == "A", 2)
+
+    assert store_data.value == 123
+    assert dash_duo.get_logs() == []
