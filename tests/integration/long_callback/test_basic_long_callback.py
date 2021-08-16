@@ -54,7 +54,7 @@ def setup_long_callback_app(manager_name, app_name):
                 "-P",
                 "prefork",
                 "--concurrency",
-                "1",
+                "2",
                 "--loglevel=info",
             ],
             preexec_fn=os.setpgrp,
