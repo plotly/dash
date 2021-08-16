@@ -69,7 +69,7 @@ or conda.
 
                 try:
                     process.wait(0.5)
-                except psutil.TimeoutExpired:
+                except (psutil.TimeoutExpired, psutil.NoSuchProcess):
                     pass
 
     def terminate_unhealthy_job(self, job):
