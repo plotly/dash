@@ -101,7 +101,7 @@ def test_lcbc001_fast_input(dash_duo, manager):
             with lock:
                 input_.send_keys(key)
 
-        dash_duo.wait_for_text_to_equal("#output-1", "hello world", 4)
+        dash_duo.wait_for_text_to_equal("#output-1", "hello world", 8)
 
     assert not dash_duo.redux_state_is_loading
     assert dash_duo.get_logs() == []
@@ -111,24 +111,24 @@ def test_lcbc002_long_callback_running(dash_duo, manager):
     with setup_long_callback_app(manager, "app2") as app:
         dash_duo.start_server(app)
         dash_duo.wait_for_text_to_equal("#result", "Clicked 0 time(s)", 15)
-        dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
 
         # Click button and check that status has changed to "Running"
         dash_duo.find_element("#button-1").click()
-        dash_duo.wait_for_text_to_equal("#status", "Running", 4)
+        dash_duo.wait_for_text_to_equal("#status", "Running", 8)
 
         # Wait for calculation to finish, then check that status is "Finished"
-        dash_duo.wait_for_text_to_equal("#result", "Clicked 1 time(s)", 6)
-        dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
+        dash_duo.wait_for_text_to_equal("#result", "Clicked 1 time(s)", 12)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
 
         # Click button twice and check that status has changed to "Running"
         dash_duo.find_element("#button-1").click()
         dash_duo.find_element("#button-1").click()
-        dash_duo.wait_for_text_to_equal("#status", "Running", 4)
+        dash_duo.wait_for_text_to_equal("#status", "Running", 8)
 
         # Wait for calculation to finish, then check that status is "Finished"
-        dash_duo.wait_for_text_to_equal("#result", "Clicked 3 time(s)", 10)
-        dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
+        dash_duo.wait_for_text_to_equal("#result", "Clicked 3 time(s)", 12)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
 
     assert not dash_duo.redux_state_is_loading
     assert dash_duo.get_logs() == []
@@ -152,19 +152,19 @@ def test_lcbc003_long_callback_running_cancel(dash_duo, manager):
 
         # Click run button and check that status has changed to "Running"
         dash_duo.find_element("#run-button").click()
-        dash_duo.wait_for_text_to_equal("#status", "Running", 4)
+        dash_duo.wait_for_text_to_equal("#status", "Running", 8)
 
         # Then click Cancel button and make sure that the status changes to finish
         # without update result
         dash_duo.find_element("#cancel-button").click()
-        dash_duo.wait_for_text_to_equal("#result", "Processed 'initial value'", 8)
-        dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
+        dash_duo.wait_for_text_to_equal("#result", "Processed 'initial value'", 12)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
 
         # Click run button again, and let it finish
         dash_duo.find_element("#run-button").click()
-        dash_duo.wait_for_text_to_equal("#status", "Running", 4)
-        dash_duo.wait_for_text_to_equal("#result", "Processed 'hello world'", 4)
-        dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
+        dash_duo.wait_for_text_to_equal("#status", "Running", 8)
+        dash_duo.wait_for_text_to_equal("#result", "Processed 'hello world'", 8)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
 
     assert not dash_duo.redux_state_is_loading
     assert dash_duo.get_logs() == []
@@ -187,14 +187,14 @@ def test_lcbc004_long_callback_progress(dash_duo, manager):
         dash_duo.find_element("#run-button").click()
         dash_duo.wait_for_text_to_equal("#status", "Progress 2/4", 15)
         dash_duo.wait_for_text_to_equal("#status", "Finished", 15)
-        dash_duo.wait_for_text_to_equal("#result", "Processed 'hello, world'", 4)
+        dash_duo.wait_for_text_to_equal("#result", "Processed 'hello, world'", 8)
 
         # Click run button again with same input.
         # without caching, this should rerun callback and display progress
         dash_duo.find_element("#run-button").click()
         dash_duo.wait_for_text_to_equal("#status", "Progress 2/4", 15)
         dash_duo.wait_for_text_to_equal("#status", "Finished", 15)
-        dash_duo.wait_for_text_to_equal("#result", "Processed 'hello, world'", 4)
+        dash_duo.wait_for_text_to_equal("#result", "Processed 'hello, world'", 8)
 
     assert not dash_duo.redux_state_is_loading
     assert dash_duo.get_logs() == []
@@ -207,7 +207,7 @@ def test_lcbc005_long_callback_caching(dash_duo, manager):
         dash_duo.start_server(app)
         dash_duo.wait_for_text_to_equal("#status", "Progress 2/4", 15)
         dash_duo.wait_for_text_to_equal("#status", "Finished", 15)
-        dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 4)
+        dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 8)
 
         # Update input text box to BBB
         input_ = dash_duo.find_element("#input")
@@ -219,8 +219,8 @@ def test_lcbc005_long_callback_caching(dash_duo, manager):
         # Click run button and check that status eventually cycles to 2/4
         dash_duo.find_element("#run-button").click()
         dash_duo.wait_for_text_to_equal("#status", "Progress 2/4", 20)
-        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
-        dash_duo.wait_for_text_to_equal("#result", "Result for 'BBB'", 4)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 12)
+        dash_duo.wait_for_text_to_equal("#result", "Result for 'BBB'", 8)
 
         # Update input text box back to AAA
         input_ = dash_duo.find_element("#input")
@@ -232,8 +232,8 @@ def test_lcbc005_long_callback_caching(dash_duo, manager):
         # Click run button and this time the cached result is used,
         # So we can get the result right away
         dash_duo.find_element("#run-button").click()
-        dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
-        dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 4)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
+        dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 8)
 
         # Update input text box back to BBB
         input_ = dash_duo.find_element("#input")
@@ -245,8 +245,8 @@ def test_lcbc005_long_callback_caching(dash_duo, manager):
         # Click run button and this time the cached result is used,
         # So we can get the result right away
         dash_duo.find_element("#run-button").click()
-        dash_duo.wait_for_text_to_equal("#status", "Finished", 4)
-        dash_duo.wait_for_text_to_equal("#result", "Result for 'BBB'", 4)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
+        dash_duo.wait_for_text_to_equal("#result", "Result for 'BBB'", 8)
 
         # Update input text box back to AAA
         input_ = dash_duo.find_element("#input")
@@ -260,8 +260,8 @@ def test_lcbc005_long_callback_caching(dash_duo, manager):
 
         dash_duo.find_element("#run-button").click()
         dash_duo.wait_for_text_to_equal("#status", "Progress 2/4", 20)
-        dash_duo.wait_for_text_to_equal("#status", "Finished", 8)
-        dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 4)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 12)
+        dash_duo.wait_for_text_to_equal("#result", "Result for 'AAA'", 8)
 
         assert not dash_duo.redux_state_is_loading
         assert dash_duo.get_logs() == []
@@ -274,11 +274,11 @@ def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
         dash_duo.start_server(app)
         dash_duo.wait_for_text_to_equal("#status1", "Progress 2/4", 15)
         dash_duo.wait_for_text_to_equal("#status1", "Finished", 15)
-        dash_duo.wait_for_text_to_equal("#result1", "Result for 'AAA'", 4)
+        dash_duo.wait_for_text_to_equal("#result1", "Result for 'AAA'", 8)
 
         # Check initial status/output of second long_callback
         dash_duo.wait_for_text_to_equal("#status2", "Finished", 15)
-        dash_duo.wait_for_text_to_equal("#result2", "Result for 'aaa'", 4)
+        dash_duo.wait_for_text_to_equal("#result2", "Result for 'aaa'", 8)
 
         # Update input text box to BBB
         input_ = dash_duo.find_element("#input1")
@@ -290,12 +290,12 @@ def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
         # Click run button and check that status eventually cycles to 2/4
         dash_duo.find_element("#run-button1").click()
         dash_duo.wait_for_text_to_equal("#status1", "Progress 2/4", 20)
-        dash_duo.wait_for_text_to_equal("#status1", "Finished", 8)
-        dash_duo.wait_for_text_to_equal("#result1", "Result for 'BBB'", 4)
+        dash_duo.wait_for_text_to_equal("#status1", "Finished", 12)
+        dash_duo.wait_for_text_to_equal("#result1", "Result for 'BBB'", 8)
 
         # Check there were no changes in second long_callback output
         dash_duo.wait_for_text_to_equal("#status2", "Finished", 15)
-        dash_duo.wait_for_text_to_equal("#result2", "Result for 'aaa'", 4)
+        dash_duo.wait_for_text_to_equal("#result2", "Result for 'aaa'", 8)
 
         # Update input text box back to AAA
         input_ = dash_duo.find_element("#input1")
@@ -307,8 +307,8 @@ def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
         # Click run button and this time the cached result is used,
         # So we can get the result right away
         dash_duo.find_element("#run-button1").click()
-        dash_duo.wait_for_text_to_equal("#status1", "Finished", 4)
-        dash_duo.wait_for_text_to_equal("#result1", "Result for 'AAA'", 4)
+        dash_duo.wait_for_text_to_equal("#status1", "Finished", 8)
+        dash_duo.wait_for_text_to_equal("#result1", "Result for 'AAA'", 8)
 
         # Update input text box back to BBB
         input_ = dash_duo.find_element("#input1")
@@ -320,8 +320,8 @@ def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
         # Click run button and this time the cached result is used,
         # So we can get the result right away
         dash_duo.find_element("#run-button1").click()
-        dash_duo.wait_for_text_to_equal("#status1", "Finished", 4)
-        dash_duo.wait_for_text_to_equal("#result1", "Result for 'BBB'", 4)
+        dash_duo.wait_for_text_to_equal("#status1", "Finished", 8)
+        dash_duo.wait_for_text_to_equal("#result1", "Result for 'BBB'", 8)
 
         # Update second input text box to BBB, make sure there is not a cache hit
         input_ = dash_duo.find_element("#input2")
@@ -331,8 +331,8 @@ def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
                 input_.send_keys(key)
         dash_duo.find_element("#run-button2").click()
         dash_duo.wait_for_text_to_equal("#status2", "Progress 2/4", 20)
-        dash_duo.wait_for_text_to_equal("#status2", "Finished", 8)
-        dash_duo.wait_for_text_to_equal("#result2", "Result for 'BBB'", 4)
+        dash_duo.wait_for_text_to_equal("#status2", "Finished", 12)
+        dash_duo.wait_for_text_to_equal("#result2", "Result for 'BBB'", 8)
 
         # Update second input text box back to aaa, check for cache hit
         input_ = dash_duo.find_element("#input2")
@@ -341,8 +341,8 @@ def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
             with lock:
                 input_.send_keys(key)
         dash_duo.find_element("#run-button2").click()
-        dash_duo.wait_for_text_to_equal("#status2", "Finished", 4)
-        dash_duo.wait_for_text_to_equal("#result2", "Result for 'aaa'", 4)
+        dash_duo.wait_for_text_to_equal("#status2", "Finished", 12)
+        dash_duo.wait_for_text_to_equal("#result2", "Result for 'aaa'", 8)
 
         # Update input text box back to AAA
         input_ = dash_duo.find_element("#input1")
@@ -357,14 +357,14 @@ def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
         # Check for cache miss for first long_callback
         dash_duo.find_element("#run-button1").click()
         dash_duo.wait_for_text_to_equal("#status1", "Progress 2/4", 20)
-        dash_duo.wait_for_text_to_equal("#status1", "Finished", 8)
-        dash_duo.wait_for_text_to_equal("#result1", "Result for 'AAA'", 4)
+        dash_duo.wait_for_text_to_equal("#status1", "Finished", 12)
+        dash_duo.wait_for_text_to_equal("#result1", "Result for 'AAA'", 8)
 
         # Check for cache miss for second long_callback
         dash_duo.find_element("#run-button2").click()
         dash_duo.wait_for_text_to_equal("#status2", "Progress 2/4", 20)
-        dash_duo.wait_for_text_to_equal("#status2", "Finished", 8)
-        dash_duo.wait_for_text_to_equal("#result2", "Result for 'aaa'", 4)
+        dash_duo.wait_for_text_to_equal("#status2", "Finished", 12)
+        dash_duo.wait_for_text_to_equal("#result2", "Result for 'aaa'", 8)
 
         assert not dash_duo.redux_state_is_loading
         assert dash_duo.get_logs() == []
