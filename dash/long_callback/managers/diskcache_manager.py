@@ -55,9 +55,18 @@ or conda.
         with self.handle.transact():
             if psutil.pid_exists(job):
                 process = psutil.Process(job)
+
                 for proc in process.children(recursive=True):
-                    proc.kill()
-                process.kill()
+                    try:
+                        proc.kill()
+                    except psutil.NoSuchProcess:
+                        pass
+
+                try:
+                    process.kill()
+                except psutil.NoSuchProcess:
+                    pass
+
                 try:
                     process.wait(0.5)
                 except psutil.TimeoutExpired:
