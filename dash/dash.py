@@ -197,7 +197,7 @@ class Dash(object):
     :type serve_locally: boolean
 
     :param compress: Use gzip to compress files and data served by Flask.
-        Default ``True``
+        Default ``False``
     :type compress: boolean
 
     :param meta_tags: html <meta> tags to be added to the index page.
