@@ -10,3 +10,4 @@ black==21.6b0
 fire==0.4.0
 coloredlogs==15.0.1
 flask-talisman==0.8.1
+orjson>=3.6
