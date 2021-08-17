@@ -4,7 +4,6 @@ import os
 import sys
 import collections
 import importlib
-import json
 import pkgutil
 import threading
 import re
@@ -21,8 +20,6 @@ import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
-
-import plotly
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -51,6 +48,7 @@ from ._utils import (
     split_callback_id,
     stringify_id,
     strip_relative_path,
+    to_json,
 )
 from . import _dash_renderer
 from . import _validate
@@ -566,7 +564,7 @@ class Dash(object):
 
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
-            json.dumps(layout, cls=plotly.utils.PlotlyJSONEncoder),
+            to_json(layout),
             mimetype="application/json",
         )
 
@@ -734,7 +732,7 @@ class Dash(object):
 
     def _generate_config_html(self):
         return '<script id="_dash-config" type="application/json">{}</script>'.format(
-            json.dumps(self._config(), cls=plotly.utils.PlotlyJSONEncoder)
+            to_json(self._config())
         )
 
     def _generate_renderer(self):
@@ -1129,9 +1127,7 @@ class Dash(object):
                 response = {"response": component_ids, "multi": True}
 
                 try:
-                    jsonResponse = json.dumps(
-                        response, cls=plotly.utils.PlotlyJSONEncoder
-                    )
+                    jsonResponse = to_json(response)
                 except TypeError:
                     _validate.fail_callback_output(output_value, output)
 
