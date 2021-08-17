@@ -79,8 +79,8 @@ def setup_long_callback_app(manager_name, app_name):
             yield import_app(f"tests.integration.long_callback.{app_name}")
         finally:
             # Interval may run one more time after settling on final app state
-            # Sleep for 1 interval of time
-            time.sleep(0.5)
+            # Sleep for a couple of intervals
+            time.sleep(2.0)
             shutil.rmtree(cache_directory, ignore_errors=True)
             os.environ.pop("LONG_CALLBACK_MANAGER")
             os.environ.pop("DISKCACHE_DIR")
