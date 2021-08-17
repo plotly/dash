@@ -23,6 +23,7 @@ app.layout = html.Div(
     [Input("button-1", "n_clicks")],
     running=[(Output("status", "children"), "Running", "Finished")],
     interval=500,
+    prevent_initial_call=True,
 )
 def update_output(n_clicks):
     time.sleep(2)

@@ -28,6 +28,7 @@ app.layout = html.Div(
     cancel=[Input("cancel-button", "n_clicks")],
     interval=500,
     manager=long_callback_manager,
+    prevent_initial_call=True,
 )
 def update_output(n_clicks, value):
     time.sleep(2)

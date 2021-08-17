@@ -571,6 +571,8 @@ class Dash(object):
         )
 
     def _config(self):
+        from dash_html_components import Div  # pylint: disable=import-outside-toplevel
+
         # pieces of config needed by the front end
         config = {
             "url_base_pathname": self.config.url_base_pathname,
@@ -588,7 +590,15 @@ class Dash(object):
                 "max_retry": self._dev_tools.hot_reload_max_retry,
             }
         if self.validation_layout and not self.config.suppress_callback_exceptions:
-            config["validation_layout"] = self.validation_layout
+            validation_layout = self.validation_layout
+
+            # Add extra components
+            if self._extra_components:
+                validation_layout = Div(
+                    children=[validation_layout] + self._extra_components
+                )
+
+            config["validation_layout"] = validation_layout
 
         return config
 
@@ -1251,7 +1261,9 @@ class Dash(object):
         # Create Interval and Store for long callback and add them to the app's
         # _extra_components list
         interval_id = f"_long_callback_interval_{long_callback_id}"
-        interval_component = dcc.Interval(id=interval_id, interval=interval_time)
+        interval_component = dcc.Interval(
+            id=interval_id, interval=interval_time, disabled=prevent_initial_call
+        )
         store_id = f"_long_callback_store_{long_callback_id}"
         store_component = dcc.Store(id=store_id, data=dict())
         self._extra_components.extend([interval_component, store_component])

@@ -59,6 +59,7 @@ def update_output1(set_progress, _n_clicks, value):
     progress_default="Finished",
     interval=500,
     cache_args_to_ignore=["button"],
+    prevent_initial_call=True,
 )
 def update_output2(set_progress, button, value):
     for i in range(4):

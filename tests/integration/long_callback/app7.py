@@ -13,6 +13,15 @@ handle = long_callback_manager.handle
 app = dash.Dash(__name__, long_callback_manager=long_callback_manager)
 app.layout = html.Div(
     [
+        html.Button(id="show-layout-button", children="Show"),
+        html.Div(id="dynamic-layout"),
+    ]
+)
+
+app.validation_layout = html.Div(
+    [
+        html.Button(id="show-layout-button", children="Show"),
+        html.Div(id="dynamic-layout"),
         dcc.Input(id="input", value="hello, world"),
         html.Button(id="run-button", children="Run"),
         html.Button(id="cancel-button", children="Cancel"),
@@ -20,6 +29,24 @@ app.layout = html.Div(
         html.Div(id="result", children="No results"),
     ]
 )
+
+
+@app.callback(
+    Output("dynamic-layout", "children"), Input("show-layout-button", "n_clicks")
+)
+def make_layout(n_clicks):
+    if n_clicks is not None:
+        return html.Div(
+            [
+                dcc.Input(id="input", value="hello, world"),
+                html.Button(id="run-button", children="Run"),
+                html.Button(id="cancel-button", children="Cancel"),
+                html.Div(id="status", children="Finished"),
+                html.Div(id="result", children="No results"),
+            ]
+        )
+    else:
+        return []
 
 
 @app.long_callback(
