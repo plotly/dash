@@ -208,6 +208,8 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python39
+          REDIS_URL: redis://localhost:6379
+      - image: circleci/redis
     parallelism: 3
     steps:
       - checkout
@@ -252,6 +254,8 @@ jobs:
         environment:
           PERCY_ENABLE: 0
           PYVERSION: python36
+          REDIS_URL: redis://localhost:6379
+      - image: circleci/redis
 
 workflows:
   version: 2

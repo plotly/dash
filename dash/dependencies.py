@@ -101,6 +101,16 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     def __hash__(self):
         return hash(str(self))
 
+    def has_wildcard(self):
+        """
+        Return true if id contains a wildcard (MATCH, ALL, or ALLSMALLER)
+        """
+        if isinstance(self.component_id, dict):
+            for v in self.component_id.values():
+                if isinstance(v, _Wildcard):
+                    return True
+        return False
+
 
 class Output(DashDependency):  # pylint: disable=too-few-public-methods
     """Output of a callback."""
