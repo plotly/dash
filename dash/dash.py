@@ -263,7 +263,7 @@ class Dash(object):
     clientside callback.
 
     :param long_callback_manager: Long callback manager instance to support the
-    ``@app.long_callback`` decorator. Currently one of
+    ``@app.long_callback`` decorator. Currently an instance of one of
     ``DiskcacheLongCallbackManager`` or ``CeleryLongCallbackManager``
     """
 
@@ -1162,7 +1162,7 @@ class Dash(object):
 
         :Keyword Arguments:
             :param manager:
-                A long callback manager instance. Currently one of
+                A long callback manager instance. Currently an instance of one of
                 `DiskcacheLongCallbackManager` or `CeleryLongCallbackManager`.
                 Defaults to the `long_callback_manager` instance provided to the
                 `dash.Dash constructor`.
