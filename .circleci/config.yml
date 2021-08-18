@@ -203,6 +203,7 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
+          PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python39
@@ -450,6 +451,7 @@ jobs:
       docker:
           - image: circleci/python:3.9.2-buster-node-browsers
             environment:
+              PERCY_ENABLE: 1
               PERCY_PARALLEL_TOTAL: -1
 
       parallelism: 4
