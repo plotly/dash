@@ -675,14 +675,12 @@ workflows:
   percy-tests:
       jobs:
           - install-dependencies
-          - table-visual-test
           - percy/finalize_all:
               requires:
                 - test-39
                 - dcc-test-39
                 - html-python-39
                 - table-server-test
-                - table-visual-test
           - artifacts:
               requires:
                 - percy/finalize_all
