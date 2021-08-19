@@ -435,6 +435,13 @@ jobs:
               python --version
               npm run test
 
+      - store_artifacts:
+          path: ~/dash/components/dash-html-components/test-reports
+      - store_test_results:
+          path: ~/dash/components/dash-html-components/test-reports
+      - store_artifacts:
+          path: /tmp/dash_artifacts
+
   html-python-39:
     <<: *test-template
     docker:
@@ -497,9 +504,9 @@ jobs:
                   TESTFILES=$(circleci tests glob "tests/selenium/**/test_*.py" | circleci tests split --split-by=timings)
                   pytest --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
           - store_artifacts:
-              path: test-reports
+              path: ~/dash/components/dash-html-components/test-reports
           - store_test_results:
-              path: test-reports
+              path: ~/dash/components/dash-html-components/test-reports
           - store_artifacts:
               path: /tmp/dash_artifacts
 
