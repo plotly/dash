@@ -1,15 +1,13 @@
 from multiprocessing import Value
 import time
 
-import dash
-from dash.dependencies import Input, Output
-import dash_html_components as html
+from dash import Dash, Input, Output, html
 
 
 def test_click_simple(dash_duo):
     call_count = Value("i", 0)
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(id="container"),
@@ -29,13 +27,13 @@ def test_click_simple(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#container", "clicked 0 times")
     assert call_count.value == 1
-    dash_duo.percy_snapshot("button initialization")
+    dash_duo.percy_snapshot("html button initialization")
 
     dash_duo.find_element("#button").click()
 
     dash_duo.wait_for_text_to_equal("#container", "clicked 1 times")
     assert call_count.value == 2
-    dash_duo.percy_snapshot("button click")
+    dash_duo.percy_snapshot("html button click")
 
     assert not dash_duo.get_logs()
 
@@ -48,7 +46,7 @@ def test_click_prev(dash_duo):
     timestamp_1 = Value("d", -5)
     timestamp_2 = Value("d", -5)
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(id="container"),
@@ -79,14 +77,14 @@ def test_click_prev(dash_duo):
     assert timestamp_1.value == -1
     assert timestamp_2.value == -1
     assert call_count.value == 1
-    dash_duo.percy_snapshot("button initialization 1")
+    dash_duo.percy_snapshot("html button initialization 1")
 
     dash_duo.find_element("#button-1").click()
     dash_duo.wait_for_text_to_equal("#container", "1, 0")
     assert timestamp_1.value > ((time.time() - (24 * 60 * 60)) * 1000)
     assert timestamp_2.value == -1
     assert call_count.value == 2
-    dash_duo.percy_snapshot("button-1 click")
+    dash_duo.percy_snapshot("html button-1 click")
     prev_timestamp_1 = timestamp_1.value
 
     dash_duo.find_element("#button-2").click()
@@ -94,7 +92,7 @@ def test_click_prev(dash_duo):
     assert timestamp_1.value == prev_timestamp_1
     assert timestamp_2.value > ((time.time() - 24 * 60 * 60) * 1000)
     assert call_count.value == 3
-    dash_duo.percy_snapshot("button-2 click")
+    dash_duo.percy_snapshot("html button-2 click")
     prev_timestamp_2 = timestamp_2.value
 
     dash_duo.find_element("#button-2").click()
@@ -103,6 +101,6 @@ def test_click_prev(dash_duo):
     assert timestamp_2.value > prev_timestamp_2
     assert timestamp_2.value > timestamp_1.value
     assert call_count.value == 4
-    dash_duo.percy_snapshot("button-2 click again")
+    dash_duo.percy_snapshot("html button-2 click again")
 
     assert not dash_duo.get_logs()

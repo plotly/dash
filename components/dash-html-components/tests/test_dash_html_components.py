@@ -1,5 +1,6 @@
 import pytest
-import dash_html_components as html
+import dash
+from dash import html
 
 
 def test_imports():
@@ -12,8 +13,8 @@ def test_imports():
     dir_set = set(
         [
             d
-            for d in dir(html)
-            if d[0] != "_" and d[0] == d[0].capitalize()
+            for d in dir(dash.html)
+            if d[0] != "_" and d[0] != "@" and d[0] == d[0].capitalize()
         ]
     )
     assert dir_set == set(elements)
