@@ -7,6 +7,7 @@ from dash.dash_table import DataTable
 from selenium.webdriver.common.keys import Keys
 
 import json
+import time
 import pandas as pd
 
 url = "https://github.com/plotly/datasets/raw/master/" "26k-consumer-complaints.csv"
@@ -147,6 +148,8 @@ def test_tdrp002_select_cell(test):
     target.cell(0, 0).click()
 
     active = dict(row=0, column=0, column_id=rawDf.columns[0], row_id=3000)
+
+    time.sleep(1)
 
     assert test.find_element("#active_cell").get_attribute("innerHTML") == json.dumps(
         active
