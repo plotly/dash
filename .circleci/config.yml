@@ -475,7 +475,7 @@ jobs:
           - run:
               name: Inject Percy Environment variables
               command: |
-                echo 'export PERCY_TOKEN="$PERCY_TOKEN_E2E"' >> $BASH_ENV
+                echo 'export PERCY_TOKEN="$PERCY_TOKEN"' >> $BASH_ENV
           - restore_cache:
               key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
           - attach_workspace:
@@ -550,6 +550,9 @@ jobs:
       working_directory: ~/dash/components/dash-table
       docker:
           - image: circleci/node:14-browsers
+            environment:
+              PERCY_TOKEN: $PERCY_TOKEN_TABLE
+
       steps:
           - checkout:
                   path: ~/dash
@@ -567,7 +570,7 @@ jobs:
               command: npm run private::build:js
           - run:
               name: Run visual tests
-              command: npm run test.visual
+              command: PERCY_TOKEN=$PERCY_TOKEN_TABLE npm run test.visual
           - store_artifacts:
               path: storybook-static
 
