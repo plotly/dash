@@ -1,4 +1,26 @@
-def _insert_callback(
+from ._grouping import (
+     flatten_grouping,
+     make_grouping_by_index,
+     grouping_len,
+ )
+ from ._utils import (
+     create_callback_id,
+     stringify_id,
+ )
+
+ from . import _validate
+
+
+ class NoUpdate(object):
+     # pylint: disable=too-few-public-methods
+     pass
+
+
+def insert_callback(
+    callback_list,
+    callback_map,
+    config_prevent_initial_callbacks,
+
     self,
     output,
     outputs_indices,
@@ -8,7 +30,7 @@ def _insert_callback(
     prevent_initial_call,
 ):
     if prevent_initial_call is None:
-        prevent_initial_call = self.config.prevent_initial_callbacks
+        prevent_initial_call = config_prevent_initial_callbacks
 
     callback_id = create_callback_id(output)
     callback_spec = {
@@ -18,18 +40,25 @@ def _insert_callback(
         "clientside_function": None,
         "prevent_initial_call": prevent_initial_call,
     }
-    self.callback_map[callback_id] = {
+    callback_map[callback_id] = {
         "inputs": callback_spec["inputs"],
         "state": callback_spec["state"],
         "outputs_indices": outputs_indices,
         "inputs_state_indices": inputs_state_indices,
     }
-    self._callback_list.append(callback_spec)
+    callback_list.append(callback_spec)
 
     return callback_id
 
 
-def _callback(_*args, _**kwargs):
+def callback(
+    callback_list,
+    callback_map,
+    config_prevent_initial_callbacks,
+
+    _*args,
+    _**kwargs
+):
     (
         output,
         flat_inputs,
@@ -49,7 +78,7 @@ def _callback(_*args, _**kwargs):
     output_indices = make_grouping_by_index(
         output, list(range(grouping_len(output)))
     )
-    callback_id = self._insert_callback(
+    callback_id = insert_callback(
         insert_output,
         output_indices,
         flat_inputs,
@@ -115,7 +144,7 @@ def _callback(_*args, _**kwargs):
 
             return jsonResponse
 
-        self.callback_map[callback_id]["callback"] = add_context
+        callback_map[callback_id]["callback"] = add_context
 
         return add_context
 

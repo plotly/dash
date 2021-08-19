@@ -36,7 +36,6 @@ from .version import __version__
 from ._configs import get_combined_config, pathname_configs
 from ._utils import (
     AttributeDict,
-    create_callback_id,
     format_tag,
     generate_hash,
     get_asset_path,
@@ -46,10 +45,10 @@ from ._utils import (
     interpolate_str,
     patch_collections_abc,
     split_callback_id,
-    stringify_id,
     strip_relative_path,
     to_json,
 )
+from . import _callback
 from . import _dash_renderer
 from . import _validate
 from . import _watch
@@ -108,7 +107,7 @@ class _NoUpdate(object):
 
 
 # Singleton signal to not update an output, alternative to PreventUpdate
-no_update = _NoUpdate()
+no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
 
 _inline_clientside_template = """
@@ -974,7 +973,13 @@ class Dash(object):
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
         output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-        self._insert_callback(output, None, inputs, state, None, prevent_initial_call)
+        _callback.insert_callback(
+            self._callback_list,
+            self.callback_map,
+            self.config.prevent_initial_callbacks,
+
+            output, None, inputs, state, None, prevent_initial_call
+        )
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -1019,7 +1024,13 @@ class Dash(object):
 
 
         """
-        return _callback._callback(*_args, **_kwargs)
+        return _callback.callback(
+            self._callback_list,
+            self.callback_map,
+            self.config.prevent_initial_callbacks,
+
+            *_args, **_kwargs
+        )
 
 
     def long_callback(self, *_args, **_kwargs):
