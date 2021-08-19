@@ -49,6 +49,7 @@ jobs:
             python setup.py sdist
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
             ls -la dash-package
+          no_output_timeout: 20m
       - persist_to_workspace:
           root: ~/dash
           paths:
