@@ -13,7 +13,6 @@ import mimetypes
 import hashlib
 import base64
 
-from functools import wraps
 from future.moves.urllib.parse import urlparse
 
 import flask
@@ -31,7 +30,12 @@ from .dependencies import (
     Input,
 )
 from .development.base_component import ComponentRegistry
-from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
+from .exceptions import (
+    PreventUpdate,
+    InvalidResourceError,
+    ProxyError,
+    DuplicateCallback,
+)
 from .version import __version__
 from ._configs import get_combined_config, pathname_configs
 from ._utils import (
@@ -55,7 +59,6 @@ from . import _watch
 from ._grouping import (
     flatten_grouping,
     map_grouping,
-    make_grouping_by_index,
     grouping_len,
 )
 
@@ -906,7 +909,6 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-
     def clientside_callback(self, clientside_function, *args, **kwargs):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
@@ -977,8 +979,12 @@ class Dash(object):
             self._callback_list,
             self.callback_map,
             self.config.prevent_initial_callbacks,
-
-            output, None, inputs, state, None, prevent_initial_call
+            output,
+            None,
+            inputs,
+            state,
+            None,
+            prevent_initial_call,
         )
 
         # If JS source is explicitly given, create a namespace and function
@@ -1024,14 +1030,13 @@ class Dash(object):
 
 
         """
-        return _callback.callback(
+        return _callback.register_callback(
             self._callback_list,
             self.callback_map,
             self.config.prevent_initial_callbacks,
-
-            *_args, **_kwargs
+            *_args,
+            **_kwargs,
         )
-
 
     def long_callback(self, *_args, **_kwargs):
         """
@@ -1373,6 +1378,21 @@ class Dash(object):
 
         self._generate_scripts_html()
         self._generate_css_dist_html()
+
+        # Copy over global callback data structures assigned with `dash.callback`
+        for k in _callback.GLOBAL_CALLBACK_MAP:
+
+            if k in self.callback_map:
+                raise DuplicateCallback(
+                    "A callback provided with `dash.callback` was already "
+                    + "assigned with `app.callback`."
+                    + "The callback ID looks like: \n"
+                    + k
+                )
+
+            self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP[k]
+
+        self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}

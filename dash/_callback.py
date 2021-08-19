@@ -1,27 +1,66 @@
+import collections
+from functools import wraps
+
+from .dependencies import (
+    handle_grouped_callback_args,
+    Output,
+)
+from .exceptions import PreventUpdate
+
 from ._grouping import (
-     flatten_grouping,
-     make_grouping_by_index,
-     grouping_len,
- )
- from ._utils import (
-     create_callback_id,
-     stringify_id,
- )
+    flatten_grouping,
+    make_grouping_by_index,
+    grouping_len,
+)
+from ._utils import (
+    create_callback_id,
+    stringify_id,
+    to_json,
+)
 
- from . import _validate
+from . import _validate
 
 
- class NoUpdate(object):
-     # pylint: disable=too-few-public-methods
-     pass
+class NoUpdate(object):
+    # pylint: disable=too-few-public-methods
+    pass
+
+
+GLOBAL_CALLBACK_LIST = []
+GLOBAL_CALLBACK_MAP = {}
+
+
+def callback(*_args, **_kwargs):
+    """
+    Normally used as a decorator, `@dash.callback` provides a server-side
+    callback relating the values of one or more `Output` items to one or
+    more `Input` items which will trigger the callback when they change,
+    and optionally `State` items which provide additional information but
+    do not trigger the callback directly.
+
+    `@dash.callback` is an alternative to `@app.callback` (where `app = dash.Dash()`)
+    introduced in Dash 2.0.
+    It allows you to register callbacks without defining or importing the `app`
+    object. The call signature is identical and it can be used instead of `app.callback`
+    in all cases.
+
+    The last, optional argument `prevent_initial_call` causes the callback
+    not to fire when its outputs are first added to the page. Defaults to
+    `False` and unlike `app.callback` is not configurable at the app level.
+    """
+    return register_callback(
+        GLOBAL_CALLBACK_LIST,
+        GLOBAL_CALLBACK_MAP,
+        False,
+        *_args,
+        **_kwargs,
+    )
 
 
 def insert_callback(
     callback_list,
     callback_map,
     config_prevent_initial_callbacks,
-
-    self,
     output,
     outputs_indices,
     inputs,
@@ -51,13 +90,8 @@ def insert_callback(
     return callback_id
 
 
-def callback(
-    callback_list,
-    callback_map,
-    config_prevent_initial_callbacks,
-
-    _*args,
-    _**kwargs
+def register_callback(
+    callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
 ):
     (
         output,
@@ -75,10 +109,11 @@ def callback(
         insert_output = flatten_grouping(output)
         multi = True
 
-    output_indices = make_grouping_by_index(
-        output, list(range(grouping_len(output)))
-    )
+    output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
     callback_id = insert_callback(
+        callback_list,
+        callback_map,
+        config_prevent_initial_callbacks,
         insert_output,
         output_indices,
         flat_inputs,
@@ -87,6 +122,7 @@ def callback(
         prevent_initial_call,
     )
 
+    # pylint: disable=too-many-locals
     def wrap_func(func):
         @wraps(func)
         def add_context(*args, **kwargs):
@@ -100,7 +136,7 @@ def callback(
             # don't touch the comment on the next line - used by debugger
             output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
 
-            if isinstance(output_value, _NoUpdate):
+            if isinstance(output_value, NoUpdate):
                 raise PreventUpdate
 
             if not multi:
@@ -122,12 +158,12 @@ def callback(
             component_ids = collections.defaultdict(dict)
             has_update = False
             for val, spec in zip(flat_output_values, output_spec):
-                if isinstance(val, _NoUpdate):
+                if isinstance(val, NoUpdate):
                     continue
                 for vali, speci in (
                     zip(val, spec) if isinstance(spec, list) else [[val, spec]]
                 ):
-                    if not isinstance(vali, _NoUpdate):
+                    if not isinstance(vali, NoUpdate):
                         has_update = True
                         id_str = stringify_id(speci["id"])
                         component_ids[id_str][speci["property"]] = vali

@@ -81,3 +81,7 @@ class UnsupportedRelativePath(CallbackException):
 
 class ProxyError(DashException):
     pass
+
+
+class DuplicateCallback(DashException):
+    pass
