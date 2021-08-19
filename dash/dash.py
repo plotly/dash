@@ -1155,7 +1155,7 @@ class Dash:
 
         return wrap_func
 
-    def long_callback(self, *_args, **_kwargs):
+    def long_callback(self, *_args, **_kwargs):  # pylint: disable=too-many-statements
         """
         Normally used as a decorator, `@app.long_callback` is an alternative to
         `@app.callback` designed for callbacks that take a long time to run,
@@ -1349,7 +1349,7 @@ class Dash:
                         progress=clear_progress,
                         user_store_data=user_store_data,
                     )
-                elif progress_value:
+                if progress_value:
                     return dict(
                         user_callback_output=map_grouping(lambda x: no_update, output),
                         interval_disabled=False,

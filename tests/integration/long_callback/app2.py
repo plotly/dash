@@ -1,6 +1,5 @@
-import dash
-from dash.dependencies import Input, Output
-import dash_html_components as html
+from dash import Dash, Input, Output, html
+
 import time
 
 from tests.integration.long_callback.utils import get_long_callback_manager
@@ -8,7 +7,7 @@ from tests.integration.long_callback.utils import get_long_callback_manager
 long_callback_manager = get_long_callback_manager()
 handle = long_callback_manager.handle
 
-app = dash.Dash(__name__, long_callback_manager=long_callback_manager)
+app = Dash(__name__, long_callback_manager=long_callback_manager)
 app.layout = html.Div(
     [
         html.Button(id="button-1", children="Click Here", n_clicks=0),

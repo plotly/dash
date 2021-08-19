@@ -25,7 +25,7 @@ class DiskcacheLongCallbackManager(BaseLongCallbackManager):
             import diskcache  # pylint: disable=import-outside-toplevel
             import psutil  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable,import-error
             import multiprocess  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
-        except ImportError:
+        except ImportError as missing_imports:
             raise ImportError(
                 """\
 DiskcacheLongCallbackManager requires the multiprocess, diskcache, and psutil packages
@@ -36,7 +36,7 @@ which can be installed using pip...
 or conda.
 
     $ conda install -c conda-forge multiprocess diskcache psutil\n"""
-            )
+            ) from missing_imports
 
         if not isinstance(cache, (diskcache.Cache, diskcache.FanoutCache)):
             raise ValueError("First argument must be a diskcache.Cache object")
