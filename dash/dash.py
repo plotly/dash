@@ -1357,31 +1357,31 @@ class Dash:
                         progress=progress_value or {},
                         user_store_data=user_store_data,
                     )
-                else:
-                    # Check if there is a running calculation that can now
-                    # be canceled
-                    old_pending_key = user_store_data.get("pending_key", None)
-                    if (
-                        old_pending_key
-                        and old_pending_key != pending_key
-                        and callback_manager.job_running(pending_job)
-                    ):
-                        callback_manager.terminate_job(pending_job)
 
-                    user_store_data["pending_key"] = pending_key
-                    callback_manager.terminate_unhealthy_job(pending_job)
-                    if not callback_manager.job_running(pending_job):
-                        user_store_data["pending_job"] = callback_manager.call_job_fn(
-                            pending_key, background_fn, user_callback_args
-                        )
+                # Check if there is a running calculation that can now
+                # be canceled
+                old_pending_key = user_store_data.get("pending_key", None)
+                if (
+                    old_pending_key
+                    and old_pending_key != pending_key
+                    and callback_manager.job_running(pending_job)
+                ):
+                    callback_manager.terminate_job(pending_job)
 
-                    return dict(
-                        user_callback_output=map_grouping(lambda x: no_update, output),
-                        interval_disabled=False,
-                        in_progress=[val for (_, val, _) in running],
-                        progress=clear_progress,
-                        user_store_data=user_store_data,
+                user_store_data["pending_key"] = pending_key
+                callback_manager.terminate_unhealthy_job(pending_job)
+                if not callback_manager.job_running(pending_job):
+                    user_store_data["pending_job"] = callback_manager.call_job_fn(
+                        pending_key, background_fn, user_callback_args
                     )
+
+                return dict(
+                    user_callback_output=map_grouping(lambda x: no_update, output),
+                    interval_disabled=False,
+                    in_progress=[val for (_, val, _) in running],
+                    progress=clear_progress,
+                    user_store_data=user_store_data,
+                )
 
             return self.callback(
                 inputs=dict(
