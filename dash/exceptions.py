@@ -30,6 +30,10 @@ class IDsCantContainPeriods(CallbackException):
     pass
 
 
+class WildcardInLongCallback(CallbackException):
+    pass
+
+
 # Better error name now that more than periods are not permitted.
 class InvalidComponentIdError(IDsCantContainPeriods):
     pass

@@ -1,4 +1,4 @@
 Flask>=1.0.4
 flask-compress
-plotly
+plotly>=5.0.0
 future

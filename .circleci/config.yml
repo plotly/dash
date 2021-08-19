@@ -208,6 +208,8 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python39
+          REDIS_URL: redis://localhost:6379
+      - image: circleci/redis
     parallelism: 3
     steps:
       - checkout
@@ -247,6 +249,8 @@ jobs:
         environment:
           PERCY_ENABLE: 0
           PYVERSION: python36
+          REDIS_URL: redis://localhost:6379
+      - image: circleci/redis
 
   dcc-lint-unit-39: &lint-unit
     working_directory: ~/dash/components/dash-core-components
@@ -504,9 +508,9 @@ jobs:
                   TESTFILES=$(circleci tests glob "tests/selenium/**/test_*.py" | circleci tests split --split-by=timings)
                   pytest --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
           - store_artifacts:
-              path: ~/dash/components/dash-html-components/test-reports
+              path: ~/dash/components/dash-table/test-reports
           - store_test_results:
-              path: ~/dash/components/dash-html-components/test-reports
+              path: ~/dash/components/dash-table/test-reports
           - store_artifacts:
               path: /tmp/dash_artifacts
 

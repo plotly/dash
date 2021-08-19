@@ -29,7 +29,7 @@ def test_cbmf001_bad_output_outputs(dash_thread_server):
         ),
     )
     assert response.status_code == 200
-    assert '"o1": {"children": 9}' in response.text
+    assert '"o1":{"children":9}' in response.text
 
     # now some bad ones
     outspecs = [

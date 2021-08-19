@@ -185,3 +185,14 @@ def dashjl(request, dashjl_server, tmpdir):
         pause=request.config.getoption("pause"),
     ) as dc:
         yield dc
+
+
+@pytest.fixture
+def diskcache_manager():
+    from dash.long_callback import (  # pylint: disable=import-outside-toplevel
+        DiskcacheLongCallbackManager,
+    )
+    import diskcache  # pylint: disable=import-outside-toplevel
+
+    cache = diskcache.Cache()
+    return DiskcacheLongCallbackManager(cache)
