@@ -208,13 +208,11 @@ ns["{function_name}"] = {clientside_function};
 """
 
 
-
 def register_clientside_callback(
     callback_list,
     callback_map,
     config_prevent_initial_callbacks,
     inline_scripts,
-
     clientside_function,
     *args,
     **kwargs
@@ -260,4 +258,3 @@ def register_clientside_callback(
         "namespace": namespace,
         "function_name": function_name,
     }
-    

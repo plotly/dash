@@ -974,7 +974,9 @@ class Dash(object):
             self.callback_map,
             self.config.prevent_initial_callbacks,
             self._inline_scripts,
-            clientside_function, *args, **kwargs
+            clientside_function,
+            *args,
+            **kwargs,
         )
 
     def callback(self, *_args, **_kwargs):
