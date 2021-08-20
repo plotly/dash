@@ -16,7 +16,6 @@ import hashlib
 import base64
 
 from future.moves.urllib.parse import urlparse
-from _pytest.assertion.rewrite import AssertionRewritingHook
 
 import flask
 from flask_compress import Compress
@@ -1826,12 +1825,18 @@ class Dash:
 
             # # additional condition to account for AssertionRewritingHook object
             # # loader when running pytest
-            for index, package in enumerate(packages):
-                if isinstance(package, AssertionRewritingHook):
-                    dash_spec = importlib.util.find_spec("dash")
-                    dash_test_path = dash_spec.submodule_search_locations[0]
-                    setattr(dash_spec, "path", dash_test_path)
-                    packages[index] = dash_spec
+
+            if "_pytest" in sys.modules:
+                from _pytest.assertion.rewrite import (  # pylint: disable=import-outside-toplevel
+                    AssertionRewritingHook,
+                )
+
+                for index, package in enumerate(packages):
+                    if isinstance(package, AssertionRewritingHook):
+                        dash_spec = importlib.util.find_spec("dash")
+                        dash_test_path = dash_spec.submodule_search_locations[0]
+                        setattr(dash_spec, "path", dash_test_path)
+                        packages[index] = dash_spec
 
             component_packages_dist = [
                 dash_test_path
