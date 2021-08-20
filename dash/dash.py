@@ -29,19 +29,22 @@ from dash import dash_table
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
 from .dependencies import (
-    handle_callback_args,
     handle_grouped_callback_args,
     Output,
     State,
     Input,
 )
 from .development.base_component import ComponentRegistry
-from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
+from .exceptions import (
+    PreventUpdate,
+    InvalidResourceError,
+    ProxyError,
+    DuplicateCallback,
+)
 from .version import __version__
 from ._configs import get_combined_config, pathname_configs
 from ._utils import (
     AttributeDict,
-    create_callback_id,
     format_tag,
     generate_hash,
     get_asset_path,
@@ -51,17 +54,16 @@ from ._utils import (
     interpolate_str,
     patch_collections_abc,
     split_callback_id,
-    stringify_id,
     strip_relative_path,
     to_json,
 )
+from . import _callback
 from . import _dash_renderer
 from . import _validate
 from . import _watch
 from ._grouping import (
     flatten_grouping,
     map_grouping,
-    make_grouping_by_index,
     grouping_len,
 )
 
@@ -113,14 +115,7 @@ class _NoUpdate:
 
 
 # Singleton signal to not update an output, alternative to PreventUpdate
-no_update = _NoUpdate()
-
-
-_inline_clientside_template = """
-var clientside = window.dash_clientside = window.dash_clientside || {{}};
-var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
-ns["{function_name}"] = {clientside_function};
-"""
+no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
 
 # pylint: disable=too-many-instance-attributes
@@ -736,6 +731,9 @@ class Dash:
             )
         )
 
+        self._inline_scripts.extend(_callback.GLOBAL_INLINE_SCRIPTS)
+        _callback.GLOBAL_INLINE_SCRIPTS.clear()
+
         return "\n".join(
             [
                 format_tag("script", src)
@@ -923,36 +921,6 @@ class Dash:
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(
-        self,
-        output,
-        outputs_indices,
-        inputs,
-        state,
-        inputs_state_indices,
-        prevent_initial_call,
-    ):
-        if prevent_initial_call is None:
-            prevent_initial_call = self.config.prevent_initial_callbacks
-
-        callback_id = create_callback_id(output)
-        callback_spec = {
-            "output": callback_id,
-            "inputs": [c.to_dict() for c in inputs],
-            "state": [c.to_dict() for c in state],
-            "clientside_function": None,
-            "prevent_initial_call": prevent_initial_call,
-        }
-        self.callback_map[callback_id] = {
-            "inputs": callback_spec["inputs"],
-            "state": callback_spec["state"],
-            "outputs_indices": outputs_indices,
-            "inputs_state_indices": inputs_state_indices,
-        }
-        self._callback_list.append(callback_spec)
-
-        return callback_id
-
     def clientside_callback(self, clientside_function, *args, **kwargs):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
@@ -1018,37 +986,15 @@ class Dash:
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-        self._insert_callback(output, None, inputs, state, None, prevent_initial_call)
-
-        # If JS source is explicitly given, create a namespace and function
-        # name, then inject the code.
-        if isinstance(clientside_function, str):
-
-            out0 = output
-            if isinstance(output, (list, tuple)):
-                out0 = output[0]
-
-            namespace = "_dashprivate_{}".format(out0.component_id)
-            function_name = "{}".format(out0.component_property)
-
-            self._inline_scripts.append(
-                _inline_clientside_template.format(
-                    namespace=namespace.replace('"', '\\"'),
-                    function_name=function_name.replace('"', '\\"'),
-                    clientside_function=clientside_function,
-                )
-            )
-
-        # Callback is stored in an external asset.
-        else:
-            namespace = clientside_function.namespace
-            function_name = clientside_function.function_name
-
-        self._callback_list[-1]["clientside_function"] = {
-            "namespace": namespace,
-            "function_name": function_name,
-        }
+        return _callback.register_clientside_callback(
+            self._callback_list,
+            self.callback_map,
+            self.config.prevent_initial_callbacks,
+            self._inline_scripts,
+            clientside_function,
+            *args,
+            **kwargs,
+        )
 
     def callback(self, *_args, **_kwargs):
         """
@@ -1064,96 +1010,13 @@ class Dash:
 
 
         """
-        (
-            output,
-            flat_inputs,
-            flat_state,
-            inputs_state_indices,
-            prevent_initial_call,
-        ) = handle_grouped_callback_args(_args, _kwargs)
-        if isinstance(output, Output):
-            # Insert callback with scalar (non-multi) Output
-            insert_output = output
-            multi = False
-        else:
-            # Insert callback as multi Output
-            insert_output = flatten_grouping(output)
-            multi = True
-
-        output_indices = make_grouping_by_index(
-            output, list(range(grouping_len(output)))
+        return _callback.register_callback(
+            self._callback_list,
+            self.callback_map,
+            self.config.prevent_initial_callbacks,
+            *_args,
+            **_kwargs,
         )
-        callback_id = self._insert_callback(
-            insert_output,
-            output_indices,
-            flat_inputs,
-            flat_state,
-            inputs_state_indices,
-            prevent_initial_call,
-        )
-
-        def wrap_func(func):
-            @wraps(func)
-            def add_context(*args, **kwargs):
-                output_spec = kwargs.pop("outputs_list")
-                _validate.validate_output_spec(insert_output, output_spec, Output)
-
-                func_args, func_kwargs = _validate.validate_and_group_input_args(
-                    args, inputs_state_indices
-                )
-
-                # don't touch the comment on the next line - used by debugger
-                output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
-
-                if isinstance(output_value, _NoUpdate):
-                    raise PreventUpdate
-
-                if not multi:
-                    output_value, output_spec = [output_value], [output_spec]
-                    flat_output_values = output_value
-                else:
-                    if isinstance(output_value, (list, tuple)):
-                        # For multi-output, allow top-level collection to be
-                        # list or tuple
-                        output_value = list(output_value)
-
-                    # Flatten grouping and validate grouping structure
-                    flat_output_values = flatten_grouping(output_value, output)
-
-                _validate.validate_multi_return(
-                    output_spec, flat_output_values, callback_id
-                )
-
-                component_ids = collections.defaultdict(dict)
-                has_update = False
-                for val, spec in zip(flat_output_values, output_spec):
-                    if isinstance(val, _NoUpdate):
-                        continue
-                    for vali, speci in (
-                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]
-                    ):
-                        if not isinstance(vali, _NoUpdate):
-                            has_update = True
-                            id_str = stringify_id(speci["id"])
-                            component_ids[id_str][speci["property"]] = vali
-
-                if not has_update:
-                    raise PreventUpdate
-
-                response = {"response": component_ids, "multi": True}
-
-                try:
-                    jsonResponse = to_json(response)
-                except TypeError:
-                    _validate.fail_callback_output(output_value, output)
-
-                return jsonResponse
-
-            self.callback_map[callback_id]["callback"] = add_context
-
-            return add_context
-
-        return wrap_func
 
     def long_callback(self, *_args, **_kwargs):  # pylint: disable=too-many-statements
         """
@@ -1495,6 +1358,22 @@ class Dash:
         self._generate_scripts_html()
         self._generate_css_dist_html()
 
+        # Copy over global callback data structures assigned with `dash.callback`
+        for k in list(_callback.GLOBAL_CALLBACK_MAP):
+
+            if k in self.callback_map:
+                raise DuplicateCallback(
+                    "The callback `{}` provided with `dash.callback` was already ".format(
+                        k
+                    )
+                    + "assigned with `app.callback`."
+                )
+
+            self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP.pop(k)
+
+        self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
+        _callback.GLOBAL_CALLBACK_LIST.clear()
+
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:
@@ -1572,6 +1451,9 @@ class Dash:
 
         method = getattr(hashlib, hash_algorithm)
 
+        self._inline_scripts.extend(_callback.GLOBAL_INLINE_SCRIPTS)
+        _callback.GLOBAL_INLINE_SCRIPTS.clear()
+
         return [
             "'{hash_algorithm}-{base64_hash}'".format(
                 hash_algorithm=hash_algorithm,
@@ -1579,7 +1461,7 @@ class Dash:
                     method(script.encode("utf-8")).digest()
                 ).decode("utf-8"),
             )
-            for script in self._inline_scripts + [self.renderer]
+            for script in (self._inline_scripts + [self.renderer])
         ]
 
     def get_asset_url(self, path):
