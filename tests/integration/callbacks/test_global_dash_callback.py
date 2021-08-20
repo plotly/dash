@@ -1,7 +1,7 @@
-import dash
-from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
+import dash
+from dash.dependencies import Input, Output
 
 
 def test_dash_callback_001(dash_duo):
@@ -19,15 +19,15 @@ def test_dash_callback_001(dash_duo):
     )
 
     @dash.callback(Output("div-1", "children"), Input("input", "value"))
-    def update_1(value):
+    def update_1(value):  # pylint: disable=unused-variable
         return f"Input 1 - {value}"
 
     @dash.callback(Output("div-2", "children"), Input("input", "value"))
-    def update_2(value):
+    def update_2(value):  # pylint: disable=unused-variable
         return f"Input 2 - {value}"
 
     @app.callback(Output("div-3", "children"), Input("input", "value"))
-    def update_3(value):
+    def update_3(value):  # pylint: disable=unused-variable
         return f"Input 3 - {value}"
 
     app.clientside_callback(
@@ -47,8 +47,8 @@ def test_dash_callback_001(dash_duo):
     )
 
     dash_duo.start_server(app)
-    input = dash_duo.find_element("#input")
-    input.send_keys("dash.callback")
+    input_element = dash_duo.find_element("#input")
+    input_element.send_keys("dash.callback")
     dash_duo.wait_for_text_to_equal("#div-1", "Input 1 - dash.callback")
     dash_duo.wait_for_text_to_equal("#div-2", "Input 2 - dash.callback")
     dash_duo.wait_for_text_to_equal("#div-3", "Input 3 - dash.callback")
