@@ -23,9 +23,9 @@ class DiskcacheLongCallbackManager(BaseLongCallbackManager):
         """
         try:
             import diskcache  # pylint: disable=import-outside-toplevel
-            import psutil  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
+            import psutil  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable,import-error
             import multiprocess  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
-        except ImportError:
+        except ImportError as missing_imports:
             raise ImportError(
                 """\
 DiskcacheLongCallbackManager requires the multiprocess, diskcache, and psutil packages
@@ -36,7 +36,7 @@ which can be installed using pip...
 or conda.
 
     $ conda install -c conda-forge multiprocess diskcache psutil\n"""
-            )
+            ) from missing_imports
 
         if not isinstance(cache, (diskcache.Cache, diskcache.FanoutCache)):
             raise ValueError("First argument must be a diskcache.Cache object")
@@ -45,7 +45,7 @@ or conda.
         self.expire = expire
 
     def terminate_job(self, job):
-        import psutil  # pylint: disable=import-outside-toplevel
+        import psutil  # pylint: disable=import-outside-toplevel,import-error
 
         if job is None:
             return
@@ -73,7 +73,7 @@ or conda.
                     pass
 
     def terminate_unhealthy_job(self, job):
-        import psutil  # pylint: disable=import-outside-toplevel
+        import psutil  # pylint: disable=import-outside-toplevel,import-error
 
         if job and psutil.pid_exists(job):
             if not self.job_running(job):
@@ -83,7 +83,7 @@ or conda.
         return False
 
     def job_running(self, job):
-        import psutil  # pylint: disable=import-outside-toplevel
+        import psutil  # pylint: disable=import-outside-toplevel,import-error
 
         if job and psutil.pid_exists(job):
             proc = psutil.Process(job)
@@ -97,7 +97,7 @@ or conda.
         self.handle.delete(key)
 
     def call_job_fn(self, key, job_fn, args):
-        from multiprocess import (  # pylint: disable=import-outside-toplevel,no-name-in-module
+        from multiprocess import (  # pylint: disable=import-outside-toplevel,no-name-in-module,import-error
             Process,
         )
 

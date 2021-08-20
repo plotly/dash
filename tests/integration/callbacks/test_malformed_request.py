@@ -1,14 +1,10 @@
 import requests
 
-
-import dash_core_components as dcc
-import dash_html_components as html
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc
 
 
 def test_cbmf001_bad_output_outputs(dash_thread_server):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="i", value="initial value"),

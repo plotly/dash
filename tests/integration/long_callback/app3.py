@@ -1,7 +1,4 @@
-import dash
-from dash.dependencies import Input, State, Output
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import Dash, Input, Output, State, dcc, html
 import time
 
 from tests.integration.long_callback.utils import get_long_callback_manager
@@ -9,7 +6,7 @@ from tests.integration.long_callback.utils import get_long_callback_manager
 long_callback_manager = get_long_callback_manager()
 handle = long_callback_manager.handle
 
-app = dash.Dash(__name__)
+app = Dash(__name__)
 app.layout = html.Div(
     [
         dcc.Input(id="input", value="initial value"),

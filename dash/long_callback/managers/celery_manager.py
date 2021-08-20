@@ -25,8 +25,8 @@ class CeleryLongCallbackManager(BaseLongCallbackManager):
             for ``expire`` seconds.  If not provided, the lifetime of cache entries
             is determined by the default behavior of the celery result backend.
         """
-        import celery  # pylint: disable=import-outside-toplevel
-        from celery.backends.base import (  # pylint: disable=import-outside-toplevel
+        import celery  # pylint: disable=import-outside-toplevel,import-error
+        from celery.backends.base import (  # pylint: disable=import-outside-toplevel,import-error
             DisabledBackend,
         )
 

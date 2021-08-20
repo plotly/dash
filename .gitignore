@@ -43,6 +43,9 @@ coverage.xml
 .Python
 build/
 dash/deps/
+dash/html/
+dash/dcc/
+dash/dash_table/
 develop-eggs/
 dist/
 downloads/
@@ -80,3 +83,8 @@ VERSION.txt
 
 # vim
 *.swp
+
+# Exceptions
+!components/dash-core-components/tests/integration/upload/upload-assets/upft001.csv
+!components/dash-table/tests/assets/*.csv
+!components/dash-table/tests/selenium/assets/*.csv

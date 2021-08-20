@@ -3,16 +3,12 @@ from multiprocessing import Value
 
 import pytest
 
-import dash_html_components as html
-import dash_core_components as dcc
-import dash_table
-import dash
-from dash.dependencies import Input, Output, State
+from dash import Dash, Input, Output, State, callback_context, html, dcc, dash_table
 from dash.exceptions import PreventUpdate
 
 
 def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([html.Button(id="input", n_clicks=0), html.Div(id="output")])
 
     call_count = Value("i", 0)
@@ -41,7 +37,7 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
 
 def test_cbmt002_canceled_intermediate_callback(dash_duo):
     # see https://github.com/plotly/dash/issues/1053
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="a", value="x"),
@@ -77,7 +73,7 @@ def test_cbmt002_canceled_intermediate_callback(dash_duo):
 
 def test_cbmt003_chain_with_table(dash_duo):
     # see https://github.com/plotly/dash/issues/1071
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(id="a1"),
@@ -130,7 +126,7 @@ def test_cbmt003_chain_with_table(dash_duo):
 
 @pytest.mark.parametrize("MULTI", [False, True])
 def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button("Button", id="button"),
@@ -197,7 +193,7 @@ def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
 
 
 def test_cbmt005_multi_converging_chain(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button("Button 1", id="b1"),
@@ -213,10 +209,10 @@ def test_cbmt005_multi_converging_chain(dash_duo):
         [Input("b1", "n_clicks"), Input("b2", "n_clicks")],
     )
     def update_sliders(button1, button2):
-        if not dash.callback_context.triggered:
+        if not callback_context.triggered:
             raise PreventUpdate
 
-        if dash.callback_context.triggered[0]["prop_id"] == "b1.n_clicks":
+        if callback_context.triggered[0]["prop_id"] == "b1.n_clicks":
             return -1, -1
         else:
             return 1, 1
@@ -239,7 +235,7 @@ def test_cbmt005_multi_converging_chain(dash_duo):
 
 
 def test_cbmt006_derived_props(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.Div(id="output"), html.Button("click", id="btn"), dcc.Store(id="store")]
     )
@@ -265,7 +261,7 @@ def test_cbmt006_derived_props(dash_duo):
 
 
 def test_cbmt007_early_preventupdate_inputs_above_below(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(id="content")
 
     @app.callback(Output("content", "children"), [Input("content", "style")])
@@ -308,7 +304,7 @@ def test_cbmt007_early_preventupdate_inputs_above_below(dash_duo):
 
 
 def test_cbmt008_direct_chain(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="input-1", value="input 1"),
@@ -357,7 +353,7 @@ def test_cbmt008_direct_chain(dash_duo):
 
 
 def test_cbmt009_branched_chain(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="grandparent", value="input 1"),
@@ -418,7 +414,7 @@ def test_cbmt009_branched_chain(dash_duo):
 
 
 def test_cbmt010_shared_grandparent(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -468,7 +464,7 @@ def test_cbmt010_shared_grandparent(dash_duo):
 
 
 def test_cbmt011_callbacks_triggered_on_generated_output(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
 
     call_counts = {"tab1": Value("i", 0), "tab2": Value("i", 0)}
 
@@ -524,7 +520,7 @@ def test_cbmt011_callbacks_triggered_on_generated_output(dash_duo):
 
 @pytest.mark.parametrize("generate", [False, True])
 def test_cbmt012_initialization_with_overlapping_outputs(generate, dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=generate)
+    app = Dash(__name__, suppress_callback_exceptions=generate)
     block = html.Div(
         [
             html.Div(id="input-1", children="input-1"),

@@ -17,7 +17,7 @@ coloredlogs.install(
 )
 
 
-class BuildProcess(object):
+class BuildProcess:
     def __init__(self, main, deps_info):
         self.logger = logger
         self.main = main
@@ -162,7 +162,7 @@ class BuildProcess(object):
 class Renderer(BuildProcess):
     def __init__(self):
         """dash-renderer's path is binding with the dash folder hierarchy."""
-        super(Renderer, self).__init__(
+        super().__init__(
             self._concat(os.path.dirname(__file__), os.pardir, "dash-renderer"),
             (
                 ("@babel", "polyfill", "dist", "polyfill.min.js", None),

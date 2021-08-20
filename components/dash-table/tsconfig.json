@@ -1,0 +1,23 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "baseUrl": ".",
+        "paths": {
+            "core/*": [
+                "src/core/*"
+            ],
+            "dash-table/*": [
+                "src/dash-table/*"
+            ],
+            "tests/*": [
+                "tests/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*",
+        "demo/**/*",
+        "@Types/**/*"
+    ]
+}

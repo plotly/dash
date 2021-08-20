@@ -1,16 +1,10 @@
 version: 2.1
+
 orbs:
   win: circleci/windows@2.4.0
-jobs:
-  percy-finalize:
-    docker:
-      - image: percyio/agent
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-    steps:
-      - run: percy finalize --all
+  percy: percy/agent@0.1.3
 
+jobs:
   artifacts:
     docker:
       - image: circleci/python:3.9.2-buster-node-browsers
@@ -27,8 +21,39 @@ jobs:
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
-          path: ~/dash/packages
-          destination: /tmp/packages
+          path: ~/dash/dash-main
+          destination: /tmp/dash-main
+
+  install-dependencies:
+    working_directory: ~/dash
+    docker:
+      - image: circleci/python:3.9.2-buster-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYLINTRC: .pylintrc39
+          PYVERSION: python39
+
+    steps:
+      - checkout
+      - run:
+          name: 🏁 Build Component Packages & Update Dependencies/Artifacts
+          command: |
+            sudo pip install virtualenv --upgrade
+            python -m venv venv && . venv/bin/activate
+            set -eo pipefail
+            pip install -e .[testing,dev] --progress-bar off && pip list | grep dash
+            cd dash/dash-renderer && renderer build && cd ../../
+            dash-update-components "all"
+            python setup.py sdist
+            mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
+            ls -la dash-package
+          no_output_timeout: 20m
+      - persist_to_workspace:
+          root: ~/dash
+          paths:
+            - dash-package
 
   lint-unit-39: &lint-unit
     working_directory: ~/dash
@@ -62,6 +87,7 @@ jobs:
             . venv/bin/activate
             set -eo pipefail
             cd dash/dash-renderer && renderer build && cd ../../
+            dash-update-components "all"
             pip install -e . --progress-bar off && pip list | grep dash
             npm install --production && npm run initialize
             npm run lint
@@ -107,18 +133,6 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
             - venv
-      - run:
-          name: ️️🏗️ build core
-          command: |
-            . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-            cd dash/dash-renderer && renderer build && cd ../../ && python setup.py sdist && mv dist/* packages/
-            git clone --depth 1 https://github.com/plotly/dash-core-components.git
-            cd dash-core-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
-            ls -la packages
-      - persist_to_workspace:
-          root: ~/dash
-          paths:
-            - packages/*.tar.gz
 
   build-core-36:
     <<: *build-core
@@ -155,19 +169,6 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
             - venv
-      - run:
-          name: ️️🏗️ build misc
-          command: |
-            . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --progress-bar off && mkdir packages
-            git clone --depth 1 https://github.com/plotly/dash-table.git
-            cd dash-table && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-            git clone --depth 1 https://github.com/plotly/dash-html-components.git
-            cd dash-html-components && npm ci && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-            ls -la packages
-      - persist_to_workspace:
-          root: ~/dash
-          paths:
-            - packages/*.tar.gz
 
   build-misc-36:
     <<: *build-misc
@@ -193,9 +194,7 @@ jobs:
           name: ️️🏗️ build core
           command: |
             pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
-            cd dash/dash-renderer && renderer build && cd ../../ && python setup.py sdist && mv dist/* packages/
-            git clone --depth 1 https://github.com/plotly/dash-core-components.git
-            cd dash-core-components && npm ci && npm run build && python setup.py sdist && cd ..
+            cd dash/dash-renderer && renderer build && cd ../../
 
   test-39: &test
     working_directory: ~/dash
@@ -205,6 +204,7 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
+          PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python39
@@ -223,10 +223,9 @@ jobs:
           command: |
             . venv/bin/activate
             npm install --production
-            cd packages && ls -la
-            find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && cd ..
+            pip install --no-cache-dir --upgrade --ignore-installed dash-package/dash-package.tar.gz --progress-bar off
+            pip install -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
             sed -i '/dash/d' requires-install.txt
-            pip install --no-cache-dir --ignore-installed .
             pip list | grep dash
       - run:
           name: 🧪 Run Integration Tests
@@ -239,10 +238,6 @@ jobs:
           path: test-reports
       - store_artifacts:
           path: /tmp/dash_artifacts
-      - run:
-          name: 🦔 percy finalize
-          command: npx percy finalize --all
-          when: on_fail
 
   test-36:
     <<: *test
@@ -257,38 +252,459 @@ jobs:
           REDIS_URL: redis://localhost:6379
       - image: circleci/redis
 
+  dcc-lint-unit-39: &lint-unit
+    working_directory: ~/dash/components/dash-core-components
+    docker:
+      - image: circleci/python:3.9.2-buster-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYTHON_VERSION: py39
+    steps:
+      - checkout:
+            path: ~/dash
+      - run: echo $PYTHON_VERSION > ver.txt
+      - restore_cache:
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
+      - attach_workspace:
+          at: ~/dash/components/dash-core-components
+      - run:
+          name: 🐍 pip dev requirements
+          command: |
+            sudo pip install virtualenv --upgrade
+            python -m venv venv || virtualenv venv && . venv/bin/activate
+            pip install dash-package/dash-package.tar.gz[dev,testing]
+            pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
+      - save_cache:
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
+          paths:
+              - venv
+      - run:
+          name: 🌸 Lint
+          command: |
+            . venv/bin/activate
+            set -eo pipefail
+            npm ci
+            npm run lint
+
+  dcc-lint-unit-36:
+    <<: *lint-unit
+    docker:
+      - image: circleci/python:3.6.13-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYTHON_VERSION: py36
+
+  dcc-build-dash-39: &build-dash
+    working_directory: ~/dash/components/dash-core-components
+    docker:
+      - image: circleci/python:3.9.2-buster-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+            PYTHON_VERSION: py39
+    steps:
+      - checkout:
+            path: ~/dash
+      - run: echo $PYTHON_VERSION > ver.txt
+      - restore_cache:
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
+      - run:
+          name: 🐍 pip dev requirements
+          command: |
+            sudo pip install virtualenv --upgrade
+            python -m venv venv || virtualenv venv && . venv/bin/activate
+            set -eo pipefail
+            pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
+      - save_cache:
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
+          paths:
+              - venv
+      - attach_workspace:
+          at: ~/dash/components/dash-core-components
+      - run:
+          name: 🏗️ build dash
+          command: |
+            . venv/bin/activate
+            set -eo pipefail
+            # build main dash & renderer
+            pip install dash-package/dash-package.tar.gz[dev,testing]
+
+  dcc-build-dash-36:
+    <<: *build-dash
+    docker:
+      - image: circleci/python:3.6.13-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYTHON_VERSION: py36
+
+  dcc-test-39: &test
+    working_directory: ~/dash/components/dash-core-components
+    docker:
+      - image: circleci/python:3.9.2-buster-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+            PYTHON_VERSION: py39
+            PERCY_PARALLEL_TOTAL: -1
+            PERCY_ENABLE: 1
+    parallelism: 3
+    steps:
+      - checkout:
+            path: ~/dash
+      - run: echo $PYTHON_VERSION > ver.txt
+      - restore_cache:
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
+      - attach_workspace:
+          at: ~/dash/components/dash-core-components
+      - run:
+          name: 🧪 Run Integration Tests
+          command: |
+            . venv/bin/activate && rm -rf dash_core_components && ls -la
+            set -eo pipefail
+            pip install dash-package/dash-package.tar.gz[dev,testing]
+            pip uninstall orjson -y
+            pip list | grep dash | xargs pip show
+            echo $(python -V 2>&1) | grep 3.
+            TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
+            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+      - store_artifacts:
+          path: ~/dash/components/dash-core-components/test-reports
+      - store_test_results:
+          path: ~/dash/components/dash-core-components/test-reports
+      - store_artifacts:
+          path: /tmp/dash_artifacts
+
+  dcc-test-36:
+    <<: *test
+    docker:
+      - image: circleci/python:3.6.13-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYTHON_VERSION: py36
+          PERCY_ENABLE: 0
+
+  html-python-36: &test-template
+    working_directory: ~/dash/components/dash-html-components
+    docker:
+      - image: circleci/python:3.6.13-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYTHON_VERSION: py36
+          PERCY_ENABLE: 0
+
+    steps:
+      - checkout:
+            path: ~/dash
+
+      - attach_workspace:
+          at: ~/dash/components/dash-html-components
+
+      - run:
+          name: ✍️ Write job name
+          command: echo $CIRCLE_JOB > circlejob.txt
+
+      - run:
+          name: 🏗️ Install dependencies
+          command: |
+              sudo pip install virtualenv --upgrade
+              python -m venv venv || virtualenv venv
+              . venv/bin/activate
+              pip install dash-package/dash-package.tar.gz[dev,testing]
+              pip install -r dev-requirements.txt
+              npm ci
+
+      - run:
+          name: 🧰 Build
+          command: |
+              . venv/bin/activate
+              python --version
+              npm run clean
+              npm run build
+
+      - run:
+          name: 🧪 Run tests
+          command: |
+              . venv/bin/activate
+              python --version
+              npm run test
+
+      - store_artifacts:
+          path: ~/dash/components/dash-html-components/test-reports
+      - store_test_results:
+          path: ~/dash/components/dash-html-components/test-reports
+      - store_artifacts:
+          path: /tmp/dash_artifacts
+
+  html-python-39:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.9.2-buster-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYTHON_VERSION: py39
+          PERCY_ENABLE: 1
+          PERCY_PARALLEL_TOTAL: -1
+
+  table-server-test:
+      working_directory: ~/dash/components/dash-table
+      docker:
+          - image: circleci/python:3.9.2-buster-node-browsers
+            environment:
+              PERCY_ENABLE: 1
+              PERCY_PARALLEL_TOTAL: -1
+
+      parallelism: 4
+
+      steps:
+          - checkout:
+                  path: ~/dash
+          - run:
+              name: Inject Percy Environment variables
+              command: |
+                echo 'export PERCY_TOKEN="$PERCY_TOKEN"' >> $BASH_ENV
+          - restore_cache:
+              key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+          - attach_workspace:
+              at: ~/dash/components/dash-table
+          - run:
+              name: Install npm packages
+              command: npm ci
+          - save_cache:
+              key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+              paths:
+                  - node_modules
+          - run:
+              name: Install requirements
+              command: |
+                  python -m venv venv
+                  . venv/bin/activate
+                  pip install -r dev-requirements.txt --quiet
+                  pip install -r python-requirements.txt --quiet
+                  pip install dash-package/dash-package.tar.gz[dev,testing]
+                  pip uninstall -y dash-html-components dash-core-components
+          - run:
+              name: Build
+              command: |
+                  . venv/bin/activate
+                  npm run private::build:js-test
+                  npm run private::build:backends
+          - run:
+              name: Run tests
+              command: |
+                  . venv/bin/activate
+                  TESTFILES=$(circleci tests glob "tests/selenium/**/test_*.py" | circleci tests split --split-by=timings)
+                  pytest --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+          - store_artifacts:
+              path: ~/dash/components/dash-table/test-reports
+          - store_test_results:
+              path: ~/dash/components/dash-table/test-reports
+          - store_artifacts:
+              path: /tmp/dash_artifacts
+
+  table-unit-test:
+      working_directory: ~/dash/components/dash-table
+      docker:
+          - image: circleci/python:3.9.2-buster-node-browsers
+      steps:
+          - checkout:
+                  path: ~/dash
+          - restore_cache:
+              key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+          - run:
+              name: Install npm packages
+              command: npm ci
+          - save_cache:
+              key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+              paths:
+                  - node_modules
+          - attach_workspace:
+              at: ~/dash/components/dash-table
+          - run:
+              name: Install requirements
+              command: |
+                  python -m venv venv
+                  . venv/bin/activate
+                  pip install -r dev-requirements.txt --quiet
+                  pip install dash-package/dash-package.tar.gz[dev,testing]
+          - run:
+              name: Run tests
+              command: |
+                  . venv/bin/activate
+                  npm run test.unit
+
+  table-visual-test:
+      working_directory: ~/dash/components/dash-table
+      docker:
+          - image: circleci/node:14-browsers
+            environment:
+              PERCY_TOKEN: $PERCY_TOKEN_TABLE
+
+      steps:
+          - checkout:
+                  path: ~/dash
+          - restore_cache:
+              key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
+          - run:
+              name: Install package.json
+              command: npm ci
+          - save_cache:
+              key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
+              paths:
+                  - node_modules
+          - run:
+              name: Run build:js
+              command: npm run private::build:js
+          - run:
+              name: Run visual tests
+              command: PERCY_TOKEN=$PERCY_TOKEN_TABLE npm run test.visual
+          - store_artifacts:
+              path: storybook-static
+
+  table-node:
+      working_directory: ~/dash/components/dash-table
+      docker:
+          - image: circleci/python:3.9.2-node
+      steps:
+          - checkout:
+                  path: ~/dash
+          - run:
+                name: Create virtual env
+                command: python -m venv venv
+          - restore_cache:
+              key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
+          - run:
+              name: Install package.json
+              command: npm ci
+          - save_cache:
+              key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
+              paths:
+                  - node_modules
+          - attach_workspace:
+              at: ~/dash/components/dash-table
+          - run:
+              name: Install requirements
+              command: |
+                  . venv/bin/activate
+                  pip install -r dev-requirements.txt --quiet
+                  pip install dash-package/dash-package.tar.gz[dev,testing]
+
+          - run:
+              name: Run eslint
+              command: |
+                  . venv/bin/activate
+                  npm run lint
+              when: always
+
 workflows:
   version: 2
-  python3.9:
+  dash-python3.9:
     jobs:
+      - install-dependencies
       - lint-unit-39
       - build-core-39
       - build-windows-39
       - build-misc-39
-      - test-39:
-          requires:
-            - build-core-39
-            - build-misc-39
-      - percy-finalize:
-          requires:
-            - test-39
-      - artifacts:
-          requires:
-            - percy-finalize
-          filters:
-            branches:
-              only:
-                - master
-                - dev
-            tags:
-              only: /v*/
 
-  python3.6:
+
+  dash-python3.6:
     jobs:
+      - install-dependencies
       - lint-unit-36
       - build-core-36
       - build-misc-36
       - test-36:
           requires:
+            - install-dependencies
             - build-core-36
             - build-misc-36
+
+  dcc-python3.9:
+    jobs:
+      - install-dependencies
+      - dcc-lint-unit-39:
+          requires:
+            - install-dependencies
+
+  dcc-python3.6:
+    jobs:
+      - install-dependencies
+      - dcc-lint-unit-36:
+          requires:
+            - install-dependencies
+      - dcc-build-dash-36:
+          requires:
+            - install-dependencies
+      - dcc-test-36:
+          requires:
+            - install-dependencies
+            - dcc-build-dash-36
+
+  html-build:
+    jobs:
+      - install-dependencies
+      - html-python-36:
+          requires:
+            - install-dependencies
+
+
+  table-build:
+      jobs:
+          - install-dependencies
+          - table-node:
+              requires:
+                - install-dependencies
+          - table-unit-test:
+              requires:
+                - install-dependencies
+          - table-visual-test
+
+  percy-tests:
+      jobs:
+          - install-dependencies
+          - percy/finalize_all:
+              requires:
+                - test-39
+                - dcc-test-39
+                - html-python-39
+                - table-server-test
+          - artifacts:
+              requires:
+                - percy/finalize_all
+              filters:
+                branches:
+                  only:
+                    - master
+                    - dev
+                tags:
+                  only: /v*/
+          - test-39:
+              requires:
+                - install-dependencies
+
+          - table-server-test:
+              requires:
+                - install-dependencies
+          - html-python-39:
+              requires:
+                - install-dependencies
+          - dcc-build-dash-39:
+              requires:
+                - install-dependencies
+          - dcc-test-39:
+              requires:
+                - install-dependencies
+                - dcc-build-dash-39

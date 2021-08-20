@@ -60,7 +60,7 @@ def _check_if_has_indexable_children(item):
 
 
 class Component(with_metaclass(ComponentMeta, object)):
-    class _UNDEFINED(object):
+    class _UNDEFINED:
         def __repr__(self):
             return "undefined"
 
@@ -69,7 +69,7 @@ class Component(with_metaclass(ComponentMeta, object)):
 
     UNDEFINED = _UNDEFINED()
 
-    class _REQUIRED(object):
+    class _REQUIRED:
         def __repr__(self):
             return "required"
 
@@ -181,10 +181,10 @@ class Component(with_metaclass(ComponentMeta, object)):
                 if self.children.id == id:
                     if operation == "get":
                         return self.children
-                    elif operation == "set":
+                    if operation == "set":
                         self.children = new_item
                         return
-                    elif operation == "delete":
+                    if operation == "delete":
                         self.children = None
                         return
 
@@ -192,10 +192,10 @@ class Component(with_metaclass(ComponentMeta, object)):
             try:
                 if operation == "get":
                     return self.children.__getitem__(id)
-                elif operation == "set":
+                if operation == "set":
                     self.children.__setitem__(id, new_item)
                     return
-                elif operation == "delete":
+                if operation == "delete":
                     self.children.__delitem__(id)
                     return
             except KeyError:
@@ -208,10 +208,10 @@ class Component(with_metaclass(ComponentMeta, object)):
                 if getattr(item, "id", None) == id:
                     if operation == "get":
                         return item
-                    elif operation == "set":
+                    if operation == "set":
                         self.children[i] = new_item
                         return
-                    elif operation == "delete":
+                    if operation == "delete":
                         del self.children[i]
                         return
 
@@ -221,10 +221,10 @@ class Component(with_metaclass(ComponentMeta, object)):
                     try:
                         if operation == "get":
                             return item.__getitem__(id)
-                        elif operation == "set":
+                        if operation == "set":
                             item.__setitem__(id, new_item)
                             return
-                        elif operation == "delete":
+                        if operation == "delete":
                             item.__delitem__(id)
                             return
                     except KeyError:

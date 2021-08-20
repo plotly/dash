@@ -3,10 +3,7 @@ from multiprocessing import Value
 from copy import copy
 from selenium.webdriver.common.keys import Keys
 
-import dash_core_components as dcc
-import dash_html_components as html
-from dash import Dash, no_update
-from dash.dependencies import Input, Output, State
+from dash import Dash, no_update, Input, Output, State, html, dcc
 from dash.exceptions import PreventUpdate
 
 from dash.testing.wait import until

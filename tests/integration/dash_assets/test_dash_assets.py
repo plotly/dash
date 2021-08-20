@@ -1,10 +1,7 @@
 import json
 import itertools
 
-import dash_html_components as html
-import dash_core_components as dcc
-
-from dash import Dash
+from dash import Dash, html, dcc
 
 
 def test_dada001_assets(dash_duo):

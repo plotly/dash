@@ -1,12 +1,7 @@
 import time
 import pytest
 
-import dash_html_components as html
-import dash_core_components as dcc
-
-from dash import Dash
-
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc
 from dash.exceptions import PreventUpdate
 
 
@@ -15,13 +10,11 @@ def get_script_sources(dash_duo):
 
 
 def hasSyncPlotlyJs(dash_duo):
-    return any("dash_core_components/plotly" in s for s in get_script_sources(dash_duo))
+    return any("dash/dcc/plotly" in s for s in get_script_sources(dash_duo))
 
 
 def hasAsyncPlotlyJs(dash_duo):
-    return any(
-        "dash_core_components/async-plotlyjs" in s for s in get_script_sources(dash_duo)
-    )
+    return any("dash/dcc/async-plotlyjs" in s for s in get_script_sources(dash_duo))
 
 
 def hasWindowPlotly(dash_duo):

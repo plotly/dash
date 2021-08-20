@@ -1,10 +1,7 @@
 # -*- coding: UTF-8 -*-
 from multiprocessing import Value
 
-import dash_html_components as html
-import dash_core_components as dcc
-from dash import Dash
-from dash.dependencies import Input, Output, State, ClientsideFunction, ALL
+from dash import Dash, Input, Output, State, ClientsideFunction, ALL, html, dcc
 from selenium.webdriver.common.keys import Keys
 
 

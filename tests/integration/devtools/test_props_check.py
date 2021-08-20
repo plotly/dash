@@ -1,8 +1,5 @@
-import dash_core_components as dcc
-import dash_html_components as html
-from dash_table import DataTable
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc
+from dash.dash_table import DataTable
 
 
 test_cases = {
@@ -176,7 +173,7 @@ test_cases = {
 
 
 def test_dvpc001_prop_check_errors_with_path(dash_duo):
-    app = dash.Dash(__name__, eager_loading=True)
+    app = Dash(__name__, eager_loading=True)
 
     app.layout = html.Div([html.Div(id="content"), dcc.Location(id="location")])
 

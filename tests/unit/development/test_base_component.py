@@ -3,7 +3,7 @@ import json
 import plotly
 import pytest
 
-import dash_html_components as html
+from dash import html
 from dash.development.base_component import Component
 
 Component._prop_names = ("id", "a", "children", "style")
@@ -458,8 +458,7 @@ def test_debc027_component_error_message():
     with pytest.raises(TypeError) as e:
         html.Div(asdf=True)
     assert str(e.value) == (
-        "The `dash_html_components.Div` component "
-        + "(version {}) ".format(html.__version__)
+        "The `Div` component "
         + "received an unexpected "
         + "keyword argument: `asdf`\n"
         + "Allowed arguments: {}".format(", ".join(sorted(html.Div()._prop_names)))
@@ -468,8 +467,7 @@ def test_debc027_component_error_message():
     with pytest.raises(TypeError) as e:
         html.Div(asdf=True, id="my-component")
     assert str(e.value) == (
-        "The `dash_html_components.Div` component "
-        + "(version {}) ".format(html.__version__)
+        "The `Div` component "
         + 'with the ID "my-component" received an unexpected '
         + "keyword argument: `asdf`\n"
         + "Allowed arguments: {}".format(", ".join(sorted(html.Div()._prop_names)))

@@ -49,6 +49,10 @@ As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and 
 
 When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, Python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
 
+### Development of `dash-core-components`, `dash-html-components`, and `dash_table`
+
+Specific details on making updates and contributions to `dcc`, `html`, and `dash_table` can be found within their respective sub-directories in the `components` directory. Once changes have been made in the specific directories, the `dash-update-components` command line tool can be used to update the build artifacts and dependencies of the respective packages within Dash. For example, if a change has been made to `dash-core-components`, use `dash-update-components "dash-core-components"` to move the build artifacts to Dash. By default, this is set to update `all` packages.
+
 ## Python 2 And 3 Compatibility
 
 Writing Python 2/3 compatible code might be a challenging task for contributors used to working on one particular version, especially new learners who start directly with Python 3.
@@ -77,7 +81,7 @@ Git command veterans might argue that a simple terminal and a cherry switch keyb
 
 ### Emoji
 
-Plotlyers love to use emoji as an effective communication medium for
+Plotlyers love to use emoji as an effective communication medium for:
 
 **Commit Messages**
 

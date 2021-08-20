@@ -925,7 +925,7 @@ def get_r_type(type_object, is_flow_type=False, indent_num=0):
         or type_object.get("type", "") == "function"
     ):
         return ""
-    elif js_type_name in js_to_r_types:
+    if js_type_name in js_to_r_types:
         prop_type = js_to_r_types[js_type_name]()
         return prop_type
     return ""

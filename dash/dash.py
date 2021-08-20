@@ -1,9 +1,11 @@
 from __future__ import print_function
 
+from functools import wraps
 import os
 import sys
 import collections
 import importlib
+from importlib.machinery import ModuleSpec
 import pkgutil
 import threading
 import re
@@ -13,13 +15,16 @@ import mimetypes
 import hashlib
 import base64
 
-from functools import wraps
 from future.moves.urllib.parse import urlparse
+from _pytest.assertion.rewrite import AssertionRewritingHook
 
 import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
+from dash import dcc
+from dash import html
+from dash import dash_table
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -102,7 +107,7 @@ _re_index_scripts_id = 'src="[^"]*dash[-_]renderer[^"]*"', "dash-renderer"
 _re_renderer_scripts_id = 'id="_dash-renderer', "new DashRenderer"
 
 
-class _NoUpdate(object):
+class _NoUpdate:
     # pylint: disable=too-few-public-methods
     pass
 
@@ -120,7 +125,7 @@ ns["{function_name}"] = {clientside_function};
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
-class Dash(object):
+class Dash:
     """Dash is a framework for building analytical web applications.
     No JavaScript required.
 
@@ -499,13 +504,11 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
-        from dash_html_components import Div  # pylint: disable=import-outside-toplevel
-
         layout = self._layout() if self._layout_is_function else self._layout
 
         # Add any extra components
         if self._extra_components:
-            layout = Div(children=[layout] + self._extra_components)
+            layout = html.Div(children=[layout] + self._extra_components)
 
         return layout
 
@@ -569,8 +572,6 @@ class Dash(object):
         )
 
     def _config(self):
-        from dash_html_components import Div  # pylint: disable=import-outside-toplevel
-
         # pieces of config needed by the front end
         config = {
             "url_base_pathname": self.config.url_base_pathname,
@@ -592,7 +593,7 @@ class Dash(object):
 
             # Add extra components
             if self._extra_components:
-                validation_layout = Div(
+                validation_layout = html.Div(
                     children=[validation_layout] + self._extra_components
                 )
 
@@ -624,6 +625,13 @@ class Dash(object):
         # add the version number of the package as a query parameter
         # for cache busting
         def _relative_url_path(relative_package_path="", namespace=""):
+            if any(x in relative_package_path for x in ["dcc", "html", "dash_table"]):
+                relative_package_path = relative_package_path.replace("dash.", "")
+                version = importlib.import_module(
+                    "{}.{}".format(namespace, os.path.split(relative_package_path)[0])
+                ).__version__
+            else:
+                version = importlib.import_module(namespace).__version__
 
             module_path = os.path.join(
                 os.path.dirname(sys.modules[namespace].__file__), relative_package_path
@@ -634,11 +642,7 @@ class Dash(object):
             return "{}_dash-component-suites/{}/{}".format(
                 self.config.requests_pathname_prefix,
                 namespace,
-                build_fingerprint(
-                    relative_package_path,
-                    importlib.import_module(namespace).__version__,
-                    modified,
-                ),
+                build_fingerprint(relative_package_path, version, modified),
             )
 
         srcs = []
@@ -650,6 +654,9 @@ class Dash(object):
                 paths = [paths] if isinstance(paths, str) else paths
 
                 for rel_path in paths:
+                    if any(x in rel_path for x in ["dcc", "html", "dash_table"]):
+                        rel_path = rel_path.replace("dash.", "")
+
                     self.registered_paths[resource["namespace"]].add(rel_path)
 
                     if not is_dynamic_resource:
@@ -716,6 +723,15 @@ class Dash(object):
                 self.scripts.get_all_scripts(dev_bundles=dev)
                 + self.scripts._resources._filter_resources(
                     _dash_renderer._js_dist, dev_bundles=dev
+                )
+                + self.scripts._resources._filter_resources(
+                    dcc._js_dist, dev_bundles=dev
+                )
+                + self.scripts._resources._filter_resources(
+                    html._js_dist, dev_bundles=dev
+                )
+                + self.scripts._resources._filter_resources(
+                    dash_table._js_dist, dev_bundles=dev
                 )
             )
         )
@@ -1139,7 +1155,7 @@ class Dash(object):
 
         return wrap_func
 
-    def long_callback(self, *_args, **_kwargs):
+    def long_callback(self, *_args, **_kwargs):  # pylint: disable=too-many-statements
         """
         Normally used as a decorator, `@app.long_callback` is an alternative to
         `@app.callback` designed for callbacks that take a long time to run,
@@ -1202,7 +1218,6 @@ class Dash(object):
         from dash._callback_context import (  # pylint: disable=import-outside-toplevel
             callback_context,
         )
-        import dash_core_components as dcc  # pylint: disable=import-outside-toplevel
         from dash.exceptions import (  # pylint: disable=import-outside-toplevel
             WildcardInLongCallback,
         )
@@ -1334,7 +1349,7 @@ class Dash(object):
                         progress=clear_progress,
                         user_store_data=user_store_data,
                     )
-                elif progress_value:
+                if progress_value:
                     return dict(
                         user_callback_output=map_grouping(lambda x: no_update, output),
                         interval_disabled=False,
@@ -1342,31 +1357,31 @@ class Dash(object):
                         progress=progress_value or {},
                         user_store_data=user_store_data,
                     )
-                else:
-                    # Check if there is a running calculation that can now
-                    # be canceled
-                    old_pending_key = user_store_data.get("pending_key", None)
-                    if (
-                        old_pending_key
-                        and old_pending_key != pending_key
-                        and callback_manager.job_running(pending_job)
-                    ):
-                        callback_manager.terminate_job(pending_job)
 
-                    user_store_data["pending_key"] = pending_key
-                    callback_manager.terminate_unhealthy_job(pending_job)
-                    if not callback_manager.job_running(pending_job):
-                        user_store_data["pending_job"] = callback_manager.call_job_fn(
-                            pending_key, background_fn, user_callback_args
-                        )
+                # Check if there is a running calculation that can now
+                # be canceled
+                old_pending_key = user_store_data.get("pending_key", None)
+                if (
+                    old_pending_key
+                    and old_pending_key != pending_key
+                    and callback_manager.job_running(pending_job)
+                ):
+                    callback_manager.terminate_job(pending_job)
 
-                    return dict(
-                        user_callback_output=map_grouping(lambda x: no_update, output),
-                        interval_disabled=False,
-                        in_progress=[val for (_, val, _) in running],
-                        progress=clear_progress,
-                        user_store_data=user_store_data,
+                user_store_data["pending_key"] = pending_key
+                callback_manager.terminate_unhealthy_job(pending_job)
+                if not callback_manager.job_running(pending_job):
+                    user_store_data["pending_job"] = callback_manager.call_job_fn(
+                        pending_key, background_fn, user_callback_args
                     )
+
+                return dict(
+                    user_callback_output=map_grouping(lambda x: no_update, output),
+                    interval_disabled=False,
+                    in_progress=[val for (_, val, _) in running],
+                    progress=clear_progress,
+                    user_store_data=user_store_data,
+                )
 
             return self.callback(
                 inputs=dict(
@@ -1455,9 +1470,9 @@ class Dash(object):
                 and outputs_indices != list(range(grouping_len(outputs_indices)))
             )
 
-        except KeyError:
+        except KeyError as missing_callback_function:
             msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
-            raise KeyError(msg.format(output))
+            raise KeyError(msg.format(output)) from missing_callback_function
         response.set_data(func(*args, outputs_list=outputs_list))
         return response
 
@@ -1809,12 +1824,31 @@ class Dash(object):
                 if x != "__main__"
             ]
 
+            # # additional condition to account for AssertionRewritingHook object
+            # # loader when running pytest
+            for index, package in enumerate(packages):
+                if isinstance(package, AssertionRewritingHook):
+                    print("YES")
+                    dash_spec = importlib.util.find_spec("dash")
+                    dash_test_path = dash_spec.submodule_search_locations[0]
+                    setattr(dash_spec, "path", dash_test_path)
+                    packages[index] = dash_spec
+
             component_packages_dist = [
-                os.path.dirname(package.path)
+                dash_test_path
+                if isinstance(package, ModuleSpec)
+                else os.path.dirname(package.path)
                 if hasattr(package, "path")
                 else package.filename
                 for package in packages
             ]
+
+            for i, package in enumerate(packages):
+                if "dash/dash" in os.path.dirname(package.path):
+                    component_packages_dist[i : i + 1] = [
+                        os.path.join(os.path.dirname(package.path), x)
+                        for x in ["dcc", "html", "dash_table"]
+                    ]
 
             _reload.watch_thread = threading.Thread(
                 target=lambda: _watch.watch(

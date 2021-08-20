@@ -1,0 +1,7 @@
+include dash_html_components/dash_html_components.min.js
+include dash_html_components/dash_html_components.min.js.map
+include dash_html_components/metadata.json
+include dash_html_components/package-info.json
+include LICENSE.md
+include README.md
+include package.json
