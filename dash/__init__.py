@@ -9,4 +9,4 @@ from . import exceptions  # noqa: F401,E402
 from . import resources  # noqa: F401,E402
 from .version import __version__  # noqa: F401,E402
 from ._callback_context import callback_context  # noqa: F401,E402
-from ._callback import callback, clientside_callback
+from ._callback import callback, clientside_callback  # noqa: F401,E402
