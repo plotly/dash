@@ -1828,7 +1828,6 @@ class Dash:
             # # loader when running pytest
             for index, package in enumerate(packages):
                 if isinstance(package, AssertionRewritingHook):
-                    print("YES")
                     dash_spec = importlib.util.find_spec("dash")
                     dash_test_path = dash_spec.submodule_search_locations[0]
                     setattr(dash_spec, "path", dash_test_path)
