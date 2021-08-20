@@ -722,7 +722,10 @@ class Dash(object):
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
             ]
-            + ["<script>{}</script>".format(src) for src in self._inline_scripts]
+            + [
+                "<script>{}</script>".format(src)
+                for src in (self._inline_scripts + _callback.GLOBAL_INLINE_SCRIPTS)
+            ]
         )
 
     def _generate_config_html(self):
@@ -1437,7 +1440,9 @@ class Dash(object):
                     method(script.encode("utf-8")).digest()
                 ).decode("utf-8"),
             )
-            for script in self._inline_scripts + [self.renderer]
+            for script in (
+                self._inline_scripts + [self.renderer] + _callback.GLOBAL_INLINE_SCRIPTS
+            )
         ]
 
     def get_asset_url(self, path):
