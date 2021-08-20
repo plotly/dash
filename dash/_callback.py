@@ -187,12 +187,30 @@ def register_callback(
     return wrap_func
 
 
-def register_clientside_callback(clientside_function, *args, **kwargs):
+_inline_clientside_template = """
+var clientside = window.dash_clientside = window.dash_clientside || {{}};
+var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
+ns["{function_name}"] = {clientside_function};
+"""
+
+
+
+def register_clientside_callback(
+    callback_list,
+    callback_map,
+    config_prevent_initial_callbacks,
+    inline_scripts,
+    clientside_function,
+
+    clientside_function,
+    *args,
+    **kwargs
+):
     output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-    _callback.insert_callback(
-        self._callback_list,
-        self.callback_map,
-        self.config.prevent_initial_callbacks,
+    insert_callback(
+        callback_list,
+        callback_map,
+        config_prevent_initial_callbacks,
         output,
         None,
         inputs,
@@ -212,7 +230,7 @@ def register_clientside_callback(clientside_function, *args, **kwargs):
         namespace = "_dashprivate_{}".format(out0.component_id)
         function_name = "{}".format(out0.component_property)
 
-        self._inline_scripts.append(
+        inline_scripts.append(
             _inline_clientside_template.format(
                 namespace=namespace.replace('"', '\\"'),
                 function_name=function_name.replace('"', '\\"'),
@@ -225,7 +243,7 @@ def register_clientside_callback(clientside_function, *args, **kwargs):
         namespace = clientside_function.namespace
         function_name = clientside_function.function_name
 
-    self._callback_list[-1]["clientside_function"] = {
+    callback_list[-1]["clientside_function"] = {
         "namespace": namespace,
         "function_name": function_name,
     }

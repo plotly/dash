@@ -113,13 +113,6 @@ class _NoUpdate(object):
 no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
 
-_inline_clientside_template = """
-var clientside = window.dash_clientside = window.dash_clientside || {{}};
-var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
-ns["{function_name}"] = {clientside_function};
-"""
-
-
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
@@ -975,6 +968,10 @@ class Dash(object):
         `False` unless `prevent_initial_callbacks=True` at the app level.
         """
         return _callback.register_clientside_callback(
+            self._callback_list,
+            self.callback_map,
+            self.config.prevent_initial_callbacks,
+            self._inline_scripts,
             clientside_function, *args, **kwargs
         )
 
