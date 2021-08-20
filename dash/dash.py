@@ -714,6 +714,9 @@ class Dash(object):
             )
         )
 
+        self._inline_scripts.extend(_callback.GLOBAL_INLINE_SCRIPTS)
+        _callback.GLOBAL_INLINE_SCRIPTS.clear()
+
         return "\n".join(
             [
                 format_tag("script", src)
@@ -721,10 +724,7 @@ class Dash(object):
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
             ]
-            + [
-                "<script>{}</script>".format(src)
-                for src in (self._inline_scripts + _callback.GLOBAL_INLINE_SCRIPTS)
-            ]
+            + ["<script>{}</script>".format(src) for src in self._inline_scripts]
         )
 
     def _generate_config_html(self):
@@ -1343,7 +1343,7 @@ class Dash(object):
         self._generate_css_dist_html()
 
         # Copy over global callback data structures assigned with `dash.callback`
-        for k in _callback.GLOBAL_CALLBACK_MAP:
+        for k in list(_callback.GLOBAL_CALLBACK_MAP):
 
             if k in self.callback_map:
                 raise DuplicateCallback(
@@ -1353,9 +1353,10 @@ class Dash(object):
                     + "assigned with `app.callback`."
                 )
 
-            self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP[k]
+            self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP.pop(k)
 
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
+        _callback.GLOBAL_CALLBACK_LIST.clear()
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
@@ -1434,6 +1435,9 @@ class Dash(object):
 
         method = getattr(hashlib, hash_algorithm)
 
+        self._inline_scripts.extend(_callback.GLOBAL_INLINE_SCRIPTS)
+        _callback.GLOBAL_INLINE_SCRIPTS.clear()
+
         return [
             "'{hash_algorithm}-{base64_hash}'".format(
                 hash_algorithm=hash_algorithm,
@@ -1441,9 +1445,7 @@ class Dash(object):
                     method(script.encode("utf-8")).digest()
                 ).decode("utf-8"),
             )
-            for script in (
-                self._inline_scripts + [self.renderer] + _callback.GLOBAL_INLINE_SCRIPTS
-            )
+            for script in (self._inline_scripts + [self.renderer])
         ]
 
     def get_asset_url(self, path):
