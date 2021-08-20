@@ -22,7 +22,7 @@ from ._utils import (
 from . import _validate
 
 
-class NoUpdate(object):
+class NoUpdate:
     # pylint: disable=too-few-public-methods
     pass
 
