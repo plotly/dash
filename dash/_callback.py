@@ -2,6 +2,7 @@ import collections
 from functools import wraps
 
 from .dependencies import (
+    handle_callback_args,
     handle_grouped_callback_args,
     Output,
 )
@@ -213,7 +214,6 @@ def register_clientside_callback(
     callback_map,
     config_prevent_initial_callbacks,
     inline_scripts,
-    clientside_function,
 
     clientside_function,
     *args,

@@ -23,7 +23,6 @@ from pkg_resources import get_distribution, parse_version
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
 from .dependencies import (
-    handle_callback_args,
     handle_grouped_callback_args,
     Output,
     State,
