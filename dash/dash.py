@@ -714,7 +714,7 @@ class Dash(object):
             )
         )
 
-        global_inline_scripts = list(_callback.GLOBAL_INLINE_SCRIPTS)
+        self._inline_scripts.extend(_callback.GLOBAL_INLINE_SCRIPTS)
         _callback.GLOBAL_INLINE_SCRIPTS.clear()
 
         return "\n".join(
@@ -724,10 +724,7 @@ class Dash(object):
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
             ]
-            + [
-                "<script>{}</script>".format(src)
-                for src in (self._inline_scripts + global_inline_scripts)
-            ]
+            + ["<script>{}</script>".format(src) for src in self._inline_scripts]
         )
 
     def _generate_config_html(self):
@@ -1438,6 +1435,9 @@ class Dash(object):
 
         method = getattr(hashlib, hash_algorithm)
 
+        self._inline_scripts.extend(_callback.GLOBAL_INLINE_SCRIPTS)
+        _callback.GLOBAL_INLINE_SCRIPTS.clear()
+
         return [
             "'{hash_algorithm}-{base64_hash}'".format(
                 hash_algorithm=hash_algorithm,
@@ -1445,9 +1445,7 @@ class Dash(object):
                     method(script.encode("utf-8")).digest()
                 ).decode("utf-8"),
             )
-            for script in (
-                self._inline_scripts + [self.renderer] + _callback.GLOBAL_INLINE_SCRIPTS
-            )
+            for script in (self._inline_scripts + [self.renderer])
         ]
 
     def get_asset_url(self, path):
