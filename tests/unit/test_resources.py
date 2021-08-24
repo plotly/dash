@@ -1,6 +1,7 @@
 import mock
 import dash
 from dash import dcc, html  # noqa: F401
+import sys
 
 from dash.development.base_component import ComponentRegistry
 
@@ -102,3 +103,24 @@ def test_internal(mocker):
     ), "Dynamic resource not available in registered path {}".format(
         app.registered_paths["dash"]
     )
+
+
+def test_collect_and_register_resources(mocker):
+
+    app = dash.Dash(
+        __name__, assets_folder="tests/assets", assets_ignore="load_after.+.js"
+    )
+    with mock.patch("dash.dash.os.stat", return_value=StatMock()):
+        with mock.patch("dash.dash.importlib.import_module") as import_mock:
+            sys.modules["dash_html_components"] = dcc
+
+            import_mock.return_value = dcc
+            app._collect_and_register_resources(
+                [
+                    {
+                        "namespace": "dash_html_components",
+                        "relative_package_path": "dash_html_components.min.js",
+                    },
+                ]
+            )
+            import_mock.assert_any_call("dash_html_components")
