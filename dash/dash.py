@@ -619,7 +619,7 @@ class Dash:
         # for cache busting
         def _relative_url_path(relative_package_path="", namespace=""):
             if any(
-                relative_package_path.startswith(x + '/')
+                relative_package_path.startswith(x + "/")
                 for x in ["dcc", "html", "dash_table"]
             ):
                 relative_package_path = relative_package_path.replace("dash.", "")
