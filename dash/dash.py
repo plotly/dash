@@ -1079,12 +1079,11 @@ class Dash:
                 this should be a list of argument names as strings. Otherwise,
                 this should be a list of argument indices as integers.
         """
-        from dash._callback_context import (  # pylint: disable=import-outside-toplevel
-            callback_context,
-        )
-        from dash.exceptions import (  # pylint: disable=import-outside-toplevel
-            WildcardInLongCallback,
-        )
+        # pylint: disable-next=import-outside-toplevel
+        from dash._callback_context import callback_context
+
+        # pylint: disable-next=import-outside-toplevel
+        from dash.exceptions import WildcardInLongCallback
 
         # Get long callback manager
         callback_manager = _kwargs.pop("manager", self._long_callback_manager)
@@ -1140,7 +1139,7 @@ class Dash:
             id=interval_id, interval=interval_time, disabled=prevent_initial_call
         )
         store_id = f"_long_callback_store_{long_callback_id}"
-        store_component = dcc.Store(id=store_id, data=dict())
+        store_component = dcc.Store(id=store_id, data={})
         self._extra_components.extend([interval_component, store_component])
 
         # Compute full component plus property name for the cancel dependencies

@@ -138,11 +138,11 @@ def validate_and_group_input_args(flat_args, arg_index_grouping):
         func_kwargs = args_grouping
     elif isinstance(arg_index_grouping, (tuple, list)):
         func_args = list(args_grouping)
-        func_kwargs = dict()
+        func_kwargs = {}
     else:
         # Scalar input
         func_args = [args_grouping]
-        func_kwargs = dict()
+        func_kwargs = {}
 
     return func_args, func_kwargs
 
