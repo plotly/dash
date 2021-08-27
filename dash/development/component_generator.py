@@ -96,11 +96,11 @@ def generate_components(
 
     generator_methods = [generate_class_file]
 
-    if rprefix is not None or jlprefix is not None:
+    if rprefix or jlprefix:
         with open("package.json", "r") as f:
             pkg_data = safe_json_loads(f.read())
 
-    if rprefix is not None:
+    if rprefix:
         if not os.path.exists("man"):
             os.makedirs("man")
         if not os.path.exists("R"):
@@ -114,7 +114,7 @@ def generate_components(
             functools.partial(write_class_file, prefix=rprefix, rpkg_data=rpkg_data)
         )
 
-    if jlprefix is not None:
+    if jlprefix:
         generator_methods.append(
             functools.partial(generate_struct_file, prefix=jlprefix)
         )
@@ -126,7 +126,7 @@ def generate_components(
 
     generate_imports(project_shortname, components)
 
-    if rprefix is not None:
+    if rprefix:
         generate_exports(
             project_shortname,
             components,
@@ -139,8 +139,14 @@ def generate_components(
             rsuggests,
         )
 
-    if jlprefix is not None:
-        generate_module(project_shortname, components, metadata, pkg_data, jlprefix)
+    if jlprefix:
+        generate_module(
+            project_shortname, 
+            components, 
+            metadata, 
+            pkg_data, 
+            jlprefix
+        )
 
 
 def safe_json_loads(s):
@@ -225,9 +231,9 @@ def byteify(input_object):
         return OrderedDict(
             [(byteify(key), byteify(value)) for key, value in input_object.iteritems()]
         )
-    if isinstance(input_object, list):
+    elif isinstance(input_object, list):
         return [byteify(element) for element in input_object]
-    if isinstance(input_object, unicode):  # noqa:F821
+    elif isinstance(input_object, unicode):  # noqa:F821
         return input_object.encode("utf-8")
     return input_object
 
