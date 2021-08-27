@@ -5,7 +5,7 @@
     "private::format.black": "black dash tests --exclude metadata_test.py",
     "private::format.renderer": "cd dash/dash-renderer && npm run format",
     "private::initialize.renderer": "cd dash/dash-renderer && npm ci",
-    "private::build.renderer": "cd dash/dash-renderer && npm run build",
+    "private::build.renderer": "cd dash/dash-renderer && renderer build",
     "private::build.components": "python dash/development/update_components.py 'all'",
     "private::lint.black": "if [ ${PYLINTRC:-x} != '.pylintrc' ]; then black dash tests --exclude metadata_test.py --check; fi",
     "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
