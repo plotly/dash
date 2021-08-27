@@ -44,8 +44,7 @@ jobs:
             python -m venv venv && . venv/bin/activate
             set -eo pipefail
             pip install -e .[testing,dev] --progress-bar off && pip list | grep dash
-            cd dash/dash-renderer && renderer build && cd ../../
-            dash-update-components "all"
+            npm run build
             python setup.py sdist
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
             ls -la dash-package
@@ -86,8 +85,7 @@ jobs:
           command: |
             . venv/bin/activate
             set -eo pipefail
-            cd dash/dash-renderer && renderer build && cd ../../
-            dash-update-components "all"
+            npm run build
             pip install -e . --progress-bar off && pip list | grep dash
             npm install --production && npm run initialize
             npm run lint

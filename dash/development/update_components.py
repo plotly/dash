@@ -134,3 +134,6 @@ def cli():
 
     booststrap_components(args.components_source)
     build_components(args.components_source)
+
+
+cli()
