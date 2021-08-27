@@ -6,12 +6,20 @@ import shlex
 import os
 import argparse
 import shutil
+import logging
+import coloredlogs
 
 
 class _CombinedFormatter(
     argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter
 ):
     pass
+
+
+logger = logging.getLogger(__name__)
+coloredlogs.install(
+    fmt="%(asctime)s,%(msecs)03d %(levelname)s - %(message)s", datefmt="%H:%M:%S"
+)
 
 
 def booststrap_components(components_source):
@@ -100,6 +108,15 @@ def build_components(components_source):
             else "dash_table"
         )
 
+        dest_path = os.path.join("dash" + dest_dir)
+
+        if not os.path.exists(dest_path):
+            try:
+                os.makedirs(dest_path)
+            except OSError:
+                logger.exception("🚨 Having issues manipulating %s", dest_path)
+                sys.exit(1)
+
         if not os.path.exists(build_directory):
             print(
                 "Could not locate build artifacts. Check that the npm build process completed successfully for the given package: {}".format(
@@ -108,8 +125,8 @@ def build_components(components_source):
             )
         else:
             print("🚚 Moving build artifacts from " + build_directory + " to Dash 🚚")
-            shutil.rmtree(os.path.join("dash", dest_dir))
-            shutil.copytree(build_directory, os.path.join("dash", dest_dir))
+            shutil.rmtree(dest_path)
+            shutil.copytree(build_directory, dest_path)
             print(
                 "🟢 Finished moving build artifacts from "
                 + build_directory

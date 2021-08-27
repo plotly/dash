@@ -44,6 +44,7 @@ jobs:
             python -m venv venv && . venv/bin/activate
             set -eo pipefail
             pip install -e .[testing,dev] --progress-bar off && pip list | grep dash
+            npm i
             npm run build
             python setup.py sdist
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
@@ -85,9 +86,9 @@ jobs:
           command: |
             . venv/bin/activate
             set -eo pipefail
-            npm run build
             pip install -e . --progress-bar off && pip list | grep dash
             npm install --production && npm run initialize
+            npm run build
             npm run lint
       - run:
           name: 🐍 Python Unit Tests & ☕ JS Unit Tests
