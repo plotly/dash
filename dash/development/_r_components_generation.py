@@ -9,8 +9,8 @@ import textwrap
 import re
 import warnings
 
-from dash.development._all_keywords import r_keywords
-from dash.development._py_components_generation import reorder_props
+from ._all_keywords import r_keywords
+from ._py_components_generation import reorder_props
 
 
 # Declaring longer string templates as globals to improve

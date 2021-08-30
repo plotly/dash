@@ -13,13 +13,13 @@ import functools
 import pkg_resources
 import yaml
 
-from dash.development._r_components_generation import write_class_file
-from dash.development._r_components_generation import generate_exports
-from dash.development._py_components_generation import generate_class_file
-from dash.development._py_components_generation import generate_imports
-from dash.development._py_components_generation import generate_classes_files
-from dash.development._jl_components_generation import generate_struct_file
-from dash.development._jl_components_generation import generate_module
+from ._r_components_generation import write_class_file
+from ._r_components_generation import generate_exports
+from ._py_components_generation import generate_class_file
+from ._py_components_generation import generate_imports
+from ._py_components_generation import generate_classes_files
+from ._jl_components_generation import generate_struct_file
+from ._jl_components_generation import generate_module
 
 
 reserved_words = [

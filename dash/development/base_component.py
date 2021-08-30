@@ -3,7 +3,7 @@ import inspect
 import sys
 from future.utils import with_metaclass
 
-from dash._utils import patch_collections_abc, _strings, stringify_id
+from .._utils import patch_collections_abc, _strings, stringify_id
 
 MutableSequence = patch_collections_abc("MutableSequence")
 
