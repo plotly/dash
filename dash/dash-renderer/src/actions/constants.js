@@ -6,6 +6,7 @@ const actionList = {
     SET_LAYOUT: 1,
     SET_APP_LIFECYCLE: 1,
     SET_CONFIG: 1,
+    SET_CONFIG_NO_REFRESH: 2,
     ON_ERROR: 1,
     SET_HOOKS: 1
 };
@@ -16,3 +17,5 @@ export const getAction = action => {
     }
     throw new Error(`${action} is not defined.`);
 };
+
+export const MAX_AUTH_RETRIES = 1;

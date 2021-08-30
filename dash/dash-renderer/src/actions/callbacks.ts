@@ -10,7 +10,8 @@ import {
     zip
 } from 'ramda';
 
-import {STATUS} from '../constants/constants';
+import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
+import {MAX_AUTH_RETRIES} from './constants';
 import {
     CallbackActionType,
     CallbackAggregateActionType
@@ -29,6 +30,7 @@ import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
+import {setConfigNoRefresh} from '../actions';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -488,7 +490,7 @@ export function executeCallback(
             };
         }
 
-        const __promise = new Promise<CallbackResult>(resolve => {
+        const __execute = async (): Promise<CallbackResult> => {
             try {
                 const payload: ICallbackPayload = {
                     output,
@@ -502,7 +504,7 @@ export function executeCallback(
 
                 if (clientside_function) {
                     try {
-                        resolve({
+                        return {
                             data: handleClientside(
                                 dispatch,
                                 clientside_function,
@@ -510,24 +512,77 @@ export function executeCallback(
                                 payload
                             ),
                             payload
-                        });
+                        };
                     } catch (error) {
-                        resolve({error, payload});
+                        return {error, payload};
                     }
-                    return null;
                 }
 
-                handleServerside(dispatch, hooks, config, payload)
-                    .then(data => resolve({data, payload}))
-                    .catch(error => resolve({error, payload}));
+                let newConfig = config;
+                let configChanged = false;
+                let retry = 0;
+
+                while (true) {
+                    try {
+                        const data = await handleServerside(
+                            dispatch,
+                            hooks,
+                            newConfig,
+                            payload
+                        );
+
+                        if (configChanged) {
+                            dispatch(setConfigNoRefresh(newConfig));
+                        }
+
+                        return {data, payload};
+                    } catch (res) {
+                        retry++;
+
+                        if (
+                            retry <= MAX_AUTH_RETRIES &&
+                            res.status === STATUS.FORBIDDEN
+                        ) {
+                            const body = await res.text();
+
+                            if (body.includes(JWT_EXPIRED_MESSAGE)) {
+                                // From dash embedded
+                                if (hooks.request_refresh_jwt !== null) {
+                                    const newJwt =
+                                        await hooks.request_refresh_jwt(
+                                            config.fetch.headers.Authorization.substr(
+                                                'Bearer '.length
+                                            )
+                                        );
+                                    if (newJwt) {
+                                        newConfig = mergeDeepRight(config, {
+                                            fetch: {
+                                                headers: {
+                                                    Authorization: `Bearer ${newJwt}`
+                                                }
+                                            }
+                                        });
+
+                                        configChanged = true;
+
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+
+                        // here, it is an error we're not supposed to retry.
+                        throw res;
+                    }
+                }
             } catch (error) {
-                resolve({error, payload: null});
+                return {error, payload: null};
             }
-        });
+        };
 
         const newCb = {
             ...cb,
-            executionPromise: __promise
+            executionPromise: __execute()
         };
 
         return newCb;
