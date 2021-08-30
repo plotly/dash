@@ -10,8 +10,8 @@ import importlib
 import uuid
 import hashlib
 
-from ._all_keywords import julia_keywords
-from ._py_components_generation import reorder_props
+from dash.development._all_keywords import julia_keywords
+from dash.development._py_components_generation import reorder_props
 
 # uuid of DashBase Julia package.
 jl_dash_base_uuid = "03207cf0-e2b3-4b91-9ca8-690cf0fb507e"

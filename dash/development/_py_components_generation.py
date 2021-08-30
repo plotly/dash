@@ -5,8 +5,8 @@ from textwrap import fill
 
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
-from ._all_keywords import python_keywords
-from .base_component import Component
+from dash.development._all_keywords import python_keywords
+from dash.development.base_component import Component
 
 
 # pylint: disable=unused-argument
