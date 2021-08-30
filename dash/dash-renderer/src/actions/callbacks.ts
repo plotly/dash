@@ -541,7 +541,7 @@ export function executeCallback(
 
                         if (
                             retry <= MAX_AUTH_RETRIES &&
-                            res.status === STATUS.FORBIDDEN
+                            res.status === STATUS.UNAUTHORIZED
                         ) {
                             const body = await res.text();
 

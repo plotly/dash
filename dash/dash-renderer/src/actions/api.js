@@ -65,7 +65,7 @@ export default function apiThunk(endpoint, method, store, id, body) {
                     throw e;
                 }
 
-                if (res.status === STATUS.FORBIDDEN) {
+                if (res.status === STATUS.UNAUTHORIZED) {
                     console.log(getState());
                     if (hooks.request_refresh_jwt) {
                         const body = await res.text();
