@@ -108,7 +108,7 @@ def build_components(components_source):
             else "dash_table"
         )
 
-        dest_path = os.path.join("dash" + dest_dir)
+        dest_path = os.path.join("dash", dest_dir)
 
         if not os.path.exists(dest_path):
             try:
@@ -127,6 +127,8 @@ def build_components(components_source):
             print("🚚 Moving build artifacts from " + build_directory + " to Dash 🚚")
             shutil.rmtree(dest_path)
             shutil.copytree(build_directory, dest_path)
+            with open(os.path.join(dest_path, ".gitkeep"), "w"):
+                pass
             print(
                 "🟢 Finished moving build artifacts from "
                 + build_directory
