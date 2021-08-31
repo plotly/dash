@@ -18,12 +18,12 @@ $ pip install -e .[testing,dev]  # in some shells you need \ to escape []
 $ npm install
 # this script will build the dash-core-components, dash-html-components, dash-table,
 # and renderer bundles; this will build all bundles from source code in their
-# respective directories.The only true source of npm version is defined
+# respective directories. The only true source of npm version is defined
 # in package.json for each package.
 $ npm run build  # runs `renderer build` and `npm build` in dcc, html, table
 # build and install components used in tests
 $ npm run setup-tests.py # or npm run setup-tests.R
-# you should see both dash is pointed to a local source repo
+# you should see dash points to a local source repo
 $ pip list | grep dash
 ```
 

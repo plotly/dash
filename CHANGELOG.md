@@ -27,7 +27,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1729](https://github.com/plotly/dash/pull/1729) Include F#, C#, and MATLAB in markdown code highlighting, for the upcoming .NET and MATLAB flavors of dash.
 
 ## Dash HTML Components
-### Changed
+### Removed
 
 - [#1734](https://github.com/plotly/dash/pull/1734) Removed the following obsolete `html` elements - `<command>`, `<element>`, `<isindex>`, `<listing>`, `<multicol>`, `<nextid>`. These are obsolete and had been previously removed from the reference table.
 
