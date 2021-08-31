@@ -1,5 +1,5 @@
 import {mergeDeepRight, once} from 'ramda';
-import {getCSRFHeader, handleAsyncError, setConfigNoRefresh} from '../actions';
+import {getCSRFHeader, handleAsyncError, addHttpHeaders} from '../actions';
 import {urlBase} from './utils';
 import {MAX_AUTH_RETRIES} from './constants';
 import {JWT_EXPIRED_MESSAGE, STATUS} from '../constants/constants';
@@ -33,7 +33,7 @@ const request = {GET, POST};
 export default function apiThunk(endpoint, method, store, id, body) {
     return async (dispatch, getState) => {
         let {config, hooks} = getState();
-        let configChanged = false;
+        let newHeaders = null;
 
         const url = `${urlBase(config)}${endpoint}`;
 
@@ -76,14 +76,15 @@ export default function apiThunk(endpoint, method, store, id, body) {
                                 )
                             );
                             if (newJwt) {
+                                newHeaders = {
+                                    Authorization: `Bearer ${newJwt}`
+                                };
+
                                 config = mergeDeepRight(config, {
                                     fetch: {
-                                        headers: {
-                                            Authorization: `Bearer ${newJwt}`
-                                        }
+                                        headers: newHeaders
                                     }
                                 });
-                                configChanged = true;
 
                                 continue;
                             }
@@ -95,8 +96,8 @@ export default function apiThunk(endpoint, method, store, id, body) {
 
             const contentType = res.headers.get('content-type');
 
-            if (configChanged) {
-                dispatch(setConfigNoRefresh(config));
+            if (newHeaders) {
+                dispatch(addHttpHeaders(newHeaders));
             }
             setConnectionStatus(true);
             if (contentType && contentType.indexOf('application/json') !== -1) {

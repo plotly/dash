@@ -6,7 +6,7 @@ const actionList = {
     SET_LAYOUT: 1,
     SET_APP_LIFECYCLE: 1,
     SET_CONFIG: 1,
-    SET_CONFIG_NO_REFRESH: 2,
+    ADD_HTTP_HEADERS: 2,
     ON_ERROR: 1,
     SET_HOOKS: 1
 };

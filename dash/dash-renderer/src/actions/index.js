@@ -11,9 +11,7 @@ import {getPath} from './paths';
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
 export const setConfig = createAction(getAction('SET_CONFIG'));
-export const setConfigNoRefresh = createAction(
-    getAction('SET_CONFIG_NO_REFRESH')
-);
+export const addHttpHeaders = createAction(getAction('ADD_HTTP_HEADERS'));
 export const setGraphs = createAction(getAction('SET_GRAPHS'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
