@@ -1,6 +1,5 @@
 """Vanilla HTML components for Dash"""
 
-from __future__ import print_function as _
 from ._imports_ import *  # noqa: E402, F401, F403
 from ._imports_ import __all__  # noqa: E402
 
