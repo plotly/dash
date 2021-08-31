@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import sys
 import os
 import uuid
@@ -14,7 +12,6 @@ import runpy
 import flask
 import requests
 
-from future import utils
 from dash.testing.errors import NoAppFoundError, TestingTimeoutError, ServerCloseError
 from dash.testing import wait
 
@@ -222,15 +219,11 @@ class ProcessRunner(BaseDashRunner):
                 if self.tmp_app_path and os.path.exists(self.tmp_app_path):
                     logger.debug("removing temporary app path %s", self.tmp_app_path)
                     shutil.rmtree(self.tmp_app_path)
-                if utils.PY3:
-                    # pylint:disable=no-member
-                    _except = subprocess.TimeoutExpired
-                    # pylint: disable=unexpected-keyword-arg
-                    self.proc.communicate(timeout=self.stop_timeout)
-                else:
-                    _except = Exception
-                    logger.info("ruthless kill the process to avoid zombie")
-                    self.proc.kill()
+
+                _except = subprocess.TimeoutExpired  # pylint:disable=no-member
+                self.proc.communicate(
+                    timeout=self.stop_timeout  # pylint: disable=unexpected-keyword-arg
+                )
             except _except:
                 logger.exception(
                     "subprocess terminate not success, trying to kill "
