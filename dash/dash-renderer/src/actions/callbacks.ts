@@ -30,7 +30,7 @@ import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
-import {setConfigNoRefresh} from '../actions';
+import {addHttpHeaders} from '../actions';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -519,7 +519,7 @@ export function executeCallback(
                 }
 
                 let newConfig = config;
-                let configChanged = false;
+                let newHeaders: Record<string, string> | null = null;
                 let retry = 0;
 
                 while (true) {
@@ -531,8 +531,8 @@ export function executeCallback(
                             payload
                         );
 
-                        if (configChanged) {
-                            dispatch(setConfigNoRefresh(newConfig));
+                        if (newHeaders) {
+                            dispatch(addHttpHeaders(newHeaders));
                         }
 
                         return {data, payload};
@@ -555,15 +555,15 @@ export function executeCallback(
                                             )
                                         );
                                     if (newJwt) {
+                                        newHeaders = {
+                                            Authorization: `Bearer ${newJwt}`
+                                        };
+
                                         newConfig = mergeDeepRight(config, {
                                             fetch: {
-                                                headers: {
-                                                    Authorization: `Bearer ${newJwt}`
-                                                }
+                                                headers: newHeaders
                                             }
                                         });
-
-                                        configChanged = true;
 
                                         continue;
                                     }
