@@ -12,7 +12,7 @@ const Tooltip = props => {
 
     return (
         <>
-            <div className='dcc-tooltip-bounding-box'>
+            <div className="dcc-tooltip-bounding-box">
                 <span
                     data-dash-is-loading={is_loading || undefined}
                     className={`hover hover-${props.direction}`}
