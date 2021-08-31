@@ -29,6 +29,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     - `bbox` of hover items in event data, to support custom dash-driven hover effects
   - Patch releases [2.3.1](https://github.com/plotly/plotly.js/releases/tag/v2.3.1) and [2.4.1](https://github.com/plotly/plotly.js/releases/tag/v2.4.1) containing various bug fixes.
 
+- [#1735](https://github.com/plotly/dash/pull/1735) New `dcc.Tooltip` component. This is particularly useful for rich hover information on `dcc.Graph` charts, using the `bbox` information included in the event data in plotly.js v2.4.0
+
 ## Dash Table
 ### Added
 
