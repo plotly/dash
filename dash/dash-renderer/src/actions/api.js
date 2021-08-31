@@ -62,7 +62,7 @@ export default function apiThunk(endpoint, method, store, id, body) {
                     // errors or unresponsive servers.
                     console.log('fetch error', res);
                     setConnectionStatus(false);
-                    throw e;
+                    return;
                 }
 
                 if (res.status === STATUS.UNAUTHORIZED) {
