@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - [#1702](https://github.com/plotly/dash/pull/1702) Added a new `@app.long_callback` decorator to support callback functions that take a long time to run. See the PR and documentation for more information.
 - [#1514](https://github.com/plotly/dash/pull/1514) Perform json encoding using the active plotly JSON engine.  This will default to the faster orjson encoder if the `orjson` package is installed.
+- [#1736](https://github.com/plotly/dash/pull/1736) Add support for `request_refresh_jwt` hook and retry requests that used expired JWT tokens.
 
 ### Changed
 - [#1679](https://github.com/plotly/dash/pull/1679) Restructure `dash`, `dash-core-components`, `dash-html-components`, and `dash-table` into a singular monorepo and move component packages into `dash`. This change makes the component modules available for import within the `dash` namespace, and simplifies the import pattern for a Dash app. From a development standpoint, all future changes to component modules will be made within the `components` directory, and relevant packages updated with the `dash-update-components` CLI command.
