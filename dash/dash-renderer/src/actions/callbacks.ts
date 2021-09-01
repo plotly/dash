@@ -546,7 +546,6 @@ export function executeCallback(
                             const body = await res.text();
 
                             if (body.includes(JWT_EXPIRED_MESSAGE)) {
-                                // From dash embedded
                                 if (hooks.request_refresh_jwt !== null) {
                                     const newJwt =
                                         await hooks.request_refresh_jwt(
