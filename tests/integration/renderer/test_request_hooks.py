@@ -189,6 +189,7 @@ def test_rdrh002_with_custom_renderer_interpolated(dash_duo):
 
     dash_duo.percy_snapshot(name="request-hooks interpolated")
 
+
 def test_rdrh003_refresh_jwt(dash_duo):
 
     app = Dash(__name__)
@@ -225,18 +226,10 @@ def test_rdrh003_refresh_jwt(dash_duo):
         </body>
     </html>"""
 
-
     app.layout = html.Div(
         [
             dcc.Input(id="input", value="initial value"),
-            html.Div(
-                html.Div(
-                    [
-                        html.Div(id="output-1"),
-                        html.Div(id="output-token")
-                    ]
-                )
-            ),
+            html.Div(html.Div([html.Div(id="output-1"), html.Div(id="output-token")])),
         ]
     )
 
@@ -251,18 +244,21 @@ def test_rdrh003_refresh_jwt(dash_duo):
         @functools.wraps(func)
         def wrap(*args, **kwargs):
             try:
-                if flask.request.method == 'OPTIONS':
+                if flask.request.method == "OPTIONS":
                     return func(*args, **kwargs)
-                token = flask.request.authorization or flask.request.headers.environ.get(
-                    "HTTP_AUTHORIZATION"
+                token = (
+                    flask.request.authorization
+                    or flask.request.headers.environ.get("HTTP_AUTHORIZATION")
                 )
-                if required_jwt_len and (not token or len(token) != required_jwt_len + len('Bearer ')):
+                if required_jwt_len and (
+                    not token or len(token) != required_jwt_len + len("Bearer ")
+                ):
                     flask.abort(401, description="JWT Expired " + str(token))
             except HTTPException as e:
                 return e
             return func(*args, **kwargs)
-        return wrap
 
+        return wrap
 
     # wrap all API calls with auth.
     for name, method in (
