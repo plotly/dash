@@ -15,6 +15,8 @@ if not hasattr(_dash, "__plotly_dash") and not hasattr(_dash, "development"):
 
 from ._imports_ import *  # noqa: E402, F401, F403
 from ._imports_ import __all__  # noqa: E402
+from . import Format  # noqa: F401, E402
+from . import FormatTemplate  # noqa: F401, E402
 
 _basepath = _os.path.dirname(__file__)
 _filepath = _os.path.abspath(_os.path.join(_basepath, "package-info.json"))

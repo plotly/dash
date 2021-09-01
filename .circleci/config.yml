@@ -44,12 +44,12 @@ jobs:
             python -m venv venv && . venv/bin/activate
             set -eo pipefail
             pip install -e .[testing,dev] --progress-bar off && pip list | grep dash
-            cd dash/dash-renderer && renderer build && cd ../../
-            dash-update-components "all"
+            npm i
+            npm run build
             python setup.py sdist
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
             ls -la dash-package
-          no_output_timeout: 20m
+          no_output_timeout: 30m
       - persist_to_workspace:
           root: ~/dash
           paths:
@@ -86,10 +86,9 @@ jobs:
           command: |
             . venv/bin/activate
             set -eo pipefail
-            cd dash/dash-renderer && renderer build && cd ../../
-            dash-update-components "all"
             pip install -e . --progress-bar off && pip list | grep dash
             npm install --production && npm run initialize
+            npm run build
             npm run lint
       - run:
           name: 🐍 Python Unit Tests & ☕ JS Unit Tests
