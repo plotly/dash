@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import sys
 import collections
@@ -13,8 +11,7 @@ import time
 import mimetypes
 import hashlib
 import base64
-
-from future.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 import flask
 from flask_compress import Compress

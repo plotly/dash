@@ -1,16 +1,6 @@
 import io
 import ntpath
 import base64
-from functools import partial
-
-# Py2 StringIO.StringIO handles unicode but io.StringIO doesn't
-try:
-    from StringIO import StringIO as _StringIO
-
-    py2 = True
-except ImportError:
-    _StringIO = io.StringIO
-    py2 = False
 
 # region Utils for Download component
 
@@ -56,7 +46,7 @@ def send_string(src, filename, type=None, **kwargs):
     :param type: type of the file (optional, passed to Blob in the javascript layer)
     :return: dict of data frame content (NOT base64 encoded) and meta data used by the Download component
     """
-    content = src if isinstance(src, str) else _io_to_str(_StringIO(), src, **kwargs)
+    content = src if isinstance(src, str) else _io_to_str(io.StringIO(), src, **kwargs)
     return dict(content=content, filename=filename, type=type, base64=False)
 
 
@@ -110,7 +100,7 @@ _data_frame_senders = {
     "to_parquet": send_bytes,
     "to_msgpack": send_bytes,
     "to_stata": send_bytes,
-    "to_pickle": partial(send_bytes, compression=None) if py2 else send_bytes,
+    "to_pickle": send_bytes,
 }
 
 # endregion

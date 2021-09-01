@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import shlex
 import sys
 import uuid
@@ -10,14 +9,9 @@ import logging
 import io
 import json
 from functools import wraps
-from future import utils
 from . import exceptions
 
 logger = logging.getLogger()
-
-# py2/3 json.dumps-compatible strings - these are equivalent in py3, not in py2
-# note because we import unicode_literals u"" and "" are both unicode
-_strings = (type(""), type(utils.bytes_to_native_str(b"")))
 
 
 def to_json(value):
@@ -109,7 +103,7 @@ def strip_relative_path(requests_pathname, path):
 
 # pylint: disable=no-member
 def patch_collections_abc(member):
-    return getattr(collections if utils.PY2 else collections.abc, member)
+    return getattr(collections.abc, member)
 
 
 class AttributeDict(dict):

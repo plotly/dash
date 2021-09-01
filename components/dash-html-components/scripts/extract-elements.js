@@ -6,7 +6,7 @@ const request = require('request');
 
 const refUrl = 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element';
 const dataPath = './data/elements.txt';
-const expectedElCount = 131;
+const expectedElCount = 125;
 
 /**
  * From the MDN HTML elements reference, extract a list of elements.
@@ -25,13 +25,8 @@ function extractElements($) {
         'portal'
     ];
     // `<section>` is for some reason missing from the reference tables.
-    // `<command>`, `<element>`, `<isindex>`, `<listing>`, `<multicol>`, `<nextid>`
-    // are obsolete and have been removed from the reference table, but we had
-    // them in the past so we should wait for a major to remove
     const addElements = [
         'base',
-        'command',
-        'element',
         'section',
         'h1',
         'h2',
@@ -40,10 +35,6 @@ function extractElements($) {
         'h5',
         'h6',
         'iframe',
-        'isindex',
-        'listing',
-        'multicol',
-        'nextid'
     ];
 
     return $('td:first-child')
