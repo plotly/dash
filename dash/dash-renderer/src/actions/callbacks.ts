@@ -308,7 +308,7 @@ function handleServerside(
     config: any,
     payload: any
 ): Promise<any> {
-    if (hooks.request_pre !== null) {
+    if (hooks.request_pre) {
         hooks.request_pre(payload);
     }
 
@@ -366,7 +366,7 @@ function handleServerside(
             if (status === STATUS.OK) {
                 return res.json().then((data: any) => {
                     const {multi, response} = data;
-                    if (hooks.request_post !== null) {
+                    if (hooks.request_post) {
                         hooks.request_post(payload, response);
                     }
 
@@ -520,9 +520,9 @@ export function executeCallback(
 
                 let newConfig = config;
                 let newHeaders: Record<string, string> | null = null;
-                let retry = 0;
+                let lastError: any;
 
-                while (true) {
+                for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
                     try {
                         const data = await handleServerside(
                             dispatch,
@@ -537,8 +537,7 @@ export function executeCallback(
 
                         return {data, payload};
                     } catch (res) {
-                        retry++;
-
+                        lastError = res;
                         if (
                             retry <= MAX_AUTH_RETRIES &&
                             res.status === STATUS.UNAUTHORIZED
@@ -548,12 +547,16 @@ export function executeCallback(
                             if (body.includes(JWT_EXPIRED_MESSAGE)) {
                                 // From dash embedded
                                 if (hooks.request_refresh_jwt !== null) {
-                                    const newJwt =
-                                        await hooks.request_refresh_jwt(
+                                    let oldJwt = null;
+                                    if (config.fetch.headers.Authorization) {
+                                        oldJwt =
                                             config.fetch.headers.Authorization.substr(
                                                 'Bearer '.length
-                                            )
-                                        );
+                                            );
+                                    }
+
+                                    const newJwt =
+                                        await hooks.request_refresh_jwt(oldJwt);
                                     if (newJwt) {
                                         newHeaders = {
                                             Authorization: `Bearer ${newJwt}`
@@ -571,10 +574,12 @@ export function executeCallback(
                             }
                         }
 
-                        // here, it is an error we're not supposed to retry.
-                        throw res;
+                        break;
                     }
                 }
+
+                // we reach here when we run out of retries.
+                return {error: lastError, payload: null};
             } catch (error) {
                 return {error, payload: null};
             }
