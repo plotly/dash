@@ -16,13 +16,19 @@ class UnconnectedAppContainer extends React.Component {
             props.hooks.request_post !== null ||
             props.hooks.request_refresh_jwt !== null
         ) {
-            if (props.hooks.request_refresh_jwt) {
-                props.hooks.request_refresh_jwt = memoizeWith(
-                    identity,
-                    props.hooks.request_refresh_jwt
-                );
+            let hooks = props.hooks;
+
+            if (hooks.request_refresh_jwt) {
+                hooks = {
+                    ...hooks,
+                    request_refresh_jwt: memoizeWith(
+                        identity,
+                        hooks.request_refresh_jwt
+                    )
+                }
             }
-            props.dispatch(setHooks(props.hooks));
+
+            props.dispatch(setHooks(hooks));
         }
     }
 
