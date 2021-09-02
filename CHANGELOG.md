@@ -22,6 +22,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#1729](https://github.com/plotly/dash/pull/1729) Include F#, C#, and MATLAB in markdown code highlighting, for the upcoming .NET and MATLAB flavors of dash.
 
+- [#1735](https://github.com/plotly/dash/pull/1735) Upgrade Plotly.js to v2.4.2. This includes:
+  - [Feature release 2.3.0](https://github.com/plotly/plotly.js/releases/tag/v2.3.0):
+    - More number formatting options due to `d3-format` upgrade.
+    - Many new `geo` projections.
+    - Improved rendering and performance of `scattergl`, `splom` and `parcoords` traces.
+  - [Feature release 2.4.0](https://github.com/plotly/plotly.js/releases/tag/v2.4.0):
+    - `legend.groupclick`
+    - `bbox` of hover items in event data, to support custom dash-driven hover effects
+  - Patch releases [2.3.1](https://github.com/plotly/plotly.js/releases/tag/v2.3.1), [2.4.1](https://github.com/plotly/plotly.js/releases/tag/v2.4.1), and [2.4.2](https://github.com/plotly/plotly.js/releases/tag/v2.4.2) containing various bug fixes.
+
+- [#1735](https://github.com/plotly/dash/pull/1735) New `dcc.Tooltip` component. This is particularly useful for rich hover information on `dcc.Graph` charts, using the `bbox` information included in the event data in plotly.js v2.4.0
+
 ## Dash Table
 ### Added
 

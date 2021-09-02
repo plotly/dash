@@ -6,6 +6,7 @@ import tempfile
 import pytest
 import shutil
 import time
+from flaky import flaky
 
 from dash.testing.application_runners import import_app
 import psutil
@@ -86,6 +87,7 @@ def setup_long_callback_app(manager_name, app_name):
             os.environ.pop("DISKCACHE_DIR")
 
 
+@flaky(max_runs=3)
 def test_lcbc001_fast_input(dash_duo, manager):
     """
     Make sure that we settle to the correct final value when handling rapid inputs
@@ -107,6 +109,7 @@ def test_lcbc001_fast_input(dash_duo, manager):
     assert dash_duo.get_logs() == []
 
 
+@flaky(max_runs=3)
 def test_lcbc002_long_callback_running(dash_duo, manager):
     with setup_long_callback_app(manager, "app2") as app:
         dash_duo.start_server(app)
@@ -134,6 +137,7 @@ def test_lcbc002_long_callback_running(dash_duo, manager):
     assert dash_duo.get_logs() == []
 
 
+@flaky(max_runs=3)
 def test_lcbc003_long_callback_running_cancel(dash_duo, manager):
     lock = Lock()
 
@@ -174,6 +178,7 @@ def test_lcbc003_long_callback_running_cancel(dash_duo, manager):
     assert dash_duo.get_logs() == []
 
 
+@flaky(max_runs=3)
 def test_lcbc004_long_callback_progress(dash_duo, manager):
     with setup_long_callback_app(manager, "app4") as app:
         dash_duo.start_server(app)
@@ -207,6 +212,7 @@ def test_lcbc004_long_callback_progress(dash_duo, manager):
     assert dash_duo.get_logs() == []
 
 
+@flaky(max_runs=3)
 def test_lcbc005_long_callback_caching(dash_duo, manager):
     lock = Lock()
 
@@ -274,6 +280,7 @@ def test_lcbc005_long_callback_caching(dash_duo, manager):
         assert dash_duo.get_logs() == []
 
 
+@flaky(max_runs=3)
 def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
     lock = Lock()
 
@@ -383,6 +390,7 @@ def test_lcbc006_long_callback_caching_multi(dash_duo, manager):
         assert dash_duo.get_logs() == []
 
 
+@flaky(max_runs=3)
 def test_lcbc007_validation_layout(dash_duo, manager):
     with setup_long_callback_app(manager, "app7") as app:
         dash_duo.start_server(app)

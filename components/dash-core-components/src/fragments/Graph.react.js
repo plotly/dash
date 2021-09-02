@@ -74,6 +74,12 @@ const filterEventData = (gd, eventData, event) => {
             const pointData = filter(function (o) {
                 return !includes(type(o), ['Object', 'Array']);
             }, fullPoint);
+
+            // permit a bounding box to pass through, if present
+            if (has('bbox', fullPoint)) {
+                pointData.bbox = fullPoint.bbox;
+            }
+
             if (
                 has('curveNumber', fullPoint) &&
                 has('pointNumber', fullPoint) &&
