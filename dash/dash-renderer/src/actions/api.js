@@ -1,6 +1,8 @@
 import {mergeDeepRight, once} from 'ramda';
-import {handleAsyncError, getCSRFHeader} from '../actions';
+import {getCSRFHeader, handleAsyncError, addHttpHeaders} from '../actions';
 import {urlBase} from './utils';
+import {MAX_AUTH_RETRIES} from './constants';
+import {JWT_EXPIRED_MESSAGE, STATUS} from '../constants/constants';
 
 /* eslint-disable-next-line no-console */
 const logWarningOnce = once(console.warn);
@@ -29,8 +31,10 @@ function POST(path, fetchConfig, body = {}) {
 const request = {GET, POST};
 
 export default function apiThunk(endpoint, method, store, id, body) {
-    return (dispatch, getState) => {
-        const {config} = getState();
+    return async (dispatch, getState) => {
+        let {config, hooks} = getState();
+        let newHeaders = null;
+
         const url = `${urlBase(config)}${endpoint}`;
 
         function setConnectionStatus(connected) {
@@ -46,48 +50,81 @@ export default function apiThunk(endpoint, method, store, id, body) {
             type: store,
             payload: {id, status: 'loading'}
         });
-        return request[method](url, config.fetch, body)
-            .then(
-                res => {
-                    setConnectionStatus(true);
-                    const contentType = res.headers.get('content-type');
-                    if (
-                        contentType &&
-                        contentType.indexOf('application/json') !== -1
-                    ) {
-                        return res.json().then(json => {
-                            dispatch({
-                                type: store,
-                                payload: {
-                                    status: res.status,
-                                    content: json,
-                                    id
-                                }
-                            });
-                            return json;
-                        });
-                    }
-                    logWarningOnce(
-                        'Response is missing header: content-type: application/json'
-                    );
-                    return dispatch({
-                        type: store,
-                        payload: {
-                            id,
-                            status: res.status
-                        }
-                    });
-                },
-                () => {
+
+        try {
+            let res;
+            for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
+                try {
+                    res = await request[method](url, config.fetch, body);
+                } catch (e) {
                     // fetch rejection - this means the request didn't return,
                     // we don't get here from 400/500 errors, only network
                     // errors or unresponsive servers.
+                    console.log('fetch error', res);
                     setConnectionStatus(false);
+                    return;
                 }
-            )
-            .catch(err => {
-                const message = 'Error from API call: ' + endpoint;
-                handleAsyncError(err, message, dispatch);
+
+                if (res.status === STATUS.UNAUTHORIZED) {
+                    if (hooks.request_refresh_jwt) {
+                        const body = await res.text();
+                        if (body.includes(JWT_EXPIRED_MESSAGE)) {
+                            const newJwt = await hooks.request_refresh_jwt(
+                                config.fetch.headers.Authorization.substr(
+                                    'Bearer '.length
+                                )
+                            );
+                            if (newJwt) {
+                                newHeaders = {
+                                    Authorization: `Bearer ${newJwt}`
+                                };
+
+                                config = mergeDeepRight(config, {
+                                    fetch: {
+                                        headers: newHeaders
+                                    }
+                                });
+
+                                continue;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+
+            const contentType = res.headers.get('content-type');
+
+            if (newHeaders) {
+                dispatch(addHttpHeaders(newHeaders));
+            }
+            setConnectionStatus(true);
+            if (contentType && contentType.indexOf('application/json') !== -1) {
+                return res.json().then(json => {
+                    dispatch({
+                        type: store,
+                        payload: {
+                            status: res.status,
+                            content: json,
+                            id
+                        }
+                    });
+                    return json;
+                });
+            }
+            logWarningOnce(
+                'Response is missing header: content-type: application/json'
+            );
+            return dispatch({
+                type: store,
+                payload: {
+                    id,
+                    status: res.status
+                }
             });
+        } catch (err) {
+            const message = 'Error from API call: ' + endpoint;
+            handleAsyncError(err, message, dispatch);
+        }
     };
 }
