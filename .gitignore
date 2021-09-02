@@ -43,9 +43,12 @@ coverage.xml
 .Python
 build/
 dash/deps/
-dash/html/
-dash/dcc/
-dash/dash_table/
+dash/html/*
+!dash/html/.gitkeep
+dash/dcc/*
+!dash/dcc/.gitkeep
+dash/dash_table/*
+!dash/dash_table/.gitkeep
 develop-eggs/
 dist/
 downloads/
