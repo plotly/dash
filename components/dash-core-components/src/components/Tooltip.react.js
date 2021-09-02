@@ -6,13 +6,13 @@ import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
  * A tooltip with an absolute position.
  */
 const Tooltip = props => {
-    const {bbox, border_color, background_color, loading_state} = props;
+    const {bbox, border_color, background_color, id, loading_state} = props;
     const is_loading = loading_state?.is_loading;
     const show = props.show && bbox;
 
     return (
         <>
-            <div className="dcc-tooltip-bounding-box">
+            <div id={id} className="dcc-tooltip-bounding-box">
                 <span
                     data-dash-is-loading={is_loading || undefined}
                     className={`hover hover-${props.direction}`}
