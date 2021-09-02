@@ -25,7 +25,7 @@ class UnconnectedAppContainer extends React.Component {
                         identity,
                         hooks.request_refresh_jwt
                     )
-                }
+                };
             }
 
             props.dispatch(setHooks(hooks));
