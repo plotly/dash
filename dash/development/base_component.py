@@ -78,6 +78,8 @@ class Component(metaclass=ComponentMeta):
     REQUIRED = _REQUIRED()
 
     def __init__(self, **kwargs):
+        import dash  # pylint: disable=import-outside-toplevel, cyclic-import
+
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
             # pylint: disable=no-member
@@ -88,12 +90,33 @@ class Component(metaclass=ComponentMeta):
             # e.g. "The dash_core_components.Dropdown component (version 1.6.0)
             # with the ID "my-dropdown"
             try:
-                error_string_prefix = "The `{}.{}` component (version {}){}".format(
-                    self._namespace,
-                    self._type,
-                    getattr(__import__(self._namespace), "__version__", "unknown"),
-                    ' with the ID "{}"'.format(kwargs["id"]) if "id" in kwargs else "",
-                )
+                # Get fancy error strings that have the version numbers
+                error_string_prefix = "The `{}.{}` component (version {}){}"
+                # These components are part of dash now, so extract the dash version:
+                dash_packages = {
+                    "dash_html_components": "html",
+                    "dash_core_components": "dcc",
+                    "dash_table": "dash_table",
+                }
+                if self._namespace in dash_packages:
+                    error_string_prefix = error_string_prefix.format(
+                        dash_packages[self._namespace],
+                        self._type,
+                        dash.__version__,
+                        ' with the ID "{}"'.format(kwargs["id"])
+                        if "id" in kwargs
+                        else "",
+                    )
+                else:
+                    # Otherwise import the package and extract the version number
+                    error_string_prefix = error_string_prefix.format(
+                        self._namespace,
+                        self._type,
+                        getattr(__import__(self._namespace), "__version__", "unknown"),
+                        ' with the ID "{}"'.format(kwargs["id"])
+                        if "id" in kwargs
+                        else "",
+                    )
             except ImportError:
                 # Our tests create mock components with libraries that
                 # aren't importable
