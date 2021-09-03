@@ -10,7 +10,8 @@ import {
     zip
 } from 'ramda';
 
-import {STATUS} from '../constants/constants';
+import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
+import {MAX_AUTH_RETRIES} from './constants';
 import {
     CallbackActionType,
     CallbackAggregateActionType
@@ -29,6 +30,7 @@ import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
+import {addHttpHeaders} from '../actions';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -306,7 +308,7 @@ function handleServerside(
     config: any,
     payload: any
 ): Promise<any> {
-    if (hooks.request_pre !== null) {
+    if (hooks.request_pre) {
         hooks.request_pre(payload);
     }
 
@@ -364,7 +366,7 @@ function handleServerside(
             if (status === STATUS.OK) {
                 return res.json().then((data: any) => {
                     const {multi, response} = data;
-                    if (hooks.request_post !== null) {
+                    if (hooks.request_post) {
                         hooks.request_post(payload, response);
                     }
 
@@ -488,7 +490,7 @@ export function executeCallback(
             };
         }
 
-        const __promise = new Promise<CallbackResult>(resolve => {
+        const __execute = async (): Promise<CallbackResult> => {
             try {
                 const payload: ICallbackPayload = {
                     output,
@@ -502,7 +504,7 @@ export function executeCallback(
 
                 if (clientside_function) {
                     try {
-                        resolve({
+                        return {
                             data: handleClientside(
                                 dispatch,
                                 clientside_function,
@@ -510,24 +512,81 @@ export function executeCallback(
                                 payload
                             ),
                             payload
-                        });
+                        };
                     } catch (error) {
-                        resolve({error, payload});
+                        return {error, payload};
                     }
-                    return null;
                 }
 
-                handleServerside(dispatch, hooks, config, payload)
-                    .then(data => resolve({data, payload}))
-                    .catch(error => resolve({error, payload}));
+                let newConfig = config;
+                let newHeaders: Record<string, string> | null = null;
+                let lastError: any;
+
+                for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
+                    try {
+                        const data = await handleServerside(
+                            dispatch,
+                            hooks,
+                            newConfig,
+                            payload
+                        );
+
+                        if (newHeaders) {
+                            dispatch(addHttpHeaders(newHeaders));
+                        }
+
+                        return {data, payload};
+                    } catch (res) {
+                        lastError = res;
+                        if (
+                            retry <= MAX_AUTH_RETRIES &&
+                            res.status === STATUS.UNAUTHORIZED
+                        ) {
+                            const body = await res.text();
+
+                            if (body.includes(JWT_EXPIRED_MESSAGE)) {
+                                if (hooks.request_refresh_jwt !== null) {
+                                    let oldJwt = null;
+                                    if (config.fetch.headers.Authorization) {
+                                        oldJwt =
+                                            config.fetch.headers.Authorization.substr(
+                                                'Bearer '.length
+                                            );
+                                    }
+
+                                    const newJwt =
+                                        await hooks.request_refresh_jwt(oldJwt);
+                                    if (newJwt) {
+                                        newHeaders = {
+                                            Authorization: `Bearer ${newJwt}`
+                                        };
+
+                                        newConfig = mergeDeepRight(config, {
+                                            fetch: {
+                                                headers: newHeaders
+                                            }
+                                        });
+
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                // we reach here when we run out of retries.
+                return {error: lastError, payload: null};
             } catch (error) {
-                resolve({error, payload: null});
+                return {error, payload: null};
             }
-        });
+        };
 
         const newCb = {
             ...cb,
-            executionPromise: __promise
+            executionPromise: __execute()
         };
 
         return newCb;

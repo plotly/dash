@@ -6,16 +6,29 @@ import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
 import Reloader from './components/core/Reloader.react';
 import {setHooks, setConfig} from './actions/index';
-import {type} from 'ramda';
+import {type, memoizeWith, identity} from 'ramda';
 
 class UnconnectedAppContainer extends React.Component {
     constructor(props) {
         super(props);
         if (
             props.hooks.request_pre !== null ||
-            props.hooks.request_post !== null
+            props.hooks.request_post !== null ||
+            props.hooks.request_refresh_jwt !== null
         ) {
-            props.dispatch(setHooks(props.hooks));
+            let hooks = props.hooks;
+
+            if (hooks.request_refresh_jwt) {
+                hooks = {
+                    ...hooks,
+                    request_refresh_jwt: memoizeWith(
+                        identity,
+                        hooks.request_refresh_jwt
+                    )
+                };
+            }
+
+            props.dispatch(setHooks(hooks));
         }
     }
 

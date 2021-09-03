@@ -1,9 +1,8 @@
 import abc
 import inspect
 import sys
-from future.utils import with_metaclass
 
-from .._utils import patch_collections_abc, _strings, stringify_id
+from .._utils import patch_collections_abc, stringify_id
 
 MutableSequence = patch_collections_abc("MutableSequence")
 
@@ -59,7 +58,7 @@ def _check_if_has_indexable_children(item):
         raise KeyError
 
 
-class Component(with_metaclass(ComponentMeta, object)):
+class Component(metaclass=ComponentMeta):
     class _UNDEFINED:
         def __repr__(self):
             return "undefined"
@@ -147,17 +146,17 @@ class Component(with_metaclass(ComponentMeta, object)):
             if k == "id":
                 if isinstance(v, dict):
                     for id_key, id_val in v.items():
-                        if not isinstance(id_key, _strings):
+                        if not isinstance(id_key, str):
                             raise TypeError(
                                 "dict id keys must be strings,\n"
                                 + "found {!r} in id {!r}".format(id_key, v)
                             )
-                        if not isinstance(id_val, _strings + (int, float, bool)):
+                        if not isinstance(id_val, (str, int, float, bool)):
                             raise TypeError(
                                 "dict id values must be strings, numbers or bools,\n"
                                 + "found {!r} in id {!r}".format(id_val, v)
                             )
-                elif not isinstance(v, _strings):
+                elif not isinstance(v, str):
                     raise TypeError(
                         "`id` prop must be a string or dict, not {!r}".format(v)
                     )
