@@ -15,18 +15,15 @@ $ python3 -m venv .venv/dev
 $ source .venv/dev/bin/activate
 # install dash and dependencies
 $ pip install -e .[testing,dev]  # in some shells you need \ to escape []
-$ cd dash-renderer
-# build renderer bundles, this will build all bundles from source code
-# the only true source of npm version is defined in package.json
 $ npm install
-$ npm run build  # or `renderer build`
-# install dash-renderer for development
-$ pip install -e .
+# this script will build the dash-core-components, dash-html-components, dash-table,
+# and renderer bundles; this will build all bundles from source code in their
+# respective directories. The only true source of npm version is defined
+# in package.json for each package.
+$ npm run build  # runs `renderer build` and `npm build` in dcc, html, table
 # build and install components used in tests
-$ cd .. # should be back in dash/ root directory
-$ npm install
 $ npm run setup-tests.py # or npm run setup-tests.R
-# you should see both dash and dash-renderer are pointed to local source repos
+# you should see dash points to a local source repo
 $ pip list | grep dash
 ```
 
@@ -38,20 +35,20 @@ If you want to contribute or simply dig deeper into Dash, we encourage you to pl
 
 For contributors with a primarily **Python** or **R** background, this section might help you understand more details about developing and debugging in JavaScript world.
 
-As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and generated from the source code. The `dash-renderer\package.json` file is the one version of the truth for dash renderer version and npm dependencies. A build tool `renderer`, which is a tiny Python script installed by Dash as a command-line tool, has a few commands:
+As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and generated from the source code. The `dash-renderer\package.json` file is the one version of the truth for dash renderer version and npm dependencies. A build tool `renderer`, which is a tiny Python script installed by Dash as a command-line tool, has a few commands which can be run from within the `dash/dash-renderer` directory:
 
 1. `renderer clean` deletes all the previously generated assets by this same tool.
 2. `renderer npm` installs all the npm modules using this `package.json` files. Note that the `package-lock.json` file is the computed reference product for the versions defined with tilde(~) or caret(^) syntax in npm.
 3. `renderer bundles` parses the locked version JSON, copies all the peer dependencies into dash_renderer folder, bundles the renderer assets, and generates an `__init__.py` to map all the resources. There are also a list of helpful `scripts` property defined in `package.json` you might need to do some handy tasks like linting, syntax format with prettier, etc.
 4. `renderer digest` computes the content hash of each asset in `dash_renderer` folder, prints out the result in logs, and dumps into a JSON file `digest.json`. Use this when you have a doubt about the current assets in `dash_renderer`, and compare it with previous result in one shot by this command.
 5. `renderer build` runs 1, 2, 3, 4 in sequence as a complete build process from scratch.
-6. `renderer build local` runs the same order as in 5 and also generates source maps for debugging purposes. You also need to install dash-renderer with editable mode: `pip install -e .`.
+6. `renderer build local` runs the same order as in 5 and also generates source maps for debugging purposes.
 
 When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, Python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
 
 ### Development of `dash-core-components`, `dash-html-components`, and `dash_table`
 
-Specific details on making updates and contributions to `dcc`, `html`, and `dash_table` can be found within their respective sub-directories in the `components` directory. Once changes have been made in the specific directories, the `dash-update-components` command line tool can be used to update the build artifacts and dependencies of the respective packages within Dash. For example, if a change has been made to `dash-core-components`, use `dash-update-components "dash-core-components"` to move the build artifacts to Dash. By default, this is set to update `all` packages.
+Specific details on making changes and contributing to `dcc`, `html`, and `dash_table` can be found within their respective sub-directories in the `components` directory. Once changes have been made in the specific directories, the `dash-update-components` command line tool can be used to update the build artifacts and dependencies of the respective packages within Dash. For example, if a change has been made to `dash-core-components`, use `dash-update-components "dash-core-components"` to move the build artifacts to Dash. By default, this is set to update `all` packages.
 
 ## Python 2 And 3 Compatibility
 

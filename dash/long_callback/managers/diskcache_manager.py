@@ -97,10 +97,10 @@ or conda.
         self.handle.delete(key)
 
     def call_job_fn(self, key, job_fn, args):
-        from multiprocess import (  # pylint: disable=import-outside-toplevel,no-name-in-module,import-error
-            Process,
-        )
+        # pylint: disable-next=import-outside-toplevel,no-name-in-module,import-error
+        from multiprocess import Process
 
+        # pylint: disable-next=not-callable
         proc = Process(target=job_fn, args=(key, self._make_progress_key(key), args))
         proc.start()
         return proc.pid

@@ -6,8 +6,8 @@ from dash.testing import wait
 import dash
 from dash import Dash, Input, Output, State, ALL, ALLSMALLER, MATCH, html, dcc
 
-from assets.todo_app import todo_app
-from assets.grouping_app import grouping_app
+from tests.assets.todo_app import todo_app
+from tests.assets.grouping_app import grouping_app
 
 
 def css_escape(s):
