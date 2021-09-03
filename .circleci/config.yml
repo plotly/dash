@@ -494,7 +494,6 @@ jobs:
                   pip install -r dev-requirements.txt --quiet
                   pip install -r python-requirements.txt --quiet
                   pip install dash-package/dash-package.tar.gz[dev,testing]
-                  pip uninstall -y dash-html-components dash-core-components
           - run:
               name: Build
               command: |
