@@ -2,13 +2,12 @@ import pytest
 import re
 from selenium.webdriver.common.keys import Keys
 
-import dash_html_components as html
-import dash_core_components as dcc
-import dash
 from dash.testing import wait
-from dash.dependencies import Input, Output, State, ALL, ALLSMALLER, MATCH
+import dash
+from dash import Dash, Input, Output, State, ALL, ALLSMALLER, MATCH, html, dcc
 
-from assets.todo_app import todo_app
+from tests.assets.todo_app import todo_app
+from tests.assets.grouping_app import grouping_app
 
 
 def css_escape(s):
@@ -123,7 +122,7 @@ def fibonacci_app(clientside):
     # This app tests 2 things in particular:
     # - clientside callbacks work the same as server-side
     # - callbacks using ALLSMALLER as an input to MATCH of the exact same id/prop
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="n", type="number", min=0, max=10, value=4),
@@ -224,7 +223,7 @@ def test_cbwc002_fibonacci_app(clientside, dash_duo):
 
 
 def test_cbwc003_same_keys(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
         [
@@ -282,7 +281,7 @@ def test_cbwc003_same_keys(dash_duo):
 
 
 def test_cbwc004_layout_chunk_changed_props(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id={"type": "input", "index": 1}, value="input-1"),
@@ -395,3 +394,61 @@ def test_cbwc005_callbacks_count(dash_duo):
     dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 0
     wait.until(lambda: fibonacci_count == 30, 3)
     wait.until(lambda: fibonacci_sum_count == 10, 3)
+
+
+def test_cbwc006_grouping_callbacks(dash_duo):
+    app = grouping_app()
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#title", "Dash To-Do list")
+
+    new_item = dash_duo.find_element("#new-item")
+    add_item = dash_duo.find_element("#add")
+
+    def assert_count(items):
+        assert len(dash_duo.find_elements("#list-container>div")) == items
+
+    def assert_callback_context(items_text):
+        # Check args_grouping
+        args_grouping = dict(
+            items=dict(
+                all=[
+                    {"id": {"item": i}, "property": "children", "value": text}
+                    for i, text in enumerate(items_text[:-1])
+                ],
+                new=dict(id="new-item", property="value", value=items_text[-1]),
+            ),
+            triggers=[
+                {"id": "add", "property": "n_clicks", "value": len(items_text)},
+                {"id": "new-item", "property": "n_submit"},
+            ],
+        )
+        dash_duo.wait_for_text_to_equal("#cc-args-grouping", repr(args_grouping))
+
+        # Check outputs_grouping
+        outputs_grouping = dict(
+            list_container={"id": "list-container", "property": "children"},
+            new_item={"id": "new-item", "property": "value"},
+            totals={"id": "totals", "property": "children"},
+            cc_args_grouping={"id": "cc-args-grouping", "property": "children"},
+            cc_outputs_grouping={"id": "cc-outputs-grouping", "property": "children"},
+        )
+        dash_duo.wait_for_text_to_equal("#cc-outputs-grouping", repr(outputs_grouping))
+
+    new_item.send_keys("apples")
+    add_item.click()
+    dash_duo.wait_for_text_to_equal("#totals", "1 total item(s)")
+    assert_count(1)
+    assert_callback_context(["apples"])
+
+    new_item.send_keys("bananas")
+    add_item.click()
+    dash_duo.wait_for_text_to_equal("#totals", "2 total item(s)")
+    assert_count(2)
+    assert_callback_context(["apples", "bananas"])
+
+    new_item.send_keys("carrots")
+    add_item.click()
+    dash_duo.wait_for_text_to_equal("#totals", "3 total item(s)")
+    assert_count(3)
+    assert_callback_context(["apples", "bananas", "carrots"])

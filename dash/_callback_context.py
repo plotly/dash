@@ -1,4 +1,6 @@
 import functools
+import warnings
+
 import flask
 
 from . import exceptions
@@ -54,17 +56,44 @@ class CallbackContext:
 
     @property
     @has_context
+    def args_grouping(self):
+        return getattr(flask.g, "args_grouping", [])
+
+    @property
+    @has_context
+    def outputs_grouping(self):
+        return getattr(flask.g, "outputs_grouping", [])
+
+    @property
+    @has_context
     def outputs_list(self):
+        if self.using_outputs_grouping:
+            warnings.warn(
+                "outputs_list is deprecated, use outputs_grouping instead",
+                DeprecationWarning,
+            )
+
         return getattr(flask.g, "outputs_list", [])
 
     @property
     @has_context
     def inputs_list(self):
+        if self.using_args_grouping:
+            warnings.warn(
+                "inputs_list is deprecated, use args_grouping instead",
+                DeprecationWarning,
+            )
+
         return getattr(flask.g, "inputs_list", [])
 
     @property
     @has_context
     def states_list(self):
+        if self.using_args_grouping:
+            warnings.warn(
+                "states_list is deprecated, use args_grouping instead",
+                DeprecationWarning,
+            )
         return getattr(flask.g, "states_list", [])
 
     @property
@@ -95,6 +124,24 @@ class CallbackContext:
         timing_information[name] = {"dur": round(duration * 1000), "desc": description}
 
         setattr(flask.g, "timing_information", timing_information)
+
+    @property
+    @has_context
+    def using_args_grouping(self):
+        """
+        Return True if this callback is using dictionary or nested groupings for
+        Input/State dependencies, or if Input and State dependencies are interleaved
+        """
+        return getattr(flask.g, "using_args_grouping", [])
+
+    @property
+    @has_context
+    def using_outputs_grouping(self):
+        """
+        Return True if this callback is using dictionary or nested groupings for
+        Output dependencies.
+        """
+        return getattr(flask.g, "using_outputs_grouping", [])
 
 
 callback_context = CallbackContext()

@@ -1,5 +1,10 @@
 const customHooks = (
-    state = {request_pre: null, request_post: null, bear: false},
+    state = {
+        request_pre: null,
+        request_post: null,
+        request_refresh_jwt: null,
+        bear: false
+    },
     action
 ) => {
     switch (action.type) {

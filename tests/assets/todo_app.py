@@ -1,9 +1,7 @@
 from multiprocessing import Value
 
 import dash
-from dash.dependencies import Input, Output, State, MATCH, ALL, ALLSMALLER
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import html, dcc, Input, Output, State, MATCH, ALL, ALLSMALLER
 
 
 def todo_app(content_callback=False):
@@ -64,6 +62,11 @@ def todo_app(content_callback=False):
         ]
         if adding:
             new_spec.append((new_item, []))
+
+        # Check callback context use of grouping
+        assert not dash.callback_context.using_args_grouping
+        assert not dash.callback_context.using_outputs_grouping
+
         new_list = [
             html.Div(
                 [

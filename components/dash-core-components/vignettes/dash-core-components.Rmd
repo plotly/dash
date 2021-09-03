@@ -1,0 +1,1753 @@
+---
+title: "Dash Core Components"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Dash Core Components}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Dash ships with supercharged components for interactive user interfaces. A core set of components, written and maintained by the Dash team, is available in the `dashCoreComponents` package. The source is on GitHub at [plotly/dash-core-components](https://github.com/plotly/dash-core-components).
+
+Please visit our online documentation, which is interactive and frequently updated:  https://dashr.plotly.com.
+
+### Dropdown Component
+
+__*Default Dropdown*__
+
+An example of a default dropdown without any extra properties.
+
+```r
+dccDropdown(
+  options=list(
+    list(label="New York City", value="NYC"),
+    list(label="Montréal", value="MTL"),
+    list(label="San Francisco", value="SF")
+  ),
+  value=list("MTL", "NYC"),
+  multi=TRUE
+)
+```
+
+__*Multi-Value Dropdown*__
+
+A dropdown component with the `multi` property set to `TRUE` will allow the user to select more than one value at a time.
+
+```r
+dccDropdown(
+  options=list(
+    list(label="New York City", value="NYC"),
+    list(label="Montréal", value="MTL"),
+    list(label="San Francisco", value="SF")
+  ),
+  value="MTL",
+  id="my-dropdown"
+)
+```
+
+__*Disable Search*__
+
+The `searchable` property is set to `TRUE` by default on all Dropdown components. To prevent searching the dropdown value, just set the `searchable` property to `FALSE`. Try searching for 'New York' on this dropdown below and compare it to the other dropdowns on the page to see the difference.
+
+```r
+dccDropdown(
+  options=list(
+    list(label="New York City", value="NYC"),
+    list(label="Montréal", value="MTL"),
+    list(label="San Francisco", value="SF")
+  ),
+  searchable = FALSE
+)
+```
+
+__*Dropdown Clear*__
+
+The `clearable` property is set to `TRUE` by default on all Dropdown components. To prevent the clearing of the selected dropdown value, just set the clearable property to `FALSE`:
+
+```r
+dccDropdown(
+  options=list(
+    list(label="New York City", value="NYC"),
+    list(label="Montréal", value="MTL"),
+    list(label="San Francisco", value="SF")
+  ),
+  value = "MTL",
+  clearable = FALSE
+)
+```
+
+__*Placeholder Text*__
+
+The placeholder property allows you to define default text shown when no value is selected.
+
+```r
+dccDropdown(
+  options=list(
+    list(label="New York City", value="NYC"),
+    list(label="Montréal", value="MTL"),
+    list(label="San Francisco", value="SF")
+  ),
+  placeholder="Select a city"
+)
+```
+
+__*Disable Dropdown*__
+
+To disable the dropdown just set `disabled=TRUE`.
+
+```r
+dccDropdown(
+  options=list(
+    list(label="New York City", value="NYC"),
+    list(label="Montréal", value="MTL"),
+    list(label="San Francisco", value="SF")
+  ),
+  disabled=TRUE
+)
+```
+
+__*Disable Options*__
+
+To disable a particular option inside the dropdown menu, set the disabled property in the options.
+
+```r
+dccDropdown(
+  options=list(
+    list(label="New York City", value="NYC", "disabled" = TRUE),
+    list(label="Montréal", value="MTL"),
+    list(label="San Francisco", value="SF", "disabled" = TRUE)
+  )
+)
+```
+
+### Slider Component
+
+__*Simple Slider Example*__
+
+An example of a basic slider tied to a callback.
+
+```r
+library(dash)
+
+app <- Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccSlider(
+        id='my-slider',
+        min=0,
+        max=20,
+        step=0.5,
+        value=10
+      ),
+      htmlDiv(id='slider-output-container')
+    )
+  )
+)
+
+app$callback(
+  output(id = 'slider-output-container', property = 'children'),
+  params=list(input(id = 'my-slider', property = 'value')),
+  function(value) {
+    sprintf("you have selected %0.1f", value)
+  })
+
+app$run_server()
+```
+
+__*Marks and Steps*__
+
+If slider marks are defined and step is set to `NULL` then the slider will only be able to select values that have been predefined by the marks. marks is a list where the keys represent the numerical values and the values represent their labels.
+
+```r
+dccSlider(
+    min=0,
+    max=10,
+    marks = list(
+    "0" = "0 °F",
+    "3" = "3 °F",
+    "5" = "5 °F",
+    "7.65" = "7.65 °F",
+    "10" = "10 °F"
+    ),
+    value=5
+)
+```
+
+By default, `included=TRUE`, meaning the rail trailing the handle will be highlighted. To have the handle act as a discrete value set `included=FALSE`. To style `marks`, include a style css attribute alongside the list value.
+
+```r
+dccSlider(
+    min=0,
+    max=100,
+    value = 65,
+    marks = list(
+    "0" = list("label" = "0 °C", "style" = list("color" = "#77b0b1")),
+    "26" = list("label" = "26 °C"),
+    "37" = list("label" = "37 °C"),
+    "100" = list("label" = "100 °C", "style" = list("color" = "#FF4500"))
+    )
+)
+```
+
+__*Non-Linear Slider and Updatemode*__
+
+```r
+library(dash)
+
+transform_value = function(value){
+  return(10**value)
+}
+
+app <- Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccSlider(
+        id='slider-updatemode',
+        marks=unlist(lapply(list(1:4), function(x){10**x})),
+        max=3,
+        value=2,
+        step=0.01,
+        updatemode='drag'
+      ),
+      htmlDiv(id='updatemode-output-container', style=list('margin-top' = 20))
+    )
+  )
+)
+
+app$callback(
+  output(id = 'updatemode-output-container', property='children'),
+  params=list(input(id='slider-updatemode', property='value')),
+  function(value) {
+    sprintf('Linear Value: %g | Log Value: %0.2f', value, transform_value(value))
+  })
+
+app$run_server()
+```
+
+### RangeSlider Component
+
+__*Simple RangeSlider Example*__
+
+An example of a basic RangeSlider tied to a callback.
+
+```r
+library(dash)
+
+app <- Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccRangeSlider(
+        id='my-range-slider',
+        min=0,
+        max=20,
+        step=0.5,
+        value=list(5, 15)
+      ),
+      htmlDiv(id='output-container-range-slider')
+    )
+  )
+)
+
+app$callback(
+  output(id = 'output-container-range-slider', property='children'),
+  params=list(input(id='my-range-slider', property='value')),
+  function(value) {
+    sprintf('You have selected [%0.1f, %0.1f]', value[1], value[2])
+  })
+
+app$run_server()
+```
+
+__*Marks and Steps*__
+
+If slider marks are defined and step is set to `NULL` then the slider will only be able to select values that have been predefined by the marks.
+
+```r
+dccRangeSlider(
+      min=0,
+      max=10,
+      marks=list(
+        "0" = "0 °F",
+        "3" = "3 °F",
+        "5" = "5 °F",
+        "7.65" = "7.65 °F",
+        "10" = "10 °F"
+      ),
+      value=list(3, 7.65)
+)
+```
+
+__*Included and Styling Marks*__
+
+By default, `included=TRUE`, meaning the rail trailing the handle will be highlighted. To have the handle act as a discrete value set `included=FALSE`. To style marks, include a style css attribute alongside the key value.
+
+```r
+library(dash)
+
+dccRangeSlider(
+    min=0,
+    max=100,
+    marks = list(
+    "0" = list("label" = "0 °C", "style" = list("color" = "#77b0b1")),
+    "26" = list("label" = "26 °C"),
+    "37" = list("label" = "37 °C"),
+    "100" = list("label" = "100°C" , "style" = list("color" = "#FF4500"))
+    )
+)
+```
+
+__*Multiple Handles*__
+
+To create multiple handles just define more values for `value`!
+
+```r
+dccRangeSlider(
+    min=0,
+    max=30,
+    value=list(1, 3, 4, 5, 12, 17)
+)
+```
+
+__*Crossing Handles*__
+
+If `allowCross=FALSE`, the handles will not be allowed to cross over each other.
+
+```r
+dccRangeSlider(
+    min=0,
+    max=30,
+    value=list(10,15),
+    allowCross = FALSE
+)
+```
+
+__*Non-Linear Slider and Updatemode*__
+
+Create a logarithmic slider by setting `marks` to be logarithmic and adjusting the slider's output value in the callbacks. The `updatemode` property allows us to determine when we want a callback to be triggered. The following example has `updatemode='drag'` which means a callback is triggered everytime the handle is moved. Contrast the callback output with the first example on this page to see the difference.
+
+```r
+library(dash)
+
+transform_value = function(value){
+  return(10 ** value)
+}
+
+app <- Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccRangeSlider(
+        id='non-linear-range-slider',
+        marks=unlist(lapply(list(1:4), function(x){10**x})),
+        max=3,
+        value=list(0.1, 2),
+        dots=FALSE,
+        step=0.01,
+        updatemode='drag'
+      ),
+      htmlDiv(id='output-container-range-slider-non-linear', style=list('margin-top' = 20))
+  )
+))
+
+app$callback(
+  output(id = 'output-container-range-slider-non-linear', property='children'),
+  params=list(input(id='non-linear-range-slider', property='value')),
+  function(value) {
+    transformed_value = lapply(value, transform_value)
+    sprintf('Linear Value: %g, Log Value: [%0.2f, %0.2f]', value[2],transformed_value[1], transformed_value[2])
+  })
+
+app$run_server()
+```
+
+### Input Component
+
+__*Update Value on Keypress*__
+
+```
+library(dash)
+
+app <- Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccInput(id='input-1-keypress', type='text', value='Montreal'),
+      dccInput(id='input-2-keypress', type='text', value='Canada'),
+      htmlDiv(id='output-keypress1')
+    )
+  )
+)
+
+app$callback(
+  output(id = 'output-keypress1', property='children'),
+  params=list(input(id='input-1-keypress', property='value'),
+              input(id='input-2-keypress', property='value')),
+  function(input1, input2) {
+    sprintf('Input 1 is %s and input 2 is %s', input1,input2)
+  })
+
+app$run_server()
+```
+
+__*Update Value on Enter/Blur*__
+
+`dccInput` has properties `n_submit`, which updates when the enter button is pressed, and `n_blur`, which updates when the component loses focus (e.g. tab is pressed or the user clicks outside of the input field).
+
+```r
+library(dash)
+
+app <- Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccInput(id='input-1-submit', type='text', value='Montreal'),
+      dccInput(id='input-2-submit', type='text', value='Canada'),
+      htmlDiv(id='output-keypress')
+    )
+  ))
+
+app$callback(
+  output(id = 'output-keypress', property='children'),
+  params=list(input(id='input-1-submit', property='n_submit'),
+              input(id = 'input-1-submit', property = 'n_blur'),
+              input(id='input-2-submit', property='n_submit'),
+              input(id = 'input-2-submit', property = 'n_blur'),
+              state('input-1-submit', 'value'),
+              state('input-2-submit', 'value')),
+  function(ns1, nb1, ns2, nb2, input1, input2) {
+    sprintf('Input 1 is %s and input 2 is %s', input1, input2)
+  })
+
+app$run_server()
+```
+
+### Textarea Component
+
+```r
+library(dash)
+
+dccTextarea(
+  placeholder = "Enter a value...",
+  value = "This is a TextArea component",
+  style = list("width" = "100%")
+)
+```
+
+### Checklist Component
+
+```r
+library(dash)
+
+dccChecklist(
+  options=list(
+  list("label" = "New York City", "value" = "NYC"),
+  list("label" = "Montréal", "value" = "MTL"),
+  list("label" = "San Francisco", "value" = "SF")
+  ),
+  value=list("MTL", "SF")
+)
+```
+
+```r
+library(dash)
+
+dccChecklist(
+  options=list(
+  list("label" = "New York City", "value" = "NYC"),
+  list("label" = "Montréal", "value" = "MTL"),
+  list("label" = "San Francisco", "value" = "SF")
+  ),
+  value=list("MTL", "SF"),
+  labelStyle = list("display" = "inline-block")
+)
+```
+
+### RadioItems Component
+
+```r
+library(dash)
+
+dccRadioItems(
+  options=list(
+  list("label" = "New York City", "value" = "NYC"),
+  list("label" = "Montréal", "value" = "MTL"),
+  list("label" = "San Francisco", "value" = "SF")
+  ),
+  value = "MTL"
+)
+```
+
+```r
+library(dash)
+
+dccRadioItems(
+  options=list(
+  list("label" = "New York City", "value" = "NYC"),
+  list("label" = "Montréal", "value" = "MTL"),
+  list("label" = "San Francisco", "value" = "SF")
+  ),
+  value = "MTL",
+  labelStyle = list("display" = "inline-block")
+)
+```
+
+### Button Component
+
+__*Button Basic Example*__
+
+An example of a default button without any extra properties and `n_clicks` in the callback. `n_clicks` is an integer that represents that number of times the button has been clicked. Note that the original value is `NULL`.
+
+```r
+library(dash)
+
+app <- Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      htmlDiv(dccInput(id="input-box", type="text")),
+      htmlButton("Submit", id="button"),
+      htmlDiv(id="output-container-button",
+              children="Enter a value and press submit")
+    )
+  )
+)
+
+app$callback(
+  output = list(id = "output-container-button", property = 'children'),
+  params=list(input(id = "button", property = "n_clicks"),
+              input(id = "input-box", property = "value")),
+  function(n_clicks, value) {
+    sprintf("The input value was \'%s\' and the button has been clicked \'%s\' times", value, n_clicks)
+  })
+
+app$run_server()
+```
+
+__*Button with n_clicks_timestamp*__
+
+This example utilizes the `n_clicks_timestamp` property, which returns an integer representation of time. This is useful for determining when the button was last clicked.
+
+```r
+library(dash)
+
+app <- Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      htmlButton('Button 1', id='btn-1', n_clicks_timestamp=0),
+      htmlButton('Button 2', id='btn-2', n_clicks_timestamp=0),
+      htmlButton('Button 3', id='btn-3', n_clicks_timestamp=0),
+      htmlDiv(id='container-button-timestamp')
+    )
+  )
+)
+
+app$callback(
+  output(id = 'container-button-timestamp', property = 'children'),
+  params = list(input(id = 'btn-1', property = 'n_clicks_timestamp'),
+                input(id = 'btn-2', property = 'n_clicks_timestamp'),
+                input(id = 'btn-3', property ='n_clicks_timestamp')),
+             function(btn1, btn2, btn3){
+               if((btn1) > (btn2) & (btn1) > (btn3)){
+                 msg = 'Button 1 was most recently clicked'
+               } else if((btn2) > (btn1) & (btn2) > (btn3)){
+                 msg = 'Button 2 was most recently clicked'
+               } else if((btn3) > (btn1) & (btn3) > (btn2)){
+                 msg = 'Button 3 was most recently clicked'
+               } 
+               else{
+                 msg = 'None of the buttons have been clicked yet'
+               }
+               return(htmlDiv(list(
+                 htmlDiv(sprintf('btn1: %s', format(btn1, scientific = FALSE))),
+                 htmlDiv(sprintf('btn2: %s', format(btn2, scientific = FALSE))),
+                 htmlDiv(sprintf('btn3: %s', format(btn3, scientific = FALSE))),
+                 htmlDiv(msg))
+                 ))
+             }
+)
+
+app$run_server()
+```
+
+### DatePickerSingle Component
+
+__*Calendar Clear and Portals*__
+
+When the `clearable` property is set to `TRUE` the component will be rendered with a small 'x' that will remove all selected dates when selected.
+
+The `DatePickerSingle` component supports two different portal types, one being a full screen portal (`with_full_screen_portal`) and another being a simple screen overlay, like the one shown below (`with_portal`).
+
+```r
+library(dashHtmlComponents)
+library(dash)
+
+app = Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccDatePickerSingle(
+        id='my-date-picker-single',
+        min_date_allowed=as.Date('1995-8-5'),
+        max_date_allowed=as.Date('2017-9-19'),
+        initial_visible_month=as.Date('2017-8-5'),
+        date = as.POSIXct("2017-08-25 23:59:59", tz = "GMT")
+      ),
+      htmlDiv(id='output-container-date-picker-single')
+    )
+  )
+)
+
+app$callback(
+  output = list(id='output-container-date-picker-single', property = 'children'),
+  params = list(input(id = 'my-date-picker-single', property = 'date')),
+  function(date){
+    if(is.null(date) == FALSE){
+      date = format(as.Date(date), format = '%B %d,%Y')
+      sprintf('You have selected: %s', date)
+    }
+  }
+)
+```
+
+__*Month and Display Format*__
+
+The `display_format` property determines how selected dates are displayed in the `DatePickerRange` component. The `month_format` property determines how calendar headers are displayed when the calendar is opened.
+
+Both of these properties are configured through strings that utilize a combination of any of the following tokens.
+
+| String Token | Example          | Description                                            |
+|:-------------|:-----------------|:-------------------------------------------------------|
+| `YYYY`       | `2014`           | 4 or 2 digit year                                      |
+| `YY`         | `14`             | 2 digit year                                           |
+| `Y`          | `-25`            | Year with any number of digits and sign                |
+| `Q`          | `1..4`           | Quarter of year. Sets month to first month in quarter. |
+| `M MM`       | `1..12`          | Month number                                           |
+| `MMM MMMM`   | `Jan..December`  | Month name                                             |
+| `D DD`       | `1..31`          | Day of month                                           |
+| `Do`         | `1st..31st`      | Day of month with ordinal                              |
+| `DDD DDDD`   | `1..365`         | Day of year                                            |
+| `X`          | `1410715640.579` | Unix timestamp                                         |
+| `X`          | `1410715640579`  | Unix ms timestamp                                      |
+
+__*Display Format Examples*__
+
+You can utilize any permutation of the string tokens shown in the table above to change how selected dates are displayed in the `DatePickerRange` component.
+
+```r
+dccDatePickerSingle(
+    date="2017-06-21",
+    display_format="MMM Do, YY"
+)
+
+# Displays "Jun 21st, 17""
+```
+
+```r
+dccDatePickerSingle(
+    date=format(as.Date("2017-6-21"), format = "%Y,%m,%d"),
+  display_format="M-D-Y-Q"
+)
+# Displays "6-21-2017-2"
+```
+
+```r
+dccDatePickerSingle(
+    date=format(as.Date("2017-6-21"), format = "%Y,%m,%d"),
+  display_format="MMMM Y, DD"
+)
+# Displays "June 2017, 21"
+```
+
+```r
+dccDatePickerSingle(
+  date=format(as.Date("2017-6-21"), format = "%Y,%m,%d"),
+  display_format="X"
+)
+# Displays "1498017600"
+```
+
+__*Month Format Examples*__
+
+Similar to the `display_format`, you can set `month_format` to any permutation of the string tokens shown in the table above to change how calendar titles are displayed in the `DatePickerRange` component.
+
+```r
+dccDatePickerSingle(
+  month_format="MMM Do, YY",
+  placeholder="MMM Do, YY",
+  date=format(as.Date("2017-6-21"), format = "%Y,%m,%d")
+)
+# Displays "06/21/2017"
+```
+
+```r
+dccDatePickerSingle(
+  month_format="M-D-Y-Q",
+  placeholder="M-D-Y-Q",
+  date=format(as.Date("2017-6-21"), format = "%Y,%m,%d")
+)
+# Displays "06/21/2017"
+```
+
+```r
+dccDatePickerSingle(
+  month_format="MMMM Y",
+  placeholder="MMMM Y",
+  date=format(as.Date("2020-2-29"), format = "%Y,%m,%d")
+)
+# Displays "02/29/2020"
+```
+
+__*Vertical Calendar and Placeholder Text*__
+
+The `DatePickerRange` component can be rendered in two orientations, either horizontally or vertically. If `calendar_orientation` is set to 'vertical', it will be rendered vertically and will default to 'horizontal' if not defined.
+
+The `start_date_placeholder_text` and `end_date_placeholder_text` define the grey default text defined in the calendar input boxes when no date is selected.
+
+```r
+dccDatePickerSingle(
+  calendar_orientation="vertical",
+  placeholder="Select a date",
+  date=format(as.Date("2017-6-21"), format = "%Y,%m,%d")
+)
+# Displays "06/21/2017"
+```
+
+__*Calendar Clear and Portals*__
+
+When the `clearable` property is set to `TRUE` the component will be rendered with a small 'x' that will remove all selected dates when selected.
+
+The `DatePickerSingle` component supports two different portal types, one being a full screen portal (`with_full_screen_portal`) and another being a simple screen overlay, like the one shown below (`with_portal`).
+
+```r
+
+dccDatePickerSingle(
+    clearable=TRUE,
+    with_portal=TRUE,
+    date=format(as.Date("2017-6-21"), format = "%Y,%m,%d")
+)
+# Displays "06/21/2017"
+```
+
+__*Right to Left Calendars and First Day of Week*__
+
+When the `is_RTL` property is set to `TRUE` the calendar will be rendered from right to left.
+
+The `first_day_of_week` property allows you to define which day of the week will be set as the first day of the week. In the example below, Tuesday is the first day of the week.
+
+```r
+dccDatePickerSingle(
+  is_RTL=TRUE,
+  first_day_of_week=3,
+  date=format(as.Date("2017-6-21"), format = "%Y,%m,%d")
+  )
+# Displays "06/21/2017"
+```
+
+### DatePickerRange Component
+
+__*Simple DatePickerRange Example*__
+
+This is a simple example of a `DatePickerRange` component tied to a callback. The `min_date_allowed` and `max_date_allowed` properties define the minimum and maximum selectable dates on the calendar while `initial_visible_month` defines the calendar month that is first displayed when the `DatePickerRange` component is opened.
+
+```r
+library(dashHtmlComponents)
+library(dash)
+
+app = Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccDatePickerRange(
+        id='my-date-picker-single',
+        min_date_allowed=as.Date('1995-8-5'),
+        max_date_allowed=as.Date('2017-9-19'),
+        initial_visible_month=as.Date('2017-8-5'),
+        end_date = as.Date('2017-8-5')
+      ),
+      htmlDiv(id='output-container-date-picker-range')
+    )
+  )
+)
+
+app$callback(
+  output = list(id='output-container-date-picker-range', property = 'children'),
+  params = list(input(id = 'my-date-picker-range', property = 'start_date'),
+                input(id = 'my-date-picker-range', property = 'end_date')),
+  function(start_date, end_date){
+    string_prefix = 'You have selected: '
+
+    if(is.null(start_date) == FALSE){
+      start_date = format(as.Date(start_date), format = '%B %d,%Y')
+      string_prefix = paste(string_prefix, 'Start Date ', start_date, sep = "")
+    }
+    if(is.null(end_date) == FALSE){
+      end_date = format(as.Date(end_date), format = '%B %d,%Y')
+      string_prefix = paste(string_prefix, 'End Date: ', end_date, sep = "")
+
+    }
+    if(nchar(string_prefix) == nchar('You have selected: ')){
+      return('Select a date to see it displayed here')
+    }
+    else{
+      return(string_prefix)
+    }
+  }
+
+)
+
+app$run_server()
+```
+
+__*Month and Display Format*__
+
+The `display_format` property determines how selected dates are displayed in the `DatePickerRange` component. The `month_format` property determines how calendar headers are displayed when the calendar is opened.
+
+Both of these properties are configured through strings that utilize a combination of any of the following tokens.
+
+| String Token | Example          | Description                                            |
+|:-------------|:-----------------|:-------------------------------------------------------|
+| `YYYY`       | `2014`           | 4 or 2 digit year                                      |
+| `YY`         | `14`             | 2 digit year                                           |
+| `Y`          | `-25`            | Year with any number of digits and sign                |
+| `Q`          | `1..4`           | Quarter of year. Sets month to first month in quarter. |
+| `M MM`       | `1..12`          | Month number                                           |
+| `MMM MMMM`   | `Jan..December`  | Month name                                             |
+| `D DD`       | `1..31`          | Day of month                                           |
+| `Do`         | `1st..31st`      | Day of month with ordinal                              |
+| `DDD DDDD`   | `1..365`         | Day of year                                            |
+| `X`          | `1410715640.579` | Unix timestamp                                         |
+| `X`          | `1410715640579`  | Unix ms timestamp                                      |
+
+__*Display Format Examples*__
+
+You can utilize any permutation of the string tokens shown in the table above to change how selected dates are displayed in the `DatePickerRange` component.
+
+```r
+dccDatePickerRange(
+  end_date  =  as.POSIXct("2017-6-21 23:59:59", tz  =  "GMT"),
+  display_format = "MMM Do, YY",
+  start_date_placeholder_text = "MMM Do, YY"
+)
+# Displays "Jun 21st, 17"
+```
+
+```r
+dccDatePickerRange(
+    end_date = format(as.Date("2017-6-21"), format  =  "%Y,%m,%d"),
+    display_format = "M-D-Y-Q",
+    start_date_placeholder_text = "M-D-Y-Q"
+)
+# Displays "6-21-2017-2"
+```
+
+```r
+dccDatePickerRange(
+    end_date = format(as.Date("2017-6-21"), format  =  "%Y,%m,%d"),
+    display_format = "MMMM Y, DD",
+    start_date_placeholder_text = "MMMM Y, DD"
+)
+# Displays "June 2017, 21"
+```
+
+```r
+dccDatePickerRange(
+  end_date = format(as.Date("2017-6-21"), format  =  "%Y,%m,%d"),
+  display_format = "X",
+  start_date_placeholder_text = "X"
+)
+# Displays "1498017600"
+```
+
+__*Month Format Examples*__
+
+Similar to the `display_format`, you can set `month_format` to any permutation of the string tokens shown in the table above to change how calendar titles are displayed in the `DatePickerRange` component.
+
+```r
+dccDatePickerRange(
+  display_format = "MMM Do, YY",
+  start_date_placeholder_text = "MMM Do, YY",
+  start_date = format(as.Date("2017-6-21"), format  =  "%Y,%m,%d")
+)
+# Displays "Jun 21st, 17"
+```
+
+```r
+dccDatePickerRange(
+  display_format = "M-D-Y-Q",
+  start_date_placeholder_text = "M-D-Y-Q",
+  start_date = format(as.Date("2017-6-21"), format  =  "%Y,%m,%d")
+)
+# Displays "6-21-2017-2"
+```
+
+```
+dccDatePickerRange(
+  display_format = "MMMM Y",
+  start_date_placeholder_text = "MMMM Y",
+  start_date = format(as.Date("2017-6-21"), format  =  "%Y,%m,%d")
+)
+# Displays "June 2017"
+```
+
+```
+dccDatePickerRange(
+  display_format = "X",
+  start_date_placeholder_text = "X",
+  start_date = format(as.Date("2017-6-21"), format  =  "%Y,%m,%d")
+)
+# Displays "1498017600"
+```
+
+__*Vertical Calendar and Placeholder Text*__
+
+The `DatePickerRange` component can be rendered in two orientations, either horizontally or vertically. If `calendar_orientation` is set to 'vertical', it will be rendered vertically and will default to 'horizontal' if not defined.
+
+The `start_date_placeholder_text` and `end_date_placeholder_text` define the grey default text defined in the calendar input boxes when no date is selected.
+
+```r
+dccDatePickerRange(
+  start_date_placeholder_text = "Start Period",
+  end_date_placeholder_text = "End Period",
+  calendar_orientation = "vertical",
+)
+```
+
+__*Minimum Nights, Calendar Clear, and Portals*__
+
+The `minimum_nights property` defines the number of nights that must be in between the range of two selected dates.
+
+When the `clearable` property is set to `TRUE` the component will be rendered with a small 'x' that will remove all selected dates when selected.
+
+The `DatePickerRange` component supports two different portal types, one being a full screen portal (`with_full_screen_portal`) and another being a simple screen overlay, like the one shown below (`with_portal`).
+
+```r
+dccDatePickerRange(
+  minimum_nights = 5,
+  clearable = TRUE,
+  with_portal = TRUE,
+  start_date  =  format(as.Date("2017-6-21"), format  =  "%Y,%m,%d")
+)
+```
+
+__*Right to Left Calendars and First Day of Week*__
+
+When the `is_RTL` property is set to `TRUE` the calendar will be rendered from right to left.
+
+The `first_day_of_week` property allows you to define which day of the week will be set as the first day of the week. In the example below, Tuesday is the first day of the week.
+
+```r
+dccDatePickerRange(
+  is_RTL = TRUE,
+  first_day_of_week = 3,
+  start_date= format(as.Date("2017-6-21"), format = "%Y,%m,%d")
+)
+```
+
+### Markdown Component
+
+__*Syntax Guide*__
+
+These examples are based on the [GitHub Markdown Guide](https://guides.github.com/features/mastering-markdown/). The Dash Markdown component uses the [CommonMark](http://commonmark.org/) specification of Markdown.
+
+
+__*Headers*__
+
+```r
+library(dash)
+
+dccMarkdown('
+
+# This is an <h1> tag
+
+## This is an <h2> tag
+
+###### This is an <h6> tag)
+```
+
+```r
+library(dash)
+
+dccMarkdown('
+
+  *This text will be italic*
+
+  _This will also be italic_
+
+
+  **This text will be bold**
+
+  __This will also be bold__
+
+  _You **can** combine them_
+'
+)
+```
+
+__*Lists*__
+
+*Unordered*
+
+```r
+library(dash)
+
+dccMarkdown('
+* Item 1
+* Item 2
+  * Item 2a
+  * Item 2b
+')
+```
+
+__*Block Quotes*__
+
+```r
+library(dash)
+
+dccMarkdown('
+>
+> Block quotes are used to highlight text.
+>
+')
+```
+
+__*Links*__
+
+```r
+library(dash)
+
+dccMarkdown('
+[Dash User Guide](https://dash.plotly.com/)')
+```
+
+__*Inline Code*__
+
+Any block of text surrounded by ` ` will rendered as inline-code.
+
+```r
+library(dash)
+
+dccMarkdown('
+Inline code snippet = `TRUE` ')
+```
+
+### Interactive Tables
+
+The `dashHtmlComponents` package exposes all of the HTML tags. This includes the `Table`, `Tr`, and `Tbody` tags that can be used to create an HTML table. See Create Your First Dash App, Part 1 for an example. Dash provides an interactive DataTable as part of the `dash-table` project. This table includes built-in filtering, row-selection, editing, and sorting.
+
+### Upload Component
+
+The Dash upload component allows your app's viewers to upload files, like excel spreadsheets or images, into your application. Your Dash app can access the contents of an upload by listening to the `contents` property of the dccUpload component. `contents` is a base64 encoded string that contains the files contents, no matter what type of file: text files, images, zip files, excel spreadsheets, etc.
+
+Here's an example that parses CSV or Excel files and displays the results in a table. Note that this example uses the `DataTable` from the `dash-table` project.
+
+```r
+library(dashHtmlComponents)
+library(dash)
+library(anytime)
+
+app = Dash$new()
+
+app$layout(htmlDiv(list(
+  dccUpload(
+    id='upload-data',
+    children=htmlDiv(list(
+      'Drag and Drop or ',
+      htmlA('Select Files')
+    )),
+    style=list(
+      'width'= '100%',
+      'height'= '60px',
+      'lineHeight'= '60px',
+      'borderWidth'= '1px',
+      'borderStyle'= 'dashed',
+      'borderRadius'= '5px',
+      'textAlign'= 'center',
+      'margin'= '10px'
+    ),
+    # Allow multiple files to be uploaded
+    multiple=TRUE
+  ),
+  htmlDiv(id='output-data-upload')
+)))
+
+parse_contents = function(contents, filename, date){
+  content_type = strsplit(contents, ",")
+  content_string = strsplit(contents, ",")
+  decoded = base64_dec(content_string)
+
+  if('csv' %in% filename){
+    df = read.csv(utf8::as_utf8(decoded))
+  } else if('xls' %in% filename){
+    df = read.table(decoded, encoding = 'bytes')
+  } else{
+    return(htmlDiv(list(
+      'There was an error processing this file.'
+    )))
+  }
+
+  return(htmlDiv(list(
+    htmlH5(filename),
+    htmlH6(anytime(date)),
+    dashDataTable(df_to_list('records'),columns = lapply(colnames(df), function(x){list('name' = x, 'id' = x)})),
+    htmlHr(),
+    htmlDiv('Raw Content'),
+    htmlPre(paste(substr(toJSON(contents), 1, 100), "..."), style=list(
+      'whiteSpace'= 'pre-wrap',
+      'wordBreak'= 'break-all'
+    ))
+  )))
+}
+
+app$callback(
+  output = list(id='output-data-upload', property = 'children'),
+  params = list(input(id = 'upload-data', property = 'contents'),
+                state(id = 'upload-data', property = 'filename'),
+                state(id = 'upload-data', property = 'last_modified')),
+  function(list_of_contents, list_of_names, list_of_dates){
+    if(is.null(list_of_contents) == FALSE){
+      children = lapply(1:length(list_of_contents), function(x){
+        parse_content(list_of_contents[[x]], list_of_names[[x]], list_of_dates[[x]])
+      })
+
+    }
+    return(children)
+  })
+
+app$run_server()
+```
+
+This next example responds to image uploads by displaying them in the app with the `htmlImg` component.
+
+```r
+library(dashHtmlComponents)
+library(dash)
+library(anytime)
+
+app = Dash$new()
+
+app$layout(htmlDiv(list(
+  dccUpload(
+    id='upload-image',
+    children=htmlDiv(list(
+      'Drag and Drop or ',
+      htmlA('Select Files')
+    )),
+    style=list(
+      'width'= '100%',
+      'height'= '60px',
+      'lineHeight'= '60px',
+      'borderWidth'= '1px',
+      'borderStyle'= 'dashed',
+      'borderRadius'= '5px',
+      'textAlign'= 'center',
+      'margin'= '10px'
+    ),
+    # Allow multiple files to be uploaded
+    multiple=TRUE
+  ),
+  htmlDiv(id='output-image-upload')
+)))
+
+parse_content = function(contents, filename, date){
+  return(htmlDiv(list(
+    htmlH5(filename),
+    htmlH6(anytime(date)),
+           htmlImg(src=contents),
+           htmlHr(),
+           htmlDiv('Raw Content'),
+            htmlPre(paste(substr(toJSON(contents), 1, 100), "..."), style=list(
+              'whiteSpace'= 'pre-wrap',
+              'wordBreak'= 'break-all'
+            ))
+    )))
+}
+
+app$callback(
+  output = list(id='output-image-upload', property = 'children'),
+  params = list(input(id = 'upload-image', property = 'contents'),
+                state(id = 'upload-image', property = 'filename'),
+                state(id = 'upload-image', property = 'last_modified')),
+  function(list_of_contents, list_of_names, list_of_dates){
+    if(is.null(list_of_contents) == FALSE){
+      children = lapply(1:length(list_of_contents), function(x){
+        parse_content(list_of_contents[[x]], list_of_names[[x]], list_of_dates[[x]])
+      })
+    } else{
+
+    }
+    return(children)
+  }
+)
+
+app$run_server()
+```
+
+The `children` attribute of the `Upload` component accepts any Dash component. Clicking on the children element will trigger the upload action, as will dragging and dropping files. Here are a few different ways that you could style the upload component using standard dash components.
+
+```
+library(dashHtmlComponents)
+library(dash)
+
+app = Dash$new()
+
+app$layout(htmlDiv(list(
+  dccUpload(htmlButton('Upload File')),
+
+  htmlHr(),
+
+  dccUpload(htmlA('Upload File')),
+
+  htmlHr(),
+
+  dccUpload(list(
+    'Drag and Drop or ',
+    htmlA('Select a File')
+    ), style=list(
+      'width'= '100%',
+      'height'= '60px',
+      'lineHeight'= '60px',
+      'borderWidth'= '1px',
+      'borderStyle'= 'dashed',
+      'borderRadius'= '5px',
+      'textAlign'= 'center'
+    ))
+  )))
+
+app$run_server()
+```
+
+### Tabs Component
+
+The Tabs and Tab components can be used to create tabbed sections in your app. The `Tab` component controls the style and value of the individual tab and the `Tabs` component hold a collection of Tab components.
+
+* Method 1. Content as Callback
+* Method 2. Content as Tab children
+* Styling the Tabs component
+    * with CSS classes
+    * with inline styles
+    * with props
+    
+__*Method 1. Content as Callback*__
+
+Attach a callback to the Tabs `value` prop and update a container's `children` property in your callback.
+
+```r
+library(dashHtmlComponents)
+library(dash)
+
+utils <- new.env()
+source('dashr/utils.R', local=utils)
+
+examples <- list(
+  button = utils$LoadExampleCode('dashr/chapters/dash-core-components/Button/examples/button.R'),
+  tabs = utils$LoadExampleCode('dashr/chapters/dash-core-components/Tabs/examples/tabs.R')
+)
+
+app = Dash$new()
+
+app$layout(htmlDiv(list(
+  htmlH1('Dash Tabs component demo'),
+  dccTabs(id="tabs-example", value='tab-1-example', children=list(
+    dccTab(label='Tab One', value='tab-1-example'),
+    dccTab(label='Tab Two', value='tab-2-example')
+  )),
+  htmlDiv(id='tabs-content-example')
+)))
+
+app$callback(
+  output = list(id='tabs-content-example', property = 'children'),
+  params = list(input(id = 'tabs-example', property = 'value')),
+  function(tab){
+    if(tab == 'tab-1-example'){
+      return(htmlDiv(list(
+        htmlH3('Tab content 1'),
+        dccGraph(
+          id='graph-1-tabs',
+          figure=list(
+            'data' = list(list(
+              'x' = c(1, 2, 3),
+              'y' = c(3, 1, 2),
+              'type' = 'bar'
+            ))
+          )
+        )
+      )))
+    }
+
+    else if(tab == 'tab-2-example'){
+      return(htmlDiv(list(
+        htmlH3('Tab content 2'),
+        dccGraph(
+          id='graph-2-tabs',
+          figure=list(
+            'data' = list(list(
+              'x' = c(1, 2, 3),
+              'y' = c(5, 10, 6),
+              'type' = 'bar'
+            ))
+          )
+        )
+      )))
+    }
+  }
+
+
+
+)
+
+app$run_server()
+```
+
+__*Method 2. Content as Tab Children*__
+
+Instead of displaying the content through a callback, you can embed the content directly as the `children` property in the `Tab` component:
+
+```r
+app$layout(htmlDiv(list(
+  dccTabs(id="tabs", children=list(
+    dccTab(label='Tab one', children=list(
+      htmlDiv(list(
+        dccGraph(
+          id='example-graph',
+          figure=list(
+            'data'= list(
+              list('x'= c(1, 2, 3), 'y'= c(4, 1, 2),
+                'type'= 'bar', 'name'= 'SF'),
+              list('x'= c(1, 2, 3), 'y'= c(2, 4, 5),
+                'type'= 'bar', 'name'= 'Montréal')
+              )
+          )
+        )
+        ))
+      )),
+    dccTab(label='Tab two', children=list(
+      dccGraph(
+        id='example-graph-1',
+        figure=list(
+          'data'= list(
+            list('x'= c(1, 2, 3), 'y'= c(1, 4, 1),
+              'type'= 'bar', 'name'= 'SF'),
+            list('x'= c(1, 2, 3), 'y'= c(1, 2, 3),
+              'type'= 'bar', 'name'= 'Montréal')
+            )
+        )
+      )
+      )),
+    dccTab(label='Tab three', children=list(
+      dccGraph(
+        id='example-graph-2',
+        figure=list(
+          'data'= list(
+            list('x'= list(1, 2, 3), 'y'= list(2, 4, 3),
+              'type'= 'bar', 'name'= 'SF'),
+            list('x'= list(1, 2, 3), 'y'= list(5, 4, 3),
+              'type'= 'bar', 'name'= 'Montréal')
+            )
+        )
+      )
+      ))
+    ))
+  )))
+
+app$run_server()
+```
+
+Note that this method has a drawback: it requires that you compute the children property for each individual tab upfront and send all of the tab's content over the network at once. The callback method allows you to compute the tab's content on the fly (that is, when the tab is clicked).
+
+__*Styling the Tabs component*__
+
+*With CSS classes*
+
+Styling the Tabs (and Tab) component can either be done using CSS classes by providing your own to the `className` property:
+
+```r
+library(dashHtmlComponents)
+library(dash)
+
+app = Dash$new()
+
+app$layout(htmlDiv(list(
+  dccTabs(
+    id="tabs-with-classes",
+    value='tab-2',
+    parent_className='custom-tabs',
+    className='custom-tabs-container',
+    children=list(
+      dccTab(
+        label='Tab one',
+        value='tab-1',
+        className='custom-tab',
+        selected_className='custom-tab--selected'
+      ),
+      dccTab(
+        label='Tab two',
+        value='tab-2',
+        className='custom-tab',
+        selected_className='custom-tab--selected'
+      ),
+      dccTab(
+        label='Tab three, multiline',
+        value='tab-3', className='custom-tab',
+        selected_className='custom-tab--selected'
+      ),
+      dccTab(
+        label='Tab four',
+        value='tab-4',
+        className='custom-tab',
+        selected_className='custom-tab--selected'
+      )
+      )),
+  htmlDiv(id='tabs-content-classes')
+  )))
+
+app$callback(
+  output = list(id='tabs-content-classes', property = 'children'),
+  params = list(input(id = 'tabs-with-classes', property = 'value')),
+  function(tab){
+    if(tab == 'tab-1'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 1'))
+      ))
+    } else if(tab == 'tab-2'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 2'))
+      ))
+    } else if(tab == 'tab-3'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 3'))
+      ))
+    } else if(tab == 'tab-4'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 4'))
+      ))
+    }
+  }
+)
+
+app$run_server()
+```
+
+Notice how the container of the Tabs can be styled as well by supplying a class to the `parent_className` prop, which we use here to draw a border below it, positioning the actual Tabs (with padding) more in the center. We also added `display: flex` and `justify-content: center` to the regular `Tab` components, so that labels with multiple lines will not break the flow of the text. The corresponding CSS file (`assets/tabs.css`) looks like this. Save the file in an `assets` folder (it can be named anything you want). Dash will automatically include this CSS when the app is loaded.
+
+```
+.custom-tabs-container { width: 85%; } .custom-tabs { border-top-left-radius: 3px; background-color: #f9f9f9; padding: 0px 24px; border-bottom: 1px solid #d6d6d6; }
+
+.custom-tab { color:#586069; border-top-left-radius: 3px; border-top: 3px solid transparent !important; border-left: 0px !important; border-right: 0px !important; border-bottom: 0px !important; background-color: #fafbfc; padding: 12px !important; font-family: "system-ui"; display: flex !important; align-items: center; justify-content: center; } .custom-tab--selected { color: black; box-shadow: 1px 1px 0px white; border-left: 1px solid lightgrey !important; border-right: 1px solid lightgrey !important; border-top: 3px solid #e36209 !important; }
+```
+
+*With inline styles*
+
+An alternative to providing CSS classes is to provide style dictionaries directly:
+
+```r
+library(dashHtmlComponents)
+library(dash)
+
+app = Dash$new()
+
+tabs_styles = list(
+  'height'= '44px'
+)
+tab_style = list(
+  'borderBottom'= '1px solid #d6d6d6',
+  'padding'= '6px',
+  'fontWeight'= 'bold'
+)
+
+tab_selected_style = list(
+  'borderTop'= '1px solid #d6d6d6',
+  'borderBottom'= '1px solid #d6d6d6',
+  'backgroundColor'= '#119DFF',
+  'color'= 'white',
+  'padding'= '6px'
+)
+
+app$layout(htmlDiv(list(
+  dccTabs(id="tabs-styled-with-inline", value='tab-1', children=list(
+    dccTab(label='Tab 1', value='tab-1', style=tab_style, selected_style=tab_selected_style),
+    dccTab(label='Tab 2', value='tab-2', style=tab_style, selected_style=tab_selected_style),
+    dccTab(label='Tab 3', value='tab-3', style=tab_style, selected_style=tab_selected_style),
+    dccTab(label='Tab 4', value='tab-4', style=tab_style, selected_style=tab_selected_style)
+    ), style=tabs_styles),
+  htmlDiv(id='tabs-content-inline')
+  )))
+
+app$callback(
+  output = list(id='tabs-content-inline', property = 'children'),
+  params = list(input(id = 'tabs-styled-with-inline', property = 'value')),
+  function(tab){
+    if(tab == 'tab-1'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 1'))
+      ))
+    } else if(tab == 'tab-2'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 2'))
+      ))
+    } else if(tab == 'tab-3'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 3'))
+      ))
+    } else if(tab == 'tab-4'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 4'))
+      ))
+    }
+  }
+)
+
+app$run_server()
+```
+
+Lastly, you can set the colors of the Tabs components in the `color` prop, by specifying the "border", "primary", and "background" colors in a dict. Make sure you set them all, if you are using them!
+
+```r
+library(dashHtmlComponents)
+library(dash)
+
+app = Dash$new()
+
+app$layout(htmlDiv(list(
+  dccTabs(id="tabs-styled-with-props", value='tab-1', children=list(
+    dccTab(label='1', value='tab-1'),
+    dccTab(label='2', value='tab-2')
+    ), colors=list(
+      "border"= "white",
+      "primary"= "gold",
+      "background"= "cornsilk"
+    )),
+  htmlDiv(id='tabs-content-props')
+  )))
+
+app$callback(
+  output = list(id='tabs-content-props', property = 'children'),
+  params = list(input(id = 'tabs-styled-with-props', property = 'value')),
+  function(tab){
+    if(tab == 'tab-1'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 1'))
+      ))
+    } else if(tab == 'tab-2'){
+      return(htmlDiv(
+        list(htmlH3('Tab content 2'))
+      ))
+    }
+  })
+
+app$run_server()
+```
+
+### Graph Component
+
+Customize the [Plotly.js config options](https://plotly.com/javascript/configuration-options/) of your graph using the `config` property. The example below uses the `showSendToCloud` and `plotlyServerURL` options include a save button in the modebar of the graph which exports the figure to URL specified by `plotlyServerURL`.
+
+```r
+app$layout(htmlDiv(list(
+  dccDropdown(
+    id='my-dropdown1',
+    options=list(
+      list('label'= 'New York City', 'value'= 'NYC'),
+      list('label'= 'Montreal', 'value'= 'MTL'),
+      list('label'= 'San Francisco', 'value'= 'SF')
+    ),
+    value='NYC'
+  ),
+  dccGraph(
+    id='graph1',
+    config=list(
+      'showSendToCloud'= TRUE,
+      'plotlyServerURL'= 'https=//plotly.com'
+    )
+  )
+)))
+
+
+app$callback(
+  output = list(id='graph1', property='figure'),
+  params = list(input(id='my-dropdown1', property='value')),
+  function(value) {
+    y_list = list(
+      'NYC'= list(4,2,3),
+      'MTL'= list(1, 2, 4),
+      'SF'= list(5, 3, 6)
+    )
+    return(list(
+      'data' = list(
+        list(
+          'type'= 'scatter',
+          'y'= c(unlist(y_list[value]))
+        )),
+      'layout'= list(
+        'title'= value
+      )
+    ))
+
+  }
+)
+
+app$run_server()
+```
+
+### ConfirmDialog Component
+
+ConfirmDialog is used to display the browser's native 'confirm' modal, with an optional message and two buttons ('OK' and 'Cancel'). 
+
+```r
+library(dash)
+
+confirm <- dccConfirmDialog(
+  id = "confirm",
+  message = "Danger danger! Are you sure you want to continue?"
+)
+```
+
+This ConfirmDialog can be used in conjunction with buttons when the user is performing an action that should require an extra step of verification.
+
+```r
+library(dash)
+
+app = Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccConfirmDialog(
+        id='confirm',
+        message='Danger danger! Are you sure you want to continue?'
+      ),
+
+      dccDropdown(
+        options=lapply(list('Safe', 'Danger!!'),function(x){list('label'= x, 'value'= x)}),
+        id='dropdown'
+      ),
+      htmlDiv(id='output-confirm1')
+    )
+  )
+)
+
+app$callback(
+  output = list(id = 'confirm', property = 'displayed'),
+  params=list(input(id = 'dropdown', property = 'value')),
+  function(value){
+    if(value == 'Danger!!'){
+      return(TRUE)}
+    else{
+      return(FALSE)}
+  })
+
+
+app$callback(
+  output = list(id = 'output-confirm1', property = 'children'),
+  params=list(input(id = 'confirm', property = 'submit_n_clicks')),
+  function(n_clicks, value) {
+    if(length(submit_n_clicks) == FALSE){
+      sprintf('It wasnt easy but we did it %s', str(submit_n_clicks))
+    }
+  })
+
+app$run_server()
+```
+
+There is also a `dccConfirmDialogProvider`, it will automatically wrap a child component to send a `dccConfirmDialog` when clicked.
+
+```r
+confirm <- dccConfirmDialogProvider(
+  children = htmlButton("Click Me"),
+  id = "danger-danger",
+  message = "Danger danger! Are you sure you want to continue?"
+)
+```
+
+### Store Component
+
+The store component can be used to keep data in the visitor's browser. The data is scoped to the user accessing the page. Three types of storage (`storage_type` prop):
+
+* `memory`: default, keep the data as long the page is not refreshed.
+* `local`: keep the data until it is manually cleared.
+* `session`: keep the data until the browser/tab closes. *For local/session, the data is serialized as json when stored.*
+
+```r
+library(dash)
+
+store <- dccStore(id = "my-store", data = list("my-data" = "data"))
+```
+
+### Loading Component
+
+Here’s a simple example that wraps the outputs for a couple of `Input` components in the `Loading` component. As you can see, you can define the type of spinner you would like to show (refer to the reference table below for all possible types of spinners). You can modify other attributes as well, such as `fullscreen=TRUE` if you would like the spinner to be displayed fullscreen. Notice that, the Loading component traverses all of it's children to find a loading state, as demonstrated in the second callback, so that even nested children will get picked up.
+
+```
+library(dash)
+
+app = Dash$new()
+
+app$layout(htmlDiv(
+  children=list(
+    htmlH3("Edit text input to see loading state"),
+    dccInput(id="input-1", value='Input triggers local spinner'),
+    dccLoading(id="loading-1", children=list(htmlDiv(id="loading-output-1")), type="default"),
+    htmlDiv(
+      list(
+        dccInput(id="input-2", value='Input triggers nested spinner'),
+        dccLoading(
+          id="loading-2",
+          children=list(htmlDiv(list(htmlDiv(id="loading-output-2")))),
+          type="circle"
+        )
+      )
+    )
+  )
+))
+
+app$callback(
+  output = list(id='loading-output-1', property = 'children'),
+  params = list(input(id = 'input-1', property = 'value')),
+  function(value){
+    Sys.sleep(1)
+    return(value)
+  }
+)
+
+
+app$callback(
+  output = list(id='loading-output-2', property = 'children'),
+  params = list(input(id = 'input-2', property = 'value')),
+  function(value){
+    Sys.sleep(1)
+    return(value)
+  }
+)
+
+
+app$run_server()
+```
+
+### Location Component
+
+The location component represents the location bar in your web browser. Through its `href`, `pathname`, `search` and `hash` properties you can access different portions of your app's url. For example, given the url `http://127.0.0.1:8050/page-2?a=test#quiz`:
+
+* `href` = `'http://127.0.0.1:8050/page-2?a=test#quiz'`
+* `pathname` = `'/page-2'`
+* `search` = `'?a=test'`
+* `hash` = `'#quiz'`

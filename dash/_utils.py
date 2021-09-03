@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import shlex
 import sys
 import uuid
@@ -10,14 +9,16 @@ import logging
 import io
 import json
 from functools import wraps
-import future.utils as utils
 from . import exceptions
 
 logger = logging.getLogger()
 
-# py2/3 json.dumps-compatible strings - these are equivalent in py3, not in py2
-# note because we import unicode_literals u"" and "" are both unicode
-_strings = (type(""), type(utils.bytes_to_native_str(b"")))
+
+def to_json(value):
+    # pylint: disable=import-outside-toplevel
+    from plotly.io.json import to_json_plotly
+
+    return to_json_plotly(value)
 
 
 def interpolate_str(template, **data):
@@ -61,9 +62,9 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 def get_relative_path(requests_pathname, path):
     if requests_pathname == "/" and path == "":
         return "/"
-    elif requests_pathname != "/" and path == "":
+    if requests_pathname != "/" and path == "":
         return requests_pathname
-    elif not path.startswith("/"):
+    if not path.startswith("/"):
         raise exceptions.UnsupportedRelativePath(
             """
             Paths that aren't prefixed with a leading / are not supported.
@@ -78,7 +79,7 @@ def get_relative_path(requests_pathname, path):
 def strip_relative_path(requests_pathname, path):
     if path is None:
         return None
-    elif (
+    if (
         requests_pathname != "/" and not path.startswith(requests_pathname.rstrip("/"))
     ) or (requests_pathname == "/" and not path.startswith("/")):
         raise exceptions.UnsupportedRelativePath(
@@ -102,7 +103,7 @@ def strip_relative_path(requests_pathname, path):
 
 # pylint: disable=no-member
 def patch_collections_abc(member):
-    return getattr(collections if utils.PY2 else collections.abc, member)
+    return getattr(collections.abc, member)
 
 
 class AttributeDict(dict):
@@ -151,7 +152,7 @@ class AttributeDict(dict):
         if final_msg and key not in self:
             raise AttributeError(final_msg, key)
 
-        return super(AttributeDict, self).__setitem__(key, val)
+        return super().__setitem__(key, val)
 
     # pylint: disable=inconsistent-return-statements
     def first(self, *names):
@@ -217,16 +218,16 @@ def inputs_to_vals(inputs):
 
 def run_command_with_process(cmd):
     is_win = sys.platform == "win32"
-    proc = subprocess.Popen(shlex.split(cmd, posix=is_win), shell=is_win)
-    proc.wait()
-    if proc.poll() is None:
-        logger.warning("🚨 trying to terminate subprocess in safe way")
-        try:
-            proc.communicate()
-        except Exception:  # pylint: disable=broad-except
-            logger.exception("🚨 first try communicate failed")
-            proc.kill()
-            proc.communicate()
+    with subprocess.Popen(shlex.split(cmd, posix=is_win), shell=is_win) as proc:
+        proc.wait()
+        if proc.poll() is None:
+            logger.warning("🚨 trying to terminate subprocess in safe way")
+            try:
+                proc.communicate()
+            except Exception:  # pylint: disable=broad-except
+                logger.exception("🚨 first try communicate failed")
+                proc.kill()
+                proc.communicate()
 
 
 def compute_md5(path):

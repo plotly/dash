@@ -1,0 +1,5 @@
+[flake8]
+ignore = C901, E203, E231, E266, E501, E731, W503
+select = B,C,E,F,W,T4
+per-file-ignores =
+    tests/*: E722, F811

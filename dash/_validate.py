@@ -2,16 +2,13 @@ import collections
 import re
 from textwrap import dedent
 
+from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
-from ._utils import patch_collections_abc, _strings, stringify_id
+from ._utils import patch_collections_abc, stringify_id
 
 
-def validate_callback(output, inputs, state, extra_args, types):
-    is_multi = isinstance(output, (list, tuple))
-
-    outputs = output if is_multi else [output]
-
+def validate_callback(outputs, inputs, state, extra_args, types):
     Input, Output, State = types
     if extra_args:
         if not isinstance(extra_args[0], (Output, Input, State)):
@@ -44,7 +41,7 @@ def validate_callback(output, inputs, state, extra_args, types):
 
 
 def validate_callback_arg(arg):
-    if not isinstance(getattr(arg, "component_property", None), _strings):
+    if not isinstance(getattr(arg, "component_property", None), str):
         raise exceptions.IncorrectTypeException(
             dedent(
                 """
@@ -64,7 +61,7 @@ def validate_callback_arg(arg):
     if isinstance(arg.component_id, dict):
         validate_id_dict(arg)
 
-    elif isinstance(arg.component_id, _strings):
+    elif isinstance(arg.component_id, str):
         validate_id_string(arg)
 
     else:
@@ -84,7 +81,7 @@ def validate_id_dict(arg):
         # Need to keep key type validation on the Python side, since
         # non-string keys will be converted to strings in json.dumps and may
         # cause unwanted collisions
-        if not isinstance(k, _strings):
+        if not isinstance(k, str):
             raise exceptions.IncorrectTypeException(
                 dedent(
                     """
@@ -129,6 +126,25 @@ def validate_output_spec(output, output_spec, Output):
                 raise exceptions.CallbackException(
                     "Output does not match callback definition"
                 )
+
+
+def validate_and_group_input_args(flat_args, arg_index_grouping):
+    if grouping_len(arg_index_grouping) != len(flat_args):
+        raise exceptions.CallbackException("Inputs do not match callback definition")
+
+    args_grouping = map_grouping(lambda ind: flat_args[ind], arg_index_grouping)
+    if isinstance(arg_index_grouping, dict):
+        func_args = []
+        func_kwargs = args_grouping
+    elif isinstance(arg_index_grouping, (tuple, list)):
+        func_args = list(args_grouping)
+        func_kwargs = {}
+    else:
+        # Scalar input
+        func_args = [args_grouping]
+        func_kwargs = {}
+
+    return func_args, func_kwargs
 
 
 def validate_multi_return(outputs_list, output_value, callback_id):
@@ -182,7 +198,7 @@ def validate_multi_return(outputs_list, output_value, callback_id):
 
 
 def fail_callback_output(output_value, output):
-    valid = _strings + (dict, int, float, type(None), Component)
+    valid = (str, dict, int, float, type(None), Component)
 
     def _raise_invalid(bad_val, outer_val, path, index=None, toplevel=False):
         bad_type = type(bad_val).__name__

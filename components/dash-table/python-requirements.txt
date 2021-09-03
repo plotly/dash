@@ -1,0 +1,12 @@
+# Switch into a virtual environment
+# pip install -r requirements.txt
+
+chromedriver-binary
+ipdb
+pandas
+percy
+selenium
+flake8
+pylint
+pytest
+bs4

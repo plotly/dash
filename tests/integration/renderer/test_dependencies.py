@@ -1,13 +1,10 @@
 from multiprocessing import Value
 
-import dash_core_components as dcc
-import dash_html_components as html
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, html, dcc, Input, Output
 
 
 def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [dcc.Input(id="input", value="initial value"), html.Div(id="output-1")]
     )

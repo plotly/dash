@@ -1,0 +1,164 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.4.0
+
+jobs:
+    table-percy-finalize:
+        working_directory: ~/dash/components/dash-table
+        docker:
+            - image: percyio/agent
+        steps:
+            - run:
+                name: Inject Percy Environment variables
+                command: |
+                  echo 'export PERCY_TOKEN="$PERCY_TOKEN_E2E"' >> $BASH_ENV
+            - run: percy finalize --all
+
+    "table-server-test":
+        working_directory: ~/dash/components/dash-table
+        docker:
+            - image: circleci/python:3.9.2-buster-node-browsers
+              environment:
+                PERCY_PARALLEL_TOTAL: -1
+
+        parallelism: 4
+        steps:
+            - checkout:
+                    path: ~/dash
+            - run:
+                name: Inject Percy Environment variables
+                command: |
+                  echo 'export PERCY_TOKEN="$PERCY_TOKEN_E2E"' >> $BASH_ENV
+            - restore_cache:
+                key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+            - run:
+                name: Install npm packages
+                command: npm ci
+            - save_cache:
+                key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+                paths:
+                    - node_modules
+            - run:
+                name: Install requirements
+                command: |
+                    python -m venv venv
+                    . venv/bin/activate
+                    pip install -r dev-requirements.txt --quiet
+                    git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
+                    cd dash-main && pip install -e .[dev] --progress-bar off && renderer build && dash-update-components 'dash-table' && cd ../
+            - run:
+                name: Build
+                command: |
+                    . venv/bin/activate
+                    npm run private::build:js-test
+                    npm run private::build:backends
+            - run:
+                name: Run tests
+                command: |
+                    . venv/bin/activate
+                    TESTFILES=$(circleci tests glob "tests/selenium/**/test_*.py" | circleci tests split --split-by=timings)
+                    pytest --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+            - store_artifacts:
+                path: test-reports
+            - store_test_results:
+                path: test-reports
+            - store_artifacts:
+                path: /tmp/dash_artifacts
+
+    "table-unit-test":
+        working_directory: ~/dash/components/dash-table
+        docker:
+            - image: circleci/python:3.9.2-buster-node-browsers
+        steps:
+            - checkout:
+                    path: ~/dash
+            - restore_cache:
+                key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+            - run:
+                name: Install npm packages
+                command: npm ci
+            - save_cache:
+                key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+                paths:
+                    - node_modules
+            - run:
+                name: Install requirements
+                command: |
+                    python -m venv venv
+                    . venv/bin/activate
+                    pip install -r dev-requirements.txt --quiet
+                    pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
+            - run:
+                name: Run tests
+                command: |
+                    . venv/bin/activate
+                    npm run test.unit
+
+    "table-visual-test":
+        working_directory: ~/dash/components/dash-table
+        docker:
+            - image: circleci/node:14-browsers
+        steps:
+            - checkout:
+                    path: ~/dash
+            - restore_cache:
+                key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
+            - run:
+                name: Install package.json
+                command: npm ci
+            - save_cache:
+                key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
+                paths:
+                    - node_modules
+            - run:
+                name: Run build:js
+                command: npm run private::build:js
+            - run:
+                name: Run visual tests
+                command: npm run test.visual
+            - store_artifacts:
+                path: storybook-static
+
+    "table-node":
+        working_directory: ~/dash/components/dash-table
+        docker:
+            - image: circleci/python:3.9.2-node
+        steps:
+            - checkout:
+                    path: ~/dash
+            - run:
+                  name: Create virtual env
+                  command: python -m venv venv
+            - restore_cache:
+                key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
+            - run:
+                name: Install package.json
+                command: npm ci
+            - save_cache:
+                key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
+                paths:
+                    - node_modules
+            - run:
+                name: Install requirements
+                command: |
+                    . venv/bin/activate
+                    pip install -r dev-requirements.txt --quiet
+                    pip install --progress-bar off -e git+https://github.com/plotly/dash.git@dev#egg=dash[dev,testing]
+            - run:
+                name: Run eslint
+                command: |
+                    . venv/bin/activate
+                    npm run lint
+                when: always
+
+workflows:
+    table-build:
+        jobs:
+            - "table-node"
+            - "table-server-test"
+            - "table-unit-test"
+            - "table-visual-test"
+            - table-percy-finalize:
+                requires:
+                    - table-server-test

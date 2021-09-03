@@ -1,8 +1,5 @@
 # -*- coding: UTF-8 -*-
-import dash_html_components as html
-import dash_core_components as dcc
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc
 from dash.exceptions import PreventUpdate
 
 
@@ -10,7 +7,7 @@ def app_with_errors():
     darkly = (
         "https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/darkly/bootstrap.min.css"
     )
-    app = dash.Dash(__name__, external_stylesheets=[darkly])
+    app = Dash(__name__, external_stylesheets=[darkly])
 
     app.layout = html.Div(
         [
@@ -124,7 +121,7 @@ def test_dveh006_long_python_errors(dash_duo):
 
 def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
     # raising PreventUpdate shouldn't display the error message
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -164,7 +161,7 @@ def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
 
 
 def test_dveh003_validation_errors_in_place(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -198,7 +195,7 @@ def test_dveh003_validation_errors_in_place(dash_duo):
 
 
 def test_dveh004_validation_errors_creation(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -232,7 +229,7 @@ def test_dveh004_validation_errors_creation(dash_duo):
 
 
 def test_dveh005_multiple_outputs(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button(

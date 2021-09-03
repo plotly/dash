@@ -8,13 +8,10 @@ from bs4 import BeautifulSoup
 import dash_dangerously_set_inner_html
 import dash_flow_example
 
-import dash_html_components as html
-import dash_core_components as dcc
-
-from dash import Dash
-
-from dash.dependencies import Input, Output
+from dash import Dash, html, dcc, Input, Output
 from dash.exceptions import PreventUpdate
+
+from dash.testing.wait import until
 
 
 def test_inin004_wildcard_data_attributes(dash_duo):
@@ -333,42 +330,10 @@ def test_inin026_graphs_in_tabs_do_not_share_state(dash_duo):
 
     dash_duo.find_element("#graph1:not(.dash-graph--pending)").click()
 
-    graph_1_expected_clickdata = {
-        "points": [
-            {
-                "curveNumber": 0,
-                "pointNumber": 1,
-                "pointIndex": 1,
-                "x": 2,
-                "y": 10,
-                "label": 2,
-                "value": 10,
-            }
-        ]
-    }
-
-    graph_2_expected_clickdata = {
-        "points": [
-            {
-                "curveNumber": 0,
-                "pointNumber": 1,
-                "pointIndex": 1,
-                "x": 3,
-                "y": 10,
-                "label": 3,
-                "value": 10,
-            }
-        ]
-    }
-
-    dash_duo.wait_for_text_to_equal(
-        "#graph1_info", json.dumps(graph_1_expected_clickdata)
-    )
+    until(lambda: '"label": 2' in dash_duo.find_element("#graph1_info").text, timeout=3)
 
     dash_duo.find_element("#tab2").click()
 
     dash_duo.find_element("#graph2:not(.dash-graph--pending)").click()
 
-    dash_duo.wait_for_text_to_equal(
-        "#graph2_info", json.dumps(graph_2_expected_clickdata)
-    )
+    until(lambda: '"label": 3' in dash_duo.find_element("#graph2_info").text, timeout=3)

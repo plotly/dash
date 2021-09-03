@@ -1,11 +1,10 @@
-from dash import Dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output
 from dash.exceptions import PreventUpdate
 
 from dash_generator_test_component_nested import MyNestedComponent
 from dash_generator_test_component_standard import MyStandardComponent
 from dash_test_components import StyledComponent
-from dash_html_components import Button, Div
+from dash.html import Button, Div
 
 from selenium.webdriver.support.ui import WebDriverWait
 

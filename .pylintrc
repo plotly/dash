@@ -13,6 +13,12 @@ ignore=CVS
 # regex matches against base names, not paths.
 ignore-patterns=
 
+# Add files or directories matching the regex patterns to the ignore-list.
+# The regex matches against paths.
+ignore-paths=^dash/dcc/.*$,
+             ^dash/html/.*$,
+             ^dash/dash_table/.*$
+
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
 #init-hook=
@@ -62,7 +68,8 @@ disable=fixme,
         superfluous-parens,
         bad-continuation,
         line-too-long,
-        bad-option-value
+        bad-option-value,
+        unspecified-encoding
 
 
 # Enable the message, report, category or checker with the given id(s). You can
