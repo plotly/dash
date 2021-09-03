@@ -3,6 +3,7 @@ import json
 import plotly
 import pytest
 
+from dash import __version__
 from dash import html
 from dash.development.base_component import Component
 
@@ -458,7 +459,7 @@ def test_debc027_component_error_message():
     with pytest.raises(TypeError) as e:
         html.Div(asdf=True)
     assert str(e.value) == (
-        "The `Div` component "
+        "The `html.Div` component (version {}) ".format(__version__)
         + "received an unexpected "
         + "keyword argument: `asdf`\n"
         + "Allowed arguments: {}".format(", ".join(sorted(html.Div()._prop_names)))
@@ -467,7 +468,7 @@ def test_debc027_component_error_message():
     with pytest.raises(TypeError) as e:
         html.Div(asdf=True, id="my-component")
     assert str(e.value) == (
-        "The `Div` component "
+        "The `html.Div` component (version {}) ".format(__version__)
         + 'with the ID "my-component" received an unexpected '
         + "keyword argument: `asdf`\n"
         + "Allowed arguments: {}".format(", ".join(sorted(html.Div()._prop_names)))
