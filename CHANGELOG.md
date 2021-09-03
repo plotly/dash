@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.0.0] - 2021-??-??
+## [2.0.0] - 2021-08-03
 
 ## Dash and Dash Renderer
 
