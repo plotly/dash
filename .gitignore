@@ -43,12 +43,6 @@ coverage.xml
 .Python
 build/
 dash/deps/
-dash/html/*
-!dash/html/.gitkeep
-dash/dcc/*
-!dash/dcc/.gitkeep
-dash/dash_table/*
-!dash/dash_table/.gitkeep
 develop-eggs/
 dist/
 downloads/
@@ -90,9 +84,6 @@ VERSION.txt
 # main-branch artifacts to explicitly include
 !dash/dash-renderer/build
 !dash/deps
-!dash/html/*
-!dash/dcc/*
-!dash/dash_table/*
 
 # Exceptions
 !components/dash-core-components/tests/integration/upload/upload-assets/upft001.csv
