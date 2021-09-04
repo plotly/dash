@@ -30,6 +30,8 @@ setup(
     extras_require={
         "dev": read_req_file("dev"),
         "testing": read_req_file("testing"),
+        "celery-manager": read_req_file("celery-manager"),
+        "diskcache-manager": read_req_file("diskcache-manager"),
     },
     entry_points={
         "console_scripts": [

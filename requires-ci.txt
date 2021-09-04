@@ -1,0 +1,13 @@
+black==21.6b0
+dash-flow-example==0.0.5
+dash-dangerously-set-inner-html
+flake8==3.9.2
+flaky==3.7.0
+flask-talisman==0.8.1
+isort==4.3.21;python_version<"3.7"
+mock==4.0.3
+orjson==3.3.1;python_version<"3.7"
+orjson==3.6.1;python_version>="3.7"
+pylint==2.10.2
+pytest-mock==3.2.0
+pytest-sugar==0.9.4

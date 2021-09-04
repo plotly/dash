@@ -28,14 +28,9 @@ class DiskcacheLongCallbackManager(BaseLongCallbackManager):
         except ImportError as missing_imports:
             raise ImportError(
                 """\
-DiskcacheLongCallbackManager requires the multiprocess, diskcache, and psutil packages
-which can be installed using pip...
+DiskcacheLongCallbackManager requires extra dependencies which can be installed doing
 
-    $ pip install multiprocess diskcache psutil
-
-or conda.
-
-    $ conda install -c conda-forge multiprocess diskcache psutil\n"""
+    $ pip install "dash[diskcache-manager]"\n"""
             ) from missing_imports
 
         if not isinstance(cache, (diskcache.Cache, diskcache.FanoutCache)):
