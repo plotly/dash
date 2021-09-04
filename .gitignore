@@ -84,3 +84,8 @@ VERSION.txt
 # main-branch artifacts to explicitly include
 !dash/dash-renderer/build
 !dash/deps
+
+# Exceptions
+!components/dash-core-components/tests/integration/upload/upload-assets/upft001.csv
+!components/dash-table/tests/assets/*.csv
+!components/dash-table/tests/selenium/assets/*.csv

@@ -1,0 +1,87 @@
+pkg_help_description: >-
+    An interactive table component designed for editing and exploring
+    large datasets, 'dashDataTable' is rendered with standard, semantic HTML
+    <table/> markup, which makes it accessible, responsive, and easy
+    to style. This component was written from scratch in 'React.js'
+    specifically for the 'Dash' community. Its API was designed to be
+    ergonomic and its behaviour is completely customizable through its
+    properties.
+pkg_help_title: >-
+    Core Interactive Table Component for 'Dash'
+pkg_authors: >-
+    c(person("Chris", "Parmer", email = "chris@plotly.com", role = c("aut")), person("Ryan Patrick", "Kyle", email = "ryan@plotly.com", role = c("cre"), comment = c(ORCID = "0000-0002-4958-2844")), person(family = "Plotly Technologies, Inc.", role = "cph"))
+pkg_copyright: >-
+    Plotly Technologies, Inc.
+r_examples:
+    - name: dashDataTable
+      dontrun: FALSE
+      code: |
+            # For comprehensive documentation of this package's features,
+            # please consult https://dashr.plot.ly/datatable
+            #
+            # A package vignette is currently in development and will
+            # provide many of the same examples currently available online
+            # in an offline-friendly format.
+
+            # The following if statement is not required to run this
+            # example locally, but was added at the request of CRAN
+            # maintainers.
+            if (interactive() && require(dash)) {
+              library(dash)
+
+              app <- Dash$new()
+
+              # We can easily restrict the number of rows to display at
+              # once by using style_table:
+              app$layout(
+                dashDataTable(
+                  id = "table",
+                  columns = lapply(colnames(iris),
+                                   function(colName){
+                                     list(
+                                       id = colName,
+                                       name = colName
+                                     )
+                                   }),
+                  style_table = list(
+                    maxHeight = "250px",
+                    overflowY = "scroll"
+                  ),
+                  data = df_to_list(iris)
+                )
+              )
+
+              app$run_server()
+
+              app <- Dash$new()
+
+              # We can also make rows and columns selectable/deletable
+              # by setting a few additional attributes:
+              app$layout(
+                dashDataTable(
+                  id = "table",
+                  columns = lapply(colnames(iris),
+                                   function(colName){
+                                     list(
+                                       id = colName,
+                                       name = colName,
+                                       deletable = TRUE
+                                     )
+                                   }),
+                  style_table = list(
+                    maxHeight = "250px",
+                    overflowY = "scroll"
+                  ),
+                  data = df_to_list(iris),
+                  editable = TRUE,
+                  filter_action = "native",
+                  sort_action = "native",
+                  sort_mode = "multi",
+                  column_selectable = "single",
+                  row_selectable = "multi",
+                  row_deletable = TRUE
+                )
+              )
+
+              app$run_server()
+            }

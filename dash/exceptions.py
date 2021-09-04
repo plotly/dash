@@ -3,7 +3,7 @@ from textwrap import dedent
 
 class DashException(Exception):
     def __init__(self, msg=""):
-        super(DashException, self).__init__(dedent(msg).strip())
+        super().__init__(dedent(msg).strip())
 
 
 class ObsoleteKwargException(DashException):
@@ -27,6 +27,10 @@ class IncorrectTypeException(CallbackException):
 
 
 class IDsCantContainPeriods(CallbackException):
+    pass
+
+
+class WildcardInLongCallback(CallbackException):
     pass
 
 
@@ -76,4 +80,8 @@ class UnsupportedRelativePath(CallbackException):
 
 
 class ProxyError(DashException):
+    pass
+
+
+class DuplicateCallback(DashException):
     pass

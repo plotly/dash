@@ -1,4 +1,3 @@
-from __future__ import print_function
 from collections import OrderedDict
 
 import json
@@ -74,7 +73,7 @@ def generate_components(
             posix=not is_windows,
         )
 
-        proc = subprocess.Popen(
+        proc = subprocess.Popen(  # pylint: disable=consider-using-with
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
         )
         out, err = proc.communicate()

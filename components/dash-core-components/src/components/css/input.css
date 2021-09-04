@@ -1,0 +1,7 @@
+input:invalid {
+    outline: solid red;
+}
+
+input:valid {
+    outline: none black;
+}

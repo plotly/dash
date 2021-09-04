@@ -7,12 +7,11 @@ from bs4 import BeautifulSoup
 import requests
 
 import plotly
-import dash_html_components as html
-import dash
+from dash import Dash, html
 
 
 def test_rddd001_initial_state(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     my_class_attrs = {
         "id": "p.c.4",
         "className": "my-class",
@@ -104,7 +103,7 @@ def test_rddd001_initial_state(dash_duo):
 
 @pytest.mark.parametrize("child", [0, [0]])
 def test_rddd002_falsy_child(dash_duo, child):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(id="falsy-wrapper", children=child)
 
     dash_duo.start_server(app)

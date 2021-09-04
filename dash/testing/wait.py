@@ -51,7 +51,7 @@ def until_not(
     return res
 
 
-class contains_text(object):
+class contains_text:
     def __init__(self, selector, text):
         self.selector = selector
         self.text = text
@@ -67,7 +67,7 @@ class contains_text(object):
             return False
 
 
-class text_to_equal(object):
+class text_to_equal:
     def __init__(self, selector, text):
         self.selector = selector
         self.text = text
@@ -84,7 +84,7 @@ class text_to_equal(object):
             return False
 
 
-class style_to_equal(object):
+class style_to_equal:
     def __init__(self, selector, style, val):
         self.selector = selector
         self.style = style

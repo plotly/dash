@@ -1,0 +1,94 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.4.0
+
+jobs:
+  html-percy-finalize:
+    working_directory: ~/dash/components/dash-html-components
+    docker:
+      - image: percyio/agent
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+    steps:
+      - checkout:
+            path: ~/dash
+      - run: percy finalize --all
+
+  html-python-36: &test-template
+    working_directory: ~/dash/components/dash-html-components
+    docker:
+      - image: circleci/python:3.6.13-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYTHON_VERSION: py36
+          PERCY_ENABLE: 0
+
+    steps:
+      - checkout:
+            path: ~/dash
+
+      - run:
+          name: ✍️ Write job name
+          command: echo $CIRCLE_JOB > circlejob.txt
+
+      - run:
+          name: 🏗️ Install dependencies
+          command: |
+              sudo pip install virtualenv --upgrade
+              python -m venv venv || virtualenv venv
+              . venv/bin/activate
+              pip install -r dev-requirements.txt
+              npm ci
+
+      - run:
+          name: 🏗️ Install dependencies (dash)
+          command: |
+              git clone --depth 1 -b dash-monorepo git@github.com:plotly/dash.git dash-main
+              git clone --depth 1 git@github.com:plotly/dash-core-components.git
+              git clone --depth 1 git@github.com:plotly/dash-table.git
+              . venv/bin/activate
+              pip install -e ./dash-main[testing,dev] --quiet
+              renderer build
+              cd dash-core-components && npm ci && npm run build && pip install -e . && cd ..
+              cd dash-table && npm ci && npm run build && pip install -e . && cd ..
+
+      - run:
+          name: 🧰 Build
+          command: |
+              . venv/bin/activate
+              python --version
+              pip install dash-table==4.12.0
+              npm run clean
+              npm run build
+
+      - run:
+          name: 🧪 Run tests
+          command: |
+              . venv/bin/activate
+              python --version
+              npm run test
+
+  html-python-39:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.9.2-buster-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYTHON_VERSION: py39
+          PERCY_ENABLE: 1
+          PERCY_PARALLEL_TOTAL: -1
+
+workflows:
+  html-build:
+    jobs:
+      - html-python-36
+      - html-python-39
+      - html-percy-finalize:
+          requires:
+            - html-python-39

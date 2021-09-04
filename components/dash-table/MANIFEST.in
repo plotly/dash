@@ -1,0 +1,9 @@
+include dash_table/bundle.js
+include dash_table/bundle.js.map
+include dash_table/async-*.js
+include dash_table/async-*.js.map
+include dash_table/metadata.json
+include dash_table/package-info.json
+include LICENSE
+include README.md
+include package.json

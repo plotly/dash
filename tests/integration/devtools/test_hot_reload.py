@@ -2,9 +2,8 @@ import os
 from time import sleep
 
 from dash.testing.wait import until
-import dash_html_components as html
-import dash
-from dash.dependencies import Input, Output
+
+from dash import Dash, Input, Output, html
 from dash.exceptions import PreventUpdate
 
 
@@ -32,7 +31,7 @@ def replace_file(filename, new_content):
 
 
 def test_dvhr001_hot_reload(dash_duo):
-    app = dash.Dash(__name__, assets_folder="hr_assets")
+    app = Dash(__name__, assets_folder="hr_assets")
     app.layout = html.Div(
         [html.H3("Hot reload", id="text"), html.Button("Click", id="btn")],
         id="hot-reload-content",
@@ -90,7 +89,7 @@ def test_dvhr001_hot_reload(dash_duo):
     try:
         until(
             lambda: dash_duo.driver.execute_script("return window.cheese") == "gouda",
-            timeout=3,
+            timeout=10,
         )
     finally:
         sleep(1)  # ensure a new mod time
@@ -99,7 +98,7 @@ def test_dvhr001_hot_reload(dash_duo):
 
     until(
         lambda: dash_duo.driver.execute_script("return window.cheese") == "roquefort",
-        timeout=3,
+        timeout=10,
     )
 
     # we've done a hard reload so someVar is gone

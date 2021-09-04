@@ -343,7 +343,7 @@ class Browser(DashPageMixin):
             self.wait_for_element_by_css_selector(
                 self.dash_entry_locator, timeout=timeout
             )
-        except TimeoutException:
+        except TimeoutException as exc:
             logger.exception("dash server is not loaded within %s seconds", timeout)
             logger.debug(self.get_logs())
             raise DashAppLoadingError(
@@ -354,7 +354,7 @@ class Browser(DashPageMixin):
                     ),
                     "\n".join((str(log) for log in self.get_logs())),
                 )
-            )
+            ) from exc
 
         if self._pause:
             try:
@@ -362,7 +362,7 @@ class Browser(DashPageMixin):
             except ImportError:
                 import ipdb as pdb_  # pylint: disable=import-outside-toplevel
 
-            pdb_.set_trace()
+            pdb_.set_trace()  # pylint: disable=forgotten-debug-statement
 
     def select_dcc_dropdown(self, elem_or_selector, value=None, index=None):
         dropdown = self._get_element(elem_or_selector)

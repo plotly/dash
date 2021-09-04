@@ -1,9 +1,8 @@
 import abc
 import inspect
 import sys
-from future.utils import with_metaclass
 
-from .._utils import patch_collections_abc, _strings, stringify_id
+from .._utils import patch_collections_abc, stringify_id
 
 MutableSequence = patch_collections_abc("MutableSequence")
 
@@ -59,8 +58,8 @@ def _check_if_has_indexable_children(item):
         raise KeyError
 
 
-class Component(with_metaclass(ComponentMeta, object)):
-    class _UNDEFINED(object):
+class Component(metaclass=ComponentMeta):
+    class _UNDEFINED:
         def __repr__(self):
             return "undefined"
 
@@ -69,7 +68,7 @@ class Component(with_metaclass(ComponentMeta, object)):
 
     UNDEFINED = _UNDEFINED()
 
-    class _REQUIRED(object):
+    class _REQUIRED:
         def __repr__(self):
             return "required"
 
@@ -79,6 +78,8 @@ class Component(with_metaclass(ComponentMeta, object)):
     REQUIRED = _REQUIRED()
 
     def __init__(self, **kwargs):
+        import dash  # pylint: disable=import-outside-toplevel, cyclic-import
+
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
             # pylint: disable=no-member
@@ -89,12 +90,33 @@ class Component(with_metaclass(ComponentMeta, object)):
             # e.g. "The dash_core_components.Dropdown component (version 1.6.0)
             # with the ID "my-dropdown"
             try:
-                error_string_prefix = "The `{}.{}` component (version {}){}".format(
-                    self._namespace,
-                    self._type,
-                    getattr(__import__(self._namespace), "__version__", "unknown"),
-                    ' with the ID "{}"'.format(kwargs["id"]) if "id" in kwargs else "",
-                )
+                # Get fancy error strings that have the version numbers
+                error_string_prefix = "The `{}.{}` component (version {}){}"
+                # These components are part of dash now, so extract the dash version:
+                dash_packages = {
+                    "dash_html_components": "html",
+                    "dash_core_components": "dcc",
+                    "dash_table": "dash_table",
+                }
+                if self._namespace in dash_packages:
+                    error_string_prefix = error_string_prefix.format(
+                        dash_packages[self._namespace],
+                        self._type,
+                        dash.__version__,
+                        ' with the ID "{}"'.format(kwargs["id"])
+                        if "id" in kwargs
+                        else "",
+                    )
+                else:
+                    # Otherwise import the package and extract the version number
+                    error_string_prefix = error_string_prefix.format(
+                        self._namespace,
+                        self._type,
+                        getattr(__import__(self._namespace), "__version__", "unknown"),
+                        ' with the ID "{}"'.format(kwargs["id"])
+                        if "id" in kwargs
+                        else "",
+                    )
             except ImportError:
                 # Our tests create mock components with libraries that
                 # aren't importable
@@ -124,17 +146,17 @@ class Component(with_metaclass(ComponentMeta, object)):
             if k == "id":
                 if isinstance(v, dict):
                     for id_key, id_val in v.items():
-                        if not isinstance(id_key, _strings):
+                        if not isinstance(id_key, str):
                             raise TypeError(
                                 "dict id keys must be strings,\n"
                                 + "found {!r} in id {!r}".format(id_key, v)
                             )
-                        if not isinstance(id_val, _strings + (int, float, bool)):
+                        if not isinstance(id_val, (str, int, float, bool)):
                             raise TypeError(
                                 "dict id values must be strings, numbers or bools,\n"
                                 + "found {!r} in id {!r}".format(id_val, v)
                             )
-                elif not isinstance(v, _strings):
+                elif not isinstance(v, str):
                     raise TypeError(
                         "`id` prop must be a string or dict, not {!r}".format(v)
                     )
@@ -181,10 +203,10 @@ class Component(with_metaclass(ComponentMeta, object)):
                 if self.children.id == id:
                     if operation == "get":
                         return self.children
-                    elif operation == "set":
+                    if operation == "set":
                         self.children = new_item
                         return
-                    elif operation == "delete":
+                    if operation == "delete":
                         self.children = None
                         return
 
@@ -192,10 +214,10 @@ class Component(with_metaclass(ComponentMeta, object)):
             try:
                 if operation == "get":
                     return self.children.__getitem__(id)
-                elif operation == "set":
+                if operation == "set":
                     self.children.__setitem__(id, new_item)
                     return
-                elif operation == "delete":
+                if operation == "delete":
                     self.children.__delitem__(id)
                     return
             except KeyError:
@@ -208,10 +230,10 @@ class Component(with_metaclass(ComponentMeta, object)):
                 if getattr(item, "id", None) == id:
                     if operation == "get":
                         return item
-                    elif operation == "set":
+                    if operation == "set":
                         self.children[i] = new_item
                         return
-                    elif operation == "delete":
+                    if operation == "delete":
                         del self.children[i]
                         return
 
@@ -221,10 +243,10 @@ class Component(with_metaclass(ComponentMeta, object)):
                     try:
                         if operation == "get":
                             return item.__getitem__(id)
-                        elif operation == "set":
+                        if operation == "set":
                             item.__setitem__(id, new_item)
                             return
-                        elif operation == "delete":
+                        if operation == "delete":
                             item.__delitem__(id)
                             return
                     except KeyError:

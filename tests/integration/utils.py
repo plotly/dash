@@ -1,4 +1,5 @@
 import time
+import contextlib
 
 
 TIMEOUT = 5  # Seconds
@@ -61,3 +62,15 @@ def wait_for(condition_function, get_message=lambda: "", *args, **kwargs):
         time.sleep(0.5)
 
     raise WaitForTimeout(get_message())
+
+
+@contextlib.contextmanager
+def json_engine(engine):
+    import plotly.io as pio
+
+    original_engine = pio.json.config.default_engine
+    try:
+        pio.json.config.default_engine = engine
+        yield
+    finally:
+        pio.json.config.default_engine = original_engine

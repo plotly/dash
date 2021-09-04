@@ -1,18 +1,14 @@
 from multiprocessing import Lock, Value
 
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, html, dcc
 from dash.exceptions import PreventUpdate
 from dash.testing import wait
-
-import dash_core_components as dcc
-import dash_html_components as html
 
 
 def test_rdmo001_single_input_multi_outputs_on_multiple_components(dash_duo):
     call_count = Value("i")
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     N_OUTPUTS = 50
 
@@ -51,7 +47,7 @@ def test_rdmo002_multi_outputs_on_single_component(dash_duo):
     lock = Lock()
 
     call_count = Value("i")
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -98,7 +94,7 @@ def test_rdmo002_multi_outputs_on_single_component(dash_duo):
 
 
 def test_rdmo003_single_output_as_multi(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -118,7 +114,7 @@ def test_rdmo003_single_output_as_multi(dash_duo):
 
 
 def test_rdmo004_multi_output_circular_dependencies(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([dcc.Input(id="a"), dcc.Input(id="b"), html.P(id="c")])
 
     @app.callback(Output("a", "value"), [Input("b", "value")])
@@ -149,7 +145,7 @@ def test_rdmo004_multi_output_circular_dependencies(dash_duo):
 
 
 def test_rdmo005_set_props_behavior(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="id", value=""),
