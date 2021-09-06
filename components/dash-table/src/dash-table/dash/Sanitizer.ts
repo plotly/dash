@@ -112,7 +112,6 @@ const getVisibleColumns = (
 export default class Sanitizer {
     sanitize(props: PropsWithDefaults): SanitizedProps {
         const locale_format = this.applyDefaultToLocale(props.locale_format);
-        // TODO: should extract columns automatically from props.data
         const columns = props.columns
             ? this.applyDefaultsToColumns(
                   locale_format,
@@ -121,7 +120,6 @@ export default class Sanitizer {
                   props.editable,
                   props.filter_options
             )
-            // : do_something_from(props.data)
             : [];
         const data = props.data ?? [];
         const visibleColumns = this.getVisibleColumns(
