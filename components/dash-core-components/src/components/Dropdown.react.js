@@ -24,47 +24,62 @@ export default class Dropdown extends Component {
     }
 }
 
+/**
+ * An array of options {label: [string|number], value: [string|number]},
+ * an optional disabled field can be used for each option
+ */
+const defaultOptionType = PropTypes.arrayOf(
+    PropTypes.exact({
+        /**
+         * The dropdown's label
+         */
+        label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+            .isRequired,
+
+        /**
+         * The value of the dropdown. This value
+         * corresponds to the items specified in the
+         * `value` property.
+         */
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+            .isRequired,
+
+        /**
+         * If true, this option is disabled and cannot be selected.
+         */
+        disabled: PropTypes.bool,
+
+        /**
+         * The HTML 'title' attribute for the option. Allows for
+         * information on hover. For more information on this attribute,
+         * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
+         */
+        title: PropTypes.string,
+    })
+)
+
+/**
+ * Array of options as string[]
+ */
+const optionArrayShorthandType = PropTypes.arrayOf(PropTypes.string)
+
+/**
+ * Object of options as {label: value}[]
+ */
+const optionObjectShorthandType = PropTypes.objectOf(PropTypes.string)
+
 Dropdown.propTypes = {
+    /**
+     * Any of the 3 option types: Default, Array or Object
+     */
+    options: PropTypes.oneOfType([defaultOptionType, optionArrayShorthandType, optionObjectShorthandType]),
+
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
      * components in an app.
      */
     id: PropTypes.string,
-
-    /**
-     * An array of options {label: [string|number], value: [string|number]},
-     * an optional disabled field can be used for each option
-     */
-    options: PropTypes.arrayOf(
-        PropTypes.exact({
-            /**
-             * The dropdown's label
-             */
-            label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
-
-            /**
-             * The value of the dropdown. This value
-             * corresponds to the items specified in the
-             * `value` property.
-             */
-            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
-
-            /**
-             * If true, this option is disabled and cannot be selected.
-             */
-            disabled: PropTypes.bool,
-
-            /**
-             * The HTML 'title' attribute for the option. Allows for
-             * information on hover. For more information on this attribute,
-             * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
-             */
-            title: PropTypes.string,
-        })
-    ),
 
     /**
      * The value of the input. If `multi` is false (the default)

@@ -22,12 +22,31 @@ const TOKENIZER = {
 
 const DELIMETER = ',';
 
+/**
+ * Converts shorthand option formats to the format ingestible by dropdown component
+ * //todo: explain
+ */
+const formatOptions = (options) => {
+    if (type(options[0]) === 'String') {
+        return options.map((option) => ({label: option, value: option}))
+    }
+
+    if (type(options) === 'Object') {
+        return Object.entries(options).map(([label, value]) => ({label, value}))
+    }
+
+    return options
+}
+
 export default class Dropdown extends Component {
     constructor(props) {
         super(props);
+        const formattedOptions = formatOptions(props.options)
+
         this.state = {
+            options: formattedOptions,
             filterOptions: createFilterOptions({
-                options: props.options,
+                options: formattedOptions,
                 tokenizer: TOKENIZER,
             }),
         };
@@ -35,9 +54,12 @@ export default class Dropdown extends Component {
 
     UNSAFE_componentWillReceiveProps(newProps) {
         if (newProps.options !== this.props.options) {
+            const formattedOptions = formatOptions(newProps.options)
+
             this.setState({
+                options: formattedOptions,
                 filterOptions: createFilterOptions({
-                    options: newProps.options,
+                    options: formattedOptions,
                     tokenizer: TOKENIZER,
                 }),
             });
@@ -49,19 +71,19 @@ export default class Dropdown extends Component {
             id,
             clearable,
             multi,
-            options,
             setProps,
             style,
             loading_state,
             value,
         } = this.props;
-        const {filterOptions} = this.state;
+        const {options, filterOptions} = this.state;
         let selectedValue;
         if (type(value) === 'array') {
             selectedValue = value.join(DELIMETER);
         } else {
             selectedValue = value;
         }
+
         return (
             <div
                 id={id}
@@ -98,7 +120,7 @@ export default class Dropdown extends Component {
                     backspaceRemoves={clearable}
                     deleteRemoves={clearable}
                     inputProps={{autoComplete: 'off'}}
-                    {...omit(['setProps', 'value'], this.props)}
+                    {...omit(['setProps', 'value', 'options'], this.props)}
                 />
             </div>
         );
