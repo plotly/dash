@@ -61,8 +61,12 @@ def _check_if_has_indexable_children(item):
         raise KeyError
 
 
-def generate_seed(obj, kwargs):
-    return hashlib.md5(bytes(str(obj) + str(kwargs), "utf8")).hexdigest()
+def _auto_set_id(obj, **kwargs):
+    if "id" not in kwargs.keys():
+        rd = random.Random()
+        hexdigest = hashlib.md5(bytes(str(obj) + str(kwargs), "utf8")).hexdigest()
+        rd.seed(int(hexdigest, 16))
+        kwargs["id"] = str(uuid.UUID(int=rd.getrandbits(64)))
 
 
 class Component(metaclass=ComponentMeta):
@@ -87,10 +91,7 @@ class Component(metaclass=ComponentMeta):
     def __init__(self, **kwargs):
         import dash  # pylint: disable=import-outside-toplevel, cyclic-import
 
-        if "id" not in kwargs.keys():
-            rd = random.Random()
-            rd.seed(int(generate_seed(self, kwargs), 16))
-            kwargs["id"] = str(uuid.UUID(int=rd.getrandbits(64)))
+        _auto_set_id(self, **kwargs)
 
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):

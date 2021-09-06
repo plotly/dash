@@ -22,7 +22,6 @@ export default class Checklist extends Component {
             style,
             loading_state,
             value,
-            inline,
         } = this.props;
 
         return (
@@ -35,13 +34,14 @@ export default class Checklist extends Component {
                 className={className}
             >
                 {options.map(option => {
-                    option = inline
-                        ? {
-                              label: option,
-                              value: option,
-                              disabled: false,
-                          }
-                        : option;
+                    option =
+                        typeof option === 'string'
+                            ? {
+                                  label: option,
+                                  value: option,
+                                  disabled: false,
+                              }
+                            : option;
                     return (
                         <label
                             key={option.value}
@@ -102,6 +102,12 @@ Checklist.propTypes = {
                  */
                 disabled: PropTypes.bool,
             }),
+
+            /**
+             * We now accept the single string `value` as an option value,
+             * which equals to
+             * { label: `value`, value: `value`, disabled: false }
+             */
             PropTypes.string,
         ])
     ),
@@ -203,16 +209,6 @@ Checklist.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
-
-    /**
-     * Indicates whether given `options` are array or dictionary
-     * if True:
-     *      `options` will receive: [`value1`, `value2`, `value3`, ...]
-     *      which equals to [{label: `value1`, value: `value1`}, {label: `value2, value: `value2`}, ...]
-     * if False:
-     *      `options` will receive: [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
-     */
-    inline: PropTypes.bool,
 };
 
 Checklist.defaultProps = {
@@ -224,5 +220,4 @@ Checklist.defaultProps = {
     value: [],
     persisted_props: ['value'],
     persistence_type: 'local',
-    inline: false,
 };

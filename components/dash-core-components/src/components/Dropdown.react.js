@@ -58,6 +58,12 @@ Dropdown.propTypes = {
                  */
                 title: PropTypes.string,
             }),
+
+            /**
+             * We now accept the single string `value` as an option value,
+             * which equals to
+             * { label: `value`, value: `value`, disabled: false }
+             */
             PropTypes.string,
         ])
     ),

@@ -23,16 +23,16 @@ export default class RadioItems extends Component {
             setProps,
             loading_state,
             value,
-            inline,
         } = this.props;
 
         let ids = {};
         if (id) {
             ids = {id, key: id};
         }
-        const sanitizeOptions = !inline
-            ? options
-            : options.keys().map(k => ({label: k, value: options[k]}));
+        const sanitizeOptions =
+            typeof options === 'array'
+                ? options
+                : options.keys().map(k => ({label: k, value: options[k]}));
 
         return (
             <div
@@ -43,7 +43,7 @@ export default class RadioItems extends Component {
                 className={className}
                 style={style}
             >
-                {(inline ? sanitizeOptions(options) : options).map(option => (
+                {sanitizeOptions(options).map(option => (
                     <label
                         style={labelStyle}
                         className={labelClassName}
@@ -94,6 +94,13 @@ RadioItems.propTypes = {
                 disabled: PropTypes.bool,
             })
         ),
+
+        /**
+         * Simpler `options` representation in dictionary format
+         * {`label1`: `value1`, `label2`: `value2`, ... }
+         * which equals to
+         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
+         */
         PropTypes.object,
     ]),
 
@@ -192,13 +199,6 @@ RadioItems.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
-
-    /**
-     * Indicates whether given `options` are array or dictionary
-     * if True: {`label1`: `value1`, `label2`: `value2`, ... }
-     * if False: [{label: `label1`, value: `value1`}, {label: `label2, value: `value2`}, ...]
-     */
-    inline: PropTypes.bool,
 };
 
 RadioItems.defaultProps = {
@@ -209,5 +209,4 @@ RadioItems.defaultProps = {
     options: [],
     persisted_props: ['value'],
     persistence_type: 'local',
-    inline: false,
 };
