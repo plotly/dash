@@ -62,7 +62,7 @@ def _check_if_has_indexable_children(item):
 
 
 def generate_seed(obj, kwargs):
-    return hashlib.md5(bytes(str(obj)+ str(kwargs), "utf8")).hexdigest()
+    return hashlib.md5(bytes(str(obj) + str(kwargs), "utf8")).hexdigest()
 
 
 class Component(metaclass=ComponentMeta):
