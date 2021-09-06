@@ -30,33 +30,36 @@ Dropdown.propTypes = {
      * an optional disabled field can be used for each option
      */
     options: PropTypes.arrayOf(
-        PropTypes.exact({
-            /**
-             * The dropdown's label
-             */
-            label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+        PropTypes.oneOfType([
+            PropTypes.exact({
+                /**
+                 * The dropdown's label
+                 */
+                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                    .isRequired,
 
-            /**
-             * The value of the dropdown. This value
-             * corresponds to the items specified in the
-             * `value` property.
-             */
-            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+                /**
+                 * The value of the dropdown. This value
+                 * corresponds to the items specified in the
+                 * `value` property.
+                 */
+                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                    .isRequired,
 
-            /**
-             * If true, this option is disabled and cannot be selected.
-             */
-            disabled: PropTypes.bool,
+                /**
+                 * If true, this option is disabled and cannot be selected.
+                 */
+                disabled: PropTypes.bool,
 
-            /**
-             * The HTML 'title' attribute for the option. Allows for
-             * information on hover. For more information on this attribute,
-             * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
-             */
-            title: PropTypes.string,
-        })
+                /**
+                 * The HTML 'title' attribute for the option. Allows for
+                 * information on hover. For more information on this attribute,
+                 * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
+                 */
+                title: PropTypes.string,
+            }),
+            PropTypes.string
+        ])
     ),
 
     /**
