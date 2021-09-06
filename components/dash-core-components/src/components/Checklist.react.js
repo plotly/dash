@@ -33,44 +33,43 @@ export default class Checklist extends Component {
                 style={style}
                 className={className}
             >
-                {options.map(option => (
-                    <label
-                        key={option.value}
-                        style={labelStyle}
-                        className={labelClassName}
-                    >
-                        <input
-                            checked={includes(option.value, value)}
-                            className={inputClassName}
-                            disabled={Boolean(option.disabled)}
-                            style={inputStyle}
-                            type="checkbox"
-                            onChange={() => {
-                                let newValue;
-                                if (includes(option.value, value)) {
-                                    newValue = without([option.value], value);
-                                } else {
-                                    newValue = append(option.value, value);
-                                }
-                                setProps({value: newValue});
-                            }}
-                        />
-                        {option.label}
-                    </label>
-                ))}
+                {options.map(option => {
+                    option = (typeof option === "string")
+                        ? {
+                            label: option,
+                            value: option,
+                            disabled: false
+                        } : option;
+                    return <label
+                                key={option.value}
+                                style={labelStyle}
+                                className={labelClassName}
+                            >
+                                <input
+                                    checked={includes(option.value, value)}
+                                    className={inputClassName}
+                                    disabled={Boolean(option.disabled)}
+                                    style={inputStyle}
+                                    type="checkbox"
+                                    onChange={() => {
+                                        let newValue;
+                                        if (includes(option.value, value)) {
+                                            newValue = without([option.value], value);
+                                        } else {
+                                            newValue = append(option.value, value);
+                                        }
+                                        setProps({value: newValue});
+                                    }}
+                                />
+                                {option.label}
+                            </label>
+                })}
             </div>
         );
     }
 }
 
 Checklist.propTypes = {
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
     /**
      * An array of options
      */
@@ -103,6 +102,13 @@ Checklist.propTypes = {
     value: PropTypes.arrayOf(
         PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     ),
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * The class of the container (div)

@@ -26,13 +26,6 @@ export default class Dropdown extends Component {
 
 Dropdown.propTypes = {
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
-    /**
      * An array of options {label: [string|number], value: [string|number]},
      * an optional disabled field can be used for each option
      */
@@ -81,6 +74,13 @@ Dropdown.propTypes = {
             PropTypes.oneOfType([PropTypes.string, PropTypes.number])
         ),
     ]),
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * height of each option. Can be increased when label lengths would wrap around
