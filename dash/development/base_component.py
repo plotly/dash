@@ -3,6 +3,7 @@ import inspect
 import sys
 import uuid
 import random
+import hashlib
 
 from .._utils import patch_collections_abc, stringify_id
 
@@ -60,6 +61,10 @@ def _check_if_has_indexable_children(item):
         raise KeyError
 
 
+def generate_seed(obj, kwargs):
+    return hashlib.md5(bytes(str(obj)+ str(kwargs), "utf8")).hexdigest()
+
+
 class Component(metaclass=ComponentMeta):
     class _UNDEFINED:
         def __repr__(self):
@@ -84,7 +89,7 @@ class Component(metaclass=ComponentMeta):
 
         if "id" not in kwargs.keys():
             rd = random.Random()
-            # rd.seed(seed)
+            rd.seed(int(generate_seed(self, kwargs), 16))
             kwargs["id"] = str(uuid.UUID(int=rd.getrandbits(64)))
 
         # pylint: disable=super-init-not-called
