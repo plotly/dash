@@ -1,6 +1,8 @@
 import abc
 import inspect
 import sys
+import uuid
+import random
 
 from .._utils import patch_collections_abc, stringify_id
 
@@ -79,6 +81,11 @@ class Component(metaclass=ComponentMeta):
 
     def __init__(self, **kwargs):
         import dash  # pylint: disable=import-outside-toplevel, cyclic-import
+
+        if "id" not in kwargs.keys():
+            rd = random.Random()
+            # rd.seed(seed)
+            kwargs["id"] = str(uuid.UUID(int=rd.getrandbits(64)))
 
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
