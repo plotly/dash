@@ -22,6 +22,7 @@ export default class Checklist extends Component {
             style,
             loading_state,
             value,
+            inline,
         } = this.props;
 
         return (
@@ -34,8 +35,7 @@ export default class Checklist extends Component {
                 className={className}
             >
                 {options.map(option => {
-                    option = (typeof option === "string")
-                        ? {
+                    option = inline ? {
                             label: option,
                             value: option,
                             disabled: false
@@ -74,26 +74,29 @@ Checklist.propTypes = {
      * An array of options
      */
     options: PropTypes.arrayOf(
-        PropTypes.exact({
-            /**
-             * The checkbox's label
-             */
-            label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+        PropTypes.oneOfType([
+            PropTypes.exact({
+                /**
+                 * The checkbox's label
+                 */
+                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                    .isRequired,
 
-            /**
-             * The value of the checkbox. This value
-             * corresponds to the items specified in the
-             * `value` property.
-             */
-            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+                /**
+                 * The value of the checkbox. This value
+                 * corresponds to the items specified in the
+                 * `value` property.
+                 */
+                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                    .isRequired,
 
-            /**
-             * If true, this checkbox is disabled and can't be clicked on.
-             */
-            disabled: PropTypes.bool,
-        })
+                /**
+                 * If true, this checkbox is disabled and can't be clicked on.
+                 */
+                disabled: PropTypes.bool,
+            }),
+            PropTypes.string
+        ])
     ),
 
     /**
@@ -193,6 +196,16 @@ Checklist.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
+
+    /**
+     * Indicates whether given `options` are array or dictionary
+     * if True: 
+     *      `options` will receive: [`value1`, `value2`, `value3`, ...]
+     *      which equals to [{label: `value1`, value: `value1`}, {label: `value2, value: `value2`}, ...]
+     * if False: 
+     *      `options` will receive: [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
+     */
+    inline: PropTypes.bool,
 };
 
 Checklist.defaultProps = {
@@ -204,4 +217,5 @@ Checklist.defaultProps = {
     value: [],
     persisted_props: ['value'],
     persistence_type: 'local',
+    inline: false,
 };

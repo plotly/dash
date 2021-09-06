@@ -23,12 +23,16 @@ export default class RadioItems extends Component {
             setProps,
             loading_state,
             value,
+            inline
         } = this.props;
 
         let ids = {};
         if (id) {
             ids = {id, key: id};
         }
+        const sanitizeOptions = !inline ? options
+            : options.keys().map(k => ({ label: k, value: options[k] }))
+
         return (
             <div
                 data-dash-is-loading={
@@ -38,7 +42,7 @@ export default class RadioItems extends Component {
                 className={className}
                 style={style}
             >
-                {options.map(option => (
+                {(inline ? sanitizeOptions(options) : options).map(option => (
                     <label
                         style={labelStyle}
                         className={labelClassName}
@@ -64,39 +68,42 @@ export default class RadioItems extends Component {
 
 RadioItems.propTypes = {
     /**
+     * An array of options, or inline dictionary of options
+     */
+    options: PropTypes.oneOfType([
+        PropTypes.arrayOf(
+            PropTypes.exact({
+                /**
+                 * The radio item's label
+                 */
+                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                    .isRequired,
+
+                /**
+                 * The value of the radio item. This value
+                 * corresponds to the items specified in the
+                 * `value` property.
+                 */
+                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                    .isRequired,
+
+                /**
+                 * If true, this radio item is disabled and can't be clicked on.
+                 */
+                disabled: PropTypes.bool,
+            })
+        ),
+        PropTypes.object
+    ]),
+
+    /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
      * components in an app.
      */
     id: PropTypes.string,
 
-    /**
-     * An array of options
-     */
-    options: PropTypes.arrayOf(
-        PropTypes.exact({
-            /**
-             * The radio item's label
-             */
-            label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
-
-            /**
-             * The value of the radio item. This value
-             * corresponds to the items specified in the
-             * `value` property.
-             */
-            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
-
-            /**
-             * If true, this radio item is disabled and can't be clicked on.
-             */
-            disabled: PropTypes.bool,
-        })
-    ),
-
-    /**
+     /**
      * The currently selected value
      */
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -184,6 +191,13 @@ RadioItems.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
+
+    /**
+     * Indicates whether given `options` are array or dictionary
+     * if True: {`label1`: `value1`, `label2`: `value2`, ... }
+     * if False: [{label: `label1`, value: `value1`}, {label: `label2, value: `value2`}, ...]
+     */
+    inline: PropTypes.bool,
 };
 
 RadioItems.defaultProps = {
@@ -194,4 +208,5 @@ RadioItems.defaultProps = {
     options: [],
     persisted_props: ['value'],
     persistence_type: 'local',
+    inline: false,
 };
