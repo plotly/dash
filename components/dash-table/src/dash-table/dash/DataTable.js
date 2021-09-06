@@ -123,7 +123,7 @@ export const propTypes = {
      */
     data: PropTypes.arrayOf(PropTypes.object),
 
-     /**
+    /**
      * Columns describes various aspects about each individual column.
      * `name` and `id` are the only required parameters.
      */
@@ -440,7 +440,7 @@ export const propTypes = {
         row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         column_id: PropTypes.string
     }),
-    
+
     /**
      * If true, headers are included when copying from the table to different
      * tabs and elsewhere. Note that headers are ignored when copying from the table onto itself and

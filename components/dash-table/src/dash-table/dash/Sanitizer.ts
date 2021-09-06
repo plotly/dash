@@ -119,7 +119,7 @@ export default class Sanitizer {
                   props.columns,
                   props.editable,
                   props.filter_options
-            )
+              )
             : [];
         const data = props.data ?? [];
         const visibleColumns = this.getVisibleColumns(
