@@ -23,15 +23,16 @@ export default class RadioItems extends Component {
             setProps,
             loading_state,
             value,
-            inline
+            inline,
         } = this.props;
 
         let ids = {};
         if (id) {
             ids = {id, key: id};
         }
-        const sanitizeOptions = !inline ? options
-            : options.keys().map(k => ({ label: k, value: options[k] }))
+        const sanitizeOptions = !inline
+            ? options
+            : options.keys().map(k => ({label: k, value: options[k]}));
 
         return (
             <div
@@ -93,7 +94,7 @@ RadioItems.propTypes = {
                 disabled: PropTypes.bool,
             })
         ),
-        PropTypes.object
+        PropTypes.object,
     ]),
 
     /**
@@ -103,7 +104,7 @@ RadioItems.propTypes = {
      */
     id: PropTypes.string,
 
-     /**
+    /**
      * The currently selected value
      */
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

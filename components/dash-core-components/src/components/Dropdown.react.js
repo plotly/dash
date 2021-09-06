@@ -58,7 +58,7 @@ Dropdown.propTypes = {
                  */
                 title: PropTypes.string,
             }),
-            PropTypes.string
+            PropTypes.string,
         ])
     ),
 

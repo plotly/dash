@@ -35,34 +35,41 @@ export default class Checklist extends Component {
                 className={className}
             >
                 {options.map(option => {
-                    option = inline ? {
-                            label: option,
-                            value: option,
-                            disabled: false
-                        } : option;
-                    return <label
-                                key={option.value}
-                                style={labelStyle}
-                                className={labelClassName}
-                            >
-                                <input
-                                    checked={includes(option.value, value)}
-                                    className={inputClassName}
-                                    disabled={Boolean(option.disabled)}
-                                    style={inputStyle}
-                                    type="checkbox"
-                                    onChange={() => {
-                                        let newValue;
-                                        if (includes(option.value, value)) {
-                                            newValue = without([option.value], value);
-                                        } else {
-                                            newValue = append(option.value, value);
-                                        }
-                                        setProps({value: newValue});
-                                    }}
-                                />
-                                {option.label}
-                            </label>
+                    option = inline
+                        ? {
+                              label: option,
+                              value: option,
+                              disabled: false,
+                          }
+                        : option;
+                    return (
+                        <label
+                            key={option.value}
+                            style={labelStyle}
+                            className={labelClassName}
+                        >
+                            <input
+                                checked={includes(option.value, value)}
+                                className={inputClassName}
+                                disabled={Boolean(option.disabled)}
+                                style={inputStyle}
+                                type="checkbox"
+                                onChange={() => {
+                                    let newValue;
+                                    if (includes(option.value, value)) {
+                                        newValue = without(
+                                            [option.value],
+                                            value
+                                        );
+                                    } else {
+                                        newValue = append(option.value, value);
+                                    }
+                                    setProps({value: newValue});
+                                }}
+                            />
+                            {option.label}
+                        </label>
+                    );
                 })}
             </div>
         );
@@ -95,7 +102,7 @@ Checklist.propTypes = {
                  */
                 disabled: PropTypes.bool,
             }),
-            PropTypes.string
+            PropTypes.string,
         ])
     ),
 
@@ -199,10 +206,10 @@ Checklist.propTypes = {
 
     /**
      * Indicates whether given `options` are array or dictionary
-     * if True: 
+     * if True:
      *      `options` will receive: [`value1`, `value2`, `value3`, ...]
      *      which equals to [{label: `value1`, value: `value1`}, {label: `value2, value: `value2`}, ...]
-     * if False: 
+     * if False:
      *      `options` will receive: [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
      */
     inline: PropTypes.bool,

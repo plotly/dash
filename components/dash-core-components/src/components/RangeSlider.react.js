@@ -19,7 +19,6 @@ export default class RangeSlider extends Component {
 }
 
 RangeSlider.propTypes = {
-
     /**
      * Minimum allowed value of the slider
      */
