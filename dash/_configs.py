@@ -1,11 +1,12 @@
 import os
+from typing import Union, Optional, Tuple
 
 # noinspection PyCompatibility
 from . import exceptions
 from ._utils import AttributeDict
 
 
-def load_dash_env_vars():
+def load_dash_env_vars() -> AttributeDict:
     return AttributeDict(
         {
             var: os.getenv(var, os.getenv(var.lower()))
@@ -40,7 +41,9 @@ def load_dash_env_vars():
 DASH_ENV_VARS = load_dash_env_vars()  # used in tests
 
 
-def get_combined_config(name, val, default=None):
+def get_combined_config(
+    name: str, val: Optional[Union[bool, str]], default: Union[bool, str] = None
+) -> Optional[Union[bool, str]]:
     """Consolidate the config with priority from high to low provided init
     value > OS environ > default."""
 
@@ -55,8 +58,10 @@ def get_combined_config(name, val, default=None):
 
 
 def pathname_configs(
-    url_base_pathname=None, routes_pathname_prefix=None, requests_pathname_prefix=None
-):
+    url_base_pathname: str = None,
+    routes_pathname_prefix: str = None,
+    requests_pathname_prefix: str = None,
+) -> Tuple[str, str, str]:
     _pathname_config_error_message = """
     {} This is ambiguous.
     To fix this, set `routes_pathname_prefix` instead of `url_base_pathname`.

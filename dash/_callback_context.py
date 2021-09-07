@@ -35,17 +35,17 @@ falsy_triggered = FalsyList([{"prop_id": ".", "value": None}])
 
 # pylint: disable=no-init
 class CallbackContext:
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def inputs(self):
         return getattr(flask.g, "input_values", {})
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def states(self):
         return getattr(flask.g, "state_values", {})
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def triggered(self):
         # For backward compatibility: previously `triggered` always had a
@@ -54,17 +54,17 @@ class CallbackContext:
         # look empty, but you can still do `triggered[0]["prop_id"].split(".")`
         return getattr(flask.g, "triggered_inputs", []) or falsy_triggered
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def args_grouping(self):
         return getattr(flask.g, "args_grouping", [])
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def outputs_grouping(self):
         return getattr(flask.g, "outputs_grouping", [])
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def outputs_list(self):
         if self.using_outputs_grouping:
@@ -75,7 +75,7 @@ class CallbackContext:
 
         return getattr(flask.g, "outputs_list", [])
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def inputs_list(self):
         if self.using_args_grouping:
@@ -86,7 +86,7 @@ class CallbackContext:
 
         return getattr(flask.g, "inputs_list", [])
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def states_list(self):
         if self.using_args_grouping:
@@ -96,7 +96,7 @@ class CallbackContext:
             )
         return getattr(flask.g, "states_list", [])
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def response(self):
         return getattr(flask.g, "dash_response")
@@ -125,7 +125,7 @@ class CallbackContext:
 
         setattr(flask.g, "timing_information", timing_information)
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def using_args_grouping(self):
         """
@@ -134,7 +134,7 @@ class CallbackContext:
         """
         return getattr(flask.g, "using_args_grouping", [])
 
-    @property
+    @property  # type: ignore[misc]
     @has_context
     def using_outputs_grouping(self):
         """

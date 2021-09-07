@@ -1,7 +1,9 @@
 import collections
 from functools import wraps
+from typing import Any, List, Dict, Callable, Union
 
 from .dependencies import (
+    ClientsideFunction,
     handle_callback_args,
     handle_grouped_callback_args,
     Output,
@@ -27,9 +29,9 @@ class NoUpdate:
     pass
 
 
-GLOBAL_CALLBACK_LIST = []
-GLOBAL_CALLBACK_MAP = {}
-GLOBAL_INLINE_SCRIPTS = []
+GLOBAL_CALLBACK_LIST: List[dict] = []
+GLOBAL_CALLBACK_MAP: Dict[str, dict] = {}
+GLOBAL_INLINE_SCRIPTS: List[str] = []
 
 
 def callback(*_args, **_kwargs):
@@ -106,7 +108,7 @@ def insert_callback(
 
 def register_callback(
     callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
-):
+) -> Callable:
     (
         output,
         flat_inputs,
@@ -137,9 +139,9 @@ def register_callback(
     )
 
     # pylint: disable=too-many-locals
-    def wrap_func(func):
+    def wrap_func(func: Callable) -> Callable:
         @wraps(func)
-        def add_context(*args, **kwargs):
+        def add_context(*args, **kwargs):  # type: ignore[no-untyped-def]
             output_spec = kwargs.pop("outputs_list")
             _validate.validate_output_spec(insert_output, output_spec, Output)
 
@@ -209,14 +211,14 @@ ns["{function_name}"] = {clientside_function};
 
 
 def register_clientside_callback(
-    callback_list,
-    callback_map,
-    config_prevent_initial_callbacks,
-    inline_scripts,
-    clientside_function,
-    *args,
-    **kwargs
-):
+    callback_list: List[dict],
+    callback_map: Dict[str, dict],
+    config_prevent_initial_callbacks: bool,
+    inline_scripts: List[str],
+    clientside_function: Union[ClientsideFunction, str],
+    *args: Any,
+    **kwargs: Any,
+) -> None:
     output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
     insert_callback(
         callback_list,
@@ -238,8 +240,8 @@ def register_clientside_callback(
         if isinstance(output, (list, tuple)):
             out0 = output[0]
 
-        namespace = "_dashprivate_{}".format(out0.component_id)
-        function_name = "{}".format(out0.component_property)
+        namespace = f"_dashprivate_{out0.component_id}"
+        function_name = str(out0.component_property)
 
         inline_scripts.append(
             _inline_clientside_template.format(

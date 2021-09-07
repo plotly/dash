@@ -1,10 +1,11 @@
 import re
+from typing import Tuple
 
 cache_regex = re.compile(r"^v[\w-]+m[0-9a-fA-F]+$")
 version_clean = re.compile(r"[^\w-]")
 
 
-def build_fingerprint(path, version, hash_value):
+def build_fingerprint(path: str, version: str, hash_value: str) -> str:
     path_parts = path.split("/")
     filename, extension = path_parts[-1].split(".", 1)
 
@@ -16,7 +17,7 @@ def build_fingerprint(path, version, hash_value):
     )
 
 
-def check_fingerprint(path):
+def check_fingerprint(path: str) -> Tuple[str, bool]:
     path_parts = path.split("/")
     name_parts = path_parts[-1].split(".")
 

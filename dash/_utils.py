@@ -9,6 +9,8 @@ import logging
 import io
 import json
 from functools import wraps
+from typing import Dict
+
 from . import exceptions
 
 logger = logging.getLogger()
@@ -21,7 +23,7 @@ def to_json(value):
     return to_json_plotly(value)
 
 
-def interpolate_str(template, **data):
+def interpolate_str(template, **data) -> str:
     s = template
     for k, v in data.items():
         key = "{%" + k + "%}"
@@ -29,7 +31,13 @@ def interpolate_str(template, **data):
     return s
 
 
-def format_tag(tag_name, attributes, inner="", closed=False, opened=False):
+def format_tag(
+    tag_name: str,
+    attributes: Dict[str, str],
+    inner: str = "",
+    closed: bool = False,
+    opened: bool = False,
+) -> str:
     tag = "<{tag} {attributes}"
     if closed:
         tag += "/>"
