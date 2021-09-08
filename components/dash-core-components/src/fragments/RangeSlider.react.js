@@ -7,6 +7,25 @@ import 'rc-slider/assets/index.css';
 
 import {propTypes, defaultProps} from '../components/RangeSlider.react';
 
+/**
+ * Truncate marks if they are out of Slider interval
+ */
+const truncateMarks = (min, max, marks) => pickBy(
+    (k, mark) => mark >= min && mark <= max,
+    marks
+)
+
+/**
+ * Set marks to min and max if not defined, truncate otherwise
+ */
+const calcMarks = (min, max, marks) => {
+    if (!marks) {
+        return {[min]: min, [max]: max}
+    }
+
+    return truncateMarks(min, max, marks)
+}
+
 export default class RangeSlider extends Component {
     constructor(props) {
         super(props);
@@ -46,6 +65,9 @@ export default class RangeSlider extends Component {
             updatemode,
             vertical,
             verticalHeight,
+            min,
+            max,
+            marks
         } = this.props;
         const value = this.state.value;
 
@@ -61,13 +83,6 @@ export default class RangeSlider extends Component {
         } else {
             tipProps = tooltip;
         }
-
-        const truncatedMarks =
-            this.props.marks &&
-            pickBy(
-                (k, mark) => mark >= this.props.min && mark <= this.props.max,
-                this.props.marks
-            );
 
         return (
             <div
@@ -102,7 +117,7 @@ export default class RangeSlider extends Component {
                     }}
                     style={{position: 'relative'}}
                     value={value}
-                    marks={truncatedMarks}
+                    marks={calcMarks(min, max, marks)}
                     {...omit(
                         [
                             'className',
