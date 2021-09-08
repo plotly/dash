@@ -19,6 +19,7 @@ export default class Checklist extends Component {
             inputStyle,
             labelClassName,
             labelStyle,
+            inline,
             options,
             setProps,
             style,
@@ -38,7 +39,10 @@ export default class Checklist extends Component {
                 {mapOptions(options).map(option => (
                     <label
                         key={option.value}
-                        style={labelStyle}
+                        style={{
+                            ...{display: inline ? 'inline-block' : "block"},
+                            ...labelStyle
+                        }}
                         className={labelClassName}
                     >
                         <input
@@ -114,6 +118,11 @@ Checklist.propTypes = {
     labelStyle: PropTypes.object,
 
     /**
+     * Shorthand for applying {'display': 'inline-block'} labelStyle
+     */
+    inline: PropTypes.bool,
+
+    /**
      * The class of the <label> that wraps the checkbox input
      *  and the option's label
      */
@@ -177,6 +186,7 @@ Checklist.defaultProps = {
     inputClassName: '',
     labelStyle: {},
     labelClassName: '',
+    inline: false,
     options: [],
     value: [],
     persisted_props: ['value'],
