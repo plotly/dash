@@ -37,11 +37,11 @@ const defaultOptionType = PropTypes.arrayOf(
 /**
  * Array of options as string[]
  */
-const optionArrayShorthandType = PropTypes.arrayOf(PropTypes.string)
+const optionArrayShorthandType = PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
 
 /**
  * Object of options as {label: value}[]
  */
-const optionObjectShorthandType = PropTypes.objectOf(PropTypes.string)
+const optionObjectShorthandType = PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
 
 export const optionsType = PropTypes.oneOfType([defaultOptionType, optionArrayShorthandType, optionObjectShorthandType])
