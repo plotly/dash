@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import {append, includes, without} from 'ramda';
 import React, {Component} from 'react';
+import {optionsType} from "../utils/sharedPropTypes";
+import {mapOptions} from "../utils/shorthandMappers";
 
 /**
  * Checklist is a component that encapsulates several checkboxes.
@@ -33,7 +35,7 @@ export default class Checklist extends Component {
                 style={style}
                 className={className}
             >
-                {options.map(option => (
+                {mapOptions(options).map(option => (
                     <label
                         key={option.value}
                         style={labelStyle}
@@ -65,37 +67,18 @@ export default class Checklist extends Component {
 
 Checklist.propTypes = {
     /**
+     * An array of dictionaries as [{label: "Label", value: "Value"}],
+     * OR an array of options as ["Option 1", "Option 2"]
+     * OR an Object of options as {"Label 1": "Value 1", "Label 2": "Value 2"}
+     */
+    options: optionsType,
+
+    /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
      * components in an app.
      */
     id: PropTypes.string,
-
-    /**
-     * An array of options
-     */
-    options: PropTypes.arrayOf(
-        PropTypes.exact({
-            /**
-             * The checkbox's label
-             */
-            label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
-
-            /**
-             * The value of the checkbox. This value
-             * corresponds to the items specified in the
-             * `value` property.
-             */
-            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
-
-            /**
-             * If true, this checkbox is disabled and can't be clicked on.
-             */
-            disabled: PropTypes.bool,
-        })
-    ),
 
     /**
      * The currently selected value

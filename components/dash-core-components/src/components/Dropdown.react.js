@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component, lazy, Suspense} from 'react';
 import dropdown from '../utils/LazyLoader/dropdown';
+import {optionsType} from "../utils/sharedPropTypes";
 
 const RealDropdown = lazy(dropdown);
 
@@ -24,55 +25,13 @@ export default class Dropdown extends Component {
     }
 }
 
-/**
- * An array of options {label: [string|number], value: [string|number]},
- * an optional disabled field can be used for each option
- */
-const defaultOptionType = PropTypes.arrayOf(
-    PropTypes.exact({
-        /**
-         * The dropdown's label
-         */
-        label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-            .isRequired,
-
-        /**
-         * The value of the dropdown. This value
-         * corresponds to the items specified in the
-         * `value` property.
-         */
-        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-            .isRequired,
-
-        /**
-         * If true, this option is disabled and cannot be selected.
-         */
-        disabled: PropTypes.bool,
-
-        /**
-         * The HTML 'title' attribute for the option. Allows for
-         * information on hover. For more information on this attribute,
-         * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
-         */
-        title: PropTypes.string,
-    })
-)
-
-/**
- * Array of options as string[]
- */
-const optionArrayShorthandType = PropTypes.arrayOf(PropTypes.string)
-
-/**
- * Object of options as {label: value}[]
- */
-const optionObjectShorthandType = PropTypes.objectOf(PropTypes.string)
-
 Dropdown.propTypes = {
     /**
-     * Any of the 3 option types: Default, Array or Object
+     * An array of dictionaries as [{label: "Label", value: "Value"}],
+     * OR an array of options as ["Option 1", "Option 2"]
+     * OR an Object of options as {"Label 1": "Value 1", "Label 2": "Value 2"}
      */
-    options: PropTypes.oneOfType([defaultOptionType, optionArrayShorthandType, optionObjectShorthandType]),
+    options: optionsType,
 
     /**
      * The ID of this component, used to identify dash components

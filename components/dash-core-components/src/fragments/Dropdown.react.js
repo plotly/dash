@@ -7,6 +7,7 @@ import '../components/css/react-virtualized@9.9.0.css';
 import '../components/css/Dropdown.css';
 
 import {propTypes, defaultProps} from '../components/Dropdown.react';
+import {mapOptions} from "../utils/shorthandMappers";
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
 // Split on spaces
@@ -22,26 +23,10 @@ const TOKENIZER = {
 
 const DELIMETER = ',';
 
-/**
- * Converts shorthand option formats to the format ingestible by dropdown component
- * //todo: explain
- */
-const formatOptions = (options) => {
-    if (type(options[0]) === 'String') {
-        return options.map((option) => ({label: option, value: option}))
-    }
-
-    if (type(options) === 'Object') {
-        return Object.entries(options).map(([label, value]) => ({label, value}))
-    }
-
-    return options
-}
-
 export default class Dropdown extends Component {
     constructor(props) {
         super(props);
-        const formattedOptions = formatOptions(props.options)
+        const formattedOptions = mapOptions(props.options)
 
         this.state = {
             options: formattedOptions,
@@ -54,7 +39,7 @@ export default class Dropdown extends Component {
 
     UNSAFE_componentWillReceiveProps(newProps) {
         if (newProps.options !== this.props.options) {
-            const formattedOptions = formatOptions(newProps.options)
+            const formattedOptions = mapOptions(newProps.options)
 
             this.setState({
                 options: formattedOptions,
