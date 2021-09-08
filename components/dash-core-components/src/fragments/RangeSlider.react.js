@@ -26,6 +26,26 @@ const calcMarks = (min, max, marks) => {
     return truncateMarks(min, max, marks)
 }
 
+/**
+ * Calculate default step if not defined
+ */
+const calcStep = (min, max, step) => {
+    if (step !== undefined) {
+        return step
+    }
+
+    const size = Math.abs(max - min) // interval size
+    /**
+     * Size multiplied by 10^i to get a nice step value at the end (0.1, 1, 10, 100, ...)
+     */
+    const divident = size
+        .toString()
+        .replace('.', '') // removes decimal point
+        .replace(/^(\d*?[1-9])0+$/, "$1") // removes trailing zeros
+
+    return size / divident
+}
+
 export default class RangeSlider extends Component {
     constructor(props) {
         super(props);
@@ -67,7 +87,8 @@ export default class RangeSlider extends Component {
             verticalHeight,
             min,
             max,
-            marks
+            marks,
+            step,
         } = this.props;
         const value = this.state.value;
 
@@ -118,6 +139,7 @@ export default class RangeSlider extends Component {
                     style={{position: 'relative'}}
                     value={value}
                     marks={calcMarks(min, max, marks)}
+                    step={calcStep(min, max, step)}
                     {...omit(
                         [
                             'className',
@@ -127,6 +149,7 @@ export default class RangeSlider extends Component {
                             'marks',
                             'updatemode',
                             'verticalHeight',
+                            'step',
                         ],
                         this.props
                     )}
