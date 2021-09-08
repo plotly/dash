@@ -20,6 +20,16 @@ export default class RangeSlider extends Component {
 
 RangeSlider.propTypes = {
     /**
+     * Minimum allowed value of the slider
+     */
+    min: PropTypes.number,
+
+    /**
+     * Maximum allowed value of the slider
+     */
+    max: PropTypes.number,
+
+    /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
      * components in an app.
@@ -87,16 +97,6 @@ RangeSlider.propTypes = {
      * value is included. Otherwise, it is an independent value.
      */
     included: PropTypes.bool,
-
-    /**
-     * Minimum allowed value of the slider
-     */
-    min: PropTypes.number,
-
-    /**
-     * Maximum allowed value of the slider
-     */
-    max: PropTypes.number,
 
     /**
      * pushable could be set as true to allow pushing of
