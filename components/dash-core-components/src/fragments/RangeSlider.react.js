@@ -46,6 +46,17 @@ const calcStep = (min, max, step) => {
     return size / divident
 }
 
+/**
+ * Calculate default value if not defined
+ */
+const calcValue = (min, max, value) => {
+    if (value !== undefined) {
+        return value
+    }
+
+    return [min, max]
+}
+
 export default class RangeSlider extends Component {
     constructor(props) {
         super(props);
@@ -53,7 +64,12 @@ export default class RangeSlider extends Component {
             ? createSliderWithTooltip(Range)
             : Range;
         this._computeStyle = computeSliderStyle();
-        this.state = {value: props.value};
+
+        const {min, max, value, setProps} = props
+        this.state = {value};
+        if (!value) {
+            setProps({value: calcValue(min, max, value)})
+        }
     }
 
     UNSAFE_componentWillReceiveProps(newProps) {
@@ -137,7 +153,7 @@ export default class RangeSlider extends Component {
                         getTooltipContainer: node => node,
                     }}
                     style={{position: 'relative'}}
-                    value={value}
+                    value={calcValue(min, max, value)}
                     marks={calcMarks(min, max, marks)}
                     step={calcStep(min, max, step)}
                     {...omit(
