@@ -1,3 +1,4 @@
+from dash.development.base_component import Component
 import json
 
 from ._validate import validate_callback
@@ -27,9 +28,17 @@ ALLSMALLER = _Wildcard("ALLSMALLER")
 
 class DashDependency:  # pylint: disable=too-few-public-methods
     def __init__(self, component_id, component_property):
-        self.component_id = (
-            component_id if isinstance(component_id, str) else component_id.id
-        )
+
+        if isinstance(component_id, str):
+            self.component_id = component_id
+        elif isinstance(component_id, Component):
+            self.component_id = component_id.set_random_id()
+        else:
+            raise ValueError(
+                "The input argument to DashDependency may be a string or Component,\n"
+                f"but received value of type {type(component_id)}"
+            )
+
         self.component_property = component_property
 
     def __str__(self):

@@ -61,14 +61,6 @@ def _check_if_has_indexable_children(item):
         raise KeyError
 
 
-def _auto_set_id(obj, **kwargs):
-    if "id" not in kwargs.keys():
-        rd = random.Random()
-        hexdigest = hashlib.md5(bytes(str(obj) + str(kwargs), "utf8")).hexdigest()
-        rd.seed(int(hexdigest, 16))
-        kwargs["id"] = str(uuid.UUID(int=rd.getrandbits(64)))
-
-
 class Component(metaclass=ComponentMeta):
     class _UNDEFINED:
         def __repr__(self):
@@ -90,8 +82,6 @@ class Component(metaclass=ComponentMeta):
 
     def __init__(self, **kwargs):
         import dash  # pylint: disable=import-outside-toplevel, cyclic-import
-
-        _auto_set_id(self, **kwargs)
 
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
@@ -175,6 +165,17 @@ class Component(metaclass=ComponentMeta):
                     )
 
             setattr(self, k, v)
+
+    def set_random_id(self):
+        if not hasattr(self, "id"):
+            rd = random.Random()
+            hexdigest = hashlib.md5(
+                bytes(str(self.to_plotly_json()), "utf8")
+            ).hexdigest()
+            rd.seed(int(hexdigest, 16))
+            v = str(uuid.UUID(int=rd.getrandbits(64)))
+            self.id = v
+        return self.id
 
     def to_plotly_json(self):
         # Add normal properties
