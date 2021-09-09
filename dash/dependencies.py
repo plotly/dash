@@ -29,15 +29,10 @@ ALLSMALLER = _Wildcard("ALLSMALLER")
 class DashDependency:  # pylint: disable=too-few-public-methods
     def __init__(self, component_id, component_property):
 
-        if isinstance(component_id, str):
-            self.component_id = component_id
-        elif isinstance(component_id, Component):
+        if isinstance(component_id, Component):
             self.component_id = component_id.set_random_id()
         else:
-            raise ValueError(
-                "The input argument to DashDependency may be a string or Component,\n"
-                f"but received value of type {type(component_id)}"
-            )
+            self.component_id = component_id
 
         self.component_property = component_property
 
