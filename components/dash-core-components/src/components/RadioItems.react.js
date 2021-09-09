@@ -32,7 +32,7 @@ export default class RadioItems extends Component {
         const sanitizeOptions =
             typeof options !== 'object'
                 ? options
-                : options.keys().map(k => ({label: k, value: options[k]}));
+                : Object.entries(options).map(([label, value]) => ({label, value}));
 
         return (
             <div
