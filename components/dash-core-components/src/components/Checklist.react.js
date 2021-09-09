@@ -22,8 +22,10 @@ export default class Checklist extends Component {
             style,
             loading_state,
             value,
+            inline,
         } = this.props;
 
+        Object.assign(labelStyle, inline ? {display: 'inline'} : {});
         return (
             <div
                 data-dash-is-loading={
@@ -209,6 +211,8 @@ Checklist.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
+
+    inline: PropTypes.bool,
 };
 
 Checklist.defaultProps = {
@@ -220,4 +224,5 @@ Checklist.defaultProps = {
     value: [],
     persisted_props: ['value'],
     persistence_type: 'local',
+    inline: false,
 };

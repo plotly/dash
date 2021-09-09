@@ -23,6 +23,7 @@ export default class RadioItems extends Component {
             setProps,
             loading_state,
             value,
+            inline,
         } = this.props;
 
         let ids = {};
@@ -32,8 +33,11 @@ export default class RadioItems extends Component {
         const sanitizeOptions =
             typeof options !== 'object'
                 ? options
-                : Object.entries(options).map(([label, value]) => ({label, value}));
-
+                : Object.entries(options).map(([label, value]) => ({
+                      label,
+                      value,
+                  }));
+        Object.assign(labelStyle, inline ? {display: 'inline'} : {});
         return (
             <div
                 data-dash-is-loading={
@@ -199,6 +203,8 @@ RadioItems.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
+
+    inline: PropTypes.bool,
 };
 
 RadioItems.defaultProps = {
@@ -209,4 +215,5 @@ RadioItems.defaultProps = {
     options: [],
     persisted_props: ['value'],
     persistence_type: 'local',
+    inline: false,
 };
