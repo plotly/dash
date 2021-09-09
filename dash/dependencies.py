@@ -1,5 +1,5 @@
-from dash.development.base_component import Component
 import json
+from dash.development.base_component import Component
 
 from ._validate import validate_callback
 from ._grouping import flatten_grouping, make_grouping_by_index

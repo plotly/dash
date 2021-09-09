@@ -174,8 +174,8 @@ class Component(metaclass=ComponentMeta):
             ).hexdigest()
             rd.seed(int(hexdigest, 16))
             v = str(uuid.UUID(int=rd.getrandbits(64)))
-            self.id = v
-        return self.id
+            setattr(self, "id", v)
+        return getattr(self, "id")
 
     def to_plotly_json(self):
         # Add normal properties
