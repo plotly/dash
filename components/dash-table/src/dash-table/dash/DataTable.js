@@ -110,6 +110,30 @@ export const defaultProps = {
 
 export const propTypes = {
     /**
+     * The contents of the table.
+     * The keys of each item in data should match the column IDs.
+     * Each item can also have an 'id' key, whose value is its row ID. If there
+     * is a column with ID='id' this will display the row ID, otherwise it is
+     * just used to reference the row for selections, filtering, etc.
+     * Example:
+     * [
+     *      {'column-1': 4.5, 'column-2': 'montreal', 'column-3': 'canada'},
+     *      {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}
+     * ]
+     *
+     * Shorthand example containing columns, colums property can be omitted this way:
+     * {
+     *   "columns": ["Fist Column", "Second Column"],
+     *   "data": [
+     *     ["First Value", "Second Value"],
+     *     ["First Value", "Second Value"],
+     *   ]
+     * }
+     *
+     */
+    data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+
+    /**
      * The row and column indices and IDs of the currently active cell.
      * `row_id` is only returned if the data rows have an `id` key.
      */
@@ -509,20 +533,6 @@ export const propTypes = {
             rule: PropTypes.string.isRequired
         })
     ),
-
-    /**
-     * The contents of the table.
-     * The keys of each item in data should match the column IDs.
-     * Each item can also have an 'id' key, whose value is its row ID. If there
-     * is a column with ID='id' this will display the row ID, otherwise it is
-     * just used to reference the row for selections, filtering, etc.
-     * Example:
-     * [
-     *      {'column-1': 4.5, 'column-2': 'montreal', 'column-3': 'canada'},
-     *      {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}
-     * ]
-     */
-    data: PropTypes.arrayOf(PropTypes.object),
 
     /**
      * The previous state of `data`. `data_previous`

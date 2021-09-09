@@ -8,6 +8,8 @@ import Sanitizer from '../Sanitizer';
 
 import {propTypes, defaultProps} from '../DataTable';
 
+import resolveShorthandData from '../shorthands'
+
 export default class DataTable extends Component {
     constructor(props) {
         super(props);
@@ -21,7 +23,9 @@ export default class DataTable extends Component {
             return <div>Invalid props combination</div>;
         }
 
-        const sanitizedProps = this.sanitizer.sanitize(this.props);
+        const resolvedProps = resolveShorthandData(this.props)
+        const sanitizedProps = this.sanitizer.sanitize(resolvedProps);
+        
         return this.props.id ? (
             <RealTable {...sanitizedProps} />
         ) : (
