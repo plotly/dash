@@ -212,6 +212,11 @@ Checklist.propTypes = {
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
 
+    /**
+     * Indicates whether labelStyle should be inline or not
+     * True: Automatically set { 'display': 'inline' } to labelStyle
+     * False: No additional behavior to expect
+     */
     inline: PropTypes.bool,
 };
 
