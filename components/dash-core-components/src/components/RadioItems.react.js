@@ -30,13 +30,12 @@ export default class RadioItems extends Component {
         if (id) {
             ids = {id, key: id};
         }
-        const sanitizedOptions =
-            typeof options !== 'object'
-                ? options
-                : Object.entries(options).map(([label, value]) => ({
-                      label,
-                      value,
-                  }));
+        const sanitizedOptions = Array.isArray(options)
+            ? options
+            : Object.entries(options).map(([label, value]) => ({
+                  label,
+                  value,
+              }));
         Object.assign(labelStyle, inline ? {display: 'inline'} : {});
         return (
             <div
