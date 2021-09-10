@@ -24,8 +24,6 @@ export default class Checklist extends Component {
             value,
             inline,
         } = this.props;
-
-        Object.assign(labelStyle, inline ? {display: 'inline'} : {});
         return (
             <div
                 data-dash-is-loading={
@@ -47,7 +45,11 @@ export default class Checklist extends Component {
                     return (
                         <label
                             key={option.value}
-                            style={labelStyle}
+                            style={Object.assign(
+                                {},
+                                labelStyle,
+                                inline ? {display: 'inline'} : {}
+                            )}
                             className={labelClassName}
                         >
                             <input

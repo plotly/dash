@@ -36,7 +36,6 @@ export default class RadioItems extends Component {
                   label,
                   value,
               }));
-        Object.assign(labelStyle, inline ? {display: 'inline'} : {});
         return (
             <div
                 data-dash-is-loading={
@@ -48,7 +47,11 @@ export default class RadioItems extends Component {
             >
                 {sanitizedOptions.map(option => (
                     <label
-                        style={labelStyle}
+                        style={Object.assign(
+                            {},
+                            labelStyle,
+                            inline ? {display: 'inline'} : {}
+                        )}
                         className={labelClassName}
                         key={option.value}
                     >
