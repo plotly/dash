@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {append, includes, without} from 'ramda';
+import {append, includes, type, without} from 'ramda';
 import React, {Component} from 'react';
 
 /**
@@ -35,7 +35,7 @@ export default class Checklist extends Component {
             >
                 {options.map(option => {
                     option =
-                        typeof option === 'string'
+                        type(option) === 'String'
                             ? {
                                   label: option,
                                   value: option,

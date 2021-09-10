@@ -36,7 +36,7 @@ export default class Dropdown extends Component {
     UNSAFE_componentWillReceiveProps(newProps) {
         if (newProps.options !== this.props.options) {
             const normalizedOptions = newProps.options.map(opt =>
-                type(opt) === 'string'
+                type(opt) === 'String'
                     ? {
                           label: opt,
                           value: opt,
@@ -65,7 +65,7 @@ export default class Dropdown extends Component {
         } = this.props;
         const {filterOptions} = this.state;
         let selectedValue;
-        if (type(value) === 'array') {
+        if (type(value) === 'Array') {
             selectedValue = value.join(DELIMETER);
         } else {
             selectedValue = value;
