@@ -1,10 +1,9 @@
-from plotly import graph_objs
 from dash import Dash, Input, Output, dcc, html
-from selenium.webdriver.common.keys import Keys
 import dash_bootstrap_components as dbc
 import plotly.express as px
 import pandas as pd
 import dash_table as dt
+
 
 # DROPDOWN EXAMPLE - bar-charts
 def test_mssh001_bar_charts(dash_duo):
