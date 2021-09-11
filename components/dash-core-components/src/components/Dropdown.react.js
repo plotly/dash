@@ -33,7 +33,7 @@ Dropdown.propTypes = {
         PropTypes.oneOfType([
             /**
              * We now accept the single `value` as an option value,
-             * which equals to
+             * which is equal to
              * { label: `value`, value: `value`, disabled: false }
              */
             PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
