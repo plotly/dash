@@ -78,6 +78,13 @@ RadioItems.propTypes = {
      * An array of options, or inline dictionary of options
      */
     options: PropTypes.oneOfType([
+        /**
+         * Simpler `options` representation in dictionary format
+         * {`label1`: `value1`, `label2`: `value2`, ... }
+         * which equals to
+         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
+         */
+        PropTypes.object,
         PropTypes.arrayOf(
             PropTypes.exact({
                 /**
@@ -100,14 +107,6 @@ RadioItems.propTypes = {
                 disabled: PropTypes.bool,
             })
         ),
-
-        /**
-         * Simpler `options` representation in dictionary format
-         * {`label1`: `value1`, `label2`: `value2`, ... }
-         * which equals to
-         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
-         */
-        PropTypes.object,
     ]),
 
     /**

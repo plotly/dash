@@ -86,6 +86,12 @@ Checklist.propTypes = {
      */
     options: PropTypes.arrayOf(
         PropTypes.oneOfType([
+            /**
+             * We now accept the single `value` as an option value,
+             * which equals to
+             * { label: `value`, value: `value`, disabled: false }
+             */
+            PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
             PropTypes.exact({
                 /**
                  * The checkbox's label
@@ -106,13 +112,6 @@ Checklist.propTypes = {
                  */
                 disabled: PropTypes.bool,
             }),
-
-            /**
-             * We now accept the single `value` as an option value,
-             * which equals to
-             * { label: `value`, value: `value`, disabled: false }
-             */
-            PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         ])
     ),
 

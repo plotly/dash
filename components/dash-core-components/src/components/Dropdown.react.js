@@ -31,6 +31,12 @@ Dropdown.propTypes = {
      */
     options: PropTypes.arrayOf(
         PropTypes.oneOfType([
+            /**
+             * We now accept the single `value` as an option value,
+             * which equals to
+             * { label: `value`, value: `value`, disabled: false }
+             */
+            PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
             PropTypes.exact({
                 /**
                  * The dropdown's label
@@ -58,13 +64,6 @@ Dropdown.propTypes = {
                  */
                 title: PropTypes.string,
             }),
-
-            /**
-             * We now accept the single `value` as an option value,
-             * which equals to
-             * { label: `value`, value: `value`, disabled: false }
-             */
-            PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         ])
     ),
 
