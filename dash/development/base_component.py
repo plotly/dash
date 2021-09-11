@@ -168,12 +168,9 @@ class Component(metaclass=ComponentMeta):
 
     def set_random_id(self):
         if not hasattr(self, "id"):
-            rd = random.Random()
-            hexdigest = hashlib.md5(
-                bytes(str(self.to_plotly_json()), "utf8")
-            ).hexdigest()
-            rd.seed(int(hexdigest, 16))
-            v = str(uuid.UUID(int=rd.getrandbits(64)))
+            rd = random.Random(0)
+            rd.seed(0)
+            v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
             setattr(self, "id", v)
         return getattr(self, "id")
 

@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
-import {append, includes, type, without} from 'ramda';
+import {append, includes, without} from 'ramda';
 import React, {Component} from 'react';
+import {optionsType, normalizedOptions} from '../utils/optionTypes';
 
 /**
  * Checklist is a component that encapsulates several checkboxes.
@@ -33,15 +34,7 @@ export default class Checklist extends Component {
                 style={style}
                 className={className}
             >
-                {options.map(option => {
-                    option =
-                        type(option) === 'Object'
-                            ? option
-                            : {
-                                  label: String(option),
-                                  value: option,
-                                  disabled: false,
-                              };
+                {normalizedOptions(options).map(option => {
                     return (
                         <label
                             key={option.value}
@@ -84,36 +77,7 @@ Checklist.propTypes = {
     /**
      * An array of options
      */
-    options: PropTypes.arrayOf(
-        PropTypes.oneOfType([
-            /**
-             * We now accept the single `value` as an option value,
-             * which equals to
-             * { label: `value`, value: `value`, disabled: false }
-             */
-            PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-            PropTypes.exact({
-                /**
-                 * The checkbox's label
-                 */
-                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                    .isRequired,
-
-                /**
-                 * The value of the checkbox. This value
-                 * corresponds to the items specified in the
-                 * `value` property.
-                 */
-                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                    .isRequired,
-
-                /**
-                 * If true, this checkbox is disabled and can't be clicked on.
-                 */
-                disabled: PropTypes.bool,
-            }),
-        ])
-    ),
+    options: optionsType,
 
     /**
      * The currently selected value

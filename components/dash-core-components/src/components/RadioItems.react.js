@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import './css/react-select@1.0.0-rc.3.min.css';
+import {optionsType, sanitizeOptions} from '../utils/optionTypes';
 
 /**
  * RadioItems is a component that encapsulates several radio item inputs.
@@ -30,12 +31,6 @@ export default class RadioItems extends Component {
         if (id) {
             ids = {id, key: id};
         }
-        const sanitizedOptions = Array.isArray(options)
-            ? options
-            : Object.entries(options).map(([label, value]) => ({
-                  label,
-                  value,
-              }));
         return (
             <div
                 data-dash-is-loading={
@@ -45,7 +40,7 @@ export default class RadioItems extends Component {
                 className={className}
                 style={style}
             >
-                {sanitizedOptions.map(option => (
+                {sanitizeOptions(options).map(option => (
                     <label
                         style={Object.assign(
                             {},
@@ -77,37 +72,7 @@ RadioItems.propTypes = {
     /**
      * An array of options, or inline dictionary of options
      */
-    options: PropTypes.oneOfType([
-        /**
-         * Simpler `options` representation in dictionary format
-         * {`label1`: `value1`, `label2`: `value2`, ... }
-         * which equals to
-         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
-         */
-        PropTypes.object,
-        PropTypes.arrayOf(
-            PropTypes.exact({
-                /**
-                 * The radio item's label
-                 */
-                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                    .isRequired,
-
-                /**
-                 * The value of the radio item. This value
-                 * corresponds to the items specified in the
-                 * `value` property.
-                 */
-                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                    .isRequired,
-
-                /**
-                 * If true, this radio item is disabled and can't be clicked on.
-                 */
-                disabled: PropTypes.bool,
-            })
-        ),
-    ]),
+    options: optionsType,
 
     /**
      * The ID of this component, used to identify dash components

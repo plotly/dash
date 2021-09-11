@@ -7,6 +7,7 @@ import '../components/css/react-virtualized@9.9.0.css';
 import '../components/css/Dropdown.css';
 
 import {propTypes, defaultProps} from '../components/Dropdown.react';
+import {sanitizeOptions} from '../utils/optionTypes';
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
 // Split on spaces
@@ -20,7 +21,7 @@ const TOKENIZER = {
     },
 };
 
-const DELIMETER = ',';
+const DELIMITER = ',';
 
 export default class Dropdown extends Component {
     constructor(props) {
@@ -35,17 +36,9 @@ export default class Dropdown extends Component {
 
     UNSAFE_componentWillReceiveProps(newProps) {
         if (newProps.options !== this.props.options) {
-            const normalizedOptions = newProps.options.map(opt =>
-                type(opt) === 'Object'
-                    ? opt
-                    : {
-                          label: String(opt),
-                          value: opt,
-                      }
-            );
             this.setState({
                 filterOptions: createFilterOptions({
-                    options: normalizedOptions,
+                    options: sanitizeOptions(newProps.options),
                     tokenizer: TOKENIZER,
                 }),
             });
@@ -66,7 +59,7 @@ export default class Dropdown extends Component {
         const {filterOptions} = this.state;
         let selectedValue;
         if (type(value) === 'Array') {
-            selectedValue = value.join(DELIMETER);
+            selectedValue = value.join(DELIMITER);
         } else {
             selectedValue = value;
         }

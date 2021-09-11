@@ -14,12 +14,7 @@ export default class RangeSlider extends Component {
             ? createSliderWithTooltip(Range)
             : Range;
         this._computeStyle = computeSliderStyle();
-
-        const {min, max, value, setProps} = props;
-        this.state = {value};
-        if (!value) {
-            setProps({value: calcValue(min, max, value)});
-        }
+        this.state = {value: props.value};
     }
 
     UNSAFE_componentWillReceiveProps(newProps) {
@@ -103,8 +98,8 @@ export default class RangeSlider extends Component {
                         getTooltipContainer: node => node,
                     }}
                     style={{position: 'relative'}}
-                    value={calcValue(min, max, value)}
-                    marks={calcMarks({min, max, marks, step})}
+                    value={value ? value : calcValue(min, max, value)}
+                    marks={marks ? marks : calcMarks({min, max, marks, step})}
                     step={calcStep(min, max, step)}
                     {...omit(
                         [
