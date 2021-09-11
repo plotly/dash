@@ -36,12 +36,12 @@ export default class Dropdown extends Component {
     UNSAFE_componentWillReceiveProps(newProps) {
         if (newProps.options !== this.props.options) {
             const normalizedOptions = newProps.options.map(opt =>
-                type(opt) === 'String'
-                    ? {
-                          label: opt,
+                type(opt) === 'Object'
+                    ? opt
+                    : {
+                          label: String(opt),
                           value: opt,
                       }
-                    : opt
             );
             this.setState({
                 filterOptions: createFilterOptions({

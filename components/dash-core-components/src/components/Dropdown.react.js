@@ -60,11 +60,11 @@ Dropdown.propTypes = {
             }),
 
             /**
-             * We now accept the single string `value` as an option value,
+             * We now accept the single `value` as an option value,
              * which equals to
              * { label: `value`, value: `value`, disabled: false }
              */
-            PropTypes.string,
+            PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         ])
     ),
 

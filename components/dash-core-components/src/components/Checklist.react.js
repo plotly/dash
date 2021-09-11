@@ -35,13 +35,13 @@ export default class Checklist extends Component {
             >
                 {options.map(option => {
                     option =
-                        type(option) === 'String'
-                            ? {
-                                  label: option,
+                        type(option) === 'Object'
+                            ? option
+                            : {
+                                  label: String(option),
                                   value: option,
                                   disabled: false,
-                              }
-                            : option;
+                              };
                     return (
                         <label
                             key={option.value}
@@ -108,11 +108,11 @@ Checklist.propTypes = {
             }),
 
             /**
-             * We now accept the single string `value` as an option value,
+             * We now accept the single `value` as an option value,
              * which equals to
              * { label: `value`, value: `value`, disabled: false }
              */
-            PropTypes.string,
+            PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         ])
     ),
 
