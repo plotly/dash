@@ -1601,7 +1601,7 @@ class Dash:
         dev_tools_silence_routes_logging=None,
         dev_tools_prune_errors=None,
     ):
-        """Activate the dev tools, called by `run_server`. If your application
+        """Activate the dev tools, called by `run`. If your application
         is served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
 
@@ -1624,7 +1624,7 @@ class Dash:
         :param debug: Enable/disable all the dev tools unless overridden by the
             arguments or environment variables. Default is ``True`` when
             ``enable_dev_tools`` is called directly, and ``False`` when called
-            via ``run_server``. env: ``DASH_DEBUG``
+            via ``run``. env: ``DASH_DEBUG``
         :type debug: bool
 
         :param dev_tools_ui: Show the dev tools UI. env: ``DASH_UI``
@@ -1905,7 +1905,7 @@ class Dash:
         :param debug: Enable/disable all the dev tools unless overridden by the
             arguments or environment variables. Default is ``True`` when
             ``enable_dev_tools`` is called directly, and ``False`` when called
-            via ``run_server``. env: ``DASH_DEBUG``
+            via ``run``. env: ``DASH_DEBUG``
         :type debug: bool
 
         :param dev_tools_ui: Show the dev tools UI. env: ``DASH_UI``
