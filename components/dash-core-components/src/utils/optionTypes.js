@@ -60,7 +60,10 @@ export const optionsType = PropTypes.oneOfType([
 
 export const sanitizeOptions = options => {
     if (type(options) === 'Array') {
-        if (options.length > 0 && type(options[0]) === 'String') {
+        if (
+            options.length > 0 &&
+            ['String', 'Number', 'Bool'].includes(type(options[0]))
+        ) {
             return options.map(option => ({
                 label: String(option),
                 value: option,

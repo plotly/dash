@@ -121,7 +121,15 @@ export const propTypes = {
      *      {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}
      * ]
      */
-    data: PropTypes.arrayOf(PropTypes.object),
+    data: PropTypes.arrayOf(
+        PropTypes.objectOf(
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+                PropTypes.bool
+            ])
+        )
+    ),
 
     /**
      * Columns describes various aspects about each individual column.

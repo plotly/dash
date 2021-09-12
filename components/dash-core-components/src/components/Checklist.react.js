@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import {append, includes, without} from 'ramda';
 import React, {Component} from 'react';
-import {optionsType, normalizedOptions} from '../utils/optionTypes';
+import {optionsType, sanitizeOptions} from '../utils/optionTypes';
 
 /**
  * Checklist is a component that encapsulates several checkboxes.
@@ -34,7 +34,7 @@ export default class Checklist extends Component {
                 style={style}
                 className={className}
             >
-                {normalizedOptions(options).map(option => {
+                {sanitizeOptions(options).map(option => {
                     return (
                         <label
                             key={option.value}
