@@ -3,7 +3,6 @@ import inspect
 import sys
 import uuid
 import random
-import hashlib
 
 from .._utils import patch_collections_abc, stringify_id
 
