@@ -2049,7 +2049,7 @@ class Dash:
         dev_tools_prune_errors=None,
         **flask_run_options,
     ):
-        """`run_server` is a deprecated alias of `run` and may be 
+        """`run_server` is a deprecated alias of `run` and may be
         removed in Dash 3.0. We recommend using `app.run` instead.
         See app.run for the docstring for these arguments.
         """

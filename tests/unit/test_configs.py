@@ -355,9 +355,7 @@ def test_proxy_failure(mocker, empty_environ):
     assert "you must use host: 0.0.0.0" in excinfo.exconly()
 
     with pytest.raises(_exc.ProxyError) as excinfo:
-        app.run(
-            proxy="http://0.0.0.0:8155::http://plot.ly", host="0.0.0.0", port=8055
-        )
+        app.run(proxy="http://0.0.0.0:8155::http://plot.ly", host="0.0.0.0", port=8055)
     assert "port: 8055 is incompatible with the proxy" in excinfo.exconly()
     assert "you must use port: 8155" in excinfo.exconly()
 
