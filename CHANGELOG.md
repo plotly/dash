@@ -2,6 +2,14 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+## Dash
+
+### Added
+
+- [#1751](https://github.com/plotly/dash/pull/1751) Renames `app.run_server` to `app.run` while preserving `app.run_server` for backwards compatibility.
+
 ## [2.0.0] - 2021-08-03
 
 ## Dash and Dash Renderer
