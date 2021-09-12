@@ -139,7 +139,7 @@ class ThreadedRunner(BaseDashRunner):
                 kwargs["port"] = self.port
             else:
                 self.port = kwargs["port"]
-            app.run_server(threaded=True, **kwargs)
+            app.run(threaded=True, **kwargs)
 
         self.thread = threading.Thread(target=run)
         self.thread.daemon = True
