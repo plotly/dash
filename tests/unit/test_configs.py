@@ -267,7 +267,7 @@ def test_invalid_strip_relative_path(prefix, partial_path):
 def test_port_env_fail_str(empty_environ):
     app = Dash()
     with pytest.raises(Exception) as excinfo:
-        app.run_server(port="garbage")
+        app.run(port="garbage")
     assert (
         excinfo.exconly()
         == "ValueError: Expecting an integer from 1 to 65535, found port='garbage'"
@@ -277,14 +277,14 @@ def test_port_env_fail_str(empty_environ):
 def test_port_env_fail_range(empty_environ):
     app = Dash()
     with pytest.raises(Exception) as excinfo:
-        app.run_server(port="0")
+        app.run(port="0")
     assert (
         excinfo.exconly()
         == "AssertionError: Expecting an integer from 1 to 65535, found port=0"
     )
 
     with pytest.raises(Exception) as excinfo:
-        app.run_server(port="65536")
+        app.run(port="65536")
     assert (
         excinfo.exconly()
         == "AssertionError: Expecting an integer from 1 to 65535, found port=65536"
@@ -304,7 +304,7 @@ def test_no_proxy_success(mocker, caplog, empty_environ, setlevel_warning):
     # mock out the run method so we don't actually start listening forever
     mocker.patch.object(app.server, "run")
 
-    app.run_server(port=8787)
+    app.run(port=8787)
 
     STARTUP_MESSAGE = "Dash is running on http://127.0.0.1:8787/\n"
     if setlevel_warning:
@@ -328,7 +328,7 @@ def test_proxy_success(mocker, caplog, empty_environ, proxy, host, port, path):
     app = Dash(url_base_pathname=path)
     mocker.patch.object(app.server, "run")
 
-    app.run_server(proxy=proxystr, host=host, port=port)
+    app.run(proxy=proxystr, host=host, port=port)
 
     assert "Dash is running on {}{}\n".format(proxy, path) in caplog.text
 
@@ -341,21 +341,21 @@ def test_proxy_failure(mocker, empty_environ):
     mocker.patch.object(app.server, "run")
 
     with pytest.raises(_exc.ProxyError) as excinfo:
-        app.run_server(
+        app.run(
             proxy="https://127.0.0.1:8055::http://plot.ly", host="127.0.0.1", port=8055
         )
     assert "protocol: http is incompatible with the proxy" in excinfo.exconly()
     assert "you must use protocol: https" in excinfo.exconly()
 
     with pytest.raises(_exc.ProxyError) as excinfo:
-        app.run_server(
+        app.run(
             proxy="http://0.0.0.0:8055::http://plot.ly", host="127.0.0.1", port=8055
         )
     assert "host: 127.0.0.1 is incompatible with the proxy" in excinfo.exconly()
     assert "you must use host: 0.0.0.0" in excinfo.exconly()
 
     with pytest.raises(_exc.ProxyError) as excinfo:
-        app.run_server(
+        app.run(
             proxy="http://0.0.0.0:8155::http://plot.ly", host="0.0.0.0", port=8055
         )
     assert "port: 8055 is incompatible with the proxy" in excinfo.exconly()
