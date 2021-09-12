@@ -1859,7 +1859,7 @@ class Dash:
                         # pylint: disable=protected-access
                         delete_resource(self.css._resources._resources)
 
-    def run_server(
+    def run(
         self,
         host=os.getenv("HOST", "127.0.0.1"),
         port=os.getenv("PORT", "8050"),
@@ -2031,3 +2031,41 @@ class Dash:
                     extra_files.append(path)
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
+
+    def run_server(
+        self,
+        host=os.getenv("HOST", "127.0.0.1"),
+        port=os.getenv("PORT", "8050"),
+        proxy=os.getenv("DASH_PROXY", None),
+        debug=False,
+        dev_tools_ui=None,
+        dev_tools_props_check=None,
+        dev_tools_serve_dev_bundles=None,
+        dev_tools_hot_reload=None,
+        dev_tools_hot_reload_interval=None,
+        dev_tools_hot_reload_watch_interval=None,
+        dev_tools_hot_reload_max_retry=None,
+        dev_tools_silence_routes_logging=None,
+        dev_tools_prune_errors=None,
+        **flask_run_options,
+    ):
+        """`run_server` is a deprecated alias of `run` and may be 
+        removed in Dash 3.0. We recommend using `app.run` instead.
+        See app.run for the docstring for these arguments.
+        """
+        return self.run(
+            host=os.getenv("HOST", "127.0.0.1"),
+            port=os.getenv("PORT", "8050"),
+            proxy=os.getenv("DASH_PROXY", None),
+            debug=False,
+            dev_tools_ui=None,
+            dev_tools_props_check=None,
+            dev_tools_serve_dev_bundles=None,
+            dev_tools_hot_reload=None,
+            dev_tools_hot_reload_interval=None,
+            dev_tools_hot_reload_watch_interval=None,
+            dev_tools_hot_reload_max_retry=None,
+            dev_tools_silence_routes_logging=None,
+            dev_tools_prune_errors=None,
+            **flask_run_options,
+        )
