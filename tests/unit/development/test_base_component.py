@@ -502,6 +502,9 @@ def test_set_random_id():
         return f"Output 3 - Input 1: {v1}, Input 2: {v2}"
 
     # Verify the auto-generated IDs are stable
-    assert output1.id, "e3e70682-c209-4cac-629f-6fbed82c07cd"
-    assert output2.id, "82e2e662-f728-b4fa-4248-5e3a0a5d2f34"
-    assert output3.id, "d4713d60-c8a7-0639-eb11-67b367a9c378"
+    assert output1.id == "e3e70682-c209-4cac-629f-6fbed82c07cd"
+    assert input1.id == "82e2e662-f728-b4fa-4248-5e3a0a5d2f34"
+    assert output2.id == "d4713d60-c8a7-0639-eb11-67b367a9c378"
+    assert input2.id == "23a7711a-8133-2876-37eb-dcd9e87a1613"
+    # we make sure that the if the id is set explicitly, then it is not replaced by random id
+    assert output3.id == "output-3"
