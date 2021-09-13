@@ -84,6 +84,7 @@ export const handleClick = (
             visibleColumns,
             viewport
         );
+        newProps.active_cell = clickedCell;
     } else {
         newProps.active_cell = clickedCell;
         newProps.start_cell = clickedCell;
