@@ -71,7 +71,7 @@ export const handleClick = (
     const newProps: Partial<ICellFactoryProps> = {
         is_focused: false,
         end_cell: clickedCell,
-        active_cell: clickedCell,
+        active_cell: clickedCell
     };
 
     if (e.shiftKey && active_cell) {
