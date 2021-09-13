@@ -8,6 +8,8 @@ from .._utils import patch_collections_abc, stringify_id
 
 MutableSequence = patch_collections_abc("MutableSequence")
 
+rd = random.Random(0)
+
 
 # pylint: disable=no-init,too-few-public-methods
 class ComponentRegistry:
@@ -167,8 +169,6 @@ class Component(metaclass=ComponentMeta):
 
     def set_random_id(self):
         if not hasattr(self, "id"):
-            rd = random.Random(0)
-            rd.seed(0)
             v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
             setattr(self, "id", v)
         return getattr(self, "id")
