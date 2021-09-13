@@ -70,7 +70,8 @@ export const handleClick = (
 
     const newProps: Partial<ICellFactoryProps> = {
         is_focused: false,
-        end_cell: clickedCell
+        end_cell: clickedCell,
+        active_cell: clickedCell,
     };
 
     if (e.shiftKey && active_cell) {
@@ -84,9 +85,7 @@ export const handleClick = (
             visibleColumns,
             viewport
         );
-        newProps.active_cell = clickedCell;
     } else {
-        newProps.active_cell = clickedCell;
         newProps.start_cell = clickedCell;
         newProps.selected_cells = [clickedCell];
     }
