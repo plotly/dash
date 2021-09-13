@@ -64,9 +64,11 @@ const estimateBestSteps = (minValue, maxValue, stepValue) => {
     ];
 };
 
-export const autoGenerateMarks = (min, max, step = 1) => {
+export const autoGenerateMarks = (min, max, step) => {
     const marks = [];
-    const [start, interval] = estimateBestSteps(min, max, step);
+    const [start, interval] = step
+        ? [min, step]
+        : estimateBestSteps(min, max, 1);
     let cursor = start + interval;
 
     do {
