@@ -45,7 +45,7 @@ export default class RadioItems extends Component {
                         style={Object.assign(
                             {},
                             labelStyle,
-                            inline ? {display: 'inline'} : {}
+                            inline ? {display: 'inline-block'} : {}
                         )}
                         className={labelClassName}
                         key={option.value}
@@ -229,8 +229,8 @@ RadioItems.propTypes = {
 
     /**
      * Indicates whether labelStyle should be inline or not
-     * True: Automatically set { 'display': 'inline' } to labelStyle
-     * False: No additional behavior to expect
+     * True: Automatically set { 'display': 'inline-block' } to labelStyle
+     * False: No additional styles are passed into labelStyle.
      */
     inline: PropTypes.bool,
 };
