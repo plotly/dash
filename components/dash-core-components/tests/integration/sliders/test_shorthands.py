@@ -1,5 +1,4 @@
-from multiprocessing import Lock
-from dash import Dash, Input, Output, dcc, html
+from dash import Dash, dcc, html
 import numpy as np
 
 def test_slsh001_rangeslider_shorthand_props(dash_dcc):
