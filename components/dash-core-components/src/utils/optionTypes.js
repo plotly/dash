@@ -1,6 +1,13 @@
 import {type} from 'ramda';
 
 export const sanitizeOptions = options => {
+    if (type(options) === 'Object') {
+        return Object.entries(options).map(([value, label]) => ({
+            label: String(label),
+            value,
+        }));
+    }
+
     if (type(options) === 'Array') {
         if (
             options.length > 0 &&
@@ -13,8 +20,6 @@ export const sanitizeOptions = options => {
         }
         return options;
     }
-    return Object.entries(options).map(([value, label]) => ({
-        label: String(label),
-        value,
-    }));
+
+    return options;
 };
