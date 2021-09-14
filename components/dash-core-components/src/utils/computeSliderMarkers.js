@@ -103,11 +103,14 @@ export const autoGenerateMarks = (min, max, step) => {
  * - Then truncate marks so no out of range marks
  */
 export const sanitizeMarks = ({min, max, marks, step}) => {
-    return truncateMarks(
-        min,
-        max,
-        marks ? marks : autoGenerateMarks(min, max, step)
-    );
+    const truncated_marks = (marks && marks.length > 0)
+        ? truncateMarks(min, max, marks)
+        : marks;
+
+    if (truncated_marks && truncated_marks.length > 0) {
+        return truncated_marks
+    }
+    return autoGenerateMarks(min, max, step)
 };
 
 /**
