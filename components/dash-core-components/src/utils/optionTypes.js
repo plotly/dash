@@ -14,7 +14,7 @@ export const sanitizeOptions = options => {
         return options;
     }
     return Object.entries(options).map(([value, label]) => ({
-        label,
+        label: String(label),
         value,
     }));
 };
