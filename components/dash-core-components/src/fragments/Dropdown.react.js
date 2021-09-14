@@ -28,7 +28,7 @@ export default class Dropdown extends Component {
         super(props);
         this.state = {
             filterOptions: createFilterOptions({
-                options: props.options,
+                options: sanitizeOptions(props.options),
                 tokenizer: TOKENIZER,
             }),
         };
@@ -74,7 +74,7 @@ export default class Dropdown extends Component {
             >
                 <ReactDropdown
                     filterOptions={filterOptions}
-                    options={options}
+                    options={sanitizeOptions(options)}
                     value={selectedValue}
                     onChange={selectedOption => {
                         if (multi) {
@@ -99,7 +99,7 @@ export default class Dropdown extends Component {
                     backspaceRemoves={clearable}
                     deleteRemoves={clearable}
                     inputProps={{autoComplete: 'off'}}
-                    {...omit(['setProps', 'value'], this.props)}
+                    {...omit(['setProps', 'value', 'options'], this.props)}
                 />
             </div>
         );
