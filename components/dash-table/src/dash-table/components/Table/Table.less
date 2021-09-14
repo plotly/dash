@@ -504,17 +504,18 @@
             th {
                 white-space: nowrap;
 
-                .column-header--wrapper {
-                    display: inline-flex;
-                }
+                .column-header {
+                    display: flex;
+                    justify-content: space-between;
 
-                .column-header--clear,
-                .column-header--delete,
-                .column-header--edit,
-                .column-header--hide,
-                .column-header--sort {
-                    .not-selectable();
-                    cursor: pointer;
+                    &--clear,
+                    &--delete,
+                    &--edit,
+                    &--hide,
+                    &--sort {
+                        .not-selectable();
+                        cursor: pointer;
+                    }
                 }
             }
 
