@@ -61,28 +61,32 @@ const estimateBestSteps = (minValue, maxValue, stepValue) => {
     return [
         alignValue(min, finalStep) * stepValue,
         alignValue(finalStep * stepValue, stepValue),
+        stepValue,
     ];
 };
 
 export const autoGenerateMarks = (min, max, step) => {
     const marks = [];
-    const [start, interval] = step
-        ? [min, step]
+    const [start, interval, chosenStep] = step
+        ? [min, step, step]
         : estimateBestSteps(min, max, 1);
     let cursor = start + interval;
 
-    do {
-        marks.push(alignValue(cursor, step));
-        cursor += interval;
-    } while (cursor < max);
+    // make sure we don't step into infinite loop
+    if ((max - cursor) / interval > 0) {
+        do {
+            marks.push(alignValue(cursor, chosenStep));
+            cursor += interval;
+        } while (cursor < max);
 
-    // do some cosmetic
-    const discardThreshold = 1.5;
-    if (
-        marks.length >= 2 &&
-        max - marks[marks.length - 2] <= interval * discardThreshold
-    ) {
-        marks.pop();
+        // do some cosmetic
+        const discardThreshold = 1.5;
+        if (
+            marks.length >= 2 &&
+            max - marks[marks.length - 2] <= interval * discardThreshold
+        ) {
+            marks.pop();
+        }
     }
 
     const marksObject = {};
@@ -95,9 +99,10 @@ export const autoGenerateMarks = (min, max, step) => {
 };
 
 /**
- * Set marks to min and max if not defined, truncate otherwise
+ * - Auto generate marks if not given,
+ * - Then truncate marks so no out of range marks
  */
-export const calcMarks = ({min, max, marks, step}) => {
+export const sanitizeMarks = ({min, max, marks, step}) => {
     return truncateMarks(
         min,
         max,
