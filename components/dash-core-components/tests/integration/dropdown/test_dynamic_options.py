@@ -52,6 +52,7 @@ def test_dddo001_dynamic_options(dash_dcc):
 
     assert dash_dcc.get_logs() == []
 
+
 def test_dddo002_array_value(dash_dcc):
     dropdown_options = [
         {"label": "New York City", "value": "New,York,City"},

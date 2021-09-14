@@ -41,7 +41,7 @@ export default class Checklist extends Component {
                             style={Object.assign(
                                 {},
                                 labelStyle,
-                                inline ? {display: 'inline'} : {}
+                                inline ? {display: 'inline-block'} : {}
                             )}
                             className={labelClassName}
                         >
@@ -79,6 +79,29 @@ Checklist.propTypes = {
      */
     options: PropTypes.oneOfType([
         /**
+         * Array of options - [string|number|bool]
+         */
+        PropTypes.arrayOf(
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+                PropTypes.bool,
+            ])
+        ),
+        /**
+         * Simpler `options` representation in dictionary format
+         * {`value1`: `label1`, `value2`: `label2`, ... }
+         * which is equal to
+         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
+         */
+        PropTypes.objectOf(
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+                PropTypes.bool,
+            ])
+        ),
+        /**
          * An array of options {label: [string|number], value: [string|number]},
          * an optional disabled field can be used for each option
          */
@@ -110,29 +133,6 @@ Checklist.propTypes = {
                  */
                 title: PropTypes.string,
             })
-        ),
-        /**
-         * Array of options - [string|number|bool]
-         */
-        PropTypes.arrayOf(
-            PropTypes.oneOfType([
-                PropTypes.string,
-                PropTypes.number,
-                PropTypes.bool,
-            ])
-        ),
-        /**
-         * Simpler `options` representation in dictionary format
-         * {`value1`: `label1`, `value2`: `label2`, ... }
-         * which is equal to
-         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
-         */
-        PropTypes.objectOf(
-            PropTypes.oneOfType([
-                PropTypes.string,
-                PropTypes.number,
-                PropTypes.bool,
-            ])
         ),
     ]),
 
@@ -236,8 +236,8 @@ Checklist.propTypes = {
 
     /**
      * Indicates whether labelStyle should be inline or not
-     * True: Automatically set { 'display': 'inline' } to labelStyle
-     * False: No additional behavior to expect
+     * True: Automatically set { 'display': 'inline-block' } to labelStyle
+     * False: No additional styles are passed into labelStyle.
      */
     inline: PropTypes.bool,
 };
