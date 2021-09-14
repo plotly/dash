@@ -4,7 +4,11 @@ import {Range, createSliderWithTooltip} from 'rc-slider';
 import computeSliderStyle from '../utils/computeSliderStyle';
 
 import 'rc-slider/assets/index.css';
-import {calcValue, calcMarks, calcStep} from '../utils/computeSliderMarkers';
+import {
+    calcValue,
+    sanitizeMarks,
+    calcStep,
+} from '../utils/computeSliderMarkers';
 import {propTypes, defaultProps} from '../components/RangeSlider.react';
 
 export default class RangeSlider extends Component {
@@ -99,7 +103,7 @@ export default class RangeSlider extends Component {
                     }}
                     style={{position: 'relative'}}
                     value={value ? value : calcValue(min, max, value)}
-                    marks={marks ? marks : calcMarks({min, max, marks, step})}
+                    marks={sanitizeMarks({min, max, marks, step})}
                     step={calcStep(min, max, step)}
                     {...omit(
                         [
