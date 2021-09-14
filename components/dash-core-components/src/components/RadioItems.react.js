@@ -74,6 +74,29 @@ RadioItems.propTypes = {
      */
     options: PropTypes.oneOfType([
         /**
+         * Array of options - [string|number|bool]
+         */
+        PropTypes.arrayOf(
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+                PropTypes.bool,
+            ])
+        ),
+        /**
+         * Simpler `options` representation in dictionary format
+         * {`value1`: `label1`, `value2`: `label2`, ... }
+         * which is equal to
+         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
+         */
+        PropTypes.objectOf(
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+                PropTypes.bool,
+            ])
+        ),
+        /**
          * An array of options {label: [string|number], value: [string|number]},
          * an optional disabled field can be used for each option
          */
@@ -105,29 +128,6 @@ RadioItems.propTypes = {
                  */
                 title: PropTypes.string,
             })
-        ),
-        /**
-         * Array of options - [string|number|bool]
-         */
-        PropTypes.arrayOf(
-            PropTypes.oneOfType([
-                PropTypes.string,
-                PropTypes.number,
-                PropTypes.bool,
-            ])
-        ),
-        /**
-         * Simpler `options` representation in dictionary format
-         * {`value1`: `label1`, `value2`: `label2`, ... }
-         * which is equal to
-         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
-         */
-        PropTypes.objectOf(
-            PropTypes.oneOfType([
-                PropTypes.string,
-                PropTypes.number,
-                PropTypes.bool,
-            ])
         ),
     ]),
 

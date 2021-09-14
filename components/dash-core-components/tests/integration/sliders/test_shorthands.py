@@ -5,7 +5,7 @@ import math
 
 def test_slsh001_rangeslider_shorthand_props(dash_dcc):
     NUMBERS = [10 * N for N in np.arange(1, 2, 0.5)]
-    TEST_RANGES = []
+    # TEST_RANGES = []
     LAYOUT = []
     TEST_CASES = []
 
