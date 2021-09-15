@@ -93,8 +93,8 @@ export const autoGenerateMarks = (min, max, step) => {
     marks.forEach(mark => {
         marksObject[mark] = String(mark);
     });
-    marksObject[min] = `Start (${min})`;
-    marksObject[max] = `End (${max})`;
+    marksObject[min] = String(min);
+    marksObject[max] = String(max);
     return marksObject;
 };
 
@@ -116,13 +116,13 @@ export const sanitizeMarks = ({min, max, marks, step}) => {
  * Calculate default step if not defined
  */
 export const calcStep = (min, max, step) => {
-    if (step) return step;
+    if (step) {return step;}
 
     const diff = max > min ? max - min : min - max;
 
     const v = (Math.abs(diff) + Number.EPSILON) / 100;
     const N = Math.floor(Math.log10(v));
-    return [1 * Math.pow(10, N), 2 * Math.pow(10, N), 5 * Math.pow(10, N)].sort(
+    return [Number(Math.pow(10, N)), 2 * Math.pow(10, N), 5 * Math.pow(10, N)].sort(
         (a, b) => Math.abs(a - v) - Math.abs(b - v)
     )[0];
 };
