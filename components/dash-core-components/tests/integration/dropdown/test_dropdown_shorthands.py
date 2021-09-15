@@ -1,4 +1,3 @@
-from dash.dcc.Dropdown import Dropdown
 from dash import Dash, dcc, html
 
 
