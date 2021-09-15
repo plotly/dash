@@ -5,7 +5,7 @@ import computeSliderStyle from '../utils/computeSliderStyle';
 
 import 'rc-slider/assets/index.css';
 
-import {sanitizeMarks} from '../utils/computeSliderMarkers';
+import {sanitizeMarks, calcStep} from '../utils/computeSliderMarkers';
 import {propTypes, defaultProps} from '../components/Slider.react';
 
 /**
@@ -104,6 +104,7 @@ export default class Slider extends Component {
                     style={{position: 'relative'}}
                     value={value}
                     marks={sanitizeMarks({min, max, marks, step})}
+                    step={calcStep(min, max, step)}
                     {...omit(
                         [
                             'className',

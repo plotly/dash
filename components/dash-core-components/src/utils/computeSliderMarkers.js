@@ -103,34 +103,28 @@ export const autoGenerateMarks = (min, max, step) => {
  * - Then truncate marks so no out of range marks
  */
 export const sanitizeMarks = ({min, max, marks, step}) => {
-    const truncated_marks = (marks && marks.length > 0)
-        ? truncateMarks(min, max, marks)
-        : marks;
+    const truncated_marks =
+        marks && marks.length > 0 ? truncateMarks(min, max, marks) : marks;
 
     if (truncated_marks && truncated_marks.length > 0) {
-        return truncated_marks
+        return truncated_marks;
     }
-    return autoGenerateMarks(min, max, step)
+    return autoGenerateMarks(min, max, step);
 };
 
 /**
  * Calculate default step if not defined
  */
 export const calcStep = (min, max, step) => {
-    if (step !== undefined) {
-        return step;
-    }
+    if (step) return step;
 
-    const size = Math.abs(max - min); // interval size
-    /**
-     * Size multiplied by 10^i to get a nice step value at the end (0.1, 1, 10, 100, ...)
-     */
-    const divident = size
-        .toString()
-        .replace('.', '') // removes decimal point
-        .replace(/^(\d*?[1-9])0+$/, '$1'); // removes trailing zeros
+    const diff = max > min ? max - min : min - max;
 
-    return size / divident;
+    const v = (Math.abs(diff) + Number.EPSILON) / 100;
+    const N = Math.floor(Math.log10(v));
+    return [1 * Math.pow(10, N), 2 * Math.pow(10, N), 5 * Math.pow(10, N)].sort(
+        (a, b) => Math.abs(a - v) - Math.abs(b - v)
+    )[0];
 };
 
 /**
