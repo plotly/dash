@@ -94,13 +94,7 @@ Checklist.propTypes = {
          * which is equal to
          * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
          */
-        PropTypes.objectOf(
-            PropTypes.oneOfType([
-                PropTypes.string,
-                PropTypes.number,
-                PropTypes.bool,
-            ])
-        ),
+        PropTypes.object,
         /**
          * An array of options {label: [string|number], value: [string|number]},
          * an optional disabled field can be used for each option
