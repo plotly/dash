@@ -1,4 +1,4 @@
-import {pickBy} from 'ramda';
+import {pickBy, isEmpty} from 'ramda';
 
 /**
  * Truncate marks if they are out of Slider interval
@@ -104,9 +104,11 @@ export const autoGenerateMarks = (min, max, step) => {
  */
 export const sanitizeMarks = ({min, max, marks, step}) => {
     const truncated_marks =
-        marks && marks.length > 0 ? truncateMarks(min, max, marks) : marks;
+        marks && isEmpty(marks) === false
+            ? truncateMarks(min, max, marks)
+            : marks;
 
-    if (truncated_marks && truncated_marks.length > 0) {
+    if (truncated_marks && isEmpty(truncated_marks) === false) {
         return truncated_marks;
     }
     return autoGenerateMarks(min, max, step);
