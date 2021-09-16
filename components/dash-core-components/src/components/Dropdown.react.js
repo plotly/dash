@@ -64,7 +64,7 @@ Dropdown.propTypes = {
                  * corresponds to the items specified in the
                  * `value` property.
                  */
-                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])
                     .isRequired,
 
                 /**
@@ -93,8 +93,9 @@ Dropdown.propTypes = {
     value: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number,
+        PropTypes.bool,
         PropTypes.arrayOf(
-            PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+            PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])
         ),
     ]),
 
