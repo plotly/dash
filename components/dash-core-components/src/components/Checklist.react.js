@@ -79,7 +79,7 @@ Checklist.propTypes = {
      */
     options: PropTypes.oneOfType([
         /**
-         * Array of options - [string|number|bool]
+         * Array of options where the label and the value are the same thing - [string|number|bool]
          */
         PropTypes.arrayOf(
             PropTypes.oneOfType([
@@ -89,7 +89,7 @@ Checklist.propTypes = {
             ])
         ),
         /**
-         * Simpler `options` representation in dictionary format
+         * Simpler `options` representation in dictionary format. The order is not guaranteed.
          * {`value1`: `label1`, `value2`: `label2`, ... }
          * which is equal to
          * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
