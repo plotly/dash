@@ -104,16 +104,22 @@ Checklist.propTypes = {
                 /**
                  * The option's label
                  */
-                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])
-                    .isRequired,
+                label: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool,
+                ]).isRequired,
 
                 /**
                  * The value of the option. This value
                  * corresponds to the items specified in the
                  * `value` property.
                  */
-                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])
-                    .isRequired,
+                value: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool,
+                ]).isRequired,
 
                 /**
                  * If true, this option is disabled and cannot be selected.
@@ -134,7 +140,11 @@ Checklist.propTypes = {
      * The currently selected value
      */
     value: PropTypes.arrayOf(
-        PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])
+        PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.number,
+            PropTypes.bool,
+        ])
     ),
 
     /**

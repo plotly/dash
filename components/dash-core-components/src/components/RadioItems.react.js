@@ -99,16 +99,22 @@ RadioItems.propTypes = {
                 /**
                  * The option's label
                  */
-                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])
-                    .isRequired,
+                label: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool,
+                ]).isRequired,
 
                 /**
                  * The value of the option. This value
                  * corresponds to the items specified in the
                  * `value` property.
                  */
-                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])
-                    .isRequired,
+                value: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool,
+                ]).isRequired,
 
                 /**
                  * If true, this option is disabled and cannot be selected.
@@ -135,7 +141,11 @@ RadioItems.propTypes = {
     /**
      * The currently selected value
      */
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
+    value: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.bool,
+    ]),
 
     /**
      * The style of the container (div)
