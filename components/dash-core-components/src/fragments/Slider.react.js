@@ -114,6 +114,7 @@ export default class Slider extends Component {
                             'drag_value',
                             'marks',
                             'verticalHeight',
+                            'step',
                         ],
                         this.props
                     )}
