@@ -28,38 +28,91 @@ def test_slsh001_rangeslider_shorthand_props(dash_dcc):
 
         LAYOUT.extend(
             [
-                html.Div(f"{min} - {max}"),
-                dcc.Slider(min, max),
-                dcc.RangeSlider(min, max),
-                html.Div(f"{min} - {max}, {steps}"),
-                dcc.Slider(min, max, steps),
-                dcc.RangeSlider(min, max, steps),
-                html.Div(f"{min} - {max}, {steps}, value={min + steps}"),
-                dcc.Slider(min, max, steps, value=min + steps),
                 html.Div(
-                    f"{min} - {max}, {steps}, value=[{min + steps},{min + steps * 3}]"
-                ),
-                dcc.RangeSlider(min, max, steps, value=[min + steps, min + steps * 3]),
-                html.Div(f"{min} - {max}, {steps}, value={min + steps}, marks={marks}"),
-                dcc.Slider(
-                    min,
-                    max,
-                    steps,
-                    value=min + steps,
-                    marks={
-                        i: "Label {}".format(i) if i == 1 else str(i)
-                        for i in range(1, 6)
-                    },
+                    [
+                        html.Div(
+                            f"{min} - {max}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.Slider(min, max),
+                    ]
                 ),
                 html.Div(
-                    f"{min} - {max}, {steps},value=[{min + steps},{min + steps * 3}], marks={marks}"
+                    [
+                        html.Div(
+                            f"{min} - {max}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.RangeSlider(min, max),
+                    ]
                 ),
-                dcc.RangeSlider(
-                    min,
-                    max,
-                    steps,
-                    value=[min + steps, min + steps * 3],
-                    marks=marks,
+                html.Div(
+                    [
+                        html.Div(
+                            f"{min} - {max}, {steps}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.Slider(min, max, steps),
+                    ]
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            f"{min} - {max}, {steps}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.RangeSlider(min, max, steps),
+                    ]
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            f"{min} - {max}, {steps}, value={min + steps}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.Slider(min, max, steps, value=min + steps),
+                    ]
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            f"{min} - {max}, {steps}, value=[{min + steps},{min + steps * 3}]",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.RangeSlider(
+                            min, max, steps, value=[min + steps, min + steps * 3]
+                        ),
+                    ]
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            f"{min} - {max}, {steps}, value={min + steps}, marks={marks}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.Slider(
+                            min,
+                            max,
+                            steps,
+                            value=min + steps,
+                            marks=marks,
+                        ),
+                    ]
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            f"{min} - {max}, {steps},value=[{min + steps},{min + steps * 3}], marks={marks}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.RangeSlider(
+                            min,
+                            max,
+                            steps,
+                            value=[min + steps, min + steps * 3],
+                            marks=marks,
+                        ),
+                    ]
                 ),
             ]
         )
