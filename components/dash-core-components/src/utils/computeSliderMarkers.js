@@ -66,6 +66,25 @@ const estimateBestSteps = (minValue, maxValue, stepValue) => {
     ];
 };
 
+/**
+ * Calculate default step if not defined
+ */
+export const calcStep = (min, max, step) => {
+    if (step) {
+        return step;
+    }
+
+    const diff = max > min ? max - min : min - max;
+
+    const v = (Math.abs(diff) + Number.EPSILON) / 100;
+    const N = Math.floor(Math.log10(v));
+    return [
+        Number(Math.pow(10, N)),
+        2 * Math.pow(10, N),
+        5 * Math.pow(10, N),
+    ].sort((a, b) => Math.abs(a - v) - Math.abs(b - v))[0];
+};
+
 export const autoGenerateMarks = (min, max, step) => {
     const max_min_mean = (Math.abs(max) + Math.abs(min)) / 2;
     const marks = [];
@@ -115,25 +134,6 @@ export const sanitizeMarks = ({min, max, marks, step}) => {
         return truncated_marks;
     }
     return autoGenerateMarks(min, max, step);
-};
-
-/**
- * Calculate default step if not defined
- */
-export const calcStep = (min, max, step) => {
-    if (step) {
-        return step;
-    }
-
-    const diff = max > min ? max - min : min - max;
-
-    const v = (Math.abs(diff) + Number.EPSILON) / 100;
-    const N = Math.floor(Math.log10(v));
-    return [
-        Number(Math.pow(10, N)),
-        2 * Math.pow(10, N),
-        5 * Math.pow(10, N),
-    ].sort((a, b) => Math.abs(a - v) - Math.abs(b - v))[0];
 };
 
 /**
