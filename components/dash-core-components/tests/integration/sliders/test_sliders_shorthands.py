@@ -117,6 +117,97 @@ def test_slsh001_rangeslider_shorthand_props(dash_dcc):
             ]
         )
 
+    n = 10
+
+    N_K = 10000
+    N_M = 10000000
+    N_mu = 0.00001
+
+    min_k = -n * N_K
+    max_k = (-n + 10) * N_K
+
+    min_M = -n * N_M
+    max_M = (n + 10) * N_M
+
+    min_mu = -n * N_mu
+    max_mu = (-n + 10) * N_mu
+
+    LAYOUT.extend(
+        [
+            html.Div(
+                [
+                    html.Div(
+                        f"{min_k} - {max_k}",
+                        style={"marginBottom": 15, "marginTop": 25},
+                    ),
+                    dcc.Slider(min_k, max_k),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        f"{min_k} - {max_k}",
+                        style={"marginBottom": 15, "marginTop": 25},
+                    ),
+                    dcc.RangeSlider(min_k, max_k),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        f"{min_M} - {max_M}",
+                        style={"marginBottom": 15, "marginTop": 25},
+                    ),
+                    dcc.Slider(min_M, max_M),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        f"{min_M} - {max_M}",
+                        style={"marginBottom": 15, "marginTop": 25},
+                    ),
+                    dcc.RangeSlider(min_M, max_M),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        f"{min_mu} - {max_mu}, {N_mu}",
+                        style={"marginBottom": 15, "marginTop": 25},
+                    ),
+                    dcc.Slider(min_mu, max_mu, N_mu),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        f"{min_mu} - {max_mu}, {N_mu}",
+                        style={"marginBottom": 15, "marginTop": 25},
+                    ),
+                    dcc.RangeSlider(min_mu, max_mu, N_mu),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        f"{min_mu} - {max_mu}",
+                        style={"marginBottom": 15, "marginTop": 25},
+                    ),
+                    dcc.Slider(min_mu, max_mu),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        f"{min_mu} - {max_mu}",
+                        style={"marginBottom": 15, "marginTop": 25},
+                    ),
+                    dcc.RangeSlider(min_mu, max_mu),
+                ]
+            ),
+        ]
+    )
     app = Dash(__name__)
     app.layout = html.Div(LAYOUT)
 
