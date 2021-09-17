@@ -86,8 +86,8 @@ export const calcStep = (min, max, step) => {
 };
 
 export const applyD3Format = (mark, min, max) => {
-    const mu_ten_factor = -3
-    const k_ten_factor = 3
+    const mu_ten_factor = -3;
+    const k_ten_factor = 3;
 
     const ten_factor = Math.log10(Math.abs(mark));
     if (ten_factor > mu_ten_factor && ten_factor < k_ten_factor) {
