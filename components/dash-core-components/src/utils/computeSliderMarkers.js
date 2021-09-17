@@ -1,4 +1,5 @@
 import {pickBy, isEmpty} from 'ramda';
+import {formatPrefix} from 'd3-format';
 
 /**
  * Truncate marks if they are out of Slider interval
@@ -66,10 +67,11 @@ const estimateBestSteps = (minValue, maxValue, stepValue) => {
 };
 
 export const autoGenerateMarks = (min, max, step) => {
+    const max_min_mean = (Math.abs(max) + Math.abs(min)) / 2;
     const marks = [];
     const [start, interval, chosenStep] = step
         ? [min, step, step]
-        : estimateBestSteps(min, max, 1);
+        : estimateBestSteps(min, max, calcStep(min, max, step));
     let cursor = start + interval;
 
     // make sure we don't step into infinite loop
@@ -90,11 +92,12 @@ export const autoGenerateMarks = (min, max, step) => {
     }
 
     const marksObject = {};
+    const si_formatter = formatPrefix(',.0', max_min_mean);
     marks.forEach(mark => {
-        marksObject[mark] = String(mark);
+        marksObject[mark] = String(si_formatter(mark));
     });
-    marksObject[min] = String(min);
-    marksObject[max] = String(max);
+    marksObject[min] = String(si_formatter(min));
+    marksObject[max] = String(si_formatter(max));
     return marksObject;
 };
 
