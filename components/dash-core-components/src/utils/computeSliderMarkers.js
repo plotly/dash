@@ -85,8 +85,20 @@ export const calcStep = (min, max, step) => {
     ].sort((a, b) => Math.abs(a - v) - Math.abs(b - v))[0];
 };
 
-export const autoGenerateMarks = (min, max, step) => {
+export const applyD3Format = (mark, min, max) => {
+    const mu_ten_factor = -3
+    const k_ten_factor = 3
+
+    const ten_factor = Math.log10(Math.abs(mark));
+    if (ten_factor > mu_ten_factor && ten_factor < k_ten_factor) {
+        return String(mark);
+    }
     const max_min_mean = (Math.abs(max) + Math.abs(min)) / 2;
+    const si_formatter = formatPrefix(',.0', max_min_mean);
+    return String(si_formatter(mark));
+};
+
+export const autoGenerateMarks = (min, max, step) => {
     const marks = [];
     const [start, interval, chosenStep] = step
         ? [min, step, step]
@@ -111,12 +123,11 @@ export const autoGenerateMarks = (min, max, step) => {
     }
 
     const marksObject = {};
-    const si_formatter = formatPrefix(',.0', max_min_mean);
     marks.forEach(mark => {
-        marksObject[mark] = String(si_formatter(mark));
+        marksObject[mark] = applyD3Format(mark, min, max);
     });
-    marksObject[min] = String(si_formatter(min));
-    marksObject[max] = String(si_formatter(max));
+    marksObject[min] = applyD3Format(min, min, max);
+    marksObject[max] = applyD3Format(max, min, max);
     return marksObject;
 };
 
