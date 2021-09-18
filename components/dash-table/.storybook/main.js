@@ -23,6 +23,7 @@ module.exports = {
         config.stats = {
             warnings: true
         };
+        config.watch = true;
 
         return config;
     }

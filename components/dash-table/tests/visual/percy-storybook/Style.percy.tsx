@@ -249,7 +249,7 @@ storiesOf('DashTable/Style type condition', module)
             ]}
             editable={true}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             style_table={{
                 width: '100%'
             }}
@@ -273,7 +273,7 @@ storiesOf('DashTable/Style type condition', module)
                 width: '100%'
             }}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             columns={[
                 {id: 'a', name: 'A', type: ColumnType.Any},
                 {id: 'b', name: 'B', type: ColumnType.Text},
@@ -300,7 +300,7 @@ storiesOf('DashTable/Style type condition', module)
                 width: '100%'
             }}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             columns={[
                 {id: 'a', name: 'A', type: ColumnType.Any, editable: true},
                 {id: 'b', name: 'B', type: ColumnType.Text},
@@ -327,7 +327,7 @@ storiesOf('DashTable/Style type condition', module)
                 width: '100%'
             }}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             columns={[
                 {id: 'a', name: 'A', type: ColumnType.Any, editable: true},
                 {id: 'b', name: 'B', type: ColumnType.Text},
@@ -351,7 +351,7 @@ storiesOf('DashTable/Style type condition', module)
                 {a: 111, b: 222, c: '333', d: '444'}
             ]}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             style_table={{
                 width: '100%'
             }}
@@ -387,7 +387,7 @@ storiesOf('DashTable/Style type condition', module)
                 width: '100%'
             }}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             filtering={true}
             columns={[
                 {id: 'a', name: 'A', type: ColumnType.Any, editable: true},
@@ -440,7 +440,7 @@ storiesOf('DashTable/Style type condition', module)
             }}
             editable={true}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             filtering={true}
             columns={[
                 {id: 'a', name: 'A', type: ColumnType.Any, editable: false},
@@ -482,7 +482,7 @@ storiesOf('DashTable/Style type condition', module)
                 width: '100%'
             }}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             pagination_mode={'fe'}
             style_data_conditional={[
                 {
@@ -508,7 +508,7 @@ storiesOf('DashTable/Style type condition', module)
                 width: '100%'
             }}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             pagination_mode={'fe'}
             style_data_conditional={[
                 {
@@ -536,7 +536,7 @@ storiesOf('DashTable/Style type condition', module)
                 width: '100%'
             }}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             pagination_mode={'fe'}
             style_data_conditional={[
                 {
