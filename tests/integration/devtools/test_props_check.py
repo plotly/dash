@@ -15,12 +15,6 @@ test_cases = {
         "component": dcc.Checklist,
         "props": {"options": [{"label": "hello"}], "value": ["test"]},
     },
-    "invalid-nested-prop": {
-        "fail": True,
-        "name": "invalid nested prop",
-        "component": dcc.Checklist,
-        "props": {"options": [{"label": "hello", "value": True}], "value": ["test"]},
-    },
     "invalid-arrayOf": {
         "fail": True,
         "name": "invalid arrayOf",
@@ -112,6 +106,12 @@ test_cases = {
         "props": {
             "columns": [{"id": "id", "name": "name", "format": {"prefix": "asdf"}}]
         },
+    },
+    "allow-nested-prop": {
+        "fail": False,
+        "name": "allow nested prop",
+        "component": dcc.Checklist,
+        "props": {"options": [{"label": "hello", "value": True}], "value": ["test"]},
     },
     "allow-null": {
         "fail": False,

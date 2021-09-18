@@ -2,7 +2,6 @@ import * as R from 'ramda';
 
 import {memoizeOne} from 'core/memoizer';
 import {
-    Columns,
     ColumnType,
     Fixed,
     IColumn,
@@ -18,11 +17,13 @@ import {
     FilterLogicalOperator,
     SelectedCells,
     FilterCase,
-    IFilterOptions
+    IFilterOptions,
+    Data
 } from 'dash-table/components/Table/props';
 import headerRows from 'dash-table/derived/header/headerRows';
 import resolveFlag from 'dash-table/derived/cell/resolveFlag';
 import dataLoading from 'dash-table/derived/table/data_loading';
+import {Column, Columns} from '../components/Table/props';
 
 const D3_DEFAULT_LOCALE: INumberLocale = {
     symbol: ['$', ''],
@@ -64,6 +65,11 @@ const getFixedRows = (
         : headerRows(columns) +
           (filter_action !== TableAction.None ? 1 : 0) +
           data2number(fixed.data);
+
+const populateColumnsFromData = (data: Data) =>
+    data.length > 0
+        ? Object.keys(data[0]).map(key => new Column({name: key, id: key}))
+        : [];
 
 const applyDefaultsToColumns = (
     defaultLocale: INumberLocale,
@@ -112,6 +118,7 @@ const getVisibleColumns = (
 export default class Sanitizer {
     sanitize(props: PropsWithDefaults): SanitizedProps {
         const locale_format = this.applyDefaultToLocale(props.locale_format);
+        const data = props.data ?? [];
         const columns = props.columns
             ? this.applyDefaultsToColumns(
                   locale_format,
@@ -120,8 +127,7 @@ export default class Sanitizer {
                   props.editable,
                   props.filter_options
               )
-            : [];
-        const data = props.data ?? [];
+            : this.populateColumnsFrom(data);
         const visibleColumns = this.getVisibleColumns(
             columns,
             props.hidden_columns
@@ -170,6 +176,8 @@ export default class Sanitizer {
             visibleColumns
         });
     }
+
+    private readonly populateColumnsFrom = memoizeOne(populateColumnsFromData);
 
     private readonly applyDefaultToLocale = memoizeOne(applyDefaultToLocale);
 

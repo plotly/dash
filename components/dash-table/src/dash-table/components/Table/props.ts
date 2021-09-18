@@ -97,6 +97,26 @@ export interface ICellCoordinates {
     column_id: ColumnId;
 }
 
+export class Column implements IBaseColumn {
+    clearable?: boolean | boolean[] | 'first' | 'last' | undefined;
+    deletable?: boolean | boolean[] | 'first' | 'last' | undefined;
+    editable = false;
+    filter_options!: IFilterOptions;
+    hideable?: boolean | boolean[] | 'first' | 'last' | undefined;
+    renamable?: boolean | boolean[] | 'first' | 'last' | undefined;
+    selectable?: boolean | boolean[] | 'first' | 'last' | undefined;
+    sort_as_null: SortAsNull = [];
+    id!: string;
+    name: string | string[] = [];
+
+    constructor(initialValues: any) {
+        if (Object.keys(initialValues).includes('name'))
+            this.name = initialValues.name;
+        if (Object.keys(initialValues).includes('id'))
+            this.id = initialValues.id;
+    }
+}
+
 export type ColumnId = string;
 export type Columns = IColumn[];
 export type Data = Datum[];

@@ -1,10 +1,14 @@
 import React, {Component} from 'react';
-import {assoc, omit, pickBy} from 'ramda';
+import {assoc, omit} from 'ramda';
 import {Range, createSliderWithTooltip} from 'rc-slider';
 import computeSliderStyle from '../utils/computeSliderStyle';
 
 import 'rc-slider/assets/index.css';
-
+import {
+    calcValue,
+    sanitizeMarks,
+    calcStep,
+} from '../utils/computeSliderMarkers';
 import {propTypes, defaultProps} from '../components/RangeSlider.react';
 
 export default class RangeSlider extends Component {
@@ -46,6 +50,10 @@ export default class RangeSlider extends Component {
             updatemode,
             vertical,
             verticalHeight,
+            min,
+            max,
+            marks,
+            step,
         } = this.props;
         const value = this.state.value;
 
@@ -61,13 +69,6 @@ export default class RangeSlider extends Component {
         } else {
             tipProps = tooltip;
         }
-
-        const truncatedMarks =
-            this.props.marks &&
-            pickBy(
-                (k, mark) => mark >= this.props.min && mark <= this.props.max,
-                this.props.marks
-            );
 
         return (
             <div
@@ -101,8 +102,9 @@ export default class RangeSlider extends Component {
                         getTooltipContainer: node => node,
                     }}
                     style={{position: 'relative'}}
-                    value={value}
-                    marks={truncatedMarks}
+                    value={value ? value : calcValue(min, max, value)}
+                    marks={sanitizeMarks({min, max, marks, step})}
+                    step={calcStep(min, max, step)}
                     {...omit(
                         [
                             'className',
@@ -112,6 +114,7 @@ export default class RangeSlider extends Component {
                             'marks',
                             'updatemode',
                             'verticalHeight',
+                            'step',
                         ],
                         this.props
                     )}

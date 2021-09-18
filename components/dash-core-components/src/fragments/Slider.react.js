@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
 import ReactSlider, {createSliderWithTooltip} from 'rc-slider';
-import {assoc, omit, pickBy} from 'ramda';
+import {assoc, omit} from 'ramda';
 import computeSliderStyle from '../utils/computeSliderStyle';
 
 import 'rc-slider/assets/index.css';
 
+import {sanitizeMarks, calcStep} from '../utils/computeSliderMarkers';
 import {propTypes, defaultProps} from '../components/Slider.react';
 
 /**
@@ -47,6 +48,10 @@ export default class Slider extends Component {
             setProps,
             tooltip,
             updatemode,
+            min,
+            max,
+            marks,
+            step,
             vertical,
             verticalHeight,
         } = this.props;
@@ -64,13 +69,6 @@ export default class Slider extends Component {
         } else {
             tipProps = tooltip;
         }
-
-        const truncatedMarks = this.props.marks
-            ? pickBy(
-                  (k, mark) => mark >= this.props.min && mark <= this.props.max,
-                  this.props.marks
-              )
-            : this.props.marks;
 
         return (
             <div
@@ -105,7 +103,8 @@ export default class Slider extends Component {
                     }}
                     style={{position: 'relative'}}
                     value={value}
-                    marks={truncatedMarks}
+                    marks={sanitizeMarks({min, max, marks, step})}
+                    step={calcStep(min, max, step)}
                     {...omit(
                         [
                             'className',
@@ -115,6 +114,7 @@ export default class Slider extends Component {
                             'drag_value',
                             'marks',
                             'verticalHeight',
+                            'step',
                         ],
                         this.props
                     )}
