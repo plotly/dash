@@ -133,9 +133,14 @@ export const autoGenerateMarks = (min, max, step) => {
 
 /**
  * - Auto generate marks if not given,
+ * - Not generate anything at all when explicit null is given to marks
  * - Then truncate marks so no out of range marks
  */
 export const sanitizeMarks = ({min, max, marks, step}) => {
+    if (marks === null) {
+        return undefined;
+    }
+
     const truncated_marks =
         marks && isEmpty(marks) === false
             ? truncateMarks(min, max, marks)
