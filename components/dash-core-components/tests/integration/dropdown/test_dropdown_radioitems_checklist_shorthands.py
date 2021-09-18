@@ -1,7 +1,7 @@
 from dash import Dash, dcc, html
 
 
-def test_ddsh001_dropdown_shorthand_properties(dash_dcc):
+def test_ddsh001_test_dropdown_radioitems_checklist_shorthands(dash_dcc):
     app = Dash(__name__)
 
     TEST_OPTIONS_N_VALUES = [
@@ -42,11 +42,41 @@ def test_ddsh001_dropdown_shorthand_properties(dash_dcc):
     for definition in TEST_OPTIONS_N_VALUES:
         (option, value) = definition if len(definition) > 1 else [definition[0], None]
         layout.extend(
-            [html.Div(f"Options={option}, Value={value}"), dcc.Dropdown(option, value)]
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            f"Options={option}, Value={value}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.Dropdown(option, value),
+                    ]
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            f"Options={option}, Value={value}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.RadioItems(option, value=value),
+                    ]
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            f"Options={option}, Value={value}",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.Checklist(option, value=[value]),
+                    ]
+                ),
+            ]
         )
 
     app.layout = html.Div(layout)
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_element(".dash-dropdown")
-    dash_dcc.percy_snapshot("ddsh001 - test_ddsh001_dropdown_shorthand_properties")
+    dash_dcc.percy_snapshot(
+        "ddsh001 - test_ddsh001_test_dropdown_radioitems_checklist_shorthands"
+    )
