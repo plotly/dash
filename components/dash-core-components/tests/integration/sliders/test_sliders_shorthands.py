@@ -114,103 +114,67 @@ def test_slsh001_rangeslider_shorthand_props(dash_dcc):
                         ),
                     ]
                 ),
+                html.Div(
+                    [
+                        html.Div(
+                            f"{min} - {max}, {steps},value=[{min + steps},{min + steps * 3}], marks=None",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.RangeSlider(
+                            min,
+                            max,
+                            steps,
+                            value=[min + steps, min + steps * 3],
+                            marks=None,
+                        ),
+                    ]
+                ),
             ]
         )
 
-    n = 10
-
-    N_K = 10000
-    N_M = 10000000
-    N_mu = 0.00001
-
-    min_k = -n * N_K
-    max_k = (-n + 10) * N_K
-
-    min_M = -n * N_M
-    max_M = (n + 10) * N_M
-
-    min_mu = -n * N_mu
-    max_mu = (-n + 10) * N_mu
-
-    LAYOUT.extend(
-        [
-            html.Div(
-                [
-                    html.Div(
-                        f"{min_k} - {max_k}",
-                        style={"marginBottom": 15, "marginTop": 25},
-                    ),
-                    dcc.Slider(min_k, max_k),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Div(
-                        f"{min_k} - {max_k}",
-                        style={"marginBottom": 15, "marginTop": 25},
-                    ),
-                    dcc.RangeSlider(min_k, max_k),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Div(
-                        f"{min_M} - {max_M}",
-                        style={"marginBottom": 15, "marginTop": 25},
-                    ),
-                    dcc.Slider(min_M, max_M),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Div(
-                        f"{min_M} - {max_M}",
-                        style={"marginBottom": 15, "marginTop": 25},
-                    ),
-                    dcc.RangeSlider(min_M, max_M),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Div(
-                        f"{min_mu} - {max_mu}, {N_mu}",
-                        style={"marginBottom": 15, "marginTop": 25},
-                    ),
-                    dcc.Slider(min_mu, max_mu, N_mu),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Div(
-                        f"{min_mu} - {max_mu}, {N_mu}",
-                        style={"marginBottom": 15, "marginTop": 25},
-                    ),
-                    dcc.RangeSlider(min_mu, max_mu, N_mu),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Div(
-                        f"{min_mu} - {max_mu}",
-                        style={"marginBottom": 15, "marginTop": 25},
-                    ),
-                    dcc.Slider(min_mu, max_mu),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Div(
-                        f"{min_mu} - {max_mu}",
-                        style={"marginBottom": 15, "marginTop": 25},
-                    ),
-                    dcc.RangeSlider(min_mu, max_mu),
-                ]
-            ),
-        ]
-    )
     app = Dash(__name__)
     app.layout = html.Div(LAYOUT)
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_element(".rc-slider")
     dash_dcc.percy_snapshot("slsh001 - test_slsh001_rangeslider_shorthand_props", True)
+
+
+def test_slsh002_sliders_marks_si_unit_format(dash_dcc):
+
+    LAYOUT = []
+
+    # Showing SI Units
+    LAYOUT.extend(
+        [
+            html.Div(
+                "Testing SI units",
+                style={"marginBottom": 10, "marginTop": 30},
+            ),
+        ]
+    )
+
+    for n in range(-20, 20):
+        min = 0
+        max = pow(10, n)
+        LAYOUT.extend(
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            f"min={min}, max={max}(=10^{n})",
+                            style={"marginBottom": 15, "marginTop": 25},
+                        ),
+                        dcc.Slider(min, max),
+                        dcc.RangeSlider(min, max),
+                    ]
+                )
+            ]
+        )
+
+    app = Dash(__name__)
+    app.layout = html.Div(LAYOUT)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element(".rc-slider")
+    dash_dcc.percy_snapshot("slsh002 - test_slsh002_sliders_marks_si_unit_format", True)
