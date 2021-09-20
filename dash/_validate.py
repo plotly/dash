@@ -1,11 +1,11 @@
-import collections
+from collections.abc import MutableSequence
 import re
 from textwrap import dedent
 
 from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
-from ._utils import patch_collections_abc, stringify_id
+from ._utils import patch_collections_abc, stringify_id, to_json
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -198,7 +198,8 @@ def validate_multi_return(outputs_list, output_value, callback_id):
 
 
 def fail_callback_output(output_value, output):
-    valid = (str, dict, int, float, type(None), Component)
+    valid_children = (str, int, float, type(None), Component)
+    valid_props = (str, int, float, type(None), tuple, MutableSequence)
 
     def _raise_invalid(bad_val, outer_val, path, index=None, toplevel=False):
         bad_type = type(bad_val).__name__
@@ -247,34 +248,66 @@ def fail_callback_output(output_value, output):
             )
         )
 
-    def _value_is_valid(val):
-        return isinstance(val, valid)
+    def _valid_child(val):
+        return isinstance(val, valid_children)
+
+    def _valid_prop(val):
+        return isinstance(val, valid_props)
+
+    def _can_serialize(val):
+        if not (_valid_child(val) or _valid_prop(val)):
+            return False
+        try:
+            to_json(val)
+        except TypeError:
+            return False
+        return True
 
     def _validate_value(val, index=None):
         # val is a Component
         if isinstance(val, Component):
+            unserializable_items = []
             # pylint: disable=protected-access
             for p, j in val._traverse_with_paths():
                 # check each component value in the tree
-                if not _value_is_valid(j):
+                if not _valid_child(j):
                     _raise_invalid(bad_val=j, outer_val=val, path=p, index=index)
+
+                if not _can_serialize(j):
+                    # collect unserializable items separately, so we can report
+                    # only the deepest level, not all the parent components that
+                    # are just unserializable because of their children.
+                    unserializable_items = [
+                        i for i in unserializable_items if not p.startswith(i[0])
+                    ]
+                    if unserializable_items:
+                        # we already have something unserializable in a different
+                        # branch - time to stop and fail
+                        break
+                    if all(not i[0].startswith(p) for i in unserializable_items):
+                        unserializable_items.append((p, j))
 
                 # Children that are not of type Component or
                 # list/tuple not returned by traverse
                 child = getattr(j, "children", None)
-                if not isinstance(child, (tuple, collections.MutableSequence)):
-                    if child and not _value_is_valid(child):
+                if not isinstance(child, (tuple, MutableSequence)):
+                    if child and not _can_serialize(child):
                         _raise_invalid(
                             bad_val=child,
                             outer_val=val,
                             path=p + "\n" + "[*] " + type(child).__name__,
                             index=index,
                         )
+            if unserializable_items:
+                p, j = unserializable_items[0]
+                # just report the first one, even if there are multiple,
+                # as that's how all the other errors work
+                _raise_invalid(bad_val=j, outer_val=val, path=p, index=index)
 
             # Also check the child of val, as it will not be returned
             child = getattr(val, "children", None)
-            if not isinstance(child, (tuple, collections.MutableSequence)):
-                if child and not _value_is_valid(child):
+            if not isinstance(child, (tuple, MutableSequence)):
+                if child and not _can_serialize(val):
                     _raise_invalid(
                         bad_val=child,
                         outer_val=val,
@@ -282,8 +315,7 @@ def fail_callback_output(output_value, output):
                         index=index,
                     )
 
-        # val is not a Component, but is at the top level of tree
-        elif not _value_is_valid(val):
+        if not _can_serialize(val):
             _raise_invalid(
                 bad_val=val,
                 outer_val=type(val).__name__,
@@ -301,13 +333,13 @@ def fail_callback_output(output_value, output):
     # if we got this far, raise a generic JSON error
     raise exceptions.InvalidCallbackReturnValue(
         """
-        The callback for property `{property:s}` of component `{id:s}`
+        The callback for output `{output}`
         returned a value which is not JSON serializable.
 
         In general, Dash properties can only be dash components, strings,
         dictionaries, numbers, None, or lists of those.
         """.format(
-            property=output.component_property, id=output.component_id
+            output=repr(output)
         )
     )
 
