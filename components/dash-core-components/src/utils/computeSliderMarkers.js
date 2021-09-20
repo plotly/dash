@@ -90,10 +90,7 @@ export const applyD3Format = (mark, min, max) => {
     const k_ten_factor = 3;
 
     const ten_factor = Math.log10(Math.abs(mark));
-    if (
-        mark === 0 ||
-        (ten_factor > mu_ten_factor && ten_factor < k_ten_factor)
-    ) {
+    if (ten_factor > mu_ten_factor && ten_factor < k_ten_factor) {
         return String(mark);
     }
     const max_min_mean = (Math.abs(max) + Math.abs(min)) / 2;
