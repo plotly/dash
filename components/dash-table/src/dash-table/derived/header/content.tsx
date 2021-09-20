@@ -283,7 +283,7 @@ function getter(
                         );
 
                     return (
-                        <div>
+                        <div className='column-header'>
                             {!column_selectable || !selectable ? null : (
                                 <span className='column-header--select'>
                                     <input
