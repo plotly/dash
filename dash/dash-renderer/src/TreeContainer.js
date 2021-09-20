@@ -29,6 +29,10 @@ import {
     validateComponent
 } from './utils/TreeContainer';
 import {DashContext} from './APIController.react';
+import {
+    isSerializableComponent,
+    fetchSerializableValue
+} from './serializers/utils';
 
 const NOT_LOADING = {
     is_loading: false
@@ -191,6 +195,11 @@ class BaseTreeContainer extends Component {
         if (isSimpleComponent(_dashprivate_layout)) {
             return _dashprivate_layout;
         }
+
+        if (isSerializableComponent(_dashprivate_layout)) {
+            return fetchSerializableValue(_dashprivate_layout);
+        }
+
         validateComponent(_dashprivate_layout);
 
         const element = Registry.resolve(_dashprivate_layout);
