@@ -157,16 +157,30 @@ def test_slsh002_sliders_marks_si_unit_format(dash_dcc):
     for n in range(-20, 20):
         min = 0
         max = pow(10, n)
+        
         LAYOUT.extend(
             [
                 html.Div(
                     [
-                        html.Div(
+                       
+                        html.B(
                             f"min={min}, max={max}(=10^{n})",
                             style={"marginBottom": 15, "marginTop": 25},
                         ),
+                        (html.Div(
+                            '(Known issue: Slider does not seem to work for precision below 10^(-6))'
+                        ) if n <= -6 else None),
+                        html.Div('value is undefined'),
                         dcc.Slider(min, max),
                         dcc.RangeSlider(min, max),
+                        
+                        html.Div(f'value=0.4 * 10^{n}'),
+                        dcc.Slider(min, max, value=0.4*max),
+                        dcc.RangeSlider(min, max, value[0.2 * max, 0.4 * max]),
+
+                        html.Div(f'value=0.5 * 10^{n}'),
+                        dcc.Slider(min, max, value=0.4*max),
+                        dcc.RangeSlider(min, max, value[0.2 * max, 0.5 * max]),
                     ]
                 )
             ]
