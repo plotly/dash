@@ -4,8 +4,8 @@ from dash import Dash, Input, Output, dcc, html
 def test_msps002_auto_id_assert(dash_dcc):
     app = Dash(__name__)
 
-    input1 = dcc.Input(value="Hello")
-    input2 = dcc.Input(value="Hello")
+    input1 = dcc.Input(value="Hello Input 1")
+    input2 = dcc.Input(value="Hello Input 2")
     input3 = dcc.Input(value=3)
     output1 = html.Div()
     output2 = html.Div()

@@ -100,13 +100,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     dcc.Slider(0, 100)
     ```
 
-    The SI units used in `marks` are:
-
-    * `z` - zepto, 10⁻²¹
-    * `a` - atto, 10⁻¹⁸
-    * `f` - femto, 10⁻¹⁵
-    * `p` - pico, 10⁻¹²
-    * `n` - nano, 10⁻⁹
+    The SI units and ranges supported in `marks` are:
     * `µ` - micro, 10⁻⁶
     * `m` - milli, 10⁻³
     * `​` (none) - 10⁰
@@ -116,7 +110,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     * `T` - tera, 10¹²
     * `P` - peta, 10¹⁵
     * `E` - exa, 10¹⁸
-    * `Z` - zetta, 10²¹
+
+    _Ranges below 10µ are not supported by the Slider. This is a bug: https://github.com/plotly/dash/issues/1766_
 
     **`DataTable`**
 

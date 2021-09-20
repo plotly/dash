@@ -180,7 +180,7 @@ def test_slsh002_sliders_marks_si_unit_format(dash_dcc):
                         dcc.Slider(min, max, value=0.4 * max),
                         dcc.RangeSlider(min, max, value=[0.2 * max, 0.4 * max]),
                         html.Div(f"value=0.5 * 10^{n}"),
-                        dcc.Slider(min, max, value=0.4 * max),
+                        dcc.Slider(min, max, value=0.5 * max),
                         dcc.RangeSlider(min, max, value=[0.2 * max, 0.5 * max]),
                     ]
                 )
