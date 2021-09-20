@@ -479,8 +479,8 @@ def test_debc027_component_error_message():
 def test_set_random_id():
     app = Dash(__name__)
 
-    input1 = dcc.Input(value="Hello")
-    input2 = dcc.Input(value="Hello")
+    input1 = dcc.Input(value="Hello Input 1")
+    input2 = dcc.Input(value="Hello Input 2")
     output1 = html.Div()
     output2 = html.Div()
     output3 = html.Div(id="output-3")
