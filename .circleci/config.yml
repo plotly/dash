@@ -367,9 +367,9 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate && rm -rf dash_core_components && ls -la
+            pip install --upgrade pip wheel
             set -eo pipefail
             pip install dash-package/dash-package.tar.gz[dev,testing]
-            pip uninstall orjson -y
             pip list | grep dash | xargs pip show
             echo $(python -V 2>&1) | grep 3.
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
