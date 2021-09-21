@@ -35,7 +35,8 @@
     "test.server": "pytest --nopercyfinalize tests/selenium",
     "test.unit": "run-s private::test.python private::test.unit",
     "test.visual": "build-storybook && percy-storybook",
-    "test.visual-local": "build-storybook"
+    "test.visual-local": "build-storybook",
+    "start.visual-local": "start-storybook"
   },
   "author": "Chris Parmer <chris@plotly.com>",
   "maintainer": "Ryan Patrick Kyle <ryan@plotly.com>",

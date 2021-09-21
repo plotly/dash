@@ -143,6 +143,20 @@ const dataA2J = (() => {
 
 const style_data_conditional = [{width: '100px'}];
 
+const columnsWithLongerTitle = ['Date sent to company', 'Company Response'].map(
+    id => ({id: id, name: id.toUpperCase()})
+);
+const dataWithLongerTitle = (() => {
+    const r = random(1);
+
+    return R.range(0, 100).map(() =>
+        ['Date sent to company', 'Company Response'].reduce((obj: any, key) => {
+            obj[key] = Math.floor(r() * 1000);
+            return obj;
+        }, {})
+    );
+})();
+
 storiesOf('DashTable/Fixed Rows & Columns', module)
     .add('with 1 fixed row, 2 fixed columns', () => (
         <DataTable
@@ -153,7 +167,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             fixed_columns={{headers: true}}
             fixed_rows={{headers: true}}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             style_data_conditional={style_data_conditional}
         />
     ))
@@ -165,8 +179,19 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             columns={columnsA2J}
             fixed_rows={{headers: true}}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             style_data_conditional={style_data_conditional}
+        />
+    ))
+    .add('with 1 fixed row, longer header width than content cell', () => (
+        <DataTable
+            setProps={setProps}
+            id='table'
+            data={dataWithLongerTitle}
+            columns={columnsWithLongerTitle}
+            fixed_rows={{headers: true}}
+            row_deletable={true}
+            row_selectable='single'
         />
     ))
     .add('with 2 fixed columns', () => (
@@ -177,7 +202,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             columns={columnsA2J}
             fixed_columns={{headers: true}}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             style_data_conditional={style_data_conditional}
         />
     ))
@@ -356,7 +381,7 @@ storiesOf('DashTable/Without id', module)
             fixed_columns={{headers: true}}
             fixed_rows={{headers: true}}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             style_data_conditional={style_data_conditional}
         />
     ))
@@ -368,7 +393,7 @@ storiesOf('DashTable/Without id', module)
             fixed_columns={{headers: true}}
             fixed_rows={{headers: true}}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             style_table={{height: 500, width: 200}}
             style_data_conditional={style_data_conditional}
         />
@@ -381,7 +406,7 @@ storiesOf('DashTable/Without id', module)
             fixed_columns={{headers: true}}
             fixed_rows={{headers: true}}
             row_deletable={true}
-            row_selectable={true}
+            row_selectable='single'
             style_table={{height: 500, width: 200}}
             style_data_conditional={[
                 {
@@ -400,7 +425,7 @@ storiesOf('DashTable/Without id', module)
                 fixed_columns={{headers: true}}
                 fixed_rows={{headers: true}}
                 row_deletable={true}
-                row_selectable={true}
+                row_selectable='single'
                 style_table={{height: 500, width: 400}}
                 css={[
                     {
@@ -416,7 +441,7 @@ storiesOf('DashTable/Without id', module)
                 fixed_columns={{headers: true}}
                 fixed_rows={{headers: true}}
                 row_deletable={true}
-                row_selectable={true}
+                row_selectable='single'
                 style_table={{height: 500, width: 400}}
                 css={[
                     {
