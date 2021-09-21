@@ -35,7 +35,7 @@ class CeleryLongCallbackManager(BaseLongCallbackManager):
                 """\
 CeleryLongCallbackManager requires extra dependencies which can be installed doing
 
-    $ pip install "dash[celery-manager]"\n"""
+    $ pip install "dash[celery]"\n"""
             ) from missing_imports
 
         if not isinstance(celery_app, celery.Celery):

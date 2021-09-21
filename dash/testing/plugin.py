@@ -189,18 +189,8 @@ def dashjl(request, dashjl_server, tmpdir):
 
 @pytest.fixture
 def diskcache_manager():
-    try:
-        from dash.long_callback import (  # pylint: disable=import-outside-toplevel
-            DiskcacheLongCallbackManager,
-        )
-        import diskcache  # pylint: disable=import-outside-toplevel
-    except ImportError as missing_imports:
-        raise ImportError(
-            """\
-DiskcacheLongCallbackManager requires extra dependencies which can be installed doing
+    from dash.long_callback import (  # pylint: disable=import-outside-toplevel
+        DiskcacheLongCallbackManager,
+    )
 
-$ pip install "dash[diskcache-manager]"\n"""
-        ) from missing_imports
-
-    cache = diskcache.Cache()
-    return DiskcacheLongCallbackManager(cache)
+    return DiskcacheLongCallbackManager()

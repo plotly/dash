@@ -1,3 +1,4 @@
+# Dependencies necessary for utilizing Dash provided testing utilities
 beautifulsoup4>=4.8.2
 cryptography<3.4;python_version<"3.7"
 lxml>=4.6.2

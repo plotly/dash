@@ -43,8 +43,7 @@ jobs:
             sudo pip install virtualenv --upgrade
             python -m venv venv && . venv/bin/activate
             set -eo pipefail
-            pip install -e .[testing,dev,celery-manager,diskcache-manager] --progress-bar off
-            pip install -r ./requires-ci.txt --progress-bar off
+            pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
             npm i
             npm run build
@@ -78,7 +77,7 @@ jobs:
           command: |
             sudo pip install --upgrade virtualenv --progress-bar off
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e .[dev,testing] --no-cache-dir -r requires-ci.txt --progress-bar off
+            pip install -e .[ci,dev,testing] --no-cache-dir --progress-bar off
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
@@ -224,8 +223,7 @@ jobs:
           command: |
             . venv/bin/activate
             npm install --production
-            pip install --no-cache-dir --upgrade --ignore-installed dash-package/dash-package.tar.gz --progress-bar off
-            pip install -r requires-install.txt -r requires-ci.txt -r requires-dev.txt -r requires-testing.txt -r requires-celery-manager.txt -r requires-diskcache-manager.txt --progress-bar off
+            pip install --no-cache-dir --upgrade --ignore-installed dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
             sed -i '/dash/d' requires-install.txt
             pip list | grep dash
       - run:
@@ -267,7 +265,7 @@ jobs:
             path: ~/dash
       - run: echo $PYTHON_VERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}-{{ checksum "../../requires-ci.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
       - attach_workspace:
           at: ~/dash/components/dash-core-components
       - run:
@@ -275,10 +273,10 @@ jobs:
           command: |
             sudo pip install virtualenv --upgrade
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install dash-package/dash-package.tar.gz[dev,testing]
-            pip install --progress-bar off --no-cache-dir -r dev-requirements.txt -r ../../requires-ci.txt
+            pip install dash-package/dash-package.tar.gz[ci,dev,testing]
+            pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}-{{ checksum "../../requires-ci.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
               - venv
       - run:
@@ -422,8 +420,8 @@ jobs:
               sudo pip install virtualenv --upgrade
               python -m venv venv || virtualenv venv
               . venv/bin/activate
-              pip install dash-package/dash-package.tar.gz[dev,testing]
-              pip install -r dev-requirements.txt -r ../../requires-ci.txt
+              pip install dash-package/dash-package.tar.gz[ci,dev,testing]
+              pip install -r dev-requirements.txt
               npm ci
 
       - run:
@@ -495,8 +493,7 @@ jobs:
                   . venv/bin/activate
                   pip install -r dev-requirements.txt --quiet
                   pip install -r python-requirements.txt --quiet
-                  pip install -r ../../requires-ci.txt                  
-                  pip install dash-package/dash-package.tar.gz[dev,testing]
+                  pip install dash-package/dash-package.tar.gz[ci,dev,testing]
           - run:
               name: Build
               command: |
@@ -600,8 +597,8 @@ jobs:
               name: Install requirements
               command: |
                   . venv/bin/activate
-                  pip install -r dev-requirements.txt -r ../../requires-ci.txt --quiet
-                  pip install dash-package/dash-package.tar.gz[dev,testing]
+                  pip install -r dev-requirements.txt --quiet
+                  pip install dash-package/dash-package.tar.gz[ci,dev,testing]
 
           - run:
               name: Run eslint

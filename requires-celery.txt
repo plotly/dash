@@ -1,0 +1,3 @@
+# Dependencies used by the CeleryLongCallbackManager
+redis>=3.5.3
+celery[redis]>=5.1.2

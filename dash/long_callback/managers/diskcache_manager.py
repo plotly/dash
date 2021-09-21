@@ -4,14 +4,15 @@ _pending_value = "__$pending__"
 
 
 class DiskcacheLongCallbackManager(BaseLongCallbackManager):
-    def __init__(self, cache, cache_by=None, expire=None):
+    def __init__(self, cache=None, cache_by=None, expire=None):
         """
         Long callback manager that runs callback logic in a subprocess and stores
         results on disk using diskcache
 
         :param cache:
             A diskcache.Cache or diskcache.FanoutCache instance. See the diskcache
-            documentation for information on configuration options.
+            documentation for information on configuration options. If not provided,
+            a diskcache.Cache instance will be created with default values.
         :param cache_by:
             A list of zero-argument functions.  When provided, caching is enabled and
             the return values of these functions are combined with the callback
@@ -30,13 +31,20 @@ class DiskcacheLongCallbackManager(BaseLongCallbackManager):
                 """\
 DiskcacheLongCallbackManager requires extra dependencies which can be installed doing
 
-    $ pip install "dash[diskcache-manager]"\n"""
+    $ pip install "dash[diskcache]"\n"""
             ) from missing_imports
 
-        if not isinstance(cache, (diskcache.Cache, diskcache.FanoutCache)):
-            raise ValueError("First argument must be a diskcache.Cache object")
+        if cache is None:
+            self.handle = diskcache.Cache()
+        else:
+            if not isinstance(cache, (diskcache.Cache, diskcache.FanoutCache)):
+                raise ValueError(
+                    "First argument must be a diskcache.Cache "
+                    "or diskcache.FanoutCache object"
+                )
+            self.handle = cache
+
         super().__init__(cache_by)
-        self.handle = cache
         self.expire = expire
 
     def terminate_job(self, job):

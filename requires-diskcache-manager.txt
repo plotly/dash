@@ -1,3 +1,0 @@
-diskcache>=5.2.1
-multiprocess>=0.70.12
-psutil>=5.8.0
