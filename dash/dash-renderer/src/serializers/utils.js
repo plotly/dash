@@ -11,6 +11,6 @@ export function isSerializableComponent(componentDefinition) {
     );
 }
 
-export function fetchSerializableValue(componentDefinition) {
+export function stripSerializedValue(componentDefinition) {
     return prop(PROP_VALUE, componentDefinition);
 }

@@ -31,7 +31,7 @@ import {
 import {DashContext} from './APIController.react';
 import {
     isSerializableComponent,
-    fetchSerializableValue
+    stripSerializedValue
 } from './serializers/utils';
 
 const NOT_LOADING = {
@@ -91,9 +91,13 @@ class BaseTreeContainer extends Component {
     }
 
     createContainer(props, component, path) {
-        return isSimpleComponent(component) ? (
-            component
-        ) : (
+        console.log('! on createContainer, component: ', component);
+        if (isSimpleComponent(component)) {
+            return component;
+        } else if (isSerializableComponent(component)) {
+            return stripSerializedValue(component);
+        }
+        return (
             <TreeContainer
                 key={
                     component &&
@@ -188,6 +192,11 @@ class BaseTreeContainer extends Component {
         const {_dashprivate_config, _dashprivate_dispatch, _dashprivate_error} =
             this.props;
 
+        console.log(
+            '! on getComponent, _dashprivate_layout: ',
+            _dashprivate_layout
+        );
+
         if (isEmpty(_dashprivate_layout)) {
             return null;
         }
@@ -197,7 +206,7 @@ class BaseTreeContainer extends Component {
         }
 
         if (isSerializableComponent(_dashprivate_layout)) {
-            return fetchSerializableValue(_dashprivate_layout);
+            return stripSerializedValue(_dashprivate_layout);
         }
 
         validateComponent(_dashprivate_layout);
