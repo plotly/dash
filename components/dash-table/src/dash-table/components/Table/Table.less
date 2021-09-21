@@ -50,11 +50,12 @@
     &[data-attr-anchor='top'] {
         margin-top: 10px;
 
-        &:after, &:before {
+        &:after,
+        &:before {
             bottom: 100%;
             left: 50%;
             border: solid transparent;
-            content: " ";
+            content: ' ';
             height: 0;
             width: 0;
             position: absolute;
@@ -79,11 +80,12 @@
     &[data-attr-anchor='bottom'] {
         margin-bottom: 10px;
 
-        &:after, &:before {
+        &:after,
+        &:before {
             top: 100%;
             left: 50%;
             border: solid transparent;
-            content: " ";
+            content: ' ';
             height: 0;
             width: 0;
             position: absolute;
@@ -194,7 +196,10 @@
             }
         }
 
-        button.previous-page, button.next-page, button.first-page, button.last-page {
+        button.previous-page,
+        button.next-page,
+        button.first-page,
+        button.last-page {
             transition-duration: 400ms;
             padding: 5px;
             border: none;
@@ -206,7 +211,7 @@
                 color: hotpink;
 
                 &:disabled {
-                    color: graytext
+                    color: graytext;
                 }
             }
 
@@ -234,12 +239,13 @@
             font-size: inherit;
             pointer-events: none;
 
-            td, th {
+            td,
+            th {
                 pointer-events: initial;
             }
         }
 
-        input[type="radio"] {
+        input[type='radio'] {
             // These override Bootstrap 3.4.1 type="radio" styling
             // https://github.com/twbs/bootstrap/blob/v3-dev/dist/css/bootstrap.css#L2621
             // This is not a problem with the latest `in development` 5.0.0-alpha2
@@ -252,7 +258,7 @@
             padding: initial;
         }
 
-	    .dash-spreadsheet-inner {
+        .dash-spreadsheet-inner {
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -260,7 +266,7 @@
             *,
             *:after,
             *:before {
-		        box-sizing: inherit;
+                box-sizing: inherit;
             }
 
             .Select {
@@ -270,7 +276,7 @@
 
             .Select,
             .Select-control {
-		        background-color: inherit;
+                background-color: inherit;
             }
 
             .Select-value {
@@ -285,7 +291,8 @@
                     visibility: hidden !important;
                 }
 
-                td, th {
+                td,
+                th {
                     height: 0 !important;
                     padding: 0 !important;
                     margin: 0 !important;
@@ -293,7 +300,7 @@
             }
 
             .dash-filter {
-		        input::placeholder {
+                input::placeholder {
                     color: inherit;
                     font-size: 0.8em;
                     padding-right: 5px;
@@ -315,7 +322,8 @@
             &:not(.dash-empty-11) {
                 .dt-table-container__row-0 {
                     tr:last-of-type {
-                        td, th {
+                        td,
+                        th {
                             border-bottom: none !important;
                         }
                     }
@@ -323,16 +331,17 @@
             }
 
             &:not(.dash-empty-01) {
-        		.cell-0-0,
-		        .cell-1-0 {
+                .cell-0-0,
+                .cell-1-0 {
                     tr {
-                        td, th {
+                        td,
+                        th {
                             &:last-of-type {
                                 border-right: none !important;
                             }
                         }
                     }
-	    	    }
+                }
             }
 
             .cell-0-0 {
@@ -341,7 +350,8 @@
 
             .cell-0-0,
             .cell-1-0 {
-                td, th {
+                td,
+                th {
                     &.phantom-cell {
                         border-color: transparent !important;
                     }
@@ -350,9 +360,11 @@
 
             .cell-0-1,
             .cell-1-1 {
-                td, th {
+                td,
+                th {
                     &.phantom-cell {
-                        border-color: transparent inherit transparent transparent !important;
+                        border-color: transparent inherit transparent
+                            transparent !important;
                     }
                 }
             }
@@ -379,7 +391,7 @@
                     flex: 0 0 auto;
                     left: 0;
                     position: sticky;
-                    position:-webkit-sticky;
+                    position: -webkit-sticky;
                     z-index: 400;
                 }
 
@@ -466,7 +478,7 @@
              * @supports = scoped to Firefox only
              * to minimize side effects
              */
-            @supports (-moz-appearance:none) {
+            @supports (-moz-appearance: none) {
                 td.dropdown .dash-cell-value-container {
                     height: auto;
                 }
@@ -504,13 +516,22 @@
             th {
                 white-space: nowrap;
 
-                .column-header--clear,
-                .column-header--delete,
-                .column-header--edit,
-                .column-header--hide,
-                .column-header--sort {
-                    .not-selectable();
-                    cursor: pointer;
+                .column-header {
+                    display: flex;
+                    justify-content: space-between;
+
+                    &--clear,
+                    &--delete,
+                    &--edit,
+                    &--hide,
+                    &--sort {
+                        .not-selectable();
+                        cursor: pointer;
+                    }
+
+                    > *:only-child {
+                        margin-left: auto;
+                    }
                 }
             }
 
@@ -520,7 +541,8 @@
             }
 
             // cell content styling
-            td, th {
+            td,
+            th {
                 background-clip: padding-box;
                 padding: 2px;
                 overflow-x: hidden;
@@ -553,11 +575,11 @@
             }
         }
 
-    	.dash-spreadsheet-inner textarea {
+        .dash-spreadsheet-inner textarea {
             white-space: pre;
-	    }
+        }
 
-	    .dash-spreadsheet-inner table {
+        .dash-spreadsheet-inner table {
             border-collapse: collapse;
 
             font-family: monospace;
@@ -571,24 +593,24 @@
             --selected-background: rgba(255, 65, 54, 0.2);
             --faded-dropdown: rgb(240, 240, 240);
             --muted: rgb(200, 200, 200);
-	    }
+        }
 
-	    /* focus happens after copying to clipboard */
-	    .dash-spreadsheet-inner table:focus {
+        /* focus happens after copying to clipboard */
+        .dash-spreadsheet-inner table:focus {
             outline: none;
-	    }
+        }
 
-	    .dash-spreadsheet-inner thead {
+        .dash-spreadsheet-inner thead {
             display: table-row-group;
-	    }
+        }
 
-	    .elip {
+        .elip {
             text-align: center;
             width: 100%;
             background-color: var(--background-color-ellipses);
-	    }
+        }
 
-	    .dash-spreadsheet-inner td.dropdown {
+        .dash-spreadsheet-inner td.dropdown {
             /*
              * To view the dropdown's contents, we need
              * overflow-y: visible.
@@ -602,30 +624,31 @@
              * tried it.
              */
             overflow-x: visible;
-	    }
+        }
 
         .dash-spreadsheet-inner :not(.cell--selected) tr:hover,
         tr:hover input :not(.cell--selected) {
             background-color: var(--hover);
-    	}
+        }
 
-    	.dash-spreadsheet-inner th {
+        .dash-spreadsheet-inner th {
             background-color: rgb(250, 250, 250);
-	    }
+        }
 
-	    .dash-spreadsheet-inner td {
+        .dash-spreadsheet-inner td {
             background-color: white;
-	    }
+        }
 
-	    .expanded-row--empty-cell {
+        .expanded-row--empty-cell {
             background-color: transparent;
-	    }
+        }
 
-	    .expanded-row {
+        .expanded-row {
             text-align: center;
-	    }
+        }
 
-	    .dash-spreadsheet-inner input:not([type=radio]):not([type=checkbox]) {
+        .dash-spreadsheet-inner
+            input:not([type='radio']):not([type='checkbox']) {
             padding: 0px;
             margin: 0px;
             height: calc(100% - 1px);
@@ -642,19 +665,19 @@
              * or bare `td`
              */
             text-shadow: none;
-	    }
+        }
 
-	    .dash-spreadsheet-inner input.unfocused {
+        .dash-spreadsheet-inner input.unfocused {
             color: transparent;
             text-shadow: 0 0 0 var(--text-color);
             cursor: default;
-	    }
+        }
 
-	    .dash-spreadsheet-inner input.unfocused:focus {
+        .dash-spreadsheet-inner input.unfocused:focus {
             outline: none;
-	    }
+        }
 
-	    .toggle-row {
+        .toggle-row {
             border: none;
             box-shadow: none;
             width: 10px;
@@ -662,15 +685,15 @@
             padding-right: 10px;
             cursor: pointer;
             color: var(--faded-text);
-	    }
+        }
 
-    	.toggle-row--expanded {
+        .toggle-row--expanded {
             color: var(--accent);
-	    }
+        }
 
-    	.dash-spreadsheet-inner tr:hover .toggle-row {
+        .dash-spreadsheet-inner tr:hover .toggle-row {
             color: var(--accent);
-	    }
+        }
 
         .dash-spreadsheet-inner .dash-delete-cell,
         .dash-spreadsheet-inner .dash-delete-header {
@@ -680,27 +703,27 @@
             text-align: center;
             cursor: pointer;
             color: var(--muted);
-    	}
+        }
         .dash-spreadsheet-inner .dash-delete-cell:hover,
         .dash-spreadsheet-inner .dash-delete-header:hover {
             color: var(--accent);
-    	}
+        }
 
-	    .dash-spreadsheet-inner {
-            [class^='column-header--'], [class^='dash-filter--'] {
+        .dash-spreadsheet-inner {
+            [class^='column-header--'],
+            [class^='dash-filter--'] {
                 cursor: pointer;
                 float: left;
             }
 
             .column-header--select {
-		        height: auto;
+                height: auto;
             }
 
             .column-header--select,
             .column-header--sort {
-        		color: var(--faded-text-header);
+                color: var(--faded-text-header);
             }
-
 
             .dash-filter--case,
             .column-header--clear,
@@ -713,7 +736,8 @@
             }
 
             th:hover {
-        		[class^='column-header--'], [class^='dash-filter--'] {
+                [class^='column-header--'],
+                [class^='dash-filter--'] {
                     &:not(.disabled) {
                         color: var(--accent);
                         opacity: 1;
@@ -724,6 +748,6 @@
             .dash-filter--case {
                 font-size: 10px;
             }
-	    }
+        }
     }
 }
