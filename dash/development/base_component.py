@@ -1,10 +1,14 @@
 import abc
 import inspect
 import sys
+import uuid
+import random
 
 from .._utils import patch_collections_abc, stringify_id
 
 MutableSequence = patch_collections_abc("MutableSequence")
+
+rd = random.Random(0)
 
 
 # pylint: disable=no-init,too-few-public-methods
@@ -162,6 +166,12 @@ class Component(metaclass=ComponentMeta):
                     )
 
             setattr(self, k, v)
+
+    def set_random_id(self):
+        if not hasattr(self, "id"):
+            v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
+            setattr(self, "id", v)
+        return getattr(self, "id")
 
     def to_plotly_json(self):
         # Add normal properties

@@ -65,9 +65,9 @@ def test_msps001_basic_persistence(dash_dcc):
                 persistence=True,
             ),
             dcc.RangeSlider(
-                id="rangeslider", min=0, max=10, value=[3, 7], persistence=True
+                id="rangeslider", min=0, max=10, step=1, value=[3, 7], persistence=True
             ),
-            dcc.Slider(id="slider", min=20, max=30, value=25, persistence=True),
+            dcc.Slider(id="slider", min=20, max=30, step=1, value=25, persistence=True),
             dcc.Tabs(
                 id="tabs",
                 children=[

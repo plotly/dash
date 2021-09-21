@@ -7,6 +7,7 @@ import '../components/css/react-virtualized@9.9.0.css';
 import '../components/css/Dropdown.css';
 
 import {propTypes, defaultProps} from '../components/Dropdown.react';
+import {sanitizeOptions} from '../utils/optionTypes';
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
 // Split on spaces
@@ -20,14 +21,14 @@ const TOKENIZER = {
     },
 };
 
-const DELIMETER = ',';
+const DELIMITER = ',';
 
 export default class Dropdown extends Component {
     constructor(props) {
         super(props);
         this.state = {
             filterOptions: createFilterOptions({
-                options: props.options,
+                options: sanitizeOptions(props.options),
                 tokenizer: TOKENIZER,
             }),
         };
@@ -37,7 +38,7 @@ export default class Dropdown extends Component {
         if (newProps.options !== this.props.options) {
             this.setState({
                 filterOptions: createFilterOptions({
-                    options: newProps.options,
+                    options: sanitizeOptions(newProps.options),
                     tokenizer: TOKENIZER,
                 }),
             });
@@ -57,8 +58,8 @@ export default class Dropdown extends Component {
         } = this.props;
         const {filterOptions} = this.state;
         let selectedValue;
-        if (type(value) === 'array') {
-            selectedValue = value.join(DELIMETER);
+        if (type(value) === 'Array') {
+            selectedValue = value.join(DELIMITER);
         } else {
             selectedValue = value;
         }
@@ -73,7 +74,7 @@ export default class Dropdown extends Component {
             >
                 <ReactDropdown
                     filterOptions={filterOptions}
-                    options={options}
+                    options={sanitizeOptions(options)}
                     value={selectedValue}
                     onChange={selectedOption => {
                         if (multi) {
@@ -98,7 +99,7 @@ export default class Dropdown extends Component {
                     backspaceRemoves={clearable}
                     deleteRemoves={clearable}
                     inputProps={{autoComplete: 'off'}}
-                    {...omit(['setProps', 'value'], this.props)}
+                    {...omit(['setProps', 'value', 'options'], this.props)}
                 />
             </div>
         );
