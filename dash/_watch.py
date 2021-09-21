@@ -2,18 +2,24 @@ import collections
 import os
 import re
 import time
+from typing import List, Callable, DefaultDict
 
 
-def watch(folders, on_change, pattern=None, sleep_time=0.1):
-    pattern = re.compile(pattern) if pattern else None
-    watched = collections.defaultdict(lambda: -1)
+def watch(
+    folders: List[str],
+    on_change: Callable,
+    pattern: str = None,
+    sleep_time: float = 0.1,
+) -> None:
+    compiled_pattern = re.compile(pattern) if pattern else None
+    watched: DefaultDict[str, float] = collections.defaultdict(lambda: -1)
 
-    def walk():
+    def walk() -> None:
         walked = []
         for folder in folders:
             for current, _, files in os.walk(folder):
                 for f in files:
-                    if pattern and not pattern.search(f):
+                    if compiled_pattern and not compiled_pattern.search(f):
                         continue
                     path = os.path.join(current, f)
 

@@ -46,7 +46,7 @@ def flatten_grouping(grouping, schema=None):
     return [grouping]
 
 
-def grouping_len(grouping):
+def grouping_len(grouping) -> int:
     """
     Get the length of a grouping. The length equal to the number of scalar values
     contained in the grouping, which is equivalent to the length of the list that would

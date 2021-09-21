@@ -12,6 +12,7 @@ import mimetypes
 import hashlib
 import base64
 from urllib.parse import urlparse
+from typing import Dict, Union, List, Optional, TypedDict
 
 import flask
 from flask_compress import Compress
@@ -104,6 +105,11 @@ _re_index_scripts_id = 'src="[^"]*dash[-_]renderer[^"]*"', "dash-renderer"
 _re_renderer_scripts_id = 'id="_dash-renderer', "new DashRenderer"
 
 
+class MetaTagDict(TypedDict):
+    name: str
+    content: str
+
+
 class _NoUpdate:
     # pylint: disable=too-few-public-methods
     pass
@@ -127,33 +133,28 @@ class Dash:
         your own ``server``, ``name`` will be used to help find assets.
         Typically ``__name__`` (the magic global var, not a string) is the
         best value to use. Default ``'__main__'``, env: ``DASH_APP_NAME``
-    :type name: string
 
     :param server: Sets the Flask server for your app. There are three options:
         ``True`` (default): Dash will create a new server
         ``False``: The server will be added later via ``app.init_app(server)``
             where ``server`` is a ``flask.Flask`` instance.
         ``flask.Flask``: use this pre-existing Flask server.
-    :type server: boolean or flask.Flask
 
     :param assets_folder: a path, relative to the current working directory,
         for extra files to be used in the browser. Default ``'assets'``.
         All .js and .css files will be loaded immediately unless excluded by
         ``assets_ignore``, and other files such as images will be served if
         requested.
-    :type assets_folder: string
 
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
         where ``asset_path`` is the path to a file inside ``assets_folder``.
         Default ``'assets'``.
-    :type asset_url_path: string
 
     :param assets_ignore: A regex, as a string to pass to ``re.compile``, for
         assets to omit from immediate loading. Ignored files will still be
         served if specifically requested. You cannot use this to prevent access
         to sensitive files.
-    :type assets_ignore: string
 
     :param assets_external_path: an absolute URL from which to load assets.
         Use with ``serve_locally=False``. assets_external_path is joined
@@ -163,49 +164,40 @@ class Dash:
         but external serving can improve performance and reduce load on
         the Dash server.
         env: ``DASH_ASSETS_EXTERNAL_PATH``
-    :type assets_external_path: string
 
     :param include_assets_files: Default ``True``, set to ``False`` to prevent
         immediate loading of any assets. Assets will still be served if
         specifically requested. You cannot use this to prevent access
         to sensitive files. env: ``DASH_INCLUDE_ASSETS_FILES``
-    :type include_assets_files: boolean
 
     :param url_base_pathname: A local URL prefix to use app-wide.
         Default ``'/'``. Both `requests_pathname_prefix` and
         `routes_pathname_prefix` default to `url_base_pathname`.
         env: ``DASH_URL_BASE_PATHNAME``
-    :type url_base_pathname: string
 
     :param requests_pathname_prefix: A local URL prefix for file requests.
         Defaults to `url_base_pathname`, and must end with
         `routes_pathname_prefix`. env: ``DASH_REQUESTS_PATHNAME_PREFIX``
-    :type requests_pathname_prefix: string
 
     :param routes_pathname_prefix: A local URL prefix for JSON requests.
         Defaults to ``url_base_pathname``, and must start and end
         with ``'/'``. env: ``DASH_ROUTES_PATHNAME_PREFIX``
-    :type routes_pathname_prefix: string
 
     :param serve_locally: If ``True`` (default), assets and dependencies
         (Dash and Component js and css) will be served from local URLs.
         If ``False`` we will use CDN links where available.
-    :type serve_locally: boolean
 
     :param compress: Use gzip to compress files and data served by Flask.
         Default ``False``
-    :type compress: boolean
 
     :param meta_tags: html <meta> tags to be added to the index page.
         Each dict should have the attributes and values for one tag, eg:
         ``{'name': 'description', 'content': 'My App'}``
-    :type meta_tags: list of dicts
 
     :param index_string: Override the standard Dash index page.
         Must contain the correct insertion markers to interpolate various
         content into it depending on the app config and components used.
         See https://dash.plotly.com/external-resources for details.
-    :type index_string: string
 
     :param external_scripts: Additional JS files to load with the page.
         Each entry can be a string (the URL) or a dict with ``src`` (the URL)
@@ -223,7 +215,6 @@ class Dash:
         ensure referenced IDs exist and props are valid. Set to ``True``
         if your layout is dynamic, to bypass these checks.
         env: ``DASH_SUPPRESS_CALLBACK_EXCEPTIONS``
-    :type suppress_callback_exceptions: boolean
 
     :param prevent_initial_callbacks: Default ``False``: Sets the default value
         of ``prevent_initial_call`` for all callbacks added to the app.
@@ -236,12 +227,10 @@ class Dash:
 
     :param show_undo_redo: Default ``False``, set to ``True`` to enable undo
         and redo buttons for stepping through the history of the app state.
-    :type show_undo_redo: boolean
 
     :param extra_hot_reload_paths: A list of paths to watch for changes, in
         addition to assets and known Python and JS code, if hot reloading is
         enabled.
-    :type extra_hot_reload_paths: list of strings
 
     :param plugins: Extend Dash functionality by passing a list of objects
         with a ``plug`` method, taking a single argument: this app, which will
@@ -264,30 +253,30 @@ class Dash:
 
     def __init__(
         self,
-        name=None,
-        server=True,
-        assets_folder="assets",
-        assets_url_path="assets",
-        assets_ignore="",
-        assets_external_path=None,
+        name: str = None,
+        server: Union[bool, flask.Flask] = True,
+        assets_folder: str = "assets",
+        assets_url_path: str = "assets",
+        assets_ignore: str = "",
+        assets_external_path: str = None,
         eager_loading=False,
-        include_assets_files=True,
-        url_base_pathname=None,
-        requests_pathname_prefix=None,
-        routes_pathname_prefix=None,
-        serve_locally=True,
-        compress=None,
-        meta_tags=None,
-        index_string=_default_index,
+        include_assets_files: bool = True,
+        url_base_pathname: str = None,
+        requests_pathname_prefix: str = None,
+        routes_pathname_prefix: str = None,
+        serve_locally: bool = True,
+        compress: bool = None,
+        meta_tags: List[MetaTagDict] = None,
+        index_string: str = _default_index,
         external_scripts=None,
         external_stylesheets=None,
-        suppress_callback_exceptions=None,
+        suppress_callback_exceptions: bool = None,
         prevent_initial_callbacks=False,
-        show_undo_redo=False,
-        extra_hot_reload_paths=None,
+        show_undo_redo: bool = False,
+        extra_hot_reload_paths: List[str] = None,
         plugins=None,
-        title="Dash",
-        update_title="Updating...",
+        title: str = "Dash",
+        update_title: str = "Updating...",
         long_callback_manager=None,
         **obsolete,
     ):
@@ -295,6 +284,9 @@ class Dash:
 
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
+
+        self.server = Optional[flask.Flask]
+
         if isinstance(server, flask.Flask):
             self.server = server
             if name is None:
@@ -378,7 +370,7 @@ class Dash:
         self._callback_list = []
 
         # list of inline scripts
-        self._inline_scripts = []
+        self._inline_scripts: List[str] = []
 
         # index_string has special setter so can't go in config
         self._index_string = ""
@@ -411,7 +403,7 @@ class Dash:
             changed_assets=[],
         )
 
-        self._assets_files = []
+        self._assets_files: List[str] = []
         self._long_callback_count = 0
         self._long_callback_manager = long_callback_manager
 
@@ -433,6 +425,11 @@ class Dash:
 
         if app is not None:
             self.server = app
+
+        if not isinstance(self.server, flask.Flask):
+            raise ValueError(
+                "app argument to init_app should be a flask.Flask instance"
+            )
 
         assets_blueprint_name = "{}{}".format(
             config.routes_pathname_prefix.replace("/", "_"), "dash_assets"
@@ -459,6 +456,21 @@ class Dash:
             """Handle a halted callback and return an empty 204 response."""
             return "", 204
 
+        def _add_url(self, name, view_func, methods=("GET",)) -> None:
+
+            full_name = self.config.routes_pathname_prefix + name
+
+            self.server.add_url_rule(
+                full_name,
+                view_func=view_func,
+                endpoint=full_name,
+                methods=list(methods),
+            )
+
+            # record the url in Dash.routes so that it can be accessed later
+            # e.g. for adding authentication with flask_login
+            self.routes.append(full_name)
+
         self.server.before_first_request(self._setup_server)
 
         # add a handler for components suites errors to return 404
@@ -478,21 +490,6 @@ class Dash:
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
-    def _add_url(self, name, view_func, methods=("GET",)):
-        full_name = self.config.routes_pathname_prefix + name
-
-        self.server.add_url_rule(
-            full_name, view_func=view_func, endpoint=full_name, methods=list(methods)
-        )
-
-        # record the url in Dash.routes so that it can be accessed later
-        # e.g. for adding authentication with flask_login
-        self.routes.append(full_name)
-
-    @property
-    def layout(self):
-        return self._layout
-
     def _layout_value(self):
         layout = self._layout() if self._layout_is_function else self._layout
 
@@ -501,6 +498,10 @@ class Dash:
             layout = html.Div(children=[layout] + self._extra_components)
 
         return layout
+
+    @property
+    def layout(self):
+        return self._layout
 
     @layout.setter
     def layout(self, value):
@@ -552,7 +553,7 @@ class Dash:
         _validate.validate_index("index string", checks, value)
         self._index_string = value
 
-    def serve_layout(self):
+    def serve_layout(self) -> flask.Response:
         layout = self._layout_value()
 
         # TODO - Set browser cache limit - pass hash into frontend
@@ -561,7 +562,7 @@ class Dash:
             mimetype="application/json",
         )
 
-    def _config(self):
+    def _config(self) -> dict:
         # pieces of config needed by the front end
         config = {
             "url_base_pathname": self.config.url_base_pathname,
@@ -674,7 +675,7 @@ class Dash:
                 srcs.append(static_url)
         return srcs
 
-    def _generate_css_dist_html(self):
+    def _generate_css_dist_html(self) -> str:
         external_links = self.config.external_stylesheets
         links = self._collect_and_register_resources(self.css.get_all_css())
 
@@ -687,7 +688,7 @@ class Dash:
             ]
         )
 
-    def _generate_scripts_html(self):
+    def _generate_scripts_html(self) -> str:
         # Dash renderer has dependencies like React which need to be rendered
         # before every other script. However, the dash renderer bundle
         # itself needs to be rendered after all of the component's
@@ -742,19 +743,17 @@ class Dash:
             + ["<script>{}</script>".format(src) for src in self._inline_scripts]
         )
 
-    def _generate_config_html(self):
-        return '<script id="_dash-config" type="application/json">{}</script>'.format(
-            to_json(self._config())
-        )
+    def _generate_config_html(self) -> str:
+        return f'<script id="_dash-config" type="application/json">{to_json(self._config())}</script>'
 
-    def _generate_renderer(self):
+    def _generate_renderer(self) -> str:
         return (
             '<script id="_dash-renderer" type="application/javascript">'
-            "{}"
+            f"{self.renderer}"
             "</script>"
-        ).format(self.renderer)
+        )
 
-    def _generate_meta_html(self):
+    def _generate_meta_html(self) -> str:
         meta_tags = self.config.meta_tags
         has_ie_compat = any(
             x.get("http-equiv", "") == "X-UA-Compatible" for x in meta_tags
@@ -860,15 +859,15 @@ class Dash:
 
     def interpolate_index(
         self,
-        metas="",
-        title="",
-        css="",
-        config="",
-        scripts="",
-        app_entry="",
-        favicon="",
-        renderer="",
-    ):
+        metas: str = "",
+        title: str = "",
+        css: str = "",
+        config: str = "",
+        scripts: str = "",
+        app_entry: str = "",
+        favicon: str = "",
+        renderer: str = "",
+    ) -> str:
         """Called to create the initial HTML string that is loaded on page.
         Override this method to provide you own custom HTML.
 
@@ -1336,7 +1335,7 @@ class Dash:
         response.set_data(func(*args, outputs_list=outputs_list))
         return response
 
-    def _setup_server(self):
+    def _setup_server(self) -> None:
         # Apply _force_eager_loading overrides from modules
         eager_loading = self.config.eager_loading
         for module_name in ComponentRegistry.registry:
@@ -1371,14 +1370,14 @@ class Dash:
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
         _callback.GLOBAL_CALLBACK_LIST.clear()
 
-    def _add_assets_resource(self, url_path, file_path):
+    def _add_assets_resource(self, url_path, file_path) -> Dict[str, str]:
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:
             res["external_url"] = self.get_asset_url(url_path.lstrip("/"))
         self._assets_files.append(file_path)
         return res
 
-    def _walk_assets_directory(self):
+    def _walk_assets_directory(self) -> None:
         walk_dir = self.config.assets_folder
         slash_splitter = re.compile(r"[\\/]+")
         ignore_str = self.config.assets_ignore
@@ -1422,7 +1421,7 @@ class Dash:
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
 
-    def csp_hashes(self, hash_algorithm="sha256"):
+    def csp_hashes(self, hash_algorithm: str = "sha256") -> List[str]:
         """Calculates CSP hashes (sha + base64) of all inline scripts, such that
         one of the biggest benefits of CSP (disallowing general inline scripts)
         can be utilized together with Dash clientside callbacks (inline scripts).
@@ -1471,7 +1470,7 @@ class Dash:
 
         return asset
 
-    def get_relative_path(self, path):
+    def get_relative_path(self, path: str) -> str:
         """
         Return a path with `requests_pathname_prefix` prefixed before it.
         Use this function when specifying local URL paths that will work
@@ -1808,7 +1807,7 @@ class Dash:
         return debug
 
     # noinspection PyProtectedMember
-    def _on_assets_change(self, filename, modified, deleted):
+    def _on_assets_change(self, filename: str, modified, deleted: bool) -> None:
         _reload = self._hot_reload
         with _reload.lock:
             _reload.hard = True
@@ -1861,19 +1860,19 @@ class Dash:
 
     def run_server(
         self,
-        host=os.getenv("HOST", "127.0.0.1"),
-        port=os.getenv("PORT", "8050"),
-        proxy=os.getenv("DASH_PROXY", None),
-        debug=False,
-        dev_tools_ui=None,
-        dev_tools_props_check=None,
-        dev_tools_serve_dev_bundles=None,
-        dev_tools_hot_reload=None,
-        dev_tools_hot_reload_interval=None,
-        dev_tools_hot_reload_watch_interval=None,
-        dev_tools_hot_reload_max_retry=None,
-        dev_tools_silence_routes_logging=None,
-        dev_tools_prune_errors=None,
+        host: str = os.getenv("HOST", "127.0.0.1"),
+        port: int = int(os.getenv("PORT", "8050")),
+        proxy: Optional[str] = os.getenv("DASH_PROXY", None),
+        debug: bool = False,
+        dev_tools_ui: bool = None,
+        dev_tools_props_check: bool = None,
+        dev_tools_serve_dev_bundles: bool = None,
+        dev_tools_hot_reload: bool = None,
+        dev_tools_hot_reload_interval: float = None,
+        dev_tools_hot_reload_watch_interval: float = None,
+        dev_tools_hot_reload_max_retry: int = None,
+        dev_tools_silence_routes_logging: bool = None,
+        dev_tools_prune_errors: bool = None,
         **flask_run_options,
     ):
         """Start the flask server in local mode, you should not run this on a
@@ -1884,11 +1883,9 @@ class Dash:
 
         :param host: Host IP used to serve the application
             env: ``HOST``
-        :type host: string
 
         :param port: Port used to serve the application
             env: ``PORT``
-        :type port: int
 
         :param proxy: If this application will be served to a different URL
             via a proxy configured outside of Python, you can list it here
@@ -1896,65 +1893,55 @@ class Dash:
             ``"http://0.0.0.0:8050::https://my.domain.com"``
             so that the startup message will display an accurate URL.
             env: ``DASH_PROXY``
-        :type proxy: string
-
-        :param debug: Set Flask debug mode and enable dev tools.
-            env: ``DASH_DEBUG``
-        :type debug: bool
 
         :param debug: Enable/disable all the dev tools unless overridden by the
             arguments or environment variables. Default is ``True`` when
             ``enable_dev_tools`` is called directly, and ``False`` when called
-            via ``run_server``. env: ``DASH_DEBUG``
-        :type debug: bool
+            via ``run_server``.
+            env: ``DASH_DEBUG``
 
         :param dev_tools_ui: Show the dev tools UI. env: ``DASH_UI``
-        :type dev_tools_ui: bool
 
         :param dev_tools_props_check: Validate the types and values of Dash
             component props. env: ``DASH_PROPS_CHECK``
-        :type dev_tools_props_check: bool
 
         :param dev_tools_serve_dev_bundles: Serve the dev bundles. Production
             bundles do not necessarily include all the dev tools code.
             env: ``DASH_SERVE_DEV_BUNDLES``
-        :type dev_tools_serve_dev_bundles: bool
 
         :param dev_tools_hot_reload: Activate hot reloading when app, assets,
             and component files change. env: ``DASH_HOT_RELOAD``
-        :type dev_tools_hot_reload: bool
 
         :param dev_tools_hot_reload_interval: Interval in seconds for the
             client to request the reload hash. Default 3.
             env: ``DASH_HOT_RELOAD_INTERVAL``
-        :type dev_tools_hot_reload_interval: float
 
         :param dev_tools_hot_reload_watch_interval: Interval in seconds for the
             server to check asset and component folders for changes.
             Default 0.5. env: ``DASH_HOT_RELOAD_WATCH_INTERVAL``
-        :type dev_tools_hot_reload_watch_interval: float
 
         :param dev_tools_hot_reload_max_retry: Maximum number of failed reload
             hash requests before failing and displaying a pop up. Default 8.
             env: ``DASH_HOT_RELOAD_MAX_RETRY``
-        :type dev_tools_hot_reload_max_retry: int
 
         :param dev_tools_silence_routes_logging: Silence the `werkzeug` logger,
             will remove all routes logging. Enabled with debugging by default
             because hot reload hash checks generate a lot of requests.
             env: ``DASH_SILENCE_ROUTES_LOGGING``
-        :type dev_tools_silence_routes_logging: bool
 
         :param dev_tools_prune_errors: Reduce tracebacks to just user code,
             stripping out Flask and Dash pieces. Only available with debugging.
             `True` by default, set to `False` to see the complete traceback.
             env: ``DASH_PRUNE_ERRORS``
-        :type dev_tools_prune_errors: bool
 
         :param flask_run_options: Given to `Flask.run`
 
         :return:
         """
+
+        if not isinstance(self.server, flask.Flask):
+            raise ValueError("You need to run init_app first")
+
         debug = self.enable_dev_tools(
             debug,
             dev_tools_ui,
@@ -1973,9 +1960,7 @@ class Dash:
             port = int(port)
             assert port in range(1, 65536)
         except Exception as e:
-            e.args = [
-                "Expecting an integer from 1 to 65535, found port={}".format(repr(port))
-            ]
+            e.args = [f"Expecting an integer from 1 to 65535, found port={repr(port)}"]
             raise
 
         # so we only see the "Running on" message once with hot reloading
@@ -1988,21 +1973,15 @@ class Dash:
             if proxy:
                 served_url, proxied_url = map(urlparse, proxy.split("::"))
 
-                def verify_url_part(served_part, url_part, part_name):
+                def verify_url_part(served_part, url_part, part_name) -> None:
                     if served_part != url_part:
                         raise ProxyError(
-                            """
-                            {0}: {1} is incompatible with the proxy:
-                                {3}
-                            To see your app at {4},
-                            you must use {0}: {2}
-                        """.format(
-                                part_name,
-                                url_part,
-                                served_part,
-                                proxy,
-                                proxied_url.geturl(),
-                            )
+                            f"""
+                            {part_name}: {url_part} is incompatible with the proxy:
+                                {proxy}
+                            To see your app at {proxied_url.geturl()},
+                            you must use {part_name}: {served_part}
+                        """
                         )
 
                 verify_url_part(served_url.scheme, protocol, "protocol")
@@ -2012,11 +1991,11 @@ class Dash:
                 display_url = (
                     proxied_url.scheme,
                     proxied_url.hostname,
-                    (":{}".format(proxied_url.port) if proxied_url.port else ""),
+                    (f":{proxied_url.port}" if proxied_url.port else ""),
                     path,
                 )
             else:
-                display_url = (protocol, host, ":{}".format(port), path)
+                display_url = (protocol, host, ":{port}", path)
 
             self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
 

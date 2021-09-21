@@ -11,3 +11,4 @@ coloredlogs==15.0.1
 flask-talisman==0.8.1
 orjson==3.3.1;python_version<"3.7"
 orjson==3.6.1;python_version>="3.7"
+mypy==0.910
