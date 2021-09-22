@@ -91,11 +91,10 @@ class BaseTreeContainer extends Component {
     }
 
     createContainer(props, component, path) {
-        console.log('! on createContainer, component: ', component);
         if (isSimpleComponent(component)) {
             return component;
         } else if (isSerializableComponent(component)) {
-            return stripSerializedValue(component);
+            return this.proceedSerializableComponent(component);
         }
         return (
             <TreeContainer
@@ -192,11 +191,6 @@ class BaseTreeContainer extends Component {
         const {_dashprivate_config, _dashprivate_dispatch, _dashprivate_error} =
             this.props;
 
-        console.log(
-            '! on getComponent, _dashprivate_layout: ',
-            _dashprivate_layout
-        );
-
         if (isEmpty(_dashprivate_layout)) {
             return null;
         }
@@ -206,7 +200,7 @@ class BaseTreeContainer extends Component {
         }
 
         if (isSerializableComponent(_dashprivate_layout)) {
-            return stripSerializedValue(_dashprivate_layout);
+            return this.proceedSerializableComponent(_dashprivate_layout);
         }
 
         validateComponent(_dashprivate_layout);
@@ -251,6 +245,11 @@ class BaseTreeContainer extends Component {
 
     getLayoutProps() {
         return propOr({}, 'props', this.props._dashprivate_layout);
+    }
+
+    proceedSerializableComponent(component) {
+        this.setProps(component);
+        return stripSerializedValue(component);
     }
 
     render() {
