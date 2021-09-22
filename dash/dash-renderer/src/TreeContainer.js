@@ -29,10 +29,7 @@ import {
     validateComponent
 } from './utils/TreeContainer';
 import {DashContext} from './APIController.react';
-import {
-    isSerializableComponent,
-    stripSerializedValue
-} from './serializers/utils';
+import {deserializeProps} from './serializers/utils';
 
 const NOT_LOADING = {
     is_loading: false
@@ -94,8 +91,6 @@ class BaseTreeContainer extends Component {
         console.log('! on createContainer, component: ', component);
         if (isSimpleComponent(component)) {
             return component;
-        } else if (isSerializableComponent(component)) {
-            return stripSerializedValue(component);
         }
         return (
             <TreeContainer
@@ -205,26 +200,29 @@ class BaseTreeContainer extends Component {
             return _dashprivate_layout;
         }
 
-        if (isSerializableComponent(_dashprivate_layout)) {
-            return stripSerializedValue(_dashprivate_layout);
-        }
-
         validateComponent(_dashprivate_layout);
 
         const element = Registry.resolve(_dashprivate_layout);
 
-        const props = dissoc('children', _dashprivate_layout.props);
+        const original_props = dissoc('children', _dashprivate_layout.props);
 
-        if (type(props.id) === 'Object') {
+        if (type(original_props.id) === 'Object') {
             // Turn object ids (for wildcards) into unique strings.
             // Because of the `dissoc` above we're not mutating the layout,
             // just the id we pass on to the rendered component
-            props.id = stringifyId(props.id);
+            original_props.id = stringifyId(original_props.id);
         }
-        const extraProps = {
+        const _initial_extraProps = {
             loading_state: loading_state || NOT_LOADING,
             setProps
         };
+
+        // any book-keeping info can be added to `extraProps`
+        // then pass the returned `props` to component, so component isn't really aware what's being done!!!
+        const {extraProps, props} = deserializeProps(
+            original_props,
+            _initial_extraProps
+        );
 
         return (
             <ComponentErrorBoundary
