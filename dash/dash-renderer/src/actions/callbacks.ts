@@ -163,6 +163,16 @@ function fillVals(
             errors.push(inputError);
         }
 
+        /*
+            ** UNTESTED CODE YET **
+            So, after collecting `inputs` values from the given dependencies, 
+            we want to see if there were any Dash serialized props!!
+
+            What I'm not sure until I debug: 
+                - I added a line at Ln153 assuming I could get extraProps for the input component like that. Need to verify!
+                - I assume this `inputs` will be array of the object generated from Ln150-153. Need to verify!
+                - I assume `property` would be the name of the prop, but need to verify too!
+        */
         inputs.map((input:any) => {
             // grab the original `__type`
             const customType = getOriginalSerializationType(input.extraProps, input.property);

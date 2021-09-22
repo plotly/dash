@@ -217,8 +217,10 @@ class BaseTreeContainer extends Component {
             setProps
         };
 
-        // any book-keeping info can be added to `extraProps`
-        // then pass the returned `props` to component, so component isn't really aware what's being done!!!
+        /* 
+            This should be the best place to hook the given `props` values for each component,
+            then strip any serialized values and create bookkeepers for `__type`s
+        */
         const {extraProps, props} = deserializeProps(
             original_props,
             _initial_extraProps
