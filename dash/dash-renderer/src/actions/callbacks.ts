@@ -31,6 +31,7 @@ import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
+import { dashSerializeValue, getOriginalSerializationType } from '../serializers/utils';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -148,7 +149,8 @@ function fillVals(
             inputList.map(({id, property, path: path_}: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property]
+                value: (path(path_, layout) as any).props[property],
+                extraProps: (path(path_, layout) as any).extraProps
             })),
             specs[i],
             cb.anyVals,
@@ -160,6 +162,18 @@ function fillVals(
         if (inputError) {
             errors.push(inputError);
         }
+
+        inputs.map((input:any) => {
+            // grab the original `__type`
+            const customType = getOriginalSerializationType(input.extraProps, input.property);
+            if (customType) {
+                return dashSerializeValue(customType, input);
+            }
+
+            // if no need to serialize back, just pass as it is
+            return input;
+        })
+
         return inputs;
     });
 
