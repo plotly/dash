@@ -7,7 +7,9 @@ import {
     path,
     pick,
     pluck,
-    zip
+    zip,
+    type,
+    has
 } from 'ramda';
 
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
@@ -142,13 +144,37 @@ function fillVals(
     const errors: any[] = [];
     let emptyMultiValues = 0;
 
+    const preInputVals = getter(paths);
+    console.log(
+        '!!! fillVals 0, paths:',
+        paths,
+        '\n layout: ',
+        layout,
+        '\n specs: ',
+        specs,
+        '\n depType: ',
+        depType,
+        '\n getter(paths): ',
+        getter(paths),
+        '\n type(inputList): ',
+        type(preInputVals)
+    );
+
     const inputVals = getter(paths).map((inputList: any, i: number) => {
+        console.log(
+            '!!! fillVals 1, inputList:',
+            inputList,
+            '\n type(inputList): ',
+            type(inputList)
+        );
+
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property]
+                value: (path(path_, layout) as any).props[property],
+                extraProps: (path(path_, layout) as any).extraProps
             })),
             specs[i],
             cb.anyVals,
@@ -160,6 +186,41 @@ function fillVals(
         if (inputError) {
             errors.push(inputError);
         }
+
+        /*
+            ** UNTESTED CODE YET **
+            So, after collecting `inputs` values from the given dependencies, 
+            we want to see if there were any Dash serialized props!!
+
+            What I'm not sure until I debug: 
+                - I added a line at Ln153 assuming I could get extraProps for the input component like that. Need to verify!
+                - I assume this `inputs` will be array of the object generated from Ln150-153. Need to verify!
+                - I assume `property` would be the name of the prop, but need to verify too!
+        */
+        console.log(
+            '!!! fillVals, inputs:',
+            inputs,
+            '\n type(inputs): ',
+            type(inputs)
+        );
+
+        if (type(inputs.value) === 'Object' && has('value', inputs.value)) {
+            return inputs.value.value;
+        }
+
+        /*
+        inputs.map((input:any) => {
+            // grab the original `__type`
+            const customType = getOriginalSerializationType(input.extraProps, input.property);
+            if (customType) {
+                return dashSerializeValue(customType, input);
+            }
+
+            // if no need to serialize back, just pass as it is
+            return input;
+        })
+*/
+
         return inputs;
     });
 
