@@ -33,6 +33,7 @@ import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
+import {dashSerializeValue} from '../serializers/utils';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -174,7 +175,7 @@ function fillVals(
                 id,
                 property,
                 value: (path(path_, layout) as any).props[property],
-                extraProps: (path(path_, layout) as any).extraProps
+                serializedKeys: (path(path_, layout) as any).serializedKeys
             })),
             specs[i],
             cb.anyVals,
@@ -204,10 +205,37 @@ function fillVals(
             type(inputs)
         );
 
-        if (type(inputs.value) === 'Object' && has('value', inputs.value)) {
-            return inputs.value.value;
-        }
+        if (
+            has('serializedKeys', inputs) &&
+            inputs.serializedKeys !== undefined
+        ) {
+            const {serializedKeys, property, value} = inputs;
 
+            console.log(
+                '**** fillVals, ' + '\n serializedKeys:',
+                serializedKeys,
+                '\n property:',
+                property,
+                '\n value:',
+                value,
+                '\n type(serializedKeys): ',
+                type(serializedKeys)
+            );
+
+            serializedKeys.map(bookkep => {
+                if (has(property, bookkep)) {
+                    inputs.value = dashSerializeValue(bookkep[property], value);
+                }
+            });
+        }
+        // I think we should not check this, unless it's serialized object that we're targeting
+        // if (type(inputs.value) === 'Object' && has('value', inputs.value)) {
+        //     return inputs.value.value;
+        // }
+
+        // I'd like to log "inputs"'
+        // I blieve we need to serialize the changed value before sending to server
+        // what do you think?
         /*
         inputs.map((input:any) => {
             // grab the original `__type`

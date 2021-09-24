@@ -36,7 +36,14 @@ const NOT_LOADING = {
 };
 
 function CheckedComponent(p) {
-    const {element, extraProps, props, children, type} = p;
+    const {element, extraProps, props, children, type, _dashprivate_layout} = p;
+    // so this piece of code is called whenever an element needs to be updated,
+    console.log(
+        '!!! CheckedComponent:' + '\n props: ',
+        props,
+        '\n extraProps: ',
+        extraProps
+    );
 
     const errorMessage = checkPropTypes(
         element.propTypes,
@@ -48,7 +55,13 @@ function CheckedComponent(p) {
         propTypeErrorHandler(errorMessage, props, type);
     }
 
-    return createElement(element, props, extraProps, children);
+    return createElement(
+        element,
+        props,
+        extraProps,
+        children,
+        _dashprivate_layout
+    );
 }
 
 CheckedComponent.propTypes = {
@@ -60,8 +73,35 @@ CheckedComponent.propTypes = {
     id: PropTypes.string
 };
 
-function createElement(element, props, extraProps, children) {
-    const allProps = mergeRight(props, extraProps);
+function createElement(
+    element,
+    props,
+    extraProps,
+    children,
+    _dashprivate_layout
+) {
+    let allProps = mergeRight(props, extraProps);
+    console.log(
+        '*** createElement before',
+        '\n allProps: ',
+        allProps,
+        '\n _dashprivate_layout: ',
+        _dashprivate_layout
+    );
+    // const test_ser = {test_ser: 'test_ser_0'};
+    // allProps = mergeRight(allProps, test_ser);
+
+    // const {s_props, serializedKeys} = deserializeProps(allProps);
+    // _dashprivate_layout.serializedKeys = serializedKeys;
+    //
+    // const element = Registry.resolve(_dashprivate_layout);
+    //
+    //
+    // console.log('*** createElement after merge',
+    //     '\n allProps: ', allProps,
+    //     '\n _dashprivate_layout: ', _dashprivate_layout
+    //     )
+
     if (Array.isArray(children)) {
         return React.createElement(element, allProps, ...children);
     }
@@ -124,10 +164,26 @@ class BaseTreeContainer extends Component {
 
         const oldProps = this.getLayoutProps();
         const {id} = oldProps;
+
         const changedProps = pickBy(
             (val, key) => !equals(val, oldProps[key]),
             newProps
         );
+
+        console.log(
+            '!!! onSetPropsCalled',
+            '\n ID: ',
+            id,
+            '\n _dashprivate_layout: ',
+            _dashprivate_layout,
+            '\n oldProps: ',
+            oldProps,
+            '\n newProps: ',
+            newProps,
+            '\n changedProps: ',
+            changedProps
+        );
+
         if (!isEmpty(changedProps)) {
             // Identify the modified props that are required for callbacks
             const watchedKeys = getWatchedKeys(
@@ -206,7 +262,7 @@ class BaseTreeContainer extends Component {
             // just the id we pass on to the rendered component
             original_props.id = stringifyId(original_props.id);
         }
-        const _initial_extraProps = {
+        const extraProps = {
             loading_state: loading_state || NOT_LOADING,
             setProps
         };
@@ -215,12 +271,19 @@ class BaseTreeContainer extends Component {
             This should be the best place to hook the given `props` values for each component,
             then strip any serialized values and create bookkeepers for `__type`s
         */
-        const {props, extraProps} = deserializeProps(
-            original_props,
-            _initial_extraProps
-        );
+        const {props, serializedKeys} = deserializeProps(original_props);
+        _dashprivate_layout.serializedKeys = serializedKeys;
 
-        // console.log('!!! getComponent: got props: ', props, '\n extraProps: ', extraProps)
+        // const props = original_props
+
+        console.log(
+            '!!! getComponent:' + '\n original_props: ',
+            original_props,
+            '\n props: ',
+            props,
+            '\n extraProps: ',
+            extraProps
+        );
 
         return (
             <ComponentErrorBoundary
@@ -237,9 +300,16 @@ class BaseTreeContainer extends Component {
                         props={props}
                         extraProps={extraProps}
                         type={_dashprivate_layout.type}
+                        _dashprivate_layout={_dashprivate_layout}
                     />
                 ) : (
-                    createElement(element, props, extraProps, children)
+                    createElement(
+                        element,
+                        props,
+                        extraProps,
+                        children,
+                        _dashprivate_layout
+                    )
                 )}
             </ComponentErrorBoundary>
         );

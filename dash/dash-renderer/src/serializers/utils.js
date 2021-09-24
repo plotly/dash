@@ -2,7 +2,7 @@ import {type, has, prop} from 'ramda';
 
 const PROP_TYPE = '__type';
 const PROP_VALUE = '__value';
-const DASH_BOOK_KEEPER = '__dash_serialized_props';
+export const DASH_BOOK_KEEPER = '__dash_serialized_props';
 
 /*
     What does this do?
@@ -75,10 +75,9 @@ const DASH_BOOK_KEEPER = '__dash_serialized_props';
             }
 
 */
-export const deserializeProps = (props, extraProps) => {
+export const deserializeProps = props => {
     const dashSerializedProps = [];
     const newProps = {};
-    const newExtraProps = Object.assign({}, extraProps);
 
     for (const [key, value] of Object.entries(props)) {
         if (isDashSerializedValue(value)) {
@@ -92,23 +91,10 @@ export const deserializeProps = (props, extraProps) => {
         }
     }
 
-    newExtraProps[DASH_BOOK_KEEPER] = dashSerializedProps;
-    console.log(
-        '!!! deserializeProps, dashSerializedProps: ',
-        dashSerializedProps,
-        '\n props: ',
-        props,
-        '\n extraProps: ',
-        extraProps,
-        '\n newProps: ',
-        newProps,
-        '\n dashSerializedProps: ',
-        dashSerializedProps,
-        '\n newExtraProps: ',
-        newExtraProps
-    );
-
-    return {props: newProps, extraProps: newExtraProps};
+    return {
+        props: newProps,
+        serializedKeys: dashSerializedProps
+    };
 };
 
 export const isDashSerializedValue = object =>
@@ -126,7 +112,7 @@ export const dashSerializeValue = (type, value) => {
     const serializedValue = {};
     serializedValue[PROP_TYPE] = type;
     serializedValue[PROP_VALUE] = value;
-    return serializedValue;
+    return JSON.stringify(serializedValue);
 };
 
 /*
