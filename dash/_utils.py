@@ -9,6 +9,7 @@ import logging
 import io
 import json
 from functools import wraps
+import pandas as pd
 from . import exceptions
 
 logger = logging.getLogger()
@@ -247,3 +248,19 @@ def job(msg=""):
         return _wrapper
 
     return wrapper
+
+
+class serializer:
+    @classmethod
+    def serialize(cls, obj):
+        if isinstance(obj, pd.DataFrame):
+            return {"__type": "DataFrame", "__value": obj.to_dict("records")}
+
+        return {"__type": "JSON", "__value": obj}
+
+    @classmethod
+    def unserialize(cls, obj):
+        if obj["__type"] == "DataFrame":
+            return pd.DataFrame(obj["__value"])
+
+        return obj["__value"]
