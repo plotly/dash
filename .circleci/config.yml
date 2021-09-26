@@ -562,10 +562,10 @@ workflows:
 
       - build-windows-39
 
-      - lint-unit-39
+      - lint-unit-39:
           requires:
             - install-dependencies
-      - lint-unit-36
+      - lint-unit-36:
           requires:
             - install-dependencies
 
