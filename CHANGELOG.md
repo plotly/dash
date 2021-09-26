@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- [#1779](https://github.com/plotly/dash/pull/1779):
+    - Clean up our handling of serialization problems, including fixing `orjson` for Python 3.6
+    - Added the ability for `dash.testing` `percy_snapshot` methods to choose widths to generate.
+
 - [#1763](https://github.com/plotly/dash/pull/1763):
     ## Dash and Dash Renderer
 
@@ -29,7 +33,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     @dash.callback(Output(my_output, 'children'), Input(my_input, 'value'))
     def update(value):
       return f'You have entered {value}'
-      
+
     ```
     ## Dash Core Components
 
@@ -138,7 +142,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     ```python
     dcc.Checklist(inline=True)
     ```
-  
+
 ## [2.0.0] - 2021-08-03
 
 ## Dash and Dash Renderer
