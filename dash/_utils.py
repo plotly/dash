@@ -19,7 +19,7 @@ def to_json(value):
     # pylint: disable=import-outside-toplevel
     from plotly.io.json import to_json_plotly
 
-    return to_json_plotly(value)
+    return to_json_plotly(serializer.serialize_tree(value))
 
 
 def interpolate_str(template, **data):
@@ -252,15 +252,37 @@ def job(msg=""):
 
 class serializer:
     @classmethod
-    def serialize(cls, obj):
-        if isinstance(obj, pd.DataFrame):
-            return {"__type": "DataFrame", "__value": obj.to_dict("records")}
+    def serialize(cls, prop):
+        if isinstance(prop, pd.DataFrame):
+            return {"__type": "DataFrame", "__value": prop.to_dict("records")}
 
-        return {"__type": "JSON", "__value": obj}
+        return prop
 
     @classmethod
-    def unserialize(cls, obj):
-        if obj["__type"] == "DataFrame":
-            return pd.DataFrame(obj["__value"])
+    def unserialize(cls, prop):
+        if prop["__type"] == "DataFrame":
+            return pd.DataFrame(prop["__value"])
 
-        return obj["__value"]
+        return prop
+
+    @classmethod
+    def serialize_tree(cls, obj):
+        if isinstance(obj, pd.DataFrame):
+            return cls.serialize(obj)
+
+        # Plotly
+        try:
+            obj = obj.to_plotly_json()
+        except AttributeError:
+            pass
+
+        if isinstance(obj, (list, tuple)):
+            if obj:
+                # Must process list recursively even though it may be slow
+                return [cls.serialize_tree(v) for v in obj]
+
+        # Recurse into lists and dictionaries
+        if isinstance(obj, dict):
+            return {k: cls.serialize_tree(v) for k, v in obj.items()}
+
+        return obj
