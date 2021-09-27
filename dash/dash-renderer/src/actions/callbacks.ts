@@ -146,21 +146,23 @@ function fillVals(
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}: any) => {
-                const type = (path(path_, layout) as any).propertyTypes?.[property]
-                let value = (path(path_, layout) as any).props[property]
+                const type = (path(path_, layout) as any).propertyTypes?.[
+                    property
+                ];
+                let value = (path(path_, layout) as any).props[property];
 
                 if (type) {
                     value = {
                         __type: type,
                         __value: value
-                    }
+                    };
                 }
-console.log('type', type)
-                return ({
+
+                return {
                     id,
                     property,
                     value
-                });
+                };
             }),
             specs[i],
             cb.anyVals,
