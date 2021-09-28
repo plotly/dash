@@ -28,8 +28,11 @@ setup(
     install_requires=read_req_file("install"),
     python_requires=">=3.6",
     extras_require={
+        "ci": read_req_file("ci"),
         "dev": read_req_file("dev"),
         "testing": read_req_file("testing"),
+        "celery": read_req_file("celery"),
+        "diskcache": read_req_file("diskcache"),
     },
     entry_points={
         "console_scripts": [
