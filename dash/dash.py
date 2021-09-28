@@ -1334,7 +1334,9 @@ class Dash:
             msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg.format(output)) from missing_callback_function
 
-        result_data = DashSerializer.serialize_tree(func(*args, outputs_list=outputs_list))
+        result_data = DashSerializer.serialize_tree(
+            func(*args, outputs_list=outputs_list)
+        )
         response.set_data(result_data)
         return response
 

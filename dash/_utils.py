@@ -18,6 +18,7 @@ logger = logging.getLogger()
 def to_json(value):
     # pylint: disable=import-outside-toplevel
     from plotly.io.json import to_json_plotly
+
     return to_json_plotly(DashSerializer.serialize_tree(value))
 
 
