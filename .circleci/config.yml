@@ -26,7 +26,7 @@ jobs:
           path: ~/dash/dash-main
           destination: /tmp/dash-main
 
-  install-dependencies:
+  install-dependencies-39: &install-dependencies
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.9.2-buster-node-browsers
@@ -66,6 +66,18 @@ jobs:
           root: ~/dash
           paths:
             - dash-package
+
+  install-dependencies-36:
+    <<: *install-dependencies
+    docker:
+      - image: circleci/python:3.6.13-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYLINTRC: .pylintrc
+          PYVERSION: python36
+          PERCY_ENABLE: 0
 
   lint-unit-39: &lint-unit
     working_directory: ~/dash
@@ -558,63 +570,63 @@ workflows:
   version: 2
   tests:
     jobs:
-      - install-dependencies
+      - install-dependencies-39
 
       - build-windows-39
 
       - lint-unit-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - lint-unit-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
 
       - test-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - test-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
 
       - dcc-lint-unit-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - dcc-lint-unit-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
 
       - dcc-build-dash-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - dcc-test-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
             - dcc-build-dash-39
       - dcc-build-dash-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
       - dcc-test-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
             - dcc-build-dash-36
 
       - html-python-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - html-python-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
 
       - table-node:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - table-unit-test:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - table-visual-test
       - table-server-test:
           requires:
-            - install-dependencies
+            - install-dependencies-39
 
       - percy/finalize_all:
           requires:
