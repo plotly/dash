@@ -19,6 +19,21 @@ export default class Slider extends Component {
 
 Slider.propTypes = {
     /**
+     * Minimum allowed value of the slider
+     */
+    min: PropTypes.number,
+
+    /**
+     * Maximum allowed value of the slider
+     */
+    max: PropTypes.number,
+
+    /**
+     * Value by which increments or decrements are made
+     */
+    step: PropTypes.number,
+
+    /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
      * components in an app.
@@ -77,16 +92,6 @@ Slider.propTypes = {
     included: PropTypes.bool,
 
     /**
-     * Minimum allowed value of the slider
-     */
-    min: PropTypes.number,
-
-    /**
-     * Maximum allowed value of the slider
-     */
-    max: PropTypes.number,
-
-    /**
      * Configuration for tooltips describing the current slider value
      */
     tooltip: PropTypes.exact({
@@ -113,11 +118,6 @@ Slider.propTypes = {
             'bottomRight',
         ]),
     }),
-
-    /**
-     * Value by which increments or decrements are made
-     */
-    step: PropTypes.number,
 
     /**
      * If true, the slider will be vertical

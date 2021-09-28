@@ -9,5 +9,5 @@ black==21.6b0
 fire==0.4.0
 coloredlogs==15.0.1
 flask-talisman==0.8.1
-orjson==3.3.1;python_version<"3.7"
-orjson==3.6.1;python_version>="3.7"
+orjson==3.5.4;python_version<"3.7"
+orjson==3.6.3;python_version>="3.7"

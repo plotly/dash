@@ -25,6 +25,7 @@ reserved_words = [
     "UNDEFINED",
     "REQUIRED",
     "to_plotly_json",
+    "set_random_id",
     "available_properties",
     "available_wildcard_properties",
     "_.*",

@@ -26,45 +26,64 @@ export default class Dropdown extends Component {
 
 Dropdown.propTypes = {
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
-    /**
      * An array of options {label: [string|number], value: [string|number]},
      * an optional disabled field can be used for each option
      */
-    options: PropTypes.arrayOf(
-        PropTypes.exact({
-            /**
-             * The dropdown's label
-             */
-            label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+    options: PropTypes.oneOfType([
+        /**
+         * Array of options where the label and the value are the same thing - [string|number|bool]
+         */
+        PropTypes.arrayOf(
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+                PropTypes.bool,
+            ])
+        ),
+        /**
+         * Simpler `options` representation in dictionary format. The order is not guaranteed.
+         * {`value1`: `label1`, `value2`: `label2`, ... }
+         * which is equal to
+         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
+         */
+        PropTypes.object,
+        /**
+         * An array of options {label: [string|number], value: [string|number]},
+         * an optional disabled field can be used for each option
+         */
+        PropTypes.arrayOf(
+            PropTypes.exact({
+                /**
+                 * The option's label
+                 */
+                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                    .isRequired,
 
-            /**
-             * The value of the dropdown. This value
-             * corresponds to the items specified in the
-             * `value` property.
-             */
-            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+                /**
+                 * The value of the option. This value
+                 * corresponds to the items specified in the
+                 * `value` property.
+                 */
+                value: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool,
+                ]).isRequired,
 
-            /**
-             * If true, this option is disabled and cannot be selected.
-             */
-            disabled: PropTypes.bool,
+                /**
+                 * If true, this option is disabled and cannot be selected.
+                 */
+                disabled: PropTypes.bool,
 
-            /**
-             * The HTML 'title' attribute for the option. Allows for
-             * information on hover. For more information on this attribute,
-             * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
-             */
-            title: PropTypes.string,
-        })
-    ),
+                /**
+                 * The HTML 'title' attribute for the option. Allows for
+                 * information on hover. For more information on this attribute,
+                 * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
+                 */
+                title: PropTypes.string,
+            })
+        ),
+    ]),
 
     /**
      * The value of the input. If `multi` is false (the default)
@@ -77,10 +96,22 @@ Dropdown.propTypes = {
     value: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number,
+        PropTypes.bool,
         PropTypes.arrayOf(
-            PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+                PropTypes.bool,
+            ])
         ),
     ]),
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * height of each option. Can be increased when label lengths would wrap around
