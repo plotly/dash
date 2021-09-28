@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- [#1745](https://github.com/plotly/dash/pull/1745):
+    Improve our `extras_require`: there are now five options here, each with a well-defined role:
+    - `dash[dev]`: for developing and building dash components.
+    - `dash[testing]`: for using the `pytest` plugins in the `dash.testing` module
+    - `dash[diskcache]`: required if you use `DiskcacheLongCallbackManager`
+    - `dash[celery]`: required if you use `CeleryLongCallbackManager`
+    - `dash[ci]`: mainly for internal use, these are additional requirements for the Dash CI tests, exposed for other component libraries to use a matching configuration.
+
 - [#1779](https://github.com/plotly/dash/pull/1779):
     - Clean up our handling of serialization problems, including fixing `orjson` for Python 3.6
     - Added the ability for `dash.testing` `percy_snapshot` methods to choose widths to generate.
