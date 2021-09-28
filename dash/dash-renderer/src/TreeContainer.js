@@ -29,7 +29,6 @@ import {
     validateComponent
 } from './utils/TreeContainer';
 import {DashContext} from './APIController.react';
-import {deserializeProps} from './serializers/utils';
 
 const NOT_LOADING = {
     is_loading: false
@@ -37,14 +36,6 @@ const NOT_LOADING = {
 
 function CheckedComponent(p) {
     const {element, extraProps, props, children, type, _dashprivate_layout} = p;
-    // so this piece of code is called whenever an element needs to be updated,
-    console.log(
-        '!!! CheckedComponent:' + '\n props: ',
-        props,
-        '\n extraProps: ',
-        extraProps
-    );
-
     const errorMessage = checkPropTypes(
         element.propTypes,
         props,
@@ -81,27 +72,6 @@ function createElement(
     _dashprivate_layout
 ) {
     let allProps = mergeRight(props, extraProps);
-    console.log(
-        '*** createElement before',
-        '\n allProps: ',
-        allProps,
-        '\n _dashprivate_layout: ',
-        _dashprivate_layout
-    );
-    // const test_ser = {test_ser: 'test_ser_0'};
-    // allProps = mergeRight(allProps, test_ser);
-
-    // const {s_props, serializedKeys} = deserializeProps(allProps);
-    // _dashprivate_layout.serializedKeys = serializedKeys;
-    //
-    // const element = Registry.resolve(_dashprivate_layout);
-    //
-    //
-    // console.log('*** createElement after merge',
-    //     '\n allProps: ', allProps,
-    //     '\n _dashprivate_layout: ', _dashprivate_layout
-    //     )
-
     if (Array.isArray(children)) {
         return React.createElement(element, allProps, ...children);
     }
@@ -168,20 +138,6 @@ class BaseTreeContainer extends Component {
         const changedProps = pickBy(
             (val, key) => !equals(val, oldProps[key]),
             newProps
-        );
-
-        console.log(
-            '!!! onSetPropsCalled',
-            '\n ID: ',
-            id,
-            '\n _dashprivate_layout: ',
-            _dashprivate_layout,
-            '\n oldProps: ',
-            oldProps,
-            '\n newProps: ',
-            newProps,
-            '\n changedProps: ',
-            changedProps
         );
 
         if (!isEmpty(changedProps)) {
@@ -254,36 +210,18 @@ class BaseTreeContainer extends Component {
 
         const element = Registry.resolve(_dashprivate_layout);
 
-        const original_props = dissoc('children', _dashprivate_layout.props);
+        const props = dissoc('children', _dashprivate_layout.props);
 
-        if (type(original_props.id) === 'Object') {
+        if (type(props.id) === 'Object') {
             // Turn object ids (for wildcards) into unique strings.
             // Because of the `dissoc` above we're not mutating the layout,
             // just the id we pass on to the rendered component
-            original_props.id = stringifyId(original_props.id);
+            props.id = stringifyId(props.id);
         }
         const extraProps = {
             loading_state: loading_state || NOT_LOADING,
             setProps
         };
-
-        /*
-            This should be the best place to hook the given `props` values for each component,
-            then strip any serialized values and create bookkeepers for `__type`s
-        */
-        const {props, serializedKeys} = deserializeProps(original_props);
-        _dashprivate_layout.serializedKeys = serializedKeys;
-
-        // const props = original_props
-
-        console.log(
-            '!!! getComponent:' + '\n original_props: ',
-            original_props,
-            '\n props: ',
-            props,
-            '\n extraProps: ',
-            extraProps
-        );
 
         return (
             <ComponentErrorBoundary

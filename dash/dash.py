@@ -61,7 +61,7 @@ from ._grouping import (
     map_grouping,
     grouping_len,
 )
-
+from ._dash_serializer import DashSerializer
 
 _flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
@@ -1333,7 +1333,9 @@ class Dash:
         except KeyError as missing_callback_function:
             msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg.format(output)) from missing_callback_function
-        response.set_data(func(*args, outputs_list=outputs_list))
+
+        result_data = DashSerializer.serialize_tree(func(*args, outputs_list=outputs_list))
+        response.set_data(result_data)
         return response
 
     def _setup_server(self):

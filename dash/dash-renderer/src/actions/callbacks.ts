@@ -7,9 +7,7 @@ import {
     path,
     pick,
     pluck,
-    zip,
-    type,
-    has
+    zip
 } from 'ramda';
 
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
@@ -33,7 +31,7 @@ import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
-import {dashSerializeValue} from '../serializers/utils';
+import {dashSerializeValue, DASH_BOOK_KEEPER} from '../serializers/utils';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -145,37 +143,14 @@ function fillVals(
     const errors: any[] = [];
     let emptyMultiValues = 0;
 
-    const preInputVals = getter(paths);
-    console.log(
-        '!!! fillVals 0, paths:',
-        paths,
-        '\n layout: ',
-        layout,
-        '\n specs: ',
-        specs,
-        '\n depType: ',
-        depType,
-        '\n getter(paths): ',
-        getter(paths),
-        '\n type(inputList): ',
-        type(preInputVals)
-    );
-
     const inputVals = getter(paths).map((inputList: any, i: number) => {
-        console.log(
-            '!!! fillVals 1, inputList:',
-            inputList,
-            '\n type(inputList): ',
-            type(inputList)
-        );
-
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}: any) => ({
                 id,
                 property,
                 value: (path(path_, layout) as any).props[property],
-                serializedKeys: (path(path_, layout) as any).serializedKeys
+                bookkeeper: (path(path_, layout) as any)[DASH_BOOK_KEEPER]
             })),
             specs[i],
             cb.anyVals,
@@ -188,67 +163,8 @@ function fillVals(
             errors.push(inputError);
         }
 
-        /*
-            ** UNTESTED CODE YET **
-            So, after collecting `inputs` values from the given dependencies, 
-            we want to see if there were any Dash serialized props!!
-
-            What I'm not sure until I debug: 
-                - I added a line at Ln153 assuming I could get extraProps for the input component like that. Need to verify!
-                - I assume this `inputs` will be array of the object generated from Ln150-153. Need to verify!
-                - I assume `property` would be the name of the prop, but need to verify too!
-        */
-        console.log(
-            '!!! fillVals, inputs:',
-            inputs,
-            '\n type(inputs): ',
-            type(inputs)
-        );
-
-        if (
-            has('serializedKeys', inputs) &&
-            inputs.serializedKeys !== undefined
-        ) {
-            const {serializedKeys, property, value} = inputs;
-
-            console.log(
-                '**** fillVals, ' + '\n serializedKeys:',
-                serializedKeys,
-                '\n property:',
-                property,
-                '\n value:',
-                value,
-                '\n type(serializedKeys): ',
-                type(serializedKeys)
-            );
-
-            serializedKeys.map(bookkep => {
-                if (has(property, bookkep)) {
-                    inputs.value = dashSerializeValue(bookkep[property], value);
-                }
-            });
-        }
-        // I think we should not check this, unless it's serialized object that we're targeting
-        // if (type(inputs.value) === 'Object' && has('value', inputs.value)) {
-        //     return inputs.value.value;
-        // }
-
-        // I'd like to log "inputs"'
-        // I blieve we need to serialize the changed value before sending to server
-        // what do you think?
-        /*
-        inputs.map((input:any) => {
-            // grab the original `__type`
-            const customType = getOriginalSerializationType(input.extraProps, input.property);
-            if (customType) {
-                return dashSerializeValue(customType, input);
-            }
-
-            // if no need to serialize back, just pass as it is
-            return input;
-        })
-*/
-
+        const {bookkeeper, property, value} = inputs;
+        inputs.value = dashSerializeValue(bookkeeper?.[property], value);
         return inputs;
     });
 
@@ -467,7 +383,6 @@ function handleServerside(
                         const id = output.substr(0, output.lastIndexOf('.'));
                         result = {[id]: response.props};
                     }
-
                     recordProfile(result);
                     return result;
                 });
