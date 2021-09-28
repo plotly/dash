@@ -571,6 +571,7 @@ workflows:
   tests:
     jobs:
       - install-dependencies-39
+      - install-dependencies-36
 
       - build-windows-39
 
