@@ -21,7 +21,10 @@ const processProperties = node => {
         updatedNode.props.children = children.map(child =>
             processProperties(child)
         );
+    } else if (type(children) === 'Object' && !children.__type) {
+        updatedNode.props.children = processProperties(children);
     }
+
     Object.entries(props).forEach(([key, value]) => {
         updatedNode.props[key] = value?.__value || value;
         updatedNode.propertyTypes[key] = value?.__type || null;
@@ -32,7 +35,9 @@ const processProperties = node => {
 
 const layout = (state = {}, action) => {
     if (action.type === getAction('SET_LAYOUT')) {
-        return processProperties(action.payload);
+        const updatedState = processProperties(action.payload);
+
+        return updatedState;
     } else if (
         includes(action.type, [
             'UNDO_PROP_CHANGE',
@@ -41,35 +46,13 @@ const layout = (state = {}, action) => {
         ])
     ) {
         const propPath = append('props', action.payload.itempath);
-        const propertyTypesPath = append(
-            'propertyTypes',
-            action.payload.itempath
-        );
 
         const existingProps = view(lensPath(propPath), state);
         const mergedProps = mergeRight(existingProps, action.payload.props);
 
-        const propertyValues = Object.entries(mergedProps).reduce(
-            (a, [key, value]) => {
-                return {...a, [key]: value.__value || value};
-            },
-            {}
-        );
-
-        const propertyTypes = Object.entries(mergedProps).reduce(
-            (a, [key, value]) => {
-                return {...a, [key]: value.__type || null};
-            },
-            {}
-        );
-
-        let updatedState = assocPath(propPath, propertyValues, state);
+        let updatedState = assocPath(propPath, mergedProps, state);
         if (action.payload.source === 'response') {
-            updatedState = assocPath(
-                propertyTypesPath,
-                propertyTypes,
-                updatedState
-            );
+            updatedState = processProperties(updatedState);
         }
 
         return updatedState;
