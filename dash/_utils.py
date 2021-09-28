@@ -263,6 +263,9 @@ class serializer:
         if prop["__type"] == "DataFrame":
             return pd.DataFrame(prop["__value"])
 
+        if prop["__type"]:
+            return prop["__value"]
+
         return prop
 
     @classmethod
