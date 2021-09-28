@@ -35,7 +35,8 @@ const NOT_LOADING = {
 };
 
 function CheckedComponent(p) {
-    const {element, extraProps, props, children, type, _dashprivate_layout} = p;
+    const {element, extraProps, props, children, type} = p;
+
     const errorMessage = checkPropTypes(
         element.propTypes,
         props,
@@ -46,13 +47,7 @@ function CheckedComponent(p) {
         propTypeErrorHandler(errorMessage, props, type);
     }
 
-    return createElement(
-        element,
-        props,
-        extraProps,
-        children,
-        _dashprivate_layout
-    );
+    return createElement(element, props, extraProps, children);
 }
 
 CheckedComponent.propTypes = {
@@ -64,14 +59,8 @@ CheckedComponent.propTypes = {
     id: PropTypes.string
 };
 
-function createElement(
-    element,
-    props,
-    extraProps,
-    children,
-    _dashprivate_layout
-) {
-    let allProps = mergeRight(props, extraProps);
+function createElement(element, props, extraProps, children) {
+    const allProps = mergeRight(props, extraProps);
     if (Array.isArray(children)) {
         return React.createElement(element, allProps, ...children);
     }
@@ -98,10 +87,9 @@ class BaseTreeContainer extends Component {
     }
 
     createContainer(props, component, path) {
-        if (isSimpleComponent(component)) {
-            return component;
-        }
-        return (
+        return isSimpleComponent(component) ? (
+            component
+        ) : (
             <TreeContainer
                 key={
                     component &&
@@ -134,12 +122,10 @@ class BaseTreeContainer extends Component {
 
         const oldProps = this.getLayoutProps();
         const {id} = oldProps;
-
         const changedProps = pickBy(
             (val, key) => !equals(val, oldProps[key]),
             newProps
         );
-
         if (!isEmpty(changedProps)) {
             // Identify the modified props that are required for callbacks
             const watchedKeys = getWatchedKeys(
@@ -205,7 +191,6 @@ class BaseTreeContainer extends Component {
         if (isSimpleComponent(_dashprivate_layout)) {
             return _dashprivate_layout;
         }
-
         validateComponent(_dashprivate_layout);
 
         const element = Registry.resolve(_dashprivate_layout);
@@ -238,16 +223,9 @@ class BaseTreeContainer extends Component {
                         props={props}
                         extraProps={extraProps}
                         type={_dashprivate_layout.type}
-                        _dashprivate_layout={_dashprivate_layout}
                     />
                 ) : (
-                    createElement(
-                        element,
-                        props,
-                        extraProps,
-                        children,
-                        _dashprivate_layout
-                    )
+                    createElement(element, props, extraProps, children)
                 )}
             </ComponentErrorBoundary>
         );

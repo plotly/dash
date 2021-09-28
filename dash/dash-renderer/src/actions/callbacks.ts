@@ -383,6 +383,7 @@ function handleServerside(
                         const id = output.substr(0, output.lastIndexOf('.'));
                         result = {[id]: response.props};
                     }
+
                     recordProfile(result);
                     return result;
                 });
