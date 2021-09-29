@@ -11,7 +11,7 @@ import {
 import {getAction} from '../actions/constants';
 
 const processProperties = node => {
-    const updatedNode = {...node, propertyTypes: {}};
+    const updatedNode = {...node, propertyTypes: {...node.propertyTypes}};
     const {
         props,
         props: {children}
@@ -27,7 +27,8 @@ const processProperties = node => {
 
     Object.entries(props).forEach(([key, value]) => {
         updatedNode.props[key] = value?.__value || value;
-        updatedNode.propertyTypes[key] = value?.__type || null;
+        updatedNode.propertyTypes[key] =
+            value?.__type || updatedNode.propertyTypes[key] || null;
     });
 
     return updatedNode;
