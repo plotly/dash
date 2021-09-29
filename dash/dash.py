@@ -51,6 +51,7 @@ from ._utils import (
     split_callback_id,
     strip_relative_path,
     to_json,
+    serializer,
 )
 from . import _callback
 from . import _dash_renderer
@@ -1266,9 +1267,12 @@ class Dash:
 
     def dispatch(self):
         body = flask.request.get_json()
+
         flask.g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
             "inputs", []
         )
+        inputs = [serializer.unserialize_input(v) for v in inputs]
+
         flask.g.states_list = state = body.get(  # pylint: disable=assigning-non-slot
             "state", []
         )

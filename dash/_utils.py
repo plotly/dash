@@ -259,16 +259,6 @@ class serializer:
         return prop
 
     @classmethod
-    def unserialize(cls, prop):
-        if prop["__type"] == "DataFrame":
-            return pd.DataFrame(prop["__value"])
-
-        if prop["__type"]:
-            return prop["__value"]
-
-        return prop
-
-    @classmethod
     def serialize_tree(cls, obj):
         if isinstance(obj, pd.DataFrame):
             return cls.serialize(obj)
@@ -289,3 +279,19 @@ class serializer:
             return {k: cls.serialize_tree(v) for k, v in obj.items()}
 
         return obj
+
+    @classmethod
+    def unserialize(cls, prop):
+        if not (isinstance(prop, dict) and "__type" in prop):
+            return prop
+        if prop["__type"] == "DataFrame":
+            return pd.DataFrame(prop["__value"])
+
+        return prop["__value"]
+
+    @classmethod
+    def unserialize_input(cls, cb_input):
+        if "value" in cb_input:
+            return {**cb_input, "value": cls.unserialize(cb_input["value"])}
+
+        return cb_input
