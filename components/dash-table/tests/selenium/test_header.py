@@ -127,3 +127,18 @@ def test_head004_change_single_row_header(test):
 
     assert target.column("rows").get_text(0) == "Chill"
     assert test.get_log_errors() == []
+
+
+def test_head005_no_warnings_emitted(test):
+    test.start_server(
+        get_app(dict(merge_duplicate_headers=True)),
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    target = test.table("table")
+
+    wait.until(lambda: target.column(6).get().get_attribute("colspan") == "4", 3)
+    assert test.get_logs() == []
