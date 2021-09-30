@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixed
+- [#1778](https://github.com/plotly/dash/pull/1778) Fix React warnings stating
+  that each child in a list should have a unique "key" prop
+
 ## [4.12.0] - 2021-07-09
 ### Fixed
 - [#907](https://github.com/plotly/dash-table/pull/907)
