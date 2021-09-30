@@ -687,9 +687,16 @@
     	}
 
 	    .dash-spreadsheet-inner {
+            .dash-header>div {
+                display: flex;
+            }
+
+            .column-header-name {
+                margin-left: auto;
+            }
+
             [class^='column-header--'], [class^='dash-filter--'] {
                 cursor: pointer;
-                float: left;
             }
 
             .column-header--select {
