@@ -175,6 +175,7 @@ jobs:
           command: |
             . venv/bin/activate
             npm install --production
+            npm install @percy/cli
             pip install --no-cache-dir --upgrade --ignore-installed dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
       - run:
