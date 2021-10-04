@@ -173,6 +173,7 @@ def test_tbcp004_copy_9_and_10(test):
 
     assert test.get_log_errors() == []
 
+
 @pytest.mark.skip(
     reason="Prop `data_previous` is not correctly updated with copy+paste"
 )
@@ -277,6 +278,7 @@ def test_tbcp008_copy_paste_between_tables_with_hidden_columns(test):
             )
 
     assert test.get_log_errors() == []
+
 
 def test_tbcp009_copy_9_and_10_click(test):
     test.start_server(get_app())
