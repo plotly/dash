@@ -244,18 +244,21 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         }
     };
 
-    handleClipboardEvent = (event: ClipboardEvent, handler: (e: ClipboardEvent) => void) => {
+    handleClipboardEvent = (
+        event: ClipboardEvent,
+        handler: (e: ClipboardEvent) => void
+    ) => {
         if (this.containsActiveElement()) {
             handler(event);
         }
     };
 
     handleCopy = (event: ClipboardEvent) => {
-        this.handleClipboardEvent(event, this.onCopy)
+        this.handleClipboardEvent(event, this.onCopy);
     };
 
     handlePaste = (event: ClipboardEvent) => {
-        this.handleClipboardEvent(event, this.onPaste)
+        this.handleClipboardEvent(event, this.onPaste);
     };
 
     private clearCellWidth(cell: HTMLElement) {
