@@ -328,6 +328,43 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         table.style.width = width;
     };
 
+    /**
+     * Set minimum column widths for fixed-header tables
+     */
+    setMinColumnWithds = () => {
+        const {r0c1, r1c1} = this.refs as Refs;
+
+        const firstRowPath = 'table.cell-table > tbody > tr:first-of-type';
+        const firstHeaderColumn = r0c1.querySelectorAll(
+            `${firstRowPath} > th`
+        )[0];
+        //Calculate total horizontal padding of the first header cell
+        const headerCellPaddingHorizontal = firstHeaderColumn
+            ? parseInt(getComputedStyle(firstHeaderColumn).padding, 10) * 2
+            : 0;
+
+        //Sum header cell children widths + horizontal padding
+        const calcHeaderCellWidth = (headerCell: Element) =>
+            Array.from(headerCell.children).reduce(
+                (previousWidth: number, child: Element) =>
+                    previousWidth + child.scrollWidth,
+                0
+            ) + headerCellPaddingHorizontal;
+
+        //Calculate min widths for each header cells
+        const minHeaderWidths = Array.from(
+            r0c1.querySelectorAll(`${firstRowPath} > th > div`)
+        ).map(calcHeaderCellWidth);
+
+        //Apply minimum header widths to the first row of table body columns
+        const firstRowColumns = Array.from(
+            r1c1.querySelectorAll(`${firstRowPath} > td`)
+        ) as HTMLElement[];
+        for (let i = 0; i < minHeaderWidths.length; i++) {
+            firstRowColumns[i].style.minWidth = `${minHeaderWidths[i]}px`;
+        }
+    };
+
     isDisplayed = (el: HTMLElement) => getComputedStyle(el).display !== 'none';
 
     forceHandleResize = () => this.handleResize();
@@ -386,7 +423,13 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             this.resizeFragmentTable(r1c0Table, currentTableWidth);
         }
 
+        if (fixed_rows && !fixed_columns) {
+            this.setMinColumnWithds();
+        }
+
         if (fixed_columns || fixed_rows) {
+            const {r0c1, r1c1} = this.refs as Refs;
+
             const widths = Array.from(
                 r1c1.querySelectorAll(
                     'table.cell-table > tbody > tr:first-of-type > *'
