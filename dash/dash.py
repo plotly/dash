@@ -1276,6 +1276,7 @@ class Dash:
         outputs_list = body.get("outputs") or split_callback_id(output)
         flask.g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
 
+        inputs = DashSerializer.deserialize(inputs)
         flask.g.input_values = (  # pylint: disable=assigning-non-slot
             input_values
         ) = inputs_to_dict(inputs)
@@ -1334,9 +1335,7 @@ class Dash:
             msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg.format(output)) from missing_callback_function
 
-        result_data = DashSerializer.serialize_tree(
-            func(*args, outputs_list=outputs_list)
-        )
+        result_data = DashSerializer.serialize(func(*args, outputs_list=outputs_list))
         response.set_data(result_data)
         return response
 

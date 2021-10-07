@@ -5,7 +5,7 @@ const PROP_VALUE = '__value';
 export const DASH_BOOK_KEEPER = '__dash_serialized_props';
 
 export const createBookkeeper = layout => {
-    const markedLayout = {...layout, __dash_serialized_props: {}};
+    const markedLayout = {...layout, [DASH_BOOK_KEEPER]: {}};
     const {
         props,
         props: {children}
@@ -17,7 +17,7 @@ export const createBookkeeper = layout => {
     }
 
     if (type(children) === 'Object') {
-        createBookkeeper(children);
+        markedLayout.props.children = createBookkeeper(children);
     }
 
     Object.entries(props).forEach(([key, value]) => {
