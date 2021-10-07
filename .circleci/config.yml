@@ -17,15 +17,16 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
+      - run: echo requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
           path: ~/dash/dash-main
           destination: /tmp/dash-main
 
-  install-dependencies:
+  install-dependencies-39: &install-dependencies
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.9.2-buster-node-browsers
@@ -39,23 +40,44 @@ jobs:
 
     steps:
       - checkout
+      - run: echo $PYVERSION > ver.txt
+      - run: echo requires-*.txt > requires-all.txt
+      - restore_cache:
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - run:
           name: 🏁 Build Component Packages & Update Dependencies/Artifacts
           command: |
             python -m venv venv && . venv/bin/activate
             pip install --upgrade pip wheel
             set -eo pipefail
-            pip install -e .[testing,dev] --progress-bar off && pip list | grep dash
+            pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
+            pip list | grep dash
             npm i
             npm run build
             python setup.py sdist
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
             ls -la dash-package
           no_output_timeout: 30m
+      - save_cache:
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          paths:
+            - venv
       - persist_to_workspace:
           root: ~/dash
           paths:
             - dash-package
+
+  install-dependencies-36:
+    <<: *install-dependencies
+    docker:
+      - image: circleci/python:3.6.13-stretch-node-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYLINTRC: .pylintrc
+          PYVERSION: python36
+          PERCY_ENABLE: 0
 
   lint-unit-39: &lint-unit
     working_directory: ~/dash
@@ -72,18 +94,15 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
+      - run: echo requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
             python -m venv venv && . venv/bin/activate
             pip install --upgrade pip wheel
-            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
-      - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
-          paths:
-            - venv
+            pip install -e .[ci,dev,testing] --no-cache-dir --progress-bar off
       - run:
           name: 🌸 Python & JS Lint
           command: |
@@ -146,8 +165,9 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
+      - run: echo requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - attach_workspace:
           at: ~/dash
       - run:
@@ -155,9 +175,7 @@ jobs:
           command: |
             . venv/bin/activate
             npm install --production
-            pip install --no-cache-dir --upgrade --ignore-installed dash-package/dash-package.tar.gz --progress-bar off
-            pip install -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --progress-bar off
-            sed -i '/dash/d' requires-install.txt
+            pip install --no-cache-dir --upgrade --ignore-installed dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
       - run:
           name: 🧪 Run Integration Tests
@@ -198,9 +216,10 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: echo $PYTHON_VERSION > ver.txt
+      - run: echo $PYVERSION > ver.txt
+      - run: echo requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}-{{ checksum "dev-requirements.txt" }}
       - attach_workspace:
           at: ~/dash/components/dash-core-components
       - run:
@@ -208,10 +227,10 @@ jobs:
           command: |
             python -m venv venv && . venv/bin/activate
             pip install --upgrade pip wheel
-            pip install dash-package/dash-package.tar.gz[dev,testing]
+            pip install dash-package/dash-package.tar.gz[ci,dev,testing]
             pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}-{{ checksum "dev-requirements.txt" }}
           paths:
             - venv
       - run:
@@ -247,8 +266,9 @@ jobs:
       - checkout:
           path: ~/dash
       - run: echo $PYTHON_VERSION > ver.txt
+      - run: echo requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}-{{ checksum "dev-requirements.txt" }}
       - run:
           name: 🐍 pip dev requirements
           command: |
@@ -256,10 +276,6 @@ jobs:
             pip install --upgrade pip wheel
             set -eo pipefail
             pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
-      - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
-          paths:
-            - venv
       - attach_workspace:
           at: ~/dash/components/dash-core-components
       - run:
@@ -268,7 +284,11 @@ jobs:
             . venv/bin/activate
             set -eo pipefail
             # build main dash & renderer
-            pip install dash-package/dash-package.tar.gz[dev,testing]
+            pip install dash-package/dash-package.tar.gz[ci,dev,testing]
+      - save_cache:
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}-{{ checksum "dev-requirements.txt" }}
+          paths:
+            - venv
 
   dcc-build-dash-36:
     <<: *dcc-build-dash
@@ -297,8 +317,9 @@ jobs:
       - checkout:
           path: ~/dash
       - run: echo $PYTHON_VERSION > ver.txt
+      - run: echo requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}-{{ checksum "dev-requirements.txt" }}
       - attach_workspace:
           at: ~/dash/components/dash-core-components
       - run:
@@ -307,7 +328,7 @@ jobs:
             . venv/bin/activate && rm -rf dash_core_components && ls -la
             pip install --upgrade pip wheel
             set -eo pipefail
-            pip install dash-package/dash-package.tar.gz[dev,testing]
+            pip install dash-package/dash-package.tar.gz[ci,dev,testing]
             pip list | grep dash | xargs pip show
             echo $(python -V 2>&1) | grep 3.
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
@@ -355,7 +376,7 @@ jobs:
             python -m venv venv
             . venv/bin/activate
             pip install --upgrade pip wheel
-            pip install dash-package/dash-package.tar.gz[dev,testing]
+            pip install dash-package/dash-package.tar.gz[ci,dev,testing]
             pip install -r dev-requirements.txt
             npm ci
 
@@ -427,7 +448,7 @@ jobs:
             . venv/bin/activate
             pip install -r dev-requirements.txt --quiet
             pip install -r python-requirements.txt --quiet
-            pip install dash-package/dash-package.tar.gz[dev,testing]
+            pip install dash-package/dash-package.tar.gz[ci,dev,testing]
       - run:
           name: Build
           command: |
@@ -473,7 +494,7 @@ jobs:
             python -m venv venv
             . venv/bin/activate
             pip install -r dev-requirements.txt --quiet
-            pip install dash-package/dash-package.tar.gz[dev,testing]
+            pip install dash-package/dash-package.tar.gz[ci,dev,testing]
       - run:
           name: Run tests
           command: |
@@ -536,7 +557,7 @@ jobs:
           command: |
             . venv/bin/activate
             pip install -r dev-requirements.txt --quiet
-            pip install dash-package/dash-package.tar.gz[dev,testing]
+            pip install dash-package/dash-package.tar.gz[ci,dev,testing]
 
       - run:
           name: Run eslint
@@ -549,59 +570,64 @@ workflows:
   version: 2
   tests:
     jobs:
-      - install-dependencies
+      - install-dependencies-39
+      - install-dependencies-36
 
       - build-windows-39
 
-      - lint-unit-39
-      - lint-unit-36
+      - lint-unit-39:
+          requires:
+            - install-dependencies-39
+      - lint-unit-36:
+          requires:
+            - install-dependencies-36
 
       - test-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - test-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
 
       - dcc-lint-unit-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - dcc-lint-unit-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
 
       - dcc-build-dash-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - dcc-test-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
             - dcc-build-dash-39
       - dcc-build-dash-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
       - dcc-test-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
             - dcc-build-dash-36
 
       - html-python-39:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - html-python-36:
           requires:
-            - install-dependencies
+            - install-dependencies-36
 
       - table-node:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - table-unit-test:
           requires:
-            - install-dependencies
+            - install-dependencies-39
       - table-visual-test
       - table-server-test:
           requires:
-            - install-dependencies
+            - install-dependencies-39
 
       - percy/finalize_all:
           requires:

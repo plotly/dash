@@ -7,7 +7,7 @@ import LazyLoader from 'dash-table/LazyLoader';
 
 /**
  * Dash DataTable is an interactive table component designed for
- * designed for viewing, editing, and exploring large datasets.
+ * viewing, editing, and exploring large datasets.
  * DataTable is rendered with standard, semantic HTML <table/> markup,
  * which makes it accessible, responsive, and easy to style. This
  * component was written from scratch in React.js specifically for the

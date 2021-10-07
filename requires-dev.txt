@@ -1,13 +1,4 @@
-dash_flow_example==0.0.5
-dash-dangerously-set-inner-html
-isort==4.3.21;python_version<"3.7"
-mock==4.0.3
-flake8==3.9.2
-PyYAML==5.4.1
-pylint==2.10.2
-black==21.6b0
-fire==0.4.0
-coloredlogs==15.0.1
-flask-talisman==0.8.1
-orjson==3.5.4;python_version<"3.7"
-orjson==3.6.3;python_version>="3.7"
+# Dependencies used for development new Dash components
+coloredlogs>=15.0.1
+fire>=0.4.0
+PyYAML>=5.4.1
