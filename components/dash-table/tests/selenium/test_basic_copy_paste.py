@@ -278,3 +278,26 @@ def test_tbcp008_copy_paste_between_tables_with_hidden_columns(test):
             )
 
     assert test.get_log_errors() == []
+
+
+def test_tbcp009_copy_9_and_10_click(test):
+    test.start_server(get_app())
+
+    source = test.table("table")
+    target = test.table("table2")
+
+    source.cell(9, 0).click()
+    with test.hold(Keys.SHIFT):
+        source.cell(10, 0).click()
+
+    test.copy()
+    target.cell(0, 0).click()
+    test.paste()
+
+    for row in range(2):
+        for col in range(1):
+            assert (
+                target.cell(row, col).get_text() == source.cell(row + 9, col).get_text()
+            )
+
+    assert test.get_log_errors() == []
