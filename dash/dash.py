@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
-from pkg_resources import get_distribution, parse_version
+from pkg_resources import get_distribution, parse_version, DistributionNotFound
 from dash import dcc
 from dash import html
 from dash import dash_table
@@ -62,9 +62,16 @@ from ._grouping import (
     grouping_len,
 )
 
+"""
+Handle "pkg_resources.DistributionNotFound: The 'flask-compress' distribution was not found and is required by the application" while building app with cx_freeze.
+Since __version__ is included only in and above cx_freeze 1.10.0, adding the try/ except condition.
+"""
 
-_flask_compress_version = parse_version(get_distribution("flask-compress").version)
-
+try:
+    _flask_compress_version = parse_version(get_distribution("flask-compress").version)
+except DistributionNotFound:
+    from flask_compress import __version__ as _flask_compress_version
+    _flask_compress_version = parse_version(_flask_compress_version)
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
 
