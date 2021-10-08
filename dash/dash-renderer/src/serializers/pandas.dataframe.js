@@ -22,7 +22,6 @@ const fromParquet = async (_parquetFile, _engine) => {
     });
 };
 
-export const deserialize = fromParquet;
 
 export const toParquet = async (_value, _engine) => {
     // TODO: do some writing stuff
@@ -44,4 +43,6 @@ export const toParquet = async (_value, _engine) => {
     });
 };
 
+// TODO: Implement `toParquet` and `fromeParquet`
 export const serialize = toParquet;
+export const deserialize = fromParquet;

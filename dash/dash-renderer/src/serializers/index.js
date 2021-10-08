@@ -14,11 +14,13 @@ export const createBookkeeper = layout => {
     } = layout;
     if (type(children) === 'Array') {
         markedLayout.props.children = children.map(child =>
+            // TODO: await `deserialize` as it might take time?
             createBookkeeper(child)
         );
     }
 
     if (type(children) === 'Object') {
+        // TODO: await `deserialize` as it might take time?
         markedLayout.props.children = createBookkeeper(children);
     }
 
@@ -31,6 +33,7 @@ export const createBookkeeper = layout => {
             } = value;
             markedLayout[DASH_BOOK_KEEPER][key] = {type, engine};
             if (type === DataFrameSerializer.Type)
+                // TODO: await `deserialize` as it might take time?
                 markedLayout.props[key] = DataFrameSerializer.deserialize(
                     originalValue,
                     engine
