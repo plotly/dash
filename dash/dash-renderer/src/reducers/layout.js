@@ -1,7 +1,7 @@
 import {append, assocPath, includes, lensPath, mergeRight, view} from 'ramda';
 
 import {getAction} from '../actions/constants';
-import {createBookkeeper, DASH_BOOK_KEEPER} from '../serializers/utils';
+import {createBookkeeper, DASH_BOOK_KEEPER} from '../serializers';
 
 const layout = (state = {}, action) => {
     if (action.type === getAction('SET_LAYOUT')) {

@@ -1,5 +1,10 @@
+import base64
 import json
 import pandas as pd
+
+PROP_TYPE = "__type"
+PROP_VALUE = "__value"
+PROP_ENGINE = "__engine"
 
 
 class NotSerializable(Exception):
@@ -16,9 +21,15 @@ class DashSerializer:
             pass
 
         if isinstance(prop, pd.DataFrame):
-            return {"__type": "DataFrame", "__value": prop.to_dict("records")}
-        else:
-            raise NotSerializable
+            engine = "pyarrow"
+            buffer_val = prop.to_parquet(compression="gzip", engine=engine)
+            return {
+                PROP_TYPE: "pd.DataFrame",
+                PROP_VALUE: base64.b64encode(buffer_val).decode("utf-8"),
+                PROP_ENGINE: engine,
+            }
+
+        raise NotSerializable
 
     @classmethod
     def __deserialize_value(cls, prop):
@@ -27,14 +38,16 @@ class DashSerializer:
             return deserializeFn()
         except AttributeError:
             pass
-
         try:
-            obj = json.loads(prop) if isinstance(prop, str) else prop
-            __type = (
-                obj["__type"] if isinstance(obj, dict) and "__type" in obj else None
+            jsonObj = json.loads(prop) if isinstance(prop, str) else prop
+            obj = (
+                jsonObj
+                if isinstance(jsonObj, dict) and PROP_TYPE in jsonObj
+                else {PROP_TYPE: None, PROP_ENGINE: None}
             )
-            if __type == "DataFrame":
-                return pd.DataFrame(obj["__value"])
+            [_type, _engine] = [obj[PROP_TYPE], obj[PROP_ENGINE]]
+            if _type == "pd.DataFrame":
+                return pd.read_parquet(obj[PROP_VALUE], _engine)
         except AttributeError:
             pass
         return prop
@@ -54,7 +67,7 @@ class DashSerializer:
     @classmethod
     def serialize(cls, obj):
         try:
-            return cls.__serialize_value(obj)
+            return DashSerializer.__serialize_value(obj)
         except NotSerializable:
             pass
 

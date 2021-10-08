@@ -31,7 +31,7 @@ import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
-import {dashSerializeValue, DASH_BOOK_KEEPER} from '../serializers/utils';
+import {dashSerializeValue, DASH_BOOK_KEEPER} from '../serializers';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
