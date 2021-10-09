@@ -423,11 +423,9 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             this.resizeFragmentTable(r1c0Table, currentTableWidth);
         }
 
-        if (fixed_rows && !fixed_columns) {
-            this.setMinColumnWithds();
-        }
-
         if (fixed_columns || fixed_rows) {
+            this.setMinColumnWithds();
+
             const {r0c1, r1c1} = this.refs as Refs;
 
             const widths = Array.from(
