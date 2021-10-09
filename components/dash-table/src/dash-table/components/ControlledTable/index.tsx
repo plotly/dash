@@ -328,45 +328,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         table.style.width = width;
     };
 
-    /**
-     * Set minimum column widths for fixed-header tables
-     */
-    setMinColumnWithds = () => {
-        const {r0c1, r1c1} = this.refs as Refs;
-
-        const firstRowPath = 'table.cell-table > tbody > tr:first-of-type';
-
-        //Calculate total horizontal padding of the first header cell
-        const headerCellPaddingHorizontal =
-            parseInt(
-                getComputedStyle(
-                    r0c1.querySelectorAll(`${firstRowPath} > th`)[0]
-                ).padding,
-                10
-            ) * 2;
-
-        //Sum header cell children widths + horizontal padding
-        const calcHeaderCellWidth = (headerCell: Element) =>
-            Array.from(headerCell.children).reduce(
-                (previousWidth: number, child: Element) =>
-                    previousWidth + child.scrollWidth,
-                0
-            ) + headerCellPaddingHorizontal;
-
-        //Calculate min widths for each header cells
-        const minHeaderWidths = Array.from(
-            r0c1.querySelectorAll(`${firstRowPath} > th > div`)
-        ).map(calcHeaderCellWidth);
-
-        //Apply minimum header widths to the first row of table body columns
-        const firstRowColumns = Array.from(
-            r1c1.querySelectorAll(`${firstRowPath} > td`)
-        ) as HTMLElement[];
-        for (let i = 0; i < minHeaderWidths.length; i++) {
-            firstRowColumns[i].style.minWidth = `${minHeaderWidths[i]}px`;
-        }
-    };
-
     isDisplayed = (el: HTMLElement) => getComputedStyle(el).display !== 'none';
 
     forceHandleResize = () => this.handleResize();
@@ -426,10 +387,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         }
 
         if (fixed_columns || fixed_rows) {
-            this.setMinColumnWithds();
-
-            const {r0c1, r1c1} = this.refs as Refs;
-
             const widths = Array.from(
                 r1c1.querySelectorAll(
                     'table.cell-table > tbody > tr:first-of-type > *'
