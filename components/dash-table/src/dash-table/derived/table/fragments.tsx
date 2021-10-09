@@ -7,12 +7,17 @@ interface IAccumulator {
     count: number;
 }
 
-function renderFragment(cells: any[][] | null, offset = 0) {
+function renderFragment(cells: any[][] | null, offset = 0, fixedRows = 0) {
     return cells ? (
         <table className='cell-table' tabIndex={-1}>
             <tbody>
                 {cells.map((row, idx) => (
-                    <tr key={`row-${idx + offset}`}>{row}</tr>
+                    <tr
+                        style={idx < fixedRows ? {visibility: 'collapse'} : {}}
+                        key={`row-${idx + offset}`}
+                    >
+                        {row}
+                    </tr>
                 ))}
             </tbody>
         </table>
@@ -99,7 +104,7 @@ export default memoizeOneFactory(
         // slice out fixed rows
         const fixedRowCells = fixedRows ? cells.slice(0, fixedRows) : null;
 
-        cells = cells.slice(fixedRows);
+        //cells = cells.slice(fixedRows);
 
         const fixedRowAndColumnCells =
             fixedRows && fixedColumnCells
@@ -117,7 +122,7 @@ export default memoizeOneFactory(
                 ],
                 [
                     renderFragment(fixedColumnCells),
-                    renderFragment(cells, offset)
+                    renderFragment(cells, offset, fixedRows)
                 ]
             ],
             empty: [

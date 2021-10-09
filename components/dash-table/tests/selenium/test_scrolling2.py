@@ -134,7 +134,7 @@ def test_scrv004_virtualization_can_edit(test, props):
     test.send_keys("abc" + Keys.ENTER)
     wait.until(lambda: target.cell(1, 1).get_text() == "abc", 3)
 
-    scroll_table_by(test, 2000)
+    scroll_table_by(test, 2500)
     target.cell(80, 1).click()
 
     test.send_keys("def" + Keys.ENTER)

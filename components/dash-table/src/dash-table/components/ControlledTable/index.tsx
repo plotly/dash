@@ -127,6 +127,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         window.addEventListener('resize', this.forceHandleResize);
         document.addEventListener('mousedown', this.handleClick);
         document.addEventListener('paste', this.handlePaste);
+        document.addEventListener('copy', this.handleCopy);
 
         const {active_cell, selected_cells, setProps} = this.props;
 
@@ -146,6 +147,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         window.removeEventListener('resize', this.forceHandleResize);
         document.removeEventListener('mousedown', this.handleClick);
         document.removeEventListener('paste', this.handlePaste);
+        document.removeEventListener('copy', this.handleCopy);
     }
 
     componentDidUpdate() {
@@ -242,14 +244,21 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         }
     };
 
-    handlePaste = (event: any) => {
-        // no need to check for target as this will only be called if
-        // a child fails to handle the paste event (e.g table, table input)
-        // make sure the active element is in the scope of the component
-        const $el = this.$el;
-        if ($el && $el.contains(document.activeElement)) {
-            this.onPaste(event);
+    handleClipboardEvent = (
+        event: ClipboardEvent,
+        handler: (e: ClipboardEvent) => void
+    ) => {
+        if (this.containsActiveElement()) {
+            handler(event);
         }
+    };
+
+    handleCopy = (event: ClipboardEvent) => {
+        this.handleClipboardEvent(event, this.onCopy);
+    };
+
+    handlePaste = (event: ClipboardEvent) => {
+        this.handleClipboardEvent(event, this.onPaste);
     };
 
     private clearCellWidth(cell: HTMLElement) {
@@ -978,7 +987,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             <div
                 id={id}
                 className='dash-table-container'
-                onCopy={this.onCopy}
                 onKeyDown={this.handleKeyDown}
                 onPaste={this.onPaste}
                 style={{position: 'relative'}}
