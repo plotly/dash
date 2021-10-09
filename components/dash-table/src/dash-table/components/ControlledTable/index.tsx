@@ -335,13 +335,15 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         const {r0c1, r1c1} = this.refs as Refs;
 
         const firstRowPath = 'table.cell-table > tbody > tr:first-of-type';
-        const firstHeaderColumn = r0c1.querySelectorAll(
-            `${firstRowPath} > th`
-        )[0];
+
         //Calculate total horizontal padding of the first header cell
-        const headerCellPaddingHorizontal = firstHeaderColumn
-            ? parseInt(getComputedStyle(firstHeaderColumn).padding, 10) * 2
-            : 0;
+        const headerCellPaddingHorizontal =
+            parseInt(
+                getComputedStyle(
+                    r0c1.querySelectorAll(`${firstRowPath} > th`)[0]
+                ).padding,
+                10
+            ) * 2;
 
         //Sum header cell children widths + horizontal padding
         const calcHeaderCellWidth = (headerCell: Element) =>
