@@ -60,7 +60,8 @@ export default memoizeOneFactory(
         fixedColumns: number,
         fixedRows: number,
         cells: JSX.Element[][],
-        offset: number
+        offset: number,
+        shallowHeaders: JSX.Element[][]
     ): {grid: (JSX.Element | null)[][]; empty: boolean[][]} => {
         const getPivot = (row: JSX.Element[]) =>
             R.reduceWhile<JSX.Element, IAccumulator>(
@@ -104,7 +105,9 @@ export default memoizeOneFactory(
         // slice out fixed rows
         const fixedRowCells = fixedRows ? cells.slice(0, fixedRows) : null;
 
-        //cells = cells.slice(fixedRows);
+        //cells.splice(0, shallowHeaders.length, [...shallowHeaders]);
+        cells = cells.slice(shallowHeaders.length);
+        cells = [...shallowHeaders, ...cells];
 
         const fixedRowAndColumnCells =
             fixedRows && fixedColumnCells

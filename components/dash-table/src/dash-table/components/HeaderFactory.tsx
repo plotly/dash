@@ -25,12 +25,18 @@ export default class HeaderFactory {
     private readonly headerWrappers = derivedHeaderWrappers(() => this.props);
     private readonly relevantStyles = derivedRelevantHeaderStyles();
     private readonly labelsAndIndices = derivedLabelsAndIndices();
+    private readonly shallowHeader?: boolean = false;
 
     private get props() {
         return this.propsFn();
     }
 
-    constructor(private readonly propsFn: () => HeaderFactoryProps) {}
+    constructor(
+        private readonly propsFn: () => HeaderFactoryProps,
+        shallowHeader?: boolean
+    ) {
+        this.shallowHeader = shallowHeader;
+    }
 
     public createHeaders(
         headerEdges: IEdgesMatrices | undefined,
@@ -118,7 +124,8 @@ export default class HeaderFactory {
             page_action,
             setFilter,
             setProps,
-            merge_duplicate_headers
+            merge_duplicate_headers,
+            this.shallowHeader
         );
 
         const ops = this.getHeaderOpCells(operations, opStyles, headerOpEdges);

@@ -83,21 +83,28 @@ export default (propsFn: () => ControlledTableProps) => {
 
     const filterFactory = new FilterFactory(augmentedPropsFn);
     const headerFactory = new HeaderFactory(augmentedPropsFn);
+    const shallowHeaderFactory = new HeaderFactory(augmentedPropsFn, true);
     const edgeFactory = new EdgeFactory(propsFn);
 
     const merge = memoizeOne(
         (
             data: JSX.Element[][],
             filters: JSX.Element[][],
-            headers: JSX.Element[][]
+            headers: JSX.Element[][],
+            shallowHeaders: JSX.Element[][]
         ) => {
-            const cells: JSX.Element[][] = [];
+            /*const cells: JSX.Element[][] = [];
 
             cells.push(...headers);
             cells.push(...filters);
-            cells.push(...data);
+            cells.push(...data);*/
 
-            return cells;
+            return {
+                data,
+                filters,
+                headers,
+                shallowHeaders
+            };
         }
     );
 
@@ -117,6 +124,11 @@ export default (propsFn: () => ControlledTableProps) => {
             edges.headerOpEdges
         );
 
-        return merge(dataCells, filters, headers);
+        const shallowHeaders = shallowHeaderFactory.createHeaders(
+            edges.headerEdges,
+            edges.headerOpEdges
+        );
+
+        return merge(dataCells, filters, headers, shallowHeaders);
     };
 };

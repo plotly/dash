@@ -211,7 +211,8 @@ function getter(
     paginationMode: TableAction,
     setFilter: SetFilter,
     setProps: SetProps,
-    mergeDuplicateHeaders: boolean
+    mergeDuplicateHeaders: boolean,
+    shallowHeader?: boolean
 ): JSX.Element[][] {
     return R.addIndex<R.KeyValuePair<any[], number[]>, JSX.Element[]>(R.map)(
         ([labels, indices], headerRowIndex) => {
@@ -299,7 +300,11 @@ function getter(
                                                 column_selectable === 'single',
                                                 !allSelected
                                             )}
-                                            name={`column-select-${id}`}
+                                            name={
+                                                shallowHeader
+                                                    ? undefined
+                                                    : `column-select-${id}`
+                                            }
                                             type={
                                                 column_selectable === 'single'
                                                     ? 'radio'
