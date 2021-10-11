@@ -111,8 +111,7 @@ export default memoizeOneFactory(
                 ? fixedColumnCells.slice(0, fixedRows)
                 : null;
 
-        fixedColumnCells =
-            fixedColumnCells && fixedColumnCells.slice(fixedRows);
+        fixedColumnCells = fixedColumnCells || null;
 
         return {
             grid: [
@@ -121,7 +120,7 @@ export default memoizeOneFactory(
                     renderFragment(fixedRowCells)
                 ],
                 [
-                    renderFragment(fixedColumnCells),
+                    renderFragment(fixedColumnCells, 0, fixedRows),
                     renderFragment(cells, offset, fixedRows)
                 ]
             ],
