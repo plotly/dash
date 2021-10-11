@@ -5,7 +5,7 @@ import time
 import dash.testing.wait as wait
 from dash.dash_table import DataTable
 
-columns = [dict(id=str(i), name="Column {}".format(i)) for i in range(1, 30)]
+columns = [dict(id=str(i), name="C {}".format(i)) for i in range(1, 30)]
 
 data = []
 for i in range(1, 100):
