@@ -10,11 +10,11 @@
 
 #### *Dash is the most downloaded, trusted Python framework for building ML & data science web apps*.
 
-Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical Python code. Read [our tutorial](https://dash.plotly.com/getting-started) proudly crafted ❤️ by Dash itself.
+Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical Python code. Read [our tutorial](https://dash.plotly.com/getting-started) (proudly crafted ❤️ with Dash itself).
 
-- [Docs](https://dash.plotly.com/getting-started)
+- [Docs](https://dash.plotly.com/getting-started): Create your first Dash app in under 5 minutes
 
-- Dash app gallery with Python & R code: [dash.gallery](https://dash.gallery)
+- [dash.gallery](https://dash.gallery): Dash app gallery with Python & R code
 
 ### Dash App Examples
 
