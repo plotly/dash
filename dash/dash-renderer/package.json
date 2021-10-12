@@ -30,6 +30,7 @@
     "dependency-graph": "^0.11.0",
     "fast-isnumeric": "^1.1.4",
     "node-polyfill-webpack-plugin": "^1.1.4",
+    "parquetjs-lite": "^0.8.7",
     "prop-types": "15.7.2",
     "radium": "^0.26.1",
     "ramda": "^0.27.1",

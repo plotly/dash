@@ -163,7 +163,7 @@ function fillVals(
             errors.push(inputError);
         }
 
-        const { bookkeeper, property, value } = inputs;
+        const {bookkeeper, property, value} = inputs;
         // TODO: await `deserialize` as it might take time?
         // TODO: consider sending partial updates only?
         inputs.value = dashSerializeValue(bookkeeper?.[property] || {}, value);
