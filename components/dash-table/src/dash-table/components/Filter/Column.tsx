@@ -60,23 +60,25 @@ export default class ColumnFilter extends PureComponent<
                 data-dash-column={columnId}
                 style={style}
             >
-                <IsolatedInput
-                    onCopy={(e: any) => {
-                        e.stopPropagation();
-                        TableClipboardHelper.clearClipboard();
-                    }}
-                    onPaste={(e: any) => {
-                        e.stopPropagation();
-                    }}
-                    value={value}
-                    placeholder={'filter data...'}
-                    stopPropagation={true}
-                    submit={this.submit}
-                />
-                <FilterOptions
-                    filterOptions={filterOptions}
-                    toggleFilterOptions={toggleFilterOptions}
-                />
+                <div>
+                    <FilterOptions
+                        filterOptions={filterOptions}
+                        toggleFilterOptions={toggleFilterOptions}
+                    />
+                    <IsolatedInput
+                        onCopy={(e: any) => {
+                            e.stopPropagation();
+                            TableClipboardHelper.clearClipboard();
+                        }}
+                        onPaste={(e: any) => {
+                            e.stopPropagation();
+                        }}
+                        value={value}
+                        placeholder={'filter data...'}
+                        stopPropagation={true}
+                        submit={this.submit}
+                    />
+                </div>
             </th>
         );
     }

@@ -476,7 +476,6 @@
                 position: relative;
 
                 & input {
-                    position: absolute;
                     left: 0;
                     top: 0;
                     height: 100%;
@@ -687,8 +686,13 @@
     	}
 
 	    .dash-spreadsheet-inner {
-            .dash-header>div {
+            .dash-header>div,
+            .dash-filter>div {
                 display: flex;
+
+                input[type="text"] {
+                    flex: 1;
+                }
             }
             .column-actions {
                 display: flex;
