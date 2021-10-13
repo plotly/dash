@@ -287,7 +287,7 @@ def reorder_props(props):
     # Doing this to avoid mutating props, which can cause confusion.
     props1 = [("children", "")] if "children" in props else []
     props2 = [("id", "")] if "id" in props else []
-    return OrderedDict(props1 + props2 + sorted(list(props.items())))
+    return OrderedDict(props1 + props2 + list(props.items()))
 
 
 def filter_props(props):
@@ -502,7 +502,7 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
                     default=prop.get("defaultValue"),
                     indent_num=indent_num + 2,
                 )
-                for prop_name, prop in sorted(list(type_object["value"].items()))
+                for prop_name, prop in list(type_object["value"].items())
             ),
         )
 
