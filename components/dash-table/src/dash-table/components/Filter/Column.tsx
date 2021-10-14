@@ -61,10 +61,6 @@ export default class ColumnFilter extends PureComponent<
                 style={style}
             >
                 <div>
-                    <FilterOptions
-                        filterOptions={filterOptions}
-                        toggleFilterOptions={toggleFilterOptions}
-                    />
                     <IsolatedInput
                         onCopy={(e: any) => {
                             e.stopPropagation();
@@ -77,6 +73,10 @@ export default class ColumnFilter extends PureComponent<
                         placeholder={'filter data...'}
                         stopPropagation={true}
                         submit={this.submit}
+                    />
+                    <FilterOptions
+                        filterOptions={filterOptions}
+                        toggleFilterOptions={toggleFilterOptions}
                     />
                 </div>
             </th>
