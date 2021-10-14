@@ -25,7 +25,7 @@ const supportedAttributes = ['accept', 'accessKey', 'action', 'allow',
 'manifest', 'marginHeight', 'marginWidth', 'max', 'maxLength', 'media',
 'mediaGroup', 'method', 'min', 'minLength', 'multiple', 'muted', 'name',
 'noValidate', 'nonce', 'open', 'optimum', 'pattern', 'placeholder', 'poster',
-'preload', 'profile', 'radioGroup', 'readOnly', 'referrerPolicy', 'rel', 'required', 
+'preload', 'profile', 'radioGroup', 'readOnly', 'referrerPolicy', 'rel', 'required',
 'reversed', 'role', 'rowSpan', 'rows', 'sandbox', 'scope', 'scoped', 'scrolling',
 'seamless', 'selected', 'shape', 'size', 'sizes', 'span', 'spellCheck', 'src',
 'srcDoc', 'srcLang', 'srcSet', 'start', 'step', 'style', 'summary', 'tabIndex',
@@ -71,7 +71,7 @@ function extractAttributes($) {
         const description = $children.eq(2).text()
             .replace(/\n/g, '')
             // Fix irregular whitespace characters
-            .replace(' ', ' ')
+            .replace(/\s+/g, ' ')
             .trim();
 
         const htmlAttribute = str(attribute)
