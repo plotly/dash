@@ -68,7 +68,10 @@ class DataFrameSerializer:
         elif engine == "pyarrow":
             serialized_value = self.__serialize_using_pyarrow(prop, internal_id)
         else:
-            serialized_value = {'records': prop.to_dict("records"), 'columns': prop.columns}
+            serialized_value = {
+                "records": prop.to_dict("records"),
+                "columns": prop.columns,
+            }
         return {
             PROP_TYPE: "pd.DataFrame",
             PROP_VALUE: serialized_value,
@@ -92,37 +95,31 @@ class DataFrameSerializer:
 class DashSerializer:
     @classmethod
     def __serialize_value(cls, prop):
-        try:
-            serializeFn = getattr(prop, "serialize")
+        serializeFn = getattr(prop, "serialize", None)
+        if serializeFn:
             return serializeFn()
-        except AttributeError:
-            pass
 
         if isinstance(prop, pd.DataFrame):
             internal_id = str(uuid.UUID(int=srd.randint(0, 2 ** 128)))
             serializer = DataFrameSerializer()
             # return serializer.serialize(prop, internal_id, engine="pyarrow")
             return serializer.serialize(prop, internal_id, engine="to_dict")
-        raise NotSerializable
+        return NotSerializable()
 
     @classmethod
     def __deserialize_value(cls, prop):
-        try:
-            deserializeFn = getattr(prop, "deserialize")
+        deserializeFn = getattr(prop, "deserialize", None)
+        if deserializeFn:
             return deserializeFn()
-        except AttributeError:
-            pass
-        try:
-            jsonObj = json.loads(prop) if isinstance(prop, str) else prop
-            _type = (
-                jsonObj[PROP_TYPE]
-                if isinstance(jsonObj, dict) and PROP_TYPE in jsonObj
-                else None
-            )
-            if _type == "pd.DataFrame":
-                return DataFrameSerializer().deserialize(jsonObj)
-        except AttributeError:
-            pass
+
+        jsonObj = json.loads(prop) if isinstance(prop, str) else prop
+        _type = (
+            jsonObj[PROP_TYPE]
+            if isinstance(jsonObj, dict) and PROP_TYPE in jsonObj
+            else None
+        )
+        if _type == "pd.DataFrame":
+            return DataFrameSerializer().deserialize(jsonObj)
         return prop
 
     @classmethod
@@ -139,10 +136,9 @@ class DashSerializer:
 
     @classmethod
     def serialize(cls, obj):
-        try:
-            return DashSerializer.__serialize_value(obj)
-        except NotSerializable:
-            pass
+        result = DashSerializer.__serialize_value(obj)
+        if not isinstance(result, NotSerializable):
+            return result
 
         # Plotly
         try:
