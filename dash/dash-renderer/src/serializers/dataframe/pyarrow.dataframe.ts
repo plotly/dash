@@ -9,9 +9,9 @@ export type DataType =
     | string
     | Date // datetime
     | Int32Array // int
-    | Uint8Array // bytes
-    // | Vector // arrays
-    // | StructRow; // interval
+    | Uint8Array; // bytes
+// | Vector // arrays
+// | StructRow; // interval
 
 export interface ArrowDataframeProto {
     data: ArrowTableProto;
@@ -34,7 +34,7 @@ export class ArrowDataFrameSerializer {
         // const records = arTable.toArray();
         // console.log('ArrowTable.toArray() = ', records);
         // return records;
-      return [];
+        return [];
     };
 
     static serialize = () => {};

@@ -3,13 +3,12 @@ import json
 from typing import cast
 
 # from os import remove
-import uuid
 import random
 import io
 import pandas as pd
 from pandas.core.frame import DataFrame
 import pyarrow as pa
-
+import tempfile
 
 srd = random.Random(0)
 
@@ -17,7 +16,6 @@ srd = random.Random(0)
 PROP_TYPE = "__type"
 PROP_VALUE = "__value"
 PROP_ENGINE = "__engine"
-PROP_ID = "__internal_id"
 
 
 class NotSerializable(Exception):
@@ -25,8 +23,8 @@ class NotSerializable(Exception):
 
 
 class DataFrameSerializer:
-    def __serialize_using_fastparquet(self, df, internal_id):
-        outputPath = "{}.fastparquet".format(internal_id)
+    def __serialize_using_fastparquet(self, df):
+        outputPath = tempfile.NamedTemporaryFile("w")
         df.to_parquet(
             outputPath, compression="gzip", engine="fastparquet"
         )  # TODO: check https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.to_parquet.html
@@ -44,14 +42,12 @@ class DataFrameSerializer:
         byteData = cast(bytes, sink.getvalue().to_pybytes())
         return base64.b64encode(byteData).decode("utf-8")
 
-    def __serialize_using_pyarrow(
-        self, df, internal_id, useFile=False, useParquetFormat=False
-    ):
+    def __serialize_using_pyarrow(self, df, useFile=False, useParquetFormat=False):
         if not useParquetFormat:
             table = pa.Table.from_pandas(df)
             return self.pyarrow_table_to_bytes(table)
         elif useFile:
-            outputPath = "{}.pyarrow".format(internal_id)
+            outputPath = tempfile.NamedTemporaryFile("w")
             df.to_parquet(outputPath, compression="gzip", engine="pyarrow")
             with open(outputPath, "rb") as f:
                 buffer_val = f.read()
@@ -62,11 +58,11 @@ class DataFrameSerializer:
             ret_buffer = df.to_parquet(compression="gzip", engine="pyarrow")
             return base64.b64encode(ret_buffer).decode("utf-8")
 
-    def serialize(self, prop, internal_id, engine="fastparquet"):
+    def serialize(self, prop, engine="fastparquet"):
         if engine == "fastparquet":
-            serialized_value = self.__serialize_using_fastparquet(prop, internal_id)
+            serialized_value = self.__serialize_using_fastparquet(prop)
         elif engine == "pyarrow":
-            serialized_value = self.__serialize_using_pyarrow(prop, internal_id)
+            serialized_value = self.__serialize_using_pyarrow(prop)
         else:
             serialized_value = {
                 "records": prop.to_dict("records"),
@@ -76,14 +72,12 @@ class DataFrameSerializer:
             PROP_TYPE: "pd.DataFrame",
             PROP_VALUE: serialized_value,
             PROP_ENGINE: engine,
-            PROP_ID: internal_id,
         }
 
     def deserialize(self, prop):
         # TODO: Consider partial updates? - use _id to find from file for original/full DataFrame, then apply patch only?
-        [engine, _internal_id, value] = [
+        [engine, value] = [
             prop[PROP_ENGINE],
-            prop[PROP_ID],
             prop[PROP_VALUE],
         ]
         if engine == "to_dict":
@@ -100,10 +94,9 @@ class DashSerializer:
             return serializeFn()
 
         if isinstance(prop, pd.DataFrame):
-            internal_id = str(uuid.UUID(int=srd.randint(0, 2 ** 128)))
             serializer = DataFrameSerializer()
-            # return serializer.serialize(prop, internal_id, engine="pyarrow")
-            return serializer.serialize(prop, internal_id, engine="to_dict")
+            # return serializer.serialize(prop, engine="pyarrow")
+            return serializer.serialize(prop, engine="to_dict")
         return NotSerializable()
 
     @classmethod

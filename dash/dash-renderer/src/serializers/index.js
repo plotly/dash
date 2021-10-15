@@ -6,7 +6,6 @@ import DictDataFrameSerializer from './dataframe/dict.dataframe';
 const PROP_TYPE = '__type';
 const PROP_VALUE = '__value';
 const PROP_ENGINE = '__engine';
-const PROP_ID = '__internal_id';
 
 export const DASH_BOOK_KEEPER = '__dash_serialized_props';
 
@@ -33,10 +32,9 @@ export const createBookkeeper = layout => {
             const {
                 [PROP_TYPE]: type,
                 [PROP_ENGINE]: engine,
-                [PROP_VALUE]: originalValue,
-                [PROP_ID]: internalId
+                [PROP_VALUE]: originalValue
             } = value;
-            markedLayout[DASH_BOOK_KEEPER][key] = {type, engine, internalId};
+            markedLayout[DASH_BOOK_KEEPER][key] = {type, engine};
             if (type === 'pd.DataFrame') {
                 // TODO: await `deserialize` as it might take time?
                 if (engine == 'pyarrow') {
@@ -57,12 +55,11 @@ export const createBookkeeper = layout => {
     return markedLayout;
 };
 
-export const dashSerializeValue = async ({type, engine, internalId}, value) => {
+export const dashSerializeValue = async ({type, engine}, value) => {
     if (!type) return value;
     const serializedValue = {};
     serializedValue[PROP_TYPE] = type;
     serializedValue[PROP_ENGINE] = engine;
-    serializedValue[PROP_ID] = internalId;
     if (type == 'pd.DataFrame')
         serializedValue[PROP_VALUE] = DictDataFrameSerializer.serialize(value);
     else serializedValue[PROP_VALUE] = value;
