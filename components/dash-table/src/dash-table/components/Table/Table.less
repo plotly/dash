@@ -689,7 +689,6 @@
             .dash-header>div,
             .dash-filter>div {
                 display: flex;
-                flex-direction: row-reverse;
 
                 input[type="text"] {
                     flex: 1;
@@ -698,6 +697,9 @@
                         font-size: 0.9em;
                     }
                 }
+            }
+            .dash-filter>div {
+                flex-direction: row-reverse;
             }
             .column-actions {
                 display: flex;
