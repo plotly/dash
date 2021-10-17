@@ -84,7 +84,7 @@ julia = "1.2"
 """
 
 jl_base_version = {
-    "Dash": "1.0",
+    "Dash": "0.1.3, 1.0",
     "DashBase": "0.1",
 }
 
