@@ -5,10 +5,10 @@ from typing import cast
 # from os import remove
 import random
 import io
+import tempfile
 import pandas as pd
 from pandas.core.frame import DataFrame
 import pyarrow as pa
-import tempfile
 
 srd = random.Random(0)
 
@@ -23,7 +23,8 @@ class NotSerializable(Exception):
 
 
 class DataFrameSerializer:
-    def __serialize_using_fastparquet(self, df):
+    @classmethod
+    def __serialize_using_fastparquet(cls, df):
         outputPath = tempfile.NamedTemporaryFile("w")
         df.to_parquet(
             outputPath, compression="gzip", engine="fastparquet"
@@ -34,7 +35,8 @@ class DataFrameSerializer:
             # remove(outputPath)
         return base64.b64encode(buffer_val).decode("utf-8")
 
-    def pyarrow_table_to_bytes(self, table: pa.Table) -> bytes:
+    @classmethod
+    def pyarrow_table_to_bytes(cls, table: pa.Table) -> bytes:
         sink = pa.BufferOutputStream()
         writer = pa.RecordBatchStreamWriter(sink, table.schema)
         writer.write_table(table)
@@ -74,7 +76,8 @@ class DataFrameSerializer:
             PROP_ENGINE: engine,
         }
 
-    def deserialize(self, prop):
+    @classmethod
+    def deserialize(cls, prop):
         # TODO: Consider partial updates? - use _id to find from file for original/full DataFrame, then apply patch only?
         [engine, value] = [
             prop[PROP_ENGINE],
