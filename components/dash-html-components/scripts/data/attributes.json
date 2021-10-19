@@ -76,7 +76,7 @@
             "elements": [
                 "input"
             ],
-            "description": "From the HTML Media CaptureThe definition of 'media capture' in that specification.spec, specifies a new file can be captured."
+            "description": "From the Media Capture specification, specifies a new file can be captured."
         },
         "challenge": {
             "elements": [
@@ -307,7 +307,7 @@
                 "object",
                 "video"
             ],
-            "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+            "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property. Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
         },
         "hidden": {
             "elements": [
@@ -421,7 +421,7 @@
             "elements": [
                 "html"
             ],
-            "description": "Specifies the URL of the document's cache manifest.    Note: This attribute is obsolete, use <link rel=\"manifest\"> instead."
+            "description": "Specifies the URL of the document's cache manifest. Note: This attribute is obsolete, use <link rel=\"manifest\"> instead."
         },
         "max": {
             "elements": [
@@ -787,7 +787,7 @@
                 "object",
                 "video"
             ],
-            "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+            "description": "For the elements listed here, this establishes the element's width. Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
         },
         "wrap": {
             "elements": [
