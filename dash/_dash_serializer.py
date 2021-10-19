@@ -17,15 +17,13 @@ PROP_TYPE = "__type"
 PROP_VALUE = "__value"
 PROP_ENGINE = "__engine"
 
-
-class NotSerializable(Exception):
-    pass
+NotSerializable = Exception("NotSerializable")
 
 
 class DataFrameSerializer:
     @classmethod
     def __serialize_using_fastparquet(cls, df):
-        outputPath = tempfile.NamedTemporaryFile("w")
+        outputPath = tempfile.NamedTemporaryFile("w").name
         df.to_parquet(
             outputPath, compression="gzip", engine="fastparquet"
         )  # TODO: check https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.to_parquet.html
@@ -44,10 +42,11 @@ class DataFrameSerializer:
         byteData = cast(bytes, sink.getvalue().to_pybytes())
         return base64.b64encode(byteData).decode("utf-8")
 
-    def __serialize_using_pyarrow(self, df, useFile=False, useParquetFormat=False):
+    @classmethod
+    def __serialize_using_pyarrow(cls, df, useFile=False, useParquetFormat=False):
         if not useParquetFormat:
             table = pa.Table.from_pandas(df)
-            return self.pyarrow_table_to_bytes(table)
+            return DataFrameSerializer.pyarrow_table_to_bytes(table)
         elif useFile:
             outputPath = tempfile.NamedTemporaryFile("w")
             df.to_parquet(outputPath, compression="gzip", engine="pyarrow")
@@ -60,11 +59,12 @@ class DataFrameSerializer:
             ret_buffer = df.to_parquet(compression="gzip", engine="pyarrow")
             return base64.b64encode(ret_buffer).decode("utf-8")
 
-    def serialize(self, prop, engine="fastparquet"):
+    @classmethod
+    def serialize(cls, prop, engine="fastparquet"):
         if engine == "fastparquet":
-            serialized_value = self.__serialize_using_fastparquet(prop)
+            serialized_value = DataFrameSerializer.__serialize_using_fastparquet(prop)
         elif engine == "pyarrow":
-            serialized_value = self.__serialize_using_pyarrow(prop)
+            serialized_value = DataFrameSerializer.__serialize_using_pyarrow(prop)
         else:
             serialized_value = {
                 "records": prop.to_dict("records"),
@@ -97,10 +97,9 @@ class DashSerializer:
             return serializeFn()
 
         if isinstance(prop, pd.DataFrame):
-            serializer = DataFrameSerializer()
             # return serializer.serialize(prop, engine="pyarrow")
-            return serializer.serialize(prop, engine="to_dict")
-        return NotSerializable()
+            return DataFrameSerializer.serialize(prop, engine="to_dict")
+        return NotSerializable
 
     @classmethod
     def __deserialize_value(cls, prop):
@@ -115,7 +114,7 @@ class DashSerializer:
             else None
         )
         if _type == "pd.DataFrame":
-            return DataFrameSerializer().deserialize(jsonObj)
+            return DataFrameSerializer.deserialize(jsonObj)
         return prop
 
     @classmethod
@@ -133,7 +132,7 @@ class DashSerializer:
     @classmethod
     def serialize(cls, obj):
         result = DashSerializer.__serialize_value(obj)
-        if not isinstance(result, NotSerializable):
+        if result == NotSerializable:
             return result
 
         # Plotly

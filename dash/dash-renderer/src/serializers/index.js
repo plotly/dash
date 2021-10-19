@@ -1,31 +1,27 @@
 import {type, prop} from 'ramda';
-import DataFrameSerializer from './dataframe/fastparquet.dataframe';
-import {ArrowDataFrameSerializer} from './dataframe/pyarrow.dataframe';
-import DictDataFrameSerializer from './dataframe/dict.dataframe';
+import DataFrameSerializer from './pd.dataframe';
 
 const PROP_TYPE = '__type';
 const PROP_VALUE = '__value';
 const PROP_ENGINE = '__engine';
+const supportedSerializers = {
+    'pd.DataFrame': DataFrameSerializer
+};
 
-export const DASH_BOOK_KEEPER = '__dash_serialized_props';
-
-export const createBookkeeper = layout => {
-    const markedLayout = {...layout, [DASH_BOOK_KEEPER]: {}};
+export const SERIALIZER_BOOKKEEPER = '__dash_serialized_props';
+export const deserializeLayout = layout => {
+    const markedLayout = {...layout, [SERIALIZER_BOOKKEEPER]: {}};
     const {
         props,
         props: {children}
     } = layout;
-    if (type(children) === 'Array') {
+    if (type(children) === 'Array')
         markedLayout.props.children = children.map(child =>
-            // TODO: await `deserialize` as it might take time?
-            createBookkeeper(child)
+            deserializeLayout(child)
         );
-    }
 
-    if (type(children) === 'Object') {
-        // TODO: await `deserialize` as it might take time?
-        markedLayout.props.children = createBookkeeper(children);
-    }
+    if (type(children) === 'Object')
+        markedLayout.props.children = deserializeLayout(children);
 
     Object.entries(props).forEach(([key, value]) => {
         if (prop(PROP_TYPE, value)) {
@@ -34,20 +30,12 @@ export const createBookkeeper = layout => {
                 [PROP_ENGINE]: engine,
                 [PROP_VALUE]: originalValue
             } = value;
-            markedLayout[DASH_BOOK_KEEPER][key] = {type, engine};
-            if (type === 'pd.DataFrame') {
-                // TODO: await `deserialize` as it might take time?
-                if (engine == 'pyarrow') {
-                    markedLayout.props[key] =
-                        ArrowDataFrameSerializer.deserialize(originalValue);
-                } else if (engine == 'fastparquet') {
-                    markedLayout.props[key] =
-                        DataFrameSerializer.deserialize(originalValue);
-                } else if (engine == 'to_dict') {
-                    markedLayout.props[key] =
-                        DictDataFrameSerializer.deserialize(originalValue);
-                }
-            } else markedLayout.props[key] = prop(PROP_VALUE, value);
+            markedLayout[SERIALIZER_BOOKKEEPER][key] = {type, engine};
+            markedLayout.props[key] =
+                supportedSerializers[type]?.deserialize(
+                    originalValue,
+                    engine
+                ) || originalValue;
         } else {
             markedLayout.props[key] = value;
         }
@@ -55,13 +43,12 @@ export const createBookkeeper = layout => {
     return markedLayout;
 };
 
-export const dashSerializeValue = async ({type, engine}, value) => {
+export const serializeValue = ({type, engine}, value) => {
     if (!type) return value;
     const serializedValue = {};
     serializedValue[PROP_TYPE] = type;
     serializedValue[PROP_ENGINE] = engine;
-    if (type == 'pd.DataFrame')
-        serializedValue[PROP_VALUE] = DictDataFrameSerializer.serialize(value);
-    else serializedValue[PROP_VALUE] = value;
+    serializedValue[PROP_VALUE] =
+        supportedSerializers[type]?.serialize(value, engine) || value;
     return JSON.stringify(serializedValue);
 };

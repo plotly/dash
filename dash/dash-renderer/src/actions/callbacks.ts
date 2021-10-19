@@ -31,7 +31,7 @@ import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
-import {dashSerializeValue, DASH_BOOK_KEEPER} from '../serializers';
+import {serializeValue, SERIALIZER_BOOKKEEPER} from '../serializers';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -150,7 +150,7 @@ function fillVals(
                 id,
                 property,
                 value: (path(path_, layout) as any).props[property],
-                bookkeeper: (path(path_, layout) as any)[DASH_BOOK_KEEPER]
+                bookkeeper: (path(path_, layout) as any)[SERIALIZER_BOOKKEEPER]
             })),
             specs[i],
             cb.anyVals,
@@ -164,9 +164,7 @@ function fillVals(
         }
 
         const {bookkeeper, property, value} = inputs;
-        // TODO: await `deserialize` as it might take time?
-        // TODO: consider sending partial updates only?
-        inputs.value = dashSerializeValue(bookkeeper?.[property] || {}, value);
+        inputs.value = serializeValue(bookkeeper?.[property] || {}, value);
         return inputs;
     });
 

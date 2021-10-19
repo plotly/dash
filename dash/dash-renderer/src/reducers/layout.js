@@ -1,11 +1,11 @@
 import {append, assocPath, includes, lensPath, mergeRight, view} from 'ramda';
 
 import {getAction} from '../actions/constants';
-import {createBookkeeper, DASH_BOOK_KEEPER} from '../serializers';
+import {deserializeLayout, SERIALIZER_BOOKKEEPER} from '../serializers';
 
 const layout = (state = {}, action) => {
     if (action.type === getAction('SET_LAYOUT')) {
-        return createBookkeeper(action.payload);
+        return deserializeLayout(action.payload);
     } else if (
         includes(action.type, [
             'UNDO_PROP_CHANGE',
@@ -20,8 +20,10 @@ const layout = (state = {}, action) => {
 
         if (action.payload.source === 'response') {
             newState = assocPath(
-                append(DASH_BOOK_KEEPER, action.payload.itempath),
-                createBookkeeper({props: mergedProps})?.[DASH_BOOK_KEEPER],
+                append(SERIALIZER_BOOKKEEPER, action.payload.itempath),
+                deserializeLayout({props: mergedProps})?.[
+                    SERIALIZER_BOOKKEEPER
+                ],
                 newState
             );
         }

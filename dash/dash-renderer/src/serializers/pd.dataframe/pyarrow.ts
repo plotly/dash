@@ -25,7 +25,7 @@ export interface ArrowTableProto {
     columns: Uint8Array;
 }
 
-export class ArrowDataFrameSerializer {
+export default class ArrowDataFrameSerializer {
     static deserialize = (_value: string) => {
         // const dataBuffer: Uint8Array = new TextEncoder().encode(atob(value));
         // console.log('dataBuffer = ', dataBuffer);
