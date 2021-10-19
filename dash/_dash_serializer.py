@@ -132,7 +132,7 @@ class DashSerializer:
     @classmethod
     def serialize(cls, obj):
         result = DashSerializer.__serialize_value(obj)
-        if result == NotSerializable:
+        if result != NotSerializable:
             return result
 
         # Plotly
