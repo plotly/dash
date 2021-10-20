@@ -10,7 +10,6 @@ import io
 import json
 from functools import wraps
 from . import exceptions
-from ._dash_serializer import DashSerializer
 
 logger = logging.getLogger()
 
@@ -19,7 +18,7 @@ def to_json(value):
     # pylint: disable=import-outside-toplevel
     from plotly.io.json import to_json_plotly
 
-    return to_json_plotly(DashSerializer.serialize(value))
+    return to_json_plotly(value)
 
 
 def interpolate_str(template, **data):

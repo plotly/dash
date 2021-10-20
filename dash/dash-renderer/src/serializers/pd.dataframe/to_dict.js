@@ -1,6 +1,6 @@
 export default class DictDataFrameSerializer {
     static deserialize = value => {
-        return value?.records || [];
+        return value || [];
         // const {columns, records} = value;
         // const columnOrders =
         //     (records || []).length < 0 ? [] : Object.keys(records[0]);
