@@ -189,6 +189,7 @@ def register_callback(
                 raise PreventUpdate
 
             response = {"response": component_ids, "multi": True}
+
             try:
                 jsonResponse = to_json(response)
             except TypeError:

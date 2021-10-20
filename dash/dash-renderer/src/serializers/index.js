@@ -4,7 +4,7 @@ import DataFrameSerializer from './pd.dataframe';
 const PROP_TYPE = '__type';
 const PROP_VALUE = '__value';
 const PROP_ENGINE = '__engine';
-const supportedSerializers = {
+const supportedTypes = {
     'pd.DataFrame': DataFrameSerializer
 };
 
@@ -32,10 +32,8 @@ export const deserializeLayout = layout => {
             } = value;
             markedLayout[SERIALIZER_BOOKKEEPER][key] = {type, engine};
             markedLayout.props[key] =
-                supportedSerializers[type]?.deserialize(
-                    originalValue,
-                    engine
-                ) || originalValue;
+                supportedTypes[type]?.deserialize(originalValue, engine) ||
+                originalValue;
         } else {
             markedLayout.props[key] = value;
         }
@@ -49,6 +47,6 @@ export const serializeValue = ({type, engine}, value) => {
     serializedValue[PROP_TYPE] = type;
     serializedValue[PROP_ENGINE] = engine;
     serializedValue[PROP_VALUE] =
-        supportedSerializers[type]?.serialize(value, engine) || value;
+        supportedTypes[type]?.serialize(value, engine) || value;
     return JSON.stringify(serializedValue);
 };

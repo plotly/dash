@@ -3,20 +3,15 @@ import json
 from typing import cast
 
 from os import remove
-import random
 import io
 import tempfile
 import pandas as pd
 from pandas.core.frame import DataFrame
 import pyarrow as pa
 
-srd = random.Random(0)
-
 PROP_TYPE = "__type"
 PROP_VALUE = "__value"
 PROP_ENGINE = "__engine"
-
-NotSerializable = Exception("NotSerializable")
 
 
 class DataFrameSerializer:
