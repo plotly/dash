@@ -39,7 +39,8 @@ class DataFrameSerializer:
         if not useParquetFormat:
             table = pa.Table.from_pandas(df)
             return DataFrameSerializer.pyarrow_table_to_bytes(table)
-        elif useFile:
+
+        if useFile:
             outputPath = tempfile.NamedTemporaryFile("w").name
             df.to_parquet(outputPath, compression="gzip", engine="pyarrow")
             with open(outputPath, "rb") as f:
@@ -76,8 +77,7 @@ class DataFrameSerializer:
         ]
         if engine == "to_dict":
             return DataFrame.from_records(value)
-        else:
-            return pd.read_parquet(io.BytesIO(value), engine)
+        return pd.read_parquet(io.BytesIO(value), engine)
 
 
 class DashSerializer:
