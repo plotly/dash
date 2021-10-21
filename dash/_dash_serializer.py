@@ -48,9 +48,9 @@ class DataFrameSerializer:
                 f.close()
                 remove(outputPath)
             return base64.b64encode(buffer_val).decode("utf-8")
-        else:
-            ret_buffer = df.to_parquet(compression="gzip", engine="pyarrow")
-            return base64.b64encode(ret_buffer).decode("utf-8")
+
+        ret_buffer = df.to_parquet(compression="gzip", engine="pyarrow")
+        return base64.b64encode(ret_buffer).decode("utf-8")
 
     @classmethod
     def __serialize_using_to_dict(cls, df):
