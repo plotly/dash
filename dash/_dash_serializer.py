@@ -89,19 +89,35 @@ class DashSerializer:
         return value
 
     @classmethod
+    def serialize_prop(cls, component, propName):
+        serializeFn = getattr(component, "serialize", None)
+        if serializeFn:
+            return serializeFn()
+
+        propValue = getattr(component, propName)
+        if isinstance(propValue, pd.DataFrame):
+            # return serializer.serialize(prop, engine="pyarrow")
+            return DataFrameSerializer.serialize(propValue, engine="to_dict")
+        return propValue
+
+    @classmethod
     def deserialize_value(cls, prop):
         deserializeFn = getattr(prop, "deserialize", None)
         if deserializeFn:
             return deserializeFn()
 
-        jsonObj = json.loads(prop) if isinstance(prop, str) else prop
-        _type = (
-            jsonObj[PROP_TYPE]
-            if isinstance(jsonObj, dict) and PROP_TYPE in jsonObj
-            else None
-        )
-        if _type == "pd.DataFrame":
-            return DataFrameSerializer.deserialize(jsonObj)
+        try: 
+            jsonObj = json.loads(prop) if isinstance(prop, str) else prop
+            _type = (
+                jsonObj[PROP_TYPE]
+                if isinstance(jsonObj, dict) and PROP_TYPE in jsonObj
+                else None
+            )
+            if _type == "pd.DataFrame":
+                return DataFrameSerializer.deserialize(jsonObj)
+        except ValueError:
+            pass
+
         return prop
 
     @classmethod
@@ -115,15 +131,3 @@ class DashSerializer:
             )
             for prop in props
         ]
-
-    @classmethod
-    def serialize_prop(cls, component, propName):
-        serializeFn = getattr(component, "serialize", None)
-        if serializeFn:
-            return serializeFn()
-
-        propValue = getattr(component, propName)
-        if isinstance(propValue, pd.DataFrame):
-            # return serializer.serialize(prop, engine="pyarrow")
-            return DataFrameSerializer.serialize(propValue, engine="to_dict")
-        return propValue
