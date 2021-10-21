@@ -9,8 +9,8 @@ const supportedEngines = {
 };
 
 export default {
-    deserialize: (value, engine) =>
-        supportedEngines[engine]?.deserialize(value) || value,
-    serialize: (value, engine) =>
-        supportedEngines[engine]?.serialize(value) || value
+    serialize: (engine, ...args) =>
+        supportedEngines[engine]?.serialize(args) || args,
+    deserialize: (engine, arg) =>
+        supportedEngines[engine]?.deserialize(arg) || [arg]
 };

@@ -25,15 +25,7 @@ export const deserializeLayout = layout => {
 
     Object.entries(props).forEach(([key, value]) => {
         if (prop(PROP_TYPE, value)) {
-            const {
-                [PROP_TYPE]: type,
-                [PROP_ENGINE]: engine,
-                [PROP_VALUE]: originalValue
-            } = value;
-            markedLayout[SERIALIZER_BOOKKEEPER][key] = {type, engine};
-            markedLayout.props[key] =
-                supportedTypes[type]?.deserialize(originalValue, engine) ||
-                originalValue;
+            deserializeValue(markedLayout, key, value);
         } else {
             markedLayout.props[key] = value;
         }
@@ -41,12 +33,28 @@ export const deserializeLayout = layout => {
     return markedLayout;
 };
 
-export const serializeValue = ({type, engine}, value) => {
+const deserializeValue = (
+    layout,
+    key,
+    {[PROP_TYPE]: type, [PROP_ENGINE]: engine, [PROP_VALUE]: originalValue}
+) => {
+    layout[SERIALIZER_BOOKKEEPER][key] = {type, engine};
+    const [val, missingProps] = supportedTypes[type]?.deserialize(
+        engine,
+        originalValue
+    ) || [originalValue, {}];
+    layout.props[key] = val;
+    for (const k in missingProps) {
+        layout.props[k] = missingProps[k];
+    }
+};
+
+export const serializeValue = ({type, engine}, value, props) => {
     if (!type) return value;
     const serializedValue = {};
     serializedValue[PROP_TYPE] = type;
     serializedValue[PROP_ENGINE] = engine;
     serializedValue[PROP_VALUE] =
-        supportedTypes[type]?.serialize(value, engine) || value;
-    return JSON.stringify(serializedValue);
+        supportedTypes[type]?.serialize(engine, value, props) || value;
+    return serializedValue;
 };

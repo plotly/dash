@@ -149,7 +149,7 @@ function fillVals(
             inputList.map(({id, property, path: path_}: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property],
+                props: (path(path_, layout) as any).props,
                 bookkeeper: (path(path_, layout) as any)[SERIALIZER_BOOKKEEPER]
             })),
             specs[i],
@@ -163,8 +163,10 @@ function fillVals(
             errors.push(inputError);
         }
 
-        const {bookkeeper, property, value} = inputs;
-        inputs.value = serializeValue(bookkeeper?.[property] || {}, value);
+        const {bookkeeper, property, props} = inputs;
+        inputs.value = serializeValue(bookkeeper?.[property] || {}, props[property], props);
+        delete inputs.bookkeeper;
+        delete inputs.props;
         return inputs;
     });
 

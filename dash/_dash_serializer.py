@@ -54,7 +54,7 @@ class DataFrameSerializer:
 
     @classmethod
     def __serialize_using_to_dict(cls, df):
-        return df.to_dict("records")
+        return {"records": df.to_dict("records"), "columns": df.columns}
 
     @classmethod
     def serialize(cls, prop, engine="to_dict"):
@@ -76,7 +76,7 @@ class DataFrameSerializer:
             prop[PROP_VALUE],
         ]
         if engine == "to_dict":
-            return DataFrame.from_records(value)
+            return DataFrame.from_records(value["records"], columns=value["columns"])
         return pd.read_parquet(io.BytesIO(value), engine)
 
 
