@@ -102,7 +102,6 @@ jobs:
           command: |
             python -m venv venv && . venv/bin/activate
             pip install --upgrade pip wheel
-            pip install webdriver-manager
             pip install -e .[ci,dev,testing] --no-cache-dir --progress-bar off
       - run:
           name: 🌸 Python & JS Lint
