@@ -1,11 +1,19 @@
 const parquet = require('parquetjs-lite');
 import {Buffer} from 'buffer/';
 
+function u8array_create(data) {
+    // See https://developer.mozilla.org/en-US/docs/Web/API/btoa for why this is
+    // necessary.
+    const byte_chars = atob(data);                     
+    const byte_numbers = Array.from(byte_chars,(b,i)=>byte_chars.charCodeAt(i)); 
+    const byte_array = new Uint8Array(byte_numbers);                             
+    return byte_array;
+}
+
 const fromParquet = async (_parquetFile: string) => {
     const records: any[] = [];
-    const parquetData = Buffer.from(atob(_parquetFile));
+    const parquetData = Buffer.from(u8array_create(_parquetFile));
     const reader = await parquet.ParquetReader.openBuffer(parquetData);
-    console.log(reader);
     const cursor = reader.getCursor();
     let record = null;
     do {
