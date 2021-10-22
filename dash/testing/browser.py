@@ -20,6 +20,10 @@ from selenium.common.exceptions import (
     MoveTargetOutOfBoundsException,
 )
 
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.utils import ChromeType
+from webdriver_manager.firefox import GeckoDriverManager
+
 from dash.testing.wait import text_to_equal, style_to_equal, contains_text, until
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
@@ -473,7 +477,11 @@ class Browser(DashPageMixin):
                 desired_capabilities=capabilities,
             )
             if self._remote
-            else webdriver.Chrome(options=options, desired_capabilities=capabilities)
+            else webdriver.Chrome(
+                ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install(),
+                options=options,
+                desired_capabilities=capabilities,
+            )
         )
 
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
@@ -516,7 +524,10 @@ class Browser(DashPageMixin):
             )
             if self._remote
             else webdriver.Firefox(
-                firefox_profile=fp, options=options, capabilities=capabilities
+                executable_path=GeckoDriverManager().install(),
+                firefox_profile=fp,
+                options=options,
+                capabilities=capabilities,
             )
         )
 

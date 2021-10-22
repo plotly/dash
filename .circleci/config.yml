@@ -82,7 +82,7 @@ jobs:
   lint-unit-39: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9-browsers
+      - image: circleci/python:3.9.4-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -102,6 +102,7 @@ jobs:
           command: |
             python -m venv venv && . venv/bin/activate
             pip install --upgrade pip wheel
+            pip install webdriver-manager
             pip install -e .[ci,dev,testing] --no-cache-dir --progress-bar off
       - run:
           name: 🌸 Python & JS Lint
