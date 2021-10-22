@@ -82,7 +82,7 @@ jobs:
   lint-unit-39: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: circleci/python:3.9.2-buster-node-browsers
+      - image: circleci/python:3.9.4-node-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
