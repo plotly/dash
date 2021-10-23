@@ -13,7 +13,8 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-r_component_string = """{funcname} <- function({default_argtext}{wildcards}) {{
+r_component_string = """#' @export
+{funcname} <- function({default_argtext}{wildcards}) {{
     {wildcard_declaration}
     props <- list({default_paramtext}{wildcards})
     if (length(props) > 0) {{
