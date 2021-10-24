@@ -11,20 +11,27 @@ function renderFragment(cells: any[][] | null, offset = 0, fixedRows = 0) {
     return cells ? (
         <table className='cell-table' tabIndex={-1}>
             <tbody>
-                {cells.map((row, idx) => (
+                {cells.map((row, idx) => {
+                  const hidden = idx < fixedRows
+                  const content = hidden ? row.map(r => getHidden(r, true)) : row
+
+                  return (
                     <tr
-                        style={idx < fixedRows ? {visibility: 'collapse'} : {}}
-                        key={`row-${idx + offset}`}
+                      style={hidden ? {visibility: 'collapse'} : {}}
+                      key={`row-${idx + offset}`}
                     >
-                        {row}
+                      {content}
                     </tr>
-                ))}
+                  );
+                })}
             </tbody>
         </table>
     ) : null;
 }
 
-const getHiddenCell = (cell: JSX.Element) =>
+const getHiddenCell = (cell: JSX.Element) => getHidden(cell)
+
+const getHidden = (cell: JSX.Element, withContent = false) =>
     React.cloneElement(
         cell,
         {
@@ -33,7 +40,7 @@ const getHiddenCell = (cell: JSX.Element) =>
                 ? `${cell.props.className} phantom-cell`
                 : 'phantom-cell'
         },
-        cell.type === 'th' || cell.type === 'td' ? null : cell.props.children
+        !withContent && (cell.type === 'th' || cell.type === 'td') ? null : cell.props.children
     );
 
 const getFixedColSpan = (cell: JSX.Element, maxColSpan: number) =>
