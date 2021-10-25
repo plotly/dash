@@ -912,7 +912,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             [fixed_columns ? 'dash-fixed-column' : '', 'dash-fixed-content']
         ];
 
-        const {headers, filters, data, shallowHeaders} = this.tableFn();
+        const {headers, filters, data, placeholderHeaders} = this.tableFn();
         const rawTable = [...headers, ...filters, ...data];
 
         const {grid, empty} = this.tableFragments(
@@ -920,7 +920,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             fixed_rows,
             rawTable,
             virtualized.offset.rows,
-            shallowHeaders
+            placeholderHeaders
         );
 
         const classes = [

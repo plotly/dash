@@ -83,7 +83,7 @@ export default (propsFn: () => ControlledTableProps) => {
 
     const filterFactory = new FilterFactory(augmentedPropsFn);
     const headerFactory = new HeaderFactory(augmentedPropsFn);
-    const shallowHeaderFactory = new HeaderFactory(augmentedPropsFn, true);
+    const placeholderHeaderFactory = new HeaderFactory(augmentedPropsFn, true);
     const edgeFactory = new EdgeFactory(propsFn);
 
     const merge = memoizeOne(
@@ -91,13 +91,13 @@ export default (propsFn: () => ControlledTableProps) => {
             data: JSX.Element[][],
             filters: JSX.Element[][],
             headers: JSX.Element[][],
-            shallowHeaders: JSX.Element[][]
+            placeholderHeaders: JSX.Element[][]
         ) => {
             return {
                 data,
                 filters,
                 headers,
-                shallowHeaders
+                placeholderHeaders
             };
         }
     );
@@ -118,11 +118,11 @@ export default (propsFn: () => ControlledTableProps) => {
             edges.headerOpEdges
         );
 
-        const shallowHeaders = shallowHeaderFactory.createHeaders(
+        const placeholderHeaders = placeholderHeaderFactory.createHeaders(
             edges.headerEdges,
             edges.headerOpEdges
         );
 
-        return merge(dataCells, filters, headers, shallowHeaders);
+        return merge(dataCells, filters, headers, placeholderHeaders);
     };
 };

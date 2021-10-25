@@ -212,7 +212,7 @@ function getter(
     setFilter: SetFilter,
     setProps: SetProps,
     mergeDuplicateHeaders: boolean,
-    shallowHeader?: boolean
+    placeholderHeader?: boolean
 ): JSX.Element[][] {
     return R.addIndex<R.KeyValuePair<any[], number[]>, JSX.Element[]>(R.map)(
         ([labels, indices], headerRowIndex) => {
@@ -301,7 +301,7 @@ function getter(
                                                 !allSelected
                                             )}
                                             name={
-                                                shallowHeader
+                                                placeholderHeader
                                                     ? undefined
                                                     : `column-select-${id}`
                                             }
