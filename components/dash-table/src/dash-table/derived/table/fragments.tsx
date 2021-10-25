@@ -116,7 +116,6 @@ export default memoizeOneFactory(
         // slice out fixed rows
         const fixedRowCells = fixedRows ? cells.slice(0, fixedRows) : null;
 
-        //cells.splice(0, shallowHeaders.length, [...shallowHeaders]);
         cells = cells.slice(shallowHeaders.length);
         cells = [...shallowHeaders, ...cells];
 

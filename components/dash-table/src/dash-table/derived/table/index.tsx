@@ -93,12 +93,6 @@ export default (propsFn: () => ControlledTableProps) => {
             headers: JSX.Element[][],
             shallowHeaders: JSX.Element[][]
         ) => {
-            /*const cells: JSX.Element[][] = [];
-
-            cells.push(...headers);
-            cells.push(...filters);
-            cells.push(...data);*/
-
             return {
                 data,
                 filters,

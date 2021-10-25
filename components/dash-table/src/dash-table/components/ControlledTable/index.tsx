@@ -914,7 +914,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         const {headers, filters, data, shallowHeaders} = this.tableFn();
         const rawTable = [...headers, ...filters, ...data];
-        console.log('tableFn', {headers, filters, data, shallowHeaders});
 
         const {grid, empty} = this.tableFragments(
             fixed_columns,
