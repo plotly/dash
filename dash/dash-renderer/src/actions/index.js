@@ -7,6 +7,7 @@ import cookie from 'cookie';
 import {validateCallbacksToLayout} from './dependencies';
 import {includeObservers, getLayoutCallbacks} from './dependencies_ts';
 import {getPath} from './paths';
+import {deserializeLayout} from '../serializers';
 
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
@@ -14,10 +15,21 @@ export const setConfig = createAction(getAction('SET_CONFIG'));
 export const addHttpHeaders = createAction(getAction('ADD_HTTP_HEADERS'));
 export const setGraphs = createAction(getAction('SET_GRAPHS'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
-export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setPaths = createAction(getAction('SET_PATHS'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
+
+const setLayoutSync = createAction(getAction('SET_LAYOUT'));
+export const setLayout = layout => async dispatch => {
+    const deserializedLayout = await deserializeLayout(layout);
+    dispatch(setLayoutSync(deserializedLayout));
+};
+
+const handlePropChangeSync = createAction(getAction('ON_PROP_CHAMGE'));
+export const handlePropChange = payload => async dispatch => {
+    payload.deserializedLayout = await deserializeLayout(payload.props);
+    dispatch(handlePropChangeSync(payload));
+};
 
 export const dispatchError = dispatch => (message, lines) =>
     dispatch(

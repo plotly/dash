@@ -1,12 +1,14 @@
 const parquet = require('parquetjs-lite');
 import {Buffer} from 'buffer/';
 
-function u8array_create(data) {
+function u8array_create(data: string) {
     // See https://developer.mozilla.org/en-US/docs/Web/API/btoa for why this is
     // necessary.
-    const byte_chars = atob(data);                     
-    const byte_numbers = Array.from(byte_chars,(b,i)=>byte_chars.charCodeAt(i)); 
-    const byte_array = new Uint8Array(byte_numbers);                             
+    const byte_chars = atob(data);
+    const byte_numbers = Array.from(byte_chars, (_b, i) =>
+        byte_chars.charCodeAt(i)
+    );
+    const byte_array = new Uint8Array(byte_numbers);
     return byte_array;
 }
 
