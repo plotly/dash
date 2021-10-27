@@ -3,6 +3,7 @@ import {getCSRFHeader, handleAsyncError, addHttpHeaders} from '../actions';
 import {urlBase} from './utils';
 import {MAX_AUTH_RETRIES} from './constants';
 import {JWT_EXPIRED_MESSAGE, STATUS} from '../constants/constants';
+import {deserializeLayout} from '../serializers';
 
 /* eslint-disable-next-line no-console */
 const logWarningOnce = once(console.warn);
@@ -100,7 +101,8 @@ export default function apiThunk(endpoint, method, store, id, body) {
             }
             setConnectionStatus(true);
             if (contentType && contentType.indexOf('application/json') !== -1) {
-                return res.json().then(json => {
+                return res.json().then(async json => {
+                    if (store == 'layoutRequest') await deserializeLayout(json);
                     dispatch({
                         type: store,
                         payload: {

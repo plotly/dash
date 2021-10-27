@@ -17,12 +17,12 @@ PROP_ENGINE = "__engine"
 class DataFrameSerializer:
     @classmethod
     def __serialize_using_fastparquet(cls, df):
-        outputPath = tempfile.NamedTemporaryFile("w").name
-        df.to_parquet(outputPath, compression="gzip", engine="fastparquet")
-        with open(outputPath, "rb") as f:
-            buffer_val = f.read()
-            f.close()
-            remove(outputPath)
+        with tempfile.NamedTemporaryFile("w").name as outputPath:
+            df.to_parquet(outputPath, compression="gzip", engine="fastparquet")
+            with open(outputPath, "rb") as f:
+                buffer_val = f.read()
+                f.close()
+                remove(outputPath)
         return base64.b64encode(buffer_val).decode("utf-8")
 
     @classmethod
@@ -41,12 +41,12 @@ class DataFrameSerializer:
             return DataFrameSerializer.pyarrow_table_to_bytes(table)
 
         if useFile:
-            outputPath = tempfile.NamedTemporaryFile("w").name
-            df.to_parquet(outputPath, compression="gzip", engine="pyarrow")
-            with open(outputPath, "rb") as f:
-                buffer_val = f.read()
-                f.close()
-                remove(outputPath)
+            with tempfile.NamedTemporaryFile("w").name as outputPath:
+                df.to_parquet(outputPath, compression="gzip", engine="pyarrow")
+                with open(outputPath, "rb") as f:
+                    buffer_val = f.read()
+                    f.close()
+                    remove(outputPath)
             return base64.b64encode(buffer_val).decode("utf-8")
 
         ret_buffer = df.to_parquet(compression="gzip", engine="pyarrow")
@@ -86,6 +86,7 @@ class DashSerializer:
         if isinstance(value, pd.DataFrame):
             # return serializer.serialize(prop, engine="pyarrow")
             return DataFrameSerializer.serialize(value, engine="to_dict")
+            # return DataFrameSerializer.serialize(value, engine="fastparquet")
         return value
 
     @classmethod
@@ -97,6 +98,7 @@ class DashSerializer:
         propValue = getattr(component, propName)
         if isinstance(propValue, pd.DataFrame):
             # return serializer.serialize(prop, engine="pyarrow")
+            # return DataFrameSerializer.serialize(propValue, engine="fastparquet")
             return DataFrameSerializer.serialize(propValue, engine="to_dict")
         return propValue
 
@@ -106,7 +108,7 @@ class DashSerializer:
         if deserializeFn:
             return deserializeFn()
 
-        try: 
+        try:
             jsonObj = json.loads(prop) if isinstance(prop, str) else prop
             _type = (
                 jsonObj[PROP_TYPE]

@@ -31,7 +31,11 @@ import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
-import {serializeValue, SERIALIZER_BOOKKEEPER} from '../serializers';
+import {
+    serializeValue,
+    SERIALIZER_BOOKKEEPER,
+    deserializeCbResponse
+} from '../serializers';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -164,7 +168,11 @@ function fillVals(
         }
 
         const {bookkeeper, property, props} = inputs;
-        inputs.value = serializeValue(bookkeeper?.[property] || {}, props[property], props);
+        inputs.value = serializeValue(
+            bookkeeper?.[property] || {},
+            props[property],
+            props
+        );
         delete inputs.bookkeeper;
         delete inputs.props;
         return inputs;
@@ -371,7 +379,7 @@ function handleServerside(
             }
 
             if (status === STATUS.OK) {
-                return res.json().then((data: any) => {
+                return res.json().then(async (data: any) => {
                     const {multi, response} = data;
                     if (hooks.request_post) {
                         hooks.request_post(payload, response);
@@ -386,6 +394,7 @@ function handleServerside(
                         result = {[id]: response.props};
                     }
 
+                    result = await deserializeCbResponse(result);
                     recordProfile(result);
                     return result;
                 });
