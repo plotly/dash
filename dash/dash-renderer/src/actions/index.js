@@ -25,7 +25,7 @@ export const setLayout = layout => async dispatch => {
     dispatch(setLayoutSync(deserializedLayout));
 };
 
-const handlePropChangeSync = createAction(getAction('ON_PROP_CHAMGE'));
+const handlePropChangeSync = createAction(getAction('ON_PROP_CHANGE'));
 export const handlePropChange = payload => async dispatch => {
     payload.deserializedLayout = await deserializeLayout(payload.props);
     dispatch(handlePropChangeSync(payload));
