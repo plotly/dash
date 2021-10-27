@@ -9,7 +9,7 @@ const supportedTypes = {
 };
 
 export const SERIALIZER_BOOKKEEPER = '__dash_serialized_props';
-export const deserializeLayout = layout => {
+export const deserializeLayout = async layout => {
     const markedLayout = {...layout, [SERIALIZER_BOOKKEEPER]: {}};
     const {
         props,
@@ -23,21 +23,24 @@ export const deserializeLayout = layout => {
     if (type(children) === 'Object')
         markedLayout.props.children = deserializeLayout(children);
 
-    Object.entries(props).forEach(([key, value]) => {
-        if (prop(PROP_TYPE, value)) {
-            const {
-                [PROP_TYPE]: type,
-                [PROP_ENGINE]: engine,
-                [PROP_VALUE]: originalValue
-            } = value;
-            markedLayout[SERIALIZER_BOOKKEEPER][key] = {type, engine};
-            markedLayout.props[key] =
-                supportedTypes[type]?.deserialize(originalValue, engine) ||
-                originalValue;
-        } else {
-            markedLayout.props[key] = value;
-        }
-    });
+    await Promise.all(
+        Object.entries(props).map(([key, value]) => {
+            if (prop(PROP_TYPE, value)) {
+                const {
+                    [PROP_TYPE]: type,
+                    [PROP_ENGINE]: engine,
+                    [PROP_VALUE]: originalValue
+                } = value;
+                markedLayout[SERIALIZER_BOOKKEEPER][key] = {type, engine};
+                markedLayout.props[key] =
+                    supportedTypes[type]?.deserialize(originalValue, engine) ||
+                    originalValue;
+            } else {
+                markedLayout.props[key] = value;
+            }
+        })
+    );
+
     return markedLayout;
 };
 

@@ -1,37 +1,36 @@
-import {append, assocPath, includes, lensPath, mergeRight, view} from 'ramda';
+import {append, assocPath, lensPath, mergeRight, view} from 'ramda';
 
 import {getAction} from '../actions/constants';
-import {deserializeLayout, SERIALIZER_BOOKKEEPER} from '../serializers';
+import {SERIALIZER_BOOKKEEPER} from '../serializers';
 
-const layout = (state = {}, action) => {
-    if (action.type === getAction('SET_LAYOUT')) {
-        return deserializeLayout(action.payload);
-    } else if (
-        includes(action.type, [
-            'UNDO_PROP_CHANGE',
-            'REDO_PROP_CHANGE',
-            getAction('ON_PROP_CHANGE')
-        ])
-    ) {
-        const propPath = append('props', action.payload.itempath);
-        const existingProps = view(lensPath(propPath), state);
-        const mergedProps = mergeRight(existingProps, action.payload.props);
-        let newState = state;
+const propChangeReducer = (state, action) => {
+    const propPath = append('props', action.payload.itempath);
+    const existingProps = view(lensPath(propPath), state);
+    const mergedProps = mergeRight(existingProps, action.payload.props);
+    let newState = state;
 
-        if (action.payload.source === 'response') {
-            newState = assocPath(
-                append(SERIALIZER_BOOKKEEPER, action.payload.itempath),
-                deserializeLayout({props: mergedProps})?.[
-                    SERIALIZER_BOOKKEEPER
-                ],
-                newState
-            );
-        }
-
-        return assocPath(propPath, mergedProps, newState);
+    if (action.payload.source === 'response') {
+        newState = assocPath(
+            append(SERIALIZER_BOOKKEEPER, action.payload.itempath),
+            action.payload.deserializedLayout?.[SERIALIZER_BOOKKEEPER],
+            newState
+        );
     }
 
-    return state;
+    return assocPath(propPath, mergedProps, newState);
+};
+
+const layout = (state = {}, action) => {
+    switch (action.type) {
+        case getAction('SET_LAYOUT'):
+            return action.payload;
+        case getAction('UNDO_PROP_CHANGE'):
+        case getAction('REDO_PROP_CHANGE'):
+        case getAction('ON_PROP_CHANGE'):
+            return propChangeReducer(state, action);
+        default:
+            return state;
+    }
 };
 
 export default layout;
