@@ -338,7 +338,7 @@ function handleServerside(
             body
         })
     ).then(
-        (res: any) => {
+        async (res: any) => {
             const {status} = res;
 
             function recordProfile(result: any) {

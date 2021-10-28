@@ -42,7 +42,7 @@ const fromParquet = async (_parquetFile: string) => {
         record = await cursor.next();
     }
     reader.close();
-    const result = [records, { columns }];
+    const result = [records, {columns}];
     return result;
 };
 

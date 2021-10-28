@@ -35,13 +35,13 @@ export const deserializeLayout = async layout => {
     if (type(children) === 'Object')
         markedLayout.props.children = await deserializeLayout(children);
 
-    Object.entries(props).forEach(async ([key, value]) => {
+    for (const [key, value] of Object.entries(props)) {
         if (prop(PROP_TYPE, value)) {
             await deserializeValue(markedLayout, key, value);
         } else {
             markedLayout.props[key] = value;
         }
-    });
+    }
     return markedLayout;
 };
 
