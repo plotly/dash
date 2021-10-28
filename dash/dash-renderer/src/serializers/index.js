@@ -65,7 +65,7 @@ const deserializeValue = async (
     }
 };
 
-export const serializeValue = (
+export const serializeValue = async (
     {type, engine, autoFilledProps},
     value,
     props
@@ -74,11 +74,15 @@ export const serializeValue = (
     const serializedValue = {};
     serializedValue[PROP_TYPE] = type;
     serializedValue[PROP_ENGINE] = engine;
+    const additionalProps = {};
+    autoFilledProps.forEach(p => {
+        additionalProps[p] = props[p];
+    });
     serializedValue[PROP_VALUE] =
-        supportedTypes[type]?.serialize(
+        (await supportedTypes[type]?.serialize(
             engine,
             value,
-            autoFilledProps.map(p => ({[p]: props[p]}))
-        ) || value;
+            additionalProps
+        )) || value;
     return serializedValue;
 };

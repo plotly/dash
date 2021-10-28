@@ -20,6 +20,7 @@ import isAppReady from '../actions/isAppReady';
 import {
     IBlockedCallback,
     ICallback,
+    IExecutingCallback,
     ILayoutCallbackProperty,
     IPrioritizedCallback
 } from '../types/callbacks';
@@ -91,24 +92,24 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         );
 
         if (pickedSyncCallbacks.length) {
+            const executingCallbacks: IExecutingCallback[] = [];
+            for (let index = 0; index < pickedSyncCallbacks.length; index++) {
+                const element = pickedSyncCallbacks[index];
+                await executeCallback(
+                    element,
+                    config,
+                    hooks,
+                    paths,
+                    layout,
+                    getStash(element, paths),
+                    dispatch
+                );
+            }
+
             dispatch(
                 aggregateCallbacks([
                     removePrioritizedCallbacks(pickedSyncCallbacks),
-                    addExecutingCallbacks(
-                        map(
-                            cb =>
-                                executeCallback(
-                                    cb,
-                                    config,
-                                    hooks,
-                                    paths,
-                                    layout,
-                                    getStash(cb, paths),
-                                    dispatch
-                                ),
-                            pickedSyncCallbacks
-                        )
-                    )
+                    addExecutingCallbacks(executingCallbacks)
                 ])
             );
         }
@@ -149,7 +150,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     return;
                 }
 
-                const executingCallback = executeCallback(
+                const executingCallback = await executeCallback(
                     cb,
                     config,
                     hooks,

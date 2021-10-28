@@ -20,11 +20,9 @@ export default class DictDataFrameSerializer {
     static serialize = args => {
         const [value, additionalProps] = args;
         const result = {records: value};
-        additionalProps.forEach(prop => {
-            for (const [key, value] of Object.entries(prop)) {
-                result[key] = encodeField(key, value);
-            }
-        });
+        for (const [key, value] of Object.entries(additionalProps)) {
+            result[key] = encodeField(key, value);
+        }
         return result;
     };
     static deserialize = value => {

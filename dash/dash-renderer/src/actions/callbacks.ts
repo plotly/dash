@@ -135,7 +135,7 @@ function unwrapIfNotMulti(
     return [idProps[0], msg];
 }
 
-function fillVals(
+async function fillVals(
     paths: any,
     layout: any,
     cb: ICallback,
@@ -147,7 +147,10 @@ function fillVals(
     const errors: any[] = [];
     let emptyMultiValues = 0;
 
-    const inputVals = getter(paths).map((inputList: any, i: number) => {
+    const inputVals = [];
+    const _paths = getter(paths);
+    for (let i = 0; i < _paths.length; i++) {
+        const inputList = _paths[i];
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}: any) => ({
@@ -168,15 +171,15 @@ function fillVals(
         }
 
         const {bookkeeper, property, props} = inputs;
-        inputs.value = serializeValue(
+        inputs.value = await serializeValue(
             bookkeeper?.[property] || {},
             props[property],
             props
         );
         delete inputs.bookkeeper;
         delete inputs.props;
-        return inputs;
-    });
+        inputVals.push(inputs);
+    }
 
     if (errors.length) {
         if (
@@ -454,7 +457,7 @@ function inputsToDict(inputs_list: any) {
     return inputs;
 }
 
-export function executeCallback(
+export async function executeCallback(
     cb: IPrioritizedCallback,
     config: any,
     hooks: any,
@@ -462,11 +465,11 @@ export function executeCallback(
     layout: any,
     {allOutputs}: any,
     dispatch: any
-): IExecutingCallback {
+): Promise<IExecutingCallback> {
     const {output, inputs, state, clientside_function} = cb.callback;
 
     try {
-        const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
+        const inVals = await fillVals(paths, layout, cb, inputs, 'Input', true);
 
         /* Prevent callback if there's no inputs */
         if (inVals === null) {
@@ -514,7 +517,7 @@ export function executeCallback(
                     inputs: inVals,
                     changedPropIds: keys(cb.changedPropIds),
                     state: cb.callback.state.length
-                        ? fillVals(paths, layout, cb, state, 'State')
+                        ? await fillVals(paths, layout, cb, state, 'State')
                         : undefined
                 };
 

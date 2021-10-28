@@ -12,7 +12,7 @@ function u8array_create(data: string) {
     return byte_array;
 }
 
-function santizeColumnValues(s: any, r: any) {
+function sanitizeColumnValues(s: any, r: any) {
     for (const [k, v] of Object.entries(r)) {
         switch (s.fields?.[k]?.primitiveType) {
             case 'INT64':
@@ -37,54 +37,49 @@ const fromParquet = async (_parquetFile: string) => {
     const cursor = reader.getCursor();
     let record = await cursor.next();
     while (record) {
-        record = santizeColumnValues(schema, record);
+        record = sanitizeColumnValues(schema, record);
         records.push(record);
         record = await cursor.next();
     }
     reader.close();
-    const result = [records, {columns}];
+    const result = [records, {columns, schema}];
     return result;
 };
 
-const transformPromise = (
-    t: {
-        _transform: (
-            arg0: any,
-            arg1: any,
-            arg2: (error: any, data: any) => void
-        ) => void;
-    },
-    d: any,
-    e: any
-) => {
+const transformPromise = (t: any, d: any, e: any) =>
     new Promise((resolve, reject) => {
-        t._transform(d, e, (error: any, data: unknown) => {
+        t._transform(d, e, (error: any, data: any) => {
+            console.log('transformPromise', d, e, error, data);
             if (!error) resolve(data);
-            else reject();
+            else reject(error);
         });
     });
-};
 
-const flushPromise = (t: {
-    _flush: (arg0: (error: any, data: any) => void) => void;
-}) =>
+const flushPromise = (t: any) =>
     new Promise((resolve, reject) =>
         t._flush((error: any, data: string) => {
+            console.log('flushPromise', data);
             if (!error) resolve(btoa(data));
             else reject();
         })
     );
 
-const toParquet = async (_records: any, _engine: any) => {
-    const schema = {},
-        opts = {};
+const toParquet = async (args: any) => {
+    const [records, additionalProps] = args;
+    console.log('you gave me this args?', args);
+    const schema = additionalProps.schema;
+    const opts = {};
     const transformer = new parquet.ParquetTransformer(schema, opts);
-    await Promise.allSettled(
-        _records.map((record: any) =>
+    const data = await Promise.allSettled(
+        records.map((record: any) =>
             transformPromise(transformer, record, 'utf-8')
         )
     );
-    return await flushPromise(transformer);
+    console.log('Collected from transformer', data);
+    const result = await flushPromise(transformer);
+    console.log('Finished packing parquet from', transformer);
+    console.log('Finished packing parquet result = ', result);
+    return result;
 };
 
 export default {
