@@ -12,6 +12,19 @@ function u8array_create(data: string) {
     return byte_array;
 }
 
+function santizeColumnValues(s: any, r: any) {
+    for (const [k, v] of Object.entries(r)) {
+        switch (s.fields?.[k]?.primitiveType) {
+            case 'INT64':
+                r[k] = Number(v);
+                break;
+            default:
+                break;
+        }
+    }
+    return r;
+}
+
 const fromParquet = async (_parquetFile: string) => {
     const records: any[] = [];
     const parquetData = Buffer.from(u8array_create(_parquetFile));
@@ -24,11 +37,12 @@ const fromParquet = async (_parquetFile: string) => {
     const cursor = reader.getCursor();
     let record = await cursor.next();
     while (record) {
+        record = santizeColumnValues(schema, record);
         records.push(record);
         record = await cursor.next();
     }
     reader.close();
-    const result = [records, {columns}];
+    const result = [records, { columns }];
     return result;
 };
 

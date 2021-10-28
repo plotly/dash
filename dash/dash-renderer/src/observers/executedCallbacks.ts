@@ -65,13 +65,15 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             // those components have props to update to persist user edits.
             const {props} = applyPersistence({props: updatedProps}, dispatch);
 
-            dispatch(
-                updateProps({
-                    itempath,
-                    props,
-                    source: 'response'
-                })
-            );
+            // setTimeout(() => {
+                dispatch(
+                    updateProps({
+                        itempath,
+                        props,
+                        source: 'response'
+                    })
+                );
+            // }, 100);
 
             return props;
         }
