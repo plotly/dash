@@ -13,16 +13,13 @@ function renderFragment(cells: any[][] | null, offset = 0, fixedRows = 0) {
             <tbody>
                 {cells.map((row, idx) => {
                     const hidden = idx < fixedRows;
-                    const content = hidden
-                        ? row.map(r => getHidden(r, true))
-                        : row;
 
                     return (
                         <tr
-                            style={hidden ? {visibility: 'collapse'} : {}}
+                            className={hidden ? 'invisible-cell' : ''}
                             key={`row-${idx + offset}`}
                         >
-                            {content}
+                            {row}
                         </tr>
                     );
                 })}
