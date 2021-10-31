@@ -28,9 +28,7 @@ function renderFragment(cells: any[][] | null, offset = 0, fixedRows = 0) {
     ) : null;
 }
 
-const getHiddenCell = (cell: JSX.Element) => getHidden(cell);
-
-const getHidden = (cell: JSX.Element, withContent = false) =>
+const getHiddenCell = (cell: JSX.Element) =>
     React.cloneElement(
         cell,
         {
@@ -39,9 +37,7 @@ const getHidden = (cell: JSX.Element, withContent = false) =>
                 ? `${cell.props.className} phantom-cell`
                 : 'phantom-cell'
         },
-        !withContent && (cell.type === 'th' || cell.type === 'td')
-            ? null
-            : cell.props.children
+        cell.type === 'th' || cell.type === 'td' ? null : cell.props.children
     );
 
 const getFixedColSpan = (cell: JSX.Element, maxColSpan: number) =>
