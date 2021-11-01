@@ -49,7 +49,6 @@ const fromParquet = async (_parquetFile: string) => {
 const transformPromise = (t: any, d: any, e: any) =>
     new Promise((resolve, reject) => {
         t._transform(d, e, (error: any, data: any) => {
-            console.log('transformPromise', d, e, error, data);
             if (!error) resolve(data);
             else reject(error);
         });
@@ -58,7 +57,6 @@ const transformPromise = (t: any, d: any, e: any) =>
 const flushPromise = (t: any) =>
     new Promise((resolve, reject) =>
         t._flush((error: any, data: string) => {
-            console.log('flushPromise', data);
             if (!error) resolve(btoa(data));
             else reject();
         })
@@ -66,19 +64,15 @@ const flushPromise = (t: any) =>
 
 const toParquet = async (args: any) => {
     const [records, additionalProps] = args;
-    console.log('you gave me this args?', args);
     const schema = additionalProps.schema;
     const opts = {};
     const transformer = new parquet.ParquetTransformer(schema, opts);
-    const data = await Promise.allSettled(
+    await Promise.allSettled(
         records.map((record: any) =>
             transformPromise(transformer, record, 'utf-8')
         )
     );
-    console.log('Collected from transformer', data);
     const result = await flushPromise(transformer);
-    console.log('Finished packing parquet from', transformer);
-    console.log('Finished packing parquet result = ', result);
     return result;
 };
 

@@ -1,4 +1,4 @@
-import {find, flatten, forEach, map, partition, pluck, sort, uniq} from 'ramda';
+import {find, flatten, map, partition, pluck, sort, uniq} from 'ramda';
 
 import {IStoreState} from '../store';
 
@@ -95,14 +95,16 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             const executingCallbacks: IExecutingCallback[] = [];
             for (let index = 0; index < pickedSyncCallbacks.length; index++) {
                 const element = pickedSyncCallbacks[index];
-                await executeCallback(
-                    element,
-                    config,
-                    hooks,
-                    paths,
-                    layout,
-                    getStash(element, paths),
-                    dispatch
+                executingCallbacks.push(
+                    await executeCallback(
+                        element,
+                        config,
+                        hooks,
+                        paths,
+                        layout,
+                        getStash(element, paths),
+                        dispatch
+                    )
                 );
             }
 
@@ -130,8 +132,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     addBlockedCallbacks(deferred)
                 ])
             );
-
-            forEach(async cb => {
+            for (const i in deferred) {
+                const cb = deferred[i];
                 await cb.isReady;
 
                 const {
@@ -159,14 +161,16 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     cb,
                     dispatch
                 );
-
                 dispatch(
                     aggregateCallbacks([
                         removeBlockedCallbacks([cb]),
                         addExecutingCallbacks([executingCallback])
                     ])
                 );
-            }, deferred);
+            }
+            // forEach(async cb => {
+
+            // }, deferred);
         }
     },
     inputs: ['callbacks.prioritized', 'callbacks.completed']
