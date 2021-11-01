@@ -36,8 +36,12 @@ def test_lipa002_path(dash_dcc):
         {t[::-1]}
         </body></html>
         """
+
     app.server.add_url_rule(
-        "/extra/<string:t>", view_func=extras, endpoint="/extra/<string:t>", methods=["GET"]
+        "/extra/<string:t>",
+        view_func=extras,
+        endpoint="/extra/<string:t>",
+        methods=["GET"],
     )
 
     app.layout = html.Div(
