@@ -306,7 +306,7 @@ export function pruneCallbacks<T extends ICallback>(
         removed
     );
 
-    const added = map(
+    const added: any = map(
         cb =>
             assoc(
                 'changedPropIds',
