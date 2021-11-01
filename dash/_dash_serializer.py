@@ -17,7 +17,9 @@ PROP_ENGINE = "__engine"
 class DataFrameSerializer:
     @classmethod
     def __serialize_using_fastparquet(cls, df):
-        outputPath = tempfile.NamedTemporaryFile("w").name
+        with tempfile.NamedTemporaryFile("w") as temp_file:
+            outputPath = temp_file.name
+
         df.to_parquet(outputPath, compression="gzip", engine="fastparquet")
         with open(outputPath, "rb") as f:
             buffer_val = f.read()
@@ -41,7 +43,9 @@ class DataFrameSerializer:
             return DataFrameSerializer.pyarrow_table_to_bytes(table)
 
         if useFile:
-            outputPath = tempfile.NamedTemporaryFile("w").name
+            with tempfile.NamedTemporaryFile("w") as temp_file:
+                outputPath = temp_file.name
+
             df.to_parquet(outputPath, compression="gzip", engine="pyarrow")
             with open(outputPath, "rb") as f:
                 buffer_val = f.read()
