@@ -1,0 +1,35 @@
+._dash-undo-redo {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    font-size: 20px;
+    text-align: center;
+    z-index: 9999;
+    background-color: rgba(255, 255, 255, 0.9);
+
+}
+._dash-undo-redo>div {
+    position: relative;
+}
+._dash-undo-redo-link {
+    color: #0074D9;
+    cursor: pointer;
+    margin-left: 10px;
+    margin-right: 10px;
+    display: inline-block;
+    opacity: 0.2;
+}
+._dash-undo-redo-link:hover {
+    opacity: 1;
+}
+._dash-undo-redo-link ._dash-icon-undo {
+    font-size: 20px;
+    transform: rotate(270deg);
+}
+._dash-undo-redo-link ._dash-icon-redo {
+    font-size: 20px;
+    transform: rotate(90deg);
+}
+._dash-undo-redo-link ._dash-undo-redo-label {
+    font-size: 15px;
+}

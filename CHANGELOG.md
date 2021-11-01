@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- [#1822](https://github.com/plotly/dash/pull/1822) Remove Radium from renderer dependencies, as part of investigating React 17 support.
+
 - [#1745](https://github.com/plotly/dash/pull/1745):
     Improve our `extras_require`: there are now five options here, each with a well-defined role:
     - `dash[dev]`: for developing and building dash components.
