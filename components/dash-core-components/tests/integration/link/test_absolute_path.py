@@ -13,7 +13,7 @@ def test_lipa001_path(dash_dcc):
         ]
     )
 
-    @app.callback(Output("content", "children"), [Input("url", "pathname")])
+    @app.callback(Output("content", "children"), Input("url", "pathname"))
     def display_children(children):
         return children
 
@@ -29,12 +29,23 @@ def test_lipa001_path(dash_dcc):
 @pytest.mark.DCC782
 def test_lipa002_path(dash_dcc):
     app = Dash(__name__)
+
+    def extras(t):
+        return f"""<!DOCTYPE html>
+        <html><body>
+        {t[::-1]}
+        </body></html>
+        """
+    app.server.add_url_rule(
+        "/extra/<string:t>", view_func=extras, endpoint="/extra/<string:t>", methods=["GET"]
+    )
+
     app.layout = html.Div(
         [
             dcc.Link(
                 children="Absolute Path",
                 id="link1",
-                href="https://google.com",
+                href=dash_dcc.server.url + "/extra/eseehc",
                 refresh=True,
             ),
             dcc.Location(id="url", refresh=False),
@@ -44,12 +55,13 @@ def test_lipa002_path(dash_dcc):
 
     dash_dcc.wait_for_element("#link1").click()
 
-    location = dash_dcc.driver.execute_script(
+    location, text = dash_dcc.driver.execute_script(
         """
-        return window.location.href
+        return [window.location.href, document.body.textContent.trim()]
         """
     )
 
-    assert location == "https://www.google.com/"
+    assert location == dash_dcc.server.url + "/extra/eseehc"
+    assert text == "cheese"
 
     assert dash_dcc.get_logs() == []
