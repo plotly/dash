@@ -313,7 +313,6 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
           PERCY_ENABLE: 1
     parallelism: 3
-    resource_class: xlarge
     steps:
       - checkout:
           path: ~/dash
@@ -423,7 +422,7 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
 
     parallelism: 4
-    resource_class: xlarge
+
     steps:
       - checkout:
           path: ~/dash
