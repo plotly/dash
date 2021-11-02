@@ -210,7 +210,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     map(
                                         property =>
                                             combineIdAndProp({id, property}),
-                                        keys(value)
+                                        keys(value) as string[]
                                     ),
                                 toPairs(data)
                             )

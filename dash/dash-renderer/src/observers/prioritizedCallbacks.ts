@@ -25,6 +25,7 @@ import {
     IPrioritizedCallback
 } from '../types/callbacks';
 import {IStoreObserverDefinition} from '../StoreObserver';
+import {getAppState} from '../reducers/constants';
 
 const sortPriority = (c1: ICallback, c2: ICallback): number => {
     return (c1.priority ?? '') > (c2.priority ?? '') ? -1 : 1;
@@ -68,11 +69,16 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             config,
             hooks,
             layout,
-            paths
+            paths,
+            appLifecycle
         } = getState();
         let {
             callbacks: {prioritized}
         } = getState();
+
+        if (appLifecycle !== getAppState('HYDRATED')) {
+            return;
+        }
 
         const available = Math.max(0, 12 - executing.length - watched.length);
 
