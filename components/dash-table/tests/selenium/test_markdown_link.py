@@ -4,7 +4,7 @@ import pytest
 
 
 def get_app(cell_selectable, markdown_options):
-    md = "[Click me](https://www.google.com)"
+    md = "[Click me](/assets/logo.png)"
 
     data = [dict(a=md, b=md), dict(a=md, b=md)]
 
@@ -51,7 +51,7 @@ def test_tmdl001_click_markdown_link(test, markdown_options, new_tab, cell_selec
 
         assert len(test.driver.window_handles) == 2
         test.driver.switch_to.window(test.driver.window_handles[1])
-        assert test.driver.current_url.startswith("https://www.google.com")
+        assert test.driver.current_url.endswith("assets/logo.png")
 
         # Make sure the cell is still selected iff cell_selectable, after switching tabs
         test.driver.switch_to.window(test.driver.window_handles[0])
@@ -59,6 +59,6 @@ def test_tmdl001_click_markdown_link(test, markdown_options, new_tab, cell_selec
 
     else:
         assert len(test.driver.window_handles) == 1
-        assert test.driver.current_url.startswith("https://www.google.com")
+        assert test.driver.current_url.endswith("assets/logo.png")
 
     assert test.get_log_errors() == []

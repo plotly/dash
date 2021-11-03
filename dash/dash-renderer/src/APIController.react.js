@@ -184,7 +184,8 @@ function storeEffect(props, events, setErrorLoading) {
 UnconnectedContainer.propTypes = {
     appLifecycle: PropTypes.oneOf([
         getAppState('STARTED'),
-        getAppState('HYDRATED')
+        getAppState('HYDRATED'),
+        getAppState('DESTROYED')
     ]),
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
