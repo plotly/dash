@@ -177,7 +177,7 @@ class Component(metaclass=ComponentMeta):
     def to_plotly_json(self):
         # Add normal properties
         props = {
-            p: DashSerializer.serialize_prop(self, p)
+            p: getattr(self, p) # DashSerializer.serialize_prop(self, p)
             for p in self._prop_names  # pylint: disable=no-member
             if hasattr(self, p)
         }
