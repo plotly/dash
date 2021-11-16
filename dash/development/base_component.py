@@ -4,7 +4,6 @@ import sys
 import uuid
 import random
 
-from .._dash_serializer import DashSerializer
 from .._utils import patch_collections_abc, stringify_id
 
 MutableSequence = patch_collections_abc("MutableSequence")
@@ -176,8 +175,9 @@ class Component(metaclass=ComponentMeta):
 
     def to_plotly_json(self):
         # Add normal properties
+        # DashSerializer.serialize_prop(self, p)
         props = {
-            p: getattr(self, p) # DashSerializer.serialize_prop(self, p)
+            p: getattr(self, p)
             for p in self._prop_names  # pylint: disable=no-member
             if hasattr(self, p)
         }
