@@ -1,10 +1,6 @@
-import FastParquetDataFrameSerializer from './fastparquet';
-import ArrowDataFrameSerializer from './pyarrow';
 import DictDataFrameSerializer from './to_dict';
 
 const supportedEngines = {
-    pyarrow: ArrowDataFrameSerializer,
-    fastparquet: FastParquetDataFrameSerializer,
     to_dict: DictDataFrameSerializer
 };
 
