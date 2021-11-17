@@ -12,8 +12,7 @@ def test_click_simple(dash_duo):
         [
             html.Div(id="container"),
             html.Button("Click", id="button", n_clicks=0),
-            html.Iframe(id="video", allow="fullscreen",
-                        referrerPolicy="origin"),
+            html.Iframe(id="video", allow="fullscreen", referrerPolicy="origin"),
         ]
     )
 
@@ -38,10 +37,8 @@ def test_click_simple(dash_duo):
 
     assert not dash_duo.get_logs()
 
-    assert dash_duo.find_element(
-        "#video").get_attribute("allow") == "fullscreen"
-    assert dash_duo.find_element("#video").get_attribute(
-        "referrerpolicy") == "origin"
+    assert dash_duo.find_element("#video").get_attribute("allow") == "fullscreen"
+    assert dash_duo.find_element("#video").get_attribute("referrerpolicy") == "origin"
 
 
 def test_click_prev(dash_duo):
@@ -53,10 +50,8 @@ def test_click_prev(dash_duo):
     app.layout = html.Div(
         [
             html.Div(id="container"),
-            html.Button("Click", id="button-1",
-                        n_clicks=0, n_clicks_timestamp=-1),
-            html.Button("Click", id="button-2",
-                        n_clicks=0, n_clicks_timestamp=-1),
+            html.Button("Click", id="button-1", n_clicks=0, n_clicks_timestamp=-1),
+            html.Button("Click", id="button-2", n_clicks=0, n_clicks_timestamp=-1),
         ]
     )
 
