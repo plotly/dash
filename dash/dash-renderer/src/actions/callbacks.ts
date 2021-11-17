@@ -135,7 +135,7 @@ function unwrapIfNotMulti(
     return [idProps[0], msg];
 }
 
-async function fillVals(
+function fillVals(
     paths: any,
     layout: any,
     cb: ICallback,
@@ -171,7 +171,7 @@ async function fillVals(
         }
 
         const {bookkeeper, property, props} = inputs;
-        inputs.value = await serializeValue(
+        inputs.value = serializeValue(
             bookkeeper?.[property] || {},
             props[property],
             props
@@ -333,105 +333,98 @@ function handleServerside(
     const requestTime = Date.now();
     const body = JSON.stringify(payload);
 
-    return new Promise((resolve, reject) => {
-        fetch(
-            `${urlBase(config)}_dash-update-component`,
-            mergeDeepRight(config.fetch, {
-                method: 'POST',
-                headers: getCSRFHeader() as any,
-                body
-            })
-        ).then(
-            async (res: any) => {
-                const {status} = res;
+    return fetch(
+        `${urlBase(config)}_dash-update-component`,
+        mergeDeepRight(config.fetch, {
+            method: 'POST',
+            headers: getCSRFHeader() as any,
+            body
+        })
+    ).then(
+        async (res: any) => {
+            const {status} = res;
 
-                function recordProfile(result: any) {
-                    if (config.ui) {
-                        // Callback profiling - only relevant if we're showing the debug ui
-                        const resources = {
-                            __dash_server: 0,
-                            __dash_client: Date.now() - requestTime,
-                            __dash_upload: body.length,
-                            __dash_download: Number(
-                                res.headers.get('Content-Length')
-                            )
-                        } as any;
-
-                        const timingHeaders =
-                            res.headers.get('Server-Timing') || '';
-
-                        timingHeaders.split(',').forEach((header: any) => {
-                            const name = header.split(';')[0];
-                            const dur = header.match(/;dur=[0-9.]+/);
-
-                            if (dur) {
-                                resources[name] = Number(dur[0].slice(5));
-                            }
-                        });
-
-                        dispatch(
-                            updateResourceUsage({
-                                id: payload.output,
-                                usage: resources,
-                                status,
-                                result,
-                                inputs: payload.inputs,
-                                state: payload.state
-                            })
-                        );
-                    }
-                }
-
-                if (status === STATUS.OK) {
-                    return res.json().then(async (data: any) => {
-                        const {multi, response} = data;
-                        if (hooks.request_post) {
-                            hooks.request_post(payload, response);
-                        }
-
-                        let result;
-                        if (multi) {
-                            result = response;
-                        } else {
-                            const {output} = payload;
-                            const id = output.substr(
-                                0,
-                                output.lastIndexOf('.')
-                            );
-                            result = {[id]: response.props};
-                        }
-
-                        result = await deserializeCbResponse(result);
-                        recordProfile(result);
-                        resolve(result);
-                    });
-                }
-                if (status === STATUS.PREVENT_UPDATE) {
-                    recordProfile({});
-                    resolve({});
-                }
-            },
-            () => {
-                // fetch rejection - this means the request didn't return,
-                // we don't get here from 400/500 errors, only network
-                // errors or unresponsive servers.
+            function recordProfile(result: any) {
                 if (config.ui) {
+                    // Callback profiling - only relevant if we're showing the debug ui
+                    const resources = {
+                        __dash_server: 0,
+                        __dash_client: Date.now() - requestTime,
+                        __dash_upload: body.length,
+                        __dash_download: Number(
+                            res.headers.get('Content-Length')
+                        )
+                    } as any;
+
+                    const timingHeaders =
+                        res.headers.get('Server-Timing') || '';
+
+                    timingHeaders.split(',').forEach((header: any) => {
+                        const name = header.split(';')[0];
+                        const dur = header.match(/;dur=[0-9.]+/);
+
+                        if (dur) {
+                            resources[name] = Number(dur[0].slice(5));
+                        }
+                    });
+
                     dispatch(
                         updateResourceUsage({
                             id: payload.output,
-                            status: STATUS.NO_RESPONSE,
-                            result: {},
+                            usage: resources,
+                            status,
+                            result,
                             inputs: payload.inputs,
                             state: payload.state
                         })
                     );
                 }
-                reject(
-                    new Error('Callback failed: the server did not respond.')
+            }
+
+            if (status === STATUS.OK) {
+                return res.json().then(async (data: any) => {
+                    const {multi, response} = data;
+                    if (hooks.request_post) {
+                        hooks.request_post(payload, response);
+                    }
+
+                    let result;
+                    if (multi) {
+                        result = response;
+                    } else {
+                        const {output} = payload;
+                        const id = output.substr(0, output.lastIndexOf('.'));
+                        result = {[id]: response.props};
+                    }
+
+                    result = deserializeCbResponse(result);
+                    recordProfile(result);
+                    return result;
+                });
+            }
+            if (status === STATUS.PREVENT_UPDATE) {
+                recordProfile({});
+                return {};
+            }
+        },
+        () => {
+            // fetch rejection - this means the request didn't return,
+            // we don't get here from 400/500 errors, only network
+            // errors or unresponsive servers.
+            if (config.ui) {
+                dispatch(
+                    updateResourceUsage({
+                        id: payload.output,
+                        status: STATUS.NO_RESPONSE,
+                        result: {},
+                        inputs: payload.inputs,
+                        state: payload.state
+                    })
                 );
             }
-        );
-    });
+            throw new Error('Callback failed: the server did not respond.');
+        }
+    );
 }
 
 function inputsToDict(inputs_list: any) {
@@ -463,7 +456,7 @@ function inputsToDict(inputs_list: any) {
     return inputs;
 }
 
-export async function executeCallback(
+export function executeCallback(
     cb: IPrioritizedCallback,
     config: any,
     hooks: any,
@@ -471,11 +464,11 @@ export async function executeCallback(
     layout: any,
     {allOutputs}: any,
     dispatch: any
-): Promise<IExecutingCallback> {
+): IExecutingCallback {
     const {output, inputs, state, clientside_function} = cb.callback;
 
     try {
-        const inVals = await fillVals(paths, layout, cb, inputs, 'Input', true);
+        const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
 
         /* Prevent callback if there's no inputs */
         if (inVals === null) {
@@ -523,7 +516,7 @@ export async function executeCallback(
                     inputs: inVals,
                     changedPropIds: keys(cb.changedPropIds),
                     state: cb.callback.state.length
-                        ? await fillVals(paths, layout, cb, state, 'State')
+                        ? fillVals(paths, layout, cb, state, 'State')
                         : undefined
                 };
 
@@ -610,7 +603,7 @@ export async function executeCallback(
 
         const newCb = {
             ...cb,
-            executionPromise: await __execute()
+            executionPromise: __execute()
         };
 
         return newCb;

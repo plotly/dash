@@ -102,7 +102,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             for (let index = 0; index < pickedSyncCallbacks.length; index++) {
                 const element = pickedSyncCallbacks[index];
                 executingCallbacks.push(
-                    await executeCallback(
+                    executeCallback(
                         element,
                         config,
                         hooks,
@@ -158,7 +158,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     return;
                 }
 
-                const executingCallback = await executeCallback(
+                const executingCallback = executeCallback(
                     cb,
                     config,
                     hooks,
