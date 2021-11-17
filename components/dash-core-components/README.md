@@ -6,24 +6,19 @@ This package provides the core React component suite for [Dash][].
 
 ## Development
 
-The `dash` package contains some tools to build components and drive the bundles build process.
-To avoid the circular dependency situation, we don't add `dash` as a required install in the `dash-core-components` setup.
-But, in order to do development locally, you need to install `dash` before everything.
-
-1. Install the dependencies with:
+This package is part of `dash`, and if you install `dash` in development mode with extras as below, you can develop in this portion as well.
+From the root of the `dash` repo:
 
 ```bash
-# it's recommended to install your python packages in a virtualenv
-# python 2
-$ pip install virtualenv --user && virtualenv venv && . venv/bin/activate
-# python 3
+# It's recommended to install your python packages in a virtualenv
+# As of dash 2.0, python 3 is required
 $ python -m venv venv && . venv/bin/activate
 
 # make sure dash is installed with dev and testing dependencies
-$ pip install dash[dev,testing]  # in some shells you need \ to escape []
+$ pip install -e .[dev,testing]  # in some shells you need \ to escape []
 
-# run the build process
-$ npm i --ignore-scripts && npm run build
+# run the build process - this will build all of dash, including dcc
+$ npm i && npm run build
 
 # install dcc in editable mode
 $ pip install -e .
@@ -45,22 +40,6 @@ npm test
 
         # Import dash_core_components to your layout, then run it:
         $ python my_dash_layout.py
-
-## Uninstalling python package locally
-
-```sh
-$ npm run uninstall-local
-```
-
-## Publishing
-
-There's an npm script that will handle publish, provided you have the right credentials. You can run it by running
-
-```sh
-$ npm run publish-all
-```
-
-See the [Publishing New Components/Features](CONTRIBUTING.md#publishing-new-componentsfeatures) section of the Contributing guide for step-by-step instructions on publishing new components.
 
 ## Dash Component Boilerplate
 
