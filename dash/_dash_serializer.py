@@ -1,13 +1,7 @@
-import base64
 import json
-from typing import cast
 
-from os import remove
-import io
-import tempfile
 import pandas as pd
 from pandas.core.frame import DataFrame
-import pyarrow as pa
 
 PROP_TYPE = "__type"
 PROP_VALUE = "__value"
@@ -38,7 +32,7 @@ class DataFrameSerializer:
         ]
         if engine == "to_dict":
             return DataFrame.from_records(value["records"], columns=value["columns"])
-        return pd.read_parquet(io.BytesIO(value), engine)
+        return prop
 
 
 class DashSerializer:
