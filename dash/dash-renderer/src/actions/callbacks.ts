@@ -31,6 +31,11 @@ import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
+import {
+    serializeValue,
+    SERIALIZER_BOOKKEEPER,
+    deserializeCbResponse
+} from '../serializers';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -130,7 +135,7 @@ function unwrapIfNotMulti(
     return [idProps[0], msg];
 }
 
-function fillVals(
+async function fillVals(
     paths: any,
     layout: any,
     cb: ICallback,
@@ -142,13 +147,17 @@ function fillVals(
     const errors: any[] = [];
     let emptyMultiValues = 0;
 
-    const inputVals = getter(paths).map((inputList: any, i: number) => {
+    const inputVals = [];
+    const _paths = getter(paths);
+    for (let i = 0; i < _paths.length; i++) {
+        const inputList = _paths[i];
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property]
+                props: (path(path_, layout) as any).props,
+                bookkeeper: (path(path_, layout) as any)[SERIALIZER_BOOKKEEPER]
             })),
             specs[i],
             cb.anyVals,
@@ -160,8 +169,17 @@ function fillVals(
         if (inputError) {
             errors.push(inputError);
         }
-        return inputs;
-    });
+
+        const {bookkeeper, property, props} = inputs;
+        inputs.value = await serializeValue(
+            bookkeeper?.[property] || {},
+            props[property],
+            props
+        );
+        delete inputs.bookkeeper;
+        delete inputs.props;
+        inputVals.push(inputs);
+    }
 
     if (errors.length) {
         if (
@@ -315,98 +333,105 @@ function handleServerside(
     const requestTime = Date.now();
     const body = JSON.stringify(payload);
 
-    return fetch(
-        `${urlBase(config)}_dash-update-component`,
-        mergeDeepRight(config.fetch, {
-            method: 'POST',
-            headers: getCSRFHeader() as any,
-            body
-        })
-    ).then(
-        (res: any) => {
-            const {status} = res;
+    return new Promise((resolve, reject) => {
+        fetch(
+            `${urlBase(config)}_dash-update-component`,
+            mergeDeepRight(config.fetch, {
+                method: 'POST',
+                headers: getCSRFHeader() as any,
+                body
+            })
+        ).then(
+            async (res: any) => {
+                const {status} = res;
 
-            function recordProfile(result: any) {
-                if (config.ui) {
-                    // Callback profiling - only relevant if we're showing the debug ui
-                    const resources = {
-                        __dash_server: 0,
-                        __dash_client: Date.now() - requestTime,
-                        __dash_upload: body.length,
-                        __dash_download: Number(
-                            res.headers.get('Content-Length')
-                        )
-                    } as any;
+                function recordProfile(result: any) {
+                    if (config.ui) {
+                        // Callback profiling - only relevant if we're showing the debug ui
+                        const resources = {
+                            __dash_server: 0,
+                            __dash_client: Date.now() - requestTime,
+                            __dash_upload: body.length,
+                            __dash_download: Number(
+                                res.headers.get('Content-Length')
+                            )
+                        } as any;
 
-                    const timingHeaders =
-                        res.headers.get('Server-Timing') || '';
+                        const timingHeaders =
+                            res.headers.get('Server-Timing') || '';
 
-                    timingHeaders.split(',').forEach((header: any) => {
-                        const name = header.split(';')[0];
-                        const dur = header.match(/;dur=[0-9.]+/);
+                        timingHeaders.split(',').forEach((header: any) => {
+                            const name = header.split(';')[0];
+                            const dur = header.match(/;dur=[0-9.]+/);
 
-                        if (dur) {
-                            resources[name] = Number(dur[0].slice(5));
+                            if (dur) {
+                                resources[name] = Number(dur[0].slice(5));
+                            }
+                        });
+
+                        dispatch(
+                            updateResourceUsage({
+                                id: payload.output,
+                                usage: resources,
+                                status,
+                                result,
+                                inputs: payload.inputs,
+                                state: payload.state
+                            })
+                        );
+                    }
+                }
+
+                if (status === STATUS.OK) {
+                    return res.json().then(async (data: any) => {
+                        const {multi, response} = data;
+                        if (hooks.request_post) {
+                            hooks.request_post(payload, response);
                         }
-                    });
 
+                        let result;
+                        if (multi) {
+                            result = response;
+                        } else {
+                            const {output} = payload;
+                            const id = output.substr(
+                                0,
+                                output.lastIndexOf('.')
+                            );
+                            result = {[id]: response.props};
+                        }
+
+                        result = await deserializeCbResponse(result);
+                        recordProfile(result);
+                        resolve(result);
+                    });
+                }
+                if (status === STATUS.PREVENT_UPDATE) {
+                    recordProfile({});
+                    resolve({});
+                }
+            },
+            () => {
+                // fetch rejection - this means the request didn't return,
+                // we don't get here from 400/500 errors, only network
+                // errors or unresponsive servers.
+                if (config.ui) {
                     dispatch(
                         updateResourceUsage({
                             id: payload.output,
-                            usage: resources,
-                            status,
-                            result,
+                            status: STATUS.NO_RESPONSE,
+                            result: {},
                             inputs: payload.inputs,
                             state: payload.state
                         })
                     );
                 }
-            }
-
-            if (status === STATUS.OK) {
-                return res.json().then((data: any) => {
-                    const {multi, response} = data;
-                    if (hooks.request_post) {
-                        hooks.request_post(payload, response);
-                    }
-
-                    let result;
-                    if (multi) {
-                        result = response;
-                    } else {
-                        const {output} = payload;
-                        const id = output.substr(0, output.lastIndexOf('.'));
-                        result = {[id]: response.props};
-                    }
-
-                    recordProfile(result);
-                    return result;
-                });
-            }
-            if (status === STATUS.PREVENT_UPDATE) {
-                recordProfile({});
-                return {};
-            }
-            throw res;
-        },
-        () => {
-            // fetch rejection - this means the request didn't return,
-            // we don't get here from 400/500 errors, only network
-            // errors or unresponsive servers.
-            if (config.ui) {
-                dispatch(
-                    updateResourceUsage({
-                        id: payload.output,
-                        status: STATUS.NO_RESPONSE,
-                        result: {},
-                        inputs: payload.inputs,
-                        state: payload.state
-                    })
+                reject(
+                    new Error('Callback failed: the server did not respond.')
                 );
             }
-            throw new Error('Callback failed: the server did not respond.');
-        }
-    );
+        );
+    });
 }
 
 function inputsToDict(inputs_list: any) {
@@ -438,7 +463,7 @@ function inputsToDict(inputs_list: any) {
     return inputs;
 }
 
-export function executeCallback(
+export async function executeCallback(
     cb: IPrioritizedCallback,
     config: any,
     hooks: any,
@@ -446,11 +471,11 @@ export function executeCallback(
     layout: any,
     {allOutputs}: any,
     dispatch: any
-): IExecutingCallback {
+): Promise<IExecutingCallback> {
     const {output, inputs, state, clientside_function} = cb.callback;
 
     try {
-        const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
+        const inVals = await fillVals(paths, layout, cb, inputs, 'Input', true);
 
         /* Prevent callback if there's no inputs */
         if (inVals === null) {
@@ -498,7 +523,7 @@ export function executeCallback(
                     inputs: inVals,
                     changedPropIds: keys(cb.changedPropIds),
                     state: cb.callback.state.length
-                        ? fillVals(paths, layout, cb, state, 'State')
+                        ? await fillVals(paths, layout, cb, state, 'State')
                         : undefined
                 };
 
@@ -530,7 +555,6 @@ export function executeCallback(
                             newConfig,
                             payload
                         );
-
                         if (newHeaders) {
                             dispatch(addHttpHeaders(newHeaders));
                         }
@@ -586,7 +610,7 @@ export function executeCallback(
 
         const newCb = {
             ...cb,
-            executionPromise: __execute()
+            executionPromise: await __execute()
         };
 
         return newCb;

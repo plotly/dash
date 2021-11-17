@@ -1,6 +1,7 @@
 import {append, assocPath, includes, lensPath, mergeRight, view} from 'ramda';
 
 import {getAction} from '../actions/constants';
+import {SERIALIZER_BOOKKEEPER} from '../serializers';
 
 const layout = (state = {}, action) => {
     if (action.type === getAction('SET_LAYOUT')) {
@@ -15,7 +16,17 @@ const layout = (state = {}, action) => {
         const propPath = append('props', action.payload.itempath);
         const existingProps = view(lensPath(propPath), state);
         const mergedProps = mergeRight(existingProps, action.payload.props);
-        return assocPath(propPath, mergedProps, state);
+        let newState = state;
+
+        if (action.payload.source === 'response') {
+            newState = assocPath(
+                append(SERIALIZER_BOOKKEEPER, action.payload.itempath),
+                mergedProps[SERIALIZER_BOOKKEEPER],
+                newState
+            );
+        }
+
+        return assocPath(propPath, mergedProps, newState);
     }
 
     return state;

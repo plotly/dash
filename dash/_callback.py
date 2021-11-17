@@ -18,6 +18,7 @@ from ._utils import (
     stringify_id,
     to_json,
 )
+from ._dash_serializer import DashSerializer
 
 from . import _validate
 
@@ -180,7 +181,9 @@ def register_callback(
                     if not isinstance(vali, NoUpdate):
                         has_update = True
                         id_str = stringify_id(speci["id"])
-                        component_ids[id_str][speci["property"]] = vali
+                        component_ids[id_str][
+                            speci["property"]
+                        ] = DashSerializer.serialize_value(vali)
 
             if not has_update:
                 raise PreventUpdate

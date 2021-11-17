@@ -23,6 +23,9 @@
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
     "@plotly/dash-component-plugins": "^1.2.0",
+    "browserify-fs": "^1.0.0",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
     "cookie": "^0.4.1",
     "cytoscape": "^3.19.1",
     "cytoscape-dagre": "^2.3.2",
@@ -30,6 +33,8 @@
     "dependency-graph": "^0.11.0",
     "fast-isnumeric": "^1.1.4",
     "node-polyfill-webpack-plugin": "^1.1.4",
+    "parquetjs-lite": "^0.8.7",
+    "path-browserify": "^1.0.1",
     "prop-types": "15.7.2",
     "ramda": "^0.27.1",
     "react": "16.14.0",
@@ -40,7 +45,8 @@
     "redux": "^4.1.1",
     "redux-actions": "^2.6.5",
     "redux-thunk": "^2.3.0",
-    "regenerator-runtime": "^0.13.9"
+    "regenerator-runtime": "^0.13.9",
+    "stream-browserify": "^3.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.15.7",

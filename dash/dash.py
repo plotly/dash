@@ -61,7 +61,7 @@ from ._grouping import (
     map_grouping,
     grouping_len,
 )
-
+from ._dash_serializer import DashSerializer
 
 _flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
@@ -1276,6 +1276,7 @@ class Dash:
         outputs_list = body.get("outputs") or split_callback_id(output)
         flask.g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
 
+        inputs = DashSerializer.deserialize(inputs)
         flask.g.input_values = (  # pylint: disable=assigning-non-slot
             input_values
         ) = inputs_to_dict(inputs)

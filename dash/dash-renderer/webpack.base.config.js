@@ -5,6 +5,12 @@ const packagejson = require('./package.json');
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
 const defaults = {
+    plugins: [
+        new webpack.ProvidePlugin({
+            Buffer: ['buffer', 'Buffer'],
+            process: 'process/browser',
+        }),
+    ],
     module: {
         rules: [
             {
@@ -30,7 +36,14 @@ const defaults = {
         ]
     },
     resolve: {
-        extensions: ['.js', '.ts', '.tsx']
+        extensions: ['.js', '.ts', '.tsx'],
+        alias: {
+            zlib: require.resolve('browserify-zlib'),
+            stream: require.resolve('stream-browserify'),
+            fs: require.resolve('browserify-fs'),
+            path: require.resolve('path-browserify'),
+            buffer: require.resolve('buffer'),
+        },
     }
 };
 
