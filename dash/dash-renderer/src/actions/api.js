@@ -101,7 +101,7 @@ export default function apiThunk(endpoint, method, store, id, body) {
             }
             setConnectionStatus(true);
             if (contentType && contentType.indexOf('application/json') !== -1) {
-                return res.json().then(async json => {
+                return res.json().then(json => {
                     if (store == 'layoutRequest') deserializeLayout(json);
                     dispatch({
                         type: store,

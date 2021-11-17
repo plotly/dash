@@ -341,7 +341,7 @@ function handleServerside(
             body
         })
     ).then(
-        async (res: any) => {
+        (res: any) => {
             const {status} = res;
 
             function recordProfile(result: any) {
@@ -382,7 +382,7 @@ function handleServerside(
             }
 
             if (status === STATUS.OK) {
-                return res.json().then(async (data: any) => {
+                return res.json().then((data: any) => {
                     const {multi, response} = data;
                     if (hooks.request_post) {
                         hooks.request_post(payload, response);
@@ -406,6 +406,7 @@ function handleServerside(
                 recordProfile({});
                 return {};
             }
+            throw res;
         },
         () => {
             // fetch rejection - this means the request didn't return,

@@ -37,7 +37,7 @@ export const deserializeLayout = layout => {
 
     for (const [key, value] of Object.entries(props)) {
         if (prop(PROP_TYPE, value)) {
-            await deserializeValue(markedLayout, key, value);
+            deserializeValue(markedLayout, key, value);
         } else {
             markedLayout.props[key] = value;
         }
@@ -50,10 +50,10 @@ const deserializeValue = (
     key,
     {[PROP_TYPE]: type, [PROP_ENGINE]: engine, [PROP_VALUE]: originalValue}
 ) => {
-    const [val, missingProps] = (await supportedTypes[type]?.deserialize(
+    const [val, missingProps] = supportedTypes[type]?.deserialize(
         engine,
         originalValue
-    )) || [originalValue, {}];
+    ) || [originalValue, {}];
     layout[SERIALIZER_BOOKKEEPER][key] = {
         type,
         engine,
@@ -79,10 +79,7 @@ export const serializeValue = (
         additionalProps[p] = props[p];
     });
     serializedValue[PROP_VALUE] =
-        (await supportedTypes[type]?.serialize(
-            engine,
-            value,
-            additionalProps
-        )) || value;
+        supportedTypes[type]?.serialize(engine, value, additionalProps) ||
+        value;
     return serializedValue;
 };
