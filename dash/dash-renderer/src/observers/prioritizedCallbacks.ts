@@ -1,4 +1,4 @@
-import {find, flatten, map, partition, pluck, sort, uniq} from 'ramda';
+import {find, flatten, forEach, map, partition, pluck, sort, uniq} from 'ramda';
 
 import {IStoreState} from '../store';
 
@@ -20,7 +20,6 @@ import isAppReady from '../actions/isAppReady';
 import {
     IBlockedCallback,
     ICallback,
-    IExecutingCallback,
     ILayoutCallbackProperty,
     IPrioritizedCallback
 } from '../types/callbacks';
@@ -98,26 +97,24 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         );
 
         if (pickedSyncCallbacks.length) {
-            const executingCallbacks: IExecutingCallback[] = [];
-            for (let index = 0; index < pickedSyncCallbacks.length; index++) {
-                const element = pickedSyncCallbacks[index];
-                executingCallbacks.push(
-                    executeCallback(
-                        element,
-                        config,
-                        hooks,
-                        paths,
-                        layout,
-                        getStash(element, paths),
-                        dispatch
-                    )
-                );
-            }
-
             dispatch(
                 aggregateCallbacks([
                     removePrioritizedCallbacks(pickedSyncCallbacks),
-                    addExecutingCallbacks(executingCallbacks)
+                    addExecutingCallbacks(
+                        map(
+                            cb =>
+                                executeCallback(
+                                    cb,
+                                    config,
+                                    hooks,
+                                    paths,
+                                    layout,
+                                    getStash(cb, paths),
+                                    dispatch
+                                ),
+                            pickedSyncCallbacks
+                        )
+                    )
                 ])
             );
         }
@@ -138,8 +135,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     addBlockedCallbacks(deferred)
                 ])
             );
-            for (const i in deferred) {
-                const cb = deferred[i];
+
+            forEach(async cb => {
                 await cb.isReady;
 
                 const {
@@ -167,16 +164,14 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     cb,
                     dispatch
                 );
+
                 dispatch(
                     aggregateCallbacks([
                         removeBlockedCallbacks([cb]),
                         addExecutingCallbacks([executingCallback])
                     ])
                 );
-            }
-            // forEach(async cb => {
-
-            // }, deferred);
+            }, deferred);
         }
     },
     inputs: ['callbacks.prioritized', 'callbacks.completed']

@@ -22,11 +22,12 @@ export const deserializeCbResponse = response => {
 };
 
 export const deserializeLayout = layout => {
+    if (!layout || !layout.props || !layout.props.children) return layout;
     const markedLayout = {...layout, [SERIALIZER_BOOKKEEPER]: {}};
-    const {
-        props,
-        props: {children}
-    } = layout;
+
+    var props = layout.props,
+        children = props?.children;
+
     if (type(children) === 'Array')
         for (let index = 0; index < children.length; index++) {
             children[index] = deserializeLayout(children[index]);
