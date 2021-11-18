@@ -9,17 +9,6 @@ const supportedTypes = {
 };
 
 export const SERIALIZER_BOOKKEEPER = '__dash_serialized_props';
-export const deserializeCbResponse = response => {
-    if (Object.keys(response).length == 1) {
-        return {
-            [Object.keys(response)[0]]: deserializeLayout({
-                props: Object.values(response)[0]
-            }).props
-        };
-    } else {
-        return deserializeLayout({props: response}).props;
-    }
-};
 
 export const deserializeLayout = layout => {
     if (!layout || !layout.props || !layout.props.children) return layout;
@@ -43,7 +32,9 @@ export const deserializeLayout = layout => {
             markedLayout.props[key] = value;
         }
     }
-    return markedLayout;
+    return Object.keys(markedLayout[SERIALIZER_BOOKKEEPER]).length < 1
+        ? layout
+        : markedLayout;
 };
 
 const deserializeValue = (

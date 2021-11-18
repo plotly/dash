@@ -31,11 +31,7 @@ import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
-import {
-    serializeValue,
-    SERIALIZER_BOOKKEEPER,
-    deserializeCbResponse
-} from '../serializers';
+import {serializeValue, SERIALIZER_BOOKKEEPER} from '../serializers';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -397,7 +393,6 @@ function handleServerside(
                         result = {[id]: response.props};
                     }
 
-                    result = deserializeCbResponse(result);
                     recordProfile(result);
                     return result;
                 });
