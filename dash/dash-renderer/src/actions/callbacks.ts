@@ -143,10 +143,7 @@ function fillVals(
     const errors: any[] = [];
     let emptyMultiValues = 0;
 
-    const inputVals = [];
-    const _paths = getter(paths);
-    for (let i = 0; i < _paths.length; i++) {
-        const inputList = _paths[i];
+    const inputVals = getter(paths).map((inputList: any, i: number) => {
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}: any) => ({
@@ -174,8 +171,8 @@ function fillVals(
         );
         delete inputs.bookkeeper;
         delete inputs.props;
-        inputVals.push(inputs);
-    }
+        return inputs;
+    });
 
     if (errors.length) {
         if (
@@ -544,6 +541,7 @@ export function executeCallback(
                             newConfig,
                             payload
                         );
+
                         if (newHeaders) {
                             dispatch(addHttpHeaders(newHeaders));
                         }
