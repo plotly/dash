@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-- [#1822](https://github.com/plotly/dash/pull/1822) Remove Radium from renderer dependencies, as part of investigating React 17 support.
+### Changed
 
 - [#1745](https://github.com/plotly/dash/pull/1745):
     Improve our `extras_require`: there are now five options here, each with a well-defined role:
@@ -14,9 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     - `dash[celery]`: required if you use `CeleryLongCallbackManager`
     - `dash[ci]`: mainly for internal use, these are additional requirements for the Dash CI tests, exposed for other component libraries to use a matching configuration.
 
-- [#1779](https://github.com/plotly/dash/pull/1779):
-    - Clean up our handling of serialization problems, including fixing `orjson` for Python 3.6
-    - Added the ability for `dash.testing` `percy_snapshot` methods to choose widths to generate.
+### Added
 
 - [#1763](https://github.com/plotly/dash/pull/1763):
     ## Dash and Dash Renderer
@@ -30,21 +28,21 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
     @dash.callback(Output(my_output, 'children'), Input(my_input, 'value'))
     def update(value):
-      return f'You have entered {value}'
+        return f'You have entered {value}'
     ```
 
     Or, if using Python >=3.8 you can use the `:=` walrus operator:
     ```python
     app.layout = html.Div([
-      my_input := dcc.Input(),
-      my_output := html.Div()
+        my_input := dcc.Input(),
+        my_output := html.Div()
     ])
 
     @dash.callback(Output(my_output, 'children'), Input(my_input, 'value'))
     def update(value):
-      return f'You have entered {value}'
-
+        return f'You have entered {value}'
     ```
+
     ## Dash Core Components
 
     ### Rearranged Keyword Arguments & Flexible Types
@@ -58,22 +56,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
     ```python
     dcc.Dropdown(
-      options=[
-        {'label': 'New York', 'value': 'New York'},
-        {'label': 'Montreal', 'value': 'Montreal'},
-      ],
-      value='New York'
+        options=[
+            {'label': 'New York', 'value': 'New York'},
+            {'label': 'Montreal', 'value': 'Montreal'},
+        ],
+        value='New York'
     )
-      ```
+    ```
+
     or
 
     ```python
     dcc.Dropdown(
-      options=[
-        {'label': 'New York', 'value': 'NYC'},
-        {'label': 'Montreal', 'value': 'MTL'},
-      ],
-      value='New York'
+        options=[
+            {'label': 'New York', 'value': 'NYC'},
+            {'label': 'Montreal', 'value': 'MTL'},
+        ],
+        value='New York'
     )
     ```
 
@@ -82,6 +81,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     ```python
     dcc.Dropdown(['New York', 'Montreal'], 'New York')
     ```
+
     Or
 
     ```python
@@ -102,14 +102,19 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     ```
 
     After:
+
     ```python
     dcc.Slider(min=1, max=3, step=1)
     ```
+
     Or equivalently:
+
     ```python
     dcc.Slider(1, 3, 1)
     ```
+
     Step can also be omitted and the `Slider` will attempt to create a nice, human readable  step with SI units and around 5 marks:
+
     ```python
     dcc.Slider(0, 100)
     ```
@@ -137,6 +142,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     ```python
     dash_table.DataTable(data=df.to_dict('records'), columns=[{'name': i, 'id': i} for i in df.columns])
     ```
+
     After:
 
     ```python
@@ -152,6 +158,16 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     ```python
     dcc.Checklist(inline=True)
     ```
+
+### Fixed
+
+- [#1836](https://github.com/plotly/dash/pull/1836) Fix `__all__` in dcc and table for extras: dcc download helpers and table format helpers. This also restores this functionality to the obsolete top-level packages `dash_core_components` and `dash_table`.
+
+- [#1822](https://github.com/plotly/dash/pull/1822) Remove Radium from renderer dependencies, as part of investigating React 17 support.
+
+- [#1779](https://github.com/plotly/dash/pull/1779):
+    - Clean up our handling of serialization problems, including fixing `orjson` for Python 3.6
+    - Added the ability for `dash.testing` `percy_snapshot` methods to choose widths to generate.
 
 ## [2.0.0] - 2021-08-03
 
