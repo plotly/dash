@@ -164,11 +164,13 @@ function fillVals(
         }
 
         const {bookkeeper, property, props} = inputs;
-        inputs.value = serializeValue(
-            bookkeeper?.[property] || {},
-            props[property],
-            props
-        );
+        inputs.value = bookkeeper
+            ? serializeValue(
+                  bookkeeper?.[property] || {},
+                  props[property],
+                  props
+              )
+            : props?.[property];
         delete inputs.bookkeeper;
         delete inputs.props;
         return inputs;

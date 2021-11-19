@@ -62,7 +62,7 @@ export const serializeValue = (
     value,
     props
 ) => {
-    if (!type) return value;
+    if (!type || !value || !props) return value;
     const serializedValue = {};
     serializedValue[PROP_TYPE] = type;
     serializedValue[PROP_ENGINE] = engine;
