@@ -143,15 +143,29 @@ function fillVals(
     const errors: any[] = [];
     let emptyMultiValues = 0;
 
+    const trySerializeValue = (input: any, property: any) => {
+        if (input && input[SERIALIZER_BOOKKEEPER]) {
+            const {props, SERIALIZER_BOOKKEEPER: bookkeeper} = input;
+            if (props && bookkeeper[property]) {
+                return serializeValue(
+                    bookkeeper[property],
+                    props[property],
+                    props
+                );
+            }
+            return input.props[property];
+        } else {
+            return input.props[property];
+        }
+    };
+
     const inputVals = getter(paths).map((inputList: any, i: number) => {
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
             inputList.map(({id, property, path: path_}: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property],
-                props: (path(path_, layout) as any).props,
-                bookkeeper: (path(path_, layout) as any)[SERIALIZER_BOOKKEEPER]
+                value: trySerializeValue(path(path_, layout) as any, property)
             })),
             specs[i],
             cb.anyVals,
@@ -163,16 +177,7 @@ function fillVals(
         if (inputError) {
             errors.push(inputError);
         }
-        const {bookkeeper, property, props} = inputs || {};
-        if (bookkeeper) {
-            inputs.value = serializeValue(
-                bookkeeper?.[property] || {},
-                props?.[property],
-                props
-            );
-            delete inputs.bookkeeper;
-            delete inputs.props;
-        }
+
         return inputs;
     });
 

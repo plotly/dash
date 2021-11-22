@@ -14,7 +14,7 @@ export const deserializeLayout = layout => {
     if (!layout || !layout.props || !layout.props.children) return layout;
     const markedLayout = {...layout, [SERIALIZER_BOOKKEEPER]: {}};
 
-    var props = layout.props,
+    var props = markedLayout.props,
         children = props?.children;
 
     if (type(children) === 'Array')
@@ -32,9 +32,10 @@ export const deserializeLayout = layout => {
             markedLayout.props[key] = value;
         }
     }
-    return Object.keys(markedLayout[SERIALIZER_BOOKKEEPER]).length < 1
-        ? layout
-        : markedLayout;
+    if (Object.keys(markedLayout[SERIALIZER_BOOKKEEPER]).length < 1) {
+        delete markedLayout[SERIALIZER_BOOKKEEPER];
+    }
+    return markedLayout;
 };
 
 const deserializeValue = (
