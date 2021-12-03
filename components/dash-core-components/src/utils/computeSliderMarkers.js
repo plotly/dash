@@ -157,7 +157,7 @@ export const autoGenerateMarks = (min, max, step) => {
  * - Then truncate marks so no out of range marks
  */
 export const sanitizeMarks = ({min, max, marks, step}) => {
-    if (marks === null) {
+    if (isNil(marks)) {
         return undefined;
     }
 
