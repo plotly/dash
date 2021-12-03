@@ -85,6 +85,24 @@ export const calcStep = (min, max, step) => {
     ].sort((a, b) => Math.abs(a - v) - Math.abs(b - v))[0];
 };
 
+/**
+ * Set min and max if they are undefined and marks are defined
+ */
+export const setUndefined = (min, max, marks) => {
+    const definedMarks = {min_mark: min, max_mark: max};
+    const marksObject = Object.keys(marks).map(Number);
+
+    if (isNil(min)) {
+        definedMarks.min_mark = Math.min(...marksObject);
+    }
+
+    if (isNil(max)) {
+        definedMarks.max_mark = Math.max(...marksObject);
+    }
+
+    return definedMarks;
+};
+
 export const applyD3Format = (mark, min, max) => {
     const mu_ten_factor = -3;
     const k_ten_factor = 3;
@@ -139,11 +157,11 @@ export const autoGenerateMarks = (min, max, step) => {
  * - Then truncate marks so no out of range marks
  */
 export const sanitizeMarks = ({min, max, marks, step}) => {
-    const [min_mark, max_mark] = Object.values(setUndefined(min, max, marks))
-
     if (marks === null) {
         return undefined;
     }
+
+    const [min_mark, max_mark] = Object.values(setUndefined(min, max, marks));
 
     const truncated_marks =
         marks && isEmpty(marks) === false
@@ -166,23 +184,3 @@ export const calcValue = (min, max, value) => {
 
     return [min, max];
 };
-
-/**
- * Set min and max if they are undefined and marks are defined
- */
-export const setUndefined = (min, max, marks) => {
-    const definedMarks = {'min_mark': min, 'max_mark': max}
-    const marksObject = Object.keys(marks).map(Number)
-
-    if (isNil(min)) {
-        let definedMin = Math.min(...marksObject)
-        definedMarks['min_mark'] = definedMin
-    }
-
-    if (isNil(max)) {
-        let definedMax = Math.max(...marksObject)
-        definedMarks['max_mark'] = definedMax
-    }
-
-    return definedMarks
-}
