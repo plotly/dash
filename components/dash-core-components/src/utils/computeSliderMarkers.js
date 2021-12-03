@@ -1,4 +1,4 @@
-import {pickBy, isEmpty} from 'ramda';
+import {pickBy, isEmpty, isNil} from 'ramda';
 import {formatPrefix} from 'd3-format';
 
 /**
@@ -124,7 +124,6 @@ export const autoGenerateMarks = (min, max, step) => {
             marks.pop();
         }
     }
-
     const marksObject = {};
     marks.forEach(mark => {
         marksObject[mark] = applyD3Format(mark, min, max);
@@ -140,19 +139,21 @@ export const autoGenerateMarks = (min, max, step) => {
  * - Then truncate marks so no out of range marks
  */
 export const sanitizeMarks = ({min, max, marks, step}) => {
+    const [min_mark, max_mark] = Object.values(setUndefined(min, max, marks))
+
     if (marks === null) {
         return undefined;
     }
 
     const truncated_marks =
         marks && isEmpty(marks) === false
-            ? truncateMarks(min, max, marks)
+            ? truncateMarks(min_mark, max_mark, marks)
             : marks;
 
     if (truncated_marks && isEmpty(truncated_marks) === false) {
         return truncated_marks;
     }
-    return autoGenerateMarks(min, max, step);
+    return autoGenerateMarks(min_mark, max_mark, step);
 };
 
 /**
@@ -165,3 +166,23 @@ export const calcValue = (min, max, value) => {
 
     return [min, max];
 };
+
+/**
+ * Set min and max if they are undefined and marks are defined
+ */
+export const setUndefined = (min, max, marks) => {
+    const definedMarks = {'min_mark': min, 'max_mark': max}
+    const marksObject = Object.keys(marks).map(Number)
+
+    if (isNil(min)) {
+        let definedMin = Math.min(...marksObject)
+        definedMarks['min_mark'] = definedMin
+    }
+
+    if (isNil(max)) {
+        let definedMax = Math.max(...marksObject)
+        definedMarks['max_mark'] = definedMax
+    }
+
+    return definedMarks
+}
