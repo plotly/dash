@@ -90,6 +90,11 @@ export const calcStep = (min, max, step) => {
  */
 export const setUndefined = (min, max, marks) => {
     const definedMarks = {min_mark: min, max_mark: max};
+
+    if (isNil(marks)) {
+        return definedMarks;
+    }
+
     const marksObject = Object.keys(marks).map(Number);
 
     if (isNil(min)) {
@@ -157,7 +162,7 @@ export const autoGenerateMarks = (min, max, step) => {
  * - Then truncate marks so no out of range marks
  */
 export const sanitizeMarks = ({min, max, marks, step}) => {
-    if (isNil(marks)) {
+    if (marks === null) {
         return undefined;
     }
 
