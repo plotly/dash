@@ -78,7 +78,7 @@ class WebpackDashDynamicImport {
     apply(compiler) {
         compiler.hooks.compilation.tap('WebpackDashDynamicImport', compilation => {
             compilation.mainTemplate.hooks.requireExtensions.tap('WebpackDashDynamicImport > RequireExtensions', (source, chunk, hash) => {
-                // Prevent CSS chunks from having JS appended to them
+                // Prevent CSS chunks having JS appended
                 if (chunk.name === 'mini-css-extract-plugin') {
                     return source;
                 }
