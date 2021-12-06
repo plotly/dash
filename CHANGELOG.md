@@ -160,7 +160,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     ```
 
 ### Fixed
-
 - [#1836](https://github.com/plotly/dash/pull/1836) Fix `__all__` in dcc and table for extras: dcc download helpers and table format helpers. This also restores this functionality to the obsolete top-level packages `dash_core_components` and `dash_table`.
 
 - [#1822](https://github.com/plotly/dash/pull/1822) Remove Radium from renderer dependencies, as part of investigating React 17 support.
@@ -182,6 +181,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1679](https://github.com/plotly/dash/pull/1679) Restructure `dash`, `dash-core-components`, `dash-html-components`, and `dash-table` into a singular monorepo and move component packages into `dash`. This change makes the component modules available for import within the `dash` namespace, and simplifies the import pattern for a Dash app. From a development standpoint, all future changes to component modules will be made within the `components` directory, and relevant packages updated with the `dash-update-components` CLI command.
 - [#1707](https://github.com/plotly/dash/pull/1707) Change the default value of the `compress` argument to the `dash.Dash` constructor to `False`. This change reduces CPU usage, and was made in recognition of the fact that many deployment platforms (e.g. Dash Enterprise) already apply their own compression. If deploying to an environment that does not already provide compression, the Dash 1 behavior may be restored by adding `compress=True` to the `dash.Dash` constructor.
 - [#1734](https://github.com/plotly/dash/pull/1734) Added `npm run build` script to simplify build process involving `dash-renderer` and subcomponent libraries within `dash`.
+
+### Fixed
+- [#1857](https://github.com/plotly/dash/pull/1857) Fixed a regression with `dcc.Slider` and `dcc.RangeSlider` where steps were not being set to marks if None was passed as the prop argument.  Added a check to set the min and max based on the range of marks if they are not explicitly defined (for more info, see [#1843](https://github.com/plotly/dash/issues/1843) and [#1851](https://github.com/plotly/dash/issues/1843)).
 
 
 ## Dash Core Components

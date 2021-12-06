@@ -104,7 +104,11 @@ export default class RangeSlider extends Component {
                     style={{position: 'relative'}}
                     value={value ? value : calcValue(min, max, value)}
                     marks={sanitizeMarks({min, max, marks, step})}
-                    step={(step === null && !isNil(marks) ? null : calcStep(min, max, step))}
+                    step={
+                        step === null && !isNil(marks)
+                            ? null
+                            : calcStep(min, max, step)
+                    }
                     {...omit(
                         [
                             'className',
