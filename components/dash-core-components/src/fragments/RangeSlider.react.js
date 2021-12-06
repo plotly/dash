@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {assoc, omit} from 'ramda';
+import {assoc, omit, isNil} from 'ramda';
 import {Range, createSliderWithTooltip} from 'rc-slider';
 import computeSliderStyle from '../utils/computeSliderStyle';
 
@@ -104,7 +104,7 @@ export default class RangeSlider extends Component {
                     style={{position: 'relative'}}
                     value={value ? value : calcValue(min, max, value)}
                     marks={sanitizeMarks({min, max, marks, step})}
-                    step={calcStep(min, max, step)}
+                    step={(step === null && !isNil(marks) ? null : calcStep(min, max, step))}
                     {...omit(
                         [
                             'className',

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactSlider, {createSliderWithTooltip} from 'rc-slider';
-import {assoc, omit} from 'ramda';
+import {assoc, isNil, omit} from 'ramda';
 import computeSliderStyle from '../utils/computeSliderStyle';
 
 import 'rc-slider/assets/index.css';
@@ -104,7 +104,7 @@ export default class Slider extends Component {
                     style={{position: 'relative'}}
                     value={value}
                     marks={sanitizeMarks({min, max, marks, step})}
-                    step={calcStep(min, max, step)}
+                    step={(step === null && !isNil(marks) ? null : calcStep(min, max, step))}
                     {...omit(
                         [
                             'className',
