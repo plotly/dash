@@ -1,7 +1,6 @@
 import json
 
 import pandas as pd
-from pandas.core.frame import DataFrame
 
 PROP_TYPE = "__type"
 PROP_VALUE = "__value"
@@ -31,7 +30,7 @@ class DataFrameSerializer:
             prop[PROP_VALUE],
         ]
         if engine == "to_dict":
-            return DataFrame.from_records(value["records"], columns=value["columns"])
+            return pd.DataFrame.from_records(value["records"], columns=value["columns"])
         return prop
 
 
