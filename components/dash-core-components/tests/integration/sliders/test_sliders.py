@@ -539,7 +539,7 @@ def test_slsl015_range_slider_step_none(dash_dcc):
                 },
                 step=None,
                 value=4.6,
-                vertical=True,
+                vertical=False,
             ),
         ],
         style={"height": "500px"},
@@ -560,7 +560,7 @@ def test_slsl015_range_slider_no_min_max(dash_dcc):
     app = Dash(__name__)
     app.layout = html.Div(
         [
-            html.Label("Steps = Marks Slider"),
+            html.Label("No Min or Max Slider"),
             dcc.Slider(
                 id="no-min-max-step-slider",
                 marks={
@@ -568,7 +568,7 @@ def test_slsl015_range_slider_no_min_max(dash_dcc):
                 },
                 step=None,
                 value=5,
-                vertical=True,
+                vertical=False,
             ),
         ],
         style={"height": "500px"},
