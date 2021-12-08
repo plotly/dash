@@ -8,6 +8,7 @@ import {
     calcValue,
     sanitizeMarks,
     calcStep,
+    setUndefined,
 } from '../utils/computeSliderMarkers';
 import {propTypes, defaultProps} from '../components/RangeSlider.react';
 
@@ -104,6 +105,8 @@ export default class RangeSlider extends Component {
                     style={{position: 'relative'}}
                     value={value ? value : calcValue(min, max, value)}
                     marks={sanitizeMarks({min, max, marks, step})}
+                    max={setUndefined(min, max, marks).max_mark}
+                    min={setUndefined(min, max, marks).min_mark}
                     step={
                         step === null && !isNil(marks)
                             ? null

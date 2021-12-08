@@ -176,6 +176,7 @@ export const sanitizeMarks = ({min, max, marks, step}) => {
     if (truncated_marks && isEmpty(truncated_marks) === false) {
         return truncated_marks;
     }
+
     return autoGenerateMarks(min_mark, max_mark, step);
 };
 
