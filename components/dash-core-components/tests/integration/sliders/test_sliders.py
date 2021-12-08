@@ -562,7 +562,7 @@ def test_slsl015_range_slider_no_min_max(dash_dcc):
         [
             html.Label("Steps = Marks Slider"),
             dcc.Slider(
-                id="none-step-slider",
+                id="no-min-max-step-slider",
                 marks={
                     i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
                 },
@@ -575,11 +575,11 @@ def test_slsl015_range_slider_no_min_max(dash_dcc):
     )
 
     dash_dcc.start_server(app)
-    dash_dcc.wait_for_element("#none-step-slider")
-    dash_dcc.percy_snapshot("none step slider")
+    dash_dcc.wait_for_element("#no-min-max-step-slider")
+    dash_dcc.percy_snapshot("no-min-max step slider")
 
     dash_dcc.wait_for_element(
-        '#none-step-slider div.rc-slider-handle[aria-valuemax="5"]'
+        '#no-min-max-step-slider div.rc-slider-handle[aria-valuemax="5"]'
     )
 
     assert dash_dcc.get_logs() == []
