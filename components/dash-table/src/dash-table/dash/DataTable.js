@@ -88,6 +88,7 @@ export const defaultProps = {
     selected_rows: [],
     selected_row_ids: [],
     cell_selectable: true,
+    cell_deselectable: false,
     row_selectable: false,
 
     style_table: {},
@@ -724,6 +725,11 @@ export const propTypes = {
      * table cells.
      */
     cell_selectable: PropTypes.bool,
+
+    /**
+     * If True, then it is possible to deselect an active cell. (Default: False).
+     */
+    cell_deselectable: PropTypes.bool,
 
     /**
      * If `single`, then the user can select a single row

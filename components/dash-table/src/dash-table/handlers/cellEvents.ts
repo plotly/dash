@@ -16,6 +16,7 @@ export const handleClick = (
 ) => {
     const {
         cell_selectable,
+        cell_deselectable,
         selected_cells,
         active_cell,
         setProps,
@@ -28,8 +29,8 @@ export const handleClick = (
 
     const clickedCell = makeCell(idx, col, visibleColumns, viewport);
 
-    // clicking again on the already-active cell: ignore
-    if (active_cell && idx === active_cell.row && col === active_cell.column) {
+    // clicking again on the already-active cell: ignore if option `cell_deselectable` is not chosen
+    if (!cell_deselectable && active_cell && idx === active_cell.row && col === active_cell.column) {
         return;
     }
 
@@ -54,17 +55,26 @@ export const handleClick = (
     if (browserSelection) {
         browserSelection.removeAllRanges();
     }
-
     const selected = isSelected(selected_cells, idx, col);
 
-    // if clicking on a *different* already-selected cell (NOT shift-clicking,
-    // not the active cell), don't alter the selection,
-    // just move the active cell
+    // clicking on an already selected cell
     if (selected && !e.shiftKey) {
-        setProps({
-            is_focused: false,
-            active_cell: clickedCell
-        });
+        // if clicking on a *different* already-selected cell (NOT shift-clicking,
+        // not the active cell), don't alter the selection,
+        // just move the active cell
+        if (!cell_deselectable) {
+            setProps({
+                is_focused: false,
+                active_cell: clickedCell
+            });
+        } else {
+            // deselect the active cell
+            setProps({
+                is_focused: false,
+                active_cell: undefined,
+                selected_cells: []
+            });
+        }
         return;
     }
 
@@ -89,7 +99,6 @@ export const handleClick = (
         newProps.start_cell = clickedCell;
         newProps.selected_cells = [clickedCell];
     }
-
     setProps(newProps);
 };
 

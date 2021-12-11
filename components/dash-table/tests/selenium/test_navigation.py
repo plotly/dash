@@ -210,3 +210,26 @@ def test_navg005_unselectable_cells(test, cell_selectable):
 
     assert target.cell(0, "a").is_selected() == cell_selectable
     assert test.get_log_errors() == []
+
+@pytest.mark.parametrize("cell_deselectable", [True, False])
+def test_navg006_deselectable_cells(test, cell_deselectable):
+    app = dash.Dash(__name__)
+    app.layout = DataTable(
+        id="table",
+        columns=[dict(id="a", name="a"), dict(id="b", name="b")],
+        data=[dict(a=0, b=0), dict(a=1, b=2)],
+        cell_selectable=True,
+        cell_deselectable=cell_deselectable,
+    )
+
+    test.start_server(app)
+
+    target = test.table("table")
+    target.cell(0, "a").click()
+
+    assert target.cell(0, "a").is_selected()
+
+    target.cell(0, "a").click()
+
+    assert target.cell(0, "a").is_selected() != cell_deselectable
+    assert test.get_log_errors() == []

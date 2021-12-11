@@ -349,6 +349,7 @@ export interface IProps {
 
     active_cell?: ICellCoordinates;
     cell_selectable?: boolean;
+    cell_deselectable?: boolean;
     column_selectable?: Selection;
     columns?: Columns;
     dropdown?: StaticDropdowns;
@@ -402,6 +403,7 @@ export interface IProps {
 
 interface IDefaultProps {
     cell_selectable: boolean;
+    cell_deselectable: boolean;
     column_selectable: Selection;
     css: IStylesheetRule[];
     dropdown: StaticDropdowns;
@@ -538,6 +540,7 @@ export interface ICellFactoryProps {
     active_cell?: ICellCoordinates;
     applyFocus?: boolean;
     cell_selectable: boolean;
+    cell_deselectable: boolean;
     dropdown: StaticDropdowns;
     dropdown_conditional: ConditionalDropdowns;
     dropdown_data: DataDropdowns;
