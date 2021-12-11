@@ -30,7 +30,12 @@ export const handleClick = (
     const clickedCell = makeCell(idx, col, visibleColumns, viewport);
 
     // clicking again on the already-active cell: ignore if option `cell_deselectable` is not chosen
-    if (!cell_deselectable && active_cell && idx === active_cell.row && col === active_cell.column) {
+    if (
+        !cell_deselectable &&
+        active_cell &&
+        idx === active_cell.row &&
+        col === active_cell.column
+    ) {
         return;
     }
 
