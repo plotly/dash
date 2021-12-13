@@ -8,6 +8,15 @@ from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from .base_component import Component
 
+REORDER_EXCEPTIONS = [
+    "RangeSlider",
+    "Slider",
+    "DataTable",
+    "Dropdown",
+    "RadioItem",
+    "Checklist",
+]
+
 
 # pylint: disable=unused-argument
 def generate_class_string(typename, props, description, namespace):
@@ -62,7 +71,11 @@ def generate_class_string(typename, props, description, namespace):
         super({typename}, self).__init__({argtext})
 '''
 
-    filtered_props = reorder_props(filter_props(props))
+    filtered_props = (
+        filter_props(props)
+        if typename in REORDER_EXCEPTIONS
+        else reorder_props(filter_props(props))
+    )
     wildcard_prefixes = repr(parse_wildcards(props))
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
     docstring = create_docstring(
@@ -122,6 +135,7 @@ def generate_class_file(typename, props, description, namespace):
         + "from dash.development.base_component import "
         + "Component, _explicitize_args\n\n\n"
     )
+
     class_string = generate_class_string(typename, props, description, namespace)
     file_name = "{:s}.py".format(typename)
 
@@ -210,7 +224,9 @@ def create_docstring(component_name, props, description):
         Dash component docstring
     """
     # Ensure props are ordered with children first
-    props = reorder_props(props=props)
+    props = (
+        props if component_name in REORDER_EXCEPTIONS else reorder_props(props=props)
+    )
 
     return (
         "A{n} {name} component.\n{description}\n\nKeyword arguments:\n{args}"
