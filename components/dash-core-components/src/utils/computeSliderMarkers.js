@@ -166,7 +166,7 @@ export const sanitizeMarks = ({min, max, marks, step}) => {
         return undefined;
     }
 
-    const [min_mark, max_mark] = Object.values(setUndefined(min, max, marks));
+    const {min_mark, max_mark} = setUndefined(min, max, marks);
 
     const truncated_marks =
         marks && isEmpty(marks) === false
