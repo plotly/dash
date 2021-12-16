@@ -74,7 +74,10 @@ def generate_class_string(
     wildcard_prefixes = repr(parse_wildcards(props))
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
     docstring = create_docstring(
-        component_name=typename, props=filtered_props, description=description
+        component_name=typename,
+        props=filtered_props,
+        description=description,
+        prop_reorder_exceptions=prop_reorder_exceptions,
     ).replace("\r\n", "\n")
 
     prohibit_events(props)
@@ -212,7 +215,7 @@ def required_props(props):
     return [prop_name for prop_name, prop in list(props.items()) if prop["required"]]
 
 
-def create_docstring(component_name, props, description):
+def create_docstring(component_name, props, description, prop_reorder_exceptions=None):
     """Create the Dash component docstring.
     Parameters
     ----------
@@ -227,6 +230,16 @@ def create_docstring(component_name, props, description):
     str
         Dash component docstring
     """
+    # Ensure props are ordered with children first
+    props = (
+        props
+        if (
+            prop_reorder_exceptions is not None
+            and component_name in prop_reorder_exceptions
+        )
+        or (prop_reorder_exceptions is not None and "ALL" in prop_reorder_exceptions)
+        else reorder_props(props)
+    )
 
     return (
         "A{n} {name} component.\n{description}\n\nKeyword arguments:\n{args}"
