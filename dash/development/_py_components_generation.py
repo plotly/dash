@@ -11,7 +11,7 @@ from .base_component import Component
 
 # pylint: disable=unused-argument
 def generate_class_string(
-    typename, props, description, namespace, prop_reorder_exceptions
+    typename, props, description, namespace, prop_reorder_exceptions=None
 ):
     """Dynamically generate class strings to have nicely formatted docstrings,
     keyword arguments, and repr.
@@ -22,6 +22,7 @@ def generate_class_string(
     props
     description
     namespace
+    prop_reorder_exceptions
     Returns
     -------
     string
@@ -175,7 +176,9 @@ def generate_classes_files(project_shortname, metadata, *component_generators):
     return components
 
 
-def generate_class(typename, props, description, namespace, prop_reorder_exceptions):
+def generate_class(
+    typename, props, description, namespace, prop_reorder_exceptions=None
+):
     """Generate a Python class object given a class string.
     Parameters
     ----------
