@@ -67,7 +67,7 @@ def generate_class_string(
     filtered_props = (
         filter_props(props)
         if (prop_reorder_exceptions is not None and typename in prop_reorder_exceptions)
-        or "ALL" in prop_reorder_exceptions
+        or (prop_reorder_exceptions is not None and "ALL" in prop_reorder_exceptions)
         else reorder_props(filter_props(props))
     )
     wildcard_prefixes = repr(parse_wildcards(props))
