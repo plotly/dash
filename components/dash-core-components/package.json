@@ -25,7 +25,7 @@
     "test:pyimport": "python -m unittest tests/test_dash_import.py",
     "prebuild:js": "cp node_modules/plotly.js/dist/plotly.min.js dash_core_components_base/plotly.min.js",
     "build:js": "webpack --mode production",
-    "build:backends": "dash-generate-components ./src/components dash_core_components -p package-info.json && cp dash_core_components_base/** dash_core_components/ && dash-generate-components ./src/components dash_core_components -p package-info.json --r-prefix 'dcc' --r-suggests 'dash,dashHtmlComponents,jsonlite,plotly' --jl-prefix 'dcc' && black dash_core_components",
+    "build:backends": "cp dash_core_components_base/** dash_core_components/ && dash-generate-components ./src/components dash_core_components -p package-info.json -k RangeSlider,Slider,DataTable,Dropdown,RadioItems,Checklist --r-prefix 'dcc' --r-suggests 'dash,dashHtmlComponents,jsonlite,plotly' --jl-prefix 'dcc' && black dash_core_components",
     "build": "run-s prepublishOnly build:js build:backends",
     "postbuild": "es-check es5 dash_core_components/*.js",
     "build:watch": "watch 'npm run build' src",

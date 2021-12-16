@@ -17,7 +17,7 @@
     "private::build:js": "run-s \"private::build -- --mode production\"",
     "private::build:js-test": "run-s \"private::build -- --mode development --config webpack.test.config.js\"",
     "private::build:js-test-watch": "run-s \"private::build -- --mode development --config webpack.test.config.js --watch\"",
-    "private::build:backends": "dash-generate-components src/dash-table/dash/DataTable.js dash_table -p package-info.json && cp dash_table_base/** dash_table/ && dash-generate-components src/dash-table/dash/DataTable.js dash_table -p package-info.json --r-prefix 'dash' --r-suggests 'dash' --jl-prefix 'dash' && black dash_table",
+    "private::build:backends": "cp dash_table_base/** dash_table/ && dash-generate-components src/dash-table/dash/DataTable.js dash_table -p package-info.json -k DataTable --r-prefix 'dash' --r-suggests 'dash' --jl-prefix 'dash' && black dash_table",
     "private::format.ts": "npm run private::lint.ts -- --fix",
     "private::format.prettier": "prettier --config .prettierrc --write \"{src,tests,demo}/**/*.{js,ts,tsx}\"",
     "private::format.black": "black dash_table_base tests",

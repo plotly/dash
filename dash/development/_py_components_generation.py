@@ -19,7 +19,9 @@ REORDER_EXCEPTIONS = [
 
 
 # pylint: disable=unused-argument
-def generate_class_string(typename, props, description, namespace):
+def generate_class_string(
+    typename, props, description, namespace, prop_reorder_exceptions
+):
     """Dynamically generate class strings to have nicely formatted docstrings,
     keyword arguments, and repr.
     Inspired by http://jameso.be/2013/08/06/namedtuple.html
@@ -73,7 +75,8 @@ def generate_class_string(typename, props, description, namespace):
 
     filtered_props = (
         filter_props(props)
-        if typename in REORDER_EXCEPTIONS
+        if (prop_reorder_exceptions is not None and typename in prop_reorder_exceptions)
+        or "ALL" in prop_reorder_exceptions
         else reorder_props(filter_props(props))
     )
     wildcard_prefixes = repr(parse_wildcards(props))
@@ -119,7 +122,9 @@ def generate_class_string(typename, props, description, namespace):
     )
 
 
-def generate_class_file(typename, props, description, namespace):
+def generate_class_file(
+    typename, props, description, namespace, prop_reorder_exceptions=None
+):
     """Generate a Python class file (.py) given a class string.
     Parameters
     ----------
@@ -127,6 +132,7 @@ def generate_class_file(typename, props, description, namespace):
     props
     description
     namespace
+    prop_reorder_exceptions
     Returns
     -------
     """
@@ -136,7 +142,9 @@ def generate_class_file(typename, props, description, namespace):
         + "Component, _explicitize_args\n\n\n"
     )
 
-    class_string = generate_class_string(typename, props, description, namespace)
+    class_string = generate_class_string(
+        typename, props, description, namespace, prop_reorder_exceptions
+    )
     file_name = "{:s}.py".format(typename)
 
     file_path = os.path.join(namespace, file_name)
@@ -176,7 +184,7 @@ def generate_classes_files(project_shortname, metadata, *component_generators):
     return components
 
 
-def generate_class(typename, props, description, namespace):
+def generate_class(typename, props, description, namespace, prop_reorder_exceptions):
     """Generate a Python class object given a class string.
     Parameters
     ----------
@@ -187,7 +195,9 @@ def generate_class(typename, props, description, namespace):
     Returns
     -------
     """
-    string = generate_class_string(typename, props, description, namespace)
+    string = generate_class_string(
+        typename, props, description, namespace, prop_reorder_exceptions
+    )
     scope = {"Component": Component, "_explicitize_args": _explicitize_args}
     # pylint: disable=exec-used
     exec(string, scope)
@@ -223,10 +233,6 @@ def create_docstring(component_name, props, description):
     str
         Dash component docstring
     """
-    # Ensure props are ordered with children first
-    props = (
-        props if component_name in REORDER_EXCEPTIONS else reorder_props(props=props)
-    )
 
     return (
         "A{n} {name} component.\n{description}\n\nKeyword arguments:\n{args}"
