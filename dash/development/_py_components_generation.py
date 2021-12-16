@@ -8,15 +8,6 @@ from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from .base_component import Component
 
-REORDER_EXCEPTIONS = [
-    "RangeSlider",
-    "Slider",
-    "DataTable",
-    "Dropdown",
-    "RadioItem",
-    "Checklist",
-]
-
 
 # pylint: disable=unused-argument
 def generate_class_string(
