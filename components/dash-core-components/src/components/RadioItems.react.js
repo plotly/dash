@@ -132,13 +132,6 @@ RadioItems.propTypes = {
     ]),
 
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
-    /**
      * The currently selected value
      */
     value: PropTypes.oneOfType([
@@ -146,6 +139,13 @@ RadioItems.propTypes = {
         PropTypes.number,
         PropTypes.bool,
     ]),
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * The style of the container (div)
