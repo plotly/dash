@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Changed
-- [#1869](https://github.com/plotly/dash/pull/1869) Upgrade Plotly.js to v2.4.2. This includes:
+- [#1869](https://github.com/plotly/dash/pull/1869) Upgrade Plotly.js to v2.8.3. This includes:
   - [Feature release 2.5.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
     - 3D traces are now compatible with `no-unsafe-eval` CSP rules.
   - [Feature release 2.6.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
@@ -17,7 +17,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     - Add horizontal colorbars.
     - Add text data on `heatmap` and related trace types.
     - Control legend group title fonts.
-  - Patch releases [2.5.1](https://github.com/plotly/plotly.js/releases/tag/v2.5.1), [2.6.1](https://github.com/plotly/plotly.js/releases/tag/v2.6.1), [2.6.2](https://github.com/plotly/plotly.js/releases/tag/v2.6.2), [2.6.3](https://github.com/plotly/plotly.js/releases/tag/v2.6.3), [2.6.4](https://github.com/plotly/plotly.js/releases/tag/v2.6.4), and [2.8.1](https://github.com/plotly/plotly.js/releases/tag/v2.8.1) containing bugfixes.
+  - Patch releases [2.5.1](https://github.com/plotly/plotly.js/releases/tag/v2.5.1), [2.6.1](https://github.com/plotly/plotly.js/releases/tag/v2.6.1), [2.6.2](https://github.com/plotly/plotly.js/releases/tag/v2.6.2), [2.6.3](https://github.com/plotly/plotly.js/releases/tag/v2.6.3), [2.6.4](https://github.com/plotly/plotly.js/releases/tag/v2.6.4), [2.8.1](https://github.com/plotly/plotly.js/releases/tag/v2.8.1), [2.8.2](https://github.com/plotly/plotly.js/releases/tag/v2.8.2), and [2.8.3](https://github.com/plotly/plotly.js/releases/tag/v2.8.3) containing bugfixes.
   - This PR also upgrades various other dependencies of dash renderer and component suites.
 
 - [#1745](https://github.com/plotly/dash/pull/1745):
