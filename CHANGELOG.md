@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Changed
-- [#1869](https://github.com/plotly/dash/pull/1869) Upgrade Plotly.js to v2.8.3. This includes:
+- [#1869](https://github.com/plotly/dash/pull/1869), [#1873](https://github.com/plotly/dash/pull/1873) Upgrade Plotly.js to v2.8.3. This includes:
   - [Feature release 2.5.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
     - 3D traces are now compatible with `no-unsafe-eval` CSP rules.
   - [Feature release 2.6.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
