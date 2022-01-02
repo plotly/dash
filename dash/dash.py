@@ -446,7 +446,6 @@ class Dash:
             config.routes_pathname_prefix.replace("/", "_"), "dash_assets"
         )
 
-        print(assets_blueprint_name)
         self.server.register_blueprint(
             flask.Blueprint(
                 assets_blueprint_name,
