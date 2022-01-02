@@ -370,3 +370,19 @@ def test_title():
     assert "<title>Hello World</title>" in app.index()
     app = Dash(title="Custom Title")
     assert "<title>Custom Title</title>" in app.index()
+
+
+def test_app_delayed_config():
+    app = Dash(server=False)
+    app.init_app(app=Flask("test"), requests_pathname_prefix="/dash/")
+
+    assert app.config.requests_pathname_prefix == "/dash/"
+
+    with pytest.raises(AttributeError):
+        app.config.name = "cannot update me"
+
+
+def test_app_invalid_delayed_config():
+    app = Dash(server=False)
+    with pytest.raises(AttributeError):
+        app.init_app(app=Flask("test"), name="too late 2 update")

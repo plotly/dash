@@ -356,17 +356,10 @@ class Dash:
                 "assets_folder",
                 "assets_url_path",
                 "eager_loading",
-                "url_base_pathname",
-                "routes_pathname_prefix",
-                "requests_pathname_prefix",
                 "serve_locally",
                 "compress",
             ],
             "Read-only: can only be set in the Dash constructor",
-        )
-        self.config.finalize(
-            "Invalid config key. Some settings are only available "
-            "via the Dash constructor"
         )
 
         # keep title as a class property for backwards compatibility
@@ -427,8 +420,23 @@ class Dash:
 
         self.logger.setLevel(logging.INFO)
 
-    def init_app(self, app=None):
+    def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
+
+        self.config.update(kwargs)
+        self.config.set_read_only(
+            [
+                "url_base_pathname",
+                "routes_pathname_prefix",
+                "requests_pathname_prefix",
+            ],
+            "Read-only: can only be set in the Dash constructor or during init_app()",
+        )
+
+        self.config.finalize(
+            "Invalid config key. Some settings are only available "
+            "via the Dash constructor"
+        )
         config = self.config
 
         if app is not None:
@@ -438,6 +446,7 @@ class Dash:
             config.routes_pathname_prefix.replace("/", "_"), "dash_assets"
         )
 
+        print(assets_blueprint_name)
         self.server.register_blueprint(
             flask.Blueprint(
                 assets_blueprint_name,
