@@ -1036,15 +1036,19 @@ function getCallbackByOutput(graphs, paths, id, prop) {
 function addResolvedFromOutputs(callback, outPattern, outs, matches) {
     const out0Keys = Object.keys(outPattern.id).sort();
     const out0PatternVals = props(out0Keys, outPattern.id);
+    const foundCbIds = {};
     outs.forEach(({id: outId}) => {
         const outVals = props(out0Keys, outId);
-        matches.push(
-            makeResolvedCallback(
-                callback,
-                resolveDeps(out0Keys, outVals, out0PatternVals),
-                getAnyVals(out0PatternVals, outVals)
-            )
+        const resolved = makeResolvedCallback(
+            callback,
+            resolveDeps(out0Keys, outVals, out0PatternVals),
+            getAnyVals(out0PatternVals, outVals)
         );
+        const {resolvedId} = resolved;
+        if (!foundCbIds[resolvedId]) {
+            matches.push(resolved);
+            foundCbIds[resolvedId] = true;
+        }
     });
 }
 
