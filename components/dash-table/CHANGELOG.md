@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+### Added
+- [#1883](https://github.com/plotly/dash/pull/1883) Add `page_current` to `persisted_props` as requested in [#1860](https://github.com/plotly/dash/issues/1860)
+
 ### Fixed
 - [#1778](https://github.com/plotly/dash/pull/1778) Fix React warnings stating
   that each child in a list should have a unique "key" prop
