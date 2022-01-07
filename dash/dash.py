@@ -361,6 +361,10 @@ class Dash:
             ],
             "Read-only: can only be set in the Dash constructor",
         )
+        self.config.finalize(
+            "Invalid config key. Some settings are only available "
+            "via the Dash constructor"
+        )
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -433,10 +437,6 @@ class Dash:
             "Read-only: can only be set in the Dash constructor or during init_app()",
         )
 
-        self.config.finalize(
-            "Invalid config key. Some settings are only available "
-            "via the Dash constructor"
-        )
         config = self.config
 
         if app is not None:
