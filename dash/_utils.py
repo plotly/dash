@@ -137,22 +137,36 @@ class AttributeDict(dict):
         raise AttributeError(key)
 
     def set_read_only(self, names, msg="Attribute is read-only"):
-        object.__setattr__(self, "_read_only", names)
-        object.__setattr__(self, "_read_only_msg", msg)
+        """
+        Designate named attributes as read-only with the corresponding msg
+
+        Method is additive. Making additional calls to this method will update
+        existing messages and add to the current set of _read_only names.
+        """
+        new_read_only = {name: msg for name in names}
+        if getattr(self, "_read_only", False):
+            self._read_only.update(new_read_only)
+        else:
+            object.__setattr__(self, "_read_only", new_read_only)
 
     def finalize(self, msg="Object is final: No new keys may be added."):
         """Prevent any new keys being set."""
         object.__setattr__(self, "_final", msg)
 
     def __setitem__(self, key, val):
-        if key in self.__dict__.get("_read_only", []):
-            raise AttributeError(self._read_only_msg, key)
+        if key in self.__dict__.get("_read_only", {}):
+            raise AttributeError(self._read_only[key], key)
 
         final_msg = self.__dict__.get("_final")
         if final_msg and key not in self:
             raise AttributeError(final_msg, key)
 
         return super().__setitem__(key, val)
+
+    def update(self, other):
+        # Overrides dict.update() to use __setitem__ above
+        for k, v in other.items():
+            self[k] = v
 
     # pylint: disable=inconsistent-return-statements
     def first(self, *names):
