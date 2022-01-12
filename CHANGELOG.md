@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Changed
+- [#1876](https://github.com/plotly/dash/pull/1876) Delays finalizing `Dash.config` attributes not used in the constructor until `init_app()`.
 - [#1869](https://github.com/plotly/dash/pull/1869), [#1873](https://github.com/plotly/dash/pull/1873) Upgrade Plotly.js to v2.8.3. This includes:
   - [Feature release 2.5.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
     - 3D traces are now compatible with `no-unsafe-eval` CSP rules.
@@ -29,6 +30,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     - `dash[ci]`: mainly for internal use, these are additional requirements for the Dash CI tests, exposed for other component libraries to use a matching configuration.
 
 ### Added
+- [#1883](https://github.com/plotly/dash/pull/1883) in DataTable added `page_current` to `persisted_props` as requested in [#1860](https://github.com/plotly/dash/issues/1860)
+
+
 
 - [#1763](https://github.com/plotly/dash/pull/1763):
     ## Dash and Dash Renderer
@@ -183,6 +187,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1779](https://github.com/plotly/dash/pull/1779):
     - Clean up our handling of serialization problems, including fixing `orjson` for Python 3.6
     - Added the ability for `dash.testing` `percy_snapshot` methods to choose widths to generate.
+  
+- [#1778](https://github.com/plotly/dash/pull/1778) DataTable: Fix React warnings stating
+  that each child in a list should have a unique "key" prop
 
 ## [2.0.0] - 2021-08-03
 
