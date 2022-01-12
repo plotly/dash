@@ -102,20 +102,23 @@ export function getPriority(
     callback: ICallback
 ): string {
     let callbacks: ICallback[] = [callback];
-    let touchedOutputs: {[key: string]: boolean} = {};
+    const touchedOutputs: {[key: string]: boolean} = {};
+    const touchedCbIds: {[key: string]: boolean} = {};
     const priority: number[] = [];
 
     while (callbacks.length) {
+        callbacks = filter(c => {
+            const touched = touchedCbIds[c.resolvedId];
+            touchedCbIds[c.resolvedId] = true;
+            return touched;
+        }, callbacks);
+
         const outputs = filter(
             o => !touchedOutputs[combineIdAndProp(o)],
             flatten(map(cb => flatten(cb.getOutputs(paths)), callbacks))
         );
 
-        touchedOutputs = reduce(
-            (touched, o) => assoc(combineIdAndProp(o), true, touched),
-            touchedOutputs,
-            outputs
-        );
+        outputs.forEach(o => (touchedOutputs[combineIdAndProp(o)] = true));
 
         callbacks = flatten(
             map(

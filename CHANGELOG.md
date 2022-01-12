@@ -178,6 +178,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     ```
 
 ### Fixed
+- [#1879](https://github.com/plotly/dash/pull/1879) Delete redundancy in pattern-matching callback implementation, specifically when `ALL` and `MATCH` wildcards are used together. This patch was submitted by an anonymous Dash Enterprise customer. Many thanks!
+
 - [#1858](https://github.com/plotly/dash/pull/1858) Support `mini-css-extract-plugin` Webpack plugin with `@plotly/webpack-dash-dynamic-import` node package - used by components to support dash async chunks. Updated dependencies of other `@plotly` node packages.
 
 - [#1836](https://github.com/plotly/dash/pull/1836) Fix `__all__` in dcc and table for extras: dcc download helpers and table format helpers. This also restores this functionality to the obsolete top-level packages `dash_core_components` and `dash_table`.
@@ -187,7 +189,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1779](https://github.com/plotly/dash/pull/1779):
     - Clean up our handling of serialization problems, including fixing `orjson` for Python 3.6
     - Added the ability for `dash.testing` `percy_snapshot` methods to choose widths to generate.
-  
+
 - [#1778](https://github.com/plotly/dash/pull/1778) DataTable: Fix React warnings stating
   that each child in a list should have a unique "key" prop
 
