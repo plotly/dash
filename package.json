@@ -37,7 +37,7 @@
     "test": "pytest && cd dash/dash-renderer && npm run test"
   },
   "devDependencies": {
-    "husky": "7.0.0",
+    "husky": "7.0.4",
     "lerna": "^4.0.0",
     "@lerna/filter-options": "^4.0.0"
   },

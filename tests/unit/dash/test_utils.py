@@ -24,12 +24,13 @@ def test_ddut001_attribute_dict():
     assert a.k == 2
     assert a["k"] == 2
 
-    a.set_read_only(["k", "q"], "boo")
+    a.set_read_only(["k"], "boo")
 
     with pytest.raises(AttributeError) as err:
         a.k = 3
     assert err.value.args == ("boo", "k")
     assert a.k == 2
+    assert a._read_only == {"k": "boo"}
 
     with pytest.raises(AttributeError) as err:
         a["k"] = 3
@@ -38,13 +39,11 @@ def test_ddut001_attribute_dict():
 
     a.set_read_only(["q"])
 
-    a.k = 3
-    assert a.k == 3
-
     with pytest.raises(AttributeError) as err:
         a.q = 3
     assert err.value.args == ("Attribute is read-only", "q")
     assert "q" not in a
+    assert a._read_only == {"k": "boo", "q": "Attribute is read-only"}
 
     a.finalize("nope")
 

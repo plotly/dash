@@ -101,6 +101,7 @@ export const defaultProps = {
         'columns.name',
         'filter_query',
         'hidden_columns',
+        'page_current',
         'selected_columns',
         'selected_rows',
         'sort_by'
@@ -1537,6 +1538,7 @@ export const propTypes = {
             'data',
             'filter_query',
             'hidden_columns',
+            'page_current',
             'selected_columns',
             'selected_rows',
             'sort_by'
