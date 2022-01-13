@@ -156,6 +156,36 @@ export const propTypes = {
             ]).isRequired,
 
             /**
+             * The data-type provides support for per column typing and allows for data
+             * validation and coercion.
+             * 'numeric': represents both floats and ints.
+             * 'text': represents a string.
+             * 'datetime': a string representing a date or date-time, in the form:
+             *   'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must
+             *   have 4 digits, unless you use `validation.allow_YY: true`. Also
+             *   accepts 'T' or 't' between date and time, and allows timezone info
+             *   at the end. To convert these strings to Python `datetime` objects,
+             *   use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the
+             *   `parsedate` library.
+             *   WARNING: these parsers do not work with 2-digit years, if you use
+             *   `validation.allow_YY: true` and do not coerce to 4-digit years.
+             *   And parsers that do work with 2-digit years may make a different
+             *   guess about the century than we make on the front end.
+             * 'any': represents any type of data.
+             * Defaults to 'any' if undefined.
+             *
+             *
+             */
+            type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime']),
+
+            /**
+             * The `presentation` to use to display data. Markdown can be used on
+             * columns with type 'text'.  See 'dropdown' for more info.
+             * Defaults to 'input' for ['datetime', 'numeric', 'text', 'any'].
+             */
+            presentation: PropTypes.oneOf(['input', 'dropdown', 'markdown']),
+
+            /**
              * If true, the user can select the column by clicking on the checkbox or radio button
              * in the column. If there are multiple header rows, true will display the input
              * on each row.
@@ -293,29 +323,6 @@ export const propTypes = {
             }),
 
             /**
-             * The data-type provides support for per column typing and allows for data
-             * validation and coercion.
-             * 'numeric': represents both floats and ints.
-             * 'text': represents a string.
-             * 'datetime': a string representing a date or date-time, in the form:
-             *   'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must
-             *   have 4 digits, unless you use `validation.allow_YY: true`. Also
-             *   accepts 'T' or 't' between date and time, and allows timezone info
-             *   at the end. To convert these strings to Python `datetime` objects,
-             *   use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the
-             *   `parsedate` library.
-             *   WARNING: these parsers do not work with 2-digit years, if you use
-             *   `validation.allow_YY: true` and do not coerce to 4-digit years.
-             *   And parsers that do work with 2-digit years may make a different
-             *   guess about the century than we make on the front end.
-             * 'any': represents any type of data.
-             * Defaults to 'any' if undefined.
-             *
-             *
-             */
-            type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime']),
-
-            /**
              * The formatting applied to the column's data.
              * This prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from
              * being structured slightly differently (under a single prop), the usage is the same.
@@ -376,13 +383,6 @@ export const propTypes = {
             }),
 
             /**
-             * The `presentation` to use to display data. Markdown can be used on
-             * columns with type 'text'.  See 'dropdown' for more info.
-             * Defaults to 'input' for ['datetime', 'numeric', 'text', 'any'].
-             */
-            presentation: PropTypes.oneOf(['input', 'dropdown', 'markdown']),
-
-            /**
              * The `on_change` behavior of the column for user-initiated modifications.
              */
             on_change: PropTypes.exact({
@@ -438,17 +438,6 @@ export const propTypes = {
             })
         })
     ),
-
-    /**
-     * The row and column indices and IDs of the currently active cell.
-     * `row_id` is only returned if the data rows have an `id` key.
-     */
-    active_cell: PropTypes.exact({
-        row: PropTypes.number,
-        column: PropTypes.number,
-        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        column_id: PropTypes.string
-    }),
 
     /**
      * If True, then the data in all of the cells is editable.
@@ -545,12 +534,6 @@ export const propTypes = {
     column_selectable: PropTypes.oneOf(['single', 'multi', false]),
 
     /**
-     * If True, then a `x` will appear next to each `row`
-     * and the user can delete the row.
-     */
-    row_deletable: PropTypes.bool,
-
-    /**
      * If True (default), then it is possible to click and navigate
      * table cells.
      */
@@ -567,6 +550,23 @@ export const propTypes = {
      * in `selected_rows`.
      */
     row_selectable: PropTypes.oneOf(['single', 'multi', false]),
+
+    /**
+     * If True, then a `x` will appear next to each `row`
+     * and the user can delete the row.
+     */
+    row_deletable: PropTypes.bool,
+
+    /**
+     * The row and column indices and IDs of the currently active cell.
+     * `row_id` is only returned if the data rows have an `id` key.
+     */
+    active_cell: PropTypes.exact({
+        row: PropTypes.number,
+        column: PropTypes.number,
+        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        column_id: PropTypes.string
+    }),
 
     /**
      * `selected_cells` represents the set of cells that are selected,
