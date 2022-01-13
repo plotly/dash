@@ -6,7 +6,7 @@ Glad that you decided to make your contribution in Dash, to set up your developm
 
 ```bash
 # in your working directory
-$ git clone https://github.com/plotly/dash
+$ git clone git@github.com:plotly/dash.git
 $ cd dash
 $ python3 -m venv .venv/dev
 # activate the virtualenv

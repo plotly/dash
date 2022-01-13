@@ -5,6 +5,21 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Changed
+- [#1876](https://github.com/plotly/dash/pull/1876) Delays finalizing `Dash.config` attributes not used in the constructor until `init_app()`.
+- [#1869](https://github.com/plotly/dash/pull/1869), [#1873](https://github.com/plotly/dash/pull/1873) Upgrade Plotly.js to v2.8.3. This includes:
+  - [Feature release 2.5.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+    - 3D traces are now compatible with `no-unsafe-eval` CSP rules.
+  - [Feature release 2.6.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+    - Add `smith` subplots and `scattersmith` traces, for drawing Smith charts.
+  - [Feature release 2.7.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+    - Add text data for `histogram` traces.
+    - Fix an interaction between `uirevision` and `autorange` that pops up in some cases of mixed clientside / serverside figure generation.
+  - [Feature release 2.8.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+    - Add horizontal colorbars.
+    - Add text data on `heatmap` and related trace types.
+    - Control legend group title fonts.
+  - Patch releases [2.5.1](https://github.com/plotly/plotly.js/releases/tag/v2.5.1), [2.6.1](https://github.com/plotly/plotly.js/releases/tag/v2.6.1), [2.6.2](https://github.com/plotly/plotly.js/releases/tag/v2.6.2), [2.6.3](https://github.com/plotly/plotly.js/releases/tag/v2.6.3), [2.6.4](https://github.com/plotly/plotly.js/releases/tag/v2.6.4), [2.8.1](https://github.com/plotly/plotly.js/releases/tag/v2.8.1), [2.8.2](https://github.com/plotly/plotly.js/releases/tag/v2.8.2), and [2.8.3](https://github.com/plotly/plotly.js/releases/tag/v2.8.3) containing bugfixes.
+  - This PR also upgrades various other dependencies of dash renderer and component suites.
 
 - [#1745](https://github.com/plotly/dash/pull/1745):
     Improve our `extras_require`: there are now five options here, each with a well-defined role:
@@ -15,6 +30,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     - `dash[ci]`: mainly for internal use, these are additional requirements for the Dash CI tests, exposed for other component libraries to use a matching configuration.
 
 ### Added
+- [#1883](https://github.com/plotly/dash/pull/1883) in DataTable added `page_current` to `persisted_props` as requested in [#1860](https://github.com/plotly/dash/issues/1860)
+
+
 
 - [#1763](https://github.com/plotly/dash/pull/1763):
     ## Dash and Dash Renderer
@@ -160,6 +178,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     ```
 
 ### Fixed
+- [#1879](https://github.com/plotly/dash/pull/1879) Delete redundancy in pattern-matching callback implementation, specifically when `ALL` and `MATCH` wildcards are used together. This patch was submitted by an anonymous Dash Enterprise customer. Many thanks!
+
 - [#1858](https://github.com/plotly/dash/pull/1858) Support `mini-css-extract-plugin` Webpack plugin with `@plotly/webpack-dash-dynamic-import` node package - used by components to support dash async chunks. Updated dependencies of other `@plotly` node packages.
 
 - [#1836](https://github.com/plotly/dash/pull/1836) Fix `__all__` in dcc and table for extras: dcc download helpers and table format helpers. This also restores this functionality to the obsolete top-level packages `dash_core_components` and `dash_table`.
@@ -169,6 +189,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1779](https://github.com/plotly/dash/pull/1779):
     - Clean up our handling of serialization problems, including fixing `orjson` for Python 3.6
     - Added the ability for `dash.testing` `percy_snapshot` methods to choose widths to generate.
+
+- [#1778](https://github.com/plotly/dash/pull/1778) DataTable: Fix React warnings stating
+  that each child in a list should have a unique "key" prop
 
 ## [2.0.0] - 2021-08-03
 
