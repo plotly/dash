@@ -148,6 +148,13 @@ Checklist.propTypes = {
     ),
 
     /**
+     * Indicates whether labelStyle should be inline or not
+     * True: Automatically set { 'display': 'inline-block' } to labelStyle
+     * False: No additional styles are passed into labelStyle.
+     */
+    inline: PropTypes.bool,
+
+    /**
      * The class of the container (div)
      */
     className: PropTypes.string,
@@ -237,13 +244,6 @@ Checklist.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
-
-    /**
-     * Indicates whether labelStyle should be inline or not
-     * True: Automatically set { 'display': 'inline-block' } to labelStyle
-     * False: No additional styles are passed into labelStyle.
-     */
-    inline: PropTypes.bool,
 };
 
 Checklist.defaultProps = {
