@@ -54,7 +54,7 @@ module.exports = (env, argv) => {
         },
         externals,
         module: {
-            noParse: /node_modules[\\\/]plotly.js/,
+            noParse: /node_modules[\\\/]plotly.js-dist-min/,
             rules: [
                 {
                     test: /\.jsx?$/,
@@ -112,7 +112,7 @@ module.exports = (env, argv) => {
         },
         resolve: {
             alias: {
-                'plotly.js': 'plotly.js/dist/plotly.min.js'
+                'plotly.js': 'plotly.js-dist-min/plotly.min.js'
             }
         },
         optimization: {
