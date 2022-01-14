@@ -98,19 +98,28 @@ export default class Link extends Component {
 
 Link.propTypes = {
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
+     * The children of this component
      */
-    id: PropTypes.string,
+    children: PropTypes.node,
     /**
      * The URL of a linked resource.
      */
     href: PropTypes.string.isRequired,
     /**
+     * Specifies where to open the link reference.
+     */
+    target: PropTypes.string,
+    /**
      * Controls whether or not the page will refresh when the link is clicked
      */
     refresh: PropTypes.bool,
+
+    /**
+     * Adds the title attribute to your link, which can contain supplementary
+     * information.
+     */
+    title: PropTypes.string,
+
     /**
      * Often used with CSS to style elements with common properties.
      */
@@ -120,18 +129,11 @@ Link.propTypes = {
      */
     style: PropTypes.object,
     /**
-     * Adds the title attribute to your link, which can contain supplementary
-     * information.
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
      */
-    title: PropTypes.string,
-    /**
-     * Specifies where to open the link reference.
-     */
-    target: PropTypes.string,
-    /**
-     * The children of this component
-     */
-    children: PropTypes.node,
+    id: PropTypes.string,
     /**
      * Object that holds the loading state object coming from dash-renderer
      */
