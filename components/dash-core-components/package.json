@@ -42,6 +42,7 @@
     "@fortawesome/react-fontawesome": "^0.1.16",
     "base64-js": "^1.5.1",
     "color": "^4.1.0",
+    "d3-format": "^1.4.5",
     "fast-isnumeric": "^1.1.4",
     "file-saver": "^2.0.5",
     "highlight.js": "^11.3.1",
