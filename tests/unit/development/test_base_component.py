@@ -476,7 +476,7 @@ def test_debc027_component_error_message():
     )
 
 
-def test_set_random_id():
+def test_debc028_set_random_id():
     app = Dash(__name__)
 
     input1 = dcc.Input(value="Hello Input 1")
@@ -496,7 +496,7 @@ def test_set_random_id():
         return f"Input 2 {v}"
 
     @app.callback(
-        Output("output-3", "children"), Input(input1, "value"), Input(input2, "value")
+        Output(output3, "children"), Input(input1, "value"), Input(input2, "value")
     )
     def update(v1, v2):
         return f"Output 3 - Input 1: {v1}, Input 2: {v2}"
@@ -508,3 +508,21 @@ def test_set_random_id():
     assert input2.id == "23a7711a-8133-2876-37eb-dcd9e87a1613"
     # we make sure that the if the id is set explicitly, then it is not replaced by random id
     assert output3.id == "output-3"
+
+
+def test_debc029_random_id_errors():
+    app = Dash(__name__)
+
+    input1 = dcc.Input(value="Hello Input 1", persistence=True)
+    output1 = html.Div()
+
+    app.layout = html.Div([input1, output1])
+
+    with pytest.raises(RuntimeError) as e:
+
+        @app.callback(Output(output1, "children"), Input(input1, "value"))
+        def update(v):
+            return f"Input 1 {v}"
+
+    assert "persistence" in e.value.args[0]
+    assert "Please assign an explicit ID" in e.value.args[0]

@@ -167,7 +167,29 @@ class Component(metaclass=ComponentMeta):
 
             setattr(self, k, v)
 
-    def set_random_id(self):
+    def _set_random_id(self):
+        if getattr(self, "persistence", False):
+            raise RuntimeError(
+                """
+                Attempting to use an auto-generated ID with the `persistence` prop.
+                This is prohibited because persistence is tied to component IDs and
+                auto-generated IDs can easily change.
+
+                Please assign an explicit ID to this component.
+            """
+            )
+        if "dash_snapshots" in sys.modules:
+            raise RuntimeError(
+                """
+                Attempting to use an auto-generated ID in an app with `dash_snapshots`.
+                This is prohibited because snapshots saves the whole app layout,
+                including component IDs, and auto-generated IDs can easily change.
+                Callbacks referencing the new IDs will not work old snapshots.
+
+                Please assign an explicit ID to this component.
+            """
+            )
+
         if not hasattr(self, "id"):
             v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
             setattr(self, "id", v)
