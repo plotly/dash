@@ -526,3 +526,11 @@ def test_debc029_random_id_errors():
 
     assert "persistence" in e.value.args[0]
     assert "Please assign an explicit ID" in e.value.args[0]
+    assert "dash_core_components.Input" in e.value.args[0]
+
+    input1.id = "explicit"
+
+    # now it works without error
+    @app.callback(Output(output1, "children"), Input(input1, "value"))
+    def update2(v):
+        return f"Input 1 {v}"
