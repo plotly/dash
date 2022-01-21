@@ -36,7 +36,7 @@ import {ICallback, IStoredCallback} from '../types/callbacks';
 import {updateProps, setPaths, handleAsyncError} from '../actions';
 import {getPath, computePaths} from '../actions/paths';
 
-import {applyPersistence, prunePersistence} from '../persistence';
+import {applyPersistence, prunePersistence, setPersistance} from '../persistence';
 import {IStoreObserverDefinition} from '../StoreObserver';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
@@ -64,6 +64,9 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             // In case the update contains whole components, see if any of
             // those components have props to update to persist user edits.
             const {props} = applyPersistence({props: updatedProps}, dispatch);
+
+            // Save props to storage if persistance is active.
+            setPersistance(path(itempath, layout), updatedProps, dispatch)
 
             dispatch(
                 updateProps({

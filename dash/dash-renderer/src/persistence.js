@@ -306,6 +306,53 @@ const getProps = layout => {
     };
 };
 
+export function setPersistance(layout, newProps, dispatch) {
+    const {
+        canPersist,
+        id,
+        props,
+        element,
+        persistence,
+        persisted_props,
+        persistence_type
+    } = getProps(layout);
+
+    const getFinal = (propName, prevVal) =>
+        propName in newProps ? newProps[propName] : prevVal;
+    const finalPersistence = getFinal('persistence', persistence);
+
+    if (!canPersist || !finalPersistence || finalPersistence !== persistence) {
+        return;
+    }
+
+    forEach(persistedProp => {
+        const [propName, propPart] = persistedProp.split('.');
+        if (newProps[propName] !== undefined) {
+            const storage = getStore(persistence_type, dispatch);
+            const {extract} = getTransform(element, propName, propPart);
+
+            const valsKey = getValsKey(id, persistedProp, persistence);
+            let originalVal = extract(props[propName]);
+            const newVal = extract(newProps[propName]);
+
+            if (originalVal !== newVal) {
+                if (storage.hasItem(valsKey)) {
+                    originalVal = storage.getItem(valsKey)[1];
+                    if (newVal !== originalVal) {
+                        storage.setItem(valsKey, [newVal, originalVal], dispatch);
+                    }
+                    else {
+                        storage.removeItem(valsKey)
+                    }
+                }
+                else {
+                    storage.setItem(valsKey, [newVal, originalVal], dispatch);
+                }
+            }
+        }
+    }, persisted_props);
+}
+
 export function recordUiEdit(layout, newProps, dispatch) {
     const {
         canPersist,
@@ -516,28 +563,6 @@ export function prunePersistence(layout, newProps, dispatch) {
                     ),
                 filter(notInNewProps, finalPersistedProps)
             );
-        }
-
-        // now the main point - clear any edit of a prop that changed
-        // note that this is independent of the new prop value.
-        const transforms = element.persistenceTransforms || {};
-        for (const propName in newProps) {
-            const propTransforms = transforms[propName];
-            if (propTransforms) {
-                for (const propPart in propTransforms) {
-                    finalStorage.removeItem(
-                        getValsKey(
-                            id,
-                            `${propName}.${propPart}`,
-                            finalPersistence
-                        )
-                    );
-                }
-            } else {
-                finalStorage.removeItem(
-                    getValsKey(id, propName, finalPersistence)
-                );
-            }
         }
     }
     return persistenceChanged ? mergeRight(newProps, update) : newProps;
