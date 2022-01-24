@@ -339,13 +339,15 @@ export function setPersistance(layout, newProps, dispatch) {
                 if (storage.hasItem(valsKey)) {
                     originalVal = storage.getItem(valsKey)[1];
                     if (newVal !== originalVal) {
-                        storage.setItem(valsKey, [newVal, originalVal], dispatch);
+                        storage.setItem(
+                            valsKey,
+                            [newVal, originalVal],
+                            dispatch
+                        );
+                    } else {
+                        storage.removeItem(valsKey);
                     }
-                    else {
-                        storage.removeItem(valsKey)
-                    }
-                }
-                else {
+                } else {
                     storage.setItem(valsKey, [newVal, originalVal], dispatch);
                 }
             }

@@ -558,3 +558,64 @@ def test_rdps013_persisted_props_nested(dash_duo):
     # persistenceTransforms should return upper case strings
     dash_duo.wait_for_text_to_equal("#component-propName", "ALPACA")
     dash_duo.wait_for_text_to_equal("#component-propPart", "ARTICHOKE")
+
+
+def test_rdps014_save_callback_persistence(dash_duo):
+    app = dash.Dash(__name__)
+
+    def make_input(persistence):
+        return dcc.Input(id="persisted", value="a", persistence=persistence)
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="persistence-val", value=""),
+            dcc.Input(id="persistence-key", value=""),
+            html.Div(make_input(""), id="persisted-container"),
+            html.Div(id="out"),
+        ]
+    )
+
+    # this is not a good way to set persistence, as it doesn't allow you to
+    # get the right initial value. Much better is to update the whole component
+    # as we do in the previous test case... but it shouldn't break this way.
+    @app.callback(
+        Output("persisted", "persistence"), [Input("persistence-key", "value")]
+    )
+    def set_persistence(val):
+        return val
+
+    @app.callback(Output("persisted", "value"), [Input("persistence-val", "value")])
+    def set_value(val):
+        return val
+
+    @app.callback(Output("out", "children"), [Input("persisted", "value")])
+    def set_out(val):
+        return val
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#out", "")
+
+    dash_duo.find_element("#persistence-key").send_keys("a")
+    time.sleep(0.2)
+    assert not dash_duo.get_logs()
+    dash_duo.wait_for_text_to_equal("#out", "")
+    dash_duo.find_element("#persistence-val").send_keys("alpaca")
+    dash_duo.wait_for_text_to_equal("#out", "alpaca")
+
+    dash_duo.find_element("#persistence-key").send_keys("b")
+    dash_duo.wait_for_text_to_equal("#out", "")
+    dash_duo.clear_input("#persistence-val")
+    dash_duo.find_element("#persistence-val").send_keys("artichoke")
+    dash_duo.wait_for_text_to_equal("#out", "artichoke")
+
+    # no persistence, still goes back to original value
+    dash_duo.clear_input("#persistence-key")
+    dash_duo.wait_for_text_to_equal("#out", "")
+
+    # apricot and artichoke saved
+    dash_duo.find_element("#persistence-key").send_keys("a")
+    dash_duo.wait_for_text_to_equal("#out", "alpaca")
+    dash_duo.find_element("#persistence-key").send_keys("b")
+    assert not dash_duo.get_logs()
+    dash_duo.wait_for_text_to_equal("#out", "artichoke")
