@@ -146,7 +146,6 @@ class PlotlyGraph extends Component {
         const {animate, animation_options, responsive} = props;
 
         const gd = this.gd.current;
-
         figure = props._dashprivate_transformFigure(figure, gd);
         config = props._dashprivate_transformConfig(config, gd);
 
@@ -155,7 +154,19 @@ class PlotlyGraph extends Component {
             this._hasPlotted &&
             figure.data.length === gd.data.length
         ) {
-            return Plotly.animate(gd, figure, animation_options);
+            // in case we've have figure frames,
+            // we need to recreate frames before animation
+            let result;
+            if (figure.frames) {
+                result = Plotly.deleteFrames(gd).then(() => {
+                    return Plotly.addFrames(gd, figure.frames).then(() => {
+                        return Plotly.animate(gd, figure, animation_options);
+                    });
+                });
+            } else {
+                result = Plotly.animate(gd, figure, animation_options);
+            }
+            return result;
         }
 
         const configClone = this.getConfig(config, responsive);
