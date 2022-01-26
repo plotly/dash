@@ -160,7 +160,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python39
           REDIS_URL: redis://localhost:6379
-      - image: cimg/redis
+      - image: cimg/redis:6.2.6
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -172,7 +172,9 @@ jobs:
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          install-firefox: false
+          install-geckodriver: false
       - attach_workspace:
           at: ~/dash
       - run:
@@ -206,7 +208,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python36
           REDIS_URL: redis://localhost:6379
-      - image: cimg/redis
+      - image: cimg/redis:6.2.6
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -267,7 +269,9 @@ jobs:
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          install-firefox: false
+          install-geckodriver: false
       - attach_workspace:
           at: ~/dash
       - run:
@@ -282,7 +286,7 @@ jobs:
             . venv/bin/activate && rm -rf components/dash-core-components/dash_core_components
             cd components/dash-core-components
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components." ${TESTFILES}
       - store_artifacts:
           path: ~/dash/components/dash-core-components/test-reports
       - store_test_results:
@@ -322,7 +326,9 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - restore_cache:
           key: html-{{ checksum "components/dash-html-components/package.json" }}-{{ checksum "components/dash-html-components/package-lock.json" }}
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          install-firefox: false
+          install-geckodriver: false
       - attach_workspace:
           at: ~/dash
       - run:
@@ -333,6 +339,7 @@ jobs:
             pip list | grep dash
             cd components/dash-html-components
             npm ci
+            npm run prebuild
       - save_cache:
           key: html-{{ checksum "components/dash-html-components/package.json" }}-{{ checksum "components/dash-html-components/package-lock.json" }}
           paths:
@@ -379,7 +386,9 @@ jobs:
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          install-firefox: false
+          install-geckodriver: false
       - attach_workspace:
           at: ~/dash
       - run:
@@ -398,7 +407,7 @@ jobs:
             . venv/bin/activate
             cd components/dash-table
             TESTFILES=$(circleci tests glob "tests/selenium/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+            pytest --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-table." ${TESTFILES}
       - store_artifacts:
           path: ~/dash/components/dash-table/test-reports
       - store_test_results:
@@ -422,7 +431,9 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - restore_cache:
           key: table-{{ checksum "components/dash-table/package.json" }}-{{ checksum "components/dash-table/package-lock.json" }}
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          install-firefox: false
+          install-geckodriver: false
       - attach_workspace:
           at: ~/dash
       - run:
@@ -456,7 +467,9 @@ jobs:
           path: ~/dash
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          install-firefox: false
+          install-geckodriver: false
       - run:
           name: Install package.json
           command: npm ci
