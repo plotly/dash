@@ -161,6 +161,9 @@ jobs:
           PYVERSION: python39
           REDIS_URL: redis://localhost:6379
       - image: cimg/redis
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
     parallelism: 3
     steps:
       - checkout:
@@ -204,6 +207,9 @@ jobs:
           PYVERSION: python36
           REDIS_URL: redis://localhost:6379
       - image: cimg/redis
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
 
   dcc-lint-unit-39: &dcc-lint-unit
     working_directory: ~/dash
@@ -314,15 +320,23 @@ jobs:
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+      - restore_cache:
+          key: html-{{ checksum "components/dash-html-components/package.json" }}-{{ checksum "components/dash-html-components/package-lock.json" }}
       - browser-tools/install-browser-tools
       - attach_workspace:
           at: ~/dash
       - run:
-          name: ️️🏗️ Install package
+          name: ️️🏗️ Install package and html
           command: |
             . venv/bin/activate
             pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
+            cd components/dash-html-components
+            npm ci
+      - save_cache:
+          key: html-{{ checksum "components/dash-html-components/package.json" }}-{{ checksum "components/dash-html-components/package-lock.json" }}
+          paths:
+            - components/dash-html-components/node_modules
       - run:
           name: 🧪 Run tests
           command: |
@@ -372,7 +386,6 @@ jobs:
           name: ️️🏗️ Install package
           command: |
             . venv/bin/activate
-            npm install --production
             pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
       - run:
@@ -394,7 +407,7 @@ jobs:
           path: /tmp/dash_artifacts
 
   table-unit-test:
-    working_directory: ~/dash/components/dash-table
+    working_directory: ~/dash
     docker:
       - image: cimg/python:3.9.9-browsers
         environment:
@@ -407,16 +420,23 @@ jobs:
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+      - restore_cache:
+          key: table-{{ checksum "components/dash-table/package.json" }}-{{ checksum "components/dash-table/package-lock.json" }}
       - browser-tools/install-browser-tools
       - attach_workspace:
           at: ~/dash
       - run:
-          name: ️️🏗️ Install package
+          name: ️️🏗️ Install package and table deps
           command: |
             . venv/bin/activate
-            npm install --production
             pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
+            cd components/dash-table
+            npm ci
+      - save_cache:
+          key: table-{{ checksum "components/dash-table/package.json" }}-{{ checksum "components/dash-table/package-lock.json" }}
+          paths:
+            - components/dash-table/node_modules
       - run:
           name: Run tests
           command: |
