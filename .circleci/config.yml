@@ -17,9 +17,10 @@ jobs:
           PERCY_ENABLE: 0
     steps:
       - checkout
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
@@ -40,9 +41,10 @@ jobs:
 
     steps:
       - checkout
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - run:
           name: 🏁 Build Component Packages & Update Dependencies/Artifacts
           command: |
@@ -58,7 +60,7 @@ jobs:
             ls -la dash-package
           no_output_timeout: 30m
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
           paths:
             - venv
       - persist_to_workspace:
@@ -81,7 +83,7 @@ jobs:
   lint-unit-39: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-node-browsers
+      - image: cimg/python:3.9.9-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -92,9 +94,10 @@ jobs:
 
     steps:
       - checkout
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools
       - run:
           name: ️️🏗️ pip dev requirements
@@ -120,7 +123,7 @@ jobs:
   lint-unit-36:
     <<: *lint-unit
     docker:
-      - image: cimg/python:3.6.15-node-browsers
+      - image: cimg/python:3.6.15-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -147,7 +150,7 @@ jobs:
   test-39: &test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-node-browsers
+      - image: cimg/python:3.9.9-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -162,9 +165,10 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools
       - attach_workspace:
           at: ~/dash
@@ -214,9 +218,10 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - run:
           name: 🌸 Lint
           command: |
@@ -252,9 +257,10 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools
       - attach_workspace:
           at: ~/dash
@@ -304,9 +310,10 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools
       - attach_workspace:
           at: ~/dash
@@ -343,7 +350,7 @@ jobs:
   table-server-test:
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-node-browsers
+      - image: cimg/python:3.9.9-browsers
         environment:
           PYVERSION: python39
           PERCY_ENABLE: 1
@@ -354,9 +361,10 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools
       - attach_workspace:
           at: ~/dash
@@ -388,16 +396,17 @@ jobs:
   table-unit-test:
     working_directory: ~/dash/components/dash-table
     docker:
-      - image: cimg/python:3.9.9-node-browsers
+      - image: cimg/python:3.9.9-browsers
         environment:
           PYVERSION: python39
           PERCY_ENABLE: 0
     steps:
       - checkout:
           path: ~/dash
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools
       - attach_workspace:
           at: ~/dash
@@ -454,9 +463,10 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ .Environment.PYVERSION }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "components/dash-table/package-lock.json" }}-{{ checksum "components/dash-table/package.json" }}
       - run:
