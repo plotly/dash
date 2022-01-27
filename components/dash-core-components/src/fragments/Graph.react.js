@@ -374,6 +374,24 @@ class PlotlyGraph extends Component {
         });
     }
 
+    getStyle() {
+        let {style, responsive} = this.props;
+
+        if (!responsive) {
+            return style;
+        }
+
+        if (!style) {
+            style = {};
+        }
+
+        if (!style.height) {
+            style.height = '100%';
+        }
+
+        return style;
+    }
+
     componentDidMount() {
         this.plot(this.props);
         if (this.props.prependData) {
@@ -447,7 +465,8 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id, style, loading_state} = this.props;
+        const {className, id, loading_state} = this.props;
+        const style = this.getStyle();
 
         return (
             <div
