@@ -121,12 +121,20 @@ def test_scrol002_edit_navigate(test, fixed_rows, fixed_columns, ops):
     test.send_keys("abc" + Keys.ENTER)
 
     wait.until(lambda: target.cell(1, 3).is_selected(), 3)
-    wait.until(lambda: -get_margin(test) == pytest.approx(fixed_width + get_scroll(test), abs=1), 3)
+    wait.until(
+        lambda: -get_margin(test)
+        == pytest.approx(fixed_width + get_scroll(test), abs=1),
+        3,
+    )
 
     # alignment is ok after navigating
     test.send_keys(Keys.ARROW_DOWN)
     test.send_keys(Keys.ARROW_RIGHT)
 
     wait.until(lambda: target.cell(2, 4).is_selected(), 3)
-    wait.until(lambda: -get_margin(test) == pytest.approx(fixed_width + get_scroll(test), abs=1), 3)
+    wait.until(
+        lambda: -get_margin(test)
+        == pytest.approx(fixed_width + get_scroll(test), abs=1),
+        3,
+    )
     assert test.get_log_errors() == []
