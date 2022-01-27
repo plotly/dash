@@ -72,15 +72,15 @@ def test_scrol001_fixed_alignment(test, fixed_rows, fixed_columns, ops):
         "return parseFloat(getComputedStyle(document.querySelector('#table .cell-0-0')).width) || 0;"
     )
 
-    assert -get_margin(test) == fixed_width
+    assert -get_margin(test) == pytest.approx(fixed_width, abs=1)
 
     scroll_by(test, 200)
 
-    wait.until(lambda: -get_margin(test) == fixed_width + 200, 3)
+    wait.until(lambda: -get_margin(test) == pytest.approx(fixed_width + 200, abs=1), 3)
 
     scroll_by(test, -200)
 
-    wait.until(lambda: -get_margin(test) == fixed_width, 3)
+    wait.until(lambda: -get_margin(test) == pytest.approx(fixed_width, abs=1), 3)
     assert test.get_log_errors() == []
 
 
@@ -121,12 +121,20 @@ def test_scrol002_edit_navigate(test, fixed_rows, fixed_columns, ops):
     test.send_keys("abc" + Keys.ENTER)
 
     wait.until(lambda: target.cell(1, 3).is_selected(), 3)
-    wait.until(lambda: -get_margin(test) == fixed_width + get_scroll(test), 3)
+    wait.until(
+        lambda: -get_margin(test)
+        == pytest.approx(fixed_width + get_scroll(test), abs=1),
+        3,
+    )
 
     # alignment is ok after navigating
     test.send_keys(Keys.ARROW_DOWN)
     test.send_keys(Keys.ARROW_RIGHT)
 
     wait.until(lambda: target.cell(2, 4).is_selected(), 3)
-    wait.until(lambda: -get_margin(test) == fixed_width + get_scroll(test), 3)
+    wait.until(
+        lambda: -get_margin(test)
+        == pytest.approx(fixed_width + get_scroll(test), abs=1),
+        3,
+    )
     assert test.get_log_errors() == []
