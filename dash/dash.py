@@ -1731,12 +1731,18 @@ class Dash:
                 if isinstance(package, ModuleSpec)
                 else os.path.dirname(package.path)
                 if hasattr(package, "path")
+                else os.path.dirname(
+                    package._path[0]  # pylint: disable=protected-access
+                )
+                if hasattr(package, "_path")
                 else package.filename
                 for package in packages
             ]
 
             for i, package in enumerate(packages):
-                if "dash/dash" in os.path.dirname(package.path):
+                if hasattr(package, "path") and "dash/dash" in os.path.dirname(
+                    package.path
+                ):
                     component_packages_dist[i : i + 1] = [
                         os.path.join(os.path.dirname(package.path), x)
                         for x in ["dcc", "html", "dash_table"]

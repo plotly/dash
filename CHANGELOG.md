@@ -195,6 +195,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1778](https://github.com/plotly/dash/pull/1778) DataTable: Fix React warnings stating
   that each child in a list should have a unique "key" prop
 
+- [#1895](https://github.com/plotly/dash/pull/1895) Support debug=True if native namespace-packages are present
+
 ## [2.0.0] - 2021-08-03
 
 ## Dash and Dash Renderer
