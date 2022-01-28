@@ -1731,7 +1731,7 @@ class Dash:
                 if isinstance(package, ModuleSpec)
                 else os.path.dirname(package.path)
                 if hasattr(package, "path")
-                else os.path.dirname(package._path[0])
+                else os.path.dirname(package._path[0])  # pylint: disable=protected-access
                 if hasattr(package, "_path")
                 else package.filename
                 for package in packages
