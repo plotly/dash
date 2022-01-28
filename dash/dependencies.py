@@ -30,7 +30,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     def __init__(self, component_id, component_property):
 
         if isinstance(component_id, Component):
-            self.component_id = component_id.set_random_id()
+            self.component_id = component_id._set_random_id()
         else:
             self.component_id = component_id
 
