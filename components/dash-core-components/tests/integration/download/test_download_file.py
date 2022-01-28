@@ -5,7 +5,7 @@ from dash.testing.wait import until
 
 
 def test_dlfi001_download_file(dash_dcc):
-    filename = "Lenna.jpeg"
+    filename = "chuck.jpg"
     asset_folder = os.path.join(os.path.dirname(__file__), "download-assets")
     # Create app.
     app = Dash(__name__, prevent_initial_callbacks=True)

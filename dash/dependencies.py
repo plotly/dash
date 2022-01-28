@@ -1,4 +1,5 @@
 import json
+from dash.development.base_component import Component
 
 from ._validate import validate_callback
 from ._grouping import flatten_grouping, make_grouping_by_index
@@ -27,7 +28,12 @@ ALLSMALLER = _Wildcard("ALLSMALLER")
 
 class DashDependency:  # pylint: disable=too-few-public-methods
     def __init__(self, component_id, component_property):
-        self.component_id = component_id
+
+        if isinstance(component_id, Component):
+            self.component_id = component_id._set_random_id()
+        else:
+            self.component_id = component_id
+
         self.component_property = component_property
 
     def __str__(self):

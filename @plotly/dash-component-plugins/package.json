@@ -1,6 +1,6 @@
 {
   "name": "@plotly/dash-component-plugins",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Plugins for Dash Components",
   "repository": {
     "type": "git",
@@ -12,18 +12,18 @@
   "homepage": "https://github.com/plotly/dash",
   "main": "dist/index.js",
   "scripts": {
-    "build": "webpack --display-reasons --bail"
+    "build": "webpack"
   },
   "author": "Marc-André Rivet",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.7.2",
-    "@babel/preset-env": "^7.7.1",
-    "@babel/preset-react": "^7.7.0",
-    "babel-loader": "^8.0.6",
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/preset-react": "^7.16.0",
+    "babel-loader": "^8.2.3",
     "react": "^16.8.6",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "webpack": "^4.44.2",
+    "webpack-cli": "^4.9.1"
   },
   "files": [
     "dist/index.js"

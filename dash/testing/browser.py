@@ -20,6 +20,10 @@ from selenium.common.exceptions import (
     MoveTargetOutOfBoundsException,
 )
 
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.utils import ChromeType
+from webdriver_manager.firefox import GeckoDriverManager
+
 from dash.testing.wait import text_to_equal, style_to_equal, contains_text, until
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
@@ -106,6 +110,7 @@ class Browser(DashPageMixin):
         convert_canvases=False,
         assert_check=True,
         stay_on_page=False,
+        widths=None,
     ):
         try:
             path = resource_path.lstrip("/")
@@ -119,6 +124,7 @@ class Browser(DashPageMixin):
                 path,
                 wait_for_callbacks=wait_for_callbacks,
                 convert_canvases=convert_canvases,
+                widths=widths,
             )
             if assert_check:
                 assert not self.driver.find_elements_by_css_selector(
@@ -130,10 +136,26 @@ class Browser(DashPageMixin):
             logger.exception("snapshot at resource %s error", path)
             raise e
 
-    def percy_snapshot(self, name="", wait_for_callbacks=False, convert_canvases=False):
+    def percy_snapshot(
+        self, name="", wait_for_callbacks=False, convert_canvases=False, widths=None
+    ):
         """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`.
-        It also combines the snapshot `name` with the Python version.
+        It also combines the snapshot `name` with the Python version,
+        args:
+        - name: combined with the python version to give the final snapshot name
+        - wait_for_callbacks: default False, whether to wait for Dash callbacks,
+            after an extra second to ensure that any relevant callbacks have
+            been initiated
+        - convert_canvases: default False, whether to convert all canvas elements
+            in the DOM into static images for percy to see. They will be restored
+            after the snapshot is complete.
+        - widths: a list of pixel widths for percy to render the page with. Note
+            that this does not change the browser in which the DOM is constructed,
+            so the width will only affect CSS, not JS-driven layout.
+            Defaults to [375, 1280]
         """
+        if widths is None:
+            widths = [375, 1280]
         snapshot_name = "{} - py{}.{}".format(
             name, sys.version_info.major, sys.version_info.minor
         )
@@ -172,7 +194,7 @@ class Browser(DashPageMixin):
             """
             )
 
-            self.percy_runner.snapshot(name=snapshot_name)
+            self.percy_runner.snapshot(name=snapshot_name, widths=widths)
 
             self.driver.execute_script(
                 """
@@ -189,7 +211,7 @@ class Browser(DashPageMixin):
             )
 
         else:
-            self.percy_runner.snapshot(name=snapshot_name)
+            self.percy_runner.snapshot(name=snapshot_name, widths=widths)
 
     def take_snapshot(self, name):
         """Hook method to take snapshot when a selenium test fails. The
@@ -455,7 +477,11 @@ class Browser(DashPageMixin):
                 desired_capabilities=capabilities,
             )
             if self._remote
-            else webdriver.Chrome(options=options, desired_capabilities=capabilities)
+            else webdriver.Chrome(
+                ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install(),
+                options=options,
+                desired_capabilities=capabilities,
+            )
         )
 
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
@@ -498,7 +524,10 @@ class Browser(DashPageMixin):
             )
             if self._remote
             else webdriver.Firefox(
-                firefox_profile=fp, options=options, capabilities=capabilities
+                executable_path=GeckoDriverManager().install(),
+                firefox_profile=fp,
+                options=options,
+                capabilities=capabilities,
             )
         )
 

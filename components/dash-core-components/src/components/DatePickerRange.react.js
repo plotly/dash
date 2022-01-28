@@ -28,30 +28,11 @@ export default class DatePickerRange extends Component {
 
 DatePickerRange.propTypes = {
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
-    /**
      * Specifies the starting date for the component.
      * Accepts datetime.datetime objects or strings
      * in the format 'YYYY-MM-DD'
      */
     start_date: PropTypes.string,
-
-    /**
-     * The HTML element ID of the start date input field.
-     * Not used by Dash, only by CSS.
-     */
-    start_date_id: PropTypes.string,
-
-    /**
-     * The HTML element ID of the end date input field.
-     * Not used by Dash, only by CSS.
-     */
-    end_date_id: PropTypes.string,
 
     /**
      * Specifies the ending date for the component.
@@ -82,12 +63,20 @@ DatePickerRange.propTypes = {
     disabled_days: PropTypes.arrayOf(PropTypes.string),
 
     /**
-     * Specifies the month that is initially presented when the user
-     * opens the calendar. Accepts datetime.datetime objects or strings
-     * in the format 'YYYY-MM-DD'
-     *
+     * Specifies a minimum number of nights that must be selected between
+     * the startDate and the endDate
      */
-    initial_visible_month: PropTypes.string,
+    minimum_nights: PropTypes.number,
+
+    /**
+     * Determines when the component should update
+     * its value. If `bothdates`, then the DatePicker
+     * will only trigger its value when the user has
+     * finished picking both dates. If `singledate`, then
+     * the DatePicker will update its value
+     * as one date is picked.
+     */
+    updatemode: PropTypes.oneOf(['singledate', 'bothdates']),
 
     /**
      * Text that will be displayed in the first input
@@ -102,27 +91,67 @@ DatePickerRange.propTypes = {
     end_date_placeholder_text: PropTypes.string,
 
     /**
-     * Size of rendered calendar days, higher number
-     * means bigger day size and larger calendar overall
+     * Specifies the month that is initially presented when the user
+     * opens the calendar. Accepts datetime.datetime objects or strings
+     * in the format 'YYYY-MM-DD'
+     *
      */
-    day_size: PropTypes.number,
+    initial_visible_month: PropTypes.string,
+
+    /**
+     * Whether or not the dropdown is "clearable", that is, whether or
+     * not a small "x" appears on the right of the dropdown that removes
+     * the selected value.
+     */
+    clearable: PropTypes.bool,
+
+    /**
+     * If True, the calendar will automatically open when cleared
+     */
+    reopen_calendar_on_clear: PropTypes.bool,
+
+    /**
+     * Specifies the format that the selected dates will be displayed
+     * valid formats are variations of "MM YY DD". For example:
+     * "MM YY DD" renders as '05 10 97' for May 10th 1997
+     * "MMMM, YY" renders as 'May, 1997' for May 10th 1997
+     * "M, D, YYYY" renders as '07, 10, 1997' for September 10th 1997
+     * "MMMM" renders as 'May' for May 10 1997
+     */
+    display_format: PropTypes.string,
+
+    /**
+     * Specifies the format that the month will be displayed in the calendar,
+     * valid formats are variations of "MM YY". For example:
+     * "MM YY" renders as '05 97' for May 1997
+     * "MMMM, YYYY" renders as 'May, 1997' for May 1997
+     * "MMM, YY" renders as 'Sep, 97' for September 1997
+     */
+    month_format: PropTypes.string,
+
+    /**
+     * Specifies what day is the first day of the week, values must be
+     * from [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday
+     */
+    first_day_of_week: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6]),
+
+    /**
+     * If True the calendar will display days that rollover into
+     * the next month
+     */
+    show_outside_days: PropTypes.bool,
+
+    /**
+     * If True the calendar will not close when the user has selected a value
+     * and will wait until the user clicks off the calendar
+     */
+    stay_open_on_select: PropTypes.bool,
 
     /**
      * Orientation of calendar, either vertical or horizontal.
      * Valid options are 'vertical' or 'horizontal'.
      */
     calendar_orientation: PropTypes.oneOf(['vertical', 'horizontal']),
-
-    /**
-     * Determines whether the calendar and days operate
-     * from left to right or from right to left
-     */
-    is_RTL: PropTypes.bool,
-
-    /**
-     * If True, the calendar will automatically open when cleared
-     */
-    reopen_calendar_on_clear: PropTypes.bool,
 
     /**
      * Number of calendar months that are shown when calendar is opened
@@ -143,47 +172,16 @@ DatePickerRange.propTypes = {
     with_full_screen_portal: PropTypes.bool,
 
     /**
-     * Specifies what day is the first day of the week, values must be
-     * from [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday
+     * Size of rendered calendar days, higher number
+     * means bigger day size and larger calendar overall
      */
-    first_day_of_week: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6]),
+    day_size: PropTypes.number,
 
     /**
-     * Specifies a minimum number of nights that must be selected between
-     * the startDate and the endDate
+     * Determines whether the calendar and days operate
+     * from left to right or from right to left
      */
-    minimum_nights: PropTypes.number,
-
-    /**
-     * If True the calendar will not close when the user has selected a value
-     * and will wait until the user clicks off the calendar
-     */
-    stay_open_on_select: PropTypes.bool,
-
-    /**
-     * If True the calendar will display days that rollover into
-     * the next month
-     */
-    show_outside_days: PropTypes.bool,
-
-    /**
-     * Specifies the format that the month will be displayed in the calendar,
-     * valid formats are variations of "MM YY". For example:
-     * "MM YY" renders as '05 97' for May 1997
-     * "MMMM, YYYY" renders as 'May, 1997' for May 1997
-     * "MMM, YY" renders as 'Sep, 97' for September 1997
-     */
-    month_format: PropTypes.string,
-
-    /**
-     * Specifies the format that the selected dates will be displayed
-     * valid formats are variations of "MM YY DD". For example:
-     * "MM YY DD" renders as '05 10 97' for May 10th 1997
-     * "MMMM, YY" renders as 'May, 1997' for May 10th 1997
-     * "M, D, YYYY" renders as '07, 10, 1997' for September 10th 1997
-     * "MMMM" renders as 'May' for May 10 1997
-     */
-    display_format: PropTypes.string,
+    is_RTL: PropTypes.bool,
 
     /**
      * If True, no dates can be selected.
@@ -191,16 +189,16 @@ DatePickerRange.propTypes = {
     disabled: PropTypes.bool,
 
     /**
-     * Whether or not the dropdown is "clearable", that is, whether or
-     * not a small "x" appears on the right of the dropdown that removes
-     * the selected value.
+     * The HTML element ID of the start date input field.
+     * Not used by Dash, only by CSS.
      */
-    clearable: PropTypes.bool,
+    start_date_id: PropTypes.string,
 
     /**
-     * Dash-assigned callback that gets fired when the value changes.
+     * The HTML element ID of the end date input field.
+     * Not used by Dash, only by CSS.
      */
-    setProps: PropTypes.func,
+    end_date_id: PropTypes.string,
 
     /**
      * CSS styles appended to wrapper div
@@ -213,14 +211,16 @@ DatePickerRange.propTypes = {
     className: PropTypes.string,
 
     /**
-     * Determines when the component should update
-     * its value. If `bothdates`, then the DatePicker
-     * will only trigger its value when the user has
-     * finished picking both dates. If `singledate`, then
-     * the DatePicker will update its value
-     * as one date is picked.
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
      */
-    updatemode: PropTypes.oneOf(['singledate', 'bothdates']),
+    id: PropTypes.string,
+
+    /**
+     * Dash-assigned callback that gets fired when the value changes.
+     */
+    setProps: PropTypes.func,
 
     /**
      * Object that holds the loading state object coming from dash-renderer

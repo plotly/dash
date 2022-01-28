@@ -1,10 +1,14 @@
 import abc
 import inspect
 import sys
+import uuid
+import random
 
 from .._utils import patch_collections_abc, stringify_id
 
 MutableSequence = patch_collections_abc("MutableSequence")
+
+rd = random.Random(0)
 
 
 # pylint: disable=no-init,too-few-public-methods
@@ -162,6 +166,39 @@ class Component(metaclass=ComponentMeta):
                     )
 
             setattr(self, k, v)
+
+    def _set_random_id(self):
+
+        if hasattr(self, "id"):
+            return getattr(self, "id")
+
+        kind = f"`{self._namespace}.{self._type}`"  # pylint: disable=no-member
+
+        if getattr(self, "persistence", False):
+            raise RuntimeError(
+                f"""
+                Attempting to use an auto-generated ID with the `persistence` prop.
+                This is prohibited because persistence is tied to component IDs and
+                auto-generated IDs can easily change.
+
+                Please assign an explicit ID to this {kind} component.
+                """
+            )
+        if "dash_snapshots" in sys.modules:
+            raise RuntimeError(
+                f"""
+                Attempting to use an auto-generated ID in an app with `dash_snapshots`.
+                This is prohibited because snapshots saves the whole app layout,
+                including component IDs, and auto-generated IDs can easily change.
+                Callbacks referencing the new IDs will not work with old snapshots.
+
+                Please assign an explicit ID to this {kind} component.
+                """
+            )
+
+        v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
+        setattr(self, "id", v)
+        return v
 
     def to_plotly_json(self):
         # Add normal properties

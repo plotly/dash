@@ -10,7 +10,9 @@ from .base_component import Component
 
 
 # pylint: disable=unused-argument
-def generate_class_string(typename, props, description, namespace):
+def generate_class_string(
+    typename, props, description, namespace, prop_reorder_exceptions=None
+):
     """Dynamically generate class strings to have nicely formatted docstrings,
     keyword arguments, and repr.
     Inspired by http://jameso.be/2013/08/06/namedtuple.html
@@ -20,6 +22,7 @@ def generate_class_string(typename, props, description, namespace):
     props
     description
     namespace
+    prop_reorder_exceptions
     Returns
     -------
     string
@@ -62,11 +65,19 @@ def generate_class_string(typename, props, description, namespace):
         super({typename}, self).__init__({argtext})
 '''
 
-    filtered_props = reorder_props(filter_props(props))
+    filtered_props = (
+        filter_props(props)
+        if (prop_reorder_exceptions is not None and typename in prop_reorder_exceptions)
+        or (prop_reorder_exceptions is not None and "ALL" in prop_reorder_exceptions)
+        else reorder_props(filter_props(props))
+    )
     wildcard_prefixes = repr(parse_wildcards(props))
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
     docstring = create_docstring(
-        component_name=typename, props=filtered_props, description=description
+        component_name=typename,
+        props=filtered_props,
+        description=description,
+        prop_reorder_exceptions=prop_reorder_exceptions,
     ).replace("\r\n", "\n")
 
     prohibit_events(props)
@@ -106,7 +117,9 @@ def generate_class_string(typename, props, description, namespace):
     )
 
 
-def generate_class_file(typename, props, description, namespace):
+def generate_class_file(
+    typename, props, description, namespace, prop_reorder_exceptions=None
+):
     """Generate a Python class file (.py) given a class string.
     Parameters
     ----------
@@ -114,6 +127,7 @@ def generate_class_file(typename, props, description, namespace):
     props
     description
     namespace
+    prop_reorder_exceptions
     Returns
     -------
     """
@@ -122,7 +136,10 @@ def generate_class_file(typename, props, description, namespace):
         + "from dash.development.base_component import "
         + "Component, _explicitize_args\n\n\n"
     )
-    class_string = generate_class_string(typename, props, description, namespace)
+
+    class_string = generate_class_string(
+        typename, props, description, namespace, prop_reorder_exceptions
+    )
     file_name = "{:s}.py".format(typename)
 
     file_path = os.path.join(namespace, file_name)
@@ -162,7 +179,9 @@ def generate_classes_files(project_shortname, metadata, *component_generators):
     return components
 
 
-def generate_class(typename, props, description, namespace):
+def generate_class(
+    typename, props, description, namespace, prop_reorder_exceptions=None
+):
     """Generate a Python class object given a class string.
     Parameters
     ----------
@@ -173,7 +192,9 @@ def generate_class(typename, props, description, namespace):
     Returns
     -------
     """
-    string = generate_class_string(typename, props, description, namespace)
+    string = generate_class_string(
+        typename, props, description, namespace, prop_reorder_exceptions
+    )
     scope = {"Component": Component, "_explicitize_args": _explicitize_args}
     # pylint: disable=exec-used
     exec(string, scope)
@@ -194,7 +215,7 @@ def required_props(props):
     return [prop_name for prop_name, prop in list(props.items()) if prop["required"]]
 
 
-def create_docstring(component_name, props, description):
+def create_docstring(component_name, props, description, prop_reorder_exceptions=None):
     """Create the Dash component docstring.
     Parameters
     ----------
@@ -210,7 +231,15 @@ def create_docstring(component_name, props, description):
         Dash component docstring
     """
     # Ensure props are ordered with children first
-    props = reorder_props(props=props)
+    props = (
+        props
+        if (
+            prop_reorder_exceptions is not None
+            and component_name in prop_reorder_exceptions
+        )
+        or (prop_reorder_exceptions is not None and "ALL" in prop_reorder_exceptions)
+        else reorder_props(props)
+    )
 
     return (
         "A{n} {name} component.\n{description}\n\nKeyword arguments:\n{args}"

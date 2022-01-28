@@ -2,6 +2,201 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2022-01-28
+
+### Changed
+- [#1876](https://github.com/plotly/dash/pull/1876) Delays finalizing `Dash.config` attributes not used in the constructor until `init_app()`.
+- [#1869](https://github.com/plotly/dash/pull/1869), [#1873](https://github.com/plotly/dash/pull/1873) Upgrade Plotly.js to v2.8.3. This includes:
+  - [Feature release 2.5.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+    - 3D traces are now compatible with `no-unsafe-eval` CSP rules.
+  - [Feature release 2.6.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+    - Add `smith` subplots and `scattersmith` traces, for drawing Smith charts.
+  - [Feature release 2.7.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+    - Add text data for `histogram` traces.
+    - Fix an interaction between `uirevision` and `autorange` that pops up in some cases of mixed clientside / serverside figure generation.
+  - [Feature release 2.8.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+    - Add horizontal colorbars.
+    - Add text data on `heatmap` and related trace types.
+    - Control legend group title fonts.
+  - Patch releases [2.5.1](https://github.com/plotly/plotly.js/releases/tag/v2.5.1), [2.6.1](https://github.com/plotly/plotly.js/releases/tag/v2.6.1), [2.6.2](https://github.com/plotly/plotly.js/releases/tag/v2.6.2), [2.6.3](https://github.com/plotly/plotly.js/releases/tag/v2.6.3), [2.6.4](https://github.com/plotly/plotly.js/releases/tag/v2.6.4), [2.8.1](https://github.com/plotly/plotly.js/releases/tag/v2.8.1), [2.8.2](https://github.com/plotly/plotly.js/releases/tag/v2.8.2), and [2.8.3](https://github.com/plotly/plotly.js/releases/tag/v2.8.3) containing bugfixes.
+  - This PR also upgrades various other dependencies of dash renderer and component suites.
+
+- [#1745](https://github.com/plotly/dash/pull/1745):
+    Improve our `extras_require`: there are now five options here, each with a well-defined role:
+    - `dash[dev]`: for developing and building dash components.
+    - `dash[testing]`: for using the `pytest` plugins in the `dash.testing` module
+    - `dash[diskcache]`: required if you use `DiskcacheLongCallbackManager`
+    - `dash[celery]`: required if you use `CeleryLongCallbackManager`
+    - `dash[ci]`: mainly for internal use, these are additional requirements for the Dash CI tests, exposed for other component libraries to use a matching configuration.
+
+### Added
+- [#1883](https://github.com/plotly/dash/pull/1883) in DataTable added `page_current` to `persisted_props` as requested in [#1860](https://github.com/plotly/dash/issues/1860)
+
+
+
+- [#1763](https://github.com/plotly/dash/pull/1763):
+    ## Dash and Dash Renderer
+
+    - `Input`, `State`, and `Output` now accept components instead of ID strings and Dash `callback` will auto-generate the component's ID under-the-hood if not supplied. This allows usage like:
+
+    ```python
+    my_input = dcc.Input()
+    my_output = html.Div()
+    app.layout = html.Div([my_input, my_output])
+
+    @dash.callback(Output(my_output, 'children'), Input(my_input, 'value'))
+    def update(value):
+        return f'You have entered {value}'
+    ```
+
+    Or, if using Python >=3.8 you can use the `:=` walrus operator:
+    ```python
+    app.layout = html.Div([
+        my_input := dcc.Input(),
+        my_output := html.Div()
+    ])
+
+    @dash.callback(Output(my_output, 'children'), Input(my_input, 'value'))
+    def update(value):
+        return f'You have entered {value}'
+    ```
+
+  [#1894](https://github.com/plotly/dash/pull/1894) restricted this feature so auto-generated IDs are not allowed if the app uses `dash_snapshots` (a Dash Enterprise package) or if the component uses `persistence`, as this can create confusing errors. Callback definitions can still reference components in these cases, but those components must have explicit IDs.
+
+    ## Dash Core Components
+
+    ### Rearranged Keyword Arguments & Flexible Types
+    **`Dropdown`, `RadioItem`, and `Checklist`**
+    - Rearranged Keyword Arguments - `options` & `value` are now the first two keywords which means they can be supplied as positional arguments without the keyword. Supplying the keywords (`options=` and `value=`) is still supported.
+    - Flexible Types - `options` can be supplied in two new forms:
+      1. An array of `string|number|bool` where `label` and `value` are equal to the items in the list.
+      2. A dictionary where the keys and values set as `value` and `label` respectively.
+
+    Before:
+
+    ```python
+    dcc.Dropdown(
+        options=[
+            {'label': 'New York', 'value': 'New York'},
+            {'label': 'Montreal', 'value': 'Montreal'},
+        ],
+        value='New York'
+    )
+    ```
+
+    or
+
+    ```python
+    dcc.Dropdown(
+        options=[
+            {'label': 'New York', 'value': 'NYC'},
+            {'label': 'Montreal', 'value': 'MTL'},
+        ],
+        value='New York'
+    )
+    ```
+
+    After:
+
+    ```python
+    dcc.Dropdown(['New York', 'Montreal'], 'New York')
+    ```
+
+    Or
+
+    ```python
+    dcc.Dropdown({'NYC': 'New York', 'MTL': 'Montreal'}, 'New York')
+    ```
+
+    **`RangeSlider` & `Slider`**
+    - Rearranged Keyword Arugments - `min`, `max`, and `step` are now the first three keyword arguments which means they can be supplied as positional arguments without the keyword.
+    - Flexible Types
+      - `step` will be calculated implicitly if not given.
+      - `marks` will be auto generated if not given. It will use `min` and `max` and will respect `step` if supplied. Auto generated marks labels are SI unit formatted. Around 5 human-readable marks will be created.
+      - To remove the Slider's marks, set `marks=None`.
+
+    Before:
+
+    ```python
+    dcc.Slider(marks={1: 2, 2: 2, 3: 3})
+    ```
+
+    After:
+
+    ```python
+    dcc.Slider(min=1, max=3, step=1)
+    ```
+
+    Or equivalently:
+
+    ```python
+    dcc.Slider(1, 3, 1)
+    ```
+
+    Step can also be omitted and the `Slider` will attempt to create a nice, human readable  step with SI units and around 5 marks:
+
+    ```python
+    dcc.Slider(0, 100)
+    ```
+
+    The SI units and ranges supported in `marks` are:
+    * `µ` - micro, 10⁻⁶
+    * `m` - milli, 10⁻³
+    * `​` (none) - 10⁰
+    * `k` - kilo, 10³
+    * `M` - mega, 10⁶
+    * `G` - giga, 10⁹
+    * `T` - tera, 10¹²
+    * `P` - peta, 10¹⁵
+    * `E` - exa, 10¹⁸
+
+    _Ranges below 10µ are not supported by the Slider. This is a bug: https://github.com/plotly/dash/issues/1766_
+
+    **`DataTable`**
+
+    - Rearranged Keyword Arguments - `data` and `columns` the first twokeyword arguments which means they can be supplied as positional arguments without the keyword.
+    - Inferred Properties - If `columns` isn't supplied then it is extracted from the the first row in `data`
+
+    Before:
+
+    ```python
+    dash_table.DataTable(data=df.to_dict('records'), columns=[{'name': i, 'id': i} for i in df.columns])
+    ```
+
+    After:
+
+    ```python
+    dash_table.DataTable(data=df.to_dict('records'))
+    ```
+
+    ### New Component Properties
+
+    **`Checklist` & `RadioItems`**
+
+    - A new property `inline` appends `display: inline-block` to `labelStyle`.
+
+    ```python
+    dcc.Checklist(inline=True)
+    ```
+
+### Fixed
+- [#1879](https://github.com/plotly/dash/pull/1879) Delete redundancy in pattern-matching callback implementation, specifically when `ALL` and `MATCH` wildcards are used together. This patch was submitted by an anonymous Dash Enterprise customer. Many thanks!
+
+- [#1858](https://github.com/plotly/dash/pull/1858) Support `mini-css-extract-plugin` Webpack plugin with `@plotly/webpack-dash-dynamic-import` node package - used by components to support dash async chunks. Updated dependencies of other `@plotly` node packages.
+
+- [#1836](https://github.com/plotly/dash/pull/1836) Fix `__all__` in dcc and table for extras: dcc download helpers and table format helpers. This also restores this functionality to the obsolete top-level packages `dash_core_components` and `dash_table`.
+
+- [#1822](https://github.com/plotly/dash/pull/1822) Remove Radium from renderer dependencies, as part of investigating React 17 support.
+
+- [#1779](https://github.com/plotly/dash/pull/1779):
+    - Clean up our handling of serialization problems, including fixing `orjson` for Python 3.6
+    - Added the ability for `dash.testing` `percy_snapshot` methods to choose widths to generate.
+
+- [#1778](https://github.com/plotly/dash/pull/1778) DataTable: Fix React warnings stating
+  that each child in a list should have a unique "key" prop
+
+- [#1895](https://github.com/plotly/dash/pull/1895) Support debug=True if native namespace-packages are present
+
 ## [2.0.0] - 2021-08-03
 
 ## Dash and Dash Renderer
@@ -15,6 +210,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1679](https://github.com/plotly/dash/pull/1679) Restructure `dash`, `dash-core-components`, `dash-html-components`, and `dash-table` into a singular monorepo and move component packages into `dash`. This change makes the component modules available for import within the `dash` namespace, and simplifies the import pattern for a Dash app. From a development standpoint, all future changes to component modules will be made within the `components` directory, and relevant packages updated with the `dash-update-components` CLI command.
 - [#1707](https://github.com/plotly/dash/pull/1707) Change the default value of the `compress` argument to the `dash.Dash` constructor to `False`. This change reduces CPU usage, and was made in recognition of the fact that many deployment platforms (e.g. Dash Enterprise) already apply their own compression. If deploying to an environment that does not already provide compression, the Dash 1 behavior may be restored by adding `compress=True` to the `dash.Dash` constructor.
 - [#1734](https://github.com/plotly/dash/pull/1734) Added `npm run build` script to simplify build process involving `dash-renderer` and subcomponent libraries within `dash`.
+
+### Fixed
+- [#1857](https://github.com/plotly/dash/pull/1857) Fixed a regression with `dcc.Slider` and `dcc.RangeSlider` where steps were not being set to marks if None was passed as the prop argument.  Added a check to set the min and max based on the range of marks if they are not explicitly defined (for more info, see [#1843](https://github.com/plotly/dash/issues/1843) and [#1851](https://github.com/plotly/dash/issues/1843)).
 
 
 ## Dash Core Components

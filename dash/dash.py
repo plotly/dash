@@ -356,9 +356,6 @@ class Dash:
                 "assets_folder",
                 "assets_url_path",
                 "eager_loading",
-                "url_base_pathname",
-                "routes_pathname_prefix",
-                "requests_pathname_prefix",
                 "serve_locally",
                 "compress",
             ],
@@ -427,8 +424,19 @@ class Dash:
 
         self.logger.setLevel(logging.INFO)
 
-    def init_app(self, app=None):
+    def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
+
+        self.config.update(kwargs)
+        self.config.set_read_only(
+            [
+                "url_base_pathname",
+                "routes_pathname_prefix",
+                "requests_pathname_prefix",
+            ],
+            "Read-only: can only be set in the Dash constructor or during init_app()",
+        )
+
         config = self.config
 
         if app is not None:
@@ -1723,12 +1731,18 @@ class Dash:
                 if isinstance(package, ModuleSpec)
                 else os.path.dirname(package.path)
                 if hasattr(package, "path")
+                else os.path.dirname(
+                    package._path[0]  # pylint: disable=protected-access
+                )
+                if hasattr(package, "_path")
                 else package.filename
                 for package in packages
             ]
 
             for i, package in enumerate(packages):
-                if "dash/dash" in os.path.dirname(package.path):
+                if hasattr(package, "path") and "dash/dash" in os.path.dirname(
+                    package.path
+                ):
                     component_packages_dist[i : i + 1] = [
                         os.path.join(os.path.dirname(package.path), x)
                         for x in ["dcc", "html", "dash_table"]

@@ -8,7 +8,6 @@ import os
 import argparse
 import shutil
 import functools
-
 import pkg_resources
 import yaml
 
@@ -19,7 +18,6 @@ from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
 from ._jl_components_generation import generate_struct_file
 from ._jl_components_generation import generate_module
-
 
 reserved_words = [
     "UNDEFINED",
@@ -37,7 +35,7 @@ class _CombinedFormatter(
     pass
 
 
-# pylint: disable=too-many-locals, too-many-arguments
+# pylint: disable=too-many-locals, too-many-arguments, too-many-branches
 def generate_components(
     components_source,
     project_shortname,
@@ -49,6 +47,7 @@ def generate_components(
     rsuggests="",
     jlprefix=None,
     metadata=None,
+    keep_prop_order=None,
 ):
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
@@ -116,6 +115,14 @@ def generate_components(
     if jlprefix is not None:
         generator_methods.append(
             functools.partial(generate_struct_file, prefix=jlprefix)
+        )
+
+    if keep_prop_order is not None:
+        keep_prop_order = [
+            component.strip(" ") for component in keep_prop_order.split(",")
+        ]
+        generator_methods[0] = functools.partial(
+            generate_class_file, prop_reorder_exceptions=keep_prop_order
         )
 
     components = generate_classes_files(project_shortname, metadata, *generator_methods)
@@ -200,6 +207,15 @@ def component_build_arg_parser():
         help="Specify a prefix for Dash for R component names, write "
         "components to R dir, create R package.",
     )
+    parser.add_argument(
+        "-k",
+        "--keep-prop-order",
+        default=None,
+        help="Specify a comma-separated list of components which will use the prop "
+        "order described in the component proptypes instead of alphabetically reordered "
+        "props. Pass the 'ALL' keyword to have every component retain "
+        "its original prop order.",
+    )
     return parser
 
 
@@ -215,6 +231,7 @@ def cli():
         rimports=args.r_imports,
         rsuggests=args.r_suggests,
         jlprefix=args.jl_prefix,
+        keep_prop_order=args.keep_prop_order,
     )
 
 
