@@ -4,32 +4,12 @@
     "displayName": "Checklist",
     "methods": [],
     "props": {
-      "id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
-      },
       "options": {
         "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "exact",
-            "value": {
-              "label": {
-                "name": "union",
-                "value": [
-                  {
-                    "name": "string"
-                  },
-                  {
-                    "name": "number"
-                  }
-                ],
-                "description": "The checkbox's label",
-                "required": true
-              },
+          "name": "union",
+          "value": [
+            {
+              "name": "arrayOf",
               "value": {
                 "name": "union",
                 "value": [
@@ -38,18 +18,70 @@
                   },
                   {
                     "name": "number"
+                  },
+                  {
+                    "name": "bool"
                   }
-                ],
-                "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`value` property.",
-                "required": true
+                ]
               },
-              "disabled": {
-                "name": "bool",
-                "description": "If true, this checkbox is disabled and can't be clicked on.",
-                "required": false
-              }
+              "description": "Array of options where the label and the value are the same thing - [string|number|bool]"
+            },
+            {
+              "name": "object",
+              "description": "Simpler `options` representation in dictionary format. The order is not guaranteed.\n{`value1`: `label1`, `value2`: `label2`, ... }\nwhich is equal to\n[{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "exact",
+                "value": {
+                  "label": {
+                    "name": "union",
+                    "value": [
+                      {
+                        "name": "string"
+                      },
+                      {
+                        "name": "number"
+                      },
+                      {
+                        "name": "bool"
+                      }
+                    ],
+                    "description": "The option's label",
+                    "required": true
+                  },
+                  "value": {
+                    "name": "union",
+                    "value": [
+                      {
+                        "name": "string"
+                      },
+                      {
+                        "name": "number"
+                      },
+                      {
+                        "name": "bool"
+                      }
+                    ],
+                    "description": "The value of the option. This value\ncorresponds to the items specified in the\n`value` property.",
+                    "required": true
+                  },
+                  "disabled": {
+                    "name": "bool",
+                    "description": "If true, this option is disabled and cannot be selected.",
+                    "required": false
+                  },
+                  "title": {
+                    "name": "string",
+                    "description": "The HTML 'title' attribute for the option. Allows for\ninformation on hover. For more information on this attribute,\nsee https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title",
+                    "required": false
+                  }
+                }
+              },
+              "description": "An array of options {label: [string|number], value: [string|number]},\nan optional disabled field can be used for each option"
             }
-          }
+          ]
         },
         "required": false,
         "description": "An array of options",
@@ -69,6 +101,9 @@
               },
               {
                 "name": "number"
+              },
+              {
+                "name": "bool"
               }
             ]
           }
@@ -77,6 +112,17 @@
         "description": "The currently selected value",
         "defaultValue": {
           "value": "[]",
+          "computed": false
+        }
+      },
+      "inline": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Indicates whether labelStyle should be inline or not\nTrue: Automatically set { 'display': 'inline-block' } to labelStyle\nFalse: No additional styles are passed into labelStyle.",
+        "defaultValue": {
+          "value": "false",
           "computed": false
         }
       },
@@ -137,6 +183,13 @@
           "value": "''",
           "computed": false
         }
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "setProps": {
         "type": {
@@ -600,33 +653,12 @@
     "displayName": "DatePickerRange",
     "methods": [],
     "props": {
-      "id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
-      },
       "start_date": {
         "type": {
           "name": "string"
         },
         "required": false,
         "description": "Specifies the starting date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
-      },
-      "start_date_id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The HTML element ID of the start date input field.\nNot used by Dash, only by CSS."
-      },
-      "end_date_id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The HTML element ID of the end date input field.\nNot used by Dash, only by CSS."
       },
       "end_date": {
         "type": {
@@ -663,12 +695,33 @@
           "computed": false
         }
       },
-      "initial_visible_month": {
+      "minimum_nights": {
         "type": {
-          "name": "string"
+          "name": "number"
         },
         "required": false,
-        "description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+        "description": "Specifies a minimum number of nights that must be selected between\nthe startDate and the endDate"
+      },
+      "updatemode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'singledate'",
+              "computed": false
+            },
+            {
+              "value": "'bothdates'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Determines when the component should update\nits value. If `bothdates`, then the DatePicker\nwill only trigger its value when the user has\nfinished picking both dates. If `singledate`, then\nthe DatePicker will update its value\nas one date is picked.",
+        "defaultValue": {
+          "value": "'singledate'",
+          "computed": false
+        }
       },
       "start_date_placeholder_text": {
         "type": {
@@ -684,44 +737,19 @@
         "required": false,
         "description": "Text that will be displayed in the second input\nbox of the date picker when no date is selected. Default value is 'End Date'"
       },
-      "day_size": {
+      "initial_visible_month": {
         "type": {
-          "name": "number"
+          "name": "string"
         },
         "required": false,
-        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
-        "defaultValue": {
-          "value": "39",
-          "computed": false
-        }
+        "description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
-      "calendar_orientation": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'vertical'",
-              "computed": false
-            },
-            {
-              "value": "'horizontal'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
-        "defaultValue": {
-          "value": "'horizontal'",
-          "computed": false
-        }
-      },
-      "is_RTL": {
+      "clearable": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -738,38 +766,19 @@
           "computed": false
         }
       },
-      "number_of_months_shown": {
+      "display_format": {
         "type": {
-          "name": "number"
+          "name": "string"
         },
         "required": false,
-        "description": "Number of calendar months that are shown when calendar is opened",
-        "defaultValue": {
-          "value": "1",
-          "computed": false
-        }
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
       },
-      "with_portal": {
+      "month_format": {
         "type": {
-          "name": "bool"
+          "name": "string"
         },
         "required": false,
-        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
-      },
-      "with_full_screen_portal": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true,\nnot supported on vertical calendar",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
       },
       "first_day_of_week": {
         "type": {
@@ -812,12 +821,12 @@
           "computed": false
         }
       },
-      "minimum_nights": {
+      "show_outside_days": {
         "type": {
-          "name": "number"
+          "name": "bool"
         },
         "required": false,
-        "description": "Specifies a minimum number of nights that must be selected between\nthe startDate and the endDate"
+        "description": "If True the calendar will display days that rollover into\nthe next month"
       },
       "stay_open_on_select": {
         "type": {
@@ -830,26 +839,81 @@
           "computed": false
         }
       },
-      "show_outside_days": {
+      "calendar_orientation": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'vertical'",
+              "computed": false
+            },
+            {
+              "value": "'horizontal'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
+        "defaultValue": {
+          "value": "'horizontal'",
+          "computed": false
+        }
+      },
+      "number_of_months_shown": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of calendar months that are shown when calendar is opened",
+        "defaultValue": {
+          "value": "1",
+          "computed": false
+        }
+      },
+      "with_portal": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If True the calendar will display days that rollover into\nthe next month"
+        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
-      "month_format": {
+      "with_full_screen_portal": {
         "type": {
-          "name": "string"
+          "name": "bool"
         },
         "required": false,
-        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
+        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true,\nnot supported on vertical calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
-      "display_format": {
+      "day_size": {
         "type": {
-          "name": "string"
+          "name": "number"
         },
         "required": false,
-        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
+        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
+        "defaultValue": {
+          "value": "39",
+          "computed": false
+        }
+      },
+      "is_RTL": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "disabled": {
         "type": {
@@ -862,23 +926,19 @@
           "computed": false
         }
       },
-      "clearable": {
+      "start_date_id": {
         "type": {
-          "name": "bool"
+          "name": "string"
         },
         "required": false,
-        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
+        "description": "The HTML element ID of the start date input field.\nNot used by Dash, only by CSS."
       },
-      "setProps": {
+      "end_date_id": {
         "type": {
-          "name": "func"
+          "name": "string"
         },
         "required": false,
-        "description": "Dash-assigned callback that gets fired when the value changes."
+        "description": "The HTML element ID of the end date input field.\nNot used by Dash, only by CSS."
       },
       "style": {
         "type": {
@@ -894,26 +954,19 @@
         "required": false,
         "description": "Appends a CSS class to the wrapper div component."
       },
-      "updatemode": {
+      "id": {
         "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'singledate'",
-              "computed": false
-            },
-            {
-              "value": "'bothdates'",
-              "computed": false
-            }
-          ]
+          "name": "string"
         },
         "required": false,
-        "description": "Determines when the component should update\nits value. If `bothdates`, then the DatePicker\nwill only trigger its value when the user has\nfinished picking both dates. If `singledate`, then\nthe DatePicker will update its value\nas one date is picked.",
-        "defaultValue": {
-          "value": "'singledate'",
-          "computed": false
-        }
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
       },
       "loading_state": {
         "type": {
@@ -1013,13 +1066,6 @@
     "displayName": "DatePickerSingle",
     "methods": [],
     "props": {
-      "id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
-      },
       "date": {
         "type": {
           "name": "string"
@@ -1055,6 +1101,13 @@
           "computed": false
         }
       },
+      "placeholder": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Text that will be displayed in the input\nbox of the date picker when no date is selected.\nDefault value is 'Start Date'"
+      },
       "initial_visible_month": {
         "type": {
           "name": "string"
@@ -1062,55 +1115,16 @@
         "required": false,
         "description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
-      "day_size": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
-        "defaultValue": {
-          "value": "39",
-          "computed": false
-        }
-      },
-      "calendar_orientation": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'vertical'",
-              "computed": false
-            },
-            {
-              "value": "'horizontal'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
-        "defaultValue": {
-          "value": "'horizontal'",
-          "computed": false
-        }
-      },
-      "is_RTL": {
+      "clearable": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
         "defaultValue": {
           "value": "false",
           "computed": false
         }
-      },
-      "placeholder": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Text that will be displayed in the input\nbox of the date picker when no date is selected.\nDefault value is 'Start Date'"
       },
       "reopen_calendar_on_clear": {
         "type": {
@@ -1123,38 +1137,19 @@
           "computed": false
         }
       },
-      "number_of_months_shown": {
+      "display_format": {
         "type": {
-          "name": "number"
+          "name": "string"
         },
         "required": false,
-        "description": "Number of calendar months that are shown when calendar is opened",
-        "defaultValue": {
-          "value": "1",
-          "computed": false
-        }
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
       },
-      "with_portal": {
+      "month_format": {
         "type": {
-          "name": "bool"
+          "name": "string"
         },
         "required": false,
-        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
-      },
-      "with_full_screen_portal": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to True,\nnot supported on vertical calendar",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
       },
       "first_day_of_week": {
         "type": {
@@ -1197,17 +1192,6 @@
           "computed": false
         }
       },
-      "stay_open_on_select": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
-      },
       "show_outside_days": {
         "type": {
           "name": "bool"
@@ -1219,19 +1203,92 @@
           "computed": false
         }
       },
-      "month_format": {
+      "stay_open_on_select": {
         "type": {
-          "name": "string"
+          "name": "bool"
         },
         "required": false,
-        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
+        "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
-      "display_format": {
+      "calendar_orientation": {
         "type": {
-          "name": "string"
+          "name": "enum",
+          "value": [
+            {
+              "value": "'vertical'",
+              "computed": false
+            },
+            {
+              "value": "'horizontal'",
+              "computed": false
+            }
+          ]
         },
         "required": false,
-        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
+        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
+        "defaultValue": {
+          "value": "'horizontal'",
+          "computed": false
+        }
+      },
+      "number_of_months_shown": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of calendar months that are shown when calendar is opened",
+        "defaultValue": {
+          "value": "1",
+          "computed": false
+        }
+      },
+      "with_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "with_full_screen_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to True,\nnot supported on vertical calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "day_size": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
+        "defaultValue": {
+          "value": "39",
+          "computed": false
+        }
+      },
+      "is_RTL": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "disabled": {
         "type": {
@@ -1243,24 +1300,6 @@
           "value": "false",
           "computed": false
         }
-      },
-      "clearable": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
-      },
-      "setProps": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Dash-assigned callback that gets fired when the value changes."
       },
       "style": {
         "type": {
@@ -1275,6 +1314,20 @@
         },
         "required": false,
         "description": "Appends a CSS class to the wrapper div component."
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
       },
       "loading_state": {
         "type": {
@@ -1442,32 +1495,12 @@
     "displayName": "Dropdown",
     "methods": [],
     "props": {
-      "id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
-      },
       "options": {
         "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "exact",
-            "value": {
-              "label": {
-                "name": "union",
-                "value": [
-                  {
-                    "name": "string"
-                  },
-                  {
-                    "name": "number"
-                  }
-                ],
-                "description": "The dropdown's label",
-                "required": true
-              },
+          "name": "union",
+          "value": [
+            {
+              "name": "arrayOf",
               "value": {
                 "name": "union",
                 "value": [
@@ -1476,23 +1509,67 @@
                   },
                   {
                     "name": "number"
+                  },
+                  {
+                    "name": "bool"
                   }
-                ],
-                "description": "The value of the dropdown. This value\ncorresponds to the items specified in the\n`value` property.",
-                "required": true
+                ]
               },
-              "disabled": {
-                "name": "bool",
-                "description": "If true, this option is disabled and cannot be selected.",
-                "required": false
+              "description": "Array of options where the label and the value are the same thing - [string|number|bool]"
+            },
+            {
+              "name": "object",
+              "description": "Simpler `options` representation in dictionary format. The order is not guaranteed.\n{`value1`: `label1`, `value2`: `label2`, ... }\nwhich is equal to\n[{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "exact",
+                "value": {
+                  "label": {
+                    "name": "union",
+                    "value": [
+                      {
+                        "name": "string"
+                      },
+                      {
+                        "name": "number"
+                      }
+                    ],
+                    "description": "The option's label",
+                    "required": true
+                  },
+                  "value": {
+                    "name": "union",
+                    "value": [
+                      {
+                        "name": "string"
+                      },
+                      {
+                        "name": "number"
+                      },
+                      {
+                        "name": "bool"
+                      }
+                    ],
+                    "description": "The value of the option. This value\ncorresponds to the items specified in the\n`value` property.",
+                    "required": true
+                  },
+                  "disabled": {
+                    "name": "bool",
+                    "description": "If true, this option is disabled and cannot be selected.",
+                    "required": false
+                  },
+                  "title": {
+                    "name": "string",
+                    "description": "The HTML 'title' attribute for the option. Allows for\ninformation on hover. For more information on this attribute,\nsee https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title",
+                    "required": false
+                  }
+                }
               },
-              "title": {
-                "name": "string",
-                "description": "The HTML 'title' attribute for the option. Allows for\ninformation on hover. For more information on this attribute,\nsee https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title",
-                "required": false
-              }
+              "description": "An array of options {label: [string|number], value: [string|number]},\nan optional disabled field can be used for each option"
             }
-          }
+          ]
         },
         "required": false,
         "description": "An array of options {label: [string|number], value: [string|number]},\nan optional disabled field can be used for each option"
@@ -1508,6 +1585,9 @@
               "name": "number"
             },
             {
+              "name": "bool"
+            },
+            {
               "name": "arrayOf",
               "value": {
                 "name": "union",
@@ -1517,6 +1597,9 @@
                   },
                   {
                     "name": "number"
+                  },
+                  {
+                    "name": "bool"
                   }
                 ]
               }
@@ -1525,46 +1608,6 @@
         },
         "required": false,
         "description": "The value of the input. If `multi` is false (the default)\nthen value is just a string that corresponds to the values\nprovided in the `options` property. If `multi` is true, then\nmultiple values can be selected at once, and `value` is an\narray of items with values corresponding to those in the\n`options` prop."
-      },
-      "optionHeight": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "height of each option. Can be increased when label lengths would wrap around",
-        "defaultValue": {
-          "value": "35",
-          "computed": false
-        }
-      },
-      "className": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "className of the dropdown element"
-      },
-      "clearable": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
-        "defaultValue": {
-          "value": "true",
-          "computed": false
-        }
-      },
-      "disabled": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If true, this dropdown is disabled and the selection cannot be changed.",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
       },
       "multi": {
         "type": {
@@ -1577,12 +1620,16 @@
           "computed": false
         }
       },
-      "placeholder": {
+      "clearable": {
         "type": {
-          "name": "string"
+          "name": "bool"
         },
         "required": false,
-        "description": "The grey, default text shown when no option is selected"
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
       },
       "searchable": {
         "type": {
@@ -1602,12 +1649,34 @@
         "required": false,
         "description": "The value typed in the DropDown for searching."
       },
-      "setProps": {
+      "placeholder": {
         "type": {
-          "name": "func"
+          "name": "string"
         },
         "required": false,
-        "description": "Dash-assigned callback that gets fired when the input changes"
+        "description": "The grey, default text shown when no option is selected"
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, this dropdown is disabled and the selection cannot be changed.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "optionHeight": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "height of each option. Can be increased when label lengths would wrap around",
+        "defaultValue": {
+          "value": "35",
+          "computed": false
+        }
       },
       "style": {
         "type": {
@@ -1615,6 +1684,27 @@
         },
         "required": false,
         "description": "Defines CSS styles which will override styles previously set."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "className of the dropdown element"
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the input changes"
       },
       "loading_state": {
         "type": {
@@ -2340,13 +2430,6 @@
       }
     ],
     "props": {
-      "id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
-      },
       "value": {
         "type": {
           "name": "union",
@@ -2361,31 +2444,6 @@
         },
         "required": false,
         "description": "The value of the input"
-      },
-      "style": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "The input's inline styles"
-      },
-      "className": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The class of the input element"
-      },
-      "debounce": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If true, changes to input will be sent back to the Dash server only on enter or when losing focus.\nIf it's false, it will sent the value back on every change.",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
       },
       "type": {
         "type": {
@@ -2436,66 +2494,53 @@
           "computed": false
         }
       },
-      "autoComplete": {
+      "debounce": {
         "type": {
-          "name": "string"
+          "name": "bool"
         },
         "required": false,
-        "description": "This attribute indicates whether the value of the control can be automatically completed by the browser."
+        "description": "If true, changes to input will be sent back to the Dash server only on enter or when losing focus.\nIf it's false, it will sent the value back on every change.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
-      "autoFocus": {
+      "placeholder": {
         "type": {
           "name": "union",
           "value": [
             {
-              "name": "enum",
-              "value": [
-                {
-                  "value": "'autoFocus'",
-                  "computed": false
-                },
-                {
-                  "value": "'autofocus'",
-                  "computed": false
-                },
-                {
-                  "value": "'AUTOFOCUS'",
-                  "computed": false
-                }
-              ]
+              "name": "string"
             },
             {
-              "name": "bool"
+              "name": "number"
             }
           ]
         },
         "required": false,
-        "description": "The element should be automatically focused after the page loaded.\nautoFocus is an HTML boolean attribute - it is enabled by a boolean or\n'autoFocus'. Alternative capitalizations `autofocus` & `AUTOFOCUS`\nare also acccepted."
+        "description": "A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it."
       },
-      "disabled": {
+      "n_submit": {
         "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "enum",
-              "value": [
-                {
-                  "value": "'disabled'",
-                  "computed": false
-                },
-                {
-                  "value": "'DISABLED'",
-                  "computed": false
-                }
-              ]
-            },
-            {
-              "name": "bool"
-            }
-          ]
+          "name": "number"
         },
         "required": false,
-        "description": "If true, the input is disabled and can't be clicked on.\ndisabled is an HTML boolean attribute - it is enabled by a boolean or\n'disabled'. Alternative capitalizations `DISABLED`"
+        "description": "Number of times the `Enter` key was pressed while the input had focus.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "n_submit_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Last time that `Enter` was pressed.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
       },
       "inputMode": {
         "type": {
@@ -2550,108 +2595,12 @@
         "required": false,
         "description": "Provides a hint to the browser as to the type of data that might be\nentered by the user while editing the element or its contents."
       },
-      "list": {
+      "autoComplete": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Identifies a list of pre-defined options to suggest to the user.\nThe value must be the id of a <datalist> element in the same document.\nThe browser displays only options that are valid values for this\ninput element.\nThis attribute is ignored when the type attribute's value is\nhidden, checkbox, radio, file, or a button type."
-      },
-      "max": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "string"
-            },
-            {
-              "name": "number"
-            }
-          ]
-        },
-        "required": false,
-        "description": "The maximum (numeric or date-time) value for this item, which must not be less than its minimum (min attribute) value."
-      },
-      "maxLength": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "string"
-            },
-            {
-              "name": "number"
-            }
-          ]
-        },
-        "required": false,
-        "description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed."
-      },
-      "min": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "string"
-            },
-            {
-              "name": "number"
-            }
-          ]
-        },
-        "required": false,
-        "description": "The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value."
-      },
-      "minLength": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "string"
-            },
-            {
-              "name": "number"
-            }
-          ]
-        },
-        "required": false,
-        "description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored."
-      },
-      "multiple": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "This Boolean attribute indicates whether the user can enter more than one value. This attribute applies when the type attribute is set to email or file, otherwise it is ignored."
-      },
-      "name": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The name of the control, which is submitted with the form data."
-      },
-      "pattern": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "A regular expression that the control's value is checked against. The pattern must match the entire value, not just some subset. Use the title attribute to describe the pattern to help the user. This attribute applies when the value of the type attribute is text, search, tel, url, email, or password, otherwise it is ignored. The regular expression language is the same as JavaScript RegExp algorithm, with the 'u' parameter that makes it treat the pattern as a sequence of unicode code points. The pattern is not surrounded by forward slashes."
-      },
-      "placeholder": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "string"
-            },
-            {
-              "name": "number"
-            }
-          ]
-        },
-        "required": false,
-        "description": "A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it."
+        "description": "This attribute indicates whether the value of the control can be automatically completed by the browser."
       },
       "readOnly": {
         "type": {
@@ -2707,33 +2656,73 @@
         "required": false,
         "description": "This attribute specifies that the user must fill in a value before submitting a form. It cannot be used when the type attribute is hidden, image, or a button type (submit, reset, or button). The :optional and :required CSS pseudo-classes will be applied to the field as appropriate.\nrequired is an HTML boolean attribute - it is enabled by a boolean or\n'required'. Alternative capitalizations `REQUIRED`\nare also acccepted."
       },
-      "selectionDirection": {
+      "autoFocus": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'autoFocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'autofocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'AUTOFOCUS'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
-        "description": "The direction in which selection occurred. This is \"forward\" if the selection was made from left-to-right in an LTR locale or right-to-left in an RTL locale, or \"backward\" if the selection was made in the opposite direction. On platforms on which it's possible this value isn't known, the value can be \"none\"; for example, on macOS, the default direction is \"none\", then as the user begins to modify the selection using the keyboard, this will change to reflect the direction in which the selection is expanding."
+        "description": "The element should be automatically focused after the page loaded.\nautoFocus is an HTML boolean attribute - it is enabled by a boolean or\n'autoFocus'. Alternative capitalizations `autofocus` & `AUTOFOCUS`\nare also acccepted."
       },
-      "selectionEnd": {
+      "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
-        "description": "The offset into the element's text content of the last selected character. If there's no selection, this value indicates the offset to the character following the current text input cursor position (that is, the position the next character typed would occupy)."
+        "description": "If true, the input is disabled and can't be clicked on.\ndisabled is an HTML boolean attribute - it is enabled by a boolean or\n'disabled'. Alternative capitalizations `DISABLED`"
       },
-      "selectionStart": {
+      "list": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "The offset into the element's text content of the first selected character. If there's no selection, this value indicates the offset to the character following the current text input cursor position (that is, the position the next character typed would occupy)."
+        "description": "Identifies a list of pre-defined options to suggest to the user.\nThe value must be the id of a <datalist> element in the same document.\nThe browser displays only options that are valid values for this\ninput element.\nThis attribute is ignored when the type attribute's value is\nhidden, checkbox, radio, file, or a button type."
       },
-      "size": {
+      "multiple": {
         "type": {
-          "name": "string"
+          "name": "bool"
         },
         "required": false,
-        "description": "The initial size of the control. This value is in pixels unless the value of the type attribute is text or password, in which case it is an integer number of characters. Starting in, this attribute applies only when the type attribute is set to text, search, tel, url, email, or password, otherwise it is ignored. In addition, the size must be greater than zero. If you do not specify a size, a default value of 20 is used.' simply states \"the user agent should ensure that at least that many characters are visible\", but different characters can have different widths in certain fonts. In some browsers, a certain string with x characters will not be entirely visible even if size is defined to at least x."
+        "description": "This Boolean attribute indicates whether the user can enter more than one value. This attribute applies when the type attribute is set to email or file, otherwise it is ignored."
       },
       "spellCheck": {
         "type": {
@@ -2760,6 +2749,43 @@
         "required": false,
         "description": "Setting the value of this attribute to true indicates that the element needs to have its spelling and grammar checked. The value default indicates that the element is to act according to a default behavior, possibly based on the parent element's own spellcheck value. The value false indicates that the element should not be checked."
       },
+      "name": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The name of the control, which is submitted with the form data."
+      },
+      "min": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
+        },
+        "required": false,
+        "description": "The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value."
+      },
+      "max": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
+        },
+        "required": false,
+        "description": "The maximum (numeric or date-time) value for this item, which must not be less than its minimum (min attribute) value."
+      },
       "step": {
         "type": {
           "name": "union",
@@ -2779,27 +2805,63 @@
           "computed": false
         }
       },
-      "n_submit": {
+      "minLength": {
         "type": {
-          "name": "number"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
-        "description": "Number of times the `Enter` key was pressed while the input had focus.",
-        "defaultValue": {
-          "value": "0",
-          "computed": false
-        }
+        "description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored."
       },
-      "n_submit_timestamp": {
+      "maxLength": {
         "type": {
-          "name": "number"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
-        "description": "Last time that `Enter` was pressed.",
-        "defaultValue": {
-          "value": "-1",
-          "computed": false
-        }
+        "description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed."
+      },
+      "pattern": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A regular expression that the control's value is checked against. The pattern must match the entire value, not just some subset. Use the title attribute to describe the pattern to help the user. This attribute applies when the value of the type attribute is text, search, tel, url, email, or password, otherwise it is ignored. The regular expression language is the same as JavaScript RegExp algorithm, with the 'u' parameter that makes it treat the pattern as a sequence of unicode code points. The pattern is not surrounded by forward slashes."
+      },
+      "selectionStart": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The offset into the element's text content of the first selected character. If there's no selection, this value indicates the offset to the character following the current text input cursor position (that is, the position the next character typed would occupy)."
+      },
+      "selectionEnd": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The offset into the element's text content of the last selected character. If there's no selection, this value indicates the offset to the character following the current text input cursor position (that is, the position the next character typed would occupy)."
+      },
+      "selectionDirection": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The direction in which selection occurred. This is \"forward\" if the selection was made from left-to-right in an LTR locale or right-to-left in an RTL locale, or \"backward\" if the selection was made in the opposite direction. On platforms on which it's possible this value isn't known, the value can be \"none\"; for example, on macOS, the default direction is \"none\", then as the user begins to modify the selection using the keyboard, this will change to reflect the direction in which the selection is expanding."
       },
       "n_blur": {
         "type": {
@@ -2822,6 +2884,34 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "size": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The initial size of the control. This value is in pixels unless the value of the type attribute is text or password, in which case it is an integer number of characters. Starting in, this attribute applies only when the type attribute is set to text, search, tel, url, email, or password, otherwise it is ignored. In addition, the size must be greater than zero. If you do not specify a size, a default value of 20 is used.' simply states \"the user agent should ensure that at least that many characters are visible\", but different characters can have different widths in certain fonts. In some browsers, a certain string with x characters will not be entirely visible even if size is defined to at least x."
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The input's inline styles"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the input element"
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "setProps": {
         "type": {
@@ -3037,12 +3127,12 @@
       }
     ],
     "props": {
-      "id": {
+      "children": {
         "type": {
-          "name": "string"
+          "name": "node"
         },
         "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+        "description": "The children of this component"
       },
       "href": {
         "type": {
@@ -3050,6 +3140,13 @@
         },
         "required": true,
         "description": "The URL of a linked resource."
+      },
+      "target": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies where to open the link reference."
       },
       "refresh": {
         "type": {
@@ -3061,6 +3158,13 @@
           "value": "false",
           "computed": false
         }
+      },
+      "title": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Adds the title attribute to your link, which can contain supplementary\ninformation."
       },
       "className": {
         "type": {
@@ -3076,26 +3180,12 @@
         "required": false,
         "description": "Defines CSS styles which will override styles previously set."
       },
-      "title": {
+      "id": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Adds the title attribute to your link, which can contain supplementary\ninformation."
-      },
-      "target": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Specifies where to open the link reference."
-      },
-      "children": {
-        "type": {
-          "name": "node"
-        },
-        "required": false,
-        "description": "The children of this component"
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "loading_state": {
         "type": {
@@ -3558,32 +3648,12 @@
     "displayName": "RadioItems",
     "methods": [],
     "props": {
-      "id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
-      },
       "options": {
         "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "exact",
-            "value": {
-              "label": {
-                "name": "union",
-                "value": [
-                  {
-                    "name": "string"
-                  },
-                  {
-                    "name": "number"
-                  }
-                ],
-                "description": "The radio item's label",
-                "required": true
-              },
+          "name": "union",
+          "value": [
+            {
+              "name": "arrayOf",
               "value": {
                 "name": "union",
                 "value": [
@@ -3592,21 +3662,73 @@
                   },
                   {
                     "name": "number"
+                  },
+                  {
+                    "name": "bool"
                   }
-                ],
-                "description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`value` property.",
-                "required": true
+                ]
               },
-              "disabled": {
-                "name": "bool",
-                "description": "If true, this radio item is disabled and can't be clicked on.",
-                "required": false
-              }
+              "description": "Array of options where the label and the value are the same thing - [string|number|bool]"
+            },
+            {
+              "name": "object",
+              "description": "Simpler `options` representation in dictionary format. The order is not guaranteed.\n{`value1`: `label1`, `value2`: `label2`, ... }\nwhich is equal to\n[{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "exact",
+                "value": {
+                  "label": {
+                    "name": "union",
+                    "value": [
+                      {
+                        "name": "string"
+                      },
+                      {
+                        "name": "number"
+                      },
+                      {
+                        "name": "bool"
+                      }
+                    ],
+                    "description": "The option's label",
+                    "required": true
+                  },
+                  "value": {
+                    "name": "union",
+                    "value": [
+                      {
+                        "name": "string"
+                      },
+                      {
+                        "name": "number"
+                      },
+                      {
+                        "name": "bool"
+                      }
+                    ],
+                    "description": "The value of the option. This value\ncorresponds to the items specified in the\n`value` property.",
+                    "required": true
+                  },
+                  "disabled": {
+                    "name": "bool",
+                    "description": "If true, this option is disabled and cannot be selected.",
+                    "required": false
+                  },
+                  "title": {
+                    "name": "string",
+                    "description": "The HTML 'title' attribute for the option. Allows for\ninformation on hover. For more information on this attribute,\nsee https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title",
+                    "required": false
+                  }
+                }
+              },
+              "description": "An array of options {label: [string|number], value: [string|number]},\nan optional disabled field can be used for each option"
             }
-          }
+          ]
         },
         "required": false,
-        "description": "An array of options",
+        "description": "An array of options, or inline dictionary of options",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -3621,11 +3743,25 @@
             },
             {
               "name": "number"
+            },
+            {
+              "name": "bool"
             }
           ]
         },
         "required": false,
         "description": "The currently selected value"
+      },
+      "inline": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Indicates whether labelStyle should be inline or not\nTrue: Automatically set { 'display': 'inline-block' } to labelStyle\nFalse: No additional styles are passed into labelStyle.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "style": {
         "type": {
@@ -3684,6 +3820,13 @@
           "value": "''",
           "computed": false
         }
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "setProps": {
         "type": {
@@ -3786,12 +3929,26 @@
     "displayName": "RangeSlider",
     "methods": [],
     "props": {
-      "id": {
+      "min": {
         "type": {
-          "name": "string"
+          "name": "number"
         },
         "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+        "description": "Minimum allowed value of the slider"
+      },
+      "max": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Maximum allowed value of the slider"
+      },
+      "step": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Value by which increments or decrements are made"
       },
       "marks": {
         "type": {
@@ -3848,55 +4005,6 @@
         "required": false,
         "description": "allowCross could be set as true to allow those handles to cross."
       },
-      "className": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Additional CSS class for the root DOM node"
-      },
-      "count": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Determine how many ranges to render, and multiple handles\nwill be rendered (number + 1)."
-      },
-      "disabled": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If true, the handles can't be moved."
-      },
-      "dots": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots."
-      },
-      "included": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
-      },
-      "min": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Minimum allowed value of the slider"
-      },
-      "max": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Maximum allowed value of the slider"
-      },
       "pushable": {
         "type": {
           "name": "union",
@@ -3911,6 +4019,34 @@
         },
         "required": false,
         "description": "pushable could be set as true to allow pushing of\nsurrounding handles when moving an handle.\nWhen set to a number, the number will be the\nminimum ensured distance between handles."
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the handles can't be moved."
+      },
+      "count": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Determine how many ranges to render, and multiple handles\nwill be rendered (number + 1)."
+      },
+      "dots": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots."
+      },
+      "included": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
       },
       "tooltip": {
         "type": {
@@ -3965,31 +4101,6 @@
         "required": false,
         "description": "Configuration for tooltips describing the current slider values"
       },
-      "step": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Value by which increments or decrements are made"
-      },
-      "vertical": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If true, the slider will be vertical"
-      },
-      "verticalHeight": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "The height, in px, of the slider if it is vertical.",
-        "defaultValue": {
-          "value": "400",
-          "computed": false
-        }
-      },
       "updatemode": {
         "type": {
           "name": "enum",
@@ -4010,6 +4121,38 @@
           "value": "'mouseup'",
           "computed": false
         }
+      },
+      "vertical": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the slider will be vertical"
+      },
+      "verticalHeight": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The height, in px, of the slider if it is vertical.",
+        "defaultValue": {
+          "value": "400",
+          "computed": false
+        }
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Additional CSS class for the root DOM node"
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "setProps": {
         "type": {
@@ -4112,12 +4255,26 @@
     "displayName": "Slider",
     "methods": [],
     "props": {
-      "id": {
+      "min": {
         "type": {
-          "name": "string"
+          "name": "number"
         },
         "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+        "description": "Minimum allowed value of the slider"
+      },
+      "max": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Maximum allowed value of the slider"
+      },
+      "step": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Value by which increments or decrements are made"
       },
       "marks": {
         "type": {
@@ -4161,13 +4318,6 @@
         "required": false,
         "description": "The value of the input during a drag"
       },
-      "className": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Additional CSS class for the root DOM node"
-      },
       "disabled": {
         "type": {
           "name": "bool"
@@ -4188,20 +4338,6 @@
         },
         "required": false,
         "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
-      },
-      "min": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Minimum allowed value of the slider"
-      },
-      "max": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Maximum allowed value of the slider"
       },
       "tooltip": {
         "type": {
@@ -4256,31 +4392,6 @@
         "required": false,
         "description": "Configuration for tooltips describing the current slider value"
       },
-      "step": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Value by which increments or decrements are made"
-      },
-      "vertical": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If true, the slider will be vertical"
-      },
-      "verticalHeight": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "The height, in px, of the slider if it is vertical.",
-        "defaultValue": {
-          "value": "400",
-          "computed": false
-        }
-      },
       "updatemode": {
         "type": {
           "name": "enum",
@@ -4301,6 +4412,38 @@
           "value": "'mouseup'",
           "computed": false
         }
+      },
+      "vertical": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the slider will be vertical"
+      },
+      "verticalHeight": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The height, in px, of the slider if it is vertical.",
+        "defaultValue": {
+          "value": "400",
+          "computed": false
+        }
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Additional CSS class for the root DOM node"
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "setProps": {
         "type": {

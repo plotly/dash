@@ -4164,7 +4164,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property. Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
       },
       "width": {
         "type": {
@@ -4179,7 +4179,7 @@
           ]
         },
         "required": false,
-        "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+        "description": "For the elements listed here, this establishes the element's width. Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
       },
       "accessKey": {
         "type": {
@@ -8155,7 +8155,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property. Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
       },
       "src": {
         "type": {
@@ -8184,7 +8184,7 @@
           ]
         },
         "required": false,
-        "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+        "description": "For the elements listed here, this establishes the element's width. Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
       },
       "accessKey": {
         "type": {
@@ -12206,7 +12206,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property. Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
       },
       "name": {
         "type": {
@@ -12256,7 +12256,7 @@
           ]
         },
         "required": false,
-        "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+        "description": "For the elements listed here, this establishes the element's width. Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
       },
       "accessKey": {
         "type": {
@@ -12489,7 +12489,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property. Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
       },
       "referrerPolicy": {
         "type": {
@@ -12539,7 +12539,7 @@
           ]
         },
         "required": false,
-        "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+        "description": "For the elements listed here, this establishes the element's width. Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
       },
       "accessKey": {
         "type": {
@@ -16341,7 +16341,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property. Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
       },
       "name": {
         "type": {
@@ -16377,7 +16377,7 @@
           ]
         },
         "required": false,
-        "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+        "description": "For the elements listed here, this establishes the element's width. Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
       },
       "accessKey": {
         "type": {
@@ -27047,7 +27047,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+        "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property. Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
       },
       "loop": {
         "type": {
@@ -27133,7 +27133,7 @@
           ]
         },
         "required": false,
-        "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+        "description": "For the elements listed here, this establishes the element's width. Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
       },
       "accessKey": {
         "type": {

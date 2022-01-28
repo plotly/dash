@@ -15,16 +15,30 @@ class Link(Component):
     - children (a list of or a singular dash component, string or number; optional):
         The children of this component.
 
-    - id (string; optional):
-        The ID of this component, used to identify dash components in
-        callbacks. The ID needs to be unique across all of the components
-        in an app.
+    - href (string; required):
+        The URL of a linked resource.
+
+    - target (string; optional):
+        Specifies where to open the link reference.
+
+    - refresh (boolean; default False):
+        Controls whether or not the page will refresh when the link is
+        clicked.
+
+    - title (string; optional):
+        Adds the title attribute to your link, which can contain
+        supplementary information.
 
     - className (string; optional):
         Often used with CSS to style elements with common properties.
 
-    - href (string; required):
-        The URL of a linked resource.
+    - style (dict; optional):
+        Defines CSS styles which will override styles previously set.
+
+    - id (string; optional):
+        The ID of this component, used to identify dash components in
+        callbacks. The ID needs to be unique across all of the components
+        in an app.
 
     - loading_state (dict; optional):
         Object that holds the loading state object coming from
@@ -39,60 +53,46 @@ class Link(Component):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
-            Holds which property is loading.
-
-    - refresh (boolean; default False):
-        Controls whether or not the page will refresh when the link is
-        clicked.
-
-    - style (dict; optional):
-        Defines CSS styles which will override styles previously set.
-
-    - target (string; optional):
-        Specifies where to open the link reference.
-
-    - title (string; optional):
-        Adds the title attribute to your link, which can contain
-        supplementary information."""
+            Holds which property is loading."""
 
     @_explicitize_args
     def __init__(
         self,
         children=None,
-        id=Component.UNDEFINED,
         href=Component.REQUIRED,
+        target=Component.UNDEFINED,
         refresh=Component.UNDEFINED,
+        title=Component.UNDEFINED,
         className=Component.UNDEFINED,
         style=Component.UNDEFINED,
-        title=Component.UNDEFINED,
-        target=Component.UNDEFINED,
+        id=Component.UNDEFINED,
         loading_state=Component.UNDEFINED,
         **kwargs
     ):
         self._prop_names = [
             "children",
-            "id",
-            "className",
             "href",
-            "loading_state",
-            "refresh",
-            "style",
             "target",
+            "refresh",
             "title",
+            "className",
+            "style",
+            "id",
+            "loading_state",
         ]
         self._type = "Link"
         self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "children",
-            "id",
-            "className",
             "href",
-            "loading_state",
-            "refresh",
-            "style",
             "target",
+            "refresh",
             "title",
+            "className",
+            "style",
+            "id",
+            "loading_state",
         ]
         self.available_wildcard_properties = []
         _explicit_args = kwargs.pop("_explicit_args")

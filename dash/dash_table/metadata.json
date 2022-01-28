@@ -1,22 +1,15 @@
 {
   "src/dash-table/dash/DataTable.js": {
-    "description": "Dash DataTable is an interactive table component designed for\ndesigned for viewing, editing, and exploring large datasets.\nDataTable is rendered with standard, semantic HTML <table/> markup,\nwhich makes it accessible, responsive, and easy to style. This\ncomponent was written from scratch in React.js specifically for the\nDash community. Its API was designed to be ergonomic and its behavior\nis completely customizable through its properties.",
+    "description": "Dash DataTable is an interactive table component designed for\nviewing, editing, and exploring large datasets.\nDataTable is rendered with standard, semantic HTML <table/> markup,\nwhich makes it accessible, responsive, and easy to style. This\ncomponent was written from scratch in React.js specifically for the\nDash community. Its API was designed to be ergonomic and its behavior\nis completely customizable through its properties.",
     "displayName": "DataTable",
     "methods": [],
     "props": {
-      "active_cell": {
+      "data": {
         "type": {
-          "name": "exact",
+          "name": "arrayOf",
           "value": {
-            "row": {
-              "name": "number",
-              "required": false
-            },
-            "column": {
-              "name": "number",
-              "required": false
-            },
-            "row_id": {
+            "name": "objectOf",
+            "value": {
               "name": "union",
               "value": [
                 {
@@ -24,18 +17,16 @@
                 },
                 {
                   "name": "number"
+                },
+                {
+                  "name": "bool"
                 }
-              ],
-              "required": false
-            },
-            "column_id": {
-              "name": "string",
-              "required": false
+              ]
             }
           }
         },
         "required": false,
-        "description": "The row and column indices and IDs of the currently active cell.\n`row_id` is only returned if the data rows have an `id` key."
+        "description": "The contents of the table.\nThe keys of each item in data should match the column IDs.\nEach item can also have an 'id' key, whose value is its row ID. If there\nis a column with ID='id' this will display the row ID, otherwise it is\njust used to reference the row for selections, filtering, etc.\nExample:\n[\n     {'column-1': 4.5, 'column-2': 'montreal', 'column-3': 'canada'},\n     {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}\n]"
       },
       "columns": {
         "type": {
@@ -43,6 +34,98 @@
           "value": {
             "name": "exact",
             "value": {
+              "id": {
+                "name": "string",
+                "description": "The `id` of the column.\nThe column `id` is used to match cells in data with particular columns.\nThe `id` is not visible in the table.",
+                "required": true
+              },
+              "name": {
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "arrayOf",
+                    "value": {
+                      "name": "string"
+                    }
+                  }
+                ],
+                "description": "The `name` of the column, as it appears in the column header.\nIf `name` is a list of strings, then the columns\nwill render with multiple headers rows.",
+                "required": true
+              },
+              "type": {
+                "name": "enum",
+                "value": [
+                  {
+                    "value": "'any'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'numeric'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'text'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'datetime'",
+                    "computed": false
+                  }
+                ],
+                "description": "The data-type provides support for per column typing and allows for data\nvalidation and coercion.\n'numeric': represents both floats and ints.\n'text': represents a string.\n'datetime': a string representing a date or date-time, in the form:\n  'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must\n  have 4 digits, unless you use `validation.allow_YY: true`. Also\n  accepts 'T' or 't' between date and time, and allows timezone info\n  at the end. To convert these strings to Python `datetime` objects,\n  use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the\n  `parsedate` library.\n  WARNING: these parsers do not work with 2-digit years, if you use\n  `validation.allow_YY: true` and do not coerce to 4-digit years.\n  And parsers that do work with 2-digit years may make a different\n  guess about the century than we make on the front end.\n'any': represents any type of data.\nDefaults to 'any' if undefined.",
+                "required": false
+              },
+              "presentation": {
+                "name": "enum",
+                "value": [
+                  {
+                    "value": "'input'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'dropdown'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'markdown'",
+                    "computed": false
+                  }
+                ],
+                "description": "The `presentation` to use to display data. Markdown can be used on\ncolumns with type 'text'.  See 'dropdown' for more info.\nDefaults to 'input' for ['datetime', 'numeric', 'text', 'any'].",
+                "required": false
+              },
+              "selectable": {
+                "name": "union",
+                "value": [
+                  {
+                    "name": "enum",
+                    "value": [
+                      {
+                        "value": "'first'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'last'",
+                        "computed": false
+                      }
+                    ]
+                  },
+                  {
+                    "name": "bool"
+                  },
+                  {
+                    "name": "arrayOf",
+                    "value": {
+                      "name": "bool"
+                    }
+                  }
+                ],
+                "description": "If true, the user can select the column by clicking on the checkbox or radio button\nin the column. If there are multiple header rows, true will display the input\non each row.\nIf `last`, the input will only appear on the last header row. If `first` it will only\nappear on the first header row. These are respectively shortcut equivalents to\n`[false, ..., false, true]` and `[true, false, ..., false]`.\nIf there are merged, multi-header columns then you can choose which column header\nrow to display the input in by supplying an array of booleans.\nFor example, `[true, false]` will display the `selectable` input on the first row,\nbut now on the second row.\nIf the `selectable` input appears on a merged columns, then clicking on that input\nwill select *all* of the merged columns associated with it.\nThe table-level prop `column_selectable` is used to determine the type of column\nselection to use.",
+                "required": false
+              },
               "clearable": {
                 "name": "union",
                 "value": [
@@ -106,27 +189,6 @@
                 "description": "There are two `editable` flags in the table.\nThis is the  column-level editable flag and there is\nalso the table-level `editable` flag.\nThese flags determine whether the contents of the table\nare editable or not.\nIf the column-level `editable` flag is set it overrides\nthe table-level `editable` flag for that column.",
                 "required": false
               },
-              "filter_options": {
-                "name": "shape",
-                "value": {
-                  "case": {
-                    "name": "enum",
-                    "value": [
-                      {
-                        "value": "'sensitive'",
-                        "computed": false
-                      },
-                      {
-                        "value": "'insensitive'",
-                        "computed": false
-                      }
-                    ],
-                    "required": false
-                  }
-                },
-                "description": "There are two `filter_options` props in the table.\nThis is the column-level filter_options prop and there is\nalso the table-level `filter_options` prop.\nThese props determine whether the applicable filter relational\noperators will default to `sensitive` or `insensitive` comparison.\nIf the column-level `filter_options` prop is set it overrides\nthe table-level `filter_options` prop for that column.",
-                "required": false
-              },
               "hideable": {
                 "name": "union",
                 "value": [
@@ -185,33 +247,25 @@
                 "description": "If true, the user can rename the column by clicking on the `rename`\naction button on the column. If there are multiple header rows, true\nwill display the action button on each row.\nIf `last`, the `rename` action button will only appear on the last header\nrow. If `first` it will only appear on the first header row. These\nare respectively shortcut equivalents to `[false, ..., false, true]` and\n`[true, false, ..., false]`.\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the `rename` action button in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the `rename` action button\non the first row, but not the second row.\nIf the `rename` action button appears on a merged column, then clicking\non that button will rename *all* of the merged columns associated with it.",
                 "required": false
               },
-              "selectable": {
-                "name": "union",
-                "value": [
-                  {
+              "filter_options": {
+                "name": "shape",
+                "value": {
+                  "case": {
                     "name": "enum",
                     "value": [
                       {
-                        "value": "'first'",
+                        "value": "'sensitive'",
                         "computed": false
                       },
                       {
-                        "value": "'last'",
+                        "value": "'insensitive'",
                         "computed": false
                       }
-                    ]
-                  },
-                  {
-                    "name": "bool"
-                  },
-                  {
-                    "name": "arrayOf",
-                    "value": {
-                      "name": "bool"
-                    }
+                    ],
+                    "required": false
                   }
-                ],
-                "description": "If true, the user can select the column by clicking on the checkbox or radio button\nin the column. If there are multiple header rows, true will display the input\non each row.\nIf `last`, the input will only appear on the last header row. If `first` it will only\nappear on the first header row. These are respectively shortcut equivalents to\n`[false, ..., false, true]` and `[true, false, ..., false]`.\nIf there are merged, multi-header columns then you can choose which column header\nrow to display the input in by supplying an array of booleans.\nFor example, `[true, false]` will display the `selectable` input on the first row,\nbut now on the second row.\nIf the `selectable` input appears on a merged columns, then clicking on that input\nwill select *all* of the merged columns associated with it.\nThe table-level prop `column_selectable` is used to determine the type of column\nselection to use.",
+                },
+                "description": "There are two `filter_options` props in the table.\nThis is the column-level filter_options prop and there is\nalso the table-level `filter_options` prop.\nThese props determine whether the applicable filter relational\noperators will default to `sensitive` or `insensitive` comparison.\nIf the column-level `filter_options` prop is set it overrides\nthe table-level `filter_options` prop for that column.",
                 "required": false
               },
               "format": {
@@ -285,46 +339,6 @@
                   }
                 },
                 "description": "The formatting applied to the column's data.\nThis prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from\nbeing structured slightly differently (under a single prop), the usage is the same.\nSee also dash_table.FormatTemplate.  It contains helper functions for typical number formats.",
-                "required": false
-              },
-              "id": {
-                "name": "string",
-                "description": "The `id` of the column.\nThe column `id` is used to match cells in data with particular columns.\nThe `id` is not visible in the table.",
-                "required": true
-              },
-              "name": {
-                "name": "union",
-                "value": [
-                  {
-                    "name": "string"
-                  },
-                  {
-                    "name": "arrayOf",
-                    "value": {
-                      "name": "string"
-                    }
-                  }
-                ],
-                "description": "The `name` of the column, as it appears in the column header.\nIf `name` is a list of strings, then the columns\nwill render with multiple headers rows.",
-                "required": true
-              },
-              "presentation": {
-                "name": "enum",
-                "value": [
-                  {
-                    "value": "'input'",
-                    "computed": false
-                  },
-                  {
-                    "value": "'dropdown'",
-                    "computed": false
-                  },
-                  {
-                    "value": "'markdown'",
-                    "computed": false
-                  }
-                ],
-                "description": "The `presentation` to use to display data. Markdown can be used on\ncolumns with type 'text'.  See 'dropdown' for more info.\nDefaults to 'input' for ['datetime', 'numeric', 'text', 'any'].",
                 "required": false
               },
               "on_change": {
@@ -412,199 +426,12 @@
                 },
                 "description": "The `validation` options for user input processing that can accept, reject or apply a\ndefault value.",
                 "required": false
-              },
-              "type": {
-                "name": "enum",
-                "value": [
-                  {
-                    "value": "'any'",
-                    "computed": false
-                  },
-                  {
-                    "value": "'numeric'",
-                    "computed": false
-                  },
-                  {
-                    "value": "'text'",
-                    "computed": false
-                  },
-                  {
-                    "value": "'datetime'",
-                    "computed": false
-                  }
-                ],
-                "description": "The data-type provides support for per column typing and allows for data\nvalidation and coercion.\n'numeric': represents both floats and ints.\n'text': represents a string.\n'datetime': a string representing a date or date-time, in the form:\n  'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must\n  have 4 digits, unless you use `validation.allow_YY: true`. Also\n  accepts 'T' or 't' between date and time, and allows timezone info\n  at the end. To convert these strings to Python `datetime` objects,\n  use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the\n  `parsedate` library.\n  WARNING: these parsers do not work with 2-digit years, if you use\n  `validation.allow_YY: true` and do not coerce to 4-digit years.\n  And parsers that do work with 2-digit years may make a different\n  guess about the century than we make on the front end.\n'any': represents any type of data.\nDefaults to 'any' if undefined.",
-                "required": false
               }
             }
           }
         },
         "required": false,
         "description": "Columns describes various aspects about each individual column.\n`name` and `id` are the only required parameters."
-      },
-      "include_headers_on_copy_paste": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If true, headers are included when copying from the table to different\ntabs and elsewhere. Note that headers are ignored when copying from the table onto itself and\nbetween two tables within the same tab.",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
-      },
-      "locale_format": {
-        "type": {
-          "name": "exact",
-          "value": {
-            "symbol": {
-              "name": "arrayOf",
-              "value": {
-                "name": "string"
-              },
-              "description": "(default: ['$', '']). A  list of two strings representing the\n  prefix and suffix symbols. Typically used for currency, and implemented using d3's\n  currency format, but you can use this for other symbols such as measurement units.",
-              "required": false
-            },
-            "decimal": {
-              "name": "string",
-              "description": "(default: '.'). The string used for the decimal separator.",
-              "required": false
-            },
-            "group": {
-              "name": "string",
-              "description": "(default: ','). The string used for the groups separator.",
-              "required": false
-            },
-            "grouping": {
-              "name": "arrayOf",
-              "value": {
-                "name": "number"
-              },
-              "description": "(default: [3]). A  list of integers representing the grouping pattern.",
-              "required": false
-            },
-            "numerals": {
-              "name": "arrayOf",
-              "value": {
-                "name": "string"
-              },
-              "description": "A list of ten strings used as replacements for numbers 0-9.",
-              "required": false
-            },
-            "percent": {
-              "name": "string",
-              "description": "(default: '%'). The string used for the percentage symbol.",
-              "required": false
-            },
-            "separate_4digits": {
-              "name": "bool",
-              "description": "(default: True). Separate integers with 4-digits or less.",
-              "required": false
-            }
-          }
-        },
-        "required": false,
-        "description": "The localization specific formatting information applied to all columns in the table.\nThis prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.\nWhen left unspecified, each individual nested prop will default to a pre-determined value."
-      },
-      "markdown_options": {
-        "type": {
-          "name": "exact",
-          "value": {
-            "link_target": {
-              "name": "union",
-              "value": [
-                {
-                  "name": "string"
-                },
-                {
-                  "name": "enum",
-                  "value": [
-                    {
-                      "value": "'_blank'",
-                      "computed": false
-                    },
-                    {
-                      "value": "'_parent'",
-                      "computed": false
-                    },
-                    {
-                      "value": "'_self'",
-                      "computed": false
-                    },
-                    {
-                      "value": "'_top'",
-                      "computed": false
-                    }
-                  ]
-                }
-              ],
-              "description": "(default: '_blank').  The link's behavior (_blank opens the link in a\nnew tab, _parent opens the link in the parent frame, _self opens the link in the\ncurrent tab, and _top opens the link in the top frame) or a string",
-              "required": false
-            },
-            "html": {
-              "name": "bool",
-              "description": "(default: False)  If True, html may be used in markdown cells\nBe careful enabling html if the content being rendered can come\nfrom an untrusted user, as this may create an XSS vulnerability.",
-              "required": false
-            }
-          }
-        },
-        "required": false,
-        "description": "The `markdown_options` property allows customization of the markdown cells behavior.",
-        "defaultValue": {
-          "value": "{\n    link_target: '_blank',\n    html: false\n}",
-          "computed": false
-        }
-      },
-      "css": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "exact",
-            "value": {
-              "selector": {
-                "name": "string",
-                "required": true
-              },
-              "rule": {
-                "name": "string",
-                "required": true
-              }
-            }
-          }
-        },
-        "required": false,
-        "description": "The `css` property is a way to embed CSS selectors and rules\nonto the page.\nWe recommend starting with the `style_*` properties\nbefore using this `css` property.\nExample:\n[\n    {\"selector\": \".dash-spreadsheet\", \"rule\": 'font-family: \"monospace\"'}\n]",
-        "defaultValue": {
-          "value": "[]",
-          "computed": false
-        }
-      },
-      "data": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "object"
-          }
-        },
-        "required": false,
-        "description": "The contents of the table.\nThe keys of each item in data should match the column IDs.\nEach item can also have an 'id' key, whose value is its row ID. If there\nis a column with ID='id' this will display the row ID, otherwise it is\njust used to reference the row for selections, filtering, etc.\nExample:\n[\n     {'column-1': 4.5, 'column-2': 'montreal', 'column-3': 'canada'},\n     {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}\n]"
-      },
-      "data_previous": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "object"
-          }
-        },
-        "required": false,
-        "description": "The previous state of `data`. `data_previous`\nhas the same structure as `data` and it will be updated\nwhenever `data` changes, either through a callback or\nby editing the table.\nThis is a read-only property: setting this property will not\nhave any impact on the table."
-      },
-      "data_timestamp": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "The unix timestamp when the data was last edited.\nUse this property with other timestamp properties\n(such as `n_clicks_timestamp` in `dash_html_components`)\nto determine which property has changed within a callback."
       },
       "editable": {
         "type": {
@@ -616,152 +443,6 @@
           "value": "false",
           "computed": false
         }
-      },
-      "end_cell": {
-        "type": {
-          "name": "exact",
-          "value": {
-            "row": {
-              "name": "number",
-              "required": false
-            },
-            "column": {
-              "name": "number",
-              "required": false
-            },
-            "row_id": {
-              "name": "union",
-              "value": [
-                {
-                  "name": "string"
-                },
-                {
-                  "name": "number"
-                }
-              ],
-              "required": false
-            },
-            "column_id": {
-              "name": "string",
-              "required": false
-            }
-          }
-        },
-        "required": false,
-        "description": "When selecting multiple cells\n(via clicking on a cell and then shift-clicking on another cell),\n`end_cell` represents the row / column coordinates and IDs of the cell\nin one of the corners of the region.\n`start_cell` represents the coordinates of the other corner."
-      },
-      "export_columns": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'all'",
-              "computed": false
-            },
-            {
-              "value": "'visible'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "Denotes the columns that will be used in the export data file.\nIf `all`, all columns will be used (visible + hidden). If `visible`,\nonly the visible columns will be used. Defaults to `visible`.",
-        "defaultValue": {
-          "value": "'visible'",
-          "computed": false
-        }
-      },
-      "export_format": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'csv'",
-              "computed": false
-            },
-            {
-              "value": "'xlsx'",
-              "computed": false
-            },
-            {
-              "value": "'none'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "Denotes the type of the export data file,\nDefaults to `'none'`",
-        "defaultValue": {
-          "value": "'none'",
-          "computed": false
-        }
-      },
-      "export_headers": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'none'",
-              "computed": false
-            },
-            {
-              "value": "'ids'",
-              "computed": false
-            },
-            {
-              "value": "'names'",
-              "computed": false
-            },
-            {
-              "value": "'display'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "Denotes the format of the headers in the export data file.\nIf `'none'`, there will be no header. If `'display'`, then the header\nof the data file will be be how it is currently displayed. Note that\n`'display'` is only supported for `'xlsx'` export_format and will behave\nlike `'names'` for `'csv'` export format. If `'ids'` or `'names'`,\nthen the headers of data file will be the column id or the column\nnames, respectively"
-      },
-      "fill_width": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "`fill_width` toggles between a set of CSS for two common behaviors:\nTrue: The table container's width will grow to fill the available space;\nFalse: The table container's width will equal the width of its content.",
-        "defaultValue": {
-          "value": "true",
-          "computed": false
-        }
-      },
-      "hidden_columns": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "string"
-          }
-        },
-        "required": false,
-        "description": "List of columns ids of the columns that are currently hidden.\nSee the associated nested prop `columns.hideable`."
-      },
-      "id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ID of the table."
-      },
-      "is_focused": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If True, then the `active_cell` is in a focused state."
-      },
-      "merge_duplicate_headers": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If True, then column headers that have neighbors with duplicate names\nwill be merged into a single cell.\nThis will be applied for single column headers and multi-column\nheaders."
       },
       "fixed_columns": {
         "type": {
@@ -906,13 +587,6 @@
           "computed": false
         }
       },
-      "row_deletable": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "If True, then a `x` will appear next to each `row`\nand the user can delete the row."
-      },
       "cell_selectable": {
         "type": {
           "name": "bool"
@@ -948,6 +622,46 @@
           "value": "false",
           "computed": false
         }
+      },
+      "row_deletable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, then a `x` will appear next to each `row`\nand the user can delete the row."
+      },
+      "active_cell": {
+        "type": {
+          "name": "exact",
+          "value": {
+            "row": {
+              "name": "number",
+              "required": false
+            },
+            "column": {
+              "name": "number",
+              "required": false
+            },
+            "row_id": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                }
+              ],
+              "required": false
+            },
+            "column_id": {
+              "name": "string",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "The row and column indices and IDs of the currently active cell.\n`row_id` is only returned if the data rows have an `id` key."
       },
       "selected_cells": {
         "type": {
@@ -1039,13 +753,6 @@
           "computed": false
         }
       },
-      "setProps": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Dash-assigned callback that gets fired when the user makes changes."
-      },
       "start_cell": {
         "type": {
           "name": "exact",
@@ -1079,16 +786,161 @@
         "required": false,
         "description": "When selecting multiple cells\n(via clicking on a cell and then shift-clicking on another cell),\n`start_cell` represents the [row, column] coordinates of the cell\nin one of the corners of the region.\n`end_cell` represents the coordinates of the other corner."
       },
-      "style_as_list_view": {
+      "end_cell": {
+        "type": {
+          "name": "exact",
+          "value": {
+            "row": {
+              "name": "number",
+              "required": false
+            },
+            "column": {
+              "name": "number",
+              "required": false
+            },
+            "row_id": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                }
+              ],
+              "required": false
+            },
+            "column_id": {
+              "name": "string",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "When selecting multiple cells\n(via clicking on a cell and then shift-clicking on another cell),\n`end_cell` represents the row / column coordinates and IDs of the cell\nin one of the corners of the region.\n`start_cell` represents the coordinates of the other corner."
+      },
+      "data_previous": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "object"
+          }
+        },
+        "required": false,
+        "description": "The previous state of `data`. `data_previous`\nhas the same structure as `data` and it will be updated\nwhenever `data` changes, either through a callback or\nby editing the table.\nThis is a read-only property: setting this property will not\nhave any impact on the table."
+      },
+      "hidden_columns": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "List of columns ids of the columns that are currently hidden.\nSee the associated nested prop `columns.hideable`."
+      },
+      "is_focused": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If True, then the table will be styled like a list view\nand not have borders between the columns.",
+        "description": "If True, then the `active_cell` is in a focused state."
+      },
+      "merge_duplicate_headers": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, then column headers that have neighbors with duplicate names\nwill be merged into a single cell.\nThis will be applied for single column headers and multi-column\nheaders."
+      },
+      "data_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The unix timestamp when the data was last edited.\nUse this property with other timestamp properties\n(such as `n_clicks_timestamp` in `dash_html_components`)\nto determine which property has changed within a callback."
+      },
+      "include_headers_on_copy_paste": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, headers are included when copying from the table to different\ntabs and elsewhere. Note that headers are ignored when copying from the table onto itself and\nbetween two tables within the same tab.",
         "defaultValue": {
           "value": "false",
           "computed": false
         }
+      },
+      "export_columns": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'all'",
+              "computed": false
+            },
+            {
+              "value": "'visible'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Denotes the columns that will be used in the export data file.\nIf `all`, all columns will be used (visible + hidden). If `visible`,\nonly the visible columns will be used. Defaults to `visible`.",
+        "defaultValue": {
+          "value": "'visible'",
+          "computed": false
+        }
+      },
+      "export_format": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'csv'",
+              "computed": false
+            },
+            {
+              "value": "'xlsx'",
+              "computed": false
+            },
+            {
+              "value": "'none'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Denotes the type of the export data file,\nDefaults to `'none'`",
+        "defaultValue": {
+          "value": "'none'",
+          "computed": false
+        }
+      },
+      "export_headers": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'none'",
+              "computed": false
+            },
+            {
+              "value": "'ids'",
+              "computed": false
+            },
+            {
+              "value": "'names'",
+              "computed": false
+            },
+            {
+              "value": "'display'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Denotes the format of the headers in the export data file.\nIf `'none'`, there will be no header. If `'display'`, then the header\nof the data file will be be how it is currently displayed. Note that\n`'display'` is only supported for `'xlsx'` export_format and will behave\nlike `'names'` for `'csv'` export format. If `'ids'` or `'names'`,\nthen the headers of data file will be the column id or the column\nnames, respectively"
       },
       "page_action": {
         "type": {
@@ -1141,6 +993,212 @@
         "description": "`page_size` represents the number of rows that will be\ndisplayed on a particular page when `page_action` is `'custom'` or `'native'`",
         "defaultValue": {
           "value": "250",
+          "computed": false
+        }
+      },
+      "filter_query": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "If `filter_action` is enabled, then the current filtering\nstring is represented in this `filter_query`\nproperty.",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
+      "filter_action": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'custom'",
+                  "computed": false
+                },
+                {
+                  "value": "'native'",
+                  "computed": false
+                },
+                {
+                  "value": "'none'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "shape",
+              "value": {
+                "type": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "'custom'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'native'",
+                      "computed": false
+                    }
+                  ],
+                  "required": true
+                },
+                "operator": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "'and'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'or'",
+                      "computed": false
+                    }
+                  ],
+                  "required": false
+                }
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The `filter_action` property controls the behavior of the `filtering` UI.\nIf `'none'`, then the filtering UI is not displayed.\nIf `'native'`, then the filtering UI is displayed and the filtering\nlogic is handled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, then the filtering UI is displayed but it is the\nresponsibility of the developer to program the filtering\nthrough a callback (where `filter_query` or `derived_filter_query_structure` would be the input\nand `data` would be the output).",
+        "defaultValue": {
+          "value": "'none'",
+          "computed": false
+        }
+      },
+      "filter_options": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "case": {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'sensitive'",
+                  "computed": false
+                },
+                {
+                  "value": "'insensitive'",
+                  "computed": false
+                }
+              ],
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "There are two `filter_options` props in the table.\nThis is the table-level filter_options prop and there is\nalso the column-level `filter_options` prop.\nThese props determine whether the applicable filter relational\noperators will default to `sensitive` or `insensitive` comparison.\nIf the column-level `filter_options` prop is set it overrides\nthe table-level `filter_options` prop for that column.",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "sort_action": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'custom'",
+              "computed": false
+            },
+            {
+              "value": "'native'",
+              "computed": false
+            },
+            {
+              "value": "'none'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "The `sort_action` property enables data to be\nsorted on a per-column basis.\nIf `'none'`, then the sorting UI is not displayed.\nIf `'native'`, then the sorting UI is displayed and the sorting\nlogic is handled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, the the sorting UI is displayed but it is the\nresponsibility of the developer to program the sorting\nthrough a callback (where `sort_by` would be the input and `data`\nwould be the output).\nClicking on the sort arrows will update the\n`sort_by` property.",
+        "defaultValue": {
+          "value": "'none'",
+          "computed": false
+        }
+      },
+      "sort_mode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'single'",
+              "computed": false
+            },
+            {
+              "value": "'multi'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Sorting can be performed across multiple columns\n(e.g. sort by country, sort within each country,\n sort by year) or by a single column.\nNOTE - With multi-column sort, it's currently\nnot possible to determine the order in which\nthe columns were sorted through the UI.\nSee [https://github.com/plotly/dash-table/issues/170](https://github.com/plotly/dash-table/issues/170)",
+        "defaultValue": {
+          "value": "'single'",
+          "computed": false
+        }
+      },
+      "sort_by": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "exact",
+            "value": {
+              "column_id": {
+                "name": "string",
+                "required": true
+              },
+              "direction": {
+                "name": "enum",
+                "value": [
+                  {
+                    "value": "'asc'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'desc'",
+                    "computed": false
+                  }
+                ],
+                "required": true
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "`sort_by` describes the current state\nof the sorting UI.\nThat is, if the user clicked on the sort arrow\nof a column, then this property will be updated\nwith the column ID and the direction\n(`asc` or `desc`) of the sort.\nFor multi-column sorting, this will be a list of\nsorting parameters, in the order in which they were\nclicked.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "sort_as_null": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "number"
+              },
+              {
+                "name": "bool"
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "An array of string, number and boolean values that are treated as `None`\n(i.e. ignored and always displayed last) when sorting.\nThis value will be used by columns without `sort_as_null`.\nDefaults to `[]`.",
+        "defaultValue": {
+          "value": "[]",
           "computed": false
         }
       },
@@ -1648,207 +1706,149 @@
           "computed": false
         }
       },
-      "filter_query": {
+      "locale_format": {
         "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "If `filter_action` is enabled, then the current filtering\nstring is represented in this `filter_query`\nproperty.",
-        "defaultValue": {
-          "value": "''",
-          "computed": false
-        }
-      },
-      "filter_action": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "enum",
-              "value": [
-                {
-                  "value": "'custom'",
-                  "computed": false
-                },
-                {
-                  "value": "'native'",
-                  "computed": false
-                },
-                {
-                  "value": "'none'",
-                  "computed": false
-                }
-              ]
-            },
-            {
-              "name": "shape",
-              "value": {
-                "type": {
-                  "name": "enum",
-                  "value": [
-                    {
-                      "value": "'custom'",
-                      "computed": false
-                    },
-                    {
-                      "value": "'native'",
-                      "computed": false
-                    }
-                  ],
-                  "required": true
-                },
-                "operator": {
-                  "name": "enum",
-                  "value": [
-                    {
-                      "value": "'and'",
-                      "computed": false
-                    },
-                    {
-                      "value": "'or'",
-                      "computed": false
-                    }
-                  ],
-                  "required": false
-                }
-              }
-            }
-          ]
-        },
-        "required": false,
-        "description": "The `filter_action` property controls the behavior of the `filtering` UI.\nIf `'none'`, then the filtering UI is not displayed.\nIf `'native'`, then the filtering UI is displayed and the filtering\nlogic is handled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, then the filtering UI is displayed but it is the\nresponsibility of the developer to program the filtering\nthrough a callback (where `filter_query` or `derived_filter_query_structure` would be the input\nand `data` would be the output).",
-        "defaultValue": {
-          "value": "'none'",
-          "computed": false
-        }
-      },
-      "filter_options": {
-        "type": {
-          "name": "shape",
+          "name": "exact",
           "value": {
-            "case": {
-              "name": "enum",
-              "value": [
-                {
-                  "value": "'sensitive'",
-                  "computed": false
-                },
-                {
-                  "value": "'insensitive'",
-                  "computed": false
-                }
-              ],
+            "symbol": {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              },
+              "description": "(default: ['$', '']). A  list of two strings representing the\n  prefix and suffix symbols. Typically used for currency, and implemented using d3's\n  currency format, but you can use this for other symbols such as measurement units.",
+              "required": false
+            },
+            "decimal": {
+              "name": "string",
+              "description": "(default: '.'). The string used for the decimal separator.",
+              "required": false
+            },
+            "group": {
+              "name": "string",
+              "description": "(default: ','). The string used for the groups separator.",
+              "required": false
+            },
+            "grouping": {
+              "name": "arrayOf",
+              "value": {
+                "name": "number"
+              },
+              "description": "(default: [3]). A  list of integers representing the grouping pattern.",
+              "required": false
+            },
+            "numerals": {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              },
+              "description": "A list of ten strings used as replacements for numbers 0-9.",
+              "required": false
+            },
+            "percent": {
+              "name": "string",
+              "description": "(default: '%'). The string used for the percentage symbol.",
+              "required": false
+            },
+            "separate_4digits": {
+              "name": "bool",
+              "description": "(default: True). Separate integers with 4-digits or less.",
               "required": false
             }
           }
         },
         "required": false,
-        "description": "There are two `filter_options` props in the table.\nThis is the table-level filter_options prop and there is\nalso the column-level `filter_options` prop.\nThese props determine whether the applicable filter relational\noperators will default to `sensitive` or `insensitive` comparison.\nIf the column-level `filter_options` prop is set it overrides\nthe table-level `filter_options` prop for that column.",
-        "defaultValue": {
-          "value": "{}",
-          "computed": false
-        }
+        "description": "The localization specific formatting information applied to all columns in the table.\nThis prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.\nWhen left unspecified, each individual nested prop will default to a pre-determined value."
       },
-      "sort_action": {
+      "style_as_list_view": {
         "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'custom'",
-              "computed": false
-            },
-            {
-              "value": "'native'",
-              "computed": false
-            },
-            {
-              "value": "'none'",
-              "computed": false
-            }
-          ]
+          "name": "bool"
         },
         "required": false,
-        "description": "The `sort_action` property enables data to be\nsorted on a per-column basis.\nIf `'none'`, then the sorting UI is not displayed.\nIf `'native'`, then the sorting UI is displayed and the sorting\nlogic is handled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, the the sorting UI is displayed but it is the\nresponsibility of the developer to program the sorting\nthrough a callback (where `sort_by` would be the input and `data`\nwould be the output).\nClicking on the sort arrows will update the\n`sort_by` property.",
+        "description": "If True, then the table will be styled like a list view\nand not have borders between the columns.",
         "defaultValue": {
-          "value": "'none'",
+          "value": "false",
           "computed": false
         }
       },
-      "sort_mode": {
+      "fill_width": {
         "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'single'",
-              "computed": false
-            },
-            {
-              "value": "'multi'",
-              "computed": false
-            }
-          ]
+          "name": "bool"
         },
         "required": false,
-        "description": "Sorting can be performed across multiple columns\n(e.g. sort by country, sort within each country,\n sort by year) or by a single column.\nNOTE - With multi-column sort, it's currently\nnot possible to determine the order in which\nthe columns were sorted through the UI.\nSee [https://github.com/plotly/dash-table/issues/170](https://github.com/plotly/dash-table/issues/170)",
+        "description": "`fill_width` toggles between a set of CSS for two common behaviors:\nTrue: The table container's width will grow to fill the available space;\nFalse: The table container's width will equal the width of its content.",
         "defaultValue": {
-          "value": "'single'",
+          "value": "true",
           "computed": false
         }
       },
-      "sort_by": {
+      "markdown_options": {
+        "type": {
+          "name": "exact",
+          "value": {
+            "link_target": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "'_blank'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'_parent'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'_self'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'_top'",
+                      "computed": false
+                    }
+                  ]
+                }
+              ],
+              "description": "(default: '_blank').  The link's behavior (_blank opens the link in a\nnew tab, _parent opens the link in the parent frame, _self opens the link in the\ncurrent tab, and _top opens the link in the top frame) or a string",
+              "required": false
+            },
+            "html": {
+              "name": "bool",
+              "description": "(default: False)  If True, html may be used in markdown cells\nBe careful enabling html if the content being rendered can come\nfrom an untrusted user, as this may create an XSS vulnerability.",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "The `markdown_options` property allows customization of the markdown cells behavior.",
+        "defaultValue": {
+          "value": "{\n    link_target: '_blank',\n    html: false\n}",
+          "computed": false
+        }
+      },
+      "css": {
         "type": {
           "name": "arrayOf",
           "value": {
             "name": "exact",
             "value": {
-              "column_id": {
+              "selector": {
                 "name": "string",
                 "required": true
               },
-              "direction": {
-                "name": "enum",
-                "value": [
-                  {
-                    "value": "'asc'",
-                    "computed": false
-                  },
-                  {
-                    "value": "'desc'",
-                    "computed": false
-                  }
-                ],
+              "rule": {
+                "name": "string",
                 "required": true
               }
             }
           }
         },
         "required": false,
-        "description": "`sort_by` describes the current state\nof the sorting UI.\nThat is, if the user clicked on the sort arrow\nof a column, then this property will be updated\nwith the column ID and the direction\n(`asc` or `desc`) of the sort.\nFor multi-column sorting, this will be a list of\nsorting parameters, in the order in which they were\nclicked.",
-        "defaultValue": {
-          "value": "[]",
-          "computed": false
-        }
-      },
-      "sort_as_null": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "union",
-            "value": [
-              {
-                "name": "string"
-              },
-              {
-                "name": "number"
-              },
-              {
-                "name": "bool"
-              }
-            ]
-          }
-        },
-        "required": false,
-        "description": "An array of string, number and boolean values that are treated as `None`\n(i.e. ignored and always displayed last) when sorting.\nThis value will be used by columns without `sort_as_null`.\nDefaults to `[]`.",
+        "description": "The `css` property is a way to embed CSS selectors and rules\nonto the page.\nWe recommend starting with the `style_*` properties\nbefore using this `css` property.\nExample:\n[\n    {\"selector\": \".dash-spreadsheet\", \"rule\": 'font-family: \"monospace\"'}\n]",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -2415,6 +2415,20 @@
           "computed": false
         }
       },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of the table."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the user makes changes."
+      },
       "loading_state": {
         "type": {
           "name": "shape",
@@ -2480,6 +2494,10 @@
                 "computed": false
               },
               {
+                "value": "'page_current'",
+                "computed": false
+              },
+              {
                 "value": "'selected_columns'",
                 "computed": false
               },
@@ -2497,7 +2515,7 @@
         "required": false,
         "description": "Properties whose user interactions will persist after refreshing the\ncomponent or the page.",
         "defaultValue": {
-          "value": "[\n    'columns.name',\n    'filter_query',\n    'hidden_columns',\n    'selected_columns',\n    'selected_rows',\n    'sort_by'\n]",
+          "value": "[\n    'columns.name',\n    'filter_query',\n    'hidden_columns',\n    'page_current',\n    'selected_columns',\n    'selected_rows',\n    'sort_by'\n]",
           "computed": false
         }
       },

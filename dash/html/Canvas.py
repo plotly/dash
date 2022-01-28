@@ -47,9 +47,9 @@ class Canvas(Component):
 
     - height (string | number; optional):
         Specifies the height of elements listed here. For all other
-        elements, use the CSS height property.        Note: In some
-        instances, such as <div>, this is a legacy attribute, in which
-        case the CSS height property should be used instead.
+        elements, use the CSS height property. Note: In some instances,
+        such as <div>, this is a legacy attribute, in which case the CSS
+        height property should be used instead.
 
     - hidden (a value equal to: 'hidden', 'HIDDEN' | boolean; optional):
         Prevents rendering of given element, while keeping child elements,
@@ -105,9 +105,9 @@ class Canvas(Component):
 
     - width (string | number; optional):
         For the elements listed here, this establishes the element's
-        width.        Note: For all other instances, such as <div>, this
-        is a legacy attribute, in which case the CSS width property should
-        be used instead."""
+        width. Note: For all other instances, such as <div>, this is a
+        legacy attribute, in which case the CSS width property should be
+        used instead."""
 
     @_explicitize_args
     def __init__(
