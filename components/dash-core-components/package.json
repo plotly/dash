@@ -1,15 +1,15 @@
 {
   "name": "dash-core-components",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
-    "url": "git://github.com/plotly/dash-core-components.git"
+    "url": "git://github.com/plotly/dash.git"
   },
   "bugs": {
-    "url": "https://github.com/plotly/dash-core-components/issues"
+    "url": "https://github.com/plotly/dash/issues"
   },
-  "homepage": "https://github.com/plotly/dash-core-components",
+  "homepage": "https://github.com/plotly/dash",
   "main": "dash_core_components/dash_core_components.js",
   "scripts": {
     "private::format.black": "black dash_core_components_base/ tests/ setup.py",
@@ -33,7 +33,7 @@
     "lint": "run-s private::lint.*"
   },
   "author": "Chris Parmer <chris@plotly.com>",
-  "maintainer": "Ryan Patrick Kyle <ryan@plotly.com>",
+  "maintainer": "Alex Johnson <alex@plotly.com>",
   "license": "MIT",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
