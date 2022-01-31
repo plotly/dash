@@ -1,22 +1,20 @@
 {
   "name": "dash-html-components",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/plotly/dash-html-components.git"
+    "url": "https://github.com/plotly/dash.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/plotly/dash-html-components/issues"
+    "url": "https://github.com/plotly/dash/issues"
   },
-  "homepage": "https://github.com/plotly/dash-html-components",
+  "homepage": "https://github.com/plotly/dash",
   "scripts": {
     "clean": "rm -rf src/* && mkdir -p src/components",
     "prebuild": "cd scripts && sh generate-all.sh && cd -",
-    "install-local": "python setup.py install",
-    "uninstall-local": "pip uninstall dash-html-components -y",
     "lint": "eslint src scripts",
     "build:js": "webpack --mode production",
     "build:backends": "dash-generate-components ./src/components dash_html_components -p package-info.json && cp dash_html_components_base/** dash_html_components && dash-generate-components ./src/components dash_html_components -p package-info.json --r-prefix 'html' --r-suggests 'dash,dashCoreComponents' --jl-prefix 'html' && black dash_html_components",

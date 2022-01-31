@@ -1,21 +1,21 @@
 {
   "name": "dash-core-components",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
-    "url": "git://github.com/plotly/dash-core-components.git"
+    "url": "git://github.com/plotly/dash.git"
   },
   "bugs": {
-    "url": "https://github.com/plotly/dash-core-components/issues"
+    "url": "https://github.com/plotly/dash/issues"
   },
-  "homepage": "https://github.com/plotly/dash-core-components",
+  "homepage": "https://github.com/plotly/dash",
   "main": "dash_core_components/dash_core_components.js",
   "scripts": {
     "private::format.black": "black dash_core_components_base/ tests/ setup.py",
     "private::format.eslint": "eslint src --fix",
     "private::format.prettier": "prettier --config .prettierrc --write src/**/*.js",
-    "private::lint.black": "if [ \"$PYTHON_VERSION\" != \"py27\" ]; then black --check dash_core_components_base/ tests/ setup.py; fi",
+    "private::lint.black": "black --check dash_core_components_base/ tests/ setup.py",
     "private::lint.eslint": "eslint src",
     "private::lint.flake8": "flake8 --exclude=dash_core_components,node_modules,venv",
     "private::lint.prettier": "prettier --config .prettierrc src/**/*.js --list-different",
@@ -33,7 +33,7 @@
     "lint": "run-s private::lint.*"
   },
   "author": "Chris Parmer <chris@plotly.com>",
-  "maintainer": "Ryan Patrick Kyle <ryan@plotly.com>",
+  "maintainer": "Alex Johnson <alex@plotly.com>",
   "license": "MIT",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",

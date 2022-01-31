@@ -61,6 +61,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
         return f'You have entered {value}'
     ```
 
+  [#1894](https://github.com/plotly/dash/pull/1894) restricted this feature so auto-generated IDs are not allowed if the app uses `dash_snapshots` (a Dash Enterprise package) or if the component uses `persistence`, as this can create confusing errors. Callback definitions can still reference components in these cases, but those components must have explicit IDs.
+
     ## Dash Core Components
 
     ### Rearranged Keyword Arguments & Flexible Types
@@ -192,6 +194,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#1778](https://github.com/plotly/dash/pull/1778) DataTable: Fix React warnings stating
   that each child in a list should have a unique "key" prop
+
+- [#1895](https://github.com/plotly/dash/pull/1895) Support debug=True if native namespace-packages are present
 
 ## [2.0.0] - 2021-08-03
 

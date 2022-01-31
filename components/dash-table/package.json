@@ -1,15 +1,15 @@
 {
   "name": "dash-table",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Dash table",
   "repository": {
     "type": "git",
-    "url": "git@github.com:plotly/dash-table.git"
+    "url": "git@github.com:plotly/dash.git"
   },
   "bugs": {
-    "url": "https://github.com/plotly/dash-table/issues"
+    "url": "https://github.com/plotly/dash/issues"
   },
-  "homepage": "https://github.com/plotly/dash-table",
+  "homepage": "https://github.com/plotly/dash",
   "main": "dash_table/bundle.js",
   "scripts": {
     "preprivate::test.server": "run-s private::wait_dash*",
