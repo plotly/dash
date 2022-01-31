@@ -375,7 +375,8 @@ class PlotlyGraph extends Component {
     }
 
     getStyle() {
-        let {style, responsive} = this.props;
+        const {responsive} = this.props;
+        let {style} = this.props;
 
         if (!responsive) {
             return style;
