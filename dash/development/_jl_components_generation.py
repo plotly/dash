@@ -79,12 +79,12 @@ uuid = "{package_uuid}"
 {base_package} = "{dash_uuid}"
 
 [compat]
-julia = "1.2"
+julia = "^1.3"
 {base_package} = "{base_version}"
 """
 
 jl_base_version = {
-    "Dash": "0.1.3, 1.0",
+    "Dash": "^1.1.1",
     "DashBase": "0.1",
 }
 
