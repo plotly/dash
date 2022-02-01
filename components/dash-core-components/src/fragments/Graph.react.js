@@ -378,10 +378,12 @@ class PlotlyGraph extends Component {
         const {responsive} = this.props;
         let {style} = this.props;
 
+        // When there is no forced responsive style, return the original style property
         if (!responsive) {
             return style;
         }
 
+        // Otherwise, if the height is not set, we make the graph size equal to the parent one
         if (!style) {
             style = {};
         }
