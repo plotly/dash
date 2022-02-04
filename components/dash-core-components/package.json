@@ -48,7 +48,7 @@
     "highlight.js": "^11.3.1",
     "moment": "^2.29.1",
     "node-polyfill-webpack-plugin": "^1.1.4",
-    "plotly.js-dist-min": "2.8.3",
+    "plotly.js-dist-min": "2.9.0",
     "prop-types": "^15.7.2",
     "ramda": "^0.27.1",
     "rc-slider": "^9.7.5",
