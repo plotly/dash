@@ -139,14 +139,6 @@ class Component(metaclass=ComponentMeta):
                     )
                 )
 
-            if k != "children" and isinstance(v, Component):
-                raise TypeError(
-                    error_string_prefix
-                    + " detected a Component for a prop other than `children`\n"
-                    + "Did you forget to wrap multiple `children` in an array?\n"
-                    + "Prop {} has value {}\n".format(k, repr(v))
-                )
-
             if k == "id":
                 if isinstance(v, dict):
                     for id_key, id_val in v.items():
