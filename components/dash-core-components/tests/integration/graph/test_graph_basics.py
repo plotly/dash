@@ -268,18 +268,16 @@ def test_grbs005_graph_update_frames(dash_dcc):
     dash_dcc.wait_for_element("#test-change")
 
     dash_dcc.find_elements('input[type="radio"]')[0].click()
-
-    assert (
-        dash_dcc.wait_for_element("#relayout-data").get_attribute("innerHTML") == ""
+    assert dash_dcc.wait_for_text_to_equal(
+        "#relayout-data", ""
     ), "initial graph data must contain empty string"
 
     dash_dcc.find_elements('input[type="radio"]')[1].click()
-    assert (
-        dash_dcc.wait_for_element("#relayout-data").get_attribute("innerHTML")
-        == "[0, 1, 2]"
+    assert dash_dcc.wait_for_text_to_equal(
+        "#relayout-data", "[0, 1, 2]"
     ), "graph data must contain frame [0,1,2]"
+
     dash_dcc.find_elements('input[type="radio"]')[2].click()
-    assert (
-        dash_dcc.wait_for_element("#relayout-data").get_attribute("innerHTML")
-        == "[0, -1, -2]"
+    assert dash_dcc.wait_for_text_to_equal(
+        "#relayout-data", "[0, -1, -2]"
     ), "graph data must contain frame [0,-1,-2]"
