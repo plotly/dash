@@ -9,6 +9,7 @@ import logging
 import io
 import json
 from functools import wraps
+import pandas as pd
 from . import exceptions
 
 logger = logging.getLogger()
@@ -18,7 +19,7 @@ def to_json(value):
     # pylint: disable=import-outside-toplevel
     from plotly.io.json import to_json_plotly
 
-    return to_json_plotly(value)
+    return to_json_plotly(serializer.serialize_tree(value))
 
 
 def interpolate_str(template, **data):
@@ -261,3 +262,50 @@ def job(msg=""):
         return _wrapper
 
     return wrapper
+
+
+class serializer:
+    @classmethod
+    def serialize(cls, prop):
+        if isinstance(prop, pd.DataFrame):
+            return {"__type": "DataFrame", "__value": prop.to_dict("records")}
+
+        return prop
+
+    @classmethod
+    def serialize_tree(cls, obj):
+        if isinstance(obj, pd.DataFrame):
+            return cls.serialize(obj)
+
+        # Plotly
+        try:
+            obj = obj.to_plotly_json()
+        except AttributeError:
+            pass
+
+        if isinstance(obj, (list, tuple)):
+            if obj:
+                # Must process list recursively even though it may be slow
+                return [cls.serialize_tree(v) for v in obj]
+
+        # Recurse into lists and dictionaries
+        if isinstance(obj, dict):
+            return {k: cls.serialize_tree(v) for k, v in obj.items()}
+
+        return obj
+
+    @classmethod
+    def unserialize(cls, prop):
+        if not (isinstance(prop, dict) and "__type" in prop):
+            return prop
+        if prop["__type"] == "DataFrame":
+            return pd.DataFrame(prop["__value"])
+
+        return prop["__value"]
+
+    @classmethod
+    def unserialize_input(cls, cb_input):
+        if "value" in cb_input:
+            return {**cb_input, "value": cls.unserialize(cb_input["value"])}
+
+        return cb_input

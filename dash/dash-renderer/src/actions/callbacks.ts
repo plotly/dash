@@ -145,11 +145,25 @@ function fillVals(
     const inputVals = getter(paths).map((inputList: any, i: number) => {
         const [inputs, inputError] = unwrapIfNotMulti(
             paths,
-            inputList.map(({id, property, path: path_}: any) => ({
-                id,
-                property,
-                value: (path(path_, layout) as any).props[property]
-            })),
+            inputList.map(({id, property, path: path_}: any) => {
+                const type = (path(path_, layout) as any).propertyTypes?.[
+                    property
+                ];
+                let value = (path(path_, layout) as any).props[property];
+
+                if (type) {
+                    value = {
+                        __type: type,
+                        __value: value
+                    };
+                }
+
+                return {
+                    id,
+                    property,
+                    value
+                };
+            }),
             specs[i],
             cb.anyVals,
             depType
