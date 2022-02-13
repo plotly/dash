@@ -13,7 +13,7 @@ from dash._configs import (
     get_combined_config,
     load_dash_env_vars,
 )
-from dash._utils import get_asset_path, get_relative_path, strip_relative_path
+from dash import get_asset_path, get_relative_path, strip_relative_path
 
 
 @pytest.fixture
