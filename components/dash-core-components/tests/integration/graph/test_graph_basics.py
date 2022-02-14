@@ -1,10 +1,12 @@
 import pytest
+import copy
 import pandas as pd
 from multiprocessing import Value, Lock
 import numpy as np
 from time import sleep
+import plotly.graph_objects as go
 
-from dash import Dash, Input, Output, dcc, html
+from dash import Dash, Input, Output, dcc, html, State
 
 import dash.testing.wait as wait
 
@@ -160,5 +162,56 @@ def test_grbs004_graph_loading_state_updates(dash_dcc):
         dash_dcc.wait_for_element('#my-graph[data-dash-is-loading="true"]')
 
     dash_dcc.wait_for_element("#my-graph:not([data-dash-is-loading])")
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_grbs005_graph_duplicate(dash_dcc):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("Start App", id="start-button"),
+            dcc.Loading(id="figure-container", type="circle"),
+        ]
+    )
+
+    @app.callback(
+        Output("figure-container", "children"),
+        Input("start-button", "n_clicks"),
+        State("figure-container", "children"),
+    )
+    def duplicate_fig(start_clicks, existing_figs):
+        if existing_figs:
+            new_children = copy.deepcopy(existing_figs)
+        else:
+            new_children = []
+
+        if start_clicks:
+            new_children.append(
+                dcc.Graph(
+                    id=f"figure-{len(new_children)}",
+                    figure=go.Figure(
+                        {
+                            "data": [
+                                {"type": "scatter", "x": [1, 2, 3], "y": [1, 3, 2]}
+                            ],
+                            "layout": {"title": {"text": "A Scatter graph"}},
+                        }
+                    ),
+                    config=dict(displayModeBar=True, modeBarButtons=[["resetScale2d"]]),
+                )
+            )
+
+        return new_children
+
+    dash_dcc.start_server(app)
+    start = dash_dcc.wait_for_element("#start-button")
+
+    start.click()
+    dash_dcc.wait_for_element("#figure-0 .main-svg")
+
+    start.click()
+    dash_dcc.wait_for_element("#figure-1 .main-svg")
 
     assert dash_dcc.get_logs() == []
