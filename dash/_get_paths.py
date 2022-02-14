@@ -5,10 +5,10 @@ CONFIG = AttributeDict()
 
 
 def get_asset_url(path):
-    return real_get_assets_url(CONFIG, path)
+    return real_get_asset_url(CONFIG, path)
 
 
-def real_get_assets_url(config, path):
+def real_get_asset_url(config, path):
     if config.assets_external_path:
         prefix = config.assets_external_path
     else:
@@ -60,11 +60,10 @@ def get_relative_path(path):
             return chapters.page_2
     ```
     """
-    return real_get_relative_path(CONFIG, path)
+    return real_get_relative_path(CONFIG.requests_pathname_prefix, path)
 
 
-def real_get_relative_path(config, path):
-    requests_pathname = config.requests_pathname_prefix
+def real_get_relative_path(requests_pathname, path):
     if requests_pathname == "/" and path == "":
         return "/"
     if requests_pathname != "/" and path == "":
@@ -128,11 +127,10 @@ def strip_relative_path(path):
     `page-1/sub-page-1`
     ```
     """
-    return real_strip_relative_path(CONFIG, path)
+    return real_strip_relative_path(CONFIG.requests_pathname_prefix, path)
 
 
-def real_strip_relative_path(config, path):
-    requests_pathname = config.requests_pathname_prefix
+def real_strip_relative_path(requests_pathname, path):
     if path is None:
         return None
     if (

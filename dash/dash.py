@@ -1473,7 +1473,7 @@ class Dash:
         ]
 
     def get_asset_url(self, path):
-        return _get_paths.real_get_assets_url(self.config, path)
+        return _get_paths.real_get_asset_url(self.config, path)
 
     def get_relative_path(self, path):
         """
@@ -1737,7 +1737,7 @@ class Dash:
                 if hasattr(package, "path") and "dash/dash" in os.path.dirname(
                     package.path
                 ):
-                    component_packages_dist[i: i + 1] = [
+                    component_packages_dist[i : i + 1] = [
                         os.path.join(os.path.dirname(package.path), x)
                         for x in ["dcc", "html", "dash_table"]
                     ]
