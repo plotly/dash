@@ -139,6 +139,7 @@ class PlotlyGraph extends Component {
         this.isResponsive = this.isResponsive.bind(this);
 
         this.state = {override: {}, originals: {}};
+        this.configModeBarButtons = [];
     }
 
     plot(props) {
@@ -227,7 +228,39 @@ class PlotlyGraph extends Component {
     }
 
     getConfig(config, responsive) {
-        return mergeDeepRight(config, this.getConfigOverride(responsive));
+        const modeBarButtons = this.getModeBarButtons(config);
+        if (modeBarButtons) {
+            this.configModeBarButtons = modeBarButtons;
+        }
+
+        let configClone = mergeDeepRight(
+            config,
+            this.getConfigOverride(responsive)
+        );
+
+        if (this.configModeBarButtons) {
+            configClone = mergeDeepRight(configClone, {
+                modeBarButtons: this.configModeBarButtons,
+            });
+        }
+
+        return configClone;
+    }
+
+    getModeBarButtons(config) {
+        const configModeBarButtons = [];
+        if (config.modeBarButtons) {
+            for (const group of config.modeBarButtons) {
+                const buttonGroup = [];
+                for (const button of group) {
+                    if (typeof button === 'string') {
+                        buttonGroup.push(button);
+                    }
+                }
+                configModeBarButtons.push(buttonGroup);
+            }
+        }
+        return configModeBarButtons;
     }
 
     getLayout(layout, responsive) {
