@@ -424,9 +424,6 @@ class Dash:
 
         self.logger.setLevel(logging.INFO)
 
-    def _get_config(self):
-        return self.config
-
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
 
