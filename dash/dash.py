@@ -1473,7 +1473,7 @@ class Dash:
         ]
 
     def get_asset_url(self, path):
-        return _get_paths.real_get_asset_url(self.config, path)
+        return _get_paths.app_get_asset_url(self.config, path)
 
     def get_relative_path(self, path):
         """
@@ -1512,7 +1512,9 @@ class Dash:
                 return chapters.page_2
         ```
         """
-        return _get_paths.real_get_relative_path(self.config, path)
+        return _get_paths.app_get_relative_path(
+            self.config.requests_pathname_prefix, path
+        )
 
     def strip_relative_path(self, path):
         """
@@ -1561,7 +1563,9 @@ class Dash:
         `page-1/sub-page-1`
         ```
         """
-        return _get_paths.real_strip_relative_path(self.config, path)
+        return _get_paths.app_strip_relative_path(
+            self.config.requests_pathname_prefix, path
+        )
 
     def _setup_dev_tools(self, **kwargs):
         debug = kwargs.get("debug", False)

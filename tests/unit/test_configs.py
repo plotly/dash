@@ -16,9 +16,12 @@ from dash._configs import (
 
 from dash._utils import AttributeDict
 from dash._get_paths import (
-    real_get_asset_url,
-    real_get_relative_path,
-    real_strip_relative_path,
+    app_get_asset_url,
+    app_get_relative_path,
+    app_strip_relative_path,
+    get_asset_url,
+    get_relative_path,
+    strip_relative_path,
 )
 
 
@@ -108,7 +111,7 @@ def test_pathname_prefix_environ_requests(empty_environ):
 )
 def test_pathname_prefix_assets(empty_environ, req, expected):
     config = AttributeDict(assets_external_path=req, assets_url_path="assets")
-    path = real_get_asset_url(config, "reset.css")
+    path = app_get_asset_url(config, "reset.css")
     assert path == expected
 
 
@@ -142,8 +145,51 @@ def test_asset_url(
         assets_url_path=assets_url_path,
     )
 
-    path = app.get_asset_url("reset.css")
-    assert path == expected
+    app_path = app.get_asset_url("reset.css")
+    dash_path = get_asset_url("reset.css")
+    assert app_path == dash_path == expected
+
+
+@pytest.mark.parametrize(
+    "requests_pathname_prefix, expected",
+    [
+        (None, "/page2"),
+        ("/app/", "/app/page2"),
+    ],
+)
+def test_get_relative_path(
+    empty_environ,
+    requests_pathname_prefix,
+    expected,
+):
+    app = Dash(
+        "Dash",
+        requests_pathname_prefix=requests_pathname_prefix,
+    )
+    app_path = app.get_relative_path("/page2")
+    dash_path = get_relative_path("/page2")
+    assert app_path == dash_path == expected
+
+
+@pytest.mark.parametrize(
+    "requests_pathname_prefix, expected",
+    [
+        (None, "/app/page2"),
+        ("/app/", "/page2"),
+    ],
+)
+def test_strip_relative_path(
+    empty_environ,
+    requests_pathname_prefix,
+    expected,
+):
+    app = Dash(
+        "Dash",
+        requests_pathname_prefix=requests_pathname_prefix,
+    )
+    app_path = app.strip_relative_path("/app/page2")
+    dash_path = strip_relative_path("/app/page2")
+    assert app_path == dash_path == expected
 
 
 def test_get_combined_config_dev_tools_ui(empty_environ):
@@ -216,7 +262,7 @@ def test_app_name_server(empty_environ, name, server, expected):
     ],
 )
 def test_pathname_prefix_relative_url(prefix, partial_path, expected):
-    path = real_get_relative_path(prefix, partial_path)
+    path = app_get_relative_path(prefix, partial_path)
     assert path == expected
 
 
@@ -226,7 +272,7 @@ def test_pathname_prefix_relative_url(prefix, partial_path, expected):
 )
 def test_invalid_get_relative_path(prefix, partial_path):
     with pytest.raises(_exc.UnsupportedRelativePath):
-        real_get_relative_path(prefix, partial_path)
+        app_get_relative_path(prefix, partial_path)
 
 
 @pytest.mark.parametrize(
@@ -254,7 +300,7 @@ def test_invalid_get_relative_path(prefix, partial_path):
     ],
 )
 def test_strip_relative_path(prefix, partial_path, expected):
-    path = real_strip_relative_path(prefix, partial_path)
+    path = app_strip_relative_path(prefix, partial_path)
     assert path == expected
 
 
@@ -268,7 +314,7 @@ def test_strip_relative_path(prefix, partial_path, expected):
 )
 def test_invalid_strip_relative_path(prefix, partial_path):
     with pytest.raises(_exc.UnsupportedRelativePath):
-        real_strip_relative_path(prefix, partial_path)
+        app_strip_relative_path(prefix, partial_path)
 
 
 def test_port_env_fail_str(empty_environ):
