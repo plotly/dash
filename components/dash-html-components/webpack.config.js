@@ -37,7 +37,6 @@ module.exports = (env, argv) => {
     const externals = ('externals' in overrides) ? overrides.externals : ({
         react: 'React',
         'react-dom': 'ReactDOM',
-        'plotly.js-dist-min': 'Plotly',
         'prop-types': 'PropTypes'
     });
 
