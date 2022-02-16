@@ -4,13 +4,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Added 
+### Added
 - [#1923](https://github.com/plotly/dash/pull/1923):
-- `dash.get_relative_path`
-- `dash.strip_relative_path`
-- `dash.get_asset_url`
-This is similar to `dash.callback` where you don't need the `app` object. It makes it possible to use these
-functions in the `pages` folder of a multi-page app without running into the circular `app` imports issue.
+  - `dash.get_relative_path`
+  - `dash.strip_relative_path`
+  - `dash.get_asset_url`
+  This is similar to `dash.callback` where you don't need the `app` object. It makes it possible to use these
+  functions in the `pages` folder of a multi-page app without running into the circular `app` imports issue.
+
+### Updated
+- [#1911](https://github.com/plotly/dash/pull/1911) Upgrade Plotly.js to v2.9.0 (from v2.8.3).
+  - Adds `ticklabelstep` to axes to reduce tick labels while still showing all ticks.
+  - Displays the plotly.js version when hovering on the modebar. This helps debugging situations where there might be multiple sources of plotly.js, for example `/assets` vs the versions built into `dcc` or `ddk`.
 
 ## [2.1.0] - 2022-01-22
 
