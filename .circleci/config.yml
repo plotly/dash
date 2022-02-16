@@ -111,7 +111,7 @@ jobs:
             . venv/bin/activate
             set -eo pipefail
             pip install -e . --progress-bar off && pip list | grep dash
-            npm install --production && npm run initialize
+            npm install npm run initialize
             npm run build
             npm run lint
       - run:

@@ -42,17 +42,15 @@ from ._utils import (
     AttributeDict,
     format_tag,
     generate_hash,
-    get_asset_path,
-    get_relative_path,
     inputs_to_dict,
     inputs_to_vals,
     interpolate_str,
     patch_collections_abc,
     split_callback_id,
-    strip_relative_path,
     to_json,
 )
 from . import _callback
+from . import _get_paths
 from . import _dash_renderer
 from . import _validate
 from . import _watch
@@ -365,6 +363,8 @@ class Dash:
             "Invalid config key. Some settings are only available "
             "via the Dash constructor"
         )
+
+        _get_paths.CONFIG = self.config
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -1470,14 +1470,7 @@ class Dash:
         ]
 
     def get_asset_url(self, path):
-        if self.config.assets_external_path:
-            prefix = self.config.assets_external_path
-        else:
-            prefix = self.config.requests_pathname_prefix
-
-        asset = get_asset_path(prefix, path, self.config.assets_url_path.lstrip("/"))
-
-        return asset
+        return _get_paths.app_get_asset_url(self.config, path)
 
     def get_relative_path(self, path):
         """
@@ -1516,9 +1509,9 @@ class Dash:
                 return chapters.page_2
         ```
         """
-        asset = get_relative_path(self.config.requests_pathname_prefix, path)
-
-        return asset
+        return _get_paths.app_get_relative_path(
+            self.config.requests_pathname_prefix, path
+        )
 
     def strip_relative_path(self, path):
         """
@@ -1567,7 +1560,9 @@ class Dash:
         `page-1/sub-page-1`
         ```
         """
-        return strip_relative_path(self.config.requests_pathname_prefix, path)
+        return _get_paths.app_strip_relative_path(
+            self.config.requests_pathname_prefix, path
+        )
 
     def _setup_dev_tools(self, **kwargs):
         debug = kwargs.get("debug", False)

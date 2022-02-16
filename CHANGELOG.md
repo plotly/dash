@@ -4,6 +4,16 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added 
+- [#1923](https://github.com/plotly/dash/pull/1923):
+- `dash.get_relative_path`
+- `dash.strip_relative_path`
+- `dash.get_asset_url`
+This is similar to `dash.callback` where you don't need the `app` object. It makes it possible to use these
+functions in the `pages` folder of a multi-page app without running into the circular `app` imports issue.
+
+## [2.1.0] - 2022-01-22
+
 ### Changed
 - [#1876](https://github.com/plotly/dash/pull/1876) Delays finalizing `Dash.config` attributes not used in the constructor until `init_app()`.
 - [#1869](https://github.com/plotly/dash/pull/1869), [#1873](https://github.com/plotly/dash/pull/1873) Upgrade Plotly.js to v2.8.3. This includes:
