@@ -20,8 +20,14 @@ $ npm install
 # and renderer bundles; this will build all bundles from source code in their
 # respective directories. The only true source of npm version is defined
 # in package.json for each package.
+#
 $ npm run build  # runs `renderer build` and `npm build` in dcc, html, table
 # build and install components used in tests
+#
+# Alternatively one could run part of the build process e.g.
+$ dash-update-components "dash-core-components"
+# to only build dcc when developing dcc
+#
 $ npm run setup-tests.py # or npm run setup-tests.R
 # you should see dash points to a local source repo
 $ pip list | grep dash
