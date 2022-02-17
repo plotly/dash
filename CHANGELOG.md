@@ -17,6 +17,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - Adds `ticklabelstep` to axes to reduce tick labels while still showing all ticks.
   - Displays the plotly.js version when hovering on the modebar. This helps debugging situations where there might be multiple sources of plotly.js, for example `/assets` vs the versions built into `dcc` or `ddk`.
 
+### Fixed
+- [#1932](https://github.com/plotly/dash/pull/1932) Fixes several bugs:
+  - Restores compatibility with IE11 [#1925](https://github.com/plotly/dash/issues/1925)
+  - Restores `style_header` text alignment in Dash Table [#1914](https://github.com/plotly/dash/issues/1914)
+  - Clears the unneeded `webdriver-manager` requirement from `dash[testing]` [#1919](https://github.com/plotly/dash/issues/1925)
+
 ## [2.1.0] - 2022-01-22
 
 ### Changed
