@@ -13,7 +13,7 @@
     "build:dev": "webpack",
     "build:local": "renderer build local",
     "build": "renderer build && npm run prepublishOnly",
-    "postbuild": "es-check es5 ../deps/*.js",
+    "postbuild": "es-check es5 ../deps/*.js build/*.js",
     "test": "karma start karma.conf.js --single-run",
     "format": "run-s private::format.*",
     "lint": "run-s private::lint.*"

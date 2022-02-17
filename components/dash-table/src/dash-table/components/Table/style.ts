@@ -1,3 +1,5 @@
+// NOTE: need to pin fontawesome-svg-core to <1.3 and free-*-svg-icons to <6
+// or we break IE11
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faEyeSlash, faTrashAlt} from '@fortawesome/free-regular-svg-icons';
 import {
