@@ -4,6 +4,7 @@ lib/
 lib/bundle.js*
 coverage/
 node_modules/
+packages/
 .npm
 vv/
 venv/
