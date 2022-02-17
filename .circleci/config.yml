@@ -53,7 +53,7 @@ jobs:
             set -eo pipefail
             pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
-            npm i
+            npm ci
             npm run build
             python setup.py sdist
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
@@ -111,7 +111,7 @@ jobs:
             . venv/bin/activate
             set -eo pipefail
             pip install -e . --progress-bar off && pip list | grep dash
-            npm install npm run initialize
+            npm ci npm run initialize
             npm run build
             npm run lint
       - run:
@@ -181,7 +181,7 @@ jobs:
           name: ️️🏗️ Install package
           command: |
             . venv/bin/activate
-            npm install
+            npm ci
             pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
       - run:

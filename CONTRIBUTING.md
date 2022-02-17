@@ -15,7 +15,7 @@ $ python3 -m venv .venv/dev
 $ source .venv/dev/bin/activate
 # install dash and dependencies
 $ pip install -e .[ci,dev,testing,celery,diskcache]  # in some shells you need \ to escape []
-$ npm install
+$ npm ci
 # this script will build the dash-core-components, dash-html-components, dash-table,
 # and renderer bundles; this will build all bundles from source code in their
 # respective directories. The only true source of npm version is defined

@@ -18,7 +18,7 @@ $ python -m venv venv && . venv/bin/activate
 $ pip install -e .[dev,testing]  # in some shells you need \ to escape []
 
 # run the build process - this will build all of dash, including dcc
-$ npm i && npm run build
+$ npm ci && npm run build
 
 # install dcc in editable mode
 $ pip install -e .

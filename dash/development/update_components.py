@@ -31,7 +31,7 @@ def booststrap_components(components_source):
     )
 
     cmd = shlex.split(
-        "npx lerna exec --scope *@({})* -- npm i".format(source_glob),
+        "npx lerna exec --scope *@({})* -- npm ci".format(source_glob),
         posix=not is_windows,
     )
 

@@ -17,7 +17,7 @@ Vanilla HTML components for [Dash][]
     ```
 3. Generate components and install npm packages
     ```
-    $ npm install
+    $ npm ci
     ```
 
 ### Generating HTML Components
