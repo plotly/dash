@@ -14,7 +14,7 @@ $ python3 -m venv .venv/dev
 # on some linux / mac environments, use `.` instead of `source`
 $ source .venv/dev/bin/activate
 # install dash and dependencies
-$ pip install -e .[testing,dev]  # in some shells you need \ to escape []
+$ pip install -e .[ci,dev,testing,celery,diskcache]  # in some shells you need \ to escape []
 $ npm install
 # this script will build the dash-core-components, dash-html-components, dash-table,
 # and renderer bundles; this will build all bundles from source code in their
