@@ -27,6 +27,7 @@ $ npm run build  # runs `renderer build` and `npm build` in dcc, html, table
 # Alternatively one could run part of the build process e.g.
 $ dash-update-components "dash-core-components"
 # to only build dcc when developing dcc
+# But when you first clone check out a new branch, you must run the full build as above.
 #
 $ npm run setup-tests.py # or npm run setup-tests.R
 # you should see dash points to a local source repo
