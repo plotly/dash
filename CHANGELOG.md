@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.2.0] - 2022-02-18
 
 ### Added
 - [#1923](https://github.com/plotly/dash/pull/1923):
@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1911](https://github.com/plotly/dash/pull/1911) Upgrade Plotly.js to v2.9.0 (from v2.8.3).
   - Adds `ticklabelstep` to axes to reduce tick labels while still showing all ticks.
   - Displays the plotly.js version when hovering on the modebar. This helps debugging situations where there might be multiple sources of plotly.js, for example `/assets` vs the versions built into `dcc` or `ddk`.
+
+- [#1930](https://github.com/plotly/dash/pull/1930) Upgrade JavaScript dependencies across renderer and all components.
 
 ### Fixed
 - [#1932](https://github.com/plotly/dash/pull/1932) Fixes several bugs:
