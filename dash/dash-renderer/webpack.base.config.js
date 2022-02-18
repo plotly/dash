@@ -15,6 +15,20 @@ const defaults = {
                 },
             },
             {
+                test: /\.jsx?$/,
+                include: /node_modules[\\\/](cytoscape-fcose)[\\\/]/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        babelrc: false,
+                        configFile: false,
+                        presets: [
+                            '@babel/preset-env'
+                        ]
+                    }
+                }
+            },
+            {
                 test: /\.ts(x?)$/,
                 exclude: /node_modules/,
                 use: ['babel-loader', 'ts-loader'],
@@ -56,7 +70,11 @@ const rendererOptions = {
 module.exports = options => [
     R.mergeAll([
         options,
-        rendererOptions
+        rendererOptions,
+        {
+            // with default eval sourcemap we can't es-check the dev bundle
+            devtool: 'inline-source-map'
+        }
     ]),
     R.mergeAll([
         options,

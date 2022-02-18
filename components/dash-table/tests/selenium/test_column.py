@@ -20,6 +20,9 @@ def get_app(props=dict()):
     baseProps["filter_action"] = "native"
     baseProps["merge_duplicate_headers"] = True
 
+    # first col is normally only 60px, make it wider since we're adding
+    # all these actions and need to interact with them
+    baseProps["style_cell_conditional"][0].update(width=120, maxWidth=120, minWidth=120)
     baseProps.update(props)
 
     app.layout = DataTable(**baseProps)
