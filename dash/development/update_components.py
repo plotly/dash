@@ -58,7 +58,6 @@ def booststrap_components(components_source):
             ),
             file=sys.stderr,
         )
-        sys.exit(1)
 
 
 def build_components(components_source):
