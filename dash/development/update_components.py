@@ -20,7 +20,7 @@ coloredlogs.install(
 )
 
 
-def booststrap_components(components_source):
+def booststrap_components(components_source, install_type):
 
     is_windows = sys.platform == "win32"
 
@@ -31,7 +31,7 @@ def booststrap_components(components_source):
     )
 
     cmd = shlex.split(
-        "npx lerna exec --scope *@({})* -- npm ci".format(source_glob),
+        "npx lerna exec --scope *@({})* -- npm {}".format(source_glob, install_type),
         posix=not is_windows,
     )
 
@@ -146,10 +146,15 @@ def cli():
         help="A glob string that matches the Dash component libraries to be updated (eg.'dash-table' // 'dash-core-components|dash-html-components' // 'all'). The default argument is 'all'.",
         default="all",
     )
+    parser.add_argument(
+        "--ci",
+        help="For clean-install use '--ci True'",
+        default="False",
+    )
 
     args = parser.parse_args()
 
-    booststrap_components(args.components_source)
+    booststrap_components(args.components_source, "ci" if args.ci == "True" else "i")
     build_components(args.components_source)
 
 
