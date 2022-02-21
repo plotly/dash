@@ -82,13 +82,18 @@ const filterEventData = (gd, eventData, event) => {
 
             if (
                 has('curveNumber', fullPoint) &&
-                has('pointNumber', fullPoint) &&
                 has('customdata', data[pointData.curveNumber])
             ) {
-                pointData.customdata =
-                    data[pointData.curveNumber].customdata[
-                        fullPoint.pointNumber
-                    ];
+                if (has('pointNumber', fullPoint)) {
+                    pointData.customdata =
+                        data[pointData.curveNumber].customdata[
+                            fullPoint.pointNumber
+                        ];
+                } else if (has('pointNumbers', fullPoint)) {
+                    pointData.customdata = fullPoint.pointNumbers.map(point => {
+                        return data[pointData.curveNumber].customdata[point];
+                    });
+                }
             }
 
             // specific to histogram. see https://github.com/plotly/plotly.js/pull/2113/
