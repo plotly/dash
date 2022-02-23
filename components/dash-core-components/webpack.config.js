@@ -110,11 +110,6 @@ module.exports = (env, argv) => {
                 },
             ],
         },
-        resolve: {
-            alias: {
-                'plotly.js': 'plotly.js-dist-min/plotly.min.js'
-            }
-        },
         optimization: {
             splitChunks: {
                 name: '[name].js',
