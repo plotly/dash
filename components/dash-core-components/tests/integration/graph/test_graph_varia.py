@@ -21,6 +21,18 @@ def findAsyncPlotlyJs(scripts):
             return script
 
 
+def findAsyncMathJax(scripts):
+    for script in scripts:
+        if "dash_core_components/async-mathjax" in script.get_attribute("src"):
+            return script
+
+
+def findSyncMathJax(scripts):
+    for script in scripts:
+        if "dash_core_components/mathjax" in script.get_attribute("src"):
+            return script
+
+
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva001_candlestick(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
@@ -846,4 +858,78 @@ def test_grva009_originals_maintained_for_responsive_override(mutate_fig, dash_d
     dash_dcc.wait_for_text_to_equal(".gtitle", "3")
     assert graph_dims() == responsive_size
 
+    assert dash_dcc.get_logs() == []
+
+
+def test_grva010_external_mathjax_prevents_lazy(dash_dcc):
+    app = Dash(
+        __name__,
+        eager_loading=False,
+        external_scripts=["https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-svg.js"],
+    )
+
+    app.layout = html.Div(id="div", children=[html.Button(id="btn")])
+
+    @app.callback(Output("div", "children"), [Input("btn", "n_clicks")])
+    def load_chart(n_clicks):
+        if n_clicks is None:
+            raise PreventUpdate
+
+        return dcc.Graph(mathjax=True, id="output", figure={"data": [{"y": [3, 1, 2]}]})
+
+    dash_dcc.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    # Give time for the async dependency to be requested (if any)
+    time.sleep(2)
+
+    scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
+    assert findSyncMathJax(scripts) is None
+    assert findAsyncMathJax(scripts) is None
+
+    dash_dcc.find_element("#btn").click()
+
+    # Give time for the async dependency to be requested (if any)
+    time.sleep(2)
+
+    scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
+    assert findSyncMathJax(scripts) is None
+    assert findAsyncMathJax(scripts) is None
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_grva011_without_mathjax(dash_dcc):
+    app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
+
+    app.layout = html.Div([dcc.Graph(id="output", figure={"data": [{"y": [3, 1, 2]}]})])
+
+    dash_dcc.start_server(app)
+    dash_dcc.percy_snapshot("grva011 - graph without mathjax")
+    assert dash_dcc.get_logs() == []
+
+
+def test_grva012_with_mathjax(dash_dcc):
+    app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                mathjax=True,
+                id="output",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": "Equation: $E=mc^2$"}},
+                },
+            )
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.percy_snapshot("grva012 - graph with mathjax")
     assert dash_dcc.get_logs() == []

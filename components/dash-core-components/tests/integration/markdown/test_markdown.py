@@ -93,3 +93,56 @@ def test_mkdw002_dcclink(dash_dcc):
     dash_dcc.percy_snapshot("mkdw002 - markdowns display")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_mkdw003_without_mathjax(dash_dcc):
+    app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Markdown("# No MathJax: Apple: $2, Orange: $3"),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.percy_snapshot("mkdw003 - markdown without mathjax")
+    assert dash_dcc.get_logs() == []
+
+
+def test_mkdw004_inline_mathjax(dash_dcc):
+    app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Markdown("# h1 tag with inline MathJax: $E=mc^2$", mathjax=True),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.percy_snapshot("mkdw004 - markdown inline mathjax")
+    assert dash_dcc.get_logs() == []
+
+
+def test_mkdw005_block_mathjax(dash_dcc):
+    app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Markdown(
+                """
+                    ## h2 tag with MathJax block:
+                    $$
+                    \\frac{1}{(\\sqrt{\\phi \\sqrt{5}}-\\phi) e^{\\frac25 \\pi}} =
+                    1+\\frac{e^{-2\\pi}} {1+\\frac{e^{-4\\pi}} {1+\\frac{e^{-6\\pi}}
+                    {1+\\frac{e^{-8\\pi}} {1+\\ldots} } } }
+                    $$
+                    ## Next line.
+                """,
+                mathjax=True,
+            ),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.percy_snapshot("mkdw005 - markdown block mathjax")
+    assert dash_dcc.get_logs() == []
