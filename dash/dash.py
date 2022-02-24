@@ -13,10 +13,13 @@ import hashlib
 import base64
 from urllib.parse import urlparse
 
+from textwrap import dedent
+import warnings
 import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
 from pkg_resources import get_distribution, parse_version
+
 from dash import dcc
 from dash import html
 from dash import dash_table
@@ -54,10 +57,17 @@ from . import _get_paths
 from . import _dash_renderer
 from . import _validate
 from . import _watch
+
 from ._grouping import (
     flatten_grouping,
     map_grouping,
     grouping_len,
+)
+
+from . import _pages
+from ._pages import (
+    _parse_path_variables,
+    _parse_query_string,
 )
 
 
@@ -102,6 +112,21 @@ _re_index_scripts_id = 'src="[^"]*dash[-_]renderer[^"]*"', "dash-renderer"
 _re_renderer_scripts_id = 'id="_dash-renderer', "new DashRenderer"
 
 
+_ID_CONTENT = "_pages_content"
+_ID_LOCATION = "_pages_location"
+_ID_STORE = "_pages_store"
+_ID_DUMMY = "_pages_dummy"
+
+page_container = html.Div(
+    children=[
+        dcc.Location(id=_ID_LOCATION),
+        html.Div(id=_ID_CONTENT),
+        dcc.Store(id=_ID_STORE),
+        html.Div(id=_ID_DUMMY),
+    ]
+)
+
+
 class _NoUpdate:
     # pylint: disable=too-few-public-methods
     pass
@@ -140,6 +165,11 @@ class Dash:
         ``assets_ignore``, and other files such as images will be served if
         requested.
     :type assets_folder: string
+
+    :param pages_folder: a path, relative to the current working directory,
+        for pages of a multi-page app. Default ``'pages``.  If you have a pages
+        folder and are not using the pages features, set `pages_folder=None`
+    :type pages_folder: string
 
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
@@ -265,6 +295,7 @@ class Dash:
         name=None,
         server=True,
         assets_folder="assets",
+        pages_folder="",
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
@@ -316,6 +347,7 @@ class Dash:
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
         )
+        update_pages_folder = "pages" if pages_folder == "" else pages_folder
 
         self.config = AttributeDict(
             name=name,
@@ -326,6 +358,9 @@ class Dash:
             assets_ignore=assets_ignore,
             assets_external_path=get_combined_config(
                 "assets_external_path", assets_external_path, ""
+            ),
+            pages_folder=os.path.join(
+                flask.helpers.get_root_path(name), update_pages_folder
             ),
             eager_loading=eager_loading,
             include_assets_files=get_combined_config(
@@ -365,6 +400,8 @@ class Dash:
         )
 
         _get_paths.CONFIG = self.config
+        _pages.CONFIG = self.config
+        self.pages_folder = pages_folder
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -419,10 +456,15 @@ class Dash:
             for plugin in plugins:
                 plugin.plug(self)
 
+        # amw
+        self.page_registry = collections.OrderedDict()
+
         if self.server is not None:
             self.init_app()
 
         self.logger.setLevel(logging.INFO)
+
+        self.pages()
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
@@ -1379,6 +1421,9 @@ class Dash:
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
         _callback.GLOBAL_CALLBACK_LIST.clear()
 
+        # amw  Update page_registry  assigned with dash.register_page
+        self.page_registry = _pages.PAGE_REGISTRY.copy()
+
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:
@@ -2040,3 +2085,208 @@ class Dash:
                     extra_files.append(path)
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
+
+    def _import_layouts_from_pages(self):
+        walk_dir = self.config.pages_folder
+        for (root, _, files) in os.walk(walk_dir):
+            for file in files:
+                if file.endswith(".py") and not file.startswith("_"):
+                    with open(os.path.join(root, file)) as f:
+                        content = f.read()
+                        if "register_page" not in content:
+                            continue
+                if file.startswith("_") or not file.endswith(".py"):
+                    continue
+                page_filename = os.path.join(root, file).replace("\\", "/")
+                _, _, page_filename = page_filename.partition("pages/")
+                page_filename = page_filename.replace(".py", "").replace("/", ".")
+                page_module = importlib.import_module(f"pages.{page_filename}")
+
+                self.page_registry = _pages.PAGE_REGISTRY.copy()
+                if f"pages.{page_filename}" in self.page_registry:
+                    self.page_registry[f"pages.{page_filename}"]["layout"] = getattr(
+                        page_module, "layout"
+                    )
+
+    def _path_to_page(self, path_id):
+        path_variables = None
+        for page in self.page_registry.values():
+            if page["path_template"]:
+                template_id = page["path_template"].strip("/")
+                path_variables = _parse_path_variables(path_id, template_id)
+                if path_variables:
+                    return page, path_variables
+            if path_id == page["path"].strip("/"):
+                return page, path_variables
+        return {}, None
+
+    def pages(self):
+        if self.pages_folder is None:
+            return
+        if (self.pages_folder != "") and not os.path.exists(self.config.pages_folder):
+            warnings.warn(
+                f"A folder called {self.pages_folder} does not exist.", stacklevel=2
+            )
+        if os.path.exists(self.config.pages_folder):
+            self._import_layouts_from_pages()
+
+        @self.server.before_first_request
+        def router():
+            @self.callback(
+                Output(_ID_CONTENT, "children"),
+                Output(_ID_STORE, "data"),
+                Input(_ID_LOCATION, "pathname"),
+                Input(_ID_LOCATION, "search"),
+                prevent_initial_call=True,
+            )
+            def update(pathname, search):
+                # updates layout on page navigation
+                # updates the stored page title which will trigger the clientside callback to update the app title
+
+                query_parameters = _parse_query_string(search)
+                page, path_variables = self._path_to_page(
+                    self.strip_relative_path(pathname)
+                )
+
+                # get layout
+                if page == {}:
+                    if "pages.not_found_404" in self.page_registry:
+                        layout = self.page_registry["pages.not_found_404"]["layout"]
+                        title = self.page_registry["pages.not_found_404"]["title"]
+                    else:
+                        layout = html.H1("404")
+                        title = self.title
+                else:
+                    layout = page["layout"]
+                    title = page["title"]
+
+                if isinstance(layout, patch_collections_abc("Callable")):
+                    layout = (
+                        layout(**path_variables, **query_parameters)
+                        if path_variables
+                        else layout(**query_parameters)
+                    )
+                if isinstance(title, patch_collections_abc("Callable")):
+                    title = title(**path_variables) if path_variables else title()
+
+                return layout, {"title": title}
+
+            # check for duplicate pathnames
+            path_to_module = {}
+            for page in self.page_registry.values():
+                if page["path"] not in path_to_module:
+                    path_to_module[page["path"]] = [page["module"]]
+                else:
+                    path_to_module[page["path"]].append(page["module"])
+
+            for modules in path_to_module.values():
+                if len(modules) > 1:
+                    raise Exception(f"modules {modules} have duplicate paths")
+
+            # Set validation_layout
+            self.validation_layout = html.Div(
+                [
+                    page["layout"]() if callable(page["layout"]) else page["layout"]
+                    for page in self.page_registry.values()
+                ]
+                + [self.layout]
+            )
+
+            # Update the page title on page navigation
+            self.clientside_callback(
+                """
+                function(data) {{
+                    document.title = data.title || 'Dash'
+                }}
+                """,
+                Output(_ID_DUMMY, "children"),
+                Input(_ID_STORE, "data"),
+            )
+
+            # Set index HTML for the meta description and page title on page load
+            def interpolate_index(**kwargs):
+                # The flask.request.path doesn't include the pathname prefix
+                # when inside DE Workspaces or deployed environments,
+                # so we don't need to call `app.strip_relative_path` on it.
+                start_page, path_variables = self._path_to_page(
+                    flask.request.path.strip("/")
+                )
+                image = start_page.get("image", "")
+                if image:
+                    image = self.get_asset_url(image)
+
+                title = start_page.get("title", self.title)
+                if callable(title):
+                    title = title(**path_variables) if path_variables else title()
+
+                description = start_page.get("description", "")
+                if callable(description):
+                    description = (
+                        description(**path_variables)
+                        if path_variables
+                        else description()
+                    )
+
+                return dedent(
+                    """
+                    <!DOCTYPE html>
+                    <html>
+                        <head>
+                            <meta name="viewport" content="width=device-width, initial-scale=1">
+                            <title>{title}</title>
+                            <meta name="description" content="{description}" />
+                            <!-- Twitter Card data -->
+                            <meta property="twitter:card" content="{description}">
+                            <meta property="twitter:url" content="https://metatags.io/">
+                            <meta property="twitter:title" content="{title}">
+                            <meta property="twitter:description" content="{description}">
+                            <meta property="twitter:image" content="{image}">
+                            <!-- Open Graph data -->
+                            <meta property="og:title" content="{title}" />
+                            <meta property="og:type" content="website" />
+                            <meta property="og:description" content="{description}" />
+                            <meta property="og:image" content="{image}">
+                            {metas}
+                            {favicon}
+                            {css}
+                        </head>
+                        <body>
+                            {app_entry}
+                            <footer>
+                                {config}
+                                {scripts}
+                                {renderer}
+                            </footer>
+                        </body>
+                    </html>
+                    """
+                ).format(
+                    metas=kwargs["metas"],
+                    description=description,
+                    title=title,
+                    image=image,
+                    favicon=kwargs["favicon"],
+                    css=kwargs["css"],
+                    app_entry=kwargs["app_entry"],
+                    config=kwargs["config"],
+                    scripts=kwargs["scripts"],
+                    renderer=kwargs["renderer"],
+                )
+
+            self.interpolate_index = interpolate_index
+
+            def create_redirect_function(redirect_to):
+                def redirect():
+                    return flask.redirect(redirect_to, code=301)
+
+                return redirect
+
+            # Set redirects
+            for module in self.page_registry:
+                page = self.page_registry[module]
+                if page["redirect_from"] and len(page["redirect_from"]):
+                    for redirect in page["redirect_from"]:
+                        fullname = self.get_relative_path(redirect)
+                        self.server.add_url_rule(
+                            fullname, fullname, create_redirect_function(page["path"])
+                        )

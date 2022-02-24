@@ -1,11 +1,20 @@
 from collections.abc import MutableSequence
 import re
 from textwrap import dedent
+from keyword import iskeyword
+import warnings
 
 from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
 from ._utils import patch_collections_abc, stringify_id, to_json
+
+
+def warning_message(message, category, _, __, ___):
+    return f"{category.__name__}:\n {message} \n"
+
+
+warnings.formatwarning = warning_message
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -426,3 +435,20 @@ def validate_layout(layout, layout_value):
                 )
             )
         component_ids.add(component_id)
+
+
+def validate_template(template):
+    template_segments = template.split("/")
+    for s in template_segments:
+        if "<" in s or ">" in s:
+            if not (s.startswith("<") and s.endswith(">")):
+                raise Exception(
+                    f'Invalid `path_template`: "{template}"  Path segments with variables must be formatted as <variable_name>'
+                )
+            variable_name = s[1:-1]
+            if not variable_name.isidentifier() or iskeyword(variable_name):
+                warnings.warn(
+                    f'`{variable_name}` is not a valid Python variable name in `path_template`: "{template}".',
+                    stacklevel=2,
+                )
+    return template

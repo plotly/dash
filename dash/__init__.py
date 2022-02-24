@@ -2,7 +2,7 @@
 # __plotly_dash is for the "make sure you don't have a dash.py" check
 # must come before any other imports.
 __plotly_dash = True
-from .dash import Dash, no_update  # noqa: F401,E402
+# from .dash import Dash, no_update  # noqa: F401,E402
 from .dependencies import (  # noqa: F401,E402
     Input,  # noqa: F401,E402
     Output,  # noqa: F401,E402
@@ -25,4 +25,15 @@ from ._get_paths import (  # noqa: F401,E402
     get_asset_url,
     get_relative_path,
     strip_relative_path,
+)
+
+from ._pages import register_page, PAGE_REGISTRY as page_registry  # noqa: F401,E402
+from .dash import (  # noqa: F401,E402
+    Dash,
+    no_update,
+    page_container,
+    _ID_DUMMY,
+    _ID_LOCATION,
+    _ID_STORE,
+    _ID_CONTENT,
 )
