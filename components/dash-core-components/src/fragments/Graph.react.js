@@ -159,8 +159,10 @@ class PlotlyGraph extends Component {
             return Plotly.animate(gd, figure, animation_options);
         }
 
-        const configClone = this.getConfig(config, responsive);
         const layoutClone = this.getLayout(figure.layout, responsive);
+        const configClone = this.getConfig(config, responsive);
+        // add typesetMath | not exposed to the dash API
+        configClone.typesetMath = this.props.mathjax;
 
         gd.classList.add('dash-graph--pending');
 
@@ -170,6 +172,9 @@ class PlotlyGraph extends Component {
             frames: figure.frames,
             config: configClone,
         }).then(() => {
+            // clear typesetMath
+            configClone.typesetMath = undefined;
+
             const gd = this.gd.current;
 
             // double-check gd hasn't been unmounted
