@@ -167,9 +167,12 @@ class Dash:
     :type assets_folder: string
 
     :param pages_folder: a path, relative to the current working directory,
-        for pages of a multi-page app. Default ``'pages``.  If you have a pages
-        folder and are not using the pages features, set `pages_folder=None`
+        for pages of a multi-page app. Default ``'pages``.
     :type pages_folder: string
+
+    : param pages:  Dafault False.  When True, the `pages` feature for multi-page
+     apps is enabled.
+    :type pages: boolean
 
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
@@ -295,7 +298,8 @@ class Dash:
         name=None,
         server=True,
         assets_folder="assets",
-        pages_folder="",
+        pages_folder="pages",
+        pages=False,
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
@@ -402,6 +406,7 @@ class Dash:
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
         self.pages_folder = pages_folder
+        self.pages = pages
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -464,7 +469,8 @@ class Dash:
 
         self.logger.setLevel(logging.INFO)
 
-        self.pages()
+        if pages:
+            self.enable_pages()
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
@@ -2120,14 +2126,14 @@ class Dash:
                 return page, path_variables
         return {}, None
 
-    def pages(self):
-        if self.pages_folder is None:
+    def enable_pages(self):
+        if not self.pages:
             return
-        if (self.pages_folder != "") and not os.path.exists(self.config.pages_folder):
+        if self.pages_folder and not os.path.exists(self.config.pages_folder):
             warnings.warn(
                 f"A folder called {self.pages_folder} does not exist.", stacklevel=2
             )
-        if os.path.exists(self.config.pages_folder):
+        if os.path.exists(self.config.pages_folder) and self.pages:
             self._import_layouts_from_pages()
 
         @self.server.before_first_request
