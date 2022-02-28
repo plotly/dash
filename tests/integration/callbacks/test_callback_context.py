@@ -2,7 +2,7 @@ import json
 import operator
 import pytest
 
-from dash import Dash, Input, Output, html, dcc, callback_context, ctx
+from dash import Dash, ALL, Input, Output, html, dcc, callback_context, ctx
 
 from dash.exceptions import PreventUpdate, MissingCallbackContextException
 import dash.testing.wait as wait
@@ -355,3 +355,29 @@ def test_cbcx007_triggered_id(dash_duo):
         for btn in btns:
             dash_duo.find_element("#" + btn).click()
             dash_duo.wait_for_text_to_equal("#output", f"Just clicked {btn}")
+
+
+def test_cbcx008_triggered_id_pmc(dash_duo):
+
+    app = Dash()
+    app.layout = html.Div(
+        [
+            html.Button("Click me", id={"type": "btn", "index": "myindex"}),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"), Input({"type": "btn", "index": ALL}, "n_clicks")
+    )
+    def func(n_clicks):
+        if ctx.triggered:
+            triggered_id, dict_id = next(iter(ctx.triggered_ids.items()))
+            if dict_id == {"type": "btn", "index": "myindex"}:
+                return dict_id["index"]
+
+    dash_duo.start_server(app)
+    dash_duo.find_element(
+        '#\\{\\"index\\"\\:\\"myindex\\"\\,\\"type\\"\\:\\"btn\\"\\}'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#output", "myindex")
