@@ -154,15 +154,16 @@ class Reloader extends React.Component {
                 // Backend code changed - can do a soft reload in place
                 dispatch({type: 'RELOAD'});
             }
-        } else if (reloadRequest.status === 500) {
+        } else if (
+            this.state.intervalId !== null &&
+            reloadRequest.status === 500
+        ) {
             if (this._retry > this.state.max_retry) {
                 this.clearInterval();
                 // Integrate with dev tools ui?!
                 window.alert(
-                    `
-                    Reloader failed after ${this._retry} times.
-                    Please check your application for errors.
-                    `
+                    `Hot reloading is disabled after failing ${this._retry} times. ` +
+                        'Please check your application for errors, then refresh the page.'
                 );
             }
             this._retry++;
