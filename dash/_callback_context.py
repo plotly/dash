@@ -1,6 +1,6 @@
 import functools
 import warnings
-
+import json
 import flask
 
 from . import exceptions
@@ -53,6 +53,18 @@ class CallbackContext:
         # make the list still look falsy. So `if ctx.triggered` will make it
         # look empty, but you can still do `triggered[0]["prop_id"].split(".")`
         return getattr(flask.g, "triggered_inputs", []) or falsy_triggered
+
+    @property
+    @has_context
+    def triggered_ids(self):
+        triggered = getattr(flask.g, "triggered_inputs", [])
+        ids = {}
+        for item in triggered:
+            component_id, _, _ = item["prop_id"].rpartition(".")
+            ids[item["prop_id"]] = component_id
+            if component_id.startswith("{"):
+                ids[item["prop_id"]] = json.loads(component_id)
+        return ids
 
     @property
     @has_context
@@ -145,3 +157,4 @@ class CallbackContext:
 
 
 callback_context = CallbackContext()
+ctx = CallbackContext()
