@@ -2,7 +2,7 @@ import {asyncDecorator} from '@plotly/dash-component-plugins';
 import PropTypes from 'prop-types';
 import React, {Component, Suspense} from 'react';
 import markdown from '../utils/LazyLoader/markdown';
-import mathjax from '../utils/LazyLoader/mathjax';
+import lazyLoadMathJax from '../utils/LazyLoader/mathjax';
 
 // eslint-disable-next-line valid-jsdoc
 /**
@@ -113,7 +113,7 @@ DashMarkdown.defaultProps = {
 const RealDashMarkdown = asyncDecorator(DashMarkdown, () =>
     Promise.all([
         markdown(),
-        DashMarkdown._loadMathjax ? mathjax() : undefined,
+        DashMarkdown._loadMathjax ? lazyLoadMathJax() : undefined,
     ]).then(([md]) => md)
 );
 
