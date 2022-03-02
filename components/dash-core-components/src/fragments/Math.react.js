@@ -21,7 +21,7 @@ export default class DashMath extends Component {
     }
 
     renderMath() {
-        if (window.MathJax && window.MathJax.typeset) {
+        if (window.MathJax?.typeset) {
             window.MathJax.typeset([this.span_element.current]);
         }
     }
