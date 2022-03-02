@@ -106,7 +106,7 @@ def test_mkdw003_without_mathjax(dash_dcc):
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("h1", "No MathJax: Apple: $2, Orange: $3")
-    assert not dash_dcc.driver_execute_script("return !!window.MathJax")
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
     assert dash_dcc.get_logs() == []
 
 
