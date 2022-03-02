@@ -886,7 +886,7 @@ def test_grva010_external_mathjax_prevents_lazy(dash_dcc):
     )
 
     # Give time for the async dependency to be requested (if any)
-    time.sleep(2)
+    dash_dcc.wait_for_element("button#btn")
 
     scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
     assert findSyncMathJax(scripts) is None
