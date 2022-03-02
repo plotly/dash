@@ -96,7 +96,7 @@ def test_mkdw002_dcclink(dash_dcc):
 
 
 def test_mkdw003_without_mathjax(dash_dcc):
-    app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
