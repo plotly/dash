@@ -29,9 +29,9 @@ export default class DashMath extends Component {
     render() {
         return (
             <span ref={this.span_element}>
-                {this.props.inline ? String.raw`\(` : String.raw`\[`}
+                {this.props.inline ? '\\(' : '\\['}
                 {this.props.tex}
-                {this.props.inline ? String.raw`\)` : String.raw`\]`}
+                {this.props.inline ? '\\)' : '\\]'}
             </span>
         );
     }
