@@ -45,7 +45,9 @@ setup(
     },
     url="https://plotly.com/dash",
     project_urls={
+        "Documentation": "https://dash.plotly.com",
         "Source": "https://github.com/plotly/dash",
+        "Issue Tracker": "https://github.com/plotly/dash/issues",
     },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
