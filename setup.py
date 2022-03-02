@@ -44,6 +44,9 @@ setup(
         "pytest11": ["dash = dash.testing.plugin"],
     },
     url="https://plotly.com/dash",
+    project_urls={
+        "Source": "https://github.com/plotly/dash",
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
