@@ -1,4 +1,4 @@
-from dash import Dash, dcc, html
+from dash import Dash, dcc, html, Input, Output
 
 
 def test_mkdw001_img(dash_dcc):
@@ -147,3 +147,91 @@ def test_mkdw005_block_mathjax(dash_dcc):
     dash_dcc.start_server(app)
     dash_dcc.percy_snapshot("mkdw005 - markdown block mathjax")
     assert dash_dcc.get_logs() == []
+
+
+def test_mkdw006_toggle_mathjax(dash_dcc):
+    app = Dash(__name__)
+
+    gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
+
+    app.layout = html.Div(
+        [
+            html.Button("Toggle MathJax", id="btn"),
+            dcc.Markdown(
+                f"""
+                    # Test MathJax Toggling {gravity}
+                """,
+                id="md",
+            ),
+        ]
+    )
+
+    @app.callback(
+        Output("md", "mathjax"), Input("btn", "n_clicks"), prevent_initial_call=True
+    )
+    def toggle(n):
+        return (n or 0) % 2 != 0
+
+    dash_dcc.start_server(app)
+
+    # Initial state: no MathJax loaded or rendered, unformatted text is shown
+    dash_dcc.wait_for_contains_text("#md", gravity)
+    dash_dcc.wait_for_no_elements("#md svg")
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn = dash_dcc.find_element("#btn")
+    btn.click()
+
+    # One click: MathJax is rendered, unformatted text is gone
+
+    dash_dcc.wait_for_element("#md svg")
+    assert gravity not in dash_dcc._get_element("#md").text
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn.click()
+
+    # Second click: Back to initial state except that MathJax library is still loaded
+    dash_dcc.wait_for_contains_text("#md", gravity)
+    dash_dcc.wait_for_no_elements("#md svg")
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
+
+def test_mkdw007_load_mathjax(dash_dcc):
+    app = Dash(__name__)
+
+    gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
+
+    app.layout = html.Div(
+        [
+            html.Button("Add Second MathJax", id="btn"),
+            dcc.Markdown(
+                f"""
+                # No Math Rendering Here! {gravity}
+            """,
+                id="md",
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Output("out", "children"), Input("btn", "n_clicks"), prevent_initial_call=True
+    )
+    def add_math(n):
+        return dcc.Markdown(f"# Math!\n{gravity}", id="md2", mathjax=True)
+
+    dash_dcc.start_server(app)
+
+    # Initial state: no MathJax loaded or rendered, unformatted text is shown
+    dash_dcc.wait_for_contains_text("#md", gravity)
+    dash_dcc.wait_for_no_elements("#md svg")
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn = dash_dcc.find_element("#btn")
+    btn.click()
+
+    # One click: MathJax is loaded and rendered on the second, unformatted text is gone
+
+    dash_dcc.wait_for_element("#md2 svg")
+    assert gravity not in dash_dcc._get_element("#md2").text
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
