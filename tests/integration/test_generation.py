@@ -3,6 +3,10 @@ from dash.exceptions import PreventUpdate
 
 from dash_generator_test_component_nested import MyNestedComponent
 from dash_generator_test_component_standard import MyStandardComponent
+from dash_generator_test_component_typescript import (
+    TypeScriptComponent,
+    TypeScriptClassComponent,
+)
 from dash_test_components import StyledComponent
 from dash.html import Button, Div
 
@@ -16,6 +20,10 @@ def test_gene001_simple_callback(dash_duo):
         [
             MyStandardComponent(id="standard", value="Standard"),
             MyNestedComponent(id="nested", value="Nested"),
+            TypeScriptComponent(id="typescript", required_string="TypeScript"),
+            TypeScriptClassComponent(
+                id="typescript-class", required_string="TypeScriptClass"
+            ),
         ]
     )
 
@@ -23,6 +31,8 @@ def test_gene001_simple_callback(dash_duo):
 
     assert dash_duo.wait_for_element("#standard").text == "Standard"
     assert dash_duo.wait_for_element("#nested").text == "Nested"
+    assert dash_duo.wait_for_element("#typescript").text == "TypeScript"
+    assert dash_duo.wait_for_element("#typescript-class").text == "TypeScriptClass"
 
     dash_duo.percy_snapshot(name="gene001-simple-callback")
 

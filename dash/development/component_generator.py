@@ -48,13 +48,16 @@ def generate_components(
     jlprefix=None,
     metadata=None,
     keep_prop_order=None,
+    typescript=False,
 ):
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
 
     is_windows = sys.platform == "win32"
 
-    extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
+    extract_path = pkg_resources.resource_filename(
+        "dash", "meta-ts.js" if typescript else "extract-meta.js"
+    )
 
     reserved_patterns = "|".join(f"^{p}$" for p in reserved_words)
 
@@ -65,13 +68,23 @@ def generate_components(
     )
 
     if not metadata:
+        env = os.environ.copy()
+
+        if typescript:
+            # Ensure local node modules is used when the script is packaged.
+            env["MODULES_PATH"] = os.path.abspath("./node_modules")
+
         cmd = shlex.split(
             f'node {extract_path} "{ignore}" "{reserved_patterns}" {components_source}',
             posix=not is_windows,
         )
 
         proc = subprocess.Popen(  # pylint: disable=consider-using-with
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=is_windows,
+            env=env,
         )
         out, err = proc.communicate()
         status = proc.poll()
@@ -212,6 +225,11 @@ def component_build_arg_parser():
         "props. Pass the 'ALL' keyword to have every component retain "
         "its original prop order.",
     )
+    parser.add_argument(
+        "--ts",
+        action="store_true",
+        help="Generate components from typescript source. (.tsx files)",
+    )
     return parser
 
 
@@ -228,6 +246,7 @@ def cli():
         rsuggests=args.r_suggests,
         jlprefix=args.jl_prefix,
         keep_prop_order=args.keep_prop_order,
+        typescript=args.ts,
     )
 
 
