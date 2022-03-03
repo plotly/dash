@@ -1,6 +1,7 @@
 import functools
 import warnings
 import json
+from copy import deepcopy
 import flask
 
 from . import exceptions
@@ -69,7 +70,58 @@ class CallbackContext:
     @property
     @has_context
     def args_grouping(self):
-        return getattr(flask.g, "args_grouping", [])
+        triggered = getattr(flask.g, "triggered_inputs", [])
+        triggered = [item["prop_id"] for item in triggered]
+        grouping = getattr(flask.g, "args_grouping", {})
+
+        def update_args_grouping(g):
+            if isinstance(g, dict) and "id" in g:
+                prop_id = ".".join((g["id"], g["property"]))
+
+                new_values = {
+                    "value": g.get("value"),
+                    "id": g["id"]
+                    if not g["id"].startswith("{")
+                    else json.loads(g["id"]),
+                    "property": g["property"],
+                    "triggered": prop_id in triggered,
+                }
+                g.update(new_values)
+
+        def recursive_update(g):
+            if isinstance(g, (tuple, list)):
+                for i in g:
+                    update_args_grouping(i)
+                    recursive_update(i)
+            if isinstance(g, dict):
+                for i in g.values():
+                    update_args_grouping(i)
+                    recursive_update(i)
+
+        recursive_update(grouping)
+
+        return grouping
+
+    # todo not sure whether we need this, but it removes a level of nesting so
+    #  you don't need to use `.value` to get the value.
+    @property
+    @has_context
+    def args_grouping_values(self):
+        grouping = getattr(flask.g, "args_grouping", {})
+        grouping = deepcopy(grouping)
+
+        def recursive_update(g):
+            if isinstance(g, (tuple, list)):
+                for i in g:
+                    recursive_update(i)
+            if isinstance(g, dict):
+                for k, v in g.items():
+                    if isinstance(v, dict) and "id" in v:
+                        g[k] = v["value"]
+                    recursive_update(v)
+
+        recursive_update(grouping)
+        return grouping
 
     @property
     @has_context

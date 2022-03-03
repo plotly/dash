@@ -14,6 +14,7 @@ structure
 
 """
 from dash.exceptions import InvalidCallbackReturnValue
+from ._utils import AttributeDict
 
 
 def flatten_grouping(grouping, schema=None):
@@ -127,14 +128,14 @@ def map_grouping(fn, grouping):
         return [map_grouping(fn, g) for g in grouping]
 
     if isinstance(grouping, dict):
-        return {k: map_grouping(fn, g) for k, g in grouping.items()}
+        return AttributeDict({k: map_grouping(fn, g) for k, g in grouping.items()})
 
     return fn(grouping)
 
 
 def make_grouping_by_key(schema, source, default=None):
     """
-    Create a grouping from a schema by ujsing the schema's scalar values to look up
+    Create a grouping from a schema by using the schema's scalar values to look up
     items in the provided source object.
 
     :param schema: A grouping of potential keys in source

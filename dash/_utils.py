@@ -159,7 +159,7 @@ def stringify_id(id_):
 
 
 def inputs_to_dict(inputs_list):
-    inputs = {}
+    inputs = AttributeDict()
     for i in inputs_list:
         inputsi = i if isinstance(i, list) else [i]
         for ii in inputsi:
