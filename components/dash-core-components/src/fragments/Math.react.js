@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 
+import lazyLoadMathJax from '../utils/LazyLoader/mathjax';
+
 export default class DashMath extends Component {
     constructor(props) {
         super(props);
@@ -21,9 +23,10 @@ export default class DashMath extends Component {
     }
 
     renderMath() {
-        if (window.MathJax?.typeset) {
-            window.MathJax.typeset([this.span_element.current]);
-        }
+        const current = this.span_element.current;
+        lazyLoadMathJax().then(function () {
+            window.MathJax.typeset([current]);
+        });
     }
 
     render() {
