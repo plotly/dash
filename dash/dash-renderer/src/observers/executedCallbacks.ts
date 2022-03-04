@@ -36,11 +36,7 @@ import {ICallback, IStoredCallback} from '../types/callbacks';
 import {updateProps, setPaths, handleAsyncError} from '../actions';
 import {getPath, computePaths} from '../actions/paths';
 
-import {
-    applyPersistence,
-    prunePersistence,
-    setPersistance
-} from '../persistence';
+import {applyPersistence, prunePersistence, recordEdit} from '../persistence';
 import {IStoreObserverDefinition} from '../StoreObserver';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
@@ -70,7 +66,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             const {props} = applyPersistence({props: updatedProps}, dispatch);
 
             // Save props to storage if persistance is active.
-            setPersistance(path(itempath, layout), updatedProps, dispatch);
+            recordEdit(path(itempath, layout), updatedProps, dispatch);
 
             dispatch(
                 updateProps({

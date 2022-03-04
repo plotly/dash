@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {afterEach, beforeEach, describe, it} from 'mocha';
-import {recordUiEdit, stores, storePrefix} from '../src/persistence';
+import {recordEdit, stores, storePrefix} from '../src/persistence';
 const longString = pow => {
     let s = 's';
     for (let i = 0; i < pow; i++) {
@@ -99,7 +99,7 @@ describe('storage fallbacks and equivalence', () => {
         const layout = layoutA(storeType);
 
         it(`empty ${storeName} works`, () => {
-            recordUiEdit(layout, {p1: propVal}, _dispatch);
+            recordEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).to.deep.equal([]);
             expect(store.getItem(`${storePrefix}a.p1.true`)).to.equal(
                 `[${propStr}]`
@@ -109,7 +109,7 @@ describe('storage fallbacks and equivalence', () => {
         it(`${storeName} full from persistence works with warnings`, () => {
             fillStorage(store, `${storePrefix}x.x`);
 
-            recordUiEdit(layout, {p1: propVal}, _dispatch);
+            recordEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).to.deep.equal([
                 `${storeName} init first try failed; clearing and retrying`,
                 `${storeName} init set/get succeeded after clearing!`
@@ -125,7 +125,7 @@ describe('storage fallbacks and equivalence', () => {
         it(`${storeName} full from other stuff falls back on memory`, () => {
             fillStorage(store, 'not_ours');
 
-            recordUiEdit(layout, {p1: propVal}, _dispatch);
+            recordEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).to.deep.deep.equal([
                 `${storeName} init first try failed; clearing and retrying`,
                 `${storeName} init still failed, falling back to memory`
@@ -139,11 +139,11 @@ describe('storage fallbacks and equivalence', () => {
             // Maybe not ideal long-term behavior, but this is what happens
 
             // initialize and ensure the store is happy
-            recordUiEdit(layout, {p1: propVal}, _dispatch);
+            recordEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).to.deep.deep.equal([]);
 
             // now flood it.
-            recordUiEdit(layout, {p1: longString(26)}, _dispatch);
+            recordEdit(layout, {p1: longString(26)}, _dispatch);
             expect(dispatchCalls).to.deep.equal([
                 `a.p1.true failed to save in ${storeName}. Persisted props may be lost.`
             ]);
@@ -156,7 +156,7 @@ describe('storage fallbacks and equivalence', () => {
 
         it(`${storeType} primitives in/out match`, () => {
             // ensure storage is instantiated
-            recordUiEdit(layout, {p1: propVal}, _dispatch);
+            recordEdit(layout, {p1: propVal}, _dispatch);
             const store = stores[storeType];
             [
                 0,
@@ -177,7 +177,7 @@ describe('storage fallbacks and equivalence', () => {
         });
 
         it(`${storeType} arrays and objects in/out are clones`, () => {
-            recordUiEdit(layout, {p1: propVal}, _dispatch);
+            recordEdit(layout, {p1: propVal}, _dispatch);
             const store = stores[storeType];
 
             [[1, 2, 3], {a: 1, b: 2}].forEach(val => {

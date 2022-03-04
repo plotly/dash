@@ -306,7 +306,7 @@ const getProps = layout => {
     };
 };
 
-export function setPersistance(layout, newProps, dispatch) {
+export function recordEdit(layout, newProps, dispatch) {
     const {
         canPersist,
         id,
@@ -320,52 +320,14 @@ export function setPersistance(layout, newProps, dispatch) {
     const getFinal = (propName, prevVal) =>
         propName in newProps ? newProps[propName] : prevVal;
     const finalPersistence = getFinal('persistence', persistence);
+    const finalPersistenceType = getFinal('persistence_type', persistence_type);
 
-    if (!canPersist || !finalPersistence || finalPersistence !== persistence) {
-        return;
-    }
-
-    forEach(persistedProp => {
-        const [propName, propPart] = persistedProp.split('.');
-        if (newProps[propName] !== undefined) {
-            const storage = getStore(persistence_type, dispatch);
-            const {extract} = getTransform(element, propName, propPart);
-
-            const valsKey = getValsKey(id, persistedProp, persistence);
-            let originalVal = extract(props[propName]);
-            const newVal = extract(newProps[propName]);
-
-            if (originalVal !== newVal) {
-                if (storage.hasItem(valsKey)) {
-                    originalVal = storage.getItem(valsKey)[1];
-                    if (newVal !== originalVal) {
-                        storage.setItem(
-                            valsKey,
-                            [newVal, originalVal],
-                            dispatch
-                        );
-                    } else {
-                        storage.removeItem(valsKey);
-                    }
-                } else {
-                    storage.setItem(valsKey, [newVal, originalVal], dispatch);
-                }
-            }
-        }
-    }, persisted_props);
-}
-
-export function recordUiEdit(layout, newProps, dispatch) {
-    const {
-        canPersist,
-        id,
-        props,
-        element,
-        persistence,
-        persisted_props,
-        persistence_type
-    } = getProps(layout);
-    if (!canPersist || !persistence) {
+    if (
+        !canPersist ||
+        !finalPersistence ||
+        finalPersistence !== persistence ||
+        finalPersistenceType !== persistence_type
+    ) {
         return;
     }
 
@@ -385,6 +347,10 @@ export function recordUiEdit(layout, newProps, dispatch) {
             if (originalVal !== newVal) {
                 if (storage.hasItem(valsKey)) {
                     originalVal = storage.getItem(valsKey)[1];
+                    if (newVal === originalVal) {
+                        storage.removeItem(valsKey);
+                        return;
+                    }
                 }
                 const vals =
                     originalVal === undefined
