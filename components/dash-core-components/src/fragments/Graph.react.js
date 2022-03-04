@@ -389,7 +389,7 @@ class PlotlyGraph extends Component {
         }
 
         if (!style.height) {
-            style.height = '100%';
+            return Object.assign({height: '100%'}, style);
         }
 
         return style;
