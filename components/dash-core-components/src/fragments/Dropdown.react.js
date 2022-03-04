@@ -1,4 +1,4 @@
-import {isNil, pluck, omit, type} from 'ramda';
+import {isNil, pluck, omit} from 'ramda';
 import React, {Component} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
@@ -21,7 +21,6 @@ const TOKENIZER = {
     },
 };
 
-const DELIMITER = ',';
 
 export default class Dropdown extends Component {
     constructor(props) {
@@ -57,12 +56,6 @@ export default class Dropdown extends Component {
             value,
         } = this.props;
         const {filterOptions} = this.state;
-        let selectedValue;
-        if (type(value) === 'Array') {
-            selectedValue = value.join(DELIMITER);
-        } else {
-            selectedValue = value;
-        }
         return (
             <div
                 id={id}
@@ -75,7 +68,7 @@ export default class Dropdown extends Component {
                 <ReactDropdown
                     filterOptions={filterOptions}
                     options={sanitizeOptions(options)}
-                    value={selectedValue}
+                    value={value}
                     onChange={selectedOption => {
                         if (multi) {
                             let value;
