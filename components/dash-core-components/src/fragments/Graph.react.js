@@ -149,6 +149,13 @@ class PlotlyGraph extends Component {
         figure = props._dashprivate_transformFigure(figure, gd);
         config = props._dashprivate_transformConfig(config, gd);
 
+        const figureClone = {
+            data: figure.data,
+            layout: this.getLayout(figure.layout, responsive),
+            frames: figure.frames,
+            config: this.getConfig(config, responsive),
+        };
+
         if (
             animate &&
             this._hasPlotted &&
@@ -159,22 +166,16 @@ class PlotlyGraph extends Component {
             if (figure.frames) {
                 return Plotly.deleteFrames(gd)
                     .then(() => Plotly.addFrames(gd, figure.frames))
-                    .then(() => Plotly.animate(gd, figure, animation_options));
+                    .then(() =>
+                        Plotly.animate(gd, figureClone, animation_options)
+                    );
             }
-            return Plotly.animate(gd, figure, animation_options);
+            return Plotly.animate(gd, figureClone, animation_options);
         }
-
-        const configClone = this.getConfig(config, responsive);
-        const layoutClone = this.getLayout(figure.layout, responsive);
 
         gd.classList.add('dash-graph--pending');
 
-        return Plotly.react(gd, {
-            data: figure.data,
-            layout: layoutClone,
-            frames: figure.frames,
-            config: configClone,
-        }).then(() => {
+        return Plotly.react(gd, figureClone).then(() => {
             const gd = this.gd.current;
 
             // double-check gd hasn't been unmounted
