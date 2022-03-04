@@ -168,6 +168,16 @@ def inputs_to_dict(inputs_list):
     return inputs
 
 
+def convert_to_AttributeDict(nested_list):
+    new_dict = []
+    for i in nested_list:
+        if isinstance(i, dict):
+            new_dict.append(AttributeDict(i))
+        else:
+            new_dict.append([AttributeDict(ii) for ii in i])
+    return new_dict
+
+
 def inputs_to_vals(inputs):
     return [
         [ii.get("value") for ii in i] if isinstance(i, list) else i.get("value")

@@ -5,6 +5,7 @@ from copy import deepcopy
 import flask
 
 from . import exceptions
+from ._utils import stringify_id
 
 
 def has_context(func):
@@ -76,14 +77,12 @@ class CallbackContext:
 
         def update_args_grouping(g):
             if isinstance(g, dict) and "id" in g:
-                prop_id = ".".join((g["id"], g["property"]))
+                str_id = stringify_id(g["id"])
+                prop_id = "{}.{}".format(str_id, g["property"])
 
                 new_values = {
                     "value": g.get("value"),
-                    "id": g["id"]
-                    if not g["id"].startswith("{")
-                    else json.loads(g["id"]),
-                    "property": g["property"],
+                    "str_id": str_id,
                     "triggered": prop_id in triggered,
                 }
                 g.update(new_values)

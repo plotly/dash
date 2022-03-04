@@ -48,6 +48,7 @@ from ._utils import (
     patch_collections_abc,
     split_callback_id,
     to_json,
+    convert_to_AttributeDict,
 )
 from . import _callback
 from . import _get_paths
@@ -1310,7 +1311,8 @@ class Dash:
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = inputs + state
-            inputs_state = [AttributeDict(i) for i in inputs_state]
+            inputs_state = convert_to_AttributeDict(inputs_state)
+
             args_grouping = map_grouping(
                 lambda ind: inputs_state[ind], inputs_state_indices
             )
