@@ -156,17 +156,12 @@ class PlotlyGraph extends Component {
         ) {
             // in case we've have figure frames,
             // we need to recreate frames before animation
-            let result;
             if (figure.frames) {
-                result = Plotly.deleteFrames(gd).then(() => {
-                    return Plotly.addFrames(gd, figure.frames).then(() => {
-                        return Plotly.animate(gd, figure, animation_options);
-                    });
-                });
-            } else {
-                result = Plotly.animate(gd, figure, animation_options);
+                return Plotly.deleteFrames(gd)
+                    .then(() => Plotly.addFrames(gd, figure.frames))
+                    .then(() => Plotly.animate(gd, figure, animation_options));
             }
-            return result;
+            return Plotly.animate(gd, figure, animation_options);
         }
 
         const configClone = this.getConfig(config, responsive);
