@@ -7,6 +7,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - [#1953](https://github.com/plotly/dash/pull/1953) Fix bug [#1783](https://github.com/plotly/dash/issues/1783) in which a failed hot reloader blocks the UI with alerts.
 
+
+## Dash Core Components
+
+### Fixed
+- [#1958](https://github.com/plotly/dash/pull/1958) Fix dropdown bug [#1908](https://github.com/plotly/dash/issues/1908) where the value didn't display in the input box if it contained a comma.
+
+
 ## [2.2.0] - 2022-02-18
 
 ### Added
@@ -92,7 +99,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   [#1894](https://github.com/plotly/dash/pull/1894) restricted this feature so auto-generated IDs are not allowed if the app uses `dash_snapshots` (a Dash Enterprise package) or if the component uses `persistence`, as this can create confusing errors. Callback definitions can still reference components in these cases, but those components must have explicit IDs.
 
     ## Dash Core Components
-
+    
     ### Rearranged Keyword Arguments & Flexible Types
     **`Dropdown`, `RadioItem`, and `Checklist`**
     - Rearranged Keyword Arguments - `options` & `value` are now the first two keywords which means they can be supplied as positional arguments without the keyword. Supplying the keywords (`options=` and `value=`) is still supported.
