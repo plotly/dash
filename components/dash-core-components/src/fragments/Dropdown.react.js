@@ -21,7 +21,6 @@ const TOKENIZER = {
     },
 };
 
-
 export default class Dropdown extends Component {
     constructor(props) {
         super(props);
