@@ -46,7 +46,7 @@
     "fast-isnumeric": "^1.1.4",
     "file-saver": "^2.0.5",
     "highlight.js": "^11.4.0",
-    "mathjax": "3.2.0",
+    "mathjax": "^3.2.0",
     "moment": "^2.29.1",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "plotly.js-dist-min": "2.10.0",
