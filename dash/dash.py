@@ -2149,6 +2149,9 @@ class Dash:
                 # updates layout on page navigation
                 # updates the stored page title which will trigger the clientside callback to update the app title
 
+                # update page registry for pages that might have been added or changed in a callback
+                self.page_registry = _pages.PAGE_REGISTRY.copy()
+
                 query_parameters = _parse_query_string(search)
                 page, path_variables = self._path_to_page(
                     self.strip_relative_path(pathname)
