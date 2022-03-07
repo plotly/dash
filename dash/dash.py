@@ -491,7 +491,8 @@ class Dash:
             self.server = app
 
         assets_blueprint_name = "{}{}".format(
-            config.routes_pathname_prefix.replace("/", "_"), "dash_assets"
+            config.routes_pathname_prefix.replace("/", "_").replace(".", "_"),
+            "dash_assets",
         )
 
         self.server.register_blueprint(
