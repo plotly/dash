@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- [#1947](https://github.com/plotly/dash/pull/1947)  Added `\pages` - a better way to build multi-page apps. For more informations see the [forum post.](https://community.plotly.com/t/introducing-dash-pages-a-dash-2-x-feature-preview/57775)
+
 ### Fixed
 - [#1953](https://github.com/plotly/dash/pull/1953) Fix bug [#1783](https://github.com/plotly/dash/issues/1783) in which a failed hot reloader blocks the UI with alerts.
 
