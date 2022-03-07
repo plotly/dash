@@ -119,6 +119,8 @@ class AttributeDict(dict):
             value = self.get(name)
             if value:
                 return value
+        if names == ():
+            return next(iter(self), {})
 
 
 def create_callback_id(output):

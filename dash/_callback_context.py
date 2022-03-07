@@ -5,7 +5,7 @@ from copy import deepcopy
 import flask
 
 from . import exceptions
-from ._utils import stringify_id
+from ._utils import stringify_id, AttributeDict
 
 
 def has_context(func):
@@ -60,12 +60,12 @@ class CallbackContext:
     @has_context
     def triggered_ids(self):
         triggered = getattr(flask.g, "triggered_inputs", [])
-        ids = {}
+        ids = AttributeDict({})
         for item in triggered:
             component_id, _, _ = item["prop_id"].rpartition(".")
             ids[item["prop_id"]] = component_id
             if component_id.startswith("{"):
-                ids[item["prop_id"]] = json.loads(component_id)
+                ids[item["prop_id"]] = AttributeDict(json.loads(component_id))
         return ids
 
     @property
@@ -84,6 +84,9 @@ class CallbackContext:
                     "value": g.get("value"),
                     "str_id": str_id,
                     "triggered": prop_id in triggered,
+                    "id": AttributeDict(g["id"])
+                    if isinstance(g["id"], dict)
+                    else g["id"],
                 }
                 g.update(new_values)
 
