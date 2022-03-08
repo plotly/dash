@@ -910,7 +910,6 @@ def test_grva011_without_mathjax(dash_dcc):
     app.layout = html.Div([dcc.Graph(id="output", figure={"data": [{"y": [3, 1, 2]}]})])
 
     dash_dcc.start_server(app)
-    dash_dcc.percy_snapshot("grva011 - graph without mathjax")
     assert dash_dcc.get_logs() == []
 
 
@@ -931,5 +930,4 @@ def test_grva012_with_mathjax(dash_dcc):
     )
 
     dash_dcc.start_server(app)
-    dash_dcc.percy_snapshot("grva012 - graph with mathjax")
     assert dash_dcc.get_logs() == []

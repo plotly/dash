@@ -90,8 +90,6 @@ def test_mkdw002_dcclink(dash_dcc):
     )
 
     dash_dcc.start_server(app)
-    dash_dcc.percy_snapshot("mkdw002 - markdowns display")
-
     assert dash_dcc.get_logs() == []
 
 
@@ -120,7 +118,6 @@ def test_mkdw004_inline_mathjax(dash_dcc):
     )
 
     dash_dcc.start_server(app)
-    dash_dcc.percy_snapshot("mkdw004 - markdown inline mathjax")
     assert dash_dcc.get_logs() == []
 
 
@@ -145,7 +142,6 @@ def test_mkdw005_block_mathjax(dash_dcc):
     )
 
     dash_dcc.start_server(app)
-    dash_dcc.percy_snapshot("mkdw005 - markdown block mathjax")
     assert dash_dcc.get_logs() == []
 
 
