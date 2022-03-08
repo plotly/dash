@@ -172,9 +172,6 @@ class PlotlyGraph extends Component {
             frames: figure.frames,
             config: configClone,
         }).then(() => {
-            // clear typesetMath
-            configClone.typesetMath = undefined;
-
             const gd = this.gd.current;
 
             // double-check gd hasn't been unmounted
