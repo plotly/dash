@@ -904,8 +904,9 @@ def test_grva010_external_mathjax_prevents_lazy(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_grva011_without_mathjax(dash_dcc):
-    app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva011_without_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager, assets_folder="../../assets")
 
     app.layout = html.Div([dcc.Graph(id="output", figure={"data": [{"y": [3, 1, 2]}]})])
 
@@ -913,8 +914,9 @@ def test_grva011_without_mathjax(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_grva012_with_mathjax(dash_dcc):
-    app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva012_with_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager, assets_folder="../../assets")
 
     app.layout = html.Div(
         [

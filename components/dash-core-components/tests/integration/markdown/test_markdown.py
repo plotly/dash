@@ -1,3 +1,4 @@
+import pytest
 from dash import Dash, dcc, html, Input, Output
 
 
@@ -93,7 +94,8 @@ def test_mkdw002_dcclink(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_mkdw003_without_mathjax(dash_dcc):
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_mkdw003_without_mathjax(dash_dcc, is_eager):
     app = Dash(__name__)
 
     app.layout = html.Div(
@@ -108,7 +110,8 @@ def test_mkdw003_without_mathjax(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_mkdw004_inline_mathjax(dash_dcc):
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_mkdw004_inline_mathjax(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
 
     app.layout = html.Div(
@@ -121,7 +124,8 @@ def test_mkdw004_inline_mathjax(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_mkdw005_block_mathjax(dash_dcc):
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_mkdw005_block_mathjax(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
 
     app.layout = html.Div(
@@ -145,7 +149,8 @@ def test_mkdw005_block_mathjax(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_mkdw006_toggle_mathjax(dash_dcc):
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_mkdw006_toggle_mathjax(dash_dcc, is_eager):
     app = Dash(__name__)
 
     gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
@@ -192,7 +197,8 @@ def test_mkdw006_toggle_mathjax(dash_dcc):
     assert dash_dcc.driver.execute_script("return !!window.MathJax")
 
 
-def test_mkdw007_load_mathjax(dash_dcc):
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_mkdw007_load_mathjax(dash_dcc, is_eager):
     app = Dash(__name__)
 
     gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
