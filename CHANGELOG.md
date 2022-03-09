@@ -4,6 +4,34 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- [#1953](https://github.com/plotly/dash/pull/1953) Fix bug [#1783](https://github.com/plotly/dash/issues/1783) in which a failed hot reloader blocks the UI with alerts.
+
+## [2.2.0] - 2022-02-18
+
+### Added
+- [#1923](https://github.com/plotly/dash/pull/1923):
+  - `dash.get_relative_path`
+  - `dash.strip_relative_path`
+  - `dash.get_asset_url`
+  This is similar to `dash.callback` where you don't need the `app` object. It makes it possible to use these
+  functions in the `pages` folder of a multi-page app without running into the circular `app` imports issue.
+
+### Updated
+- [#1911](https://github.com/plotly/dash/pull/1911) Upgrade Plotly.js to v2.9.0 (from v2.8.3).
+  - Adds `ticklabelstep` to axes to reduce tick labels while still showing all ticks.
+  - Displays the plotly.js version when hovering on the modebar. This helps debugging situations where there might be multiple sources of plotly.js, for example `/assets` vs the versions built into `dcc` or `ddk`.
+
+- [#1930](https://github.com/plotly/dash/pull/1930) Upgrade JavaScript dependencies across renderer and all components.
+
+### Fixed
+- [#1932](https://github.com/plotly/dash/pull/1932) Fixes several bugs:
+  - Restores compatibility with IE11 [#1925](https://github.com/plotly/dash/issues/1925)
+  - Restores `style_header` text alignment in Dash Table [#1914](https://github.com/plotly/dash/issues/1914)
+  - Clears the unneeded `webdriver-manager` requirement from `dash[testing]` [#1919](https://github.com/plotly/dash/issues/1925)
+
+## [2.1.0] - 2022-01-22
+
 ### Changed
 - [#1876](https://github.com/plotly/dash/pull/1876) Delays finalizing `Dash.config` attributes not used in the constructor until `init_app()`.
 - [#1869](https://github.com/plotly/dash/pull/1869), [#1873](https://github.com/plotly/dash/pull/1873) Upgrade Plotly.js to v2.8.3. This includes:

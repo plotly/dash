@@ -33,7 +33,6 @@ module.exports = (options = {}) => {
         externals: {
             react: 'React',
             'react-dom': 'ReactDOM',
-            'plotly.js': 'Plotly'
         },
         module: {
             rules: [

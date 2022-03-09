@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import ResizeDetector from 'react-resize-detector';
+// /build/withPolyfill for IE11 support - https://github.com/maslianok/react-resize-detector/issues/144
+import ResizeDetector from 'react-resize-detector/build/withPolyfill';
 import {
     equals,
     filter,
