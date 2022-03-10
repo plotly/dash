@@ -142,11 +142,13 @@ def test_mkdw005_block_mathjax(dash_dcc, is_eager):
                     ## Next line.
                 """,
                 mathjax=True,
+                id="md",
             ),
         ]
     )
 
     dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#md svg")
     assert dash_dcc.get_logs() == []
 
 
