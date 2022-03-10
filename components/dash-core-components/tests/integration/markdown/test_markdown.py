@@ -151,7 +151,7 @@ def test_mkdw005_block_mathjax(dash_dcc, is_eager):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_mkdw006_toggle_mathjax(dash_dcc, is_eager):
-    app = Dash(__name__)
+    app = Dash(__name__, eager_loading=is_eager)
 
     gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
 
