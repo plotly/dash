@@ -211,9 +211,10 @@ def test_mkdw007_load_mathjax(dash_dcc, is_eager):
             html.Button("Add Second MathJax", id="btn"),
             dcc.Markdown(
                 f"""
-                # No Math Rendering Here! {gravity}
-            """,
+                    # No Math Rendering Here! {gravity}
+                """,
                 id="md",
+                mathjax=False,
             ),
             html.Div("initial", id="out"),
         ]

@@ -1007,3 +1007,54 @@ def test_grva013_toggle_mathjax(dash_dcc, is_eager):
     dash_dcc.wait_for_contains_text(".gtitle", gravity)
     dash_dcc.wait_for_no_elements(".gtitle-math")
     assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva014_load_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager)
+
+    gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
+
+    app.layout = html.Div(
+        [
+            html.Button("Add Second MathJax", id="btn"),
+            dcc.Graph(
+                mathjax=False,
+                id="gd",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": gravity}},
+                },
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Output("out", "children"), Input("btn", "n_clicks"), prevent_initial_call=True
+    )
+    def add_math(n):
+        return dcc.Graph(
+            mathjax=True,
+            id="gd2",
+            figure={
+                "data": [{"y": [3, 1, 2]}],
+                "layout": {"title": {"text": gravity}},
+            },
+        )
+
+    dash_dcc.start_server(app)
+
+    # Initial state: no MathJax loaded or rendered, unformatted text is shown
+    dash_dcc.wait_for_contains_text("#gd .gtitle", gravity)
+    dash_dcc.wait_for_no_elements("#gd .gtitle-math")
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn = dash_dcc.find_element("#btn")
+    btn.click()
+
+    # One click: MathJax is loaded and rendered on the second, unformatted text is gone
+
+    dash_dcc.wait_for_element("#gd2 .gtitle-math")
+    assert gravity not in dash_dcc._get_element("#gd2 .gtitle").text
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
