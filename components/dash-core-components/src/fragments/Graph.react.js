@@ -1,3 +1,4 @@
+import lazyLoadMathJax from '../utils/LazyLoader/mathjax';
 import React, {Component} from 'react';
 // /build/withPolyfill for IE11 support - https://github.com/maslianok/react-resize-detector/issues/144
 import ResizeDetector from 'react-resize-detector/build/withPolyfill';
@@ -144,7 +145,7 @@ class PlotlyGraph extends Component {
 
     plot(props) {
         let {figure, config} = props;
-        const {animate, animation_options, responsive} = props;
+        const {animate, animation_options, responsive, mathjax} = props;
 
         const gd = this.gd.current;
         figure = props._dashprivate_transformFigure(figure, gd);
@@ -152,7 +153,7 @@ class PlotlyGraph extends Component {
 
         const configClone = this.getConfig(config, responsive);
         // add typesetMath | not exposed to the dash API
-        configClone.typesetMath = this.props.mathjax;
+        configClone.typesetMath = mathjax;
 
         const figureClone = {
             data: figure.data,
@@ -180,32 +181,34 @@ class PlotlyGraph extends Component {
 
         gd.classList.add('dash-graph--pending');
 
-        return Plotly.react(gd, figureClone).then(() => {
-            const gd = this.gd.current;
+        return lazyLoadMathJax(mathjax)
+            .then(() => Plotly.react(gd, figureClone))
+            .then(() => {
+                const gd = this.gd.current;
 
-            // double-check gd hasn't been unmounted
-            if (!gd) {
-                return;
-            }
-
-            gd.classList.remove('dash-graph--pending');
-
-            // in case we've made a new DOM element, transfer events
-            if (this._hasPlotted && gd !== this._prevGd) {
-                if (this._prevGd && this._prevGd.removeAllListeners) {
-                    this._prevGd.removeAllListeners();
-                    Plotly.purge(this._prevGd);
+                // double-check gd hasn't been unmounted
+                if (!gd) {
+                    return;
                 }
-                this._hasPlotted = false;
-            }
 
-            if (!this._hasPlotted) {
-                this.bindEvents();
-                this.graphResize(true);
-                this._hasPlotted = true;
-                this._prevGd = gd;
-            }
-        });
+                gd.classList.remove('dash-graph--pending');
+
+                // in case we've made a new DOM element, transfer events
+                if (this._hasPlotted && gd !== this._prevGd) {
+                    if (this._prevGd && this._prevGd.removeAllListeners) {
+                        this._prevGd.removeAllListeners();
+                        Plotly.purge(this._prevGd);
+                    }
+                    this._hasPlotted = false;
+                }
+
+                if (!this._hasPlotted) {
+                    this.bindEvents();
+                    this.graphResize(true);
+                    this._hasPlotted = true;
+                    this._prevGd = gd;
+                }
+            });
     }
 
     mergeTraces(props, dataKey, plotlyFnKey) {
@@ -430,6 +433,7 @@ class PlotlyGraph extends Component {
             return;
         }
         if (
+            this.props.mathjax !== nextProps.mathjax ||
             this.props.figure !== nextProps.figure ||
             this.props._dashprivate_transformConfig !==
                 nextProps._dashprivate_transformConfig ||
@@ -453,7 +457,10 @@ class PlotlyGraph extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.id !== this.props.id) {
+        if (
+            prevProps.id !== this.props.id ||
+            prevProps.mathjax !== this.props.mathjax
+        ) {
             this.plot(this.props);
         }
     }
