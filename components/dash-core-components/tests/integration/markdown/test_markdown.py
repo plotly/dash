@@ -121,6 +121,7 @@ def test_mkdw004_inline_mathjax(dash_dcc, is_eager):
     )
 
     dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("h1 svg")
     assert dash_dcc.get_logs() == []
 
 
