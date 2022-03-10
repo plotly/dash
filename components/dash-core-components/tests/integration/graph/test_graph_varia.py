@@ -875,7 +875,14 @@ def test_grva010_external_mathjax_prevents_lazy(dash_dcc):
         if n_clicks is None:
             raise PreventUpdate
 
-        return dcc.Graph(mathjax=True, id="output", figure={"data": [{"y": [3, 1, 2]}]})
+        return dcc.Graph(
+            mathjax=True,
+            id="output",
+            figure={
+                "data": [{"y": [3, 1, 2]}],
+                "layout": {"title": {"text": "$E=mc^2$"}},
+            },
+        )
 
     dash_dcc.start_server(
         app,
@@ -893,9 +900,7 @@ def test_grva010_external_mathjax_prevents_lazy(dash_dcc):
     assert findAsyncMathJax(scripts) is None
 
     dash_dcc.find_element("#btn").click()
-
-    # Give time for the async dependency to be requested (if any)
-    time.sleep(2)
+    dash_dcc.wait_for_element(".gtitle-math")
 
     scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
     assert findSyncMathJax(scripts) is None
