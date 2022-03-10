@@ -96,7 +96,7 @@ def test_mkdw002_dcclink(dash_dcc):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_mkdw003_without_mathjax(dash_dcc, is_eager):
-    app = Dash(__name__)
+    app = Dash(__name__, eager_loading=is_eager)
 
     app.layout = html.Div(
         [
