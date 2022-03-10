@@ -58,7 +58,7 @@ class CallbackContext:
 
     @property
     @has_context
-    def triggered_ids(self):
+    def triggered_prop_ids(self):
         triggered = getattr(flask.g, "triggered_inputs", [])
         ids = AttributeDict({})
         for item in triggered:
@@ -67,6 +67,15 @@ class CallbackContext:
             if component_id.startswith("{"):
                 ids[item["prop_id"]] = AttributeDict(json.loads(component_id))
         return ids
+
+    @property
+    @has_context
+    def triggered_id(self):
+        component_id = None
+        if self.triggered:
+            prop_id = self.triggered_prop_ids.first()
+            component_id = self.triggered_prop_ids[prop_id]
+        return component_id
 
     @property
     @has_context
