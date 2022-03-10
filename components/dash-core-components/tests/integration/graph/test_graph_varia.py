@@ -913,9 +913,20 @@ def test_grva010_external_mathjax_prevents_lazy(dash_dcc):
 def test_grva011_without_mathjax(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager, assets_folder="../../assets")
 
-    app.layout = html.Div([dcc.Graph(id="output", figure={"data": [{"y": [3, 1, 2]}]})])
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="output",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": "Apple: $2, Orange: $3"}},
+                },
+            )
+        ]
+    )
 
     dash_dcc.start_server(app)
+    assert dash_dcc.wait_for_element(".gtitle").text == "Apple: $2, Orange: $3"
     assert dash_dcc.get_logs() == []
 
 
