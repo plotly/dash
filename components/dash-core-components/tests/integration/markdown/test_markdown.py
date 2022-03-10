@@ -112,7 +112,7 @@ def test_mkdw003_without_mathjax(dash_dcc, is_eager):
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_mkdw004_inline_mathjax(dash_dcc, is_eager):
-    app = Dash(__name__, eager_loading=False, assets_folder="../../assets")
+    app = Dash(__name__, eager_loading=is_eager, assets_folder="../../assets")
 
     app.layout = html.Div(
         [
