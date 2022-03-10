@@ -123,15 +123,34 @@ export default class HeaderFactory {
 
         const ops = this.getHeaderOpCells(operations, opStyles, headerOpEdges);
 
+        const filteredStyles = this.filterMergedCells(
+            wrapperStyles,
+            labelsAndIndices
+        );
+
         const headers = this.getHeaderCells(
             wrappers,
             contents,
-            wrapperStyles,
+            filteredStyles,
             headerEdges
         );
 
         return this.getCells(ops, headers);
     }
+
+    filterMergedCells = memoizeOne((cellsArray, labelsAndIndices) => {
+        const filteredCells = [];
+        for (let row = 0; row < cellsArray.length; row++) {
+            const rowCells = [];
+            for (let col = 0; col < cellsArray[row].length; col++) {
+                if (labelsAndIndices[row][1].includes(col)) {
+                    rowCells.push(cellsArray[row][col]);
+                }
+            }
+            filteredCells.push(rowCells);
+        }
+        return filteredCells;
+    });
 
     getCells = memoizeOne(
         (opCells: JSX.Element[][], dataCells: JSX.Element[][]) =>
