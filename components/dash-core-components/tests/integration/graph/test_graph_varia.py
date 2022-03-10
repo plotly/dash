@@ -927,6 +927,11 @@ def test_grva011_without_mathjax(dash_dcc, is_eager):
 
     dash_dcc.start_server(app)
     assert dash_dcc.wait_for_element(".gtitle").text == "Apple: $2, Orange: $3"
+
+    scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
+    assert findSyncMathJax(scripts) is None
+    assert findAsyncMathJax(scripts) is None
+
     assert dash_dcc.get_logs() == []
 
 
@@ -949,4 +954,9 @@ def test_grva012_with_mathjax(dash_dcc, is_eager):
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_element(".gtitle-math")
+
+    scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
+    assert findSyncMathJax(scripts) is None
+    assert findAsyncMathJax(scripts) is None
+
     assert dash_dcc.get_logs() == []
