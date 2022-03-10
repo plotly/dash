@@ -150,11 +150,15 @@ class PlotlyGraph extends Component {
         figure = props._dashprivate_transformFigure(figure, gd);
         config = props._dashprivate_transformConfig(config, gd);
 
+        const configClone = this.getConfig(config, responsive);
+        // add typesetMath | not exposed to the dash API
+        configClone.typesetMath = this.props.mathjax;
+
         const figureClone = {
             data: figure.data,
             layout: this.getLayout(figure.layout, responsive),
             frames: figure.frames,
-            config: this.getConfig(config, responsive),
+            config: configClone,
         };
 
         if (
@@ -173,11 +177,6 @@ class PlotlyGraph extends Component {
             }
             return Plotly.animate(gd, figureClone, animation_options);
         }
-
-        const layoutClone = this.getLayout(figure.layout, responsive);
-        const configClone = this.getConfig(config, responsive);
-        // add typesetMath | not exposed to the dash API
-        configClone.typesetMath = this.props.mathjax;
 
         gd.classList.add('dash-graph--pending');
 
