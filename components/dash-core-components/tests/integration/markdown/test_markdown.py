@@ -240,7 +240,7 @@ def test_mkdw007_load_mathjax(dash_dcc, is_eager):
 
 
 def test_mkdw008_mathjax_visual(dash_dcc):
-    app = Dash(__name__, eager_loading=True, assets_folder="../../assets")
+    app = Dash(__name__, assets_folder="../../assets")
 
     false = False
 
