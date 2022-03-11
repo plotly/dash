@@ -182,7 +182,7 @@ class PlotlyGraph extends Component {
         gd.classList.add('dash-graph--pending');
 
         return lazyLoadMathJax(mathjax)
-            .then(() => Plotly.react(gd, figureClone))
+            .then(() => Plotly.react(this.gd.current, figureClone))
             .then(() => {
                 const gd = this.gd.current;
 
