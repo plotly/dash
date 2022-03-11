@@ -184,13 +184,7 @@ class PlotlyGraph extends Component {
         return lazyLoadMathJax(mathjax)
             .then(() => {
                 const gd = this.gd.current;
-
-                // double-check gd hasn't been unmounted
-                if (!gd) {
-                    return;
-                }
-
-                Plotly.react(gd, figureClone);
+                return gd && Plotly.react(gd, figureClone);
             })
             .then(() => {
                 const gd = this.gd.current;
