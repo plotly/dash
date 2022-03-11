@@ -1,4 +1,4 @@
-import {append, concat, has, path, type} from 'ramda';
+import {append, concat, has, path, pathOr, type} from 'ramda';
 
 /*
  * requests_pathname_prefix is the new config parameter introduced in
@@ -41,6 +41,11 @@ export const crawlLayout = (object, func, currentPath = []) => {
             const newPath = concat(currentPath, propsChildren);
             crawlLayout(children, func, newPath);
         }
+        const childrenProps = pathOr([], ['childrenProps'], object);
+        childrenProps.forEach(childrenProp => {
+            const newPath = concat(currentPath, ['props', childrenProp]);
+            crawlLayout(path(['props', childrenProp], object), func, newPath);
+        });
     }
 };
 

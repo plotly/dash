@@ -4,6 +4,7 @@ import Registry from './registry';
 import {propTypeErrorHandler} from './exceptions';
 import {
     addIndex,
+    assoc,
     concat,
     dissoc,
     equals,
@@ -14,6 +15,7 @@ import {
     mergeRight,
     pick,
     pickBy,
+    pipe,
     propOr,
     type
 } from 'ramda';
@@ -195,7 +197,29 @@ class BaseTreeContainer extends Component {
 
         const element = Registry.resolve(_dashprivate_layout);
 
-        const props = dissoc('children', _dashprivate_layout.props);
+        // Hydrate components props
+        const childrenProps = propOr([], 'childrenProps', _dashprivate_layout);
+        const props = pipe(
+            dissoc('children'),
+            ...childrenProps
+                .map(childrenProp => {
+                    const node = _dashprivate_layout.props[childrenProp];
+                    if (node) {
+                        return assoc(
+                            childrenProp,
+                            this.createContainer(
+                                this.props,
+                                node,
+                                concat(this.props._dashprivate_path, [
+                                    'props',
+                                    childrenProp
+                                ])
+                            )
+                        );
+                    }
+                })
+                .filter(e => e)
+        )(_dashprivate_layout.props);
 
         if (type(props.id) === 'Object') {
             // Turn object ids (for wildcards) into unique strings.
