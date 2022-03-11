@@ -26,6 +26,7 @@
     "private::test.integration-dash": "TESTFILES=$(circleci tests glob \"tests/integration/**/test_*.py\" | circleci tests split --split-by=timings) && pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}",
     "private::test.integration-dash-import": "cd tests/integration/dash && python dash_import_test.py",
     "build": "run-s private::build.*",
+    "build.sequential": "npm run private::build.renderer && npm run private::build.components -- --concurrency 1",
     "format": "run-s private::format.*",
     "initialize": "run-s private::initialize.*",
     "prepare": "husky install",
