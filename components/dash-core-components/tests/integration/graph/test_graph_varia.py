@@ -913,7 +913,7 @@ def test_grva011_without_mathjax(dash_dcc, is_eager):
     dash_dcc.start_server(app)
     assert dash_dcc.wait_for_element(".gtitle").text == "Apple: $2, Orange: $3"
 
-    assert not dash_dcc.driver.execute_script("return !!Window.MathJax")
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
 
     assert dash_dcc.get_logs() == []
 
@@ -938,7 +938,7 @@ def test_grva012_with_mathjax(dash_dcc, is_eager):
     dash_dcc.start_server(app)
     dash_dcc.wait_for_element(".gtitle-math")
 
-    assert dash_dcc.driver.execute_script("return !!Window.MathJax")
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
 
     assert dash_dcc.get_logs() == []
 
