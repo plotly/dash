@@ -367,6 +367,10 @@ def test_mkdw008_mathjax_visual(dash_dcc):
     )
 
     dash_dcc.start_server(app)
+    dash_dcc.find_element("h1 svg")
+    dash_dcc.find_element("#graph-with-math svg")
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
     dash_dcc.percy_snapshot("mkdw008 - markdown and graph with/without mathjax")
 
     assert dash_dcc.get_logs() == []
