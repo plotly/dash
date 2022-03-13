@@ -19,6 +19,7 @@ venv/
 /build
 /dash_core_components
 dash_core_components_base/plotly.min.js
+dash_core_components_base/mathjax.js
 /deps
 /inst
 /man

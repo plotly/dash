@@ -20,7 +20,7 @@ coloredlogs.install(
 )
 
 
-def booststrap_components(components_source):
+def bootstrap_components(components_source, concurrency):
 
     is_windows = sys.platform == "win32"
 
@@ -30,10 +30,9 @@ def booststrap_components(components_source):
         else "dash-core-components|dash-html-components|dash-table"
     )
 
-    cmd = shlex.split(
-        "npx lerna exec --scope *@({})* -- npm i".format(source_glob),
-        posix=not is_windows,
-    )
+    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope *@({source_glob})* -- npm i"
+    cmd = shlex.split(cmdstr, posix=not is_windows)
+    print(cmdstr)
 
     with subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
@@ -57,7 +56,7 @@ def booststrap_components(components_source):
         )
 
 
-def build_components(components_source):
+def build_components(components_source, concurrency):
 
     is_windows = sys.platform == "win32"
 
@@ -67,10 +66,9 @@ def build_components(components_source):
         else "dash-core-components|dash-html-components|dash-table"
     )
 
-    cmd = shlex.split(
-        "npx lerna exec --scope *@({})* -- npm run build".format(source_glob),
-        posix=not is_windows,
-    )
+    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope *@({source_glob})* -- npm run build"
+    cmd = shlex.split(cmdstr, posix=not is_windows)
+    print(cmdstr)
 
     with subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
@@ -140,11 +138,17 @@ def cli():
         " The default argument is 'all'.",
         default="all",
     )
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=3,
+        help="Maximum concurrent steps, up to 3 (ie all components in parallel)",
+    )
 
     args = parser.parse_args()
 
-    booststrap_components(args.components_source)
-    build_components(args.components_source)
+    bootstrap_components(args.components_source, args.concurrency)
+    build_components(args.components_source, args.concurrency)
 
 
 if __name__ == "__main__":
