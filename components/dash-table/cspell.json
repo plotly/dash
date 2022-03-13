@@ -3,6 +3,7 @@
     "ignorePaths": [
         "**/package.json",
         "**/package-lock.json",
+        "**/packages/**",
         "**/node_modules/**",
         "**/vscode-extension/**",
         "**/.git/**",

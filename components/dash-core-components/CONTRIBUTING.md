@@ -31,9 +31,9 @@ you've pulled from upstream otherwise you may be running with an out of date
 `bundle.js`. See the instructions for building `bundle.js` in the [Testing
 Locally](README.md#testing-locally) section of README.md.
 
-## Updating Plotly.js
+## Updating official version of Plotly.js
 
-1. Update the version of `plotly.js` in package.json. Always use an exact version without "^" or "~"
+1. Update the version of `plotly.js-dist-min` in package.json. Always use an exact version without "^" or "~"
 2. Run `npm install` followed by `npm run build`, the Plotly.js artifact will be copied and bundled over as required
 4. Update `CHANGELOG.md` with links to the releases and a description of the changes. The message should state (see the existing `CHANGELOG.md` for examples):
     * If you're only bumping the patch level, the heading is "Fixed" and the text starts "Patched plotly.js". Otherwise the heading is "Updated" and the text starts "Upgraded plotly.js"
@@ -41,6 +41,11 @@ Locally](README.md#testing-locally) section of README.md.
     * All major or minor versions included, with links to their release pages and a summary of the major new features in each. If there are multiple minor/major releases included, be sure to look at all of their release notes to construct the summary. Call minor versions "feature" versions for the benefit of users not steeped in semver terminology.
     * All patch versions included, with links to their release pages and a note that these fix bugs
 5. When bumping the dcc version, a plotly.js patch/minor/major constitutes a dcc patch/minor/major respectively as well.
+
+### Using a temporary `plotly.js-dist-min` package (or other dependencies)
+
+> During integrated development of new features or bug fixes in plotly.js and dash, it may be required to install a temporary plotly.js-dist-min package (or other packages) including proposed changes. To do so, please place the `.tgz` file in `packages/` folder then `npm install` the file.
+
 
 ## Financial Contributions
 
