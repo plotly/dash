@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.3.0] - 2022-03-13
 
 ### Added
 - [#1949](https://github.com/plotly/dash/pull/1915) Add built-in MathJax support to both `dcc.Markdown` and `dcc.Graph`. A new boolean prop `mathjax` was added to these two components, defaulting to `False`. Set `mathjax=True` to enable math rendering. This work uses MathJax v3, although `dcc.Graph` and Plotly.js can also be used with MathJax v2.
