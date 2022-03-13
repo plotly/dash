@@ -346,7 +346,8 @@ def test_cbcx007_triggered_id(dash_duo):
         if not ctx.triggered:
             raise PreventUpdate
         for btn in btns:
-            if btn in ctx.triggered_ids.values():
+            if btn in ctx.triggered_prop_ids.values():
+                assert btn == ctx.triggered_id
                 return f"Just clicked {btn}"
 
     dash_duo.start_server(app)
@@ -372,11 +373,15 @@ def test_cbcx008_triggered_id_pmc(dash_duo):
     )
     def func(n_clicks):
         if ctx.triggered:
-            triggered_id, dict_id = next(iter(ctx.triggered_ids.items()))
+            triggered_id, dict_id = next(iter(ctx.triggered_prop_ids.items()))
+
+            assert dict_id == ctx.triggered_id
+
             if dict_id == {"type": "btn", "index": "myindex"}:
                 return dict_id["index"]
 
     dash_duo.start_server(app)
+
     dash_duo.find_element(
         '#\\{\\"index\\"\\:\\"myindex\\"\\,\\"type\\"\\:\\"btn\\"\\}'
     ).click()
