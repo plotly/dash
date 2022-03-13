@@ -26,6 +26,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#1953](https://github.com/plotly/dash/pull/1953) Fix bug [#1783](https://github.com/plotly/dash/issues/1783) in which a failed hot reloader blocks the UI with alerts.
 
+- [#1942](https://github.com/plotly/dash/pull/1942) Fix bug [#1663](https://github.com/plotly/dash/issues/1663) preventing pie traces from sending `customdata` with `clickData` and other events.
+
 ## [2.2.0] - 2022-02-18
 
 ### Added

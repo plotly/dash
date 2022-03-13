@@ -4,6 +4,7 @@ import pandas as pd
 from multiprocessing import Value, Lock
 import numpy as np
 from time import sleep
+import plotly.express as px
 import plotly.graph_objects as go
 from dash import Dash, Input, Output, dcc, html
 
@@ -165,7 +166,46 @@ def test_grbs004_graph_loading_state_updates(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_grbs005_graph_update_frames(dash_dcc):
+def test_grbs005_graph_customdata(dash_dcc):
+    app = Dash(__name__)
+
+    df = px.data.tips()
+    df["id"] = df.index
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="pie-chart",
+                figure=go.Figure(
+                    data=[
+                        go.Pie(
+                            labels=df["day"], ids=df["id"].map(str), customdata=df["id"]
+                        )
+                    ]
+                ),
+            ),
+            dcc.Textarea(id="text-area"),
+        ]
+    )
+
+    @app.callback(Output("text-area", "value"), Input("pie-chart", "clickData"))
+    def handleClick(clickData):
+        return json.dumps(clickData)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#pie-chart")
+
+    dash_dcc.find_elements("g .slice")[0].click()
+
+    data = dash_dcc.wait_for_element("#text-area").get_attribute("value")
+    assert data != "", "graph clickData must contain data"
+
+    data = json.loads(data)
+    assert "customdata" in data["points"][0], "graph clickData must contain customdata"
+    assert data["points"][0]["customdata"][0] == data["points"][0]["pointNumbers"][0]
+
+
+def test_grbs006_graph_update_frames(dash_dcc):
     app = Dash(__name__)
 
     def get_scatter(multiplier, offset):
