@@ -1,4 +1,4 @@
-from dash import Dash, Input, Output, dcc
+from dash import Dash, Input, Output, dcc, html
 from dash.exceptions import PreventUpdate
 
 
@@ -49,5 +49,23 @@ def test_dddo001_dynamic_options(dash_dcc):
     assert len(options) == 1
     print(options)
     assert options[0].text == "Montreal"
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_dddo002_array_value(dash_dcc):
+
+    app = Dash(__name__)
+
+    dropdown = dcc.Dropdown(
+        options=["New York, NY", "Montreal, QC", "San Francisco, CA"],
+        value=["San Francisco, CA"],
+        multi=True,
+    )
+    app.layout = html.Div(dropdown)
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_text_to_equal("#react-select-2--value-0", "San Francisco, CA\n ")
 
     assert dash_dcc.get_logs() == []
