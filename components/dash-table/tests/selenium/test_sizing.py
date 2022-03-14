@@ -294,15 +294,6 @@ def test_szng002_percentages_result_in_same_widths(test):
     assert test.get_log_errors() == []
 
 
-@pytest.mark.parametrize("props", basic_modes)
-@pytest.mark.parametrize(
-    "data_fn",
-    [generate_mock_data, generate_markdown_mock_data, generate_mixed_markdown_data],
-)
-def test_szng004_on_focus(test, props, data_fn):
-    on_focus(test, props, data_fn)
-
-
 def on_focus(test, props, data_fn):
     app = dash.Dash(__name__)
 
@@ -333,3 +324,30 @@ def on_focus(test, props, data_fn):
         cells_are_same_width(t1, t2)
 
     assert test.get_log_errors() == []
+
+
+@pytest.mark.parametrize("props", basic_modes)
+@pytest.mark.parametrize(
+    "data_fn",
+    [generate_mock_data],
+)
+def test_szng004_on_focus(test, props, data_fn):
+    on_focus(test, props, data_fn)
+
+
+@pytest.mark.parametrize("props", basic_modes)
+@pytest.mark.parametrize(
+    "data_fn",
+    [generate_markdown_mock_data],
+)
+def test_szng005_on_focus(test, props, data_fn):
+    on_focus(test, props, data_fn)
+
+
+@pytest.mark.parametrize("props", basic_modes)
+@pytest.mark.parametrize(
+    "data_fn",
+    [generate_mixed_markdown_data],
+)
+def test_szng006_on_focus(test, props, data_fn):
+    on_focus(test, props, data_fn)
