@@ -300,6 +300,10 @@ def test_szng002_percentages_result_in_same_widths(test):
     [generate_mock_data, generate_markdown_mock_data, generate_mixed_markdown_data],
 )
 def test_szng004_on_focus(test, props, data_fn):
+    on_focus(test, props, data_fn)
+
+
+def on_focus(test, props, data_fn):
     app = dash.Dash(__name__)
 
     baseProps1 = get_props(data_fn=data_fn)
