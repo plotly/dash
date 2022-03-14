@@ -23,7 +23,7 @@
     "test": "run-s -c lint test:intg test:pyimport",
     "test:intg": "pytest --nopercyfinalize --headless tests/integration",
     "test:pyimport": "python -m unittest tests/test_dash_import.py",
-    "prebuild:js": "cp node_modules/plotly.js-dist-min/plotly.min.js dash_core_components_base/plotly.min.js && cp node_modules/mathjax/es5/tex-svg.js dash_core_components_base/mathjax.js",
+    "prebuild:js": "cp node_modules/plotly.js-dist-min/plotly.min.js dash_core_components_base/plotly.min.js",
     "build:js": "webpack --mode production",
     "build:backends": "dash-generate-components ./src/components dash_core_components -p package-info.json  && cp dash_core_components_base/** dash_core_components/ && dash-generate-components ./src/components dash_core_components -p package-info.json -k RangeSlider,Slider,Dropdown,RadioItems,Checklist,DatePickerSingle,DatePickerRange,Input,Link --r-prefix 'dcc' --r-suggests 'dash,dashHtmlComponents,jsonlite,plotly' --jl-prefix 'dcc' && black dash_core_components",
     "build": "run-s prepublishOnly build:js build:backends",
