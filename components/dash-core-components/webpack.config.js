@@ -65,7 +65,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.jsx?$/,
-                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|is-plain-obj|color)[\\\/]/,
+                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color)[\\\/]/,
                     use: {
                         loader: 'babel-loader',
                         options: {
@@ -134,7 +134,7 @@ module.exports = (env, argv) => {
             new WebpackDashDynamicImport(),
             new webpack.SourceMapDevToolPlugin({
                 filename: '[file].map',
-                exclude: ['async-plotlyjs']
+                exclude: ['async-plotlyjs', 'async-mathjax']
             }),
             new NodePolyfillPlugin()
         ]
