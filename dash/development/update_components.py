@@ -152,7 +152,9 @@ def cli():
 
     args = parser.parse_args()
 
-    bootstrap_components(args.components_source, args.concurrency, "ci" if args.ci == "True" else "i")
+    bootstrap_components(
+        args.components_source, args.concurrency, "ci" if args.ci == "True" else "i"
+    )
     build_components(args.components_source, args.concurrency)
 
 
