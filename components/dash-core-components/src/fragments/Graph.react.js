@@ -1,5 +1,7 @@
+import lazyLoadMathJax from '../utils/LazyLoader/mathjax';
 import React, {Component} from 'react';
-import ResizeDetector from 'react-resize-detector';
+// /build/withPolyfill for IE11 support - https://github.com/maslianok/react-resize-detector/issues/144
+import ResizeDetector from 'react-resize-detector/build/withPolyfill';
 import {
     equals,
     filter,
@@ -82,13 +84,18 @@ const filterEventData = (gd, eventData, event) => {
 
             if (
                 has('curveNumber', fullPoint) &&
-                has('pointNumber', fullPoint) &&
                 has('customdata', data[pointData.curveNumber])
             ) {
-                pointData.customdata =
-                    data[pointData.curveNumber].customdata[
-                        fullPoint.pointNumber
-                    ];
+                if (has('pointNumber', fullPoint)) {
+                    pointData.customdata =
+                        data[pointData.curveNumber].customdata[
+                            fullPoint.pointNumber
+                        ];
+                } else if (has('pointNumbers', fullPoint)) {
+                    pointData.customdata = fullPoint.pointNumbers.map(point => {
+                        return data[pointData.curveNumber].customdata[point];
+                    });
+                }
             }
 
             // specific to histogram. see https://github.com/plotly/plotly.js/pull/2113/
@@ -144,62 +151,80 @@ class PlotlyGraph extends Component {
 
     plot(props) {
         let {figure, config} = props;
-        const {animate, animation_options, responsive} = props;
+        const {animate, animation_options, responsive, mathjax} = props;
 
         const gd = this.gd.current;
-
         figure = props._dashprivate_transformFigure(figure, gd);
         config = props._dashprivate_transformConfig(config, gd);
+
+        const configClone = this.getConfig(config, responsive);
+        // add typesetMath | not exposed to the dash API
+        configClone.typesetMath = mathjax;
+
+        const figureClone = {
+            data: figure.data,
+            layout: this.getLayout(figure.layout, responsive),
+            frames: figure.frames,
+            config: configClone,
+        };
 
         if (
             animate &&
             this._hasPlotted &&
             figure.data.length === gd.data.length
         ) {
-            return Plotly.animate(gd, figure, animation_options);
+            // in case we've have figure frames,
+            // we need to recreate frames before animation
+            if (figure.frames) {
+                return Plotly.deleteFrames(gd)
+                    .then(() => Plotly.addFrames(gd, figure.frames))
+                    .then(() =>
+                        Plotly.animate(gd, figureClone, animation_options)
+                    );
+            }
+            return Plotly.animate(gd, figureClone, animation_options);
         }
-
-        const configClone = this.getConfig(config, responsive);
-        const layoutClone = this.getLayout(figure.layout, responsive);
 
         gd.classList.add('dash-graph--pending');
 
-        return Plotly.react(gd, {
-            data: figure.data,
-            layout: layoutClone,
-            frames: figure.frames,
-            config: configClone,
-        }).then(() => {
-            const gd = this.gd.current;
+        return lazyLoadMathJax(mathjax)
+            .then(() => {
+                const gd = this.gd.current;
+                return gd && Plotly.react(gd, figureClone);
+            })
+            .then(() => {
+                const gd = this.gd.current;
 
-            // double-check gd hasn't been unmounted
-            if (!gd) {
-                return;
-            }
-
-            gd.classList.remove('dash-graph--pending');
-
-            // in case we've made a new DOM element, transfer events
-            if (this._hasPlotted && gd !== this._prevGd) {
-                if (this._prevGd && this._prevGd.removeAllListeners) {
-                    this._prevGd.removeAllListeners();
-                    Plotly.purge(this._prevGd);
+                // double-check gd hasn't been unmounted
+                if (!gd) {
+                    return;
                 }
-                this._hasPlotted = false;
-            }
 
-            if (!this._hasPlotted) {
-                this.bindEvents();
-                this.graphResize(true);
-                this._hasPlotted = true;
-                this._prevGd = gd;
-            }
-        });
+                gd.classList.remove('dash-graph--pending');
+
+                // in case we've made a new DOM element, transfer events
+                if (this._hasPlotted && gd !== this._prevGd) {
+                    if (this._prevGd && this._prevGd.removeAllListeners) {
+                        this._prevGd.removeAllListeners();
+                        Plotly.purge(this._prevGd);
+                    }
+                    this._hasPlotted = false;
+                }
+
+                if (!this._hasPlotted) {
+                    this.bindEvents();
+                    this.graphResize(true);
+                    this._hasPlotted = true;
+                    this._prevGd = gd;
+                }
+            });
     }
 
     mergeTraces(props, dataKey, plotlyFnKey) {
         const clearState = props.clearState;
         const dataArray = props[dataKey];
+
+        let p = Promise.resolve();
 
         dataArray.forEach(data => {
             let updateData, traceIndices, maxPoints;
@@ -220,11 +245,16 @@ class PlotlyGraph extends Component {
                 traceIndices = generateIndices(updateData);
             }
 
-            const gd = this.gd.current;
-            return Plotly[plotlyFnKey](gd, updateData, traceIndices, maxPoints);
+            p = p.then(() => {
+                const gd = this.gd.current;
+                return (
+                    gd &&
+                    Plotly[plotlyFnKey](gd, updateData, traceIndices, maxPoints)
+                );
+            });
         });
 
-        clearState(dataKey);
+        p.then(() => clearState(dataKey));
     }
 
     getConfig(config, responsive) {
@@ -408,16 +438,22 @@ class PlotlyGraph extends Component {
     }
 
     componentDidMount() {
-        this.plot(this.props);
+        let p = this.plot(this.props);
         if (this.props.prependData) {
-            this.mergeTraces(this.props, 'prependData', 'prependTraces');
+            p = p.then(() =>
+                this.mergeTraces(this.props, 'prependData', 'prependTraces')
+            );
         }
         if (this.props.extendData) {
-            this.mergeTraces(this.props, 'extendData', 'extendTraces');
+            p = p.then(() =>
+                this.mergeTraces(this.props, 'extendData', 'extendTraces')
+            );
         }
 
         if (this.props.prependData?.length || this.props.extendData?.length) {
-            this.props._dashprivate_onFigureModified(this.props.figure);
+            p.then(() =>
+                this.props._dashprivate_onFigureModified(this.props.figure)
+            );
         }
     }
 
@@ -450,31 +486,43 @@ class PlotlyGraph extends Component {
              */
             return;
         }
+
+        let p = Promise.resolve();
         if (
+            this.props.mathjax !== nextProps.mathjax ||
             this.props.figure !== nextProps.figure ||
             this.props._dashprivate_transformConfig !==
                 nextProps._dashprivate_transformConfig ||
             this.props._dashprivate_transformFigure !==
                 nextProps._dashprivate_transformFigure
         ) {
-            this.plot(nextProps);
+            p = this.plot(nextProps);
         }
 
         if (this.props.prependData !== nextProps.prependData) {
-            this.mergeTraces(nextProps, 'prependData', 'prependTraces');
+            p = p.then(() =>
+                this.mergeTraces(nextProps, 'prependData', 'prependTraces')
+            );
         }
 
         if (this.props.extendData !== nextProps.extendData) {
-            this.mergeTraces(nextProps, 'extendData', 'extendTraces');
+            p = p.then(() =>
+                this.mergeTraces(nextProps, 'extendData', 'extendTraces')
+            );
         }
 
         if (this.props.prependData?.length || this.props.extendData?.length) {
-            this.props._dashprivate_onFigureModified(this.props.figure);
+            p.then(() =>
+                this.props._dashprivate_onFigureModified(this.props.figure)
+            );
         }
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.id !== this.props.id) {
+        if (
+            prevProps.id !== this.props.id ||
+            prevProps.mathjax !== this.props.mathjax
+        ) {
             this.plot(this.props);
         }
     }

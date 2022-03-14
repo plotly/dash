@@ -9,18 +9,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-def findSyncPlotlyJs(scripts):
-    for script in scripts:
-        if "dash_core_components/plotly-" in script.get_attribute("src"):
-            return script
-
-
-def findAsyncPlotlyJs(scripts):
-    for script in scripts:
-        if "dash_core_components/async-plotlyjs" in script.get_attribute("src"):
-            return script
-
-
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva001_candlestick(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
@@ -87,7 +75,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
                             "x": [1, 2, 3],
                             "y": [2, 4, 5],
                             "type": "bar",
-                            "name": u"Montréal",
+                            "name": "Montréal",
                         },
                     ],
                     "layout": {"title": "Dash Data Visualization"},
@@ -107,7 +95,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
                             "x": [11, 22, 33],
                             "y": [22, 44, 55],
                             "type": "bar",
-                            "name": u"Montréal",
+                            "name": "Montréal",
                         },
                     ],
                     "layout": {"title": "Dash Data Visualization"},
@@ -567,7 +555,7 @@ def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
                                                     "x": [1, 2, 3],
                                                     "y": [2, 4, 5],
                                                     "type": "scattergl",
-                                                    "name": u"Montréal",
+                                                    "name": "Montréal",
                                                 },
                                             ]
                                         },
@@ -594,7 +582,7 @@ def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
                                             "x": [1, 2, 3],
                                             "y": [1, 2, 3],
                                             "type": "scattergl",
-                                            "name": u"Montréal",
+                                            "name": "Montréal",
                                         },
                                     ]
                                 },
@@ -637,11 +625,14 @@ def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
-def test_grva007_external_plotlyjs_prevents_lazy(dash_dcc):
+@pytest.mark.parametrize("is_eager", [False, True])
+def test_grva007_external_plotlyjs_prevents_lazy(is_eager, dash_dcc):
+    # specific plotly.js version that's older than the built-in version
+    v = "2.8.1"
     app = Dash(
         __name__,
-        eager_loading=False,
-        external_scripts=["https://unpkg.com/plotly.js-dist-min/plotly.min.js"],
+        eager_loading=is_eager,
+        external_scripts=[f"https://unpkg.com/plotly.js-dist-min@{v}/plotly.min.js"],
     )
 
     app.layout = html.Div(id="div", children=[html.Button(id="btn")])
@@ -664,18 +655,22 @@ def test_grva007_external_plotlyjs_prevents_lazy(dash_dcc):
     # Give time for the async dependency to be requested (if any)
     time.sleep(2)
 
-    scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
-    assert findSyncPlotlyJs(scripts) is None
-    assert findAsyncPlotlyJs(scripts) is None
+    v_loaded = dash_dcc.driver.execute_script("return Plotly.version")
+
+    # TODO: in eager mode, built-in plotly.js wins!! I don't think this is what we want.
+    # But need to look into why we use the bare plotly.js bundle in eager mode, rather
+    # than simply preloading the regular async chunk.
+    if not is_eager:
+        # as loaded in external_scripts
+        assert v_loaded == v
 
     dash_dcc.find_element("#btn").click()
 
     # Give time for the async dependency to be requested (if any)
     time.sleep(2)
 
-    scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
-    assert findSyncPlotlyJs(scripts) is None
-    assert findAsyncPlotlyJs(scripts) is None
+    # Check that the originally-loaded version is still the one we have
+    assert dash_dcc.driver.execute_script("return Plotly.version") == v_loaded
 
     assert dash_dcc.get_logs() == []
 
@@ -847,3 +842,203 @@ def test_grva009_originals_maintained_for_responsive_override(mutate_fig, dash_d
     assert graph_dims() == responsive_size
 
     assert dash_dcc.get_logs() == []
+
+
+def test_grva010_external_mathjax_prevents_lazy(dash_dcc):
+    # specific MathJax version that's older than the built-in version
+    v = "3.1.4"
+    app = Dash(
+        __name__,
+        eager_loading=False,
+        external_scripts=[f"https://cdn.jsdelivr.net/npm/mathjax@{v}/es5/tex-svg.js"],
+    )
+
+    app.layout = html.Div(id="div", children=[html.Button(id="btn")])
+
+    @app.callback(Output("div", "children"), [Input("btn", "n_clicks")])
+    def load_chart(n_clicks):
+        if n_clicks is None:
+            raise PreventUpdate
+
+        return dcc.Graph(
+            mathjax=True,
+            id="output",
+            figure={
+                "data": [{"y": [3, 1, 2]}],
+                "layout": {"title": {"text": "$E=mc^2$"}},
+            },
+        )
+
+    dash_dcc.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    # Give time for the async dependency to be requested (if any)
+    dash_dcc.wait_for_element("button#btn")
+
+    # even in eager mode (when the async bundle is preloaded) we keep the
+    # external version, which seems to be a pleasant effect of how
+    # webpack bundles these chunks!
+    assert dash_dcc.driver.execute_script("return MathJax.version") == v
+
+    dash_dcc.find_element("#btn").click()
+    dash_dcc.wait_for_element(".gtitle-math")
+
+    # We still have the external version, not the built-in one
+    assert dash_dcc.driver.execute_script("return MathJax.version") == v
+
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva011_without_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager, assets_folder="../../assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="output",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": "Apple: $2, Orange: $3"}},
+                },
+            )
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    assert dash_dcc.wait_for_element(".gtitle").text == "Apple: $2, Orange: $3"
+
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva012_with_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager, assets_folder="../../assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                mathjax=True,
+                id="output",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": "Equation: $E=mc^2$"}},
+                },
+            )
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element(".gtitle-math")
+
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva013_toggle_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager)
+
+    gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
+
+    app.layout = html.Div(
+        [
+            html.Button("Toggle MathJax", id="btn"),
+            dcc.Graph(
+                id="gd",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": gravity}},
+                },
+            ),
+        ]
+    )
+
+    @app.callback(
+        Output("gd", "mathjax"), Input("btn", "n_clicks"), prevent_initial_call=True
+    )
+    def toggle(n):
+        return (n or 0) % 2 != 0
+
+    dash_dcc.start_server(app)
+
+    # Initial state: no MathJax loaded or rendered, unformatted text is shown
+    dash_dcc.wait_for_contains_text(".gtitle", gravity)
+
+    # Note: in eager mode, the async-mathjax bundle IS loaded, but it seems like
+    # it isn't executed until we ask for MathJax with import()
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn = dash_dcc.find_element("#btn")
+    btn.click()
+
+    # One click: MathJax is rendered, unformatted text is gone
+
+    dash_dcc.wait_for_element(".gtitle-math")
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn.click()
+
+    # Second click: Back to initial state except that MathJax library is still loaded
+    dash_dcc.wait_for_contains_text(".gtitle", gravity)
+    dash_dcc.wait_for_no_elements(".gtitle-math")
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva014_load_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager)
+
+    gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
+
+    app.layout = html.Div(
+        [
+            html.Button("Add Second MathJax", id="btn"),
+            dcc.Graph(
+                mathjax=False,
+                id="gd",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": gravity}},
+                },
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Output("out", "children"), Input("btn", "n_clicks"), prevent_initial_call=True
+    )
+    def add_math(n):
+        return dcc.Graph(
+            mathjax=True,
+            id="gd2",
+            figure={
+                "data": [{"y": [3, 1, 2]}],
+                "layout": {"title": {"text": gravity}},
+            },
+        )
+
+    dash_dcc.start_server(app)
+
+    # Initial state: no MathJax loaded or rendered, unformatted text is shown
+    dash_dcc.wait_for_contains_text("#gd .gtitle", gravity)
+    dash_dcc.wait_for_no_elements("#gd .gtitle-math")
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn = dash_dcc.find_element("#btn")
+    btn.click()
+
+    # One click: MathJax is loaded and rendered on the second, unformatted text is gone
+
+    dash_dcc.wait_for_element("#gd2 .gtitle-math")
+    assert gravity not in dash_dcc._get_element("#gd2 .gtitle").text
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")

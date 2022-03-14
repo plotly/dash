@@ -211,6 +211,7 @@ def check_graph_config_shape(dash_dcc):
         "globalTransforms",
         "notifyOnLogging",
         "role",
+        "typesetMath",
     ]
 
     def crawl(schema, props):
