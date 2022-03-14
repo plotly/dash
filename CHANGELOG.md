@@ -22,6 +22,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 
 ### Fixed
+
+### Fixed
+- [#1958](https://github.com/plotly/dash/pull/1958) Fix dropdown bug [#1908](https://github.com/plotly/dash/issues/1908) where the value didn't display in the input box if it contained a comma.
 - [#1915](https://github.com/plotly/dash/pull/1915) Fix bug [#1474](https://github.com/plotly/dash/issues/1474) when both dcc.Graph and go.Figure have animation, and when the second animation in Figure is executed, the Frames from the first animation are played instead of the second one.
 
 - [#1953](https://github.com/plotly/dash/pull/1953) Fix bug [#1783](https://github.com/plotly/dash/issues/1783) in which a failed hot reloader blocks the UI with alerts.
