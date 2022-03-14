@@ -148,7 +148,11 @@ class ThreadedRunner(BaseDashRunner):
                 kwargs["port"] = self.port
             else:
                 self.port = kwargs["port"]
-            app.run_server(threaded=True, **kwargs)
+
+            try:
+                app.run_server(threaded=True, **kwargs)
+            except SystemExit:
+                logger.info("Server stopped")
 
         self.thread = StoppableThread(target=run)
         self.thread.daemon = True
