@@ -58,6 +58,10 @@ class Markdown(Component):
         - prop_name (string; optional):
             Holds which property is loading.
 
+    - mathjax (boolean; default False):
+        If True, loads mathjax v3 (tex-svg) into the page and use it in
+        the markdown.
+
     - style (dict; optional):
         User-defined inline styles for the rendered Markdown."""
 
@@ -67,6 +71,7 @@ class Markdown(Component):
         children=None,
         id=Component.UNDEFINED,
         className=Component.UNDEFINED,
+        mathjax=Component.UNDEFINED,
         dangerously_allow_html=Component.UNDEFINED,
         dedent=Component.UNDEFINED,
         highlight_config=Component.UNDEFINED,
@@ -82,6 +87,7 @@ class Markdown(Component):
             "dedent",
             "highlight_config",
             "loading_state",
+            "mathjax",
             "style",
         ]
         self._type = "Markdown"
@@ -95,6 +101,7 @@ class Markdown(Component):
             "dedent",
             "highlight_config",
             "loading_state",
+            "mathjax",
             "style",
         ]
         self.available_wildcard_properties = []

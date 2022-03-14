@@ -2005,6 +2005,17 @@
         "required": false,
         "description": "className of the parent div"
       },
+      "mathjax": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, loads mathjax v3 (tex-svg) into the page and use it in the graph",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
       "animate": {
         "type": {
           "name": "bool"
@@ -3541,6 +3552,17 @@
         },
         "required": false,
         "description": "Class name of the container element"
+      },
+      "mathjax": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, loads mathjax v3 (tex-svg) into the page and use it in the markdown",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "dangerously_allow_html": {
         "type": {

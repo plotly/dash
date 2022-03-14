@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
     "test": "run-s -c lint test:intg test:pyimport",
     "test:intg": "pytest --nopercyfinalize --headless tests/integration",
     "test:pyimport": "python -m unittest tests/test_dash_import.py",
-    "prebuild:js": "cp node_modules/plotly.js-dist-min/plotly.min.js dash_core_components_base/plotly.min.js",
+    "prebuild:js": "cp node_modules/plotly.js-dist-min/plotly.min.js dash_core_components_base/plotly.min.js && cp node_modules/mathjax/es5/tex-svg.js dash_core_components_base/mathjax.js",
     "build:js": "webpack --mode production",
     "build:backends": "dash-generate-components ./src/components dash_core_components -p package-info.json  && cp dash_core_components_base/** dash_core_components/ && dash-generate-components ./src/components dash_core_components -p package-info.json -k RangeSlider,Slider,Dropdown,RadioItems,Checklist,DatePickerSingle,DatePickerRange,Input,Link --r-prefix 'dcc' --r-suggests 'dash,dashHtmlComponents,jsonlite,plotly' --jl-prefix 'dcc' && black dash_core_components",
     "build": "run-s prepublishOnly build:js build:backends",
@@ -46,9 +46,10 @@
     "fast-isnumeric": "^1.1.4",
     "file-saver": "^2.0.5",
     "highlight.js": "^11.4.0",
+    "mathjax": "^3.2.0",
     "moment": "^2.29.1",
     "node-polyfill-webpack-plugin": "^1.1.4",
-    "plotly.js-dist-min": "2.9.0",
+    "plotly.js-dist-min": "2.11.0",
     "prop-types": "^15.7.2",
     "ramda": "^0.27.1",
     "rc-slider": "^9.7.5",
@@ -60,6 +61,7 @@
     "react-resize-detector": "^6.7.6",
     "react-select-fast-filter-options": "^0.2.3",
     "react-virtualized-select": "^3.1.3",
+    "remark-math": "^3.0.1",
     "uniqid": "^5.4.0"
   },
   "devDependencies": {

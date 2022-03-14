@@ -263,6 +263,10 @@ class Graph(Component):
         - prop_name (string; optional):
             Holds which property is loading.
 
+    - mathjax (boolean; default False):
+        If True, loads mathjax v3 (tex-svg) into the page and use it in
+        the graph.
+
     - prependData (list | dict; optional):
         Data that should be prepended to existing traces. Has the form
         `[updateData, traceIndices, maxPoints]`, where `updateData` is an
@@ -326,6 +330,7 @@ class Graph(Component):
         figure=Component.UNDEFINED,
         style=Component.UNDEFINED,
         className=Component.UNDEFINED,
+        mathjax=Component.UNDEFINED,
         animate=Component.UNDEFINED,
         animation_options=Component.UNDEFINED,
         config=Component.UNDEFINED,
@@ -345,6 +350,7 @@ class Graph(Component):
             "figure",
             "hoverData",
             "loading_state",
+            "mathjax",
             "prependData",
             "relayoutData",
             "responsive",
@@ -368,6 +374,7 @@ class Graph(Component):
             "figure",
             "hoverData",
             "loading_state",
+            "mathjax",
             "prependData",
             "relayoutData",
             "responsive",
