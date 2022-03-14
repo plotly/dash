@@ -2,7 +2,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "private::format.black": "black dash tests --exclude metadata_test.py",
+    "private::format.black": "black dash tests components --exclude metadata_test.py",
     "private::format.renderer": "cd dash/dash-renderer && npm run format",
     "private::initialize.renderer": "cd dash/dash-renderer && npm ci",
     "private::build.components": "python dash/development/update_components.py 'all'",
