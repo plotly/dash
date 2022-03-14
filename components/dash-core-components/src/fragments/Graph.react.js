@@ -258,26 +258,25 @@ class PlotlyGraph extends Component {
     }
 
     getConfig(config, responsive) {
-        const modeBarButtons = this.getModeBarButtons(config);
-        if (modeBarButtons) {
-            this.configModeBarButtons = modeBarButtons;
-        }
+        this.configModeBarButtons = this.getModeBarButtons(
+            config,
+            this.configModeBarButtons
+        );
 
         let configClone = mergeDeepRight(
             config,
             this.getConfigOverride(responsive)
         );
 
-        if (this.configModeBarButtons) {
+        if (this.configModeBarButtons.length) {
             configClone = mergeDeepRight(configClone, {
                 modeBarButtons: this.configModeBarButtons,
             });
         }
-
         return configClone;
     }
 
-    getModeBarButtons(config) {
+    getModeBarButtons(config, old_config) {
         const configModeBarButtons = [];
         if (config.modeBarButtons) {
             for (const group of config.modeBarButtons) {
@@ -287,7 +286,12 @@ class PlotlyGraph extends Component {
                         buttonGroup.push(button);
                     }
                 }
-                configModeBarButtons.push(buttonGroup);
+                if (buttonGroup.length) {
+                    configModeBarButtons.push(buttonGroup);
+                }
+            }
+            if (!configModeBarButtons.length) {
+                return old_config;
             }
         }
         return configModeBarButtons;
