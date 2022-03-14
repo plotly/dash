@@ -29,6 +29,7 @@
     "private::test.integration-dash-import": "cd tests/integration/dash && python dash_import_test.py",
     "cibuild": "run-s private::cibuild.*",
     "build": "run-s private::build.*",
+    "build.sequential": "npm run private::build.renderer && npm run private::build.components -- --concurrency 1",
     "format": "run-s private::format.*",
     "initialize": "run-s private::initialize.*",
     "prepare": "husky install",

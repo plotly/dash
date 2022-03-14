@@ -14,8 +14,8 @@ const columns: {name: string[]; id: string; presentation?: string}[] = [
 
 const columns_dd = columns.map(i => ({...i, presentation: 'dropdown'}));
 
-storiesOf('DashTable/Types', module)
-    .add('types input', () => (
+storiesOf('DashTable/Types', module).add('types input & dropdown', () => (
+    <div>
         <DataTable
             setProps={setProps}
             id='types input'
@@ -51,8 +51,6 @@ storiesOf('DashTable/Types', module)
             ]}
             columns={columns}
         />
-    ))
-    .add('types dropdown', () => (
         <DataTable
             setProps={setProps}
             id='types dropdown'
@@ -121,4 +119,5 @@ storiesOf('DashTable/Types', module)
                 }
             }}
         />
-    ));
+    </div>
+));
