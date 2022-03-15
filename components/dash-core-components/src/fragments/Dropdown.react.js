@@ -1,4 +1,4 @@
-import {isNil, pluck, omit, type, without} from 'ramda';
+import {isNil, pluck, omit, without} from 'ramda';
 import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
@@ -20,8 +20,6 @@ const TOKENIZER = {
         );
     },
 };
-
-const DELIMITER = ',';
 
 const Dropdown = props => {
     const {
@@ -45,11 +43,6 @@ const Dropdown = props => {
             }),
         ];
     }, [options]);
-
-    const selectedValue = useMemo(
-        () => (type(value) === 'Array' ? value.join(DELIMITER) : value),
-        [value]
-    );
 
     const onChange = useCallback(
         selectedOption => {
@@ -88,13 +81,13 @@ const Dropdown = props => {
                     setProps({value: without(invalids, value)});
                 }
             } else {
-                if (!values.includes(selectedValue)) {
+                if (!values.includes(value)) {
                     setProps({value: null});
                 }
             }
             setOptionsCheck(sanitizedOptions);
         }
-    }, [sanitizedOptions, optionsCheck, multi, value, selectedValue]);
+    }, [sanitizedOptions, optionsCheck, multi, value]);
 
     return (
         <div
@@ -108,7 +101,7 @@ const Dropdown = props => {
             <ReactDropdown
                 filterOptions={filterOptions}
                 options={sanitizeOptions(options)}
-                value={selectedValue}
+                value={value}
                 onChange={onChange}
                 onInputChange={onInputChange}
                 backspaceRemoves={clearable}
