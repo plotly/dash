@@ -40,7 +40,7 @@ const Dropdown = props => {
         return [
             sanitized,
             createFilterOptions({
-                options: options,
+                options: sanitized,
                 tokenizer: TOKENIZER,
             }),
         ];
@@ -82,7 +82,7 @@ const Dropdown = props => {
     useEffect(() => {
         if (optionsCheck !== sanitizedOptions && !isNil(value)) {
             const values = sanitizedOptions.map(option => option.value);
-            if (multi) {
+            if (multi && Array.isArray(value)) {
                 const invalids = value.filter(v => !values.includes(v));
                 if (invalids.length) {
                     setProps({value: without(invalids, value)});
