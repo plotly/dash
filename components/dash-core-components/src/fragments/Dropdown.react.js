@@ -113,7 +113,7 @@ const Dropdown = props => {
                 onInputChange={onInputChange}
                 backspaceRemoves={clearable}
                 deleteRemoves={clearable}
-                inputProps={{autoComplete: 'of'}}
+                inputProps={{autoComplete: 'off'}}
                 {...omit(['setProps', 'value', 'options'], props)}
             />
         </div>
