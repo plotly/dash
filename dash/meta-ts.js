@@ -78,6 +78,9 @@ function gatherComponents(directory, components = {}) {
         if (fs.lstatSync(filepath).isDirectory()) {
             gatherComponents(f, components);
         } else {
+            if (!filepath.endsWith(".tsx")) {
+                return;
+            }
             try {
                 filepaths.push(filepath);
                 const name = /(.*)\.tsx/.exec(f)[1];
