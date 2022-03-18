@@ -59,13 +59,10 @@ def _infer_path(filename, template):
         path = filename.replace("_", "-").replace(".", "/").lower().split("pages")[-1]
         path = "/" + path if not path.startswith("/") else path
         return path
-    else:
-        # replace the variables in the template with "none" to create a default path if no path is supplied
-        path_segments = template.split("/")
-        default_template_path = [
-            "none" if s.startswith("<") else s for s in path_segments
-        ]
-        return "/".join(default_template_path)
+    # replace the variables in the template with "none" to create a default path if no path is supplied
+    path_segments = template.split("/")
+    default_template_path = ["none" if s.startswith("<") else s for s in path_segments]
+    return "/".join(default_template_path)
 
 
 def _parse_query_string(search):
@@ -225,12 +222,10 @@ def register_page(
     page = dict(
         module=module,
         supplied_path=path,
-        path_template=None
-        if path_template is None
-        else _validate.validate_template(path_template),
-        path=(path if path is not None else _infer_path(module, path_template)),
+        path_template=_validate.validate_template(path_template),
+        path=path if path is not None else _infer_path(module, path_template),
         supplied_name=name,
-        name=(name if name is not None else _filename_to_name(module)),
+        name=name if name is not None else _filename_to_name(module),
     )
     page.update(
         supplied_title=title,

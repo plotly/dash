@@ -12,9 +12,9 @@ import mimetypes
 import hashlib
 import base64
 from urllib.parse import urlparse
-
 from textwrap import dedent
 import warnings
+
 import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
@@ -171,7 +171,7 @@ class Dash:
     :type pages_folder: string
 
     : param pages:  Dafault False.  When True, the `pages` feature for multi-page
-     apps is enabled.
+        apps is enabled.
     :type pages: boolean
 
     :param assets_url_path: The local urls for assets will be:
@@ -299,7 +299,7 @@ class Dash:
         server=True,
         assets_folder="assets",
         pages_folder="pages",
-        pages=False,
+        use_pages=False,
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
@@ -406,7 +406,7 @@ class Dash:
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
         self.pages_folder = pages_folder
-        self.pages = pages
+        self.use_pages = use_pages
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -469,8 +469,7 @@ class Dash:
 
         self.logger.setLevel(logging.INFO)
 
-        if pages:
-            self.enable_pages()
+        self.enable_pages()
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
@@ -2097,13 +2096,13 @@ class Dash:
         walk_dir = self.config.pages_folder
         for (root, _, files) in os.walk(walk_dir):
             for file in files:
-                if file.endswith(".py") and not file.startswith("_"):
-                    with open(os.path.join(root, file)) as f:
-                        content = f.read()
-                        if "register_page" not in content:
-                            continue
                 if file.startswith("_") or not file.endswith(".py"):
                     continue
+                with open(os.path.join(root, file)) as f:
+                    content = f.read()
+                    if "register_page" not in content:
+                        continue
+
                 page_filename = os.path.join(root, file).replace("\\", "/")
                 _, _, page_filename = page_filename.partition("pages/")
                 page_filename = page_filename.replace(".py", "").replace("/", ".")
@@ -2128,13 +2127,13 @@ class Dash:
         return {}, None
 
     def enable_pages(self):
-        if not self.pages:
+        if not self.use_pages:
             return
         if self.pages_folder and not os.path.exists(self.config.pages_folder):
             warnings.warn(
                 f"A folder called {self.pages_folder} does not exist.", stacklevel=2
             )
-        if os.path.exists(self.config.pages_folder) and self.pages:
+        if os.path.exists(self.config.pages_folder):
             self._import_layouts_from_pages()
 
         @self.server.before_first_request

@@ -3,7 +3,7 @@ from dash import Dash, dcc, html
 
 
 def get_app(path1="/", path2="/layout2"):
-    app = Dash(__name__, pages=True)
+    app = Dash(__name__, use_pages=True)
 
     # test for storing arbitrary keyword arguments: An `id` prop is defined for every page
     # test for defining multiple pages within a single file: layout is passed directly to `register_page`

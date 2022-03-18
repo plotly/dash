@@ -2,7 +2,6 @@
 # __plotly_dash is for the "make sure you don't have a dash.py" check
 # must come before any other imports.
 __plotly_dash = True
-# from .dash import Dash, no_update  # noqa: F401,E402
 from .dependencies import (  # noqa: F401,E402
     Input,  # noqa: F401,E402
     Output,  # noqa: F401,E402

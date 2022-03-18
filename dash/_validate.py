@@ -438,6 +438,8 @@ def validate_layout(layout, layout_value):
 
 
 def validate_template(template):
+    if template is None:
+        return None
     template_segments = template.split("/")
     for s in template_segments:
         if "<" in s or ">" in s:

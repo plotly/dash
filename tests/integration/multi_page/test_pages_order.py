@@ -22,7 +22,7 @@ def test_process_server_smoke(dash_process_server):
 
 def test_paor001_order(dash_br, dash_process_server):
 
-    app = Dash(__name__, pages=True)
+    app = Dash(__name__, use_pages=True)
 
     dash_process_server("simple_app")
     # dash_br.start_server(app)

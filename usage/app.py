@@ -2,7 +2,7 @@ from dash import Dash, html, dcc
 import dash
 
 
-app = Dash(__name__, pages=True)
+app = Dash(__name__, use_pages=True)
 
 dash.register_page("another_home", layout=html.Div("We're home!"), path="/")
 dash.register_page(
