@@ -170,7 +170,7 @@ class Dash:
         for pages of a multi-page app. Default ``'pages``.
     :type pages_folder: string
 
-    : param pages:  Dafault False.  When True, the `pages` feature for multi-page
+    : param pages:  Default False.  When True, the `pages` feature for multi-page
      apps is enabled.
     :type pages: boolean
 
