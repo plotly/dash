@@ -385,7 +385,7 @@ jobs:
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
-    parallelism: 4
+    parallelism: 5
 
     steps:
       - checkout:
