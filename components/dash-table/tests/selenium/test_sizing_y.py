@@ -9,9 +9,5 @@ from utils import (
 
 
 @pytest.mark.parametrize("props", basic_modes)
-@pytest.mark.parametrize(
-    "data_fn",
-    [generate_markdown_mock_data],
-)
-def test_szng005_on_focus(test, props, data_fn):
-    on_focus(test, props, data_fn)
+def test_szng005_on_focus(test, props):
+    on_focus(test, props, generate_markdown_mock_data)
