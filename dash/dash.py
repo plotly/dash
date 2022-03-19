@@ -2200,6 +2200,8 @@ class Dash:
                 ]
                 + [self.layout]
             )
+            if _ID_CONTENT not in self.validation_layout:
+                raise Exception("`dash.page_container` not found in the layout")
 
             # Update the page title on page navigation
             self.clientside_callback(
@@ -2237,7 +2239,7 @@ class Dash:
                     )
 
                 return dedent(
-                    """
+                    f"""
                     <!DOCTYPE html>
                     <html>
                         <head>
@@ -2255,31 +2257,20 @@ class Dash:
                             <meta property="og:type" content="website" />
                             <meta property="og:description" content="{description}" />
                             <meta property="og:image" content="{image}">
-                            {metas}
-                            {favicon}
-                            {css}
+                            {kwargs["metas"]}
+                            {kwargs["favicon"]}
+                            {kwargs["css"]}
                         </head>
                         <body>
-                            {app_entry}
+                            {kwargs["app_entry"]}
                             <footer>
-                                {config}
-                                {scripts}
-                                {renderer}
+                                {kwargs["config"]}
+                                {kwargs["scripts"]}
+                                {kwargs["renderer"]}
                             </footer>
                         </body>
                     </html>
                     """
-                ).format(
-                    metas=kwargs["metas"],
-                    description=description,
-                    title=title,
-                    image=image,
-                    favicon=kwargs["favicon"],
-                    css=kwargs["css"],
-                    app_entry=kwargs["app_entry"],
-                    config=kwargs["config"],
-                    scripts=kwargs["scripts"],
-                    renderer=kwargs["renderer"],
                 )
 
             self.interpolate_index = interpolate_index
