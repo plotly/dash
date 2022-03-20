@@ -569,7 +569,7 @@ class Dash:
         if (
             self._layout_is_function
             and not self.validation_layout
-            and not self.config.suppress_callback_exceptions
+            and not self.config.suppress_callback_exceptionsself.validation_layout
         ):
 
             def simple_clone(c, children=None):
@@ -2180,17 +2180,7 @@ class Dash:
 
                 return layout, {"title": title}
 
-            # check for duplicate pathnames
-            path_to_module = {}
-            for page in self.page_registry.values():
-                if page["path"] not in path_to_module:
-                    path_to_module[page["path"]] = [page["module"]]
-                else:
-                    path_to_module[page["path"]].append(page["module"])
-
-            for modules in path_to_module.values():
-                if len(modules) > 1:
-                    raise Exception(f"modules {modules} have duplicate paths")
+            _validate.check_for_duplicate_pathnames(self)
 
             # Set validation_layout
             self.validation_layout = html.Div(

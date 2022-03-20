@@ -454,3 +454,16 @@ def validate_template(template):
                     stacklevel=2,
                 )
     return template
+
+
+def check_for_duplicate_pathnames(self):
+    path_to_module = {}
+    for page in self.page_registry.values():
+        if page["path"] not in path_to_module:
+            path_to_module[page["path"]] = [page["module"]]
+        else:
+            path_to_module[page["path"]].append(page["module"])
+
+    for modules in path_to_module.values():
+        if len(modules) > 1:
+            raise Exception(f"modules {modules} have duplicate paths")
