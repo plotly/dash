@@ -827,6 +827,41 @@ class Dash:
 
         return "\n      ".join(tags)
 
+    def _pages_meta_tags(self):
+        start_page, path_variables = self._path_to_page(flask.request.path.strip("/"))
+        image = start_page.get("image", "")
+        if image:
+            image = self.get_asset_url(image)
+
+        title = start_page.get("title", self.title)
+        if callable(title):
+            title = title(**path_variables) if path_variables else title()
+
+        description = start_page.get("description", "")
+        if callable(description):
+            description = (
+                description(**path_variables) if path_variables else description()
+            )
+
+        return dedent(
+            f"""           
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>{title}</title>
+            <meta name="description" content="{description}" />
+            <!-- Twitter Card data -->
+            <meta property="twitter:card" content="{description}">
+            <meta property="twitter:url" content="https://metatags.io/">
+            <meta property="twitter:title" content="{title}">
+            <meta property="twitter:description" content="{description}">
+            <meta property="twitter:image" content="{image}">
+            <!-- Open Graph data -->
+            <meta property="og:title" content="{title}" />
+            <meta property="og:type" content="website" />
+            <meta property="og:description" content="{description}" />
+            <meta property="og:image" content="{image}">
+            """
+        )
+
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, fingerprinted_path):
         path_in_pkg, has_fingerprint = check_fingerprint(fingerprinted_path)
@@ -875,6 +910,10 @@ class Dash:
 
         # use self.title instead of app.config.title for backwards compatibility
         title = self.title
+        pages_metas = ""
+        if self.use_pages:
+            pages_metas = self._pages_meta_tags()
+            title = ""
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
@@ -895,7 +934,7 @@ class Dash:
         )
 
         index = self.interpolate_index(
-            metas=metas,
+            metas=pages_metas + metas,
             title=title,
             css=css,
             config=config,
@@ -2203,67 +2242,6 @@ class Dash:
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
             )
-
-            # Set index HTML for the meta description and page title on page load
-            def interpolate_index(**kwargs):
-                # The flask.request.path doesn't include the pathname prefix
-                # when inside DE Workspaces or deployed environments,
-                # so we don't need to call `app.strip_relative_path` on it.
-                start_page, path_variables = self._path_to_page(
-                    flask.request.path.strip("/")
-                )
-                image = start_page.get("image", "")
-                if image:
-                    image = self.get_asset_url(image)
-
-                title = start_page.get("title", self.title)
-                if callable(title):
-                    title = title(**path_variables) if path_variables else title()
-
-                description = start_page.get("description", "")
-                if callable(description):
-                    description = (
-                        description(**path_variables)
-                        if path_variables
-                        else description()
-                    )
-
-                return dedent(
-                    f"""
-                    <!DOCTYPE html>
-                    <html>
-                        <head>
-                            <meta name="viewport" content="width=device-width, initial-scale=1">
-                            <title>{title}</title>
-                            <meta name="description" content="{description}" />
-                            <!-- Twitter Card data -->
-                            <meta property="twitter:card" content="{description}">
-                            <meta property="twitter:url" content="https://metatags.io/">
-                            <meta property="twitter:title" content="{title}">
-                            <meta property="twitter:description" content="{description}">
-                            <meta property="twitter:image" content="{image}">
-                            <!-- Open Graph data -->
-                            <meta property="og:title" content="{title}" />
-                            <meta property="og:type" content="website" />
-                            <meta property="og:description" content="{description}" />
-                            <meta property="og:image" content="{image}">
-                            {kwargs["metas"]}
-                            {kwargs["favicon"]}
-                            {kwargs["css"]}
-                        </head>
-                        <body>
-                            {kwargs["app_entry"]}
-                            <footer>
-                                {kwargs["config"]}
-                                {kwargs["scripts"]}
-                                {kwargs["renderer"]}
-                            </footer>
-                        </body>
-                    </html>
-                    """
-                )
-
-            self.interpolate_index = interpolate_index
 
             def create_redirect_function(redirect_to):
                 def redirect():
