@@ -351,7 +351,6 @@ class Dash:
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
         )
-        update_pages_folder = "pages" if pages_folder == "" else pages_folder
 
         self.config = AttributeDict(
             name=name,
@@ -363,9 +362,7 @@ class Dash:
             assets_external_path=get_combined_config(
                 "assets_external_path", assets_external_path, ""
             ),
-            pages_folder=os.path.join(
-                flask.helpers.get_root_path(name), update_pages_folder
-            ),
+            pages_folder=os.path.join(flask.helpers.get_root_path(name), pages_folder),
             eager_loading=eager_loading,
             include_assets_files=get_combined_config(
                 "include_assets_files", include_assets_files, True
@@ -405,8 +402,9 @@ class Dash:
 
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
+
         self.pages_folder = pages_folder
-        self.use_pages = use_pages
+        self.use_pages = True if pages_folder != "pages" else use_pages
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -461,7 +459,6 @@ class Dash:
             for plugin in plugins:
                 plugin.plug(self)
 
-        # amw
         self.page_registry = collections.OrderedDict()
 
         if self.server is not None:
@@ -844,7 +841,7 @@ class Dash:
             )
 
         return dedent(
-            f"""           
+            f"""
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <title>{title}</title>
             <meta name="description" content="{description}" />
@@ -1466,7 +1463,7 @@ class Dash:
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
         _callback.GLOBAL_CALLBACK_LIST.clear()
 
-        # amw  Update page_registry  assigned with dash.register_page
+        #  Update page_registry  assigned with dash.register_page
         self.page_registry = _pages.PAGE_REGISTRY.copy()
 
     def _add_assets_resource(self, url_path, file_path):
@@ -2133,6 +2130,8 @@ class Dash:
 
     def _import_layouts_from_pages(self):
         walk_dir = self.config.pages_folder
+        pages = "pages" if self.pages_folder == "" else self.pages_folder
+
         for (root, _, files) in os.walk(walk_dir):
             for file in files:
                 if file.startswith("_") or not file.endswith(".py"):
@@ -2143,13 +2142,14 @@ class Dash:
                         continue
 
                 page_filename = os.path.join(root, file).replace("\\", "/")
-                _, _, page_filename = page_filename.partition("pages/")
+                _, _, page_filename = page_filename.partition(pages + "/")
                 page_filename = page_filename.replace(".py", "").replace("/", ".")
-                page_module = importlib.import_module(f"pages.{page_filename}")
+                module_name = ".".join([pages, page_filename])
+                page_module = importlib.import_module(module_name)
 
                 self.page_registry = _pages.PAGE_REGISTRY.copy()
-                if f"pages.{page_filename}" in self.page_registry:
-                    self.page_registry[f"pages.{page_filename}"]["layout"] = getattr(
+                if module_name in self.page_registry:
+                    self.page_registry[module_name]["layout"] = getattr(
                         page_module, "layout"
                     )
 
@@ -2185,8 +2185,10 @@ class Dash:
                 prevent_initial_call=True,
             )
             def update(pathname, search):
-                # updates layout on page navigation
-                # updates the stored page title which will trigger the clientside callback to update the app title
+                """
+                Updates dash.page_container layout on page navigation.
+                Updates the stored page title which will trigger the clientside callback to update the app title
+                """
 
                 # update page registry for pages that might have been added or changed in a callback
                 self.page_registry = _pages.PAGE_REGISTRY.copy()
