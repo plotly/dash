@@ -1,9 +1,11 @@
+import json
 import pytest
 import pandas as pd
 from multiprocessing import Value, Lock
 import numpy as np
 from time import sleep
-
+import plotly.express as px
+import plotly.graph_objects as go
 from dash import Dash, Input, Output, dcc, html
 
 import dash.testing.wait as wait
@@ -162,3 +164,160 @@ def test_grbs004_graph_loading_state_updates(dash_dcc):
     dash_dcc.wait_for_element("#my-graph:not([data-dash-is-loading])")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_grbs005_graph_customdata(dash_dcc):
+    app = Dash(__name__)
+
+    df = px.data.tips()
+    df["id"] = df.index
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="pie-chart",
+                figure=go.Figure(
+                    data=[
+                        go.Pie(
+                            labels=df["day"], ids=df["id"].map(str), customdata=df["id"]
+                        )
+                    ]
+                ),
+            ),
+            dcc.Textarea(id="text-area"),
+        ]
+    )
+
+    @app.callback(Output("text-area", "value"), Input("pie-chart", "clickData"))
+    def handleClick(clickData):
+        return json.dumps(clickData)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#pie-chart")
+
+    dash_dcc.find_elements("g .slice")[0].click()
+
+    data = dash_dcc.wait_for_element("#text-area").get_attribute("value")
+    assert data != "", "graph clickData must contain data"
+
+    data = json.loads(data)
+    assert "customdata" in data["points"][0], "graph clickData must contain customdata"
+    assert data["points"][0]["customdata"][0] == data["points"][0]["pointNumbers"][0]
+
+
+def test_grbs006_graph_update_frames(dash_dcc):
+    app = Dash(__name__)
+
+    def get_scatter(multiplier, offset):
+        return go.Scatter(
+            x=list(map(lambda n: n * multiplier, [0, 1, 2])),
+            y=list(map(lambda n: n + offset, [0, 1, 2])),
+            mode="markers",
+        )
+
+    def get_figure(data, frames, title):
+        return go.Figure(
+            data=data,
+            layout=go.Layout(
+                title=title,
+                yaxis=dict(range=[-1, 5]),
+                xaxis=dict(range=[-3, 3]),
+                updatemenus=[
+                    dict(
+                        type="buttons",
+                        buttons=[
+                            dict(
+                                label="Play",
+                                method="animate",
+                                args=[
+                                    None,
+                                    {
+                                        "frame": {"duration": 100, "redraw": True},
+                                        "fromcurrent": False,
+                                        "transition": {
+                                            "duration": 500,
+                                            "easing": "quadratic-in-out",
+                                        },
+                                    },
+                                ],
+                            )
+                        ],
+                    )
+                ],
+            ),
+            frames=frames,
+        )
+
+    app.layout = html.Div(
+        [
+            html.Label("Choose dataset"),
+            dcc.RadioItems(
+                id="change-data",
+                options=[
+                    {"label": "No data", "value": 0},
+                    {"label": "Data A", "value": 1},
+                    {"label": "Data B", "value": 2},
+                ],
+                value=0,
+            ),
+            dcc.Graph(
+                id="test-change",
+                animate=True,
+                animation_options={"frame": {"redraw": True}},
+            ),
+            html.Div(id="relayout-data"),
+        ]
+    )
+
+    @app.callback(
+        Output("relayout-data", "children"),
+        [Input("test-change", "figure")],
+    )
+    def show_relayout_data(data):
+        frames = data.get("frames", [])
+        if frames:
+            return json.dumps(frames[0]["data"][0]["x"])
+        return ""
+
+    @app.callback(
+        Output("test-change", "figure"),
+        Input("change-data", "value"),
+    )
+    def set_data(dataset):
+        if dataset == 1:
+            title = "Dataset A"
+            data = get_scatter(1, 0)
+            frames = [
+                go.Frame(data=get_scatter(1, 1)),
+            ]
+        elif dataset == 2:
+            title = "Dataset B"
+            data = get_scatter(-1, 0)
+            frames = [
+                go.Frame(data=get_scatter(-1, 1)),
+            ]
+        else:
+            title = "Select a dataset"
+            data = []
+            frames = []
+
+        fig = get_figure(data, frames, title)
+        return fig
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#test-change")
+
+    dash_dcc.find_elements('input[type="radio"]')[0].click()
+    assert dash_dcc.wait_for_text_to_equal(
+        "#relayout-data", ""
+    ), "initial graph data must contain empty string"
+
+    dash_dcc.find_elements('input[type="radio"]')[1].click()
+    assert dash_dcc.wait_for_text_to_equal(
+        "#relayout-data", "[0, 1, 2]"
+    ), "graph data must contain frame [0,1,2]"
+
+    dash_dcc.find_elements('input[type="radio"]')[2].click()
+    assert dash_dcc.wait_for_text_to_equal(
+        "#relayout-data", "[0, -1, -2]"
+    ), "graph data must contain frame [0,-1,-2]"
