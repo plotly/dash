@@ -81,14 +81,12 @@ def test_pala001_layout(dash_duo):
 def check_metas(dash_duo, metas):
     meta = dash_duo.find_elements("meta")
 
-    # -2 for the meta charset and http-equiv .
-    assert len(meta) == len(metas) + 2, "Should have  extra meta tags"
+    # -3 for the meta charset and http-equiv and viewport.
+    assert len(meta) == len(metas) + 3, "Should have  extra meta tags"
 
     assert meta[0].get_attribute("name") == metas[0]["name"]
     assert meta[0].get_attribute("content") == metas[0]["content"]
-    assert meta[1].get_attribute("name") == metas[1]["name"]
-    assert meta[1].get_attribute("content") == metas[1]["content"]
-    for i in range(2, len(meta) - 2):
+    for i in range(1, len(meta) - 3):
         assert meta[i].get_attribute("property") == metas[i]["property"]
         assert meta[i].get_attribute("content") == metas[i]["content"]
 
@@ -96,7 +94,6 @@ def check_metas(dash_duo, metas):
 def test_pala002_meta_tags_default(dash_duo):
     # These are the inferred defaults if description, title, image are not supplied
     metas_layout2 = [
-        {"name": "viewport", "content": "width=device-width, initial-scale=1"},
         {"name": "description", "content": ""},
         {"property": "twitter:card", "content": ""},
         {"property": "twitter:url", "content": "https://metatags.io/"},
@@ -116,7 +113,6 @@ def test_pala002_meta_tags_default(dash_duo):
 def test_pala003_meta_tags_custom(dash_duo):
     # In the "multi_layout1" module, the description, title, image are supplied
     metas_layout1 = [
-        {"name": "viewport", "content": "width=device-width, initial-scale=1"},
         {"name": "description", "content": "This is the supplied description"},
         {"property": "twitter:card", "content": "This is the supplied description"},
         {"property": "twitter:url", "content": "https://metatags.io/"},

@@ -467,3 +467,15 @@ def check_for_duplicate_pathnames(self):
     for modules in path_to_module.values():
         if len(modules) > 1:
             raise Exception(f"modules {modules} have duplicate paths")
+
+
+def validate_pages_layout(module, page):
+    try:
+        getattr(page, "layout")
+    except AttributeError:
+        raise exceptions.NoLayoutException(
+            f"""
+            No layout found in {module + ".py"}
+            A variable or a function named "layout" is required.
+            """
+        )

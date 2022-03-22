@@ -813,12 +813,17 @@ class Dash:
             x.get("http-equiv", "") == "X-UA-Compatible" for x in meta_tags
         )
         has_charset = any("charset" in x for x in meta_tags)
+        has_viewport = any("viewport" in x for x in meta_tags)
 
         tags = []
         if not has_ie_compat:
             tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
+        if not has_viewport:
+            tags.append(
+                '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            )
 
         tags += [format_tag("meta", x, opened=True) for x in meta_tags]
 
@@ -842,8 +847,6 @@ class Dash:
 
         return dedent(
             f"""
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>{title}</title>
             <meta name="description" content="{description}" />
             <!-- Twitter Card data -->
             <meta property="twitter:card" content="{description}">
@@ -910,7 +913,6 @@ class Dash:
         pages_metas = ""
         if self.use_pages:
             pages_metas = self._pages_meta_tags()
-            title = ""
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
@@ -2149,6 +2151,7 @@ class Dash:
 
                 self.page_registry = _pages.PAGE_REGISTRY.copy()
                 if module_name in self.page_registry:
+                    _validate.validate_pages_layout(module_name, page_module)
                     self.page_registry[module_name]["layout"] = getattr(
                         page_module, "layout"
                     )
