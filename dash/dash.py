@@ -117,14 +117,17 @@ _ID_LOCATION = "_pages_location"
 _ID_STORE = "_pages_store"
 _ID_DUMMY = "_pages_dummy"
 
-page_container = html.Div(
-    children=[
-        dcc.Location(id=_ID_LOCATION),
-        html.Div(id=_ID_CONTENT),
-        dcc.Store(id=_ID_STORE),
-        html.Div(id=_ID_DUMMY),
-    ]
-)
+if not hasattr(html, "Div"):
+    page_container = None
+else:
+    page_container = html.Div(
+        [
+            dcc.Location(id=_ID_LOCATION),
+            html.Div(id=_ID_CONTENT),
+            dcc.Store(id=_ID_STORE),
+            html.Div(id=_ID_DUMMY),
+        ]
+    )
 
 
 class _NoUpdate:
@@ -2150,7 +2153,7 @@ class Dash:
                 page_module = importlib.import_module(module_name)
 
                 self.page_registry = _pages.PAGE_REGISTRY.copy()
-                if module_name in self.page_registry:
+                if not self.page_registry[module_name]["supplied_layout"]:
                     _validate.validate_pages_layout(module_name, page_module)
                     self.page_registry[module_name]["layout"] = getattr(
                         page_module, "layout"
