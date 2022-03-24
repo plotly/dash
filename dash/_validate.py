@@ -470,9 +470,7 @@ def check_for_duplicate_pathnames(self):
 
 
 def validate_pages_layout(module, page):
-    try:
-        getattr(page, "layout")
-    except AttributeError:
+    if not hasattr(page, "layout"):
         raise exceptions.NoLayoutException(
             f"""
             No layout found in {module + ".py"}

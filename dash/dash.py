@@ -296,6 +296,7 @@ class Dash:
     ``DiskcacheLongCallbackManager`` or ``CeleryLongCallbackManager``
     """
 
+    # pylint: disable=Too many statements
     def __init__(
         self,
         name=None,
@@ -569,7 +570,7 @@ class Dash:
         if (
             self._layout_is_function
             and not self.validation_layout
-            and not self.config.suppress_callback_exceptionsself.validation_layout
+            and not self.config.suppress_callback_exceptions
         ):
 
             def simple_clone(c, children=None):

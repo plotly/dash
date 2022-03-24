@@ -116,12 +116,12 @@ def test_inin007_meta_tags(dash_duo):
 
     meta = dash_duo.find_elements("meta")
 
-    # -2 for the meta charset and http-equiv.
-    assert len(meta) == len(metas) + 2, "Should have 2 extra meta tags"
+    # -3 for the meta charset, http-equiv and viewport.
+    assert len(meta) == len(metas) + 3, "Should have 3 extra meta tags"
 
-    for i in range(2, len(meta)):
+    for i in range(3, len(meta)):
         meta_tag = meta[i]
-        meta_info = metas[i - 2]
+        meta_info = metas[i - 3]
         assert meta_tag.get_attribute("name") == meta_info["name"]
         assert meta_tag.get_attribute("content") == meta_info["content"]
 
