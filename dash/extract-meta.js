@@ -141,32 +141,40 @@ function gatherComponents(sources, components = {}) {
     const names = [];
     const filepaths = [];
 
-    sources.forEach(sourceDirectory =>
-        fs.readdirSync(sourceDirectory).forEach(f => {
-            const filepath = path.join(sourceDirectory, f);
-            if (fs.lstatSync(filepath).isDirectory()) {
-                gatherComponents(f, components);
-            } else {
-                if (ignorePattern && ignorePattern.test(filepath)) {
-                    return;
-                }
-                const extension = path.extname(filepath);
-                if (['.jsx', '.js'].includes(extension)) {
-                    components[cleanPath(filepath)] = parseJSX(filepath);
-                } else if (filepath.endsWith('.tsx')) {
-                    try {
-                        const name = /(.*)\.tsx/.exec(f)[1];
-                        filepaths.push(filepath);
-                        names.push(name);
-                    } catch (err) {
-                        process.stderr.write(
-                            `ERROR: Invalid component file ${filepath}: ${err}`
-                        );
-                    }
-                }
+    const gather = filepath => {
+        if (ignorePattern && ignorePattern.test(filepath)) {
+            return;
+        }
+        const extension = path.extname(filepath);
+        if (['.jsx', '.js'].includes(extension)) {
+            components[cleanPath(filepath)] = parseJSX(filepath);
+        } else if (filepath.endsWith('.tsx')) {
+            try {
+                const name = /(.*)\.tsx/.exec(path.basename(filepath))[1];
+                filepaths.push(filepath);
+                names.push(name);
+            } catch (err) {
+                process.stderr.write(
+                    `ERROR: Invalid component file ${filepath}: ${err}`
+                );
             }
-        })
-    );
+        }
+    };
+
+    sources.forEach(sourcePath => {
+        if (fs.lstatSync(sourcePath).isDirectory()) {
+            fs.readdirSync(sourcePath).forEach(f => {
+                const filepath = path.join(sourcePath, f);
+                if (fs.lstatSync(filepath).isDirectory()) {
+                    gatherComponents([filepath], components);
+                } else {
+                    gather(filepath);
+                }
+            });
+        } else {
+            gather(sourcePath);
+        }
+    });
 
     if (!tsEnabled) {
         return components;
@@ -720,7 +728,7 @@ function gatherComponents(sources, components = {}) {
     return components;
 }
 
-const metadata = gatherComponents(src);
+const metadata = gatherComponents(Array.isArray(src) ? src : [src]);
 if (!failedBuild) {
     process.stdout.write(JSON.stringify(metadata, null, 2));
 } else {
