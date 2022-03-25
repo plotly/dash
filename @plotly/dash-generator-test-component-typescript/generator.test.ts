@@ -7,7 +7,7 @@ function getMetadata() {
         const cp = child_process.spawn(
             process.execPath,
             [
-                path.resolve(__dirname, '..', '..', 'dash', 'meta-ts.js'),
+                path.resolve(__dirname, '..', '..', 'dash', 'extract-meta.js'),
                 '""', // ignore pattern
                 '""', // reserved keywords
                 path.join(__dirname, 'src', 'components')
@@ -30,7 +30,13 @@ function getMetadata() {
         });
         cp.on('close', code => {
             if (code === 0) {
-                resolve(JSON.parse(meta.join('')));
+                resolve(
+                    R.values(JSON.parse(meta.join(''))).reduce((acc, c) => {
+                        // Map them back to component name for easier access.
+                        acc[c.displayName] = c;
+                        return acc;
+                    }, {})
+                );
             } else {
                 reject(err.join(''));
             }
@@ -98,7 +104,7 @@ describe('Test Typescript component metadata generation', () => {
         test(
             `${componentName} setProps func`,
             testTypeFactory('setProps', 'func')
-        )
+        );
     });
 
     describe('Test prop attributes', () => {
@@ -233,5 +239,10 @@ describe('Test Typescript component metadata generation', () => {
                 );
             }
         );
+    });
+    describe('Test mixed generation', () => {
+        test('Standard js component is parsed', () => {
+            expect(R.path(['StandardComponent'], metadata)).toBeDefined();
+        });
     });
 });

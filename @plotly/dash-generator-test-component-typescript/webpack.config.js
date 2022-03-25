@@ -38,7 +38,7 @@ module.exports = function (env, argv) {
         target: 'web',
         externals,
         resolve: {
-            extensions: ['.ts', '.tsx'],
+            extensions: ['.ts', '.tsx', '.js'],
         },
         module: {
             rules: [
@@ -47,6 +47,11 @@ module.exports = function (env, argv) {
                     use: 'ts-loader',
                     exclude: /node_modules/,
                 },
+                {
+                    test: /\.jsx?$/,
+                    exclude: /node_modules/,
+                    use: 'babel-loader'
+                }
             ]
         }
     }

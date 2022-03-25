@@ -6,6 +6,7 @@ from dash_generator_test_component_standard import MyStandardComponent
 from dash_generator_test_component_typescript import (
     TypeScriptComponent,
     TypeScriptClassComponent,
+    StandardComponent,
 )
 from dash_test_components import StyledComponent
 from dash.html import Button, Div
@@ -24,6 +25,7 @@ def test_gene001_simple_callback(dash_duo):
             TypeScriptClassComponent(
                 id="typescript-class", required_string="TypeScriptClass"
             ),
+            StandardComponent(id="ts-standard", children="jsx"),
         ]
     )
 
@@ -33,6 +35,7 @@ def test_gene001_simple_callback(dash_duo):
     assert dash_duo.wait_for_element("#nested").text == "Nested"
     assert dash_duo.wait_for_element("#typescript").text == "TypeScript"
     assert dash_duo.wait_for_element("#typescript-class").text == "TypeScriptClass"
+    assert dash_duo.wait_for_element("#ts-standard").text == "jsx"
 
     dash_duo.percy_snapshot(name="gene001-simple-callback")
 
