@@ -32,6 +32,7 @@ multiprocess>=0.70.12
 psutil>=5.8.0
 Flask>=1.0.4,<2.1.0  # Flask 2.1.0 dropped support for Python 3.6
 Werkzeug<2.1.0  # Werkzeug 2.1.0 dropped support for Python 3.6
+click<8.1.0  # click 8.1.0 dropped support for Python 3.6
 flask-compress
 plotly>=5.0.0
 dash_html_components==2.0.0
