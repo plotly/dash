@@ -1,4 +1,4 @@
-Flask>=1.0.4
+Flask>=1.0.4,<2.1.0
 flask-compress
 plotly>=5.0.0
 dash_html_components==2.0.0
