@@ -7,7 +7,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - [#1963](https://github.com/plotly/dash/pull/1963) Fix [#1780](https://github.com/plotly/dash/issues/1780) flask shutdown deprecation warning when running dashduo threaded tests.
-- [#1993](https://github.com/plotly/dash/pull/1993) Pin Flask<2.1.0 and Werkzeug<2.1.0 to retain Python 3.6 compatibility, resolving [#1992](https://github.com/plotly/dash/issues/1992).
 
 ## [2.3.0] - 2022-03-13
 
