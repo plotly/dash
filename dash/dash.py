@@ -15,7 +15,10 @@ from urllib.parse import urlparse
 
 import flask
 from flask_compress import Compress
-from werkzeug.debug.tbtools import get_current_traceback
+
+from werkzeug.debug import tbtools
+from werkzeug.security import gen_salt
+
 from pkg_resources import get_distribution, parse_version
 from dash import dcc
 from dash import html
@@ -100,6 +103,30 @@ _re_index_entry_id = 'id="react-entry-point"', "#react-entry-point"
 _re_index_config_id = 'id="_dash-config"', "#_dash-config"
 _re_index_scripts_id = 'src="[^"]*dash[-_]renderer[^"]*"', "dash-renderer"
 _re_renderer_scripts_id = 'id="_dash-renderer', "new DashRenderer"
+
+
+def _get_traceback(secret, error):
+    def _get_skip(text):
+        skip = 0
+        for i, line in enumerate(text.splitlines()):
+            if "%% callback invoked %%" in line:
+                skip = int((i + 1) / 2)
+                break
+        return skip
+
+    # werkzeug<2.1.0
+    if hasattr(tbtools, "get_current_traceback"):
+        tb = tbtools.get_current_traceback()
+        skip = _get_skip(tb.plaintext)
+        return tbtools.get_current_traceback(skip=skip).render_full()
+
+    tb = tbtools.DebugTraceback(error)  # pylint: disable=no-member
+    skip = _get_skip(tb.render_traceback_text())
+
+    # pylint: disable=no-member
+    return tbtools.DebugTraceback(error, skip=skip).render_debugger_html(
+        True, secret, True
+    )
 
 
 class _NoUpdate:
@@ -1756,19 +1783,16 @@ class Dash:
 
         if debug and dev_tools.prune_errors:
 
+            secret = gen_salt(20)
+
             @self.server.errorhandler(Exception)
-            def _wrap_errors(_):
+            def _wrap_errors(error):
                 # find the callback invocation, if the error is from a callback
                 # and skip the traceback up to that point
                 # if the error didn't come from inside a callback, we won't
                 # skip anything.
-                tb = get_current_traceback()
-                skip = 0
-                for i, line in enumerate(tb.plaintext.splitlines()):
-                    if "%% callback invoked %%" in line:
-                        skip = int((i + 1) / 2)
-                        break
-                return get_current_traceback(skip=skip).render_full(), 500
+                tb = _get_traceback(secret, error)
+                return tb, 500
 
         if debug and dev_tools.ui:
 
