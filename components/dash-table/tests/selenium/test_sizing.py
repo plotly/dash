@@ -1,12 +1,7 @@
 import dash
-import pytest
 
 from utils import (
-    basic_modes,
     get_props,
-    generate_mock_data,
-    generate_markdown_mock_data,
-    generate_mixed_markdown_data,
 )
 
 from dash.dependencies import Input, Output
@@ -294,12 +289,7 @@ def test_szng002_percentages_result_in_same_widths(test):
     assert test.get_log_errors() == []
 
 
-@pytest.mark.parametrize("props", basic_modes)
-@pytest.mark.parametrize(
-    "data_fn",
-    [generate_mock_data, generate_markdown_mock_data, generate_mixed_markdown_data],
-)
-def test_szng004_on_focus(test, props, data_fn):
+def on_focus(test, props, data_fn):
     app = dash.Dash(__name__)
 
     baseProps1 = get_props(data_fn=data_fn)
