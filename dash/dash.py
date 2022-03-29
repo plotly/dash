@@ -15,7 +15,32 @@ from urllib.parse import urlparse
 
 import flask
 from flask_compress import Compress
-from werkzeug.debug.tbtools import DebugTraceback
+
+try:
+    from werkzeug.debug.tbtools import DebugTraceback
+except ImportError:
+    # If `werkzeug<2.1.0`, mock a minimally-functional `DebugTraceback`.
+    from werkzeug.debug.tbtools import get_current_traceback
+
+    class DebugTraceback:
+        __slots__ = ("_tb",)
+
+        def __init__(
+            self,
+            exc: BaseException,
+            *,
+            skip: int = 0,
+        ):
+            self._tb = get_current_traceback(skip=skip)
+
+        def render_traceback_text(self) -> str:
+            return self._tb.plaintext
+
+        def render_debugger_html(
+            self, evalex: bool, secret: str, evalex_trusted: bool
+        ) -> str:
+            return self._tb.render_full()
+
 from pkg_resources import get_distribution, parse_version
 from dash import dcc
 from dash import html
@@ -1764,11 +1789,16 @@ class Dash:
                 # skip anything.
                 tb = DebugTraceback(e)
                 skip = 0
-                for i, line in enumerate(tb.plaintext.splitlines()):
+                for i, line in enumerate(tb.render_traceback_text().splitlines()):
                     if "%% callback invoked %%" in line:
                         skip = int((i + 1) / 2)
                         break
-                return DebugTraceback(e, skip=skip).render_full(), 500
+                return (
+                    DebugTraceback(e, skip=skip).render_debugger_html(
+                        evalex=False, secret=None, evalex_trusted=True
+                    ),
+                    500,
+                )
 
         if debug and dev_tools.ui:
 
