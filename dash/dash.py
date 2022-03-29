@@ -11,13 +11,11 @@ import time
 import mimetypes
 import hashlib
 import base64
+import traceback
 from urllib.parse import urlparse
 
 import flask
 from flask_compress import Compress
-
-from werkzeug.debug import tbtools
-from werkzeug.security import gen_salt
 
 from pkg_resources import get_distribution, parse_version
 from dash import dcc
@@ -51,6 +49,7 @@ from ._utils import (
     patch_collections_abc,
     split_callback_id,
     to_json,
+    gen_salt,
 )
 from . import _callback
 from . import _get_paths
@@ -105,28 +104,40 @@ _re_index_scripts_id = 'src="[^"]*dash[-_]renderer[^"]*"', "dash-renderer"
 _re_renderer_scripts_id = 'id="_dash-renderer', "new DashRenderer"
 
 
-def _get_traceback(secret, error):
-    def _get_skip(text):
+def _get_traceback(secret, error: Exception):
+
+    try:
+        # pylint: disable=import-outside-toplevel
+        from werkzeug.debug import tbtools
+    except ImportError:
+        tbtools = None
+
+    def _get_skip(text, divider=2):
         skip = 0
-        for i, line in enumerate(text.splitlines()):
+        for i, line in enumerate(text):
             if "%% callback invoked %%" in line:
-                skip = int((i + 1) / 2)
+                skip = int((i + 1) / divider)
                 break
         return skip
 
     # werkzeug<2.1.0
     if hasattr(tbtools, "get_current_traceback"):
         tb = tbtools.get_current_traceback()
-        skip = _get_skip(tb.plaintext)
+        skip = _get_skip(tb.plaintext.splitlines())
         return tbtools.get_current_traceback(skip=skip).render_full()
 
-    tb = tbtools.DebugTraceback(error)  # pylint: disable=no-member
-    skip = _get_skip(tb.render_traceback_text())
+    if hasattr(tbtools, "DebugTraceback"):
+        tb = tbtools.DebugTraceback(error)  # pylint: disable=no-member
+        skip = _get_skip(tb.render_traceback_text().splitlines())
 
-    # pylint: disable=no-member
-    return tbtools.DebugTraceback(error, skip=skip).render_debugger_html(
-        True, secret, True
-    )
+        # pylint: disable=no-member
+        return tbtools.DebugTraceback(error, skip=skip).render_debugger_html(
+            True, secret, True
+        )
+
+    tb = traceback.format_exception(type(error), error, error.__traceback__)
+    skip = _get_skip(tb, 1)
+    return tb[0] + "".join(tb[skip:])
 
 
 class _NoUpdate:
