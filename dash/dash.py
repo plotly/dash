@@ -41,6 +41,7 @@ except ImportError:
         ) -> str:
             return self._tb.render_full()
 
+
 from pkg_resources import get_distribution, parse_version
 from dash import dcc
 from dash import html
