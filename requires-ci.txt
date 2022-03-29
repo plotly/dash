@@ -1,6 +1,6 @@
 # Dependencies used by CI on github.com/plotly/dash
 black==21.6b0
-click==8.0.4
+click<8.1
 dash-flow-example==0.0.5
 dash-dangerously-set-inner-html
 flake8==3.9.2
