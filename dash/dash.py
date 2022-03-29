@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 
 import flask
 from flask_compress import Compress
-from werkzeug.debug.tbtools import get_current_traceback
+from werkzeug.debug.tbtools import DebugTraceback
 from pkg_resources import get_distribution, parse_version
 from dash import dcc
 from dash import html
@@ -1757,18 +1757,18 @@ class Dash:
         if debug and dev_tools.prune_errors:
 
             @self.server.errorhandler(Exception)
-            def _wrap_errors(_):
+            def _wrap_errors(e):
                 # find the callback invocation, if the error is from a callback
                 # and skip the traceback up to that point
                 # if the error didn't come from inside a callback, we won't
                 # skip anything.
-                tb = get_current_traceback()
+                tb = DebugTraceback(e)
                 skip = 0
                 for i, line in enumerate(tb.plaintext.splitlines()):
                     if "%% callback invoked %%" in line:
                         skip = int((i + 1) / 2)
                         break
-                return get_current_traceback(skip=skip).render_full(), 500
+                return DebugTraceback(e, skip=skip).render_full(), 500
 
         if debug and dev_tools.ui:
 
