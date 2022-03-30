@@ -1448,6 +1448,9 @@ class Dash:
         if self.config.include_assets_files:
             self._walk_assets_directory()
 
+        if not self.layout and self.use_pages:
+            self.layout = page_container
+
         _validate.validate_layout(self.layout, self._layout_value())
 
         self._generate_scripts_html()
