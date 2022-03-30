@@ -2,11 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.3.1] - 2022-03-29
 
 ### Fixed
 
 - [#1963](https://github.com/plotly/dash/pull/1963) Fix [#1780](https://github.com/plotly/dash/issues/1780) flask shutdown deprecation warning when running dashduo threaded tests.
+- [#1995](https://github.com/plotly/dash/pull/1995) Fix [#1992](https://github.com/plotly/dash/issues/1992) ImportError: cannot import name 'get_current_traceback' from 'werkzeug.debug.tbtools'.
 
 ## [2.3.0] - 2022-03-13
 
