@@ -23,7 +23,7 @@ Built on top of [Plotly.js](https://github.com/plotly/plotly.js), [React](https:
 |![Sample Dash App](https://user-images.githubusercontent.com/1280389/30086128-9bb4a28e-9267-11e7-8fe4-bbac7d53f2b0.gif) | Here’s a simple example of a Dash App that ties a Dropdown to a Plotly Graph. As the user selects a value in the Dropdown, the application code dynamically exports data from Google Finance into a Pandas DataFrame. This app was written in just **43** lines of code ([view the source](https://gist.github.com/chriddyp/3d2454905d8f01886d651f207e2419f0)). |
 |![Crossfiltering Dash App](https://user-images.githubusercontent.com/1280389/30086123-97c58bde-9267-11e7-98a0-7f626de5199a.gif)|Dash app code is declarative and reactive, which makes it easy to build complex apps that contain many interactive elements. Here’s an example with 5 inputs, 3 outputs, and cross filtering. This app was composed in just 160 lines of code, all of which were Python.|
 |![Dash App with Mapbox map showing walmart store openings](https://user-images.githubusercontent.com/1280389/30086299-768509d0-9268-11e7-8e6b-626ac9ca512c.gif)| Dash uses [Plotly.js](https://github.com/plotly/plotly.js) for charting. About 50 chart types are supported, including maps. |
-|![Financial report](https://github.com/plotly/dash-docs/blob/516f80c417051406210b94ea23a6d3b6cd84d146/assets/images/gallery/dash-financial-report.gif)| Dash isn't just for dashboards. You have full control over the look and feel of your applications. Here's a Dash App that's styled to look like a PDF report. |
+|![Financial report](https://user-images.githubusercontent.com/2678795/161153710-57952401-6e07-42d5-ba3e-bab6419998c7.gif)| Dash isn't just for dashboards. You have full control over the look and feel of your applications. Here's a Dash App that's styled to look like a PDF report. |
 
 To learn more about Dash, read the [extensive announcement letter](https://medium.com/@plotlygraphs/introducing-dash-5ecf7191b503) or [jump in with the user guide](https://plotly.com/dash).
 
@@ -53,4 +53,4 @@ Enterprise AI Features: Everything that your data science team needs to rapidly 
 
 See [https://plotly.com/contact-us/](https://plotly.com/contact-us/) to get in touch.
 
-![image](https://images.prismic.io/plotly-marketing-website/493eec39-8467-4610-b9d0-d6ad3ea61423_Dash+Open+source%2BDash+enterprise2-01.jpg?auto=compress,format)
+![Dash Enterprise](https://user-images.githubusercontent.com/2678795/161155154-fd527e07-bc86-447b-8a38-23dafd890cf8.jpg)
