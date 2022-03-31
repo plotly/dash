@@ -53,4 +53,4 @@ Enterprise AI Features: Everything that your data science team needs to rapidly 
 
 See [https://plotly.com/contact-us/](https://plotly.com/contact-us/) to get in touch.
 
-![Dash Enterprise](https://user-images.githubusercontent.com/2678795/161155154-fd527e07-bc86-447b-8a38-23dafd890cf8.jpg)
+![Dash Enterprise](https://user-images.githubusercontent.com/2678795/161155614-21c54a22-f821-4dda-b910-ee27e27fb5f2.png)
