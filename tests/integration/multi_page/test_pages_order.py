@@ -2,30 +2,9 @@ import dash
 from dash import Dash, dcc, html
 
 
-import os
-import requests
-
-
-def test_process_server_smoke(dash_process_server):
-    cwd = os.getcwd()
-    this_dir = os.path.dirname(__file__)
-    assets_dir = os.path.abspath(os.path.join(this_dir, "..", "assets"))
-    try:
-        os.chdir(assets_dir)
-        dash_process_server("simple_app")
-        r = requests.get(dash_process_server.url)
-        assert r.status_code == 200, "the server is reachable"
-        assert 'id="react-entry-point"' in r.text, "the entrypoint is present"
-    finally:
-        os.chdir(cwd)
-
-
-def test_paor001_order(dash_br, dash_process_server):
+def test_paor001_order(dash_duo):
 
     app = Dash(__name__, use_pages=True)
-
-    dash_process_server("simple_app")
-    # dash_br.start_server(app)
 
     dash.register_page(
         "multi_layout1",
@@ -71,15 +50,15 @@ def test_paor001_order(dash_br, dash_process_server):
         "pages.defaults",
         "pages.metas",
         "pages.not_found_404",
+        "pages.path_variables",
         "pages.query_string",
         "pages.redirect",
     ]
+
+    dash_duo.start_server(app)
+
     assert (
         list(dash.page_registry) == modules
     ), "check order of modules in dash.page_registry"
 
-    dash_br.server_url = "http://localhost:8050/"
-    dash_br.wait_for_text_to_equal("#out", "The first")
-
-    assert dash_br.get_logs() == [], "browser console should contain no error"
-    # dash_duo.percy_snapshot("paor001_order")
+    assert dash_duo.get_logs() == [], "browser console should contain no error"
