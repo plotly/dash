@@ -11,13 +11,14 @@ import time
 import mimetypes
 import hashlib
 import base64
+import traceback
 from urllib.parse import urlparse
 from textwrap import dedent
 import warnings
 
 import flask
 from flask_compress import Compress
-from werkzeug.debug.tbtools import get_current_traceback
+
 from pkg_resources import get_distribution, parse_version
 
 from dash import dcc
@@ -51,6 +52,7 @@ from ._utils import (
     patch_collections_abc,
     split_callback_id,
     to_json,
+    gen_salt,
 )
 from . import _callback
 from . import _get_paths
@@ -128,6 +130,42 @@ else:
             html.Div(id=_ID_DUMMY),
         ]
     )
+
+
+def _get_traceback(secret, error: Exception):
+
+    try:
+        # pylint: disable=import-outside-toplevel
+        from werkzeug.debug import tbtools
+    except ImportError:
+        tbtools = None
+
+    def _get_skip(text, divider=2):
+        skip = 0
+        for i, line in enumerate(text):
+            if "%% callback invoked %%" in line:
+                skip = int((i + 1) / divider)
+                break
+        return skip
+
+    # werkzeug<2.1.0
+    if hasattr(tbtools, "get_current_traceback"):
+        tb = tbtools.get_current_traceback()
+        skip = _get_skip(tb.plaintext.splitlines())
+        return tbtools.get_current_traceback(skip=skip).render_full()
+
+    if hasattr(tbtools, "DebugTraceback"):
+        tb = tbtools.DebugTraceback(error)  # pylint: disable=no-member
+        skip = _get_skip(tb.render_traceback_text().splitlines())
+
+        # pylint: disable=no-member
+        return tbtools.DebugTraceback(error, skip=skip).render_debugger_html(
+            True, secret, True
+        )
+
+    tb = traceback.format_exception(type(error), error, error.__traceback__)
+    skip = _get_skip(tb, 1)
+    return tb[0] + "".join(tb[skip:])
 
 
 class _NoUpdate:
@@ -1851,19 +1889,16 @@ class Dash:
 
         if debug and dev_tools.prune_errors:
 
+            secret = gen_salt(20)
+
             @self.server.errorhandler(Exception)
-            def _wrap_errors(_):
+            def _wrap_errors(error):
                 # find the callback invocation, if the error is from a callback
                 # and skip the traceback up to that point
                 # if the error didn't come from inside a callback, we won't
                 # skip anything.
-                tb = get_current_traceback()
-                skip = 0
-                for i, line in enumerate(tb.plaintext.splitlines()):
-                    if "%% callback invoked %%" in line:
-                        skip = int((i + 1) / 2)
-                        break
-                return get_current_traceback(skip=skip).render_full(), 500
+                tb = _get_traceback(secret, error)
+                return tb, 500
 
         if debug and dev_tools.ui:
 

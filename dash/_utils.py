@@ -8,6 +8,8 @@ import subprocess
 import logging
 import io
 import json
+import secrets
+import string
 from functools import wraps
 
 logger = logging.getLogger()
@@ -206,3 +208,9 @@ def job(msg=""):
         return _wrapper
 
     return wrapper
+
+
+def gen_salt(chars):
+    return "".join(
+        secrets.choice(string.ascii_letters + string.digits) for _ in range(chars)
+    )
