@@ -473,7 +473,7 @@ def validate_pages_layout(module, page):
     if not hasattr(page, "layout"):
         raise exceptions.NoLayoutException(
             f"""
-            No layout found in {module + ".py"}
+            No layout found in module {module}
             A variable or a function named "layout" is required.
             """
         )

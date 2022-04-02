@@ -49,7 +49,7 @@ def test_pala001_layout(dash_duo):
 
     dash_duo.start_server(get_app())
 
-    # test layout and title for each page in `page_registry`
+    # test layout and title for each page in `page_registry` with link navigation
     for page in dash.page_registry.values():
         dash_duo.find_element("#" + page["id"]).click()
         dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
@@ -73,6 +73,10 @@ def test_pala001_layout(dash_duo):
 
     dash_duo.wait_for_page(url="http://localhost:8050/a/var1/b/var2")
     dash_duo.wait_for_text_to_equal("#path_vars", "variables from pathname:var1 var2")
+
+    # test page not found
+    dash_duo.wait_for_page(url="http://localhost:8050/find_me")
+    dash_duo.wait_for_text_to_equal("#text_not_found_404", "text for not_found_404")
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
     # dash_duo.percy_snapshot("pala001_layout")

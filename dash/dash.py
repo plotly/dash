@@ -334,7 +334,6 @@ class Dash:
     ``DiskcacheLongCallbackManager`` or ``CeleryLongCallbackManager``
     """
 
-    # pylint: disable=Too many statements
     def __init__(
         self,
         name=None,
@@ -2267,6 +2266,9 @@ class Dash:
                 return layout, {"title": title}
 
             _validate.check_for_duplicate_pathnames(self)
+
+            for module, page in self.page_registry.items():
+                _validate.validate_pages_layout(module, page)
 
             # Set validation_layout
             self.validation_layout = html.Div(
