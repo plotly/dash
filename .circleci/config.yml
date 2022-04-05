@@ -173,6 +173,7 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
     parallelism: 3
+    resource_class: large
     steps:
       - checkout:
           path: ~/dash
@@ -220,6 +221,7 @@ jobs:
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
+    resource_class: medium
 
   dcc-lint-unit-39: &dcc-lint-unit
     working_directory: ~/dash
@@ -270,6 +272,7 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
           PERCY_ENABLE: 1
     parallelism: 3
+    resource_class: large
     steps:
       - checkout:
           path: ~/dash
@@ -312,6 +315,7 @@ jobs:
         environment:
           PYVERSION: python36
           PERCY_ENABLE: 0
+    resource_class: medium
 
   html-python-39: &html-test
     working_directory: ~/dash
