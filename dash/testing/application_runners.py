@@ -102,24 +102,27 @@ class BaseDashRunner:
         return self._tmp_app_path
 
 
-class StoppableThread(threading.Thread):
-    def get_id(self):  # pylint: disable=R1710
-        if hasattr(self, "_thread_id"):
-            return self._thread_id
-        for thread_id, thread in threading._active.items():  # pylint: disable=W0212
-            if thread is self:
-                return thread_id
+class KillerThread(threading.Thread):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._old_threads = list(threading._active.keys())  # pylint: disable=W0212
 
     def kill(self):
-        thread_id = self.get_id()
-        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
-            ctypes.c_long(thread_id), ctypes.py_object(SystemExit)
-        )
-        if res == 0:
-            raise ValueError(f"Invalid thread id: {thread_id}")
-        if res > 1:
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), None)
-            raise SystemExit("Stopping thread failure")
+        # Kill all the new threads.
+        for thread_id in threading._active:  # pylint: disable=W0212
+            if thread_id in self._old_threads:
+                continue
+
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+                ctypes.c_long(thread_id), ctypes.py_object(SystemExit)
+            )
+            if res == 0:
+                raise ValueError(f"Invalid thread id: {thread_id}")
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(
+                    ctypes.c_long(thread_id), None
+                )
+                raise SystemExit("Stopping thread failure")
 
 
 class ThreadedRunner(BaseDashRunner):
@@ -154,7 +157,7 @@ class ThreadedRunner(BaseDashRunner):
             except SystemExit:
                 logger.info("Server stopped")
 
-        self.thread = StoppableThread(target=run)
+        self.thread = KillerThread(target=run)
         self.thread.daemon = True
         try:
             self.thread.start()
