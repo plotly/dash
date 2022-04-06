@@ -2,6 +2,9 @@
 import pytest
 import time
 import json
+
+import werkzeug
+
 from dash import Dash, Input, Output, State, dcc, html
 from dash.exceptions import PreventUpdate
 from selenium.webdriver.common.by import By
@@ -185,6 +188,10 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
+@pytest.mark.skipif(
+    werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with no_update 204 responses get Transfer-Encoding header.",
+)
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
