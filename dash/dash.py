@@ -209,11 +209,11 @@ class Dash:
     :type assets_folder: string
 
     :param pages_folder: a path, relative to the current working directory,
-        for pages of a multi-page app. Default ``'pages``.
+        for pages of a multi-page app. Default ``'pages'``.
     :type pages_folder: string
 
-    : param pages:  Default False.  When True, the `pages` feature for multi-page
-        apps is enabled.
+    :param use_pages:  Default False, or True if you set a non-default ``pages_folder``.
+        When True, the ``pages`` feature for multi-page apps is enabled.
     :type pages: boolean
 
     :param assets_url_path: The local urls for assets will be:
@@ -2251,7 +2251,7 @@ class Dash:
                         layout = not_found_404["layout"]
                         title = not_found_404["title"]
                     else:
-                        layout = html.H1("404")
+                        layout = html.H1("404 - Page not found")
                         title = self.title
                 else:
                     layout = page["layout"]
