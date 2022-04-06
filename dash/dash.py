@@ -2248,7 +2248,7 @@ class Dash:
                         layout = self.page_registry["pages.not_found_404"]["layout"]
                         title = self.page_registry["pages.not_found_404"]["title"]
                     else:
-                        layout = html.H1("404")
+                        layout = html.H1("404 - Page not found")
                         title = self.title
                 else:
                     layout = page["layout"]
