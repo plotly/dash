@@ -60,6 +60,7 @@ def test_pala001_layout(dash_duo):
     dash_duo.wait_for_text_to_equal("#text_redirect", "text for redirect")
     dash_duo.wait_for_page(url="http://localhost:8050/old-home-page")
     dash_duo.wait_for_text_to_equal("#text_redirect", "text for redirect")
+    assert dash_duo.driver.current_url == "http://localhost:8050/redirect"
 
     # test query strings
     dash_duo.wait_for_page(url="http://localhost:8050/query-string?velocity=10")
