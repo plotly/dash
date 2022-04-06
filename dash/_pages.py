@@ -19,7 +19,7 @@ def _infer_image(module):
     - A logo at `assets/logo.<extension>`
     """
     assets_folder = CONFIG.assets_folder
-    valid_extensions = ["apng", "avif", "gif", "jpeg", "png", "webp"]
+    valid_extensions = ["apng", "avif", "gif", "jpeg", "jpg", "png", "svg", "webp"]
     page_id = module.split(".")[-1]
     files_in_assets = []
 
@@ -60,12 +60,15 @@ def _infer_path(filename, template):
         path = (
             filename.replace("_", "-").replace(".", "/").lower().split(pages_folder)[-1]
         )
-        path = "/" + path if not path.startswith("/") else path
-        return path
-    # replace the variables in the template with "none" to create a default path if no path is supplied
-    path_segments = template.split("/")
-    default_template_path = ["none" if s.startswith("<") else s for s in path_segments]
-    return "/".join(default_template_path)
+    else:
+        # replace the variables in the template with "none" to create a default path if no path is supplied
+        path_segments = template.split("/")
+        default_template_path = [
+            "none" if s.startswith("<") else s for s in path_segments
+        ]
+        path = "/".join(default_template_path)
+    path = "/" + path if not path.startswith("/") else path
+    return path
 
 
 def _parse_query_string(search):
@@ -168,7 +171,8 @@ def register_page(
         - A page specific image: `assets/<title>.<extension>` is used, e.g. `assets/weekly_analytics.png`
         - A generic app image at `assets/app.<extension>`
         - A logo at `assets/logo.<extension>`
-        When inferring the image file, it will look for the following extensions: APNG, AVIF, GIF, JPEG, PNG, SVG, WebP.
+        When inferring the image file, it will look for the following extensions:
+        APNG, AVIF, GIF, JPEG, JPG, PNG, SVG, WebP.
 
     - `redirect_from`:
        A list of paths that should redirect to this page.

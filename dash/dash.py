@@ -119,9 +119,8 @@ _ID_LOCATION = "_pages_location"
 _ID_STORE = "_pages_store"
 _ID_DUMMY = "_pages_dummy"
 
-if not hasattr(html, "Div"):
-    page_container = None
-else:
+
+try:
     page_container = html.Div(
         [
             dcc.Location(id=_ID_LOCATION),
@@ -130,6 +129,8 @@ else:
             html.Div(id=_ID_DUMMY),
         ]
     )
+except AttributeError:
+    page_container = None
 
 
 def _get_traceback(secret, error: Exception):
@@ -334,7 +335,7 @@ class Dash:
     ``DiskcacheLongCallbackManager`` or ``CeleryLongCallbackManager``
     """
 
-    def __init__(
+    def __init__(  # pylint disable=too-many=statements
         self,
         name=None,
         server=True,
@@ -2244,9 +2245,11 @@ class Dash:
 
                 # get layout
                 if page == {}:
-                    if "pages.not_found_404" in self.page_registry:
-                        layout = self.page_registry["pages.not_found_404"]["layout"]
-                        title = self.page_registry["pages.not_found_404"]["title"]
+                    module_404 = ".".join([self.pages_folder, "not_found_404"])
+                    not_found_404 = self.page_registry.get(module_404)
+                    if not_found_404:
+                        layout = not_found_404["layout"]
+                        title = not_found_404["title"]
                     else:
                         layout = html.H1("404")
                         title = self.title
@@ -2282,7 +2285,7 @@ class Dash:
             self.clientside_callback(
                 """
                 function(data) {{
-                    document.title = data.title || 'Dash'
+                    document.title = data.title
                 }}
                 """,
                 Output(_ID_DUMMY, "children"),
