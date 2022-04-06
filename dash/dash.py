@@ -211,8 +211,8 @@ class Dash:
         for pages of a multi-page app. Default ``'pages``.
     :type pages_folder: string
 
-    : param pages:  Default False.  When True, the `pages` feature for multi-page
-        apps is enabled.
+    :param use_pages:  Default False, or True if you set a non-default ``pages_folder``.
+        When True, the ``pages`` feature for multi-page apps is enabled.
     :type pages: boolean
 
     :param assets_url_path: The local urls for assets will be:
