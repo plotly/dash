@@ -501,8 +501,6 @@ class Dash:
             for plugin in plugins:
                 plugin.plug(self)
 
-        self.page_registry = collections.OrderedDict()
-
         if self.server is not None:
             self.init_app()
 
@@ -1510,9 +1508,6 @@ class Dash:
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
         _callback.GLOBAL_CALLBACK_LIST.clear()
 
-        #  Update page_registry  assigned with dash.register_page
-        self.page_registry = _pages.PAGE_REGISTRY.copy()
-
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:
@@ -2191,16 +2186,16 @@ class Dash:
                 module_name = ".".join([pages, page_filename])
                 page_module = importlib.import_module(module_name)
 
-                self.page_registry = _pages.PAGE_REGISTRY.copy()
-                if not self.page_registry[module_name]["supplied_layout"]:
+                if not _pages.PAGE_REGISTRY[module_name]["supplied_layout"]:
                     _validate.validate_pages_layout(module_name, page_module)
-                    self.page_registry[module_name]["layout"] = getattr(
+                    _pages.PAGE_REGISTRY[module_name]["layout"] = getattr(
                         page_module, "layout"
                     )
 
-    def _path_to_page(self, path_id):
+    @staticmethod
+    def _path_to_page(path_id):
         path_variables = None
-        for page in self.page_registry.values():
+        for page in _pages.PAGE_REGISTRY.values():
             if page["path_template"]:
                 template_id = page["path_template"].strip("/")
                 path_variables = _parse_path_variables(path_id, template_id)
@@ -2235,9 +2230,6 @@ class Dash:
                 Updates the stored page title which will trigger the clientside callback to update the app title
                 """
 
-                # update page registry for pages that might have been added or changed in a callback
-                self.page_registry = _pages.PAGE_REGISTRY.copy()
-
                 query_parameters = _parse_query_string(search)
                 page, path_variables = self._path_to_page(
                     self.strip_relative_path(pathname)
@@ -2246,7 +2238,7 @@ class Dash:
                 # get layout
                 if page == {}:
                     module_404 = ".".join([self.pages_folder, "not_found_404"])
-                    not_found_404 = self.page_registry.get(module_404)
+                    not_found_404 = _pages.PAGE_REGISTRY.get(module_404)
                     if not_found_404:
                         layout = not_found_404["layout"]
                         title = not_found_404["title"]
@@ -2268,13 +2260,13 @@ class Dash:
 
                 return layout, {"title": title}
 
-            _validate.check_for_duplicate_pathnames(self)
+            _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
 
             # Set validation_layout
             self.validation_layout = html.Div(
                 [
                     page["layout"]() if callable(page["layout"]) else page["layout"]
-                    for page in self.page_registry.values()
+                    for page in _pages.PAGE_REGISTRY.values()
                 ]
                 + [self.layout]
             )
@@ -2299,8 +2291,8 @@ class Dash:
                 return redirect
 
             # Set redirects
-            for module in self.page_registry:
-                page = self.page_registry[module]
+            for module in _pages.PAGE_REGISTRY:
+                page = _pages.PAGE_REGISTRY[module]
                 if page["redirect_from"] and len(page["redirect_from"]):
                     for redirect in page["redirect_from"]:
                         fullname = self.get_relative_path(redirect)
