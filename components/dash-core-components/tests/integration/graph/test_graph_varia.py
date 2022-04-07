@@ -364,6 +364,10 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
+@pytest.mark.skipif(
+    werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with no_update 204 responses get Transfer-Encoding header.",
+)
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva005_graph_extend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
