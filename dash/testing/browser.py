@@ -67,16 +67,6 @@ class Browser(DashPageMixin):
 
         self._window_idx = 0  # switch browser tabs
 
-        if self._percy_run:
-            self.percy_runner = percy.Runner(
-                loader=percy.ResourceLoader(
-                    webdriver=self.driver,
-                    base_url="/assets",
-                    root_dir=percy_assets_root,
-                )
-            )
-            self.percy_runner.initialize_build()
-
         logger.debug("initialize browser with arguments")
         logger.debug("  headless => %s", self._headless)
         logger.debug("  download_path => %s", self._download_path)
@@ -88,15 +78,8 @@ class Browser(DashPageMixin):
     def __exit__(self, exc_type, exc_val, traceback):
         try:
             self.driver.quit()
-            if self._percy_run and self._percy_finalize:
-                logger.info("percy runner finalize build now")
-                self.percy_runner.finalize_build()
-            else:
-                logger.info("percy finalize relies on CI job")
         except WebDriverException:
             logger.exception("webdriver quit was not successful")
-        except percy.errors.Error:
-            logger.exception("percy runner failed to finalize properly")
 
     def visit_and_snapshot(
         self,
@@ -190,7 +173,7 @@ class Browser(DashPageMixin):
             """
             )
 
-            self.percy_runner.snapshot(name=snapshot_name, widths=widths)
+            percy.percy_snapshot(self.driver, name=snapshot_name, widths=widths)
 
             self.driver.execute_script(
                 """
@@ -207,7 +190,7 @@ class Browser(DashPageMixin):
             )
 
         else:
-            self.percy_runner.snapshot(name=snapshot_name, widths=widths)
+            percy.percy_snapshot(self.driver, name=snapshot_name, widths=widths)
 
     def take_snapshot(self, name):
         """Hook method to take snapshot when a selenium test fails. The
