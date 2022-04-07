@@ -3,6 +3,8 @@ from multiprocessing import Lock, Value
 import pytest
 import time
 
+import werkzeug
+
 from dash_test_components import (
     AsyncComponent,
     CollapseComponent,
@@ -312,6 +314,11 @@ def test_cbsc006_array_of_objects(dash_duo, engine):
             dash_duo.select_dcc_dropdown("#dd", "opt{}".format(i))
 
 
+@pytest.mark.xfail(
+    condition=werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with 204 and Transfer-Encoding",
+    strict=False,
+)
 @pytest.mark.parametrize("refresh", [False, True])
 def test_cbsc007_parallel_updates(refresh, dash_duo):
     # This is a funny case, that seems to mostly happen with dcc.Location
