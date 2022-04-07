@@ -1,4 +1,5 @@
 import os
+import flask
 
 # noinspection PyCompatibility
 from . import exceptions
@@ -119,3 +120,21 @@ def pathname_configs(
         )
 
     return url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
+
+
+def pages_folder_config(name, pages_folder):
+    pages_folder = None if pages_folder == "" else pages_folder
+    pages_folder_path = None
+    error_msg = f"""
+    A folder called {pages_folder} does not exist.
+    If a folder for pages is not required in your application, set `pages_folder=""`
+    For example, `app = Dash(__name__,  pages_folder="")`
+    """
+
+    if pages_folder:
+        pages_folder_path = os.path.join(
+            flask.helpers.get_root_path(name), pages_folder
+        )
+    if pages_folder and not os.path.exists(pages_folder_path):
+        raise Exception(error_msg)
+    return pages_folder_path

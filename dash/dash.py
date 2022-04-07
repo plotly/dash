@@ -14,7 +14,6 @@ import base64
 import traceback
 from urllib.parse import urlparse
 from textwrap import dedent
-import warnings
 
 import flask
 from flask_compress import Compress
@@ -41,7 +40,7 @@ from .exceptions import (
     DuplicateCallback,
 )
 from .version import __version__
-from ._configs import get_combined_config, pathname_configs
+from ._configs import get_combined_config, pathname_configs, pages_folder_config
 from ._utils import (
     AttributeDict,
     format_tag,
@@ -119,7 +118,7 @@ _ID_LOCATION = "_pages_location"
 _ID_STORE = "_pages_store"
 _ID_DUMMY = "_pages_dummy"
 
-
+# Handles the case in a newly cloned environment where the components are not yet generated.
 try:
     page_container = html.Div(
         [
@@ -404,7 +403,7 @@ class Dash:
             assets_external_path=get_combined_config(
                 "assets_external_path", assets_external_path, ""
             ),
-            pages_folder=os.path.join(flask.helpers.get_root_path(name), pages_folder),
+            pages_folder=pages_folder_config(name, pages_folder),
             eager_loading=eager_loading,
             include_assets_files=get_combined_config(
                 "include_assets_files", include_assets_files, True
@@ -598,7 +597,7 @@ class Dash:
     @layout.setter
     def layout(self, value):
         _validate.validate_layout_type(value)
-        self._layout_is_function = isinstance(value, patch_collections_abc("Callable"))
+        self._layout_is_function = callable(value)
         self._layout = value
 
         # for using flask.has_request_context() to deliver a full layout for
@@ -2169,7 +2168,6 @@ class Dash:
 
     def _import_layouts_from_pages(self):
         walk_dir = self.config.pages_folder
-        pages = "pages" if self.pages_folder == "" else self.pages_folder
 
         for (root, _, files) in os.walk(walk_dir):
             for file in files:
@@ -2181,9 +2179,9 @@ class Dash:
                         continue
 
                 page_filename = os.path.join(root, file).replace("\\", "/")
-                _, _, page_filename = page_filename.partition(pages + "/")
+                _, _, page_filename = page_filename.partition(self.pages_folder + "/")
                 page_filename = page_filename.replace(".py", "").replace("/", ".")
-                module_name = ".".join([pages, page_filename])
+                module_name = ".".join([self.pages_folder, page_filename])
                 page_module = importlib.import_module(module_name)
 
                 if not _pages.PAGE_REGISTRY[module_name]["supplied_layout"]:
@@ -2208,11 +2206,7 @@ class Dash:
     def enable_pages(self):
         if not self.use_pages:
             return
-        if self.pages_folder and not os.path.exists(self.config.pages_folder):
-            warnings.warn(
-                f"A folder called {self.pages_folder} does not exist.", stacklevel=2
-            )
-        if os.path.exists(self.config.pages_folder):
+        if self.pages_folder:
             self._import_layouts_from_pages()
 
         @self.server.before_first_request
@@ -2249,13 +2243,13 @@ class Dash:
                     layout = page["layout"]
                     title = page["title"]
 
-                if isinstance(layout, patch_collections_abc("Callable")):
+                if callable(layout):
                     layout = (
                         layout(**path_variables, **query_parameters)
                         if path_variables
                         else layout(**query_parameters)
                     )
-                if isinstance(title, patch_collections_abc("Callable")):
+                if callable(title):
                     title = title(**path_variables) if path_variables else title()
 
                 return layout, {"title": title}
