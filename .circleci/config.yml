@@ -293,8 +293,8 @@ jobs:
           command: |
             . venv/bin/activate && rm -rf components/dash-core-components/dash_core_components
             cd components/dash-core-components
-            TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" ${TESTFILES} --reruns 3
+            npm i @percy/cli
+            npm run test:ci
       - store_artifacts:
           path: ~/dash/components/dash-core-components/test-reports
       - store_test_results:
@@ -414,8 +414,8 @@ jobs:
           command: |
             . venv/bin/activate
             cd components/dash-table
-            TESTFILES=$(circleci tests glob "tests/selenium/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-table" ${TESTFILES}
+            npm i @percy/cli
+            npm run test.ci-server
       - store_artifacts:
           path: ~/dash/components/dash-table/test-reports
       - store_test_results:

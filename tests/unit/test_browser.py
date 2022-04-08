@@ -13,7 +13,6 @@ def test_browser_smoke(browser_type, tmpdir):
         headless=True,
         options=None,
         download_path=tmpdir.mkdir("download").strpath,
-        percy_finalize=True,
     )
     assert browser.driver.name == browser_type.lower()
 
@@ -28,7 +27,6 @@ def test_browser_use_remote_webdriver(tmpdir):
             headless=True,
             options=None,
             download_path=tmpdir.mkdir("download").strpath,
-            percy_finalize=True,
         )
 
     # test creation with remote_url other than default
@@ -40,5 +38,4 @@ def test_browser_use_remote_webdriver(tmpdir):
             headless=True,
             options=None,
             download_path=tmpdir.mkdir("download").strpath,
-            percy_finalize=True,
         )

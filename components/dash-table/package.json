@@ -32,7 +32,8 @@
     "postbuild": "es-check es5 dash_table/bundle.js dash_table/async-*.js",
     "format": "run-s private::format.*",
     "lint": "run-s private::lint.*",
-    "test.server": "percy exec -- pytest --nopercyfinalize tests/selenium",
+    "test.server": "percy exec -- pytest tests/selenium",
+    "test.ci-server": "TESTFILES=$(circleci tests glob \"tests/selenium/**/test_*.py\" | circleci tests split --split-by=timings) && percy exec -- pytest --junitxml=test-reports/junit_intg.xml --junitprefix=\"components.dash-table\" ${TESTFILES}",
     "test.unit": "run-s private::test.python private::test.unit",
     "test.visual": "build-storybook && percy-storybook --widths=1280",
     "test.visual-local": "build-storybook"

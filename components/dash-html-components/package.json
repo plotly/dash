@@ -21,7 +21,7 @@
     "build": "npm run build:js && npm run build:backends",
     "postbuild": "es-check es5 dash_html_components/*.js",
     "build:watch": "watch 'npm run build' src",
-    "test:py": "pytest --nopercyfinalize --headless tests/test_dash_html_components.py tests/test_integration.py",
+    "test:py": "percy exec -- pytest --headless tests/test_dash_html_components.py tests/test_integration.py",
     "test": "run-s -c test:py lint"
   },
   "author": "Chris Parmer <chris@plotly.com>",
@@ -37,6 +37,7 @@
     "@babel/core": "^7.17.4",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
+    "@percy/cli": "^1.0.5",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.3",
     "cheerio": "^0.22.0",

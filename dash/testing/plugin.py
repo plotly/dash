@@ -42,19 +42,6 @@ def pytest_addoption(parser):
     )
 
     dash.addoption(
-        "--percy-assets",
-        action="store",
-        default="tests/assets",
-        help="configure how Percy will discover your app's assets",
-    )
-
-    dash.addoption(
-        "--nopercyfinalize",
-        action="store_false",
-        help="set this flag to control percy finalize at CI level",
-    )
-
-    dash.addoption(
         "--pause",
         action="store_true",
         help="pause using pdb after opening the test app, so you can interact with it",
@@ -129,8 +116,6 @@ def dash_br(request, tmpdir):
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
-        percy_assets_root=request.config.getoption("percy_assets"),
-        percy_finalize=request.config.getoption("nopercyfinalize"),
         pause=request.config.getoption("pause"),
     ) as browser:
         yield browser
@@ -146,8 +131,6 @@ def dash_duo(request, dash_thread_server, tmpdir):
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
-        percy_assets_root=request.config.getoption("percy_assets"),
-        percy_finalize=request.config.getoption("nopercyfinalize"),
         pause=request.config.getoption("pause"),
     ) as dc:
         yield dc
@@ -163,8 +146,6 @@ def dashr(request, dashr_server, tmpdir):
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
-        percy_assets_root=request.config.getoption("percy_assets"),
-        percy_finalize=request.config.getoption("nopercyfinalize"),
         pause=request.config.getoption("pause"),
     ) as dc:
         yield dc
@@ -180,8 +161,6 @@ def dashjl(request, dashjl_server, tmpdir):
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
-        percy_assets_root=request.config.getoption("percy_assets"),
-        percy_finalize=request.config.getoption("nopercyfinalize"),
         pause=request.config.getoption("pause"),
     ) as dc:
         yield dc
