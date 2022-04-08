@@ -16,7 +16,11 @@ def test_click_simple(dash_duo):
         ]
     )
 
-    @app.callback(Output("container", "children"), Input("button", "n_clicks"))
+    @app.callback(
+        Output("container", "children"),
+        Input("button", "n_clicks"),
+        prevent_initial_call=True,
+    )
     def update_output(n_clicks):
         call_count.value += 1
         return "clicked {} times".format(n_clicks)
@@ -25,14 +29,13 @@ def test_click_simple(dash_duo):
 
     dash_duo.find_element("#container")
 
-    dash_duo.wait_for_text_to_equal("#container", "clicked 0 times")
-    assert call_count.value == 1
+    assert call_count.value == 0
     dash_duo.percy_snapshot("html button initialization")
 
     dash_duo.find_element("#button").click()
 
     dash_duo.wait_for_text_to_equal("#container", "clicked 1 times")
-    assert call_count.value == 2
+    assert call_count.value == 1
     dash_duo.percy_snapshot("html button click")
 
     assert not dash_duo.get_logs()
@@ -63,6 +66,7 @@ def test_click_prev(dash_duo):
             Input("button-2", "n_clicks"),
             Input("button-2", "n_clicks_timestamp"),
         ],
+        prevent_inital_call=True,
     )
     def update_output(*args):
         print(args)
