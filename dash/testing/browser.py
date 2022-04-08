@@ -511,10 +511,12 @@ class Browser(DashPageMixin):
     def _is_windows():
         return sys.platform == "win32"
 
-    def multiple_click(self, elem_or_selector, clicks):
+    def multiple_click(self, elem_or_selector, clicks, delay=None):
         """multiple_click click the element with number of `clicks`."""
         for _ in range(clicks):
             self._get_element(elem_or_selector).click()
+            if delay:
+                time.sleep(delay)
 
     def clear_input(self, elem_or_selector):
         """Simulate key press to clear the input."""
