@@ -1,8 +1,8 @@
+from selenium.webdriver.common.by import By
+
 import dash
 
-from utils import (
-    get_props,
-)
+from utils import get_props
 
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -53,20 +53,20 @@ base_props = dict(
 def cells_are_same_width(target, table):
     wait.until(lambda: abs(target.size["width"] - table.size["width"]) <= 1, 3)
 
-    target_cells = target.find_elements_by_css_selector(
-        ".cell-1-1 > table > tbody > tr:last-of-type > *"
+    target_cells = target.find_elements(
+        By.CSS_SELECTOR, ".cell-1-1 > table > tbody > tr:last-of-type > *"
     )
-    table_r0c0_cells = table.find_elements_by_css_selector(
-        ".cell-0-0 > table > tbody > tr:last-of-type > *"
+    table_r0c0_cells = table.find_elements(
+        By.CSS_SELECTOR, ".cell-0-0 > table > tbody > tr:last-of-type > *"
     )
-    table_r0c1_cells = table.find_elements_by_css_selector(
-        ".cell-0-1 > table > tbody > tr:last-of-type > *"
+    table_r0c1_cells = table.find_elements(
+        By.CSS_SELECTOR, ".cell-0-1 > table > tbody > tr:last-of-type > *"
     )
-    table_r1c0_cells = table.find_elements_by_css_selector(
-        ".cell-1-0 > table > tbody > tr:last-of-type > *"
+    table_r1c0_cells = table.find_elements(
+        By.CSS_SELECTOR, ".cell-1-0 > table > tbody > tr:last-of-type > *"
     )
-    table_r1c1_cells = table.find_elements_by_css_selector(
-        ".cell-1-1 > table > tbody > tr:last-of-type > *"
+    table_r1c1_cells = table.find_elements(
+        By.CSS_SELECTOR, ".cell-1-1 > table > tbody > tr:last-of-type > *"
     )
 
     # this test is very dependent on the table's implementation details..  we are testing that all the cells are
@@ -110,10 +110,10 @@ def szng003_on_prop_change_impl(
 
     test.start_server(app)
 
-    target = test.driver.find_element_by_css_selector("#table")
+    target = test.find_element("#table")
     cells_are_same_width(target, target)
 
-    test.driver.find_element_by_css_selector("#btn").click()
+    test.find_element("#btn").click()
     cells_are_same_width(target, target)
 
     assert test.get_log_errors() == []
@@ -224,15 +224,11 @@ def test_szng001_widths_on_style_change(test):
         display = style.get("style_table", dict()).get("display")
         width = style.get("style_table", dict()).get("width")
         target = (
-            test.driver.find_element_by_css_selector("#table{}".format(width))
-            if display != "none"
-            else None
+            test.find_element("#table{}".format(width)) if display != "none" else None
         )
 
         for variation in variations:
-            table = test.driver.find_element_by_css_selector(
-                "#{}".format(variation["id"])
-            )
+            table = test.find_element("#{}".format(variation["id"]))
             if target is None:
                 assert table is not None
                 assert (
@@ -246,7 +242,7 @@ def test_szng001_widths_on_style_change(test):
             else:
                 cells_are_same_width(target, table)
 
-        test.driver.find_element_by_css_selector("#btn").click()
+        test.find_element("#btn").click()
 
     assert test.get_log_errors() == []
 
@@ -279,11 +275,11 @@ def test_szng002_percentages_result_in_same_widths(test):
 
     test.start_server(app)
 
-    target = test.driver.find_element_by_css_selector("#table0")
+    target = test.find_element("#table0")
     cells_are_same_width(target, target)
 
     for i in range(1, len(variations)):
-        table = test.driver.find_element_by_css_selector("#table{}".format(i))
+        table = test.find_element("#table{}".format(i))
         cells_are_same_width(target, table)
 
     assert test.get_log_errors() == []
@@ -312,8 +308,8 @@ def on_focus(test, props, data_fn):
     for i in range(len(baseProps1.get("columns"))):
         table2.cell(0, i).click()
 
-        t1 = test.driver.find_element_by_css_selector("#table1")
-        t2 = test.driver.find_element_by_css_selector("#table2")
+        t1 = test.find_element("#table1")
+        t2 = test.find_element("#table2")
 
         cells_are_same_width(t1, t1)
         cells_are_same_width(t1, t2)

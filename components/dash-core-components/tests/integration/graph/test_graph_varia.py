@@ -131,7 +131,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
 
     # use this opportunity to test restyleData, since there are multiple
     # traces on this graph
-    legendToggle = dash_dcc.driver.find_element_by_css_selector(
+    legendToggle = dash_dcc.find_element(
         "#example-graph .traces:first-child .legendtoggle"
     )
     legendToggle.click()
@@ -145,7 +145,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
     )
 
     # and test relayoutData while we're at it
-    autoscale = dash_dcc.driver.find_element_by_css_selector("#example-graph .ewdrag")
+    autoscale = dash_dcc.find_element("#example-graph .ewdrag")
     autoscale.click()
     autoscale.click()
     dash_dcc.wait_for_text_to_equal("#relayout-data", '{"xaxis.autorange": true}')
