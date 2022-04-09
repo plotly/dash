@@ -19,6 +19,8 @@ def test_click_simple(dash_duo):
     @app.callback(
         Output("container", "children"),
         Input("button", "n_clicks"),
+        # The new percy runner loads the page, so to get consistent behavior for
+        # call_count we need to skip the initial call
         prevent_initial_call=True,
     )
     def update_output(n_clicks):
@@ -52,7 +54,7 @@ def test_click_prev(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
         [
-            html.Div(id="container"),
+            html.Div("Initial", id="container"),
             html.Button("Click", id="button-1", n_clicks=0, n_clicks_timestamp=-1),
             html.Button("Click", id="button-2", n_clicks=0, n_clicks_timestamp=-1),
         ]
@@ -66,7 +68,7 @@ def test_click_prev(dash_duo):
             Input("button-2", "n_clicks"),
             Input("button-2", "n_clicks_timestamp"),
         ],
-        prevent_inital_call=True,
+        prevent_initial_call=True,
     )
     def update_output(*args):
         print(args)
@@ -77,17 +79,17 @@ def test_click_prev(dash_duo):
 
     dash_duo.start_server(app)
 
-    dash_duo.wait_for_text_to_equal("#container", "0, 0")
-    assert timestamp_1.value == -1
-    assert timestamp_2.value == -1
-    assert call_count.value == 1
+    dash_duo.wait_for_text_to_equal("#container", "Initial")
+    assert timestamp_1.value == -5
+    assert timestamp_2.value == -5
+    assert call_count.value == 0
     dash_duo.percy_snapshot("html button initialization 1")
 
     dash_duo.find_element("#button-1").click()
     dash_duo.wait_for_text_to_equal("#container", "1, 0")
     assert timestamp_1.value > ((time.time() - (24 * 60 * 60)) * 1000)
     assert timestamp_2.value == -1
-    assert call_count.value == 2
+    assert call_count.value == 1
     dash_duo.percy_snapshot("html button-1 click")
     prev_timestamp_1 = timestamp_1.value
 
@@ -95,7 +97,7 @@ def test_click_prev(dash_duo):
     dash_duo.wait_for_text_to_equal("#container", "1, 1")
     assert timestamp_1.value == prev_timestamp_1
     assert timestamp_2.value > ((time.time() - 24 * 60 * 60) * 1000)
-    assert call_count.value == 3
+    assert call_count.value == 2
     dash_duo.percy_snapshot("html button-2 click")
     prev_timestamp_2 = timestamp_2.value
 
@@ -104,7 +106,7 @@ def test_click_prev(dash_duo):
     assert timestamp_1.value == prev_timestamp_1
     assert timestamp_2.value > prev_timestamp_2
     assert timestamp_2.value > timestamp_1.value
-    assert call_count.value == 4
+    assert call_count.value == 3
     dash_duo.percy_snapshot("html button-2 click again")
 
     assert not dash_duo.get_logs()
