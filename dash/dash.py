@@ -2196,7 +2196,8 @@ class Dash:
         for page in _pages.PAGE_REGISTRY.values():
             if page["path_template"]:
                 template_id = page["path_template"].strip("/")
-                path_variables = _parse_path_variables(path_id, template_id)
+                separator = page.get("separator", "/")
+                path_variables = _parse_path_variables(path_id, template_id, separator)
                 if path_variables:
                     return page, path_variables
             if path_id == page["path"].strip("/"):
@@ -2291,5 +2292,7 @@ class Dash:
                     for redirect in page["redirect_from"]:
                         fullname = self.get_relative_path(redirect)
                         self.server.add_url_rule(
-                            fullname, fullname, create_redirect_function(page["path"])
+                            fullname,
+                            fullname,
+                            create_redirect_function(page["relative_path"]),
                         )

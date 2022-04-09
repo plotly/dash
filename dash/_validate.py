@@ -429,10 +429,8 @@ def validate_layout(layout, layout_value):
         component_ids.add(component_id)
 
 
-def validate_template(template):
-    if template is None:
-        return None
-    template_segments = template.split("/")
+def validate_template(template, separator):
+    template_segments = template.split(separator)
     for s in template_segments:
         if "<" in s or ">" in s:
             if not (s.startswith("<") and s.endswith(">")):
@@ -444,7 +442,6 @@ def validate_template(template):
                 raise Exception(
                     f'`{variable_name}` is not a valid Python variable name in `path_template`: "{template}".'
                 )
-    return template
 
 
 def check_for_duplicate_pathnames(registry):

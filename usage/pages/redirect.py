@@ -9,4 +9,9 @@ dash.register_page(
     extra_template_stuff="yup",
 )
 
-layout = html.Div(["Home Page", html.Img(src="/assets/birds.jpeg", height="50px")])
+layout = html.Div(
+    [
+        "Home Page",
+        html.Img(src=dash.get_relative_path("/assets/birds.jpeg"), height="50px"),
+    ]
+)

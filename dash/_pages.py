@@ -5,6 +5,7 @@ import collections
 from urllib.parse import parse_qs
 from . import _validate
 from ._utils import AttributeDict
+from ._get_paths import get_relative_path
 
 
 CONFIG = AttributeDict()
@@ -84,15 +85,16 @@ def _parse_query_string(search):
     return parsed_qs
 
 
-def _parse_path_variables(pathname, path_template):
+def _parse_path_variables(pathname, path_template, separator="/"):
     """
     creates the dict of path variables passed to the layout
     e.g. path_template= "/asset/<asset_id>"
          if pathname provided by the browser is "/assets/a100"
          returns **{"asset_id": "a100"}
+     `separator` allows custom separator for parsing the pathname into segments. (Used in snapshot engine).
     """
-    path_segments = pathname.split("/")
-    template_segments = path_template.split("/")
+    path_segments = pathname.split(separator)
+    template_segments = path_template.split(separator)
 
     if len(path_segments) != len(template_segments):
         return None
@@ -139,6 +141,18 @@ def register_page(
        If not supplied, will be inferred from the `path_template` or `module`,
        e.g. based on path_template: `/asset/<asset_id` to `/asset/none`
        e.g. based on module: `pages.weekly_analytics` to `/weekly-analytics`
+
+    - `relative_path`:
+        The path with `requests_pathname_prefix` prefixed before it.
+        Use this path when specifying local URL paths that will work
+        in environments regardless of what `requests_pathname_prefix` is.
+        In some deployment environments, like Dash Enterprise,
+        `requests_pathname_prefix` is set to the application name,
+        e.g. `my-dash-app`.
+        When working locally, `requests_pathname_prefix` might be unset and
+        so a relative URL like `/page-2` can just be `/page-2`.
+        However, when the app is deployed to a URL like `/my-dash-app`, then
+        `relative_path` will be `/my-dash-app/page-2`.
 
     - `path_template`:
        Add variables to a URL by marking sections with <variable_name>. The layout function
@@ -229,7 +243,7 @@ def register_page(
     page = dict(
         module=module,
         supplied_path=path,
-        path_template=_validate.validate_template(path_template),
+        path_template=path_template,
         path=path if path is not None else _infer_path(module, path_template),
         supplied_name=name,
         name=name if name is not None else _filename_to_name(module),
@@ -253,6 +267,10 @@ def register_page(
 
     PAGE_REGISTRY[module] = page
 
+    if page["path_template"]:
+        separator = page.get("separator", "/")
+        _validate.validate_template(page["path_template"], separator)
+
     if layout is not None:
         # Override the layout found in the file set during `plug`
         PAGE_REGISTRY[module]["layout"] = layout
@@ -266,6 +284,7 @@ def register_page(
         p["order"] = (
             0 if p["path"] == "/" and not order_supplied else p["supplied_order"]
         )
+        p["relative_path"] = get_relative_path(p["path"])
 
     # Sort by order and module, then by module
     for page in sorted(
