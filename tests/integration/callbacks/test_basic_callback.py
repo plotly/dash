@@ -23,7 +23,6 @@ from dash import (
     callback_context,
 )
 from dash.exceptions import PreventUpdate
-from dash.testing import wait
 from tests.integration.utils import json_engine
 
 
@@ -47,7 +46,7 @@ def test_cbsc001_simple_callback(dash_duo):
 
     dash_duo.start_server(app)
 
-    assert dash_duo.find_element("#output-1").text == "initial value"
+    dash_duo.wait_for_text_to_equal("#output-1", "initial value")
     dash_duo.percy_snapshot(name="simple-callback-initial")
 
     input_ = dash_duo.find_element("#input")
@@ -57,7 +56,7 @@ def test_cbsc001_simple_callback(dash_duo):
         with lock:
             input_.send_keys(key)
 
-    wait.until(lambda: dash_duo.find_element("#output-1").text == "hello world", 2)
+    dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     dash_duo.percy_snapshot(name="simple-callback-hello-world")
 
     assert call_count.value == 2 + len("hello world"), "initial count + each key stroke"
@@ -143,11 +142,6 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
 
     # editing the input should modify the sub output
     dash_duo.find_element("#sub-input-1").send_keys("deadbeef")
-
-    assert (
-        dash_duo.find_element("#sub-output-1").text
-        == pad_input.attrs["value"] + "deadbeef"
-    ), "deadbeef is added"
 
     # the total updates is initial one + the text input changes
     dash_duo.wait_for_text_to_equal(
@@ -452,25 +446,16 @@ def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
 
     dash_duo.start_server(app)
 
-    wait.until(lambda: dash_duo.find_element("#output").text == '[null, null, "A"]', 3)
+    dash_duo.wait_for_text_to_equal("#output", '[null, null, "A"]')
     dash_duo.wait_for_element("#d").click()
 
-    wait.until(
-        lambda: dash_duo.find_element("#output").text == '[null, 1, "A"]',
-        3,
-    )
+    dash_duo.wait_for_text_to_equal("#output", '[null, 1, "A"]')
 
     dash_duo.wait_for_element("#n").click()
-    wait.until(
-        lambda: dash_duo.find_element("#output").text == '[1, 1, "A"]',
-        3,
-    )
+    dash_duo.wait_for_text_to_equal("#output", '[1, 1, "A"]')
 
     dash_duo.wait_for_element("#d").click()
-    wait.until(
-        lambda: dash_duo.find_element("#output").text == '[1, 2, "A"]',
-        3,
-    )
+    dash_duo.wait_for_text_to_equal("#output", '[1, 2, "A"]')
 
 
 def test_cbsc010_event_properties(dash_duo):
@@ -712,7 +697,7 @@ def test_cbsc015_input_output_callback(dash_duo):
         with lock:
             input_.send_keys(key)
 
-    wait.until(lambda: dash_duo.find_element("#input-text").text == "3", 2)
+    dash_duo.wait_for_text_to_equal("#input-text", "3")
 
     assert call_count.value == 2, "initial + changed once"
 
@@ -746,13 +731,13 @@ def test_cbsc016_extra_components_callback(dash_duo):
 
     dash_duo.start_server(app)
 
-    assert dash_duo.find_element("#output-1").text == "initial value"
+    dash_duo.wait_for_text_to_equal("#output-1", "initial value")
 
     input_ = dash_duo.find_element("#input")
     dash_duo.clear_input(input_)
     input_.send_keys("A")
 
-    wait.until(lambda: dash_duo.find_element("#output-1").text == "A", 2)
+    dash_duo.wait_for_text_to_equal("#output-1", "A")
 
     assert store_data.value == 123
     assert dash_duo.get_logs() == []
