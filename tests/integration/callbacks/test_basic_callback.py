@@ -1,4 +1,5 @@
 import json
+import os
 from multiprocessing import Lock, Value
 import pytest
 import time
@@ -37,17 +38,24 @@ def test_cbsc001_simple_callback(dash_duo):
         ]
     )
     call_count = Value("i", 0)
+    percy_ss = Value("b", False)
 
     @app.callback(Output("output-1", "children"), [Input("input", "value")])
     def update_output(value):
         with lock:
-            call_count.value = call_count.value + 1
+            if not percy_ss.value:
+                call_count.value = call_count.value + 1
             return value
+
+    def snapshot(name):
+        percy_ss.value = os.getenv("PERCY_ENABLE", "") != ""
+        dash_duo.percy_snapshot(name=name)
+        percy_ss.value = False
 
     dash_duo.start_server(app)
 
     dash_duo.wait_for_text_to_equal("#output-1", "initial value")
-    dash_duo.percy_snapshot(name="simple-callback-initial")
+    snapshot("simple-callback-initial")
 
     input_ = dash_duo.find_element("#input")
     dash_duo.clear_input(input_)
@@ -57,7 +65,7 @@ def test_cbsc001_simple_callback(dash_duo):
             input_.send_keys(key)
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
-    dash_duo.percy_snapshot(name="simple-callback-hello-world")
+    snapshot("simple-callback-hello-world")
 
     assert call_count.value == 2 + len("hello world"), "initial count + each key stroke"
 
