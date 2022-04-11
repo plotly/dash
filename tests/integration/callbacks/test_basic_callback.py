@@ -400,11 +400,18 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
     )
 
     input_call_count = Value("i", 0)
+    percy_enabled = Value("b", False)
+
+    def snapshot(name):
+        percy_enabled.value = os.getenv("PERCY_ENABLE", "") != ""
+        dash_duo.percy_snapshot(name=name)
+        percy_enabled.value = False
 
     @app.callback(Output("output-1", "data-cb"), [Input("input", "value")])
     def update_data(value):
         with lock:
-            input_call_count.value += 1
+            if not percy_enabled.value:
+                input_call_count.value += 1
             return value
 
     @app.callback(Output("output-1", "children"), [Input("output-1", "data-cb")])
@@ -413,7 +420,7 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
 
     dash_duo.start_server(app)
     dash_duo.wait_for_text_to_equal("#output-1", "initial value")
-    dash_duo.percy_snapshot(name="wildcard-callback-1")
+    snapshot("wildcard-callback-1")
 
     input1 = dash_duo.find_element("#input")
     dash_duo.clear_input(input1)
@@ -423,7 +430,7 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
             input1.send_keys(key)
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
-    dash_duo.percy_snapshot(name="wildcard-callback-2")
+    snapshot("wildcard-callback-2")
 
     # an initial call, one for clearing the input
     # and one for each hello world character
@@ -612,6 +619,13 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     timestamp_1 = Value("d", -5)
     timestamp_2 = Value("d", -5)
 
+    percy_enabled = Value("b")
+
+    def snapshot(name):
+        percy_enabled.value = os.getenv("PERCY_ENABLE", "") != ""
+        dash_duo.percy_snapshot(name=name)
+        percy_enabled.value = False
+
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -629,9 +643,10 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
         Input("button-2", "n_clicks_timestamp"),
     )
     def update_output(n1, t1, n2, t2):
-        call_count.value += 1
-        timestamp_1.value = t1
-        timestamp_2.value = t2
+        if not percy_enabled.value:
+            call_count.value += 1
+            timestamp_1.value = t1
+            timestamp_2.value = t2
         return "{}, {}".format(n1, n2)
 
     dash_duo.start_server(app)
@@ -640,14 +655,14 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_1.value == -1
     assert timestamp_2.value == -1
     assert call_count.value == 1
-    dash_duo.percy_snapshot("Dash button-1 initialization 1")
+    snapshot("Dash button-1 initialization 1")
 
     dash_duo.find_element("#button-1").click()
     dash_duo.wait_for_text_to_equal("#container", "1, 0")
     assert timestamp_1.value > ((time.time() - (24 * 60 * 60)) * 1000)
     assert timestamp_2.value == -1
     assert call_count.value == 2
-    dash_duo.percy_snapshot("Dash button-1 click")
+    snapshot("Dash button-1 click")
     prev_timestamp_1 = timestamp_1.value
 
     dash_duo.find_element("#button-2").click()
@@ -655,7 +670,7 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_1.value == prev_timestamp_1
     assert timestamp_2.value > ((time.time() - 24 * 60 * 60) * 1000)
     assert call_count.value == 3
-    dash_duo.percy_snapshot("Dash button-2 click")
+    snapshot("Dash button-2 click")
     prev_timestamp_2 = timestamp_2.value
 
     dash_duo.find_element("#button-2").click()
@@ -664,7 +679,7 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_2.value > prev_timestamp_2
     assert timestamp_2.value > timestamp_1.value
     assert call_count.value == 4
-    dash_duo.percy_snapshot("Dash button-2 click again")
+    snapshot("Dash button-2 click again")
 
 
 def test_cbsc015_input_output_callback(dash_duo):
