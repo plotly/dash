@@ -538,7 +538,7 @@ jobs:
       - image: cimg/node:16.13-browsers
     steps:
       - checkout
-      - run: npm run ci
+      - run: npm ci
       - run: npx percy build:finalize
 
 workflows:
