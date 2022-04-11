@@ -50,6 +50,8 @@ def import_app(app_file, application_name="app"):
 class BaseDashRunner:
     """Base context manager class for running applications."""
 
+    _next_port = 58050
+
     def __init__(self, keep_open, stop_timeout):
         self.port = 8050
         self.started = None
@@ -148,7 +150,8 @@ class ThreadedRunner(BaseDashRunner):
             app.scripts.config.serve_locally = True
             app.css.config.serve_locally = True
             if "port" not in kwargs:
-                kwargs["port"] = self.port
+                kwargs["port"] = self.port = BaseDashRunner._next_port
+                BaseDashRunner._next_port += 1
             else:
                 self.port = kwargs["port"]
 
