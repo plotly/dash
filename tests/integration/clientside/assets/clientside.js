@@ -53,7 +53,7 @@ window.dash_clientside.clientside = {
                         'side effect'
                     );
                 }, 100);
-                resolve('foo');
+                resolve('output');
             }, 1);
         });
     },
