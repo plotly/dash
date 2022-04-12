@@ -32,7 +32,7 @@
     "postbuild": "es-check es5 dash_table/bundle.js dash_table/async-*.js",
     "format": "run-s private::format.*",
     "lint": "run-s private::lint.*",
-    "test.server": "percy exec -- pytest --nopercyfinalize tests/selenium",
+    "test.server": "pytest --nopercyfinalize tests/selenium",
     "test.unit": "run-s private::test.python private::test.unit",
     "test.visual": "build-storybook && percy-storybook --widths=1280",
     "test.visual-local": "build-storybook"
@@ -52,7 +52,6 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.17",
-    "@percy/cli": "^1.0.5",
     "@percy/storybook": "^3.3.1",
     "@plotly/dash-component-plugins": "^1.2.2",
     "@plotly/webpack-dash-dynamic-import": "^1.3.0",
