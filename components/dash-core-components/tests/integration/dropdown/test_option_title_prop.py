@@ -68,3 +68,25 @@ def test_ddot001_option_title(dash_dcc, multi):
     wait.until(lambda: dropdown_option_element.get_attribute("title") == "", 3)
 
     assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("multi", [True, False])
+def test_ddot002_multi_value(dash_dcc, multi):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Dropdown(
+                id="dropdown",
+                options=["New York City, NY", "Montreal, QC", "San Francisco, CA"],
+                value=["Montreal, QC"],
+                multi=multi,
+            ),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+
+    dropdown_option_element = dash_dcc.wait_for_element(".Select-value-label")
+    assert "Montreal, QC" in dropdown_option_element.text
+
+    assert dash_dcc.get_logs() == []

@@ -58,7 +58,7 @@ export default class Dropdown extends Component {
         } = this.props;
         const {filterOptions} = this.state;
         let selectedValue;
-        if (type(value) === 'Array') {
+        if (type(value) === 'Array' && !multi) {
             selectedValue = value.join(DELIMITER);
         } else {
             selectedValue = value;
