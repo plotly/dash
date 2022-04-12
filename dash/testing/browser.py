@@ -39,6 +39,9 @@ class Browser(DashPageMixin):
         headless=False,
         options=None,
         download_path="",
+        percy_run=True,
+        percy_finalize=True,
+        percy_assets_root="",
         wait_timeout=10,
         pause=False,
     ):
@@ -51,6 +54,8 @@ class Browser(DashPageMixin):
         self._options = options
         self._download_path = download_path
         self._wait_timeout = wait_timeout
+        self._percy_finalize = percy_finalize
+        self._percy_run = percy_run
         self._pause = pause
 
         self._driver = until(self.get_webdriver, timeout=1)
@@ -65,6 +70,7 @@ class Browser(DashPageMixin):
         logger.debug("initialize browser with arguments")
         logger.debug("  headless => %s", self._headless)
         logger.debug("  download_path => %s", self._download_path)
+        logger.debug("  percy asset root => %s", os.path.abspath(percy_assets_root))
 
     def __enter__(self):
         return self
