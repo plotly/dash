@@ -21,7 +21,7 @@
     "build": "npm run build:js && npm run build:backends",
     "postbuild": "es-check es5 dash_html_components/*.js",
     "build:watch": "watch 'npm run build' src",
-    "test:py": "percy exec --parallel -- pytest --headless tests/test_dash_html_components.py tests/test_integration.py",
+    "test:py": "percy exec -- pytest --headless tests/test_dash_html_components.py tests/test_integration.py",
     "test": "run-s -c test:py lint"
   },
   "author": "Chris Parmer <chris@plotly.com>",

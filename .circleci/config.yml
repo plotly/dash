@@ -533,14 +533,6 @@ jobs:
             npm run lint
           when: always
 
-  percy_finalize:
-    docker:
-      - image: cimg/node:16.13-browsers
-    steps:
-      - checkout
-      - run: npm run ci
-      - run: npx percy build:finalize
-
 workflows:
   version: 2
   tests:
@@ -596,7 +588,7 @@ workflows:
           requires:
             - install-dependencies-39
 
-      - percy_finalize:
+      - percy/finalize_all:
           requires:
             - test-39
             - dcc-test-39
@@ -604,7 +596,7 @@ workflows:
             - table-server-test
       - artifacts:
           requires:
-            - percy_finalize
+            - percy/finalize_all
           filters:
             branches:
               only:
