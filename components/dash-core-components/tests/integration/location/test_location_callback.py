@@ -93,7 +93,9 @@ def test_loca002_location_link(dash_dcc):
     # Check that link updates pathname
     dash_dcc.find_element("#test-link").click()
     until(
-        lambda: dash_dcc.driver.current_url.replace("http://localhost:8050", "")
+        lambda: dash_dcc.driver.current_url.replace(
+            "http://localhost:{}".format(dash_dcc.server.port), ""
+        )
         == "/test/pathname",
         3,
     )

@@ -266,10 +266,10 @@ def test_inin025_url_base_pathname(dash_br, dash_thread_server):
 
     dash_thread_server(app)
 
-    dash_br.server_url = "http://localhost:8050/app1/"
+    dash_br.server_url = "http://localhost:{}/app1/".format(dash_thread_server.port)
     dash_br.wait_for_text_to_equal("#out", "The first")
 
-    dash_br.server_url = "http://localhost:8050/app2/"
+    dash_br.server_url = "http://localhost:{}/app2/".format(dash_thread_server.port)
     dash_br.wait_for_text_to_equal("#out", "The second")
 
 

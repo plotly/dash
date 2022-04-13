@@ -123,7 +123,7 @@ class Browser(DashPageMixin):
                 widths=widths,
             )
             if assert_check:
-                assert not self.driver.find_elements_by_css_selector(
+                assert not self.find_elements(
                     "div.dash-debug-alert"
                 ), "devtools should not raise an error alert"
             if not stay_on_page:
@@ -231,16 +231,16 @@ class Browser(DashPageMixin):
 
     def find_element(self, selector):
         """find_element returns the first found element by the css `selector`
-        shortcut to `driver.find_element_by_css_selector`."""
-        return self.driver.find_element_by_css_selector(selector)
+        shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`."""
+        return self.driver.find_element(By.CSS_SELECTOR, selector)
 
     def find_elements(self, selector):
         """find_elements returns a list of all elements matching the css
         `selector`.
 
-        shortcut to `driver.find_elements_by_css_selector`.
+        shortcut to `driver.find_elements(By.CSS_SELECTOR, ...)`.
         """
-        return self.driver.find_elements_by_css_selector(selector)
+        return self.driver.find_elements(By.CSS_SELECTOR, selector)
 
     def _get_element(self, elem_or_selector):
         if isinstance(elem_or_selector, str):
@@ -375,21 +375,18 @@ class Browser(DashPageMixin):
             ) from exc
 
         if self._pause:
-            try:
-                import pdb as pdb_  # pylint: disable=import-outside-toplevel
-            except ImportError:
-                import ipdb as pdb_  # pylint: disable=import-outside-toplevel
+            import pdb  # pylint: disable=import-outside-toplevel
 
-            pdb_.set_trace()  # pylint: disable=forgotten-debug-statement
+            pdb.set_trace()  # pylint: disable=forgotten-debug-statement
 
     def select_dcc_dropdown(self, elem_or_selector, value=None, index=None):
         dropdown = self._get_element(elem_or_selector)
         dropdown.click()
 
-        menu = dropdown.find_element_by_css_selector("div.Select-menu-outer")
+        menu = dropdown.find_element(By.CSS_SELECTOR, "div.Select-menu-outer")
         logger.debug("the available options are %s", "|".join(menu.text.split("\n")))
 
-        options = menu.find_elements_by_css_selector("div.VirtualizedSelectOption")
+        options = menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
         if options:
             if isinstance(index, int):
                 options[index].click()
@@ -465,6 +462,10 @@ class Browser(DashPageMixin):
                 "safebrowsing.disable_download_protection": True,
             },
         )
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--remote-debugging-port=9222")
 
         chrome = (
             webdriver.Remote(
@@ -524,10 +525,12 @@ class Browser(DashPageMixin):
     def _is_windows():
         return sys.platform == "win32"
 
-    def multiple_click(self, elem_or_selector, clicks):
+    def multiple_click(self, elem_or_selector, clicks, delay=None):
         """multiple_click click the element with number of `clicks`."""
         for _ in range(clicks):
             self._get_element(elem_or_selector).click()
+            if delay:
+                time.sleep(delay)
 
     def clear_input(self, elem_or_selector):
         """Simulate key press to clear the input."""
