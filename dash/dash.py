@@ -403,7 +403,7 @@ class Dash:
             assets_external_path=get_combined_config(
                 "assets_external_path", assets_external_path, ""
             ),
-            pages_folder=pages_folder_config(name, pages_folder),
+            pages_folder=pages_folder_config(name, pages_folder, use_pages),
             eager_loading=eager_loading,
             include_assets_files=get_combined_config(
                 "include_assets_files", include_assets_files, True
@@ -2196,8 +2196,7 @@ class Dash:
         for page in _pages.PAGE_REGISTRY.values():
             if page["path_template"]:
                 template_id = page["path_template"].strip("/")
-                separator = page.get("separator", "/")
-                path_variables = _parse_path_variables(path_id, template_id, separator)
+                path_variables = _parse_path_variables(path_id, template_id)
                 if path_variables:
                     return page, path_variables
             if path_id == page["path"].strip("/"):

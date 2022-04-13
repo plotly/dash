@@ -3,6 +3,9 @@ from os import listdir
 from os.path import isfile, join
 import collections
 from urllib.parse import parse_qs
+from fnmatch import fnmatch
+import re
+
 from . import _validate
 from ._utils import AttributeDict
 from ._get_paths import get_relative_path
@@ -15,7 +18,7 @@ PAGE_REGISTRY = collections.OrderedDict()
 def _infer_image(module):
     """
     Return:
-    - A page specific image: `assets/<title>.<extension>` is used, e.g. `assets/weekly_analytics.png`
+    - A page specific image: `assets/<module>.<extension>` is used, e.g. `assets/weekly_analytics.png`
     - A generic app image at `assets/app.<extension>`
     - A logo at `assets/logo.<extension>`
     """
@@ -85,26 +88,45 @@ def _parse_query_string(search):
     return parsed_qs
 
 
-def _parse_path_variables(pathname, path_template, separator="/"):
+def _parse_path_variables(pathname, path_template):
     """
     creates the dict of path variables passed to the layout
     e.g. path_template= "/asset/<asset_id>"
          if pathname provided by the browser is "/assets/a100"
          returns **{"asset_id": "a100"}
-     `separator` allows custom separator for parsing the pathname into segments. (Used in snapshot engine).
     """
-    path_segments = pathname.split(separator)
-    template_segments = path_template.split(separator)
+    path_segments = pathname.split("/")
+    template_segments = path_template.split("/")
 
     if len(path_segments) != len(template_segments):
         return None
 
     path_vars = {}
-    for path_segment, template_segment in zip(path_segments, template_segments):
-        if template_segment.startswith("<"):
-            path_vars[template_segment[1:-1]] = path_segment
-        elif template_segment != path_segment:
-            return None
+    wildcard_pattern = path_template
+    var_pattern = path_template
+
+    # parse variable definitions e.g. <var_name> from template
+    result = re.findall("<.*?>", path_template)
+
+    # create patterns to match
+    for r in result:
+        wildcard_pattern = wildcard_pattern.replace(r, "*")
+        var_pattern = var_pattern.replace(r, "(.*)")
+
+    # check that static sections of the pathname match the template
+    if not fnmatch(pathname, wildcard_pattern):
+        return None
+
+    # parse variable names e.g. var_name from template
+    var_names = re.findall("<(.*?)>", path_template)
+
+    # parse variables from path
+    variables = re.findall(var_pattern, pathname)
+    variables = variables[0] if isinstance(variables[0], tuple) else variables
+
+    for name, v in zip(var_names, variables):
+        path_vars[name] = v
+
     return path_vars
 
 
@@ -182,7 +204,7 @@ def register_page(
     - `image`:
        The meta description image used by social media platforms.
        If not supplied, then it looks for the following images in `assets/`:
-        - A page specific image: `assets/<title>.<extension>` is used, e.g. `assets/weekly_analytics.png`
+        - A page specific image: `assets/<module>.<extension>` is used, e.g. `assets/weekly_analytics.png`
         - A generic app image at `assets/app.<extension>`
         - A logo at `assets/logo.<extension>`
         When inferring the image file, it will look for the following extensions:
@@ -268,8 +290,7 @@ def register_page(
     PAGE_REGISTRY[module] = page
 
     if page["path_template"]:
-        separator = page.get("separator", "/")
-        _validate.validate_template(page["path_template"], separator)
+        _validate.validate_template(page["path_template"])
 
     if layout is not None:
         # Override the layout found in the file set during `plug`

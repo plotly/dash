@@ -122,7 +122,9 @@ def pathname_configs(
     return url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
 
 
-def pages_folder_config(name, pages_folder):
+def pages_folder_config(name, pages_folder, use_pages):
+    if not use_pages:
+        return None
     pages_folder = None if pages_folder == "" else pages_folder
     pages_folder_path = None
     error_msg = f"""

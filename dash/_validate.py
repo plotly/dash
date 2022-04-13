@@ -429,19 +429,14 @@ def validate_layout(layout, layout_value):
         component_ids.add(component_id)
 
 
-def validate_template(template, separator):
-    template_segments = template.split(separator)
-    for s in template_segments:
-        if "<" in s or ">" in s:
-            if not (s.startswith("<") and s.endswith(">")):
-                raise Exception(
-                    f'Invalid `path_template`: "{template}"  Path segments with variables must be formatted as <variable_name>'
-                )
-            variable_name = s[1:-1]
-            if not variable_name.isidentifier() or iskeyword(variable_name):
-                raise Exception(
-                    f'`{variable_name}` is not a valid Python variable name in `path_template`: "{template}".'
-                )
+def validate_template(template):
+    variable_names = re.findall("<(.*?)>", template)
+
+    for name in variable_names:
+        if not name.isidentifier() or iskeyword(name):
+            raise Exception(
+                f'`{name}` is not a valid Python variable name in `path_template`: "{template}".'
+            )
 
 
 def check_for_duplicate_pathnames(registry):
