@@ -23,3 +23,4 @@ pytest-mock==3.2.0
 pytest-sugar==0.9.4
 xlrd>=2.0.1;python_version>="3.8"
 xlrd<2;python_version<"3.8"
+pytest-rerunfailures

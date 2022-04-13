@@ -32,8 +32,7 @@ def test_mark001_header(test):
     target.column(0).sort(1)
     assert (
         target.cell(0, "markdown-headers")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p")
+        .find_inside(".dash-cell-value > p")
         .get_attribute("innerHTML")
         == "row 0"
     )
@@ -41,8 +40,7 @@ def test_mark001_header(test):
     target.column(0).sort(1)
     assert (
         target.cell(0, "markdown-headers")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > h5")
+        .find_inside(".dash-cell-value > h5")
         .get_attribute("innerHTML")
         == "row 95"
     )
@@ -56,8 +54,7 @@ def test_mark002_emphasized_text(test):
     target.column(1).sort(1)
     assert (
         target.cell(0, "markdown-italics")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p > em")
+        .find_inside(".dash-cell-value > p > em")
         .get_attribute("innerHTML")
         == "1"
     )
@@ -65,8 +62,7 @@ def test_mark002_emphasized_text(test):
     target.column(1).sort(1)
     assert (
         target.cell(0, "markdown-italics")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p > em")
+        .find_inside(".dash-cell-value > p > em")
         .get_attribute("innerHTML")
         == "98"
     )
@@ -80,8 +76,7 @@ def test_mark003_link(test):
     target.column(2).sort(1)
     assert (
         target.cell(0, "markdown-links")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p > a")
+        .find_inside(".dash-cell-value > p > a")
         .get_attribute("innerHTML")
         == "Learn about 0"
     )
@@ -89,8 +84,7 @@ def test_mark003_link(test):
     target.column(2).sort(1)
     assert (
         target.cell(0, "markdown-links")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p > a")
+        .find_inside(".dash-cell-value > p > a")
         .get_attribute("innerHTML")
         == "Learn about 9"
     )
@@ -104,8 +98,7 @@ def test_mark004_image(test):
     target.column(8).sort(1)
     assert (
         target.cell(0, "markdown-images")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p > img")
+        .find_inside(".dash-cell-value > p > img")
         .get_attribute("alt")
         == "image 0 alt text"
     )
@@ -113,8 +106,7 @@ def test_mark004_image(test):
     target.column(8).sort(1)
     assert (
         target.cell(0, "markdown-images")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p > img")
+        .find_inside(".dash-cell-value > p > img")
         .get_attribute("alt")
         == "image 99 alt text"
     )
@@ -128,8 +120,7 @@ def test_mark005_table(test):
     target.column(4).sort(1)
     assert (
         target.cell(0, "markdown-tables")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > table > tbody > tr > td")
+        .find_inside(".dash-cell-value > table > tbody > tr > td")
         .get_attribute("innerHTML")
         == "0"
     )
@@ -137,8 +128,7 @@ def test_mark005_table(test):
     target.column(4).sort(1)
     assert (
         target.cell(0, "markdown-tables")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > table > tbody > tr > td")
+        .find_inside(".dash-cell-value > table > tbody > tr > td")
         .get_attribute("innerHTML")
         == "99"
     )
@@ -156,8 +146,7 @@ def test_mark006_filter_link_text(test, filter):
 
     assert (
         target.cell(0, "markdown-links")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p > a")
+        .find_inside(".dash-cell-value > p > a")
         .get_attribute("href")
         == "http://en.wikipedia.org/wiki/97"
     )
@@ -172,8 +161,7 @@ def test_mark007_filter_image_alt_text(test):
 
     assert (
         target.cell(0, "markdown-images")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p > img")
+        .find_inside(".dash-cell-value > p > img")
         .get_attribute("alt")
         == "image 97 alt text"
     )
@@ -186,9 +174,9 @@ def test_mark008_loads_highlightjs(test):
     target = test.table("table")
     wait.until(
         lambda: len(
-            target.cell(0, "markdown-code-blocks")
-            .get()
-            .find_elements_by_css_selector("code.language-python")
+            target.cell(0, "markdown-code-blocks").find_all_inside(
+                "code.language-python"
+            )
         )
         == 1,
         3,
@@ -205,9 +193,9 @@ def test_mark009_loads_custom_highlightjs(test):
     target = test.table("table")
     wait.until(
         lambda: len(
-            target.cell(0, "markdown-code-blocks")
-            .get()
-            .find_elements_by_css_selector("code.language-python")
+            target.cell(0, "markdown-code-blocks").find_all_inside(
+                "code.language-python"
+            )
         )
         == 1,
         3,
@@ -215,8 +203,7 @@ def test_mark009_loads_custom_highlightjs(test):
 
     wait.until(
         lambda: target.cell(0, "markdown-code-blocks")
-        .get()
-        .find_element_by_css_selector("code.language-python")
+        .find_inside("code.language-python")
         .get_attribute("innerHTML")
         == "hljs override",
         3,
