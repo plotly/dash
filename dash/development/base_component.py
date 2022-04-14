@@ -81,7 +81,7 @@ class Component(metaclass=ComponentMeta):
 
     REQUIRED = _REQUIRED()
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs):  # pylint: disable=too-many-branches
         import dash  # pylint: disable=import-outside-toplevel, cyclic-import
 
         self._children_props = []
@@ -134,8 +134,14 @@ class Component(metaclass=ComponentMeta):
                     f"\nAllowed arguments: {allowed_args}"
                 )
 
-            if k != "children" and isinstance(v, Component):
-                self._children_props.append(k)
+            if k not in ("children", "id", "style", "className") and not k_in_wildcards:
+                if isinstance(v, Component):
+                    self._children_props.append(k)
+                if hasattr(v, "__iter__"):
+                    for item in v:
+                        if isinstance(item, Component):
+                            self._children_props.append(k)
+                            break
 
             if k == "id":
                 if isinstance(v, dict):

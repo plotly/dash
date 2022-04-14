@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 
 
 const ComponentAsProp = (props) => {
-    const { element, id } = props;
+    const { element, elements, id } = props;
     return (
         <div id={id}>
-            {element}
+            {elements || element}
         </div>
     )
 }
@@ -14,6 +14,8 @@ const ComponentAsProp = (props) => {
 ComponentAsProp.propTypes = {
     id: PropTypes.string,
     element: PropTypes.node,
+
+    elements: PropTypes.arrayOf(PropTypes.node),
 }
 
 export default ComponentAsProp;

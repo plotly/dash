@@ -205,6 +205,22 @@ class BaseTreeContainer extends Component {
                 .map(childrenProp => {
                     const node = _dashprivate_layout.props[childrenProp];
                     if (node) {
+                        if (Array.isArray(node)) {
+                            return assoc(
+                                childrenProp,
+                                node.map((n, i) =>
+                                    this.createContainer(
+                                        this.props,
+                                        n,
+                                        concat(this.props._dashprivate_path, [
+                                            'props',
+                                            childrenProp,
+                                            i
+                                        ])
+                                    )
+                                )
+                            );
+                        }
                         return assoc(
                             childrenProp,
                             this.createContainer(
