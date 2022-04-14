@@ -12,7 +12,12 @@ import ctypes
 import runpy
 import requests
 
-from dash.testing.errors import NoAppFoundError, TestingTimeoutError, ServerCloseError
+from dash.testing.errors import (
+    NoAppFoundError,
+    TestingTimeoutError,
+    ServerCloseError,
+    DashAppLoadingError,
+)
 from dash.testing import wait
 
 
@@ -146,37 +151,51 @@ class ThreadedRunner(BaseDashRunner):
 
         app.server.errorhandler(500)(_handle_error)
 
+        if self.thread and self.thread.is_alive():
+            self.stop()
+
         def run():
             app.scripts.config.serve_locally = True
             app.css.config.serve_locally = True
+
+            options = kwargs.copy()
+
             if "port" not in kwargs:
-                kwargs["port"] = self.port = BaseDashRunner._next_port
+                options["port"] = self.port = BaseDashRunner._next_port
                 BaseDashRunner._next_port += 1
             else:
-                self.port = kwargs["port"]
+                self.port = options["port"]
 
             try:
-                app.run_server(threaded=True, **kwargs)
+                app.run_server(threaded=True, **options)
             except SystemExit:
                 logger.info("Server stopped")
 
-        self.thread = KillerThread(target=run)
-        self.thread.daemon = True
-        try:
-            self.thread.start()
-        except RuntimeError:  # multiple call on same thread
-            logger.exception("threaded server failed to start")
-            self.started = False
+        retries = 0
+
+        while not self.started and retries < 3:
+            try:
+                self.thread = KillerThread(target=run)
+                self.thread.daemon = True
+                self.thread.start()
+                # wait until server is able to answer http request
+                wait.until(lambda: self.accessible(self.url), timeout=2)
+                self.started = self.thread.is_alive()
+            except Exception as err:  # pylint: disable=broad-except
+                logger.exception(err)
+                self.started = False
+                retries += 1
+                BaseDashRunner._next_port += 1
 
         self.started = self.thread.is_alive()
-
-        # wait until server is able to answer http request
-        wait.until(lambda: self.accessible(self.url), timeout=1)
+        if not self.started:
+            raise DashAppLoadingError("threaded server failed to start")
 
     def stop(self):
         self.thread.kill()
         self.thread.join()
         wait.until_not(self.thread.is_alive, self.stop_timeout)
+        self.started = False
 
 
 class ProcessRunner(BaseDashRunner):
