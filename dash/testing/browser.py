@@ -148,10 +148,10 @@ class Browser(DashPageMixin):
         - widths: a list of pixel widths for percy to render the page with. Note
             that this does not change the browser in which the DOM is constructed,
             so the width will only affect CSS, not JS-driven layout.
-            Defaults to [375, 1280]
+            Defaults to [1280]
         """
         if widths is None:
-            widths = [375, 1280]
+            widths = [1280]
         snapshot_name = f"{name} - py{sys.version_info.major}.{sys.version_info.minor}"
         logger.info("taking snapshot name => %s", snapshot_name)
         try:
