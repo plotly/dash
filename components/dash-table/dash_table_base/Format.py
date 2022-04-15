@@ -17,23 +17,23 @@ Padding = get_named_tuple("padding", {"no": "", "yes": "0"})
 Prefix = get_named_tuple(
     "prefix",
     {
-        "yocto": 10 ** -24,
-        "zepto": 10 ** -21,
-        "atto": 10 ** -18,
-        "femto": 10 ** -15,
-        "pico": 10 ** -12,
-        "nano": 10 ** -9,
-        "micro": 10 ** -6,
-        "milli": 10 ** -3,
+        "yocto": 10**-24,
+        "zepto": 10**-21,
+        "atto": 10**-18,
+        "femto": 10**-15,
+        "pico": 10**-12,
+        "nano": 10**-9,
+        "micro": 10**-6,
+        "milli": 10**-3,
         "none": None,
-        "kilo": 10 ** 3,
-        "mega": 10 ** 6,
-        "giga": 10 ** 9,
-        "tera": 10 ** 12,
-        "peta": 10 ** 15,
-        "exa": 10 ** 18,
-        "zetta": 10 ** 21,
-        "yotta": 10 ** 24,
+        "kilo": 10**3,
+        "mega": 10**6,
+        "giga": 10**9,
+        "tera": 10**12,
+        "peta": 10**15,
+        "exa": 10**18,
+        "zetta": 10**21,
+        "yotta": 10**24,
     },
 )
 
@@ -121,7 +121,7 @@ class Format:
             raise TypeError("expected value to be one of", str(list(named_values)))
 
     def _validate_string(self, value):
-        if not isinstance(value, (str, u"".__class__)):
+        if not isinstance(value, (str, "".__class__)):
             raise TypeError("expected value to be a string")
 
     # Specifier
