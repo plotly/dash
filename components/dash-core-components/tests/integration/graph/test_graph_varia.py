@@ -2,6 +2,9 @@
 import pytest
 import time
 import json
+
+import werkzeug
+
 from dash import Dash, Input, Output, State, dcc, html
 from dash.exceptions import PreventUpdate
 from selenium.webdriver.common.by import By
@@ -128,7 +131,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
 
     # use this opportunity to test restyleData, since there are multiple
     # traces on this graph
-    legendToggle = dash_dcc.driver.find_element_by_css_selector(
+    legendToggle = dash_dcc.find_element(
         "#example-graph .traces:first-child .legendtoggle"
     )
     legendToggle.click()
@@ -142,7 +145,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
     )
 
     # and test relayoutData while we're at it
-    autoscale = dash_dcc.driver.find_element_by_css_selector("#example-graph .ewdrag")
+    autoscale = dash_dcc.find_element("#example-graph .ewdrag")
     autoscale.click()
     autoscale.click()
     dash_dcc.wait_for_text_to_equal("#relayout-data", '{"xaxis.autorange": true}')
@@ -185,6 +188,10 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
+@pytest.mark.skipif(
+    werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with no_update 204 responses get Transfer-Encoding header.",
+)
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
@@ -357,6 +364,10 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
+@pytest.mark.skipif(
+    werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with no_update 204 responses get Transfer-Encoding header.",
+)
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva005_graph_extend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
