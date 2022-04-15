@@ -1,6 +1,14 @@
+import pytest
+import werkzeug
+
 import dash.testing.wait as wait
 
 
+@pytest.mark.xfail(
+    condition=werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with 204 and Transfer-Encoding",
+    strict=False,
+)
 def test_stdl001_data_lifecycle_with_different_condition(store_app, dash_dcc):
     dash_dcc.start_server(store_app)
 
