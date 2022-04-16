@@ -97,8 +97,8 @@ function updateState(
     const globalFilter = getMultiColumnQueryString(asts, operator);
 
     const rawGlobalFilter = R.map(
-        ast => ast.query || '',
-        R.filter<SingleColumnSyntaxTree>(ast => Boolean(ast), asts)
+        ast => ast.query,
+        R.filter<SingleColumnSyntaxTree>(ast => Boolean(ast?.query))(asts)
     ).join(operator === FilterLogicalOperator.And ? ' && ' : ' || ');
 
     setFilter(globalFilter, rawGlobalFilter, map);
