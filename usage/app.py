@@ -3,7 +3,13 @@ import dash
 import random
 
 
-app = Dash(__name__, use_pages=True)
+external_stylesheets = [
+    # Dash CSS
+    'https://codepen.io/chriddyp/pen/bWLwgP.css',
+    # Loading screen CSS
+    'https://codepen.io/chriddyp/pen/brPBPO.css']
+
+app = Dash(__name__, use_pages=True, external_stylesheets=external_stylesheets)
 
 dash.register_page("another_home", layout=html.Div("We're home!"), path="/")
 dash.register_page(
@@ -45,4 +51,4 @@ def goto(n):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True, processes=6, threaded=False)

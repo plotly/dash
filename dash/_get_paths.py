@@ -2,6 +2,18 @@ from ._utils import AttributeDict
 from . import exceptions
 
 CONFIG = AttributeDict()
+SERVER = None
+
+
+def get_server():
+    """
+    Use `get_server() instead of `app.server` to avoid the circular `app` import issue with multi-page apps.
+    """
+    return app_get_server(SERVER)
+
+
+def app_get_server(server):
+    return server
 
 
 def get_asset_url(path):

@@ -443,6 +443,7 @@ class Dash:
 
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
+        _get_paths.SERVER = self.server
 
         self.pages_folder = pages_folder
         self.use_pages = True if pages_folder != "pages" else use_pages
