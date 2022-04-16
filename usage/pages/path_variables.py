@@ -14,7 +14,7 @@ dash.register_page(
     path_template="/asset/<asset_id>/department/<dept_id>",
     title=title,
     description=description,
-    path="/asset/inventory/department/branch-1001",
+   # path="/asset/inventory/department/branch-1001",
 )
 
 

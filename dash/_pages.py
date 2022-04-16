@@ -66,11 +66,7 @@ def _infer_path(filename, template):
         )
     else:
         # replace the variables in the template with "none" to create a default path if no path is supplied
-        path_segments = template.split("/")
-        default_template_path = [
-            "none" if s.startswith("<") else s for s in path_segments
-        ]
-        path = "/".join(default_template_path)
+        path = re.sub("<.*?>", "none", template)
     path = "/" + path if not path.startswith("/") else path
     return path
 
@@ -95,23 +91,11 @@ def _parse_path_variables(pathname, path_template):
          if pathname provided by the browser is "/assets/a100"
          returns **{"asset_id": "a100"}
     """
-    path_segments = pathname.split("/")
-    template_segments = path_template.split("/")
-
-    if len(path_segments) != len(template_segments):
-        return None
-
-    path_vars = {}
-    wildcard_pattern = path_template
-    var_pattern = path_template
 
     # parse variable definitions e.g. <var_name> from template
-    result = re.findall("<.*?>", path_template)
-
-    # create patterns to match
-    for r in result:
-        wildcard_pattern = wildcard_pattern.replace(r, "*")
-        var_pattern = var_pattern.replace(r, "(.*)")
+    # and create pattern to match
+    wildcard_pattern = re.sub("<.*?>", "*", path_template)
+    var_pattern = re.sub("<.*?>", "(.*)", path_template)
 
     # check that static sections of the pathname match the template
     if not fnmatch(pathname, wildcard_pattern):
@@ -124,10 +108,7 @@ def _parse_path_variables(pathname, path_template):
     variables = re.findall(var_pattern, pathname)
     variables = variables[0] if isinstance(variables[0], tuple) else variables
 
-    for name, v in zip(var_names, variables):
-        path_vars[name] = v
-
-    return path_vars
+    return dict(zip(var_names, variables))
 
 
 def register_page(
