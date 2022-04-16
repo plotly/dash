@@ -334,7 +334,7 @@ class Dash:
     ``DiskcacheLongCallbackManager`` or ``CeleryLongCallbackManager``
     """
 
-    def __init__(  # pylint disable=too-many-statements
+    def __init__(  # pylint: disable=too-many-statements
         self,
         name=None,
         server=True,
