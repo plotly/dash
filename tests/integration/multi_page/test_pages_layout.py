@@ -56,27 +56,32 @@ def test_pala001_layout(dash_duo):
         assert dash_duo.driver.title == page["title"], "check that page title updates"
 
     # test redirects
-    dash_duo.wait_for_page(url="http://localhost:8050/v2")
+    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/v2")
     dash_duo.wait_for_text_to_equal("#text_redirect", "text for redirect")
-    dash_duo.wait_for_page(url="http://localhost:8050/old-home-page")
+    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/old-home-page")
     dash_duo.wait_for_text_to_equal("#text_redirect", "text for redirect")
-    assert dash_duo.driver.current_url == "http://localhost:8050/redirect"
+    assert (
+        dash_duo.driver.current_url
+        == f"http://localhost:{dash_duo.server.port}/redirect"
+    )
 
     # test query strings
-    dash_duo.wait_for_page(url="http://localhost:8050/query-string?velocity=10")
+    dash_duo.wait_for_page(
+        url=f"http://localhost:{dash_duo.server.port}/query-string?velocity=10"
+    )
     assert (
         dash_duo.find_element("#velocity").get_attribute("value") == "10"
     ), "query string passed to layout"
 
     # test path variables
-    dash_duo.wait_for_page(url="http://localhost:8050/a/none/b/none")
+    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/a/none/b/none")
     dash_duo.wait_for_text_to_equal("#path_vars", "variables from pathname:none none")
 
-    dash_duo.wait_for_page(url="http://localhost:8050/a/var1/b/var2")
+    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/a/var1/b/var2")
     dash_duo.wait_for_text_to_equal("#path_vars", "variables from pathname:var1 var2")
 
     # test page not found
-    dash_duo.wait_for_page(url="http://localhost:8050/find_me")
+    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/find_me")
     dash_duo.wait_for_text_to_equal("#text_not_found_404", "text for not_found_404")
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
