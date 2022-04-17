@@ -1,3 +1,5 @@
+# Example of the defaults
+
 from dash import html, dcc, callback, Input, Output
 
 import dash

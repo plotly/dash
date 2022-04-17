@@ -1,3 +1,10 @@
+"""
+ Example of:
+  1) multiple variables in a path
+  2) using functions to update the title and description.  This allows for the title and description
+     to be updated dynamically such as based on the variables in the path.
+"""
+
 import dash
 
 
@@ -14,7 +21,6 @@ dash.register_page(
     path_template="/asset/<asset_id>/department/<dept_id>",
     title=title,
     description=description,
-   # path="/asset/inventory/department/branch-1001",
 )
 
 

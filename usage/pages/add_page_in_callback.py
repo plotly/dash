@@ -20,6 +20,5 @@ def update_output_div(n_clicks):
         redirect_from=["/callback-page"],
         layout=html.Div(["Callback Page"]),
     )
-    #  import pprint
-    #  pprint.pprint(dash.page_registry)
+
     return f"New page created:  redirect_from= /callback-page   path= /callback-page/{n_clicks}"

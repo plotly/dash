@@ -1,5 +1,18 @@
-import dash
+#
+"""
+Example of:
+  1) 2 variables embedded in a path
+  2) Updating the URL in a callback rather than the user clicking a link.
+  Note -- this layout is not updated in dash.page_container when dcc.Location(id="url", refresh=False)
+  Set refresh=True, or manually refresh the page to update.  However, the "custom-output" div in app.py updates.
 
+
+
+"""
+
+import dash
+from dash import html, Output, Input, callback
+import random
 
 
 dash.register_page(
@@ -10,4 +23,14 @@ dash.register_page(
 
 
 def layout(data=None, data2=None):
-    return dash.html.Div(f"goto:  {data}-{data2}")
+    return dash.html.Div(
+        [html.Button("goto", id="goto"), f"goto:  {data}-{data2}"],
+    )
+
+
+@callback(
+    Output("url", "pathname"), Input("goto", "n_clicks"), prevent_initial_call=True
+)
+def goto(n):
+    x = random.randrange(1, 10)
+    return f"goto-{x}-and-{x+2}-data"

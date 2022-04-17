@@ -1,3 +1,4 @@
+# example of query strings. Try entering ?velocity=20 at the end of the url.
 import dash
 
 dash.register_page(__name__, path="/dashboard")

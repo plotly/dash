@@ -1,3 +1,5 @@
+# Example of custom titile, description, path and imag
+
 import dash
 
 dash.register_page(
