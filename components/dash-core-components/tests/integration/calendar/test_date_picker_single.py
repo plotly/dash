@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 
 import pytest
+import werkzeug
+
 from dash import Dash, Input, Output, html, dcc, no_update
 
 
@@ -71,6 +73,11 @@ def test_dtps010_local_and_session_persistence(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
+@pytest.mark.xfail(
+    condition=werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with 204 and Transfer-Encoding",
+    strict=False,
+)
 def test_dtps011_memory_persistence(dash_dcc):
     app = Dash(__name__)
     app.layout = html.Div(

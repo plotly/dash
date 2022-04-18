@@ -473,7 +473,7 @@ storiesOf('DashTable/Style type condition', module)
             id='styling-20'
             data={mock.data}
             columns={mock.columns.map((col: any) =>
-                R.merge(col, {
+                R.mergeRight(col, {
                     name: col.name,
                     deletable: true
                 })
@@ -499,7 +499,7 @@ storiesOf('DashTable/Style type condition', module)
             id='paging-large-current-page'
             data={mock.data.slice(0, 10)}
             columns={mock.columns.map((col: any) =>
-                R.merge(col, {
+                R.mergeRight(col, {
                     name: col.name,
                     deletable: true
                 })
@@ -527,7 +527,7 @@ storiesOf('DashTable/Style type condition', module)
             id='paging-large-current-page'
             data={mock.data.slice(0, 10)}
             columns={mock.columns.map((col: any) =>
-                R.merge(col, {
+                R.mergeRight(col, {
                     name: col.name,
                     deletable: true
                 })

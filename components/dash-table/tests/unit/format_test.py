@@ -146,13 +146,13 @@ class FormatTest(unittest.TestCase):
         self.assertRaises(TypeError, Format().precision, 7.7)
 
     def test_valid_prefix_number(self):
-        Format().si_prefix(10 ** -24)
+        Format().si_prefix(10**-24)
 
     def test_valid_prefix_named(self):
         Format().si_prefix(f.Prefix.micro)
 
     def test_invalid_prefix_number(self):
-        self.assertRaises(TypeError, Format().si_prefix, 10 ** -23)
+        self.assertRaises(TypeError, Format().si_prefix, 10**-23)
 
     def test_invalid_prefix_type(self):
         self.assertRaises(TypeError, Format().si_prefix, "10**-23")

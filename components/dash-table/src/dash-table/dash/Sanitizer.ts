@@ -154,7 +154,7 @@ export default class Sanitizer {
             ? props.selected_cells
             : NULL_SELECTED_CELLS;
 
-        return R.merge(props, {
+        return R.mergeRight(props, {
             active_cell,
             columns,
             data,
