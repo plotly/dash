@@ -426,3 +426,19 @@ def test_tbst023_sorted_table_delete_multiple_cells_while_selected(test, props):
             assert target.cell(row, col).get_text() == ""
 
     assert test.get_log_errors() == []
+
+
+def test_tbst024_row_selectable_filter_action(test):
+    app = dash.Dash(__name__)
+
+    app.layout = DataTable(
+        id="test-table",
+        row_selectable="single",
+        filter_action="native",
+    )
+
+    test.start_server(app)
+
+    test.wait_for_element("#test-table")
+
+    assert test.get_log_errors() == []
