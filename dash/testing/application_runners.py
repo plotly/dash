@@ -47,7 +47,7 @@ def import_app(app_file, application_name="app"):
     except KeyError as app_name_missing:
         logger.exception("the app name cannot be found")
         raise NoAppFoundError(
-            "No dash `app` instance was found in {}".format(app_file)
+            f"No dash `app` instance was found in {app_file}"
         ) from app_name_missing
     return app
 
@@ -91,14 +91,14 @@ class BaseDashRunner:
                 self.stop()
             except TestingTimeoutError as cannot_stop_server:
                 raise ServerCloseError(
-                    "Cannot stop server within {}s timeout".format(self.stop_timeout)
+                    f"Cannot stop server within {self.stop_timeout}s timeout"
                 ) from cannot_stop_server
         logger.info("__exit__ complete")
 
     @property
     def url(self):
         """The default server url."""
-        return "http://localhost:{}".format(self.port)
+        return f"http://localhost:{self.port}"
 
     @property
     def is_windows(self):
@@ -227,9 +227,7 @@ class ProcessRunner(BaseDashRunner):
         args = shlex.split(
             raw_command
             if raw_command
-            else "waitress-serve --listen=0.0.0.0:{} {}:{}.server".format(
-                port, app_module, application_name
-            ),
+            else f"waitress-serve --listen=0.0.0.0:{port} {app_module}:{application_name}.server",
             posix=not self.is_windows,
         )
 
@@ -347,7 +345,7 @@ class RRunner(ProcessRunner):
         logger.info("Run dashR app with Rscript => %s", app)
 
         args = shlex.split(
-            "Rscript -e 'source(\"{}\")'".format(os.path.realpath(app)),
+            f"Rscript -e 'source(\"{os.path.realpath(app)}\")'",
             posix=not self.is_windows,
         )
         logger.debug("start dash process with %s", args)
@@ -445,10 +443,7 @@ class JuliaRunner(ProcessRunner):
 
         logger.info("Run Dash.jl app with julia => %s", app)
 
-        args = shlex.split(
-            "julia {}".format(os.path.realpath(app)),
-            posix=not self.is_windows,
-        )
+        args = shlex.split(f"julia {os.path.realpath(app)}", posix=not self.is_windows)
         logger.debug("start Dash.jl process with %s", args)
 
         try:

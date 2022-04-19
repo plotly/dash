@@ -40,25 +40,25 @@ storiesOf('DashTable/Empty', module).add('all variants', () => (
         <DataTable {...props} />
         <div>with column filters -- invalid query</div>
         <DataTable
-            {...R.merge(props, {
+            {...R.mergeRight(props, {
                 filter_query: '{a} !'
             })}
         />
         <div>with column filters -- single query</div>
         <DataTable
-            {...R.merge(props, {
+            {...R.mergeRight(props, {
                 filter_query: '{a} ge 0'
             })}
         />
         <div>with column filters -- multi query</div>
         <DataTable
-            {...R.merge(props, {
+            {...R.mergeRight(props, {
                 filter_query: '{a} ge 0 && {b} ge 0'
             })}
         />
         <div>with column filters -- multi query, no data</div>
         <DataTable
-            {...R.merge(props, {
+            {...R.mergeRight(props, {
                 filter_query: '{a} gt 1000 && {b} gt 1000'
             })}
         />
