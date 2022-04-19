@@ -43,8 +43,15 @@ export const crawlLayout = (object, func, currentPath = []) => {
         }
         const childrenProps = pathOr([], ['childrenProps'], object);
         childrenProps.forEach(childrenProp => {
-            const newPath = concat(currentPath, ['props', childrenProp]);
-            crawlLayout(path(['props', childrenProp], object), func, newPath);
+            const newPath = concat(currentPath, [
+                'props',
+                ...childrenProp.split('.')
+            ]);
+            crawlLayout(
+                path(['props', ...childrenProp.split('.')], object),
+                func,
+                newPath
+            );
         });
     }
 };

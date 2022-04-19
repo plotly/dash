@@ -5,6 +5,7 @@ import {propTypeErrorHandler} from './exceptions';
 import {
     addIndex,
     assoc,
+    assocPath,
     concat,
     dissoc,
     equals,
@@ -203,6 +204,23 @@ class BaseTreeContainer extends Component {
             dissoc('children'),
             ...childrenProps
                 .map(childrenProp => {
+                    if (childrenProp.includes('.')) {
+                        const path = childrenProp.split('.');
+                        const node =
+                            _dashprivate_layout.props[path[0]][path[1]];
+                        return assocPath(
+                            path,
+                            this.createContainer(
+                                this.props,
+                                node,
+                                concat(this.props._dashprivate_path, [
+                                    'props',
+                                    path[0],
+                                    path[1]
+                                ])
+                            )
+                        );
+                    }
                     const node = _dashprivate_layout.props[childrenProp];
                     if (node) {
                         if (Array.isArray(node)) {

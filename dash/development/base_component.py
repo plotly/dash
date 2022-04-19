@@ -137,7 +137,11 @@ class Component(metaclass=ComponentMeta):
             if k not in ("children", "id", "style", "className") and not k_in_wildcards:
                 if isinstance(v, Component):
                     self._children_props.append(k)
-                if hasattr(v, "__iter__"):
+                elif isinstance(v, dict):
+                    for key, value in v.items():
+                        if isinstance(value, Component):
+                            self._children_props.append(k + "." + key)
+                elif hasattr(v, "__iter__"):
                     for item in v:
                         if isinstance(item, Component):
                             self._children_props.append(k)
