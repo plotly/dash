@@ -30,6 +30,30 @@ export default class DatePickerRange extends Component {
             state.end_date = newProps.end_date;
         }
 
+        if (
+            force ||
+            newProps.max_date_allowed !== this.props.max_date_allowed
+        ) {
+            state.max_date_allowed = convertToMoment(newProps, [
+                'max_date_allowed',
+            ]).max_date_allowed;
+        }
+
+        if (
+            force ||
+            newProps.min_date_allowed !== this.props.min_date_allowed
+        ) {
+            state.min_date_allowed = convertToMoment(newProps, [
+                'min_date_allowed',
+            ]).min_date_allowed;
+        }
+
+        if (force || newProps.disabled_days !== this.props.disabled_days) {
+            state.disabled_days = convertToMoment(newProps, [
+                'disabled_days',
+            ]).disabled_days;
+        }
+
         if (Object.keys(state).length) {
             this.setState(state);
         }
@@ -82,17 +106,13 @@ export default class DatePickerRange extends Component {
     }
 
     isOutsideRange(date) {
-        const {max_date_allowed, min_date_allowed, disabled_days} =
-            convertToMoment(this.props, [
-                'max_date_allowed',
-                'min_date_allowed',
-                'disabled_days',
-            ]);
-
         return (
-            (min_date_allowed && date.isBefore(min_date_allowed)) ||
-            (max_date_allowed && date.isAfter(max_date_allowed)) ||
-            (disabled_days && disabled_days.some(d => date.isSame(d, 'day')))
+            (this.state.min_date_allowed &&
+                date.isBefore(this.state.min_date_allowed)) ||
+            (this.state.max_date_allowed &&
+                date.isAfter(this.state.max_date_allowed)) ||
+            (this.state.disabled_days &&
+                this.state.disabled_days.some(d => date.isSame(d, 'day')))
         );
     }
 
