@@ -41,14 +41,14 @@ def test_dada001_assets(dash_duo):
     tested = json.loads(dash_duo.wait_for_element("#tested").text)
 
     order = [
-        u"load_first",
-        u"load_after",
-        u"load_after1",
-        u"load_after10",
-        u"load_after11",
-        u"load_after2",
-        u"load_after3",
-        u"load_after4",
+        "load_first",
+        "load_after",
+        "load_after1",
+        "load_after10",
+        "load_after11",
+        "load_after2",
+        "load_after3",
+        "load_after4",
     ]
 
     assert order == tested, "the content and order is expected"
