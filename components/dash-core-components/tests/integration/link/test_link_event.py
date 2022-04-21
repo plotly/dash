@@ -93,7 +93,9 @@ def test_link002_scroll(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#page-content", "You are on page /test-link")
 
     wait.until(
-        lambda: test_link.get_attribute("href") == "http://localhost:8050/test-link", 3
+        lambda: test_link.get_attribute("href")
+        == "http://localhost:{}/test-link".format(dash_dcc.server.port),
+        3,
     )
     wait.until(lambda: call_count.value == 2, 3)
 

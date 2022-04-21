@@ -71,7 +71,7 @@ export const not: IUnboundedLexeme = {
     }
 };
 
-export const isBool: IUnboundedLexeme = R.merge(
+export const isBool: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(opValue => typeof opValue === 'boolean'),
         regexp: /^(is bool)/i
@@ -79,7 +79,7 @@ export const isBool: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const isEven: IUnboundedLexeme = R.merge(
+export const isEven: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(
             opValue => typeof opValue === 'number' && opValue % 2 === 0
@@ -89,7 +89,7 @@ export const isEven: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const isBlank: IUnboundedLexeme = R.merge(
+export const isBlank: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(
             opValue =>
@@ -100,7 +100,7 @@ export const isBlank: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const isNil: IUnboundedLexeme = R.merge(
+export const isNil: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(
             opValue => opValue === undefined || opValue === null
@@ -110,7 +110,7 @@ export const isNil: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const isNum: IUnboundedLexeme = R.merge(
+export const isNum: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(opValue => typeof opValue === 'number'),
         regexp: /^(is num)/i
@@ -118,7 +118,7 @@ export const isNum: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const isObject: IUnboundedLexeme = R.merge(
+export const isObject: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(
             opValue => opValue !== null && typeof opValue === 'object'
@@ -128,7 +128,7 @@ export const isObject: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const isOdd: IUnboundedLexeme = R.merge(
+export const isOdd: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(
             opValue => typeof opValue === 'number' && opValue % 2 === 1
@@ -138,7 +138,7 @@ export const isOdd: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const isPrime: IUnboundedLexeme = R.merge(
+export const isPrime: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(
             opValue => typeof opValue === 'number' && checkPrimality(opValue)
@@ -148,7 +148,7 @@ export const isPrime: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const isStr: IUnboundedLexeme = R.merge(
+export const isStr: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(opValue => typeof opValue === 'string'),
         regexp: /^(is str)/i

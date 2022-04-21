@@ -65,7 +65,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.jsx?$/,
-                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color)[\\\/]/,
+                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color|moment)[\\\/]/,
                     use: {
                         loader: 'babel-loader',
                         options: {

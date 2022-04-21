@@ -35,7 +35,7 @@ function propsAndMapFn(
 ) {
     const props = propsFn();
 
-    return R.merge(props, {
+    return R.mergeRight(props, {
         map: props.workFilter.map,
         setFilter,
         toggleFilterOptions

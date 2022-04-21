@@ -70,12 +70,10 @@ def app_get_relative_path(requests_pathname, path):
         return requests_pathname
     if not path.startswith("/"):
         raise exceptions.UnsupportedRelativePath(
-            """
+            f"""
             Paths that aren't prefixed with a leading / are not supported.
-            You supplied: {}
-            """.format(
-                path
-            )
+            You supplied: {path}
+            """
         )
     return "/".join([requests_pathname.rstrip("/"), path.lstrip("/")])
 
@@ -137,12 +135,10 @@ def app_strip_relative_path(requests_pathname, path):
         requests_pathname != "/" and not path.startswith(requests_pathname.rstrip("/"))
     ) or (requests_pathname == "/" and not path.startswith("/")):
         raise exceptions.UnsupportedRelativePath(
-            """
+            f"""
             Paths that aren't prefixed with requests_pathname_prefix are not supported.
-            You supplied: {} and requests_pathname_prefix was {}
-            """.format(
-                path, requests_pathname
-            )
+            You supplied: {path} and requests_pathname_prefix was {requests_pathname}
+            """
         )
     if requests_pathname != "/" and path.startswith(requests_pathname.rstrip("/")):
         path = path.replace(

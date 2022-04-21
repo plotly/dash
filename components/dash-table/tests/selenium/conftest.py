@@ -52,7 +52,7 @@ class DataTableCellFacade(object):
         self.state = state
 
     def _get_cell_value(self):
-        return self.get().find_element_by_css_selector(".dash-cell-value")
+        return self.get().find_element(By.CSS_SELECTOR, ".dash-cell-value")
 
     def click(self):
         return self.get().click()
@@ -104,13 +104,19 @@ class DataTableCellFacade(object):
             )
         )
 
+    def find_inside(self, selector):
+        return self.get().find_element(By.CSS_SELECTOR, selector)
+
+    def find_all_inside(self, selector):
+        return self.get().find_elements(By.CSS_SELECTOR, selector)
+
     def is_dropdown(self):
-        el = self.get().find_elements_by_css_selector(".Select-arrow")
+        el = self.get().find_elements(By.CSS_SELECTOR, ".Select-arrow")
 
         return len(el) == 1
 
     def is_input(self):
-        el = self.get().find_elements_by_css_selector(".dash-cell-value")
+        el = self.get().find_elements(By.CSS_SELECTOR, ".dash-cell-value")
 
         return len(el) == 1 and el[0].get_attribute("type") is not None
 
@@ -130,7 +136,7 @@ class DataTableCellFacade(object):
         return ac.perform()
 
     def is_active(self):
-        input = self.get().find_element_by_css_selector("input")
+        input = self.get().find_element(By.CSS_SELECTOR, "input")
 
         return "focused" in input.get_attribute("class").split(" ")
 
@@ -152,7 +158,7 @@ class DataTableCellFacade(object):
     def open_dropdown(self):
         cell = self.get()
 
-        cell.find_element_by_css_selector(".Select-arrow").click()
+        cell.find_element(By.CSS_SELECTOR, ".Select-arrow").click()
 
 
 class DataTableColumnFacade(object):
@@ -181,6 +187,12 @@ class DataTableColumnFacade(object):
             )
         )
 
+    def find_inside(self, row, selector):
+        return self.get(row).find_element(By.CSS_SELECTOR, selector)
+
+    def find_all_inside(self, row, selector):
+        return self.get(row).find_elements(By.CSS_SELECTOR, selector)
+
     def exists(self, row=0):
         self.mixin._wait_for_table(self.id, self.state)
 
@@ -202,33 +214,29 @@ class DataTableColumnFacade(object):
 
     @preconditions(_validate_row)
     def clear(self, row=0):
-        self.get(row).find_element_by_css_selector(".column-header--clear").click()
+        self.find_inside(row, ".column-header--clear").click()
 
     @preconditions(_validate_row)
     def delete(self, row=0):
-        self.get(row).find_element_by_css_selector(".column-header--delete").click()
+        self.find_inside(row, ".column-header--delete").click()
 
     @preconditions(_validate_row)
     def edit(self, row=0):
-        self.get(row).find_element_by_css_selector(".column-header--edit").click()
+        self.find_inside(row, ".column-header--edit").click()
 
     @preconditions(_validate_row)
     def get_text(self, row=0):
-        el = self.get(row).find_element_by_css_selector("span.column-header-name")
+        el = self.find_inside(row, "span.column-header-name")
 
         return el.get_attribute("innerHTML") if el is not None else None
 
     @preconditions(_validate_row)
     def hide(self, row=0):
-        self.get(row).find_element_by_css_selector(".column-header--hide").click()
+        self.find_inside(row, ".column-header--hide").click()
 
     @preconditions(_validate_row)
     def is_selected(self, row=0):
-        return (
-            self.get(row)
-            .find_element_by_css_selector(".column-header--select input")
-            .is_selected()
-        )
+        return self.find_inside(row, ".column-header--select input").is_selected()
 
     @preconditions(_validate_row)
     def move_to(self, row=0):
@@ -238,13 +246,11 @@ class DataTableColumnFacade(object):
 
     @preconditions(_validate_row)
     def select(self, row=0):
-        self.get(row).find_element_by_css_selector(
-            ".column-header--select input"
-        ).click()
+        self.find_inside(row, ".column-header--select input").click()
 
     @preconditions(_validate_row)
     def sort(self, row=0):
-        self.get(row).find_element_by_css_selector(".column-header--sort").click()
+        self.find_inside(row, ".column-header--sort").click()
 
     def filter(self):
         return (
@@ -264,7 +270,7 @@ class DataTableColumnFacade(object):
     def filter_clear(self):
         CMD = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
-        self.filter().find_element_by_css_selector("input").click()
+        self.filter().find_element(By.CSS_SELECTOR, "input").click()
         ac = ActionChains(self.mixin.driver)
         ac.key_down(CMD)
         ac.send_keys("a")
@@ -282,7 +288,7 @@ class DataTableColumnFacade(object):
         if value is None:
             return (
                 self.filter()
-                .find_element_by_css_selector("input")
+                .find_element(By.CSS_SELECTOR, "input")
                 .get_attribute("value")
             )
         elif value == "":
@@ -321,7 +327,7 @@ class DataTableRowFacade(object):
                     self.id, self.state
                 )
             )[self.row]
-            .find_element_by_css_selector("input")
+            .find_element(By.CSS_SELECTOR, "input")
             .is_selected()
         )
 
@@ -399,6 +405,12 @@ class DataTableTooltipFacade(object):
     def get(self):
         return self._get_tooltip()
 
+    def find_inside(self, selector):
+        return self.get().find_element(By.CSS_SELECTOR, selector)
+
+    def find_all_inside(self, selector):
+        return self.get().find_elements(By.CSS_SELECTOR, selector)
+
     def exists(self):
         self.mixin._wait_for_table(self.id)
 
@@ -412,11 +424,7 @@ class DataTableTooltipFacade(object):
         return len(self.mixin.find_elements(".dash-tooltip")) == 0
 
     def get_text(self):
-        return (
-            self._get_tooltip()
-            .find_element_by_css_selector(".dash-table-tooltip")
-            .get_attribute("innerHTML")
-        )
+        return self.find_inside(".dash-table-tooltip").get_attribute("innerHTML")
 
 
 class DataTableToggleColumnsFacade(object):

@@ -212,7 +212,7 @@ def test_lcbc004_long_callback_progress(dash_duo, manager):
     assert dash_duo.get_logs() == []
 
 
-@flaky(max_runs=3)
+@pytest.mark.skip(reason="Timeout often")
 def test_lcbc005_long_callback_caching(dash_duo, manager):
     lock = Lock()
 
