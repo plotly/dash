@@ -272,6 +272,8 @@ async function handleClientside(
             throw e;
         }
     } finally {
+        delete dc.callback_context;
+
         // Setting server = client forces network = 0
         const totalTime = Date.now() - requestTime;
         const resources = {
