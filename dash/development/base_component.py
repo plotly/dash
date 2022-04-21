@@ -81,7 +81,7 @@ class Component(metaclass=ComponentMeta):
 
     REQUIRED = _REQUIRED()
 
-    def __init__(self, **kwargs):  # pylint: disable=too-many-branches
+    def __init__(self, **kwargs):  # pylint: disable=too-many-branches,too-many-locals
         import dash  # pylint: disable=import-outside-toplevel, cyclic-import
 
         self._children_props = []
