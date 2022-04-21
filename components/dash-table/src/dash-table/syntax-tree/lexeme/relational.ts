@@ -67,7 +67,7 @@ const fnEval = (
         ? fn(lhs.toString().toUpperCase(), rhs.toString().toUpperCase())
         : fn(lhs, rhs);
 
-export const contains: IUnboundedLexeme = R.merge(
+export const contains: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(
             ([lhs, rhs, relOp]) =>
@@ -84,7 +84,7 @@ export const contains: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const equal: IUnboundedLexeme = R.merge(
+export const equal: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
             equalEval(lhs, rhs, relOp)
@@ -97,7 +97,7 @@ export const equal: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const greaterOrEqual: IUnboundedLexeme = R.merge(
+export const greaterOrEqual: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
             fnEval((l, r) => l >= r, lhs, rhs, relOp)
@@ -110,7 +110,7 @@ export const greaterOrEqual: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const greaterThan: IUnboundedLexeme = R.merge(
+export const greaterThan: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
             fnEval((l, r) => l > r, lhs, rhs, relOp)
@@ -127,7 +127,7 @@ const DATE_OPTIONS: IDateValidation = {
     allow_YY: true
 };
 
-export const dateStartsWith: IUnboundedLexeme = R.merge(
+export const dateStartsWith: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(([op, exp]) => {
             op = typeof op === 'number' ? op.toString() : op;
@@ -150,7 +150,7 @@ export const dateStartsWith: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const lessOrEqual: IUnboundedLexeme = R.merge(
+export const lessOrEqual: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
             fnEval((l, r) => l <= r, lhs, rhs, relOp)
@@ -163,7 +163,7 @@ export const lessOrEqual: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const lessThan: IUnboundedLexeme = R.merge(
+export const lessThan: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
             fnEval((l, r) => l < r, lhs, rhs, relOp)
@@ -176,7 +176,7 @@ export const lessThan: IUnboundedLexeme = R.merge(
     LEXEME_BASE
 );
 
-export const notEqual: IUnboundedLexeme = R.merge(
+export const notEqual: IUnboundedLexeme = R.mergeRight(
     {
         evaluate: relationalEvaluator(([lhs, rhs, relOp]) =>
             fnEval((l, r) => l !== r, lhs, rhs, relOp)

@@ -12,7 +12,12 @@ import ctypes
 import runpy
 import requests
 
-from dash.testing.errors import NoAppFoundError, TestingTimeoutError, ServerCloseError
+from dash.testing.errors import (
+    NoAppFoundError,
+    TestingTimeoutError,
+    ServerCloseError,
+    DashAppLoadingError,
+)
 from dash.testing import wait
 
 
@@ -42,7 +47,7 @@ def import_app(app_file, application_name="app"):
     except KeyError as app_name_missing:
         logger.exception("the app name cannot be found")
         raise NoAppFoundError(
-            "No dash `app` instance was found in {}".format(app_file)
+            f"No dash `app` instance was found in {app_file}"
         ) from app_name_missing
     return app
 
@@ -86,14 +91,14 @@ class BaseDashRunner:
                 self.stop()
             except TestingTimeoutError as cannot_stop_server:
                 raise ServerCloseError(
-                    "Cannot stop server within {}s timeout".format(self.stop_timeout)
+                    f"Cannot stop server within {self.stop_timeout}s timeout"
                 ) from cannot_stop_server
         logger.info("__exit__ complete")
 
     @property
     def url(self):
         """The default server url."""
-        return "http://localhost:{}".format(self.port)
+        return f"http://localhost:{self.port}"
 
     @property
     def is_windows(self):
@@ -146,37 +151,51 @@ class ThreadedRunner(BaseDashRunner):
 
         app.server.errorhandler(500)(_handle_error)
 
+        if self.thread and self.thread.is_alive():
+            self.stop()
+
         def run():
             app.scripts.config.serve_locally = True
             app.css.config.serve_locally = True
+
+            options = kwargs.copy()
+
             if "port" not in kwargs:
-                kwargs["port"] = self.port = BaseDashRunner._next_port
+                options["port"] = self.port = BaseDashRunner._next_port
                 BaseDashRunner._next_port += 1
             else:
-                self.port = kwargs["port"]
+                self.port = options["port"]
 
             try:
-                app.run_server(threaded=True, **kwargs)
+                app.run_server(threaded=True, **options)
             except SystemExit:
                 logger.info("Server stopped")
 
-        self.thread = KillerThread(target=run)
-        self.thread.daemon = True
-        try:
-            self.thread.start()
-        except RuntimeError:  # multiple call on same thread
-            logger.exception("threaded server failed to start")
-            self.started = False
+        retries = 0
+
+        while not self.started and retries < 3:
+            try:
+                self.thread = KillerThread(target=run)
+                self.thread.daemon = True
+                self.thread.start()
+                # wait until server is able to answer http request
+                wait.until(lambda: self.accessible(self.url), timeout=2)
+                self.started = self.thread.is_alive()
+            except Exception as err:  # pylint: disable=broad-except
+                logger.exception(err)
+                self.started = False
+                retries += 1
+                BaseDashRunner._next_port += 1
 
         self.started = self.thread.is_alive()
-
-        # wait until server is able to answer http request
-        wait.until(lambda: self.accessible(self.url), timeout=1)
+        if not self.started:
+            raise DashAppLoadingError("threaded server failed to start")
 
     def stop(self):
         self.thread.kill()
         self.thread.join()
         wait.until_not(self.thread.is_alive, self.stop_timeout)
+        self.started = False
 
 
 class ProcessRunner(BaseDashRunner):
@@ -208,9 +227,7 @@ class ProcessRunner(BaseDashRunner):
         args = shlex.split(
             raw_command
             if raw_command
-            else "waitress-serve --listen=0.0.0.0:{} {}:{}.server".format(
-                port, app_module, application_name
-            ),
+            else f"waitress-serve --listen=0.0.0.0:{port} {app_module}:{application_name}.server",
             posix=not self.is_windows,
         )
 
@@ -328,7 +345,7 @@ class RRunner(ProcessRunner):
         logger.info("Run dashR app with Rscript => %s", app)
 
         args = shlex.split(
-            "Rscript -e 'source(\"{}\")'".format(os.path.realpath(app)),
+            f"Rscript -e 'source(\"{os.path.realpath(app)}\")'",
             posix=not self.is_windows,
         )
         logger.debug("start dash process with %s", args)
@@ -426,10 +443,7 @@ class JuliaRunner(ProcessRunner):
 
         logger.info("Run Dash.jl app with julia => %s", app)
 
-        args = shlex.split(
-            "julia {}".format(os.path.realpath(app)),
-            posix=not self.is_windows,
-        )
+        args = shlex.split(f"julia {os.path.realpath(app)}", posix=not self.is_windows)
         logger.debug("start Dash.jl process with %s", args)
 
         try:

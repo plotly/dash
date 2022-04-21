@@ -6,7 +6,7 @@ exec(open("dash/version.py").read(), main_ns)  # pylint: disable=exec-used, cons
 
 
 def read_req_file(req_type):
-    with open("requires-{}.txt".format(req_type)) as fp:
+    with open(f"requires-{req_type}.txt") as fp:
         requires = (line.strip() for line in fp)
         return [req for req in requires if req and not req.startswith("#")]
 

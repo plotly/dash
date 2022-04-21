@@ -31,17 +31,15 @@ def interpolate_str(template, **data):
 
 
 def format_tag(tag_name, attributes, inner="", closed=False, opened=False):
-    tag = "<{tag} {attributes}"
+    attributes = " ".join([f'{k}="{v}"' for k, v in attributes.items()])
+    tag = f"<{tag_name} {attributes}"
     if closed:
         tag += "/>"
     elif opened:
         tag += ">"
     else:
-        tag += ">" + inner + "</{tag}>"
-    return tag.format(
-        tag=tag_name,
-        attributes=" ".join(['{}="{}"'.format(k, v) for k, v in attributes.items()]),
-    )
+        tag += ">" + inner + f"</{tag_name}>"
+    return tag
 
 
 def generate_hash():
@@ -124,23 +122,16 @@ class AttributeDict(dict):
 
 
 def create_callback_id(output):
-    if isinstance(output, (list, tuple)):
-        return "..{}..".format(
-            "...".join(
-                "{}.{}".format(
-                    # A single dot within a dict id key or value is OK
-                    # but in case of multiple dots together escape each dot
-                    # with `\` so we don't mistake it for multi-outputs
-                    x.component_id_str().replace(".", "\\."),
-                    x.component_property,
-                )
-                for x in output
-            )
-        )
+    # A single dot within a dict id key or value is OK
+    # but in case of multiple dots together escape each dot
+    # with `\` so we don't mistake it for multi-outputs
+    def _concat(x):
+        return x.component_id_str().replace(".", "\\.") + "." + x.component_property
 
-    return "{}.{}".format(
-        output.component_id_str().replace(".", "\\."), output.component_property
-    )
+    if isinstance(output, (list, tuple)):
+        return ".." + "...".join(_concat(x) for x in output) + ".."
+
+    return _concat(output)
 
 
 # inverse of create_callback_id - should only be relevant if an old renderer is
@@ -166,7 +157,7 @@ def inputs_to_dict(inputs_list):
         inputsi = i if isinstance(i, list) else [i]
         for ii in inputsi:
             id_str = stringify_id(ii["id"])
-            inputs["{}.{}".format(id_str, ii["property"])] = ii.get("value")
+            inputs[f'{id_str}.{ii["property"]}'] = ii.get("value")
     return inputs
 
 
