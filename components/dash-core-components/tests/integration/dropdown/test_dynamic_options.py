@@ -24,8 +24,7 @@ def test_dddo001_dynamic_options(dash_dcc):
     dash_dcc.start_server(app)
 
     # Get the inner input used for search value.
-    dropdown = dash_dcc.find_element("#my-dynamic-dropdown")
-    input_ = dropdown.find_element_by_css_selector("input")
+    input_ = dash_dcc.find_element("#my-dynamic-dropdown input")
 
     # Focus on the input to open the options menu
     input_.send_keys("x")
@@ -36,7 +35,7 @@ def test_dddo001_dynamic_options(dash_dcc):
     input_.clear()
     input_.send_keys("o")
 
-    options = dropdown.find_elements_by_css_selector(".VirtualizedSelectOption")
+    options = dash_dcc.find_elements("#my-dynamic-dropdown .VirtualizedSelectOption")
 
     # Should show all options.
     assert len(options) == 3
@@ -44,7 +43,7 @@ def test_dddo001_dynamic_options(dash_dcc):
     # Searching for `on`
     input_.send_keys("n")
 
-    options = dropdown.find_elements_by_css_selector(".VirtualizedSelectOption")
+    options = dash_dcc.find_elements("#my-dynamic-dropdown .VirtualizedSelectOption")
 
     assert len(options) == 1
     print(options)
@@ -53,24 +52,18 @@ def test_dddo001_dynamic_options(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_dddo002_array_value(dash_dcc):
-    dropdown_options = [
-        {"label": "New York City", "value": "New,York,City"},
-        {"label": "Montreal", "value": "Montreal"},
-        {"label": "San Francisco", "value": "San,Francisco"},
-    ]
-
+def test_dddo002_array_comma_value(dash_dcc):
     app = Dash(__name__)
-    arrayValue = ["San", "Francisco"]
 
     dropdown = dcc.Dropdown(
-        options=dropdown_options,
-        value=arrayValue,
+        options=["New York, NY", "Montreal, QC", "San Francisco, CA"],
+        value=["San Francisco, CA"],
+        multi=True,
     )
-    app.layout = html.Div([dropdown])
+    app.layout = html.Div(dropdown)
 
     dash_dcc.start_server(app)
 
-    dash_dcc.wait_for_text_to_equal("#react-select-2--value-item", "San Francisco")
+    dash_dcc.wait_for_text_to_equal("#react-select-2--value-0", "San Francisco, CA\n ")
 
     assert dash_dcc.get_logs() == []

@@ -154,6 +154,8 @@ const ControlledPlotlyGraph = memo(props => {
     );
 });
 
+ControlledPlotlyGraph.displayName = 'ControlledPlotlyGraph';
+
 PlotlyGraph.propTypes = {
     ...privatePropTypes,
 

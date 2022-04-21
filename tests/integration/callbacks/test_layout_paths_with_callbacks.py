@@ -10,6 +10,13 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     with open(os.path.join(os.path.dirname(__file__), "state_path.json")) as fp:
         EXPECTED_PATHS = json.load(fp)
 
+    percy_enabled = Value("b")
+
+    def snapshot(name):
+        percy_enabled.value = os.getenv("PERCY_ENABLE", "") != ""
+        dash_duo.percy_snapshot(name=name)
+        percy_enabled.value = False
+
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -96,14 +103,16 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
 
     @app.callback(Output("body", "children"), [Input("toc", "value")])
     def display_chapter(toc_value):
-        call_counts["body"].value += 1
+        if not percy_enabled.value:
+            call_counts["body"].value += 1
         return chapters[toc_value]
 
     app.config.suppress_callback_exceptions = True
 
     def generate_graph_callback(counterId):
         def callback(value):
-            call_counts[counterId].value += 1
+            if not percy_enabled.value:
+                call_counts[counterId].value += 1
             return {
                 "data": [
                     {
@@ -124,7 +133,8 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
 
     def generate_label_callback(id_):
         def update_label(value):
-            call_counts[id_].value += 1
+            if not percy_enabled.value:
+                call_counts[id_].value += 1
             return value
 
         return update_label
@@ -187,7 +197,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
 
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"]
     check_chapter("chapter1")
-    dash_duo.percy_snapshot(name="chapter-1")
+    snapshot(name="chapter-1")
 
     dash_duo.find_elements('input[type="radio"]')[1].click()  # switch chapters
 
@@ -198,7 +208,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
 
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter2"]
     check_chapter("chapter2")
-    dash_duo.percy_snapshot(name="chapter-2")
+    snapshot(name="chapter-2")
 
     # switch to 3
     dash_duo.find_elements('input[type="radio"]')[2].click()
@@ -210,11 +220,11 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
 
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter3"]
     check_chapter("chapter3")
-    dash_duo.percy_snapshot(name="chapter-3")
+    snapshot(name="chapter-3")
 
     dash_duo.find_elements('input[type="radio"]')[3].click()  # switch to 4
     dash_duo.wait_for_text_to_equal("#body", "Just a string")
-    dash_duo.percy_snapshot(name="chapter-4")
+    snapshot(name="chapter-4")
 
     paths = dash_duo.redux_state_paths
     assert paths["objs"] == {}
@@ -234,4 +244,4 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
         lambda: dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"], TIMEOUT
     )
     check_chapter("chapter1")
-    dash_duo.percy_snapshot(name="chapter-1-again")
+    snapshot(name="chapter-1-again")

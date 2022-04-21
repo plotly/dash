@@ -95,20 +95,16 @@ def make_grouping_by_index(schema, flat_values):
     if not isinstance(flat_values, list):
         raise ValueError(
             "The flat_values argument must be a list. "
-            "Received value of type {typ}".format(typ=type(flat_values))
+            f"Received value of type {type(flat_values)}"
         )
 
     expected_length = len(flatten_grouping(schema))
     if len(flat_values) != expected_length:
         raise ValueError(
-            "The specified grouping pattern requires {n} elements but received {m}\n"
-            "    Grouping patter: {pattern}\n"
-            "    Values: {flat_values}".format(
-                n=expected_length,
-                m=len(flat_values),
-                pattern=repr(schema),
-                flat_values=flat_values,
-            )
+            f"The specified grouping pattern requires {expected_length} "
+            f"elements but received {len(flat_values)}\n"
+            f"    Grouping pattern: {repr(schema)}\n"
+            f"    Values: {flat_values}"
         )
 
     return _perform_make_grouping_like(schema, list(flat_values))

@@ -1,8 +1,10 @@
 {
-  "extends": ["eslint:recommended", "prettier"],
-  "parser": "babel-eslint",
+  "extends": ["eslint:recommended", "plugin:react/recommended", "prettier"],
+  "settings": {
+    "react": {"version": "detect"}
+  },
   "parserOptions": {
-    "ecmaVersion": 6,
+    "ecmaVersion": 2020,
     "sourceType": "module",
     "ecmaFeatures": {
       "arrowFunctions": true,

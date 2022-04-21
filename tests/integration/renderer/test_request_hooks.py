@@ -253,6 +253,8 @@ def test_rdrh003_refresh_jwt(dash_duo):
                 if required_jwt_len and (
                     not token or len(token) != required_jwt_len + len("Bearer ")
                 ):
+                    # Read the data to prevent bug with base http server.
+                    flask.request.get_json(silent=True)
                     flask.abort(401, description="JWT Expired " + str(token))
             except HTTPException as e:
                 return e

@@ -200,6 +200,7 @@ def test_dvpc001_prop_check_errors_with_path(dash_duo):
 
         if test_cases[tc]["fail"]:
             dash_duo.wait_for_element(".test-devtools-error-toggle").click()
+            dash_duo.wait_for_element(".dash-fe-error__info")
             dash_duo.percy_snapshot(
                 "devtools validation exception: {}".format(test_cases[tc]["name"])
             )

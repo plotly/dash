@@ -1,3 +1,4 @@
+# pylint: disable=consider-using-f-string
 import os
 import sys
 import shutil

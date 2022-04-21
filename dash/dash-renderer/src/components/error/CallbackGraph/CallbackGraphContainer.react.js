@@ -5,7 +5,7 @@ import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
 import dagre from 'cytoscape-dagre';
 import fcose from 'cytoscape-fcose';
-import JSONTree from 'react-json-tree';
+import {JSONTree} from 'react-json-tree';
 import {keys, mergeRight, omit, path, values} from 'ramda';
 
 import {getPath} from '../../../actions/paths';
