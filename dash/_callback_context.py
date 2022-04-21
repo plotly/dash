@@ -154,7 +154,7 @@ class CallbackContext:
         def update_args_grouping(g):
             if isinstance(g, dict) and "id" in g:
                 str_id = stringify_id(g["id"])
-                prop_id = f"{str_id}.{g['propery']}"
+                prop_id = f"{str_id}.{g['property']}"
 
                 new_values = {
                     "value": g.get("value"),
