@@ -248,6 +248,8 @@ async function handleClientside(
 
         let returnValue = dc[namespace][function_name](...args);
 
+        delete dc.callback_context;
+
         if (typeof returnValue?.then === 'function') {
             returnValue = await returnValue;
         }
@@ -270,8 +272,6 @@ async function handleClientside(
             throw e;
         }
     } finally {
-        delete dc.callback_context;
-
         // Setting server = client forces network = 0
         const totalTime = Date.now() - requestTime;
         const resources = {

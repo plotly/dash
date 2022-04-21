@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
 from multiprocessing import Value, Lock
-import pytest
 
 from dash import Dash, Input, Output, State, ClientsideFunction, ALL, html, dcc
 from selenium.webdriver.common.keys import Keys
@@ -222,31 +221,6 @@ def test_clsd004_clientside_multiple_outputs(dash_duo):
         ["#output-4", "15"],
     ]:
         dash_duo.wait_for_text_to_equal(selector, expected)
-
-
-@pytest.mark.xfail(reason="Promises are now handled within Dash-Renderer")
-def test_clsd005_clientside_fails_when_returning_a_promise(dash_duo):
-    app = Dash(__name__, assets_folder="assets")
-
-    app.layout = html.Div(
-        [
-            html.Div(id="input", children="hello"),
-            html.Div(id="side-effect"),
-            html.Div(id="output", children="output"),
-        ]
-    )
-
-    app.clientside_callback(
-        ClientsideFunction("clientside", "side_effect_and_return_a_promise"),
-        Output("output", "children"),
-        [Input("input", "children")],
-    )
-
-    dash_duo.start_server(app)
-
-    dash_duo.wait_for_text_to_equal("#input", "hello")
-    dash_duo.wait_for_text_to_equal("#side-effect", "side effect")
-    dash_duo.wait_for_text_to_equal("#output", "output")
 
 
 def test_clsd006_PreventUpdate(dash_duo):
@@ -805,3 +779,53 @@ def test_clsd017_clientside_serverside_shared_input_with_promise(dash_duo):
     dash_duo.wait_for_text_to_equal("#clientside-div", "clientside-initial")
     lock.release()
     dash_duo.wait_for_text_to_equal("#serverside-div", "serverside-initial-deferred")
+
+
+def test_clsd018_clientside_inline_async_function(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Div(id="input", children=["initial"]),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        async function(input) {
+            return input + "-inline";
+        }
+        """,
+        Output("output-div", "children"),
+        Input("input", "children"),
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#output-div", "initial-inline")
+
+
+def test_clsd019_clientside_inline_promise(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Div(id="input", children=["initial"]),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        function(inputValue) {
+            return new Promise(function (resolve) {
+                resolve(inputValue + "-inline");
+            });
+        }
+        """,
+        Output("output-div", "children"),
+        Input("input", "children"),
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#output-div", "initial-nline")
