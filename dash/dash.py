@@ -367,9 +367,15 @@ class Dash:
     ):
         _validate.check_obsolete(obsolete)
 
-        # We have 3 cases: server is either True (we create the server), False
-        # (defer server creation) or a Flask app instance (we use their server)
+        # We have 3 cases: server is either True (we create the server here or use the one created in dash_server),
+        # False (defer server creation) or a Flask app instance (we use their server)
+
+        # server created by dash.get_server()
+        self.server = _get_paths.SERVER
+
         if isinstance(server, flask.Flask):
+            if self.server:
+                raise ValueError("server is already created by dash.get_server")
             self.server = server
             if name is None:
                 name = getattr(server, "name", "__main__")
@@ -443,7 +449,6 @@ class Dash:
 
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
-        _get_paths.SERVER = self.server
 
         self.pages_folder = pages_folder
         self.use_pages = True if pages_folder != "pages" else use_pages
@@ -504,9 +509,9 @@ class Dash:
         if self.server is not None:
             self.init_app()
 
-        self.logger.setLevel(logging.INFO)
+        _get_paths.SERVER = self.server
 
-        self.enable_pages()
+        self.logger.setLevel(logging.INFO)
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
@@ -566,6 +571,8 @@ class Dash:
 
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
+
+        self.enable_pages()
 
     def _add_url(self, name, view_func, methods=("GET",)):
         full_name = self.config.routes_pathname_prefix + name
@@ -2154,13 +2161,19 @@ class Dash:
                         continue
 
                 page_filename = os.path.join(root, file).replace("\\", "/")
-                _, _, page_filename = page_filename.partition(self.pages_folder + "/")
+                _, _, page_filename = page_filename.partition(walk_dir + "/")
                 page_filename = page_filename.replace(".py", "").replace("/", ".")
-                module_name = ".".join([self.pages_folder, page_filename])
+
+                pages_folder = (
+                    self.pages_folder.replace("\\", "/").lstrip("/").replace("/", ".")
+                )
+                module_name = ".".join([pages_folder, page_filename])
                 page_module = importlib.import_module(module_name)
 
+                _validate.validate_pages_layout(
+                    module_name, page_module, _pages.PAGE_REGISTRY
+                )
                 if not _pages.PAGE_REGISTRY[module_name]["supplied_layout"]:
-                    _validate.validate_pages_layout(module_name, page_module)
                     _pages.PAGE_REGISTRY[module_name]["layout"] = getattr(
                         page_module, "layout"
                     )

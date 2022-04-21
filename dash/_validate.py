@@ -429,7 +429,9 @@ def check_for_duplicate_pathnames(registry):
             raise Exception(f"modules {modules} have duplicate paths")
 
 
-def validate_pages_layout(module, page):
+def validate_pages_layout(module, page, registry):
+    if module not in registry:
+        raise Exception(f"module {module} is not in dash.page_registry")
     if not hasattr(page, "layout"):
         raise exceptions.NoLayoutException(
             f"""

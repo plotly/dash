@@ -1,3 +1,4 @@
+import flask
 from ._utils import AttributeDict
 from . import exceptions
 
@@ -5,15 +6,15 @@ CONFIG = AttributeDict()
 SERVER = None
 
 
-def get_server():
+def get_server(name=None):
     """
     Use `get_server() instead of `app.server` to avoid the circular `app` import issue with multi-page apps.
     """
-    return app_get_server(SERVER)
-
-
-def app_get_server(server):
-    return server
+    global SERVER  # pylint: disable=global-statement
+    if SERVER is None:
+        name = name if name else "__main__"
+        SERVER = flask.Flask(name)
+    return SERVER
 
 
 def get_asset_url(path):
