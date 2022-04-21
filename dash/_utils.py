@@ -119,7 +119,7 @@ class AttributeDict(dict):
             value = self.get(name)
             if value:
                 return value
-        if names == ():
+        if not names:
             return next(iter(self), {})
 
 
