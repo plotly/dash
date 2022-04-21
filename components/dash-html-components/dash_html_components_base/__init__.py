@@ -33,27 +33,27 @@ _this_module = "dash_html_components"
 
 _js_dist = [
     {
-        "relative_package_path": 'html/{}.min.js'.format(_this_module),
+        "relative_package_path": "html/{}.min.js".format(_this_module),
         "external_url": (
             "https://unpkg.com/dash-html-components@{}"
             "/dash_html_components/dash_html_components.min.js"
         ).format(__version__),
-        "namespace": "dash"
+        "namespace": "dash",
     },
     {
-        'relative_package_path': 'html/{}.min.js.map'.format(_this_module),
-        'external_url': (
-            'https://unpkg.com/dash-html-components@{}'
-            '/dash_html_components/dash_html_components.min.js.map'
+        "relative_package_path": "html/{}.min.js.map".format(_this_module),
+        "external_url": (
+            "https://unpkg.com/dash-html-components@{}"
+            "/dash_html_components/dash_html_components.min.js.map"
         ).format(__version__),
-        'namespace': 'dash',
-        'dynamic': True
-    }
+        "namespace": "dash",
+        "dynamic": True,
+    },
 ]
 
 _css_dist = []
 
 
 for _component in __all__:
-    setattr(locals()[_component], '_js_dist', _js_dist)
-    setattr(locals()[_component], '_css_dist', _css_dist)
+    setattr(locals()[_component], "_js_dist", _js_dist)
+    setattr(locals()[_component], "_css_dist", _css_dist)

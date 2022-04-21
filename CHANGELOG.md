@@ -20,6 +20,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - Upgrade `black` to v22.3.0 for Python 3.7+ - if you use `dash[ci]` and you call `black`, this may alter your code formatting slightly, including more consistently breaking Python 2 compatibility.
   - Many other mainly JS dependency upgrades to the internals of Dash renderer and components. These may patch bugs or improve performance.
 
+### Fixed
+
+- [#1970](https://github.com/plotly/dash/pull/1970) dcc.Dropdown Refactor fixes:
+  - Fix bug [#1868](https://github.com/plotly/dash/issues/1868) value does not update when selected option removed from options.
+  - Fix bug [#1908](https://github.com/plotly/dash/issues/1908) Selected options not showing when the value contains a comma.
+
 ## [2.3.1] - 2022-03-29
 
 ### Fixed
