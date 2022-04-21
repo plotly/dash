@@ -51,10 +51,11 @@ class CallbackContext:
     @has_context
     def triggered(self):
         """
-         Returns a list of all the Input props that changed and caused the callback to execute. It is empty when the callback is
-          called on initial load, unless an Input prop got its value from another initial callback. Callbacks triggered
-           by user actions typically have one item in triggered, unless the same action changes two props at once or
-            the callback has several Input props that are all modified by another callback based on a single user action.
+        Returns a list of all the Input props that changed and caused the callback to execute. It is empty when the
+        callback is called on initial load, unless an Input prop got its value from another initial callback.
+        Callbacks triggered by user actions typically have one item in triggered, unless the same action changes
+        two props at once or the callback has several Input props that are all modified by another callback based on
+        a single user action.
 
         Example:  To get the id of the component that triggered the callback:
         `component_id = ctx.triggered[0]['prop_id'].split('.')[0]`
@@ -72,10 +73,11 @@ class CallbackContext:
     @has_context
     def triggered_prop_ids(self):
         """
-        Returns a dictionary of all the Input props that changed and caused the callback to execute. It is empty when the callback is
-          called on initial load, unless an Input prop got its value from another initial callback. Callbacks triggered
-           by user actions typically have one item in triggered, unless the same action changes two props at once or
-            the callback has several Input props that are all modified by another callback based on a single user action.
+        Returns a dictionary of all the Input props that changed and caused the callback to execute. It is empty when
+        the callback is called on initial load, unless an Input prop got its value from another initial callback.
+        Callbacks triggered by user actions typically have one item in triggered, unless the same action changes
+        two props at once or the callback has several Input props that are all modified by another callback based
+        on a single user action.
 
         triggered_prop_ids (dict):
         - keys (str) : the triggered "prop_id" composed of "component_id.component_property"
@@ -287,4 +289,4 @@ class CallbackContext:
 
 
 callback_context = CallbackContext()
-ctx = CallbackContext()
+
