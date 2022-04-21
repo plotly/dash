@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- [#1952](https://github.com/plotly/dash/pull/1952) Improved callback_context
+  - Closes [#1818](https://github.com/plotly/dash/issues/1818) Closes [#1054](https://github.com/plotly/dash/issues/1054)
+  - adds `dash.ctx`, a more concise name for `dash.callback_context`
+  - adds `ctx.triggered_prop_ids`, a dictionary of the component ids and props that triggered the callback.
+  - adds `ctx.triggered_id`, the `id` of the component that triggered the callback.
+  - adds `ctx.args_grouping`, a dict of the inputs used with flexible callback signatures.
+
 ### Fixed
 
 - [#2015](https://github.com/plotly/dash/pull/2015) Fix bug [#1854](https://github.com/plotly/dash/issues/1854) in which the combination of row_selectable="single or multi" and filter_action="native" caused the JS error.
