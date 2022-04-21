@@ -1,6 +1,7 @@
+import pytest
+
 import dash
 from dash.dash_table import DataTable
-import pytest
 
 
 def get_app(cell_selectable, markdown_options):
@@ -43,7 +44,7 @@ def test_tmdl001_click_markdown_link(test, markdown_options, new_tab, cell_selec
     target = test.table("table")
 
     assert len(test.driver.window_handles) == 1
-    target.cell(0, "a").get().find_element_by_css_selector("a").click()
+    target.cell(0, "a").find_inside("a").click()
 
     # Make sure the new tab is what's expected
     if new_tab:

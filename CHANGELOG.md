@@ -5,10 +5,53 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Fixed
-- [#1915](https://github.com/plotly/dash/pull/1915) Fix bug [#1474](https://github.com/plotly/dash/issues/1474) when both dcc.Graph and go.Figure have animation, and when the second animation in Figure is executed, the Frames from the first animation are played instead of the second one.
+
+- [#2015](https://github.com/plotly/dash/pull/2015) Fix bug [#1854](https://github.com/plotly/dash/issues/1854) in which the combination of row_selectable="single or multi" and filter_action="native" caused the JS error.
+
+- [#1976](https://github.com/plotly/dash/pull/1976) Fix [#1962](https://github.com/plotly/dash/issues/1962) in which DatePickerSingle and DatePickerRange are extremely slow when provided a long list of disabled_days.
+
+### Changed
+
+- [#2016](https://github.com/plotly/dash/pull/2016) Drop the 375px width from default percy_snapshot calls, keep only 1280px
+
+### Updated
+- [#2016](https://github.com/plotly/dash/pull/2016) Widespread dependency upgrades
+  - Upgrade Plotly.js to v2.11.1 (from v2.11.0). Patch release [2.11.1](https://github.com/plotly/plotly.js/releases/tag/v2.11.1) fixes regl-based traces in strict CSP mode, however you must manually switch to the strict bundle to use this.
+  - Upgrade `black` to v22.3.0 for Python 3.7+ - if you use `dash[ci]` and you call `black`, this may alter your code formatting slightly, including more consistently breaking Python 2 compatibility.
+  - Many other mainly JS dependency upgrades to the internals of Dash renderer and components. These may patch bugs or improve performance.
+
+## [2.3.1] - 2022-03-29
 
 ### Fixed
+
+- [#1963](https://github.com/plotly/dash/pull/1963) Fix [#1780](https://github.com/plotly/dash/issues/1780) flask shutdown deprecation warning when running dashduo threaded tests.
+- [#1995](https://github.com/plotly/dash/pull/1995) Fix [#1992](https://github.com/plotly/dash/issues/1992) ImportError: cannot import name 'get_current_traceback' from 'werkzeug.debug.tbtools'.
+
+## [2.3.0] - 2022-03-13
+
+### Added
+- [#1949](https://github.com/plotly/dash/pull/1915) Add built-in MathJax support to both `dcc.Markdown` and `dcc.Graph`. A new boolean prop `mathjax` was added to these two components, defaulting to `False`. Set `mathjax=True` to enable math rendering. This work uses MathJax v3, although `dcc.Graph` and Plotly.js can also be used with MathJax v2.
+  - In `dcc.Markdown` this has two flavors: inline math is any content between single dollar signs, for example `"$E=mc^2$"`, and "display" math (on its own line, potentially multi-line) is delimited by double dollar signs.
+  - In `dcc.Graph`, most text fields (graph and axis titles, trace names, scatter and bar text) can use math, and it's enabled with single dollar sign delimiters. A limitation here is that currently a given piece of text can only be one or the other: if math is found, everything outside the delimiters is ignored. See https://plotly.com/python/LaTeX/ for details.
+  - For an intro to LaTeX math, see https://en.wikibooks.org/wiki/LaTeX/Mathematics.
+  - Big thanks to [Equinor](https://www.equinor.com/) for sponsoring this development, including the related work in Plotly.js!
+
+### Updated
+- [#1949](https://github.com/plotly/dash/pull/1915) Upgrade Plotly.js to v2.11.0 (from v2.9.0)
+  - [Feature release 2.10.0](https://github.com/plotly/plotly.js/releases/tag/v2.10.0):
+    - Support for MathJax v3
+    - `fillpattern` for `scatter` traces with filled area
+  - [Feature release 2.11.0](https://github.com/plotly/plotly.js/releases/tag/v2.11.0):
+    - Every trace type can now be rendered in a stricter CSP environment, specifically avoiding `unsafe-eval`. Please note: the `regl`-based traces (`scattergl`, `scatterpolargl`, `parcoords`, and `splom`) are only strict in the `strict` bundle, which is NOT served by default in Dash. To use this bundle with Dash, you must either download it and put it in your `assets/` folder, or include it as an `external_script` from the CDN: https://cdn.plot.ly/plotly-strict-2.11.0.min.js. All other trace types are strict in the normal bundle.
+  - Patch release [2.10.1](https://github.com/plotly/plotly.js/releases/tag/v2.10.1) containing a bugfix for `mesh3d` traces.
+
+
+### Fixed
+- [#1915](https://github.com/plotly/dash/pull/1915) Fix bug [#1474](https://github.com/plotly/dash/issues/1474) when both dcc.Graph and go.Figure have animation, and when the second animation in Figure is executed, the Frames from the first animation are played instead of the second one.
+
 - [#1953](https://github.com/plotly/dash/pull/1953) Fix bug [#1783](https://github.com/plotly/dash/issues/1783) in which a failed hot reloader blocks the UI with alerts.
+
+- [#1942](https://github.com/plotly/dash/pull/1942) Fix bug [#1663](https://github.com/plotly/dash/issues/1663) preventing pie traces from sending `customdata` with `clickData` and other events.
 
 ## [2.2.0] - 2022-02-18
 
@@ -40,12 +83,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#1869](https://github.com/plotly/dash/pull/1869), [#1873](https://github.com/plotly/dash/pull/1873) Upgrade Plotly.js to v2.8.3. This includes:
   - [Feature release 2.5.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
     - 3D traces are now compatible with `no-unsafe-eval` CSP rules.
-  - [Feature release 2.6.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+  - [Feature release 2.6.0](https://github.com/plotly/plotly.js/releases/tag/v2.6.0):
     - Add `smith` subplots and `scattersmith` traces, for drawing Smith charts.
-  - [Feature release 2.7.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+  - [Feature release 2.7.0](https://github.com/plotly/plotly.js/releases/tag/v2.7.0):
     - Add text data for `histogram` traces.
     - Fix an interaction between `uirevision` and `autorange` that pops up in some cases of mixed clientside / serverside figure generation.
-  - [Feature release 2.8.0](https://github.com/plotly/plotly.js/releases/tag/v2.5.0):
+  - [Feature release 2.8.0](https://github.com/plotly/plotly.js/releases/tag/v2.8.0):
     - Add horizontal colorbars.
     - Add text data on `heatmap` and related trace types.
     - Control legend group title fonts.

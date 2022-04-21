@@ -75,12 +75,12 @@ class DashPageMixin:
 
     def get_local_storage(self, store_id="local"):
         return self.driver.execute_script(
-            "return JSON.parse(window.localStorage.getItem('{}'));".format(store_id)
+            f"return JSON.parse(window.localStorage.getItem('{store_id}'));"
         )
 
     def get_session_storage(self, session_id="session"):
         return self.driver.execute_script(
-            "return JSON.parse(window.sessionStorage.getItem('{}'));".format(session_id)
+            f"return JSON.parse(window.sessionStorage.getItem('{session_id}'));"
         )
 
     def clear_local_storage(self):

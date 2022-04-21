@@ -54,7 +54,7 @@ jobs:
             pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
             npm i
-            npm run build
+            npm run build.sequential
             python setup.py sdist
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
             ls -la dash-package
@@ -120,7 +120,7 @@ jobs:
             set -eo pipefail
             pip install -e . --progress-bar off && pip list | grep dash
             npm install npm run initialize
-            npm run build
+            npm run build.sequential
             npm run lint
       - run:
           name: 🐍 Python Unit Tests & ☕ JS Unit Tests
@@ -294,7 +294,7 @@ jobs:
             . venv/bin/activate && rm -rf components/dash-core-components/dash_core_components
             cd components/dash-core-components
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" ${TESTFILES}
+            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" ${TESTFILES} --reruns 3
       - store_artifacts:
           path: ~/dash/components/dash-core-components/test-reports
       - store_test_results:
@@ -385,7 +385,7 @@ jobs:
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
-    parallelism: 4
+    parallelism: 5
 
     steps:
       - checkout:

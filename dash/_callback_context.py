@@ -11,9 +11,7 @@ def has_context(func):
     def assert_context(*args, **kwargs):
         if not flask.has_request_context():
             raise exceptions.MissingCallbackContextException(
-                "dash.callback_context.{} is only available from a callback!".format(
-                    getattr(func, "__name__")
-                )
+                f"dash.callback_context.{getattr(func, '__name__')} is only available from a callback!"
             )
         return func(*args, **kwargs)
 
@@ -119,7 +117,7 @@ class CallbackContext:
         timing_information = getattr(flask.g, "timing_information", {})
 
         if name in timing_information:
-            raise KeyError('Duplicate resource name "{}" found.'.format(name))
+            raise KeyError(f'Duplicate resource name "{name}" found.')
 
         timing_information[name] = {"dur": round(duration * 1000), "desc": description}
 
