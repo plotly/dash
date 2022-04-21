@@ -1,4 +1,4 @@
-import {isNil, pluck, omit, without} from 'ramda';
+import {isNil, pluck, without, pick} from 'ramda';
 import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
@@ -20,6 +20,18 @@ const TOKENIZER = {
         );
     },
 };
+
+const RDProps = [
+    'multi',
+    'clearable',
+    'searchable',
+    'search_value',
+    'placeholder',
+    'disabled',
+    'optionHeight',
+    'style',
+    'className',
+];
 
 const Dropdown = props => {
     const {
@@ -107,7 +119,7 @@ const Dropdown = props => {
                 backspaceRemoves={clearable}
                 deleteRemoves={clearable}
                 inputProps={{autoComplete: 'off'}}
-                {...omit(['setProps', 'value', 'options'], props)}
+                {...pick(RDProps, props)}
             />
         </div>
     );
