@@ -2056,40 +2056,10 @@ class Dash:
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
-    def run_server(
-        self,
-        host=os.getenv("HOST", "127.0.0.1"),
-        port=os.getenv("PORT", "8050"),
-        proxy=os.getenv("DASH_PROXY", None),
-        debug=False,
-        dev_tools_ui=None,
-        dev_tools_props_check=None,
-        dev_tools_serve_dev_bundles=None,
-        dev_tools_hot_reload=None,
-        dev_tools_hot_reload_interval=None,
-        dev_tools_hot_reload_watch_interval=None,
-        dev_tools_hot_reload_max_retry=None,
-        dev_tools_silence_routes_logging=None,
-        dev_tools_prune_errors=None,
-        **flask_run_options,
-    ):
-        """`run_server` is a deprecated alias of `run` and may be
-        removed in Dash 3.0. We recommend using `app.run` instead.
-        See app.run for the docstring for these arguments.
+    def run_server(self, *args, **kwargs):
+        """`run_server` is a deprecated alias of `run` and may be removed in a
+        future version. We recommend using `app.run` instead.
+
+        See `app.run` for usage information.
         """
-        return self.run(
-            host,
-            port,
-            proxy,
-            debug,
-            dev_tools_ui,
-            dev_tools_props_check,
-            dev_tools_serve_dev_bundles,
-            dev_tools_hot_reload,
-            dev_tools_hot_reload_interval,
-            dev_tools_hot_reload_watch_interval,
-            dev_tools_hot_reload_max_retry,
-            dev_tools_silence_routes_logging,
-            dev_tools_prune_errors,
-            **flask_run_options,
-        )
+        self.run(*args, **kwargs)
