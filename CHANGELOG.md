@@ -26,6 +26,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2016](https://github.com/plotly/dash/pull/2016) Drop the 375px width from default percy_snapshot calls, keep only 1280px
 
+- [#1751](https://github.com/plotly/dash/pull/1751) Rename `app.run_server` to `app.run` while preserving `app.run_server` for backwards compatibility.
+
+
 ### Updated
 - [#2016](https://github.com/plotly/dash/pull/2016) Widespread dependency upgrades
   - Upgrade Plotly.js to v2.11.1 (from v2.11.0). Patch release [2.11.1](https://github.com/plotly/plotly.js/releases/tag/v2.11.1) fixes regl-based traces in strict CSP mode, however you must manually switch to the strict bundle to use this.
