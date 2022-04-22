@@ -119,6 +119,8 @@ class AttributeDict(dict):
             value = self.get(name)
             if value:
                 return value
+        if not names:
+            return next(iter(self), {})
 
 
 def create_callback_id(output):
@@ -152,13 +154,23 @@ def stringify_id(id_):
 
 
 def inputs_to_dict(inputs_list):
-    inputs = {}
+    inputs = AttributeDict()
     for i in inputs_list:
         inputsi = i if isinstance(i, list) else [i]
         for ii in inputsi:
             id_str = stringify_id(ii["id"])
             inputs[f'{id_str}.{ii["property"]}'] = ii.get("value")
     return inputs
+
+
+def convert_to_AttributeDict(nested_list):
+    new_dict = []
+    for i in nested_list:
+        if isinstance(i, dict):
+            new_dict.append(AttributeDict(i))
+        else:
+            new_dict.append([AttributeDict(ii) for ii in i])
+    return new_dict
 
 
 def inputs_to_vals(inputs):

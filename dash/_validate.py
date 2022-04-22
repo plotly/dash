@@ -134,6 +134,11 @@ def validate_and_group_input_args(flat_args, arg_index_grouping):
     if isinstance(arg_index_grouping, dict):
         func_args = []
         func_kwargs = args_grouping
+        for key in func_kwargs:
+            if not key.isidentifier():
+                raise exceptions.CallbackException(
+                    f"{key} is not a valid Python variable name"
+                )
     elif isinstance(arg_index_grouping, (tuple, list)):
         func_args = list(args_grouping)
         func_kwargs = {}

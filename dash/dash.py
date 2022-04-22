@@ -49,6 +49,7 @@ from ._utils import (
     patch_collections_abc,
     split_callback_id,
     to_json,
+    convert_to_AttributeDict,
     gen_salt,
 )
 from . import _callback
@@ -1297,6 +1298,7 @@ class Dash:
 
     def dispatch(self):
         body = flask.request.get_json()
+
         flask.g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
             "inputs", []
         )
@@ -1331,9 +1333,12 @@ class Dash:
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = inputs + state
+            inputs_state = convert_to_AttributeDict(inputs_state)
+
             args_grouping = map_grouping(
                 lambda ind: inputs_state[ind], inputs_state_indices
             )
+
             flask.g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
             flask.g.using_args_grouping = (  # pylint: disable=assigning-non-slot
                 not isinstance(inputs_state_indices, int)
