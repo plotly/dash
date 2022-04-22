@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - adds `ctx.triggered_id`, the `id` of the component that triggered the callback.
   - adds `ctx.args_grouping`, a dict of the inputs used with flexible callback signatures.
 
+- [#2009](https://github.com/plotly/dash/pull/2009) Add support for Promises within Client-side callbacks as requested in [#1364](https://github.com/plotly/dash/pull/1364).
+
 ### Fixed
 
 - [#2015](https://github.com/plotly/dash/pull/2015) Fix bug [#1854](https://github.com/plotly/dash/issues/1854) in which the combination of row_selectable="single or multi" and filter_action="native" caused the JS error.
