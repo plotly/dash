@@ -23,7 +23,7 @@ def test_imports():
 def test_sample_items():
     layout = html.Div(
         html.Div(html.Img(src="https://plotly.com/~chris/1638.png")),
-        style={"color": "red"}
+        style={"color": "red"},
     )
 
     expected = (

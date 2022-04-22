@@ -192,7 +192,5 @@ def diskcache_manager():
     from dash.long_callback import (  # pylint: disable=import-outside-toplevel
         DiskcacheLongCallbackManager,
     )
-    import diskcache  # pylint: disable=import-outside-toplevel
 
-    cache = diskcache.Cache()
-    return DiskcacheLongCallbackManager(cache)
+    return DiskcacheLongCallbackManager()

@@ -19,11 +19,19 @@ export default class Slider extends Component {
 
 Slider.propTypes = {
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
+     * Minimum allowed value of the slider
      */
-    id: PropTypes.string,
+    min: PropTypes.number,
+
+    /**
+     * Maximum allowed value of the slider
+     */
+    max: PropTypes.number,
+
+    /**
+     * Value by which increments or decrements are made
+     */
+    step: PropTypes.number,
 
     /**
      * Marks on the slider.
@@ -54,11 +62,6 @@ Slider.propTypes = {
     drag_value: PropTypes.number,
 
     /**
-     * Additional CSS class for the root DOM node
-     */
-    className: PropTypes.string,
-
-    /**
      * If true, the handles can't be moved.
      */
     disabled: PropTypes.bool,
@@ -75,16 +78,6 @@ Slider.propTypes = {
      * value is included. Otherwise, it is an independent value.
      */
     included: PropTypes.bool,
-
-    /**
-     * Minimum allowed value of the slider
-     */
-    min: PropTypes.number,
-
-    /**
-     * Maximum allowed value of the slider
-     */
-    max: PropTypes.number,
 
     /**
      * Configuration for tooltips describing the current slider value
@@ -115,9 +108,16 @@ Slider.propTypes = {
     }),
 
     /**
-     * Value by which increments or decrements are made
+     * Determines when the component should update its `value`
+     * property. If `mouseup` (the default) then the slider
+     * will only trigger its value when the user has finished
+     * dragging the slider. If `drag`, then the slider will
+     * update its value continuously as it is being dragged.
+     * If you want different actions during and after drag,
+     * leave `updatemode` as `mouseup` and use `drag_value`
+     * for the continuously updating value.
      */
-    step: PropTypes.number,
+    updatemode: PropTypes.oneOf(['mouseup', 'drag']),
 
     /**
      * If true, the slider will be vertical
@@ -130,16 +130,16 @@ Slider.propTypes = {
     verticalHeight: PropTypes.number,
 
     /**
-     * Determines when the component should update its `value`
-     * property. If `mouseup` (the default) then the slider
-     * will only trigger its value when the user has finished
-     * dragging the slider. If `drag`, then the slider will
-     * update its value continuously as it is being dragged.
-     * If you want different actions during and after drag,
-     * leave `updatemode` as `mouseup` and use `drag_value`
-     * for the continuously updating value.
+     * Additional CSS class for the root DOM node
      */
-    updatemode: PropTypes.oneOf(['mouseup', 'drag']),
+    className: PropTypes.string,
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the value or drag_value changes.

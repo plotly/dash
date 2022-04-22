@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import './css/react-select@1.0.0-rc.3.min.css';
+import {sanitizeOptions} from '../utils/optionTypes';
 
 /**
  * RadioItems is a component that encapsulates several radio item inputs.
@@ -23,6 +24,7 @@ export default class RadioItems extends Component {
             setProps,
             loading_state,
             value,
+            inline,
         } = this.props;
 
         let ids = {};
@@ -38,9 +40,13 @@ export default class RadioItems extends Component {
                 className={className}
                 style={style}
             >
-                {options.map(option => (
+                {sanitizeOptions(options).map(option => (
                     <label
-                        style={labelStyle}
+                        style={Object.assign(
+                            {},
+                            labelStyle,
+                            inline ? {display: 'inline-block'} : {}
+                        )}
                         className={labelClassName}
                         key={option.value}
                     >
@@ -64,42 +70,82 @@ export default class RadioItems extends Component {
 
 RadioItems.propTypes = {
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
+     * An array of options, or inline dictionary of options
      */
-    id: PropTypes.string,
+    options: PropTypes.oneOfType([
+        /**
+         * Array of options where the label and the value are the same thing - [string|number|bool]
+         */
+        PropTypes.arrayOf(
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+                PropTypes.bool,
+            ])
+        ),
+        /**
+         * Simpler `options` representation in dictionary format. The order is not guaranteed.
+         * {`value1`: `label1`, `value2`: `label2`, ... }
+         * which is equal to
+         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
+         */
+        PropTypes.object,
+        /**
+         * An array of options {label: [string|number], value: [string|number]},
+         * an optional disabled field can be used for each option
+         */
+        PropTypes.arrayOf(
+            PropTypes.exact({
+                /**
+                 * The option's label
+                 */
+                label: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool,
+                ]).isRequired,
 
-    /**
-     * An array of options
-     */
-    options: PropTypes.arrayOf(
-        PropTypes.exact({
-            /**
-             * The radio item's label
-             */
-            label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+                /**
+                 * The value of the option. This value
+                 * corresponds to the items specified in the
+                 * `value` property.
+                 */
+                value: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool,
+                ]).isRequired,
 
-            /**
-             * The value of the radio item. This value
-             * corresponds to the items specified in the
-             * `value` property.
-             */
-            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+                /**
+                 * If true, this option is disabled and cannot be selected.
+                 */
+                disabled: PropTypes.bool,
 
-            /**
-             * If true, this radio item is disabled and can't be clicked on.
-             */
-            disabled: PropTypes.bool,
-        })
-    ),
+                /**
+                 * The HTML 'title' attribute for the option. Allows for
+                 * information on hover. For more information on this attribute,
+                 * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
+                 */
+                title: PropTypes.string,
+            })
+        ),
+    ]),
 
     /**
      * The currently selected value
      */
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    value: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.bool,
+    ]),
+
+    /**
+     * Indicates whether labelStyle should be inline or not
+     * True: Automatically set { 'display': 'inline-block' } to labelStyle
+     * False: No additional styles are passed into labelStyle.
+     */
+    inline: PropTypes.bool,
 
     /**
      * The style of the container (div)
@@ -132,6 +178,13 @@ RadioItems.propTypes = {
      *  and the option's label
      */
     labelClassName: PropTypes.string,
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the value changes.
@@ -194,4 +247,5 @@ RadioItems.defaultProps = {
     options: [],
     persisted_props: ['value'],
     persistence_type: 'local',
+    inline: false,
 };

@@ -523,3 +523,63 @@ def test_slsl014_vertical_range_slider(dash_dcc):
         '#vertical-range-slider div.rc-slider-handle-2[role="slider"]'
     ).click()
     assert dash_dcc.get_logs() == []
+
+
+def test_slsl015_range_slider_step_none(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Label("Steps = Marks Slider"),
+            dcc.Slider(
+                id="none-step-slider",
+                min=0,
+                max=6,
+                marks={
+                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
+                },
+                step=None,
+                value=4.6,
+                vertical=False,
+            ),
+        ],
+        style={"height": "500px"},
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#none-step-slider")
+    dash_dcc.percy_snapshot("none step slider")
+
+    dash_dcc.wait_for_element(
+        '#none-step-slider div.rc-slider-handle[aria-valuenow="5"]'
+    )
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_slsl015_range_slider_no_min_max(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Label("No Min or Max Slider"),
+            dcc.Slider(
+                id="no-min-max-step-slider",
+                marks={
+                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
+                },
+                step=None,
+                value=5,
+                vertical=False,
+            ),
+        ],
+        style={"height": "500px"},
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#no-min-max-step-slider")
+    dash_dcc.percy_snapshot("no-min-max step slider")
+
+    dash_dcc.wait_for_element(
+        '#no-min-max-step-slider div.rc-slider-handle[aria-valuemax="5"]'
+    )
+
+    assert dash_dcc.get_logs() == []

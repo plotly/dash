@@ -1,4 +1,0 @@
-dash-bootstrap-components==0.12.2
-pandas
-preconditions
-openpyxl

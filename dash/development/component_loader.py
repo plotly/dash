@@ -52,7 +52,7 @@ def load_components(metadata_path, namespace="default_namespace"):
         # the name of the component atm.
         name = componentPath.split("/").pop().split(".")[0]
         component = generate_class(
-            name, componentData["props"], componentData["description"], namespace
+            name, componentData["props"], componentData["description"], namespace, None
         )
 
         components.append(component)

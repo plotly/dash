@@ -13,11 +13,11 @@ def test_msps001_basic_persistence(dash_dcc):
             dcc.Checklist(
                 id="checklist",
                 options=[
-                    {"label": u"Slow 🐢", "value": u"🐢"},
-                    {"label": u"Fast 🏎️", "value": u"🏎️"},
-                    {"label": u"Faster 🚀", "value": u"🚀"},
+                    {"label": "Slow 🐢", "value": "🐢"},
+                    {"label": "Fast 🏎️", "value": "🏎️"},
+                    {"label": "Faster 🚀", "value": "🚀"},
                 ],
-                value=[u"🏎️"],
+                value=["🏎️"],
                 persistence=True,
             ),
             dcc.DatePickerRange(
@@ -35,21 +35,21 @@ def test_msps001_basic_persistence(dash_dcc):
             dcc.Dropdown(
                 id="dropdownsingle",
                 options=[
-                    {"label": u"One 1️⃣", "value": u"1️⃣"},
-                    {"label": u"Two 2️⃣", "value": u"2️⃣"},
-                    {"label": u"Three 3️⃣", "value": u"3️⃣"},
+                    {"label": "One 1️⃣", "value": "1️⃣"},
+                    {"label": "Two 2️⃣", "value": "2️⃣"},
+                    {"label": "Three 3️⃣", "value": "3️⃣"},
                 ],
-                value=u"2️⃣",
+                value="2️⃣",
                 persistence=True,
             ),
             dcc.Dropdown(
                 id="dropdownmulti",
                 options=[
-                    {"label": u"Four 4️⃣", "value": u"4️⃣"},
-                    {"label": u"Five 5️⃣", "value": u"5️⃣"},
-                    {"label": u"Six 6️⃣", "value": u"6️⃣"},
+                    {"label": "Four 4️⃣", "value": "4️⃣"},
+                    {"label": "Five 5️⃣", "value": "5️⃣"},
+                    {"label": "Six 6️⃣", "value": "6️⃣"},
                 ],
-                value=[u"4️⃣"],
+                value=["4️⃣"],
                 multi=True,
                 persistence=True,
             ),
@@ -65,9 +65,9 @@ def test_msps001_basic_persistence(dash_dcc):
                 persistence=True,
             ),
             dcc.RangeSlider(
-                id="rangeslider", min=0, max=10, value=[3, 7], persistence=True
+                id="rangeslider", min=0, max=10, step=1, value=[3, 7], persistence=True
             ),
-            dcc.Slider(id="slider", min=20, max=30, value=25, persistence=True),
+            dcc.Slider(id="slider", min=20, max=30, step=1, value=25, persistence=True),
             dcc.Tabs(
                 id="tabs",
                 children=[
@@ -104,12 +104,12 @@ def test_msps001_basic_persistence(dash_dcc):
         return json.dumps(args)
 
     initial_settings = [
-        [u"🏎️"],
+        ["🏎️"],
         "2017-08-21",
         "2024-04-08",
         "2019-01-01",
-        u"2️⃣",
-        [u"4️⃣"],
+        "2️⃣",
+        ["4️⃣"],
         "yes",
         "b",
         [3, 7],
@@ -153,12 +153,12 @@ def test_msps001_basic_persistence(dash_dcc):
     dash_dcc.find_element("#textarea").send_keys(Keys.ENTER + "who's there?")
 
     edited_settings = [
-        [u"🏎️", u"🚀"],
+        ["🏎️", "🚀"],
         "2019-05-04",
         "2019-05-14",
         "2019-01-20",
-        u"1️⃣",
-        [u"4️⃣", u"6️⃣"],
+        "1️⃣",
+        ["4️⃣", "6️⃣"],
         "yes maybe",
         "r",
         [5, 8],

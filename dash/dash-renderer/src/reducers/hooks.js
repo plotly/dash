@@ -2,6 +2,7 @@ const customHooks = (
     state = {
         request_pre: null,
         request_post: null,
+        callback_resolved: null,
         request_refresh_jwt: null,
         bear: false
     },

@@ -127,3 +127,57 @@ def test_head004_change_single_row_header(test):
 
     assert target.column("rows").get_text(0) == "Chill"
     assert test.get_log_errors() == []
+
+
+def test_head005_no_warnings_emitted(test):
+    test.start_server(
+        get_app(dict(merge_duplicate_headers=True)),
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    target = test.table("table")
+
+    wait.until(lambda: target.column(6).get().get_attribute("colspan") == "4", 3)
+    assert test.get_logs() == []
+
+
+def test_head006_style_merged_columns(test):
+    app = get_app(
+        dict(
+            columns=[
+                {"name": ("0"), "id": "x"},
+                {"name": ("0"), "id": "y"},
+                {"name": ("1", "1a"), "id": "a"},
+                {"name": ("1", "1b"), "id": "b"},
+                {"name": ("2", "2a"), "id": "c"},
+                {"name": ("2", "2b"), "id": "d"},
+            ],
+            merge_duplicate_headers=True,
+            style_header_conditional=[
+                {
+                    "if": {"column_id": f"{c}"},
+                    "backgroundColor": "green",
+                    "fontWeight": "bold",
+                }
+                for c in ["a", "b"]
+            ],
+        )
+    )
+
+    test.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    target = test.table("table")
+    wait.until(lambda: target.column(0).get_text(0) == "0", 3)
+    assert "green" in target.column(2).get(0).get_attribute("style")
+    assert "green" in target.column(2).get(1).get_attribute("style")
+    assert "green" in target.column(3).get(1).get_attribute("style")
+    assert test.get_logs() == []

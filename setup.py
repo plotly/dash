@@ -6,7 +6,7 @@ exec(open("dash/version.py").read(), main_ns)  # pylint: disable=exec-used, cons
 
 
 def read_req_file(req_type):
-    with open("requires-{}.txt".format(req_type)) as fp:
+    with open(f"requires-{req_type}.txt") as fp:
         requires = (line.strip() for line in fp)
         return [req for req in requires if req and not req.startswith("#")]
 
@@ -28,8 +28,11 @@ setup(
     install_requires=read_req_file("install"),
     python_requires=">=3.6",
     extras_require={
+        "ci": read_req_file("ci"),
         "dev": read_req_file("dev"),
         "testing": read_req_file("testing"),
+        "celery": read_req_file("celery"),
+        "diskcache": read_req_file("diskcache"),
     },
     entry_points={
         "console_scripts": [
@@ -41,6 +44,11 @@ setup(
         "pytest11": ["dash = dash.testing.plugin"],
     },
     url="https://plotly.com/dash",
+    project_urls={
+        "Documentation": "https://dash.plotly.com",
+        "Source": "https://github.com/plotly/dash",
+        "Issue Tracker": "https://github.com/plotly/dash/issues",
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",

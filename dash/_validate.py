@@ -1,11 +1,11 @@
-import collections
+from collections.abc import MutableSequence
 import re
 from textwrap import dedent
 
 from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
-from ._utils import patch_collections_abc, stringify_id
+from ._utils import patch_collections_abc, stringify_id, to_json
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -14,25 +14,25 @@ def validate_callback(outputs, inputs, state, extra_args, types):
         if not isinstance(extra_args[0], (Output, Input, State)):
             raise exceptions.IncorrectTypeException(
                 dedent(
-                    """
+                    f"""
                     Callback arguments must be `Output`, `Input`, or `State` objects,
                     optionally wrapped in a list or tuple. We found (possibly after
                     unwrapping a list or tuple):
-                    {}
+                    {repr(extra_args[0])}
                     """
-                ).format(repr(extra_args[0]))
+                )
             )
 
         raise exceptions.IncorrectTypeException(
             dedent(
-                """
+                f"""
                 In a callback definition, you must provide all Outputs first,
                 then all Inputs, then all States. After this item:
-                {}
+                {(outputs + inputs + state)[-1]!r}
                 we found this item next:
-                {}
+                {extra_args[0]!r}
                 """
-            ).format(repr((outputs + inputs + state)[-1]), repr(extra_args[0]))
+            )
         )
 
     for args in [outputs, inputs, state]:
@@ -44,10 +44,10 @@ def validate_callback_arg(arg):
     if not isinstance(getattr(arg, "component_property", None), str):
         raise exceptions.IncorrectTypeException(
             dedent(
+                f"""
+                component_property must be a string, found {arg.component_property!r}
                 """
-                component_property must be a string, found {!r}
-                """
-            ).format(arg.component_property)
+            )
         )
 
     if hasattr(arg, "component_event"):
@@ -67,10 +67,10 @@ def validate_callback_arg(arg):
     else:
         raise exceptions.IncorrectTypeException(
             dedent(
+                f"""
+                component_id must be a string or dict, found {arg.component_id!r}
                 """
-                component_id must be a string or dict, found {!r}
-                """
-            ).format(arg.component_id)
+            )
         )
 
 
@@ -84,11 +84,11 @@ def validate_id_dict(arg):
         if not isinstance(k, str):
             raise exceptions.IncorrectTypeException(
                 dedent(
-                    """
+                    f"""
                     Wildcard ID keys must be non-empty strings,
-                    found {!r} in id {!r}
+                    found {k!r} in id {arg_id!r}
                     """
-                ).format(k, arg_id)
+                )
             )
 
 
@@ -99,12 +99,10 @@ def validate_id_string(arg):
     invalid_found = [x for x in invalid_chars if x in arg_id]
     if invalid_found:
         raise exceptions.InvalidComponentIdError(
+            f"""
+            The element `{arg_id}` contains `{"`, `".join(invalid_found)}` in its ID.
+            Characters `{"`, `".join(invalid_chars)}` are not allowed in IDs.
             """
-            The element `{}` contains `{}` in its ID.
-            Characters `{}` are not allowed in IDs.
-            """.format(
-                arg_id, "`, `".join(invalid_found), "`, `".join(invalid_chars)
-            )
         )
 
 
@@ -136,6 +134,11 @@ def validate_and_group_input_args(flat_args, arg_index_grouping):
     if isinstance(arg_index_grouping, dict):
         func_args = []
         func_kwargs = args_grouping
+        for key in func_kwargs:
+            if not key.isidentifier():
+                raise exceptions.CallbackException(
+                    f"{key} is not a valid Python variable name"
+                )
     elif isinstance(arg_index_grouping, (tuple, list)):
         func_args = list(args_grouping)
         func_kwargs = {}
@@ -151,22 +154,20 @@ def validate_multi_return(outputs_list, output_value, callback_id):
     if not isinstance(output_value, (list, tuple)):
         raise exceptions.InvalidCallbackReturnValue(
             dedent(
-                """
-                The callback {} is a multi-output.
+                f"""
+                The callback {callback_id} is a multi-output.
                 Expected the output type to be a list or tuple but got:
-                {}.
+                {output_value!r}.
                 """
-            ).format(callback_id, repr(output_value))
+            )
         )
 
     if len(output_value) != len(outputs_list):
         raise exceptions.InvalidCallbackReturnValue(
+            f"""
+            Invalid number of output values for {callback_id}.
+            Expected {len(outputs_list)}, got {len(output_value)}
             """
-            Invalid number of output values for {}.
-            Expected {}, got {}
-            """.format(
-                callback_id, len(outputs_list), len(output_value)
-            )
         )
 
     for i, outi in enumerate(outputs_list):
@@ -175,36 +176,35 @@ def validate_multi_return(outputs_list, output_value, callback_id):
             if not isinstance(vi, (list, tuple)):
                 raise exceptions.InvalidCallbackReturnValue(
                     dedent(
-                        """
-                        The callback {} output {} is a wildcard multi-output.
+                        f"""
+                        The callback {callback_id} output {i} is a wildcard multi-output.
                         Expected the output type to be a list or tuple but got:
-                        {}.
-                        output spec: {}
+                        {vi!r}.
+                        output spec: {outi!r}
                         """
-                    ).format(callback_id, i, repr(vi), repr(outi))
+                    )
                 )
 
             if len(vi) != len(outi):
                 raise exceptions.InvalidCallbackReturnValue(
                     dedent(
+                        f"""
+                        Invalid number of output values for {callback_id} item {i}.
+                        Expected {len(vi)}, got {len(outi)}
+                        output spec: {outi!r}
+                        output value: {vi!r}
                         """
-                        Invalid number of output values for {} item {}.
-                        Expected {}, got {}
-                        output spec: {}
-                        output value: {}
-                        """
-                    ).format(callback_id, i, len(vi), len(outi), repr(outi), repr(vi))
+                    )
                 )
 
 
 def fail_callback_output(output_value, output):
-    valid = (str, dict, int, float, type(None), Component)
+    valid_children = (str, int, float, type(None), Component)
+    valid_props = (str, int, float, type(None), tuple, MutableSequence)
 
     def _raise_invalid(bad_val, outer_val, path, index=None, toplevel=False):
         bad_type = type(bad_val).__name__
-        outer_id = (
-            "(id={:s})".format(outer_val.id) if getattr(outer_val, "id", False) else ""
-        )
+        outer_id = f"(id={outer_val.id:s})" if getattr(outer_val, "id", False) else ""
         outer_type = type(outer_val).__name__
         if toplevel:
             location = dedent(
@@ -214,20 +214,21 @@ def fail_callback_output(output_value, output):
                 """
             )
         else:
-            index_string = "[*]" if index is None else "[{:d}]".format(index)
+            index_string = "[*]" if index is None else f"[{index:d}]"
             location = dedent(
-                """
+                f"""
                 The value in question is located at
-                {} {} {}
-                {},
+                {index_string} {outer_type} {outer_id}
+                {path},
                 """
-            ).format(index_string, outer_type, outer_id, path)
+            )
 
+        obj = "tree with one value" if not toplevel else "value"
         raise exceptions.InvalidCallbackReturnValue(
             dedent(
-                """
-                The callback for `{output}`
-                returned a {object:s} having type `{type}`
+                f"""
+                The callback for `{output!r}`
+                returned a {obj:s} having type `{bad_type}`
                 which is not JSON serializable.
 
                 {location}
@@ -238,43 +239,69 @@ def fail_callback_output(output_value, output):
                 dash components, strings, dictionaries, numbers, None,
                 or lists of those.
                 """
-            ).format(
-                output=repr(output),
-                object="tree with one value" if not toplevel else "value",
-                type=bad_type,
-                location=location,
-                bad_val=bad_val,
             )
         )
 
-    def _value_is_valid(val):
-        return isinstance(val, valid)
+    def _valid_child(val):
+        return isinstance(val, valid_children)
+
+    def _valid_prop(val):
+        return isinstance(val, valid_props)
+
+    def _can_serialize(val):
+        if not (_valid_child(val) or _valid_prop(val)):
+            return False
+        try:
+            to_json(val)
+        except TypeError:
+            return False
+        return True
 
     def _validate_value(val, index=None):
         # val is a Component
         if isinstance(val, Component):
+            unserializable_items = []
             # pylint: disable=protected-access
             for p, j in val._traverse_with_paths():
                 # check each component value in the tree
-                if not _value_is_valid(j):
+                if not _valid_child(j):
                     _raise_invalid(bad_val=j, outer_val=val, path=p, index=index)
+
+                if not _can_serialize(j):
+                    # collect unserializable items separately, so we can report
+                    # only the deepest level, not all the parent components that
+                    # are just unserializable because of their children.
+                    unserializable_items = [
+                        i for i in unserializable_items if not p.startswith(i[0])
+                    ]
+                    if unserializable_items:
+                        # we already have something unserializable in a different
+                        # branch - time to stop and fail
+                        break
+                    if all(not i[0].startswith(p) for i in unserializable_items):
+                        unserializable_items.append((p, j))
 
                 # Children that are not of type Component or
                 # list/tuple not returned by traverse
                 child = getattr(j, "children", None)
-                if not isinstance(child, (tuple, collections.MutableSequence)):
-                    if child and not _value_is_valid(child):
+                if not isinstance(child, (tuple, MutableSequence)):
+                    if child and not _can_serialize(child):
                         _raise_invalid(
                             bad_val=child,
                             outer_val=val,
                             path=p + "\n" + "[*] " + type(child).__name__,
                             index=index,
                         )
+            if unserializable_items:
+                p, j = unserializable_items[0]
+                # just report the first one, even if there are multiple,
+                # as that's how all the other errors work
+                _raise_invalid(bad_val=j, outer_val=val, path=p, index=index)
 
             # Also check the child of val, as it will not be returned
             child = getattr(val, "children", None)
-            if not isinstance(child, (tuple, collections.MutableSequence)):
-                if child and not _value_is_valid(child):
+            if not isinstance(child, (tuple, MutableSequence)):
+                if child and not _can_serialize(val):
                     _raise_invalid(
                         bad_val=child,
                         outer_val=val,
@@ -282,8 +309,7 @@ def fail_callback_output(output_value, output):
                         index=index,
                     )
 
-        # val is not a Component, but is at the top level of tree
-        elif not _value_is_valid(val):
+        if not _can_serialize(val):
             _raise_invalid(
                 bad_val=val,
                 outer_val=type(val).__name__,
@@ -300,15 +326,13 @@ def fail_callback_output(output_value, output):
 
     # if we got this far, raise a generic JSON error
     raise exceptions.InvalidCallbackReturnValue(
-        """
-        The callback for property `{property:s}` of component `{id:s}`
+        f"""
+        The callback for output `{output!r}`
         returned a value which is not JSON serializable.
 
         In general, Dash properties can only be dash components, strings,
         dictionaries, numbers, None, or lists of those.
-        """.format(
-            property=output.component_property, id=output.component_id
-        )
+        """
     )
 
 
@@ -316,38 +340,32 @@ def check_obsolete(kwargs):
     for key in kwargs:
         if key in ["components_cache_max_age", "static_folder"]:
             raise exceptions.ObsoleteKwargException(
-                """
-                {} is no longer a valid keyword argument in Dash since v1.0.
+                f"""
+                {key} is no longer a valid keyword argument in Dash since v1.0.
                 See https://dash.plotly.com for details.
-                """.format(
-                    key
-                )
+                """
             )
         # any other kwarg mimic the built-in exception
-        raise TypeError("Dash() got an unexpected keyword argument '" + key + "'")
+        raise TypeError(f"Dash() got an unexpected keyword argument '{key}'")
 
 
 def validate_js_path(registered_paths, package_name, path_in_package_dist):
     if package_name not in registered_paths:
         raise exceptions.DependencyException(
-            """
-            Error loading dependency. "{}" is not a registered library.
+            f"""
+            Error loading dependency. "{package_name}" is not a registered library.
             Registered libraries are:
-            {}
-            """.format(
-                package_name, list(registered_paths.keys())
-            )
+            {list(registered_paths.keys())}
+            """
         )
 
     if path_in_package_dist not in registered_paths[package_name]:
         raise exceptions.DependencyException(
+            f"""
+            "{package_name}" is registered but the path requested is not valid.
+            The path requested: "{path_in_package_dist}"
+            List of registered paths: {registered_paths}
             """
-            "{}" is registered but the path requested is not valid.
-            The path requested: "{}"
-            List of registered paths: {}
-            """.format(
-                package_name, path_in_package_dist, registered_paths
-            )
         )
 
 
@@ -356,9 +374,7 @@ def validate_index(name, checks, index):
     if missing:
         plural = "s" if len(missing) > 1 else ""
         raise exceptions.InvalidIndexException(
-            "Missing item{pl} {items} in {name}.".format(
-                items=", ".join(missing), pl=plural, name=name
-            )
+            f"Missing item{plural} {', '.join(missing)} in {name}."
         )
 
 
@@ -387,10 +403,8 @@ def validate_layout(layout, layout_value):
         component_id = stringify_id(getattr(component, "id", None))
         if component_id and component_id in component_ids:
             raise exceptions.DuplicateIdError(
+                f"""
+                Duplicate component id found in the initial layout: `{component_id}`
                 """
-                Duplicate component id found in the initial layout: `{}`
-                """.format(
-                    component_id
-                )
             )
         component_ids.add(component_id)

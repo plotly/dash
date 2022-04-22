@@ -76,7 +76,7 @@
             "elements": [
                 "input"
             ],
-            "description": "From the HTML Media CaptureThe definition of 'media capture' in that specification.spec, specifies a new file can be captured."
+            "description": "From the Media Capture specification, specifies a new file can be captured."
         },
         "challenge": {
             "elements": [
@@ -307,7 +307,7 @@
                 "object",
                 "video"
             ],
-            "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+            "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property. Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
         },
         "hidden": {
             "elements": [
@@ -417,12 +417,6 @@
             ],
             "description": "Indicates the upper bound of the lower range."
         },
-        "manifest": {
-            "elements": [
-                "html"
-            ],
-            "description": "Specifies the URL of the document's cache manifest.    Note: This attribute is obsolete, use <link rel=\"manifest\"> instead."
-        },
         "max": {
             "elements": [
                 "input",
@@ -511,7 +505,7 @@
                 "details",
                 "dialog"
             ],
-            "description": "Indicates whether the the contents are currently visible (in the case of a <details> element) or whether the dialog is active and can be interacted with (in the case of a <dialog> element)."
+            "description": "Indicates whether the contents are currently visible (in the case of a <details> element) or whether the dialog is active and can be interacted with (in the case of a <dialog> element)."
         },
         "optimum": {
             "elements": [
@@ -591,6 +585,12 @@
             ],
             "description": "Indicates whether the list should be displayed in a descending order instead of a ascending."
         },
+        "role": {
+            "elements": [
+                "Globalattribute"
+            ],
+            "description": "Defines an explicit role for an element for use by assistive technologies."
+        },
         "rows": {
             "elements": [
                 "textarea"
@@ -615,12 +615,6 @@
                 "th"
             ],
             "description": "Defines the cells that the header test (defined in the th element) relates to."
-        },
-        "scoped": {
-            "elements": [
-                "style"
-            ],
-            "description": ""
         },
         "selected": {
             "elements": [
@@ -714,12 +708,6 @@
             ],
             "description": "Defines CSS styles which will override styles previously set."
         },
-        "summary": {
-            "elements": [
-                "table"
-            ],
-            "description": ""
-        },
         "tabIndex": {
             "elements": [
                 "Globalattribute"
@@ -787,7 +775,7 @@
                 "object",
                 "video"
             ],
-            "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+            "description": "For the elements listed here, this establishes the element's width. Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
         },
         "wrap": {
             "elements": [
@@ -852,6 +840,7 @@
             "hidden",
             "id",
             "lang",
+            "role",
             "spellCheck",
             "style",
             "tabIndex",
@@ -1110,9 +1099,6 @@
         "marquee": [
             "loop"
         ],
-        "html": [
-            "manifest"
-        ],
         "source": [
             "media",
             "sizes",
@@ -1122,7 +1108,6 @@
         ],
         "style": [
             "media",
-            "scoped",
             "type"
         ],
         "map": [
@@ -1147,9 +1132,6 @@
         ],
         "colgroup": [
             "span"
-        ],
-        "table": [
-            "summary"
         ],
         "menu": [
             "type"

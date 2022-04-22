@@ -1,10 +1,14 @@
 import abc
 import inspect
 import sys
+import uuid
+import random
 
 from .._utils import patch_collections_abc, stringify_id
 
 MutableSequence = patch_collections_abc("MutableSequence")
+
+rd = random.Random(0)
 
 
 # pylint: disable=no-init,too-few-public-methods
@@ -89,6 +93,7 @@ class Component(metaclass=ComponentMeta):
             )
             # e.g. "The dash_core_components.Dropdown component (version 1.6.0)
             # with the ID "my-dropdown"
+            id_suffix = f' with the ID "{kwargs["id"]}"' if "id" in kwargs else ""
             try:
                 # Get fancy error strings that have the version numbers
                 error_string_prefix = "The `{}.{}` component (version {}){}"
@@ -103,9 +108,7 @@ class Component(metaclass=ComponentMeta):
                         dash_packages[self._namespace],
                         self._type,
                         dash.__version__,
-                        ' with the ID "{}"'.format(kwargs["id"])
-                        if "id" in kwargs
-                        else "",
+                        id_suffix,
                     )
                 else:
                     # Otherwise import the package and extract the version number
@@ -113,26 +116,20 @@ class Component(metaclass=ComponentMeta):
                         self._namespace,
                         self._type,
                         getattr(__import__(self._namespace), "__version__", "unknown"),
-                        ' with the ID "{}"'.format(kwargs["id"])
-                        if "id" in kwargs
-                        else "",
+                        id_suffix,
                     )
             except ImportError:
                 # Our tests create mock components with libraries that
                 # aren't importable
-                error_string_prefix = "The `{}` component{}".format(
-                    self._type,
-                    ' with the ID "{}"'.format(kwargs["id"]) if "id" in kwargs else "",
-                )
+                error_string_prefix = f"The `{self._type}` component{id_suffix}"
 
             if not k_in_propnames and not k_in_wildcards:
+                allowed_args = ", ".join(
+                    sorted(self._prop_names)
+                )  # pylint: disable=no-member
                 raise TypeError(
-                    "{} received an unexpected keyword argument: `{}`".format(
-                        error_string_prefix, k
-                    )
-                    + "\nAllowed arguments: {}".format(  # pylint: disable=no-member
-                        ", ".join(sorted(self._prop_names))
-                    )
+                    f"{error_string_prefix} received an unexpected keyword argument: `{k}`"
+                    f"\nAllowed arguments: {allowed_args}"
                 )
 
             if k != "children" and isinstance(v, Component):
@@ -140,7 +137,7 @@ class Component(metaclass=ComponentMeta):
                     error_string_prefix
                     + " detected a Component for a prop other than `children`\n"
                     + "Did you forget to wrap multiple `children` in an array?\n"
-                    + "Prop {} has value {}\n".format(k, repr(v))
+                    + f"Prop {k} has value {v!r}\n"
                 )
 
             if k == "id":
@@ -149,19 +146,50 @@ class Component(metaclass=ComponentMeta):
                         if not isinstance(id_key, str):
                             raise TypeError(
                                 "dict id keys must be strings,\n"
-                                + "found {!r} in id {!r}".format(id_key, v)
+                                + f"found {id_key!r} in id {v!r}"
                             )
                         if not isinstance(id_val, (str, int, float, bool)):
                             raise TypeError(
                                 "dict id values must be strings, numbers or bools,\n"
-                                + "found {!r} in id {!r}".format(id_val, v)
+                                + f"found {id_val!r} in id {v!r}"
                             )
                 elif not isinstance(v, str):
-                    raise TypeError(
-                        "`id` prop must be a string or dict, not {!r}".format(v)
-                    )
+                    raise TypeError(f"`id` prop must be a string or dict, not {v!r}")
 
             setattr(self, k, v)
+
+    def _set_random_id(self):
+
+        if hasattr(self, "id"):
+            return getattr(self, "id")
+
+        kind = f"`{self._namespace}.{self._type}`"  # pylint: disable=no-member
+
+        if getattr(self, "persistence", False):
+            raise RuntimeError(
+                f"""
+                Attempting to use an auto-generated ID with the `persistence` prop.
+                This is prohibited because persistence is tied to component IDs and
+                auto-generated IDs can easily change.
+
+                Please assign an explicit ID to this {kind} component.
+                """
+            )
+        if "dash_snapshots" in sys.modules:
+            raise RuntimeError(
+                f"""
+                Attempting to use an auto-generated ID in an app with `dash_snapshots`.
+                This is prohibited because snapshots saves the whole app layout,
+                including component IDs, and auto-generated IDs can easily change.
+                Callbacks referencing the new IDs will not work with old snapshots.
+
+                Please assign an explicit ID to this {kind} component.
+                """
+            )
+
+        v = str(uuid.UUID(int=rd.randint(0, 2**128)))
+        setattr(self, "id", v)
+        return v
 
     def to_plotly_json(self):
         # Add normal properties
@@ -287,7 +315,7 @@ class Component(metaclass=ComponentMeta):
     @staticmethod
     def _id_str(component):
         id_ = stringify_id(getattr(component, "id", ""))
-        return id_ and " (id={:s})".format(id_)
+        return id_ and f" (id={id_:s})"
 
     def _traverse_with_paths(self):
         """Yield each item with its path in the tree."""
@@ -305,9 +333,7 @@ class Component(metaclass=ComponentMeta):
         # children is a list of components
         elif isinstance(children, (tuple, MutableSequence)):
             for idx, i in enumerate(children):
-                list_path = "[{:d}] {:s}{}".format(
-                    idx, type(i).__name__, self._id_str(i)
-                )
+                list_path = f"[{idx:d}] {type(i).__name__:s}{self._id_str(i)}"
                 yield list_path, i
 
                 if isinstance(i, Component):
@@ -359,14 +385,11 @@ class Component(metaclass=ComponentMeta):
         ]
         if any(p != "children" for p in props_with_values):
             props_string = ", ".join(
-                "{prop}={value}".format(prop=p, value=repr(getattr(self, p)))
-                for p in props_with_values
+                f"{p}={getattr(self, p)!r}" for p in props_with_values
             )
         else:
             props_string = repr(getattr(self, "children", None))
-        return "{type}({props_string})".format(
-            type=self._type, props_string=props_string
-        )
+        return f"{self._type}({props_string})"
 
 
 def _explicitize_args(func):
@@ -378,7 +401,7 @@ def _explicitize_args(func):
         varnames = func.__code__.co_varnames
 
     def wrapper(*args, **kwargs):
-        if "_explicit_args" in kwargs.keys():
+        if "_explicit_args" in kwargs:
             raise Exception("Variable _explicit_args should not be set.")
         kwargs["_explicit_args"] = list(
             set(list(varnames[: len(args)]) + [k for k, _ in kwargs.items()])

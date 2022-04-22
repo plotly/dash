@@ -94,7 +94,7 @@ def test_cbpu002_multi_output_no_update(dash_duo):
 
     dash_duo.start_server(app)
 
-    dash_duo.multiple_click("#btn", 10)
+    dash_duo.multiple_click("#btn", 10, 0.2)
 
     dash_duo.wait_for_text_to_equal("#n1", "4")
     dash_duo.wait_for_text_to_equal("#n2", "2")

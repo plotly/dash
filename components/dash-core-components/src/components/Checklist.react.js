@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import {append, includes, without} from 'ramda';
 import React, {Component} from 'react';
+import {sanitizeOptions} from '../utils/optionTypes';
 
 /**
  * Checklist is a component that encapsulates several checkboxes.
@@ -22,8 +23,8 @@ export default class Checklist extends Component {
             style,
             loading_state,
             value,
+            inline,
         } = this.props;
-
         return (
             <div
                 data-dash-is-loading={
@@ -33,31 +34,40 @@ export default class Checklist extends Component {
                 style={style}
                 className={className}
             >
-                {options.map(option => (
-                    <label
-                        key={option.value}
-                        style={labelStyle}
-                        className={labelClassName}
-                    >
-                        <input
-                            checked={includes(option.value, value)}
-                            className={inputClassName}
-                            disabled={Boolean(option.disabled)}
-                            style={inputStyle}
-                            type="checkbox"
-                            onChange={() => {
-                                let newValue;
-                                if (includes(option.value, value)) {
-                                    newValue = without([option.value], value);
-                                } else {
-                                    newValue = append(option.value, value);
-                                }
-                                setProps({value: newValue});
-                            }}
-                        />
-                        {option.label}
-                    </label>
-                ))}
+                {sanitizeOptions(options).map(option => {
+                    return (
+                        <label
+                            key={option.value}
+                            style={Object.assign(
+                                {},
+                                labelStyle,
+                                inline ? {display: 'inline-block'} : {}
+                            )}
+                            className={labelClassName}
+                        >
+                            <input
+                                checked={includes(option.value, value)}
+                                className={inputClassName}
+                                disabled={Boolean(option.disabled)}
+                                style={inputStyle}
+                                type="checkbox"
+                                onChange={() => {
+                                    let newValue;
+                                    if (includes(option.value, value)) {
+                                        newValue = without(
+                                            [option.value],
+                                            value
+                                        );
+                                    } else {
+                                        newValue = append(option.value, value);
+                                    }
+                                    setProps({value: newValue});
+                                }}
+                            />
+                            {option.label}
+                        </label>
+                    );
+                })}
             </div>
         );
     }
@@ -65,44 +75,84 @@ export default class Checklist extends Component {
 
 Checklist.propTypes = {
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
-    /**
      * An array of options
      */
-    options: PropTypes.arrayOf(
-        PropTypes.exact({
-            /**
-             * The checkbox's label
-             */
-            label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+    options: PropTypes.oneOfType([
+        /**
+         * Array of options where the label and the value are the same thing - [string|number|bool]
+         */
+        PropTypes.arrayOf(
+            PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+                PropTypes.bool,
+            ])
+        ),
+        /**
+         * Simpler `options` representation in dictionary format. The order is not guaranteed.
+         * {`value1`: `label1`, `value2`: `label2`, ... }
+         * which is equal to
+         * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
+         */
+        PropTypes.object,
+        /**
+         * An array of options {label: [string|number], value: [string|number]},
+         * an optional disabled field can be used for each option
+         */
+        PropTypes.arrayOf(
+            PropTypes.exact({
+                /**
+                 * The option's label
+                 */
+                label: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool,
+                ]).isRequired,
 
-            /**
-             * The value of the checkbox. This value
-             * corresponds to the items specified in the
-             * `value` property.
-             */
-            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
+                /**
+                 * The value of the option. This value
+                 * corresponds to the items specified in the
+                 * `value` property.
+                 */
+                value: PropTypes.oneOfType([
+                    PropTypes.string,
+                    PropTypes.number,
+                    PropTypes.bool,
+                ]).isRequired,
 
-            /**
-             * If true, this checkbox is disabled and can't be clicked on.
-             */
-            disabled: PropTypes.bool,
-        })
-    ),
+                /**
+                 * If true, this option is disabled and cannot be selected.
+                 */
+                disabled: PropTypes.bool,
+
+                /**
+                 * The HTML 'title' attribute for the option. Allows for
+                 * information on hover. For more information on this attribute,
+                 * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
+                 */
+                title: PropTypes.string,
+            })
+        ),
+    ]),
 
     /**
      * The currently selected value
      */
     value: PropTypes.arrayOf(
-        PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.number,
+            PropTypes.bool,
+        ])
     ),
+
+    /**
+     * Indicates whether labelStyle should be inline or not
+     * True: Automatically set { 'display': 'inline-block' } to labelStyle
+     * False: No additional styles are passed into labelStyle.
+     */
+    inline: PropTypes.bool,
 
     /**
      * The class of the container (div)
@@ -135,6 +185,13 @@ Checklist.propTypes = {
      *  and the option's label
      */
     labelClassName: PropTypes.string,
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the value changes.
@@ -198,4 +255,5 @@ Checklist.defaultProps = {
     value: [],
     persisted_props: ['value'],
     persistence_type: 'local',
+    inline: false,
 };

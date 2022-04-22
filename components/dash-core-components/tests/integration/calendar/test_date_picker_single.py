@@ -1,6 +1,10 @@
 from datetime import datetime, timedelta
+import pandas as pd
+import time
 
 import pytest
+import werkzeug
+
 from dash import Dash, Input, Output, html, dcc, no_update
 
 
@@ -71,6 +75,11 @@ def test_dtps010_local_and_session_persistence(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
+@pytest.mark.xfail(
+    condition=werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with 204 and Transfer-Encoding",
+    strict=False,
+)
 def test_dtps011_memory_persistence(dash_dcc):
     app = Dash(__name__)
     app.layout = html.Div(
@@ -179,3 +188,38 @@ def test_dtps013_disabled_days_arent_clickable(dash_dcc):
     # open datepicker to take snapshot
     date.click()
     dash_dcc.percy_snapshot("dtps013 - disabled days")
+
+
+def test_dtps0014_disabed_days_timeout(dash_dcc):
+    app = Dash(__name__)
+
+    min_date = pd.to_datetime("2010-01-01")
+    max_date = pd.to_datetime("2099-01-01")
+    disabled_days = [
+        x for x in pd.date_range(min_date, max_date, freq="D") if x.day != 1
+    ]
+
+    app.layout = html.Div(
+        [
+            html.Label("Operating Date"),
+            dcc.DatePickerSingle(
+                id="dps",
+                min_date_allowed=min_date,
+                max_date_allowed=max_date,
+                disabled_days=disabled_days,
+            ),
+        ]
+    )
+    dash_dcc.start_server(app)
+    date = dash_dcc.wait_for_element("#dps", timeout=5)
+
+    """
+    WebDriver click() function hangs at the time of the react code
+    execution, so it necessary to check execution time.
+    """
+    start_time = time.time()
+    date.click()
+    assert time.time() - start_time < 5
+
+    dash_dcc.wait_for_element(".SingleDatePicker_picker", timeout=5)
+    assert dash_dcc.get_logs() == []

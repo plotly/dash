@@ -1,6 +1,9 @@
 # Change Log for dash-table
+### NOTE: as of v2.0, changes in dash-table are all being recorded in the main dash changelog.
+### This file is kept only for historical purposes.
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
+
 
 ## [4.12.0] - 2021-07-09
 ### Fixed

@@ -54,7 +54,7 @@ module.exports = (env, argv) => {
         },
         externals,
         module: {
-            noParse: /node_modules[\\\/]plotly.js/,
+            noParse: /node_modules[\\\/]plotly.js-dist-min/,
             rules: [
                 {
                     test: /\.jsx?$/,
@@ -65,7 +65,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.jsx?$/,
-                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|is-plain-obj)[\\\/]/,
+                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color|moment)[\\\/]/,
                     use: {
                         loader: 'babel-loader',
                         options: {
@@ -110,11 +110,6 @@ module.exports = (env, argv) => {
                 },
             ],
         },
-        resolve: {
-            alias: {
-                'plotly.js': 'plotly.js/dist/plotly.min.js'
-            }
-        },
         optimization: {
             splitChunks: {
                 name: '[name].js',
@@ -139,7 +134,7 @@ module.exports = (env, argv) => {
             new WebpackDashDynamicImport(),
             new webpack.SourceMapDevToolPlugin({
                 filename: '[file].map',
-                exclude: ['async-plotlyjs']
+                exclude: ['async-plotlyjs', 'async-mathjax']
             }),
             new NodePolyfillPlugin()
         ]

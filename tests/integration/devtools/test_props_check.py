@@ -15,12 +15,6 @@ test_cases = {
         "component": dcc.Checklist,
         "props": {"options": [{"label": "hello"}], "value": ["test"]},
     },
-    "invalid-nested-prop": {
-        "fail": True,
-        "name": "invalid nested prop",
-        "component": dcc.Checklist,
-        "props": {"options": [{"label": "hello", "value": True}], "value": ["test"]},
-    },
     "invalid-arrayOf": {
         "fail": True,
         "name": "invalid arrayOf",
@@ -113,6 +107,12 @@ test_cases = {
             "columns": [{"id": "id", "name": "name", "format": {"prefix": "asdf"}}]
         },
     },
+    "allow-nested-prop": {
+        "fail": False,
+        "name": "allow nested prop",
+        "component": dcc.Checklist,
+        "props": {"options": [{"label": "hello", "value": True}], "value": ["test"]},
+    },
     "allow-null": {
         "fail": False,
         "name": "nested null",
@@ -200,6 +200,7 @@ def test_dvpc001_prop_check_errors_with_path(dash_duo):
 
         if test_cases[tc]["fail"]:
             dash_duo.wait_for_element(".test-devtools-error-toggle").click()
+            dash_duo.wait_for_element(".dash-fe-error__info")
             dash_duo.percy_snapshot(
                 "devtools validation exception: {}".format(test_cases[tc]["name"])
             )
