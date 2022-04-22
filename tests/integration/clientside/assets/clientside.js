@@ -98,5 +98,27 @@ window.dash_clientside.clientside = {
         }
         window.callCount += 1;
         return inputValue.toString();
-    }
+    },
+
+    chained_promise: function (inputValue) {
+        return new Promise(function (resolve) {
+            setTimeout(function () {
+                resolve(inputValue + "-chained");
+            }, 100);
+        });
+    },
+
+    delayed_promise: function (inputValue) {
+        return new Promise(function (resolve) {
+            window.callbackDone = function (deferredValue) {
+                resolve("clientside-" + inputValue + "-" + deferredValue);
+            };
+        });
+    },
+
+    non_delayed_promise: function (inputValue) {
+        return new Promise(function (resolve) {
+            resolve("clientside-" + inputValue);
+        });
+    },
 };
