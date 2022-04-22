@@ -20,7 +20,7 @@ coloredlogs.install(
 )
 
 
-def bootstrap_components(components_source, concurrency):
+def bootstrap_components(components_source, concurrency, install_type):
 
     is_windows = sys.platform == "win32"
 
@@ -30,7 +30,7 @@ def bootstrap_components(components_source, concurrency):
         else "dash-core-components|dash-html-components|dash-table"
     )
 
-    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope *@({source_glob})* -- npm i"
+    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope *@({source_glob})* -- npm {install_type}"
     cmd = shlex.split(cmdstr, posix=not is_windows)
     print(cmdstr)
 
@@ -144,10 +144,17 @@ def cli():
         default=3,
         help="Maximum concurrent steps, up to 3 (ie all components in parallel)",
     )
+    parser.add_argument(
+        "--ci",
+        help="For clean-install use '--ci True'",
+        default="False",
+    )
 
     args = parser.parse_args()
 
-    bootstrap_components(args.components_source, args.concurrency)
+    bootstrap_components(
+        args.components_source, args.concurrency, "ci" if args.ci == "True" else "i"
+    )
     build_components(args.components_source, args.concurrency)
 
 
