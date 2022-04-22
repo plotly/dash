@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- [#1968](https://github.com/plotly/dash/pull/1968) Fix bug [#1877](https://github.com/plotly/dash/issues/1877), code which uses `merge_duplicate_headers` and `style_header_conditional` to highlight columns, it incorrectly highlights header cells.
+
 - [#2015](https://github.com/plotly/dash/pull/2015) Fix bug [#1854](https://github.com/plotly/dash/issues/1854) in which the combination of row_selectable="single or multi" and filter_action="native" caused the JS error.
 
 - [#1976](https://github.com/plotly/dash/pull/1976) Fix [#1962](https://github.com/plotly/dash/issues/1962) in which DatePickerSingle and DatePickerRange are extremely slow when provided a long list of disabled_days.
