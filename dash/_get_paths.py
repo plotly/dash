@@ -11,24 +11,12 @@ def get_server(name=None):
     Use `get_server() instead of `app.server` to avoid the circular `app` import issue with multi-page apps.
     """
     global SERVER  # pylint: disable=global-statement
-    # print("in get_server-before", SERVER)
-    # #todo use config.name
-    # if SERVER is None:
-    #     name = name if name else "__main__"
-    #     SERVER = flask.Flask(name)
-    print("in get_server-after", SERVER)
+
+    if SERVER is None:
+        name = name if name else "__main__"
+        SERVER = flask.Flask(name)
     return SERVER
 
-#
-# def get_server():
-#     """
-#     Use `get_server() instead of `app.server` to avoid the circular `app` import issue with multi-page apps.
-#     """
-#     return app_get_server(SERVER)
-#
-#
-# def app_get_server(server):
-#     return server
 
 def get_asset_url(path):
     return app_get_asset_url(CONFIG, path)

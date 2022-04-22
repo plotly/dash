@@ -51,6 +51,7 @@ from ._utils import (
     patch_collections_abc,
     split_callback_id,
     to_json,
+    convert_to_AttributeDict,
     gen_salt,
 )
 from . import _callback
@@ -372,7 +373,6 @@ class Dash:
 
         # server created by dash.get_server()
         self.server = _get_paths.SERVER
-        print("at start. check get_paths for server", self.server)
 
         if isinstance(server, flask.Flask):
             if self.server:
@@ -383,7 +383,6 @@ class Dash:
         elif isinstance(server, bool):
             name = name if name else "__main__"
             self.server = flask.Flask(name) if server else None
-            print("in check if server=True and create", self.server, "name=", name)
             _get_paths.SERVER = self.server
         else:
             raise ValueError("server must be a Flask app or a boolean")
@@ -509,7 +508,6 @@ class Dash:
             for plugin in plugins:
                 plugin.plug(self)
 
-        print("server before self.init_app", self.server)
         if self.server is not None:
             self.init_app()
 
@@ -521,6 +519,8 @@ class Dash:
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
+
+
 
         config = self.config
 
@@ -578,6 +578,7 @@ class Dash:
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
+        _get_paths.SERVER = self.server
         self.enable_pages()
 
     def _add_url(self, name, view_func, methods=("GET",)):
@@ -1397,6 +1398,7 @@ class Dash:
 
     def dispatch(self):
         body = flask.request.get_json()
+
         flask.g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
             "inputs", []
         )
@@ -1431,9 +1433,12 @@ class Dash:
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = inputs + state
+            inputs_state = convert_to_AttributeDict(inputs_state)
+
             args_grouping = map_grouping(
                 lambda ind: inputs_state[ind], inputs_state_indices
             )
+
             flask.g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
             flask.g.using_args_grouping = (  # pylint: disable=assigning-non-slot
                 not isinstance(inputs_state_indices, int)

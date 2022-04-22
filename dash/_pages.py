@@ -59,11 +59,14 @@ def _filename_to_name(filename):
 
 
 def _infer_path(filename, template):
-    pages_folder = CONFIG.pages_folder.split("/")[-1]
     if template is None:
-        path = (
-            filename.replace("_", "-").replace(".", "/").lower().split(pages_folder)[-1]
-        )
+        if CONFIG.pages_folder:
+            pages_folder = CONFIG.pages_folder.split("/")[-1]
+            path = (
+                filename.replace("_", "-").replace(".", "/").lower().split(pages_folder)[-1]
+            )
+        else:
+            path = filename.replace("_", "-").replace(".", "/").lower()
     else:
         # replace the variables in the template with "none" to create a default path if no path is supplied
         path = re.sub("<.*?>", "none", template)
@@ -240,9 +243,8 @@ def register_page(
     ])
     ```
     """
-    # COERCE
-    # - Set the order
-    # - Inferred paths
+    _validate.validate_use_pages(CONFIG)
+
     page = dict(
         module=module,
         supplied_path=path,

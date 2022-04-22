@@ -135,6 +135,11 @@ def validate_and_group_input_args(flat_args, arg_index_grouping):
     if isinstance(arg_index_grouping, dict):
         func_args = []
         func_kwargs = args_grouping
+        for key in func_kwargs:
+            if not key.isidentifier():
+                raise exceptions.CallbackException(
+                    f"{key} is not a valid Python variable name"
+                )
     elif isinstance(arg_index_grouping, (tuple, list)):
         func_args = list(args_grouping)
         func_kwargs = {}
@@ -439,3 +444,8 @@ def validate_pages_layout(module, page, registry):
             A variable or a function named "layout" is required.
             """
         )
+
+def validate_use_pages(config):
+    if not config.get("assets_folder", None):
+        raise Exception(f"`dash.register_page()` must be called after app instantiation")
+
