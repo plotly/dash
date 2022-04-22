@@ -372,6 +372,7 @@ class Dash:
 
         # server created by dash.get_server()
         self.server = _get_paths.SERVER
+        print("at start. check get_paths for server", self.server)
 
         if isinstance(server, flask.Flask):
             if self.server:
@@ -382,6 +383,8 @@ class Dash:
         elif isinstance(server, bool):
             name = name if name else "__main__"
             self.server = flask.Flask(name) if server else None
+            print("in check if server=True and create", self.server, "name=", name)
+            _get_paths.SERVER = self.server
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
@@ -506,10 +509,13 @@ class Dash:
             for plugin in plugins:
                 plugin.plug(self)
 
+        print("server before self.init_app", self.server)
         if self.server is not None:
             self.init_app()
 
+
         _get_paths.SERVER = self.server
+      #  self.enable_pages()
 
         self.logger.setLevel(logging.INFO)
 

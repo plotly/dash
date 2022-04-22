@@ -125,6 +125,8 @@ def pathname_configs(
 def pages_folder_config(name, pages_folder, use_pages):
     if not use_pages:
         return None
+
+    pages_folder = pages_folder.lstrip("\\").lstrip("/")
     pages_folder = None if pages_folder == "" else pages_folder
     pages_folder_path = None
     error_msg = f"""
@@ -132,6 +134,7 @@ def pages_folder_config(name, pages_folder, use_pages):
     If a folder for pages is not required in your application, set `pages_folder=""`
     For example, `app = Dash(__name__,  pages_folder="")`
     """
+
 
     if pages_folder:
         pages_folder_path = os.path.join(
