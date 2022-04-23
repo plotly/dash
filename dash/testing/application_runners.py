@@ -167,7 +167,7 @@ class ThreadedRunner(BaseDashRunner):
                 self.port = options["port"]
 
             try:
-                app.run_server(threaded=True, **options)
+                app.run(threaded=True, **options)
             except SystemExit:
                 logger.info("Server stopped")
 
