@@ -379,9 +379,8 @@ class Dash:
             if name is None:
                 name = getattr(server, "name", "__main__")
         elif isinstance(server, bool):
-            if not self.server:
-                name = name if name else "__main__"
-                self.server = flask.Flask(name) if server else None
+            name = name if name else "__main__"
+            self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
