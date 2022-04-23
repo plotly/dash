@@ -45,7 +45,7 @@ def bootstrap_components(components_source, concurrency, install_type):
 
     if status or not out:
         print(
-            "🚨 Failed installing npm dependencies for component packages: {source_glob} (status={status}) 🚨",
+            f"🚨 Failed installing npm dependencies for component packages: {source_glob} (status={status}) 🚨",
             file=sys.stderr,
         )
         sys.exit(1)
