@@ -249,7 +249,7 @@ def register_page(
     _validate.validate_use_pages(CONFIG)
 
     page = dict(
-        module=module,
+        module=_validate.validate_module_name(module),
         supplied_path=path,
         path_template=path_template,
         path=path if path is not None else _infer_path(module, path_template),

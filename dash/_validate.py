@@ -434,9 +434,22 @@ def check_for_duplicate_pathnames(registry):
             raise Exception(f"modules {modules} have duplicate paths")
 
 
-def validate_pages_layout(module, page, registry):
-    if module not in registry:
-        raise Exception(f"module {module} is not in dash.page_registry")
+def validate_registry(registry):
+    for page in registry.values():
+        if not page.get("layout"):
+            raise exceptions.NoLayoutException(
+                f"No layout in module `{page['module']}` in dash.page_registry"
+            )
+        if page["module"] == "__main__":
+            raise Exception(
+                """
+                When registering pages from app.py, `__name__` is not a valid module name.  Use a string instead.
+                For example, `dash.register_page("my_module_name")`, rather than `dash.register_page(__name__)`
+                """
+            )
+
+
+def validate_pages_layout(module, page):
     if not hasattr(page, "layout"):
         raise exceptions.NoLayoutException(
             f"""
@@ -448,6 +461,12 @@ def validate_pages_layout(module, page, registry):
 
 def validate_use_pages(config):
     if not config.get("assets_folder", None):
+        raise Exception("`dash.register_page()` must be called after app instantiation")
+
+
+def validate_module_name(module):
+    if not isinstance(module, str):
         raise Exception(
-            "`dash.register_page()` must be called after app instantiation"
+            "The first attribute of dash.register_page() must be a string or '__name__'"
         )
+    return module

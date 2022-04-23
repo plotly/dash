@@ -379,9 +379,9 @@ class Dash:
             if name is None:
                 name = getattr(server, "name", "__main__")
         elif isinstance(server, bool):
-            name = name if name else "__main__"
-            self.server = flask.Flask(name) if server else None
-            _get_paths.SERVER = self.server
+            if not self.server:
+                name = name if name else "__main__"
+                self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
@@ -510,7 +510,6 @@ class Dash:
             self.init_app()
 
         _get_paths.SERVER = self.server
-        #  self.enable_pages()
 
         self.logger.setLevel(logging.INFO)
 
@@ -2176,10 +2175,11 @@ class Dash:
                 module_name = ".".join([pages_folder, page_filename])
                 page_module = importlib.import_module(module_name)
 
-                _validate.validate_pages_layout(
-                    module_name, page_module, _pages.PAGE_REGISTRY
-                )
-                if not _pages.PAGE_REGISTRY[module_name]["supplied_layout"]:
+                if (
+                    module_name in _pages.PAGE_REGISTRY
+                    and not _pages.PAGE_REGISTRY[module_name]["supplied_layout"]
+                ):
+                    _validate.validate_pages_layout(module_name, page_module)
                     _pages.PAGE_REGISTRY[module_name]["layout"] = getattr(
                         page_module, "layout"
                     )
@@ -2234,7 +2234,7 @@ class Dash:
                         layout = html.H1("404 - Page not found")
                         title = self.title
                 else:
-                    layout = page["layout"]
+                    layout = page.get("layout", "")
                     title = page["title"]
 
                 if callable(layout):
@@ -2249,6 +2249,7 @@ class Dash:
                 return layout, {"title": title}
 
             _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
+            _validate.validate_registry(_pages.PAGE_REGISTRY)
 
             # Set validation_layout
             self.validation_layout = html.Div(

@@ -1,5 +1,6 @@
 from dash import Dash, html, dcc, Output, Input
 import dash
+import flask
 
 
 external_stylesheets = [
@@ -9,7 +10,10 @@ external_stylesheets = [
     "https://codepen.io/chriddyp/pen/brPBPO.css",
 ]
 
-app = Dash(__name__, use_pages=True, external_stylesheets=external_stylesheets)
+server = flask.Flask("flaskapp")
+app = Dash(
+    __name__, use_pages=True, external_stylesheets=external_stylesheets, server=server
+)
 
 dash.register_page("another_home", layout=html.Div("We're home!"), path="/")
 dash.register_page(
