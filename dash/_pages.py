@@ -63,7 +63,10 @@ def _infer_path(filename, template):
         if CONFIG.pages_folder:
             pages_folder = CONFIG.pages_folder.split("/")[-1]
             path = (
-                filename.replace("_", "-").replace(".", "/").lower().split(pages_folder)[-1]
+                filename.replace("_", "-")
+                .replace(".", "/")
+                .lower()
+                .split(pages_folder)[-1]
             )
         else:
             path = filename.replace("_", "-").replace(".", "/").lower()

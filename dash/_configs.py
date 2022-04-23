@@ -135,7 +135,6 @@ def pages_folder_config(name, pages_folder, use_pages):
     For example, `app = Dash(__name__,  pages_folder="")`
     """
 
-
     if pages_folder:
         pages_folder_path = os.path.join(
             flask.helpers.get_root_path(name), pages_folder

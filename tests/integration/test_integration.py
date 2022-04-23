@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 import dash_dangerously_set_inner_html
 import dash_flow_example
 
+import dash
 from dash import Dash, html, dcc, Input, Output
 from dash.exceptions import PreventUpdate
 
@@ -337,3 +338,54 @@ def test_inin026_graphs_in_tabs_do_not_share_state(dash_duo):
     dash_duo.find_element("#graph2:not(.dash-graph--pending)").click()
 
     until(lambda: '"label": 3' in dash_duo.find_element("#graph2_info").text, timeout=3)
+
+
+def test_inin027_multi_page_without_pages_folder(dash_duo):
+    app = Dash(__name__, pages_folder="")
+
+    # test for storing arbitrary keyword arguments: An `id` prop is defined for every page
+    # test for defining multiple pages within a single file: layout is passed directly to `register_page`
+    # in the following two modules:
+    dash.register_page(
+        "multi_layout1",
+        layout=html.Div("text for multi_layout1", id="text_multi_layout1"),
+        path="/",
+        title="Supplied Title",
+        description="This is the supplied description",
+        name="Supplied name",
+        image="birds.jpeg",
+        id="multi_layout1",
+    )
+    dash.register_page(
+        "multi_layout2",
+        layout=html.Div("text for multi_layout2", id="text_multi_layout2"),
+        path="/layout2",
+        id="multi_layout2",
+    )
+
+    app.layout = html.Div(
+        [
+            html.Div(
+                [
+                    html.Div(
+                        dcc.Link(
+                            f"{page['name']} - {page['path']}",
+                            id=page["id"],
+                            href=page["path"],
+                        )
+                    )
+                    for page in dash.page_registry.values()
+                ]
+            ),
+            dash.page_container,
+        ]
+    )
+
+    dash_duo.start_server(app)
+    # test layout and title for each page in `page_registry` with link navigation
+    for page in dash.page_registry.values():
+        dash_duo.find_element("#" + page["id"]).click()
+        dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
+        assert dash_duo.driver.title == page["title"], "check that page title updates"
+
+    assert not dash_duo.get_logs()

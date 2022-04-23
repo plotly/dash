@@ -445,7 +445,9 @@ def validate_pages_layout(module, page, registry):
             """
         )
 
+
 def validate_use_pages(config):
     if not config.get("assets_folder", None):
-        raise Exception(f"`dash.register_page()` must be called after app instantiation")
-
+        raise Exception(
+            "`dash.register_page()` must be called after app instantiation"
+        )

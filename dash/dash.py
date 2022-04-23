@@ -375,8 +375,6 @@ class Dash:
         self.server = _get_paths.SERVER
 
         if isinstance(server, flask.Flask):
-            if self.server:
-                raise ValueError("server is already created by dash.get_server")
             self.server = server
             if name is None:
                 name = getattr(server, "name", "__main__")
@@ -511,16 +509,13 @@ class Dash:
         if self.server is not None:
             self.init_app()
 
-
         _get_paths.SERVER = self.server
-      #  self.enable_pages()
+        #  self.enable_pages()
 
         self.logger.setLevel(logging.INFO)
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
-
-
 
         config = self.config
 
