@@ -436,7 +436,7 @@ def check_for_duplicate_pathnames(registry):
 
 def validate_registry(registry):
     for page in registry.values():
-        if not page.get("layout"):
+        if "layout" not in page:
             raise exceptions.NoLayoutException(
                 f"No layout in module `{page['module']}` in dash.page_registry"
             )
