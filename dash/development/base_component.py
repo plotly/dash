@@ -86,7 +86,7 @@ class Component(metaclass=ComponentMeta):
 
         self._children_props = []
 
-        # pylint: disable=super-init-not-called
+        # pylint: disable=super-init-not-called,too-many-nested-blocks
         for k, v in list(kwargs.items()):
             # pylint: disable=no-member
             k_in_propnames = k in self._prop_names
@@ -146,6 +146,14 @@ class Component(metaclass=ComponentMeta):
                         if isinstance(item, Component):
                             self._children_props.append(k)
                             break
+                        if isinstance(item, dict):
+                            found = False
+                            for key, value in item.items():
+                                if isinstance(value, Component):
+                                    self._children_props.append("[]" + k + "." + key)
+                                    found = True
+                            if found:
+                                break
 
             if k == "id":
                 if isinstance(v, dict):
@@ -194,7 +202,7 @@ class Component(metaclass=ComponentMeta):
                 """
             )
 
-        v = str(uuid.UUID(int=rd.randint(0, 2**128)))
+        v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
         setattr(self, "id", v)
         return v
 

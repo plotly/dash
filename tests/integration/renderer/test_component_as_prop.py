@@ -1,4 +1,4 @@
-from dash import Dash, Input, Output
+from dash import Dash, Input, Output, callback_context
 
 from dash_test_components import ComponentAsProp
 from dash.html import Button, Div
@@ -42,6 +42,8 @@ def test_rdcap001_component_as_prop(dash_duo):
                     Div(id="output-from-list"),
                     Button("click footer", id="to-footer"),
                     Div(id="from-header"),
+                    Div(id="from-list-of-dict"),
+                    Button("click to list", id="update-list-of-dict"),
                 ],
             ),
             ComponentAsProp(
@@ -50,6 +52,22 @@ def test_rdcap001_component_as_prop(dash_duo):
                     "header": Button("header", id="button-header"),
                     "footer": Div("initial", id="footer"),
                 },
+            ),
+            ComponentAsProp(
+                id="list-of-dict",
+                list_of_shapes=[
+                    {"label": Button(f"click-{i}", id=f"list-click-{i}"), "value": i}
+                    for i in range(1, 4)
+                ],
+            ),
+            ComponentAsProp(
+                "list-of-dict-update",
+                list_of_shapes=[
+                    {
+                        "label": Div("update me", id="update-in-list-of-dict"),
+                        "value": 1,
+                    },
+                ],
             ),
         ]
     )
@@ -86,9 +104,24 @@ def test_rdcap001_component_as_prop(dash_duo):
     def send_to_footer(n_clicks):
         return f"To footer: {n_clicks}"
 
+    @app.callback(
+        Output("update-in-list-of-dict", "children"),
+        [Input("update-list-of-dict", "n_clicks")],
+    )
+    def send_to_list_of_dict(n_clicks):
+        return f"Updated: {n_clicks}"
+
+    @app.callback(
+        Output("from-list-of-dict", "children"),
+        [Input(f"list-click-{i}", "n_clicks") for i in range(1, 4)],
+        prevent_initial_call=True,
+    )
+    def updated_from_list(*_):
+        return callback_context.triggered[0]["prop_id"]
+
     dash_duo.start_server(app)
 
-    assert dash_duo.get_logs() == []
+    # assert dash_duo.get_logs() == []
 
     dash_duo.wait_for_text_to_equal("#as-props", "as-props")
 
@@ -119,5 +152,12 @@ def test_rdcap001_component_as_prop(dash_duo):
     to_footer = dash_duo.find_element("#to-footer")
     to_footer.click()
     dash_duo.wait_for_text_to_equal("#footer", "To footer: 1")
+
+    for btn_id in (f"list-click-{i}" for i in range(1, 4)):
+        dash_duo.find_element(f"#{btn_id}").click()
+        dash_duo.wait_for_text_to_equal("#from-list-of-dict", f"{btn_id}.n_clicks")
+
+    dash_duo.find_element("#update-list-of-dict").click()
+    dash_duo.wait_for_text_to_equal("#update-in-list-of-dict", "Updated: 1")
 
     assert dash_duo.get_logs() == []

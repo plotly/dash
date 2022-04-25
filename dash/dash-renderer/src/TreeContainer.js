@@ -205,12 +205,29 @@ class BaseTreeContainer extends Component {
             ...childrenProps
                 .map(childrenProp => {
                     if (childrenProp.includes('.')) {
-                        const path = childrenProp.split('.');
-                        const node =
-                            _dashprivate_layout.props[path[0]][path[1]];
-                        return assocPath(
-                            path,
-                            this.createContainer(
+                        let path = childrenProp.split('.');
+                        let node;
+                        let nodeValue;
+                        if (childrenProp.startsWith('[]')) {
+                            const frontPath = path[0].slice(2);
+                            node = _dashprivate_layout.props[frontPath];
+                            nodeValue = node.map((n, i) => ({
+                                ...n,
+                                [path[1]]: this.createContainer(
+                                    this.props,
+                                    n[path[1]],
+                                    concat(this.props._dashprivate_path, [
+                                        'props',
+                                        frontPath,
+                                        i,
+                                        path[1]
+                                    ])
+                                )
+                            }));
+                            path = [frontPath];
+                        } else {
+                            node = _dashprivate_layout.props[path[0]][path[1]];
+                            nodeValue = this.createContainer(
                                 this.props,
                                 node,
                                 concat(this.props._dashprivate_path, [
@@ -218,8 +235,9 @@ class BaseTreeContainer extends Component {
                                     path[0],
                                     path[1]
                                 ])
-                            )
-                        );
+                            );
+                        }
+                        return assocPath(path, nodeValue);
                     }
                     const node = _dashprivate_layout.props[childrenProp];
                     if (node) {

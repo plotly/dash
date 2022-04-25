@@ -27,11 +27,24 @@ export function urlBase(config) {
 const propsChildren = ['props', 'children'];
 
 // crawl a layout object or children array, apply a function on every object
-export const crawlLayout = (object, func, currentPath = []) => {
+export const crawlLayout = (
+    object,
+    func,
+    currentPath = [],
+    extraPath = undefined
+) => {
     if (Array.isArray(object)) {
         // children array
         object.forEach((child, i) => {
-            crawlLayout(child, func, append(i, currentPath));
+            if (extraPath) {
+                crawlLayout(
+                    child[extraPath],
+                    func,
+                    concat(currentPath, [i, extraPath])
+                );
+            } else {
+                crawlLayout(child, func, append(i, currentPath));
+            }
         });
     } else if (type(object) === 'Object') {
         func(object, currentPath);
@@ -43,15 +56,27 @@ export const crawlLayout = (object, func, currentPath = []) => {
         }
         const childrenProps = pathOr([], ['childrenProps'], object);
         childrenProps.forEach(childrenProp => {
-            const newPath = concat(currentPath, [
-                'props',
-                ...childrenProp.split('.')
-            ]);
-            crawlLayout(
-                path(['props', ...childrenProp.split('.')], object),
-                func,
-                newPath
-            );
+            if (childrenProp.startsWith('[]')) {
+                let [frontPath, backPath] = childrenProp.split('.');
+                frontPath = frontPath.slice(2);
+                const basePath = concat(currentPath, ['props', frontPath]);
+                crawlLayout(
+                    path(['props', frontPath], object),
+                    func,
+                    basePath,
+                    backPath
+                );
+            } else {
+                const newPath = concat(currentPath, [
+                    'props',
+                    ...childrenProp.split('.')
+                ]);
+                crawlLayout(
+                    path(['props', ...childrenProp.split('.')], object),
+                    func,
+                    newPath
+                );
+            }
         });
     }
 };
