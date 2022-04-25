@@ -20,6 +20,13 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
                 ],
                 id="radio-items",
             ),
+            dcc.Dropdown(
+                [
+                    {"label": html.H4("h4"), "value": "h4"},
+                    {"label": html.H6("h6"), "value": "h6"},
+                ],
+                id="dropdown",
+            ),
         ]
     )
 
@@ -30,3 +37,7 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
 
     dash_dcc.wait_for_text_to_equal("#radio-items h3", "on")
     dash_dcc.wait_for_text_to_equal("#radio-items p", "off")
+
+    dash_dcc.find_element("#dropdown").click()
+    dash_dcc.wait_for_text_to_equal("#dropdown h4", "h4")
+    dash_dcc.wait_for_text_to_equal("#dropdown h6", "h6")
