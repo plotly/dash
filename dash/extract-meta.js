@@ -61,7 +61,7 @@ const reArray = new RegExp(`(${unionSupport.join('|')})\\[\\]`);
 
 const isArray = rawType => reArray.test(rawType);
 
-const isUnionlitteral = typeObj =>
+const isUnionLiteral = typeObj =>
     typeObj.types.every(
         t =>
             t.getFlags() &
@@ -289,7 +289,7 @@ function gatherComponents(sources, components = {}) {
         const raw = name;
 
         if (propType.isUnion()) {
-            if (isUnionlitteral(propType)) {
+            if (isUnionLiteral(propType)) {
                 return {...getEnum(propType), raw};
             } else if (raw.includes('|')) {
                 return {...getUnion(propType, propObj), raw};
@@ -328,7 +328,7 @@ function gatherComponents(sources, components = {}) {
                 name = 'shape';
                 // If the type is declared as union it will have a types attribute.
                 if (propType.types && propType.types.length) {
-                    if (isUnionlitteral(propType)) {
+                    if (isUnionLiteral(propType)) {
                         return {...getEnum(propType), raw};
                     }
                     return {...getUnion(propType, propObj), raw};
