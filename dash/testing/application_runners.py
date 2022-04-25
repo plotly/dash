@@ -20,6 +20,7 @@ from dash.testing.errors import (
 )
 from dash.testing import wait
 
+from .. import _server
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +64,7 @@ class BaseDashRunner:
         self.keep_open = keep_open
         self.stop_timeout = stop_timeout
         self._tmp_app_path = None
+        _server.SERVER = None
 
     def start(self, *args, **kwargs):
         raise NotImplementedError  # pragma: no cover

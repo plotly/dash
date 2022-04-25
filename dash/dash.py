@@ -59,6 +59,7 @@ from . import _get_paths
 from . import _dash_renderer
 from . import _validate
 from . import _watch
+from . import _server
 
 from ._grouping import (
     flatten_grouping,
@@ -372,15 +373,18 @@ class Dash:
         # False (defer server creation) or a Flask app instance (we use their server)
 
         # server created by dash.get_server()
-        self.server = _get_paths.SERVER
+        self.server = _server.SERVER
 
         if isinstance(server, flask.Flask):
+            if self.server and self.server != server:
+                raise Exception("Server already exists")
             self.server = server
             if name is None:
                 name = getattr(server, "name", "__main__")
         elif isinstance(server, bool):
-            name = name if name else "__main__"
-            self.server = flask.Flask(name) if server else None
+            if not self.server:
+                name = name if name else "__main__"
+                self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
@@ -508,8 +512,6 @@ class Dash:
         if self.server is not None:
             self.init_app()
 
-        _get_paths.SERVER = self.server
-
         self.logger.setLevel(logging.INFO)
 
     def init_app(self, app=None, **kwargs):
@@ -571,7 +573,7 @@ class Dash:
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
-        _get_paths.SERVER = self.server
+        _server.SERVER = self.server
         self.enable_pages()
 
     def _add_url(self, name, view_func, methods=("GET",)):
@@ -2256,7 +2258,7 @@ class Dash:
                     page["layout"]() if callable(page["layout"]) else page["layout"]
                     for page in _pages.PAGE_REGISTRY.values()
                 ]
-                + [self.layout]
+                + [self.layout() if callable(self.layout) else self.layout]
             )
             if _ID_CONTENT not in self.validation_layout:
                 raise Exception("`dash.page_container` not found in the layout")
