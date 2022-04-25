@@ -108,6 +108,7 @@ Checklist.propTypes = {
                     PropTypes.string,
                     PropTypes.number,
                     PropTypes.bool,
+                    PropTypes.node,
                 ]).isRequired,
 
                 /**
