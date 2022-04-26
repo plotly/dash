@@ -21,6 +21,7 @@ from pkg_resources import get_distribution, parse_version
 from dash import dcc
 from dash import html
 from dash import dash_table
+from ._callback import NoUpdate
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -1169,7 +1170,17 @@ class Dash:
         )
         store_id = f"_long_callback_store_{long_callback_id}"
         store_component = dcc.Store(id=store_id, data={})
-        self._extra_components.extend([interval_component, store_component])
+        error_id = f"_long_callback_error_{long_callback_id}"
+        error_store_component = dcc.Store(id=error_id)
+        error_dummy = f"_long_callback_error_dummy_{long_callback_id}"
+        self._extra_components.extend(
+            [
+                interval_component,
+                store_component,
+                error_store_component,
+                dcc.Store(id=error_dummy),
+            ]
+        )
 
         # Compute full component plus property name for the cancel dependencies
         cancel_prop_ids = tuple(
@@ -1214,6 +1225,7 @@ class Dash:
                         in_progress=[val for (_, _, val) in running],
                         progress=clear_progress,
                         user_store_data=user_store_data,
+                        error=NoUpdate(),
                     )
 
                 # Look up progress value if a job is in progress
@@ -1228,6 +1240,19 @@ class Dash:
                     # to pending key (hash of data requested by client)
                     user_store_data["current_key"] = pending_key
 
+                    if isinstance(result, dict) and result.get("long_callback_error"):
+                        error = result.get("long_callback_error")
+                        print(result["long_callback_error"]["tb"], file=sys.stderr)
+                        return dict(
+                            error=f"An error occurred inside a long callback: {error['msg']}\n"
+                            + error["tb"],
+                            user_callback_output=NoUpdate(),
+                            in_progress=[val for (_, _, val) in running],
+                            interval_disabled=pending_job is None,
+                            progress=clear_progress,
+                            user_store_data=user_store_data,
+                        )
+
                     # Disable interval if this value was pulled from cache.
                     # If this value was the result of a background calculation, don't
                     # disable yet. If no other calculations are in progress,
@@ -1240,6 +1265,7 @@ class Dash:
                         in_progress=[val for (_, _, val) in running],
                         progress=clear_progress,
                         user_store_data=user_store_data,
+                        error=NoUpdate(),
                     )
                 if progress_value:
                     return dict(
@@ -1248,6 +1274,7 @@ class Dash:
                         in_progress=[val for (_, val, _) in running],
                         progress=progress_value or {},
                         user_store_data=user_store_data,
+                        error=NoUpdate(),
                     )
 
                 # Check if there is a running calculation that can now
@@ -1273,7 +1300,15 @@ class Dash:
                     in_progress=[val for (_, val, _) in running],
                     progress=clear_progress,
                     user_store_data=user_store_data,
+                    error=NoUpdate(),
                 )
+
+            self.clientside_callback(
+                "function (error) {throw new Error(error)}",
+                Output(error_dummy, "data"),
+                [Input(error_id, "data")],
+                prevent_initial_call=True,
+            )
 
             return self.callback(
                 inputs=dict(
@@ -1290,6 +1325,7 @@ class Dash:
                     in_progress=[dep for (dep, _, _) in running],
                     progress=progress,
                     user_store_data=Output(store_id, "data"),
+                    error=Output(error_id, "data"),
                 ),
                 prevent_initial_call=prevent_initial_call,
             )(callback)

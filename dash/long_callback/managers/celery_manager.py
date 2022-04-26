@@ -1,8 +1,12 @@
 import json
 import inspect
 import hashlib
+import traceback
 
 from _plotly_utils.utils import PlotlyJSONEncoder
+
+from dash._callback import NoUpdate
+from dash.exceptions import PreventUpdate
 from dash.long_callback.managers import BaseLongCallbackManager
 
 
@@ -132,13 +136,31 @@ def _make_job_fn(fn, celery_app, progress, args_deps):
             cache.set(progress_key, json.dumps(progress_value, cls=PlotlyJSONEncoder))
 
         maybe_progress = [_set_progress] if progress else []
-        if isinstance(args_deps, dict):
-            user_callback_output = fn(*maybe_progress, **user_callback_args)
-        elif isinstance(args_deps, (list, tuple)):
-            user_callback_output = fn(*maybe_progress, *user_callback_args)
-        else:
-            user_callback_output = fn(*maybe_progress, user_callback_args)
 
-        cache.set(result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder))
+        try:
+            if isinstance(args_deps, dict):
+                user_callback_output = fn(*maybe_progress, **user_callback_args)
+            elif isinstance(args_deps, (list, tuple)):
+                user_callback_output = fn(*maybe_progress, *user_callback_args)
+            else:
+                user_callback_output = fn(*maybe_progress, user_callback_args)
+        except PreventUpdate:
+            cache.set(result_key, json.dumps(NoUpdate(), cls=PlotlyJSONEncoder))
+        except Exception as err:  # pylint: disable=broad-except
+            cache.set(
+                result_key,
+                json.dumps(
+                    {
+                        "long_callback_error": {
+                            "msg": str(err),
+                            "tb": traceback.format_exc(),
+                        }
+                    }
+                ),
+            )
+        else:
+            cache.set(
+                result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
+            )
 
     return job_fn

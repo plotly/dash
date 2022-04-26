@@ -1,6 +1,14 @@
+import traceback
+
 from . import BaseLongCallbackManager
+from ..._callback import NoUpdate
+from ...exceptions import PreventUpdate
 
 _pending_value = "__$pending__"
+
+
+class OriginalException:
+    pass
 
 
 class DiskcacheLongCallbackManager(BaseLongCallbackManager):
@@ -140,12 +148,27 @@ def _make_job_fn(fn, cache, progress, args_deps):
             cache.set(progress_key, progress_value)
 
         maybe_progress = [_set_progress] if progress else []
-        if isinstance(args_deps, dict):
-            user_callback_output = fn(*maybe_progress, **user_callback_args)
-        elif isinstance(args_deps, (list, tuple)):
-            user_callback_output = fn(*maybe_progress, *user_callback_args)
+
+        try:
+            if isinstance(args_deps, dict):
+                user_callback_output = fn(*maybe_progress, **user_callback_args)
+            elif isinstance(args_deps, (list, tuple)):
+                user_callback_output = fn(*maybe_progress, *user_callback_args)
+            else:
+                user_callback_output = fn(*maybe_progress, user_callback_args)
+        except PreventUpdate:
+            cache.set(result_key, NoUpdate())
+        except Exception as err:  # pylint: disable=broad-except
+            cache.set(
+                result_key,
+                {
+                    "long_callback_error": {
+                        "msg": str(err),
+                        "tb": traceback.format_exc(),
+                    }
+                },
+            )
         else:
-            user_callback_output = fn(*maybe_progress, user_callback_args)
-        cache.set(result_key, user_callback_output)
+            cache.set(result_key, user_callback_output)
 
     return job_fn
