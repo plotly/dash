@@ -426,3 +426,26 @@ def test_lcbc007_validation_layout(dash_duo, manager):
 
     assert not dash_duo.redux_state_is_loading
     assert dash_duo.get_logs() == []
+
+
+def test_lcbc008_long_callbacks_error(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_error") as app:
+        dash_duo.start_server(app)
+
+        clicker = dash_duo.find_element("#button")
+
+        clicker.click()
+        dash_duo.wait_for_text_to_equal("#output", "Clicked 1 times")
+
+        clicker.click()
+        dash_duo.wait_for_element("#button:not([disabled])")
+        # dash_duo.wait_for_contains_text('.dash-fe-error__title' 'An error occurred inside a long callback:')
+
+        clicker.click()
+        dash_duo.wait_for_text_to_equal("#output", "Clicked 3 times")
+
+        clicker.click()
+        clicker = dash_duo.wait_for_element("#button:not([disabled])")
+        dash_duo.wait_for_text_to_equal("#output", "Clicked 3 times")
+        clicker.click()
+        dash_duo.wait_for_text_to_equal("#output", "Clicked 5 times")
