@@ -232,7 +232,7 @@ describe('Test Typescript component metadata generation', () => {
                 expect(R.path([componentName, 'description'], metadata)).toBe(
                     'Description\n' +
                         'Example:\n```\n' +
-                        '@app.callback("clicks@btn")\n' +
+                        '@app.callback(...)\n' +
                         'def on_click(*args):\n' +
                         '    return 1\n' +
                         '```'

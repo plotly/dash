@@ -5,7 +5,7 @@ import {TypescriptComponentProps} from '../props';
  * Description
  * Example:
  * ```
- * @app.callback("clicks@btn")
+ * @app.callback(...)
  * def on_click(*args):
  *     return 1
  * ```
