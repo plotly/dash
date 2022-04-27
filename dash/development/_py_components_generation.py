@@ -103,7 +103,7 @@ def generate_class_string(
         ]
         + ["**kwargs"]
     )
-    required_args = required_props(props)
+    required_args = required_props(filtered_props)
     return c.format(
         typename=typename,
         namespace=namespace,
