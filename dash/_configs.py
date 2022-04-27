@@ -47,7 +47,7 @@ def get_combined_config(name, val, default=None):
     if val is not None:
         return val
 
-    env = load_dash_env_vars().get("DASH_{}".format(name.upper()))
+    env = load_dash_env_vars().get(f"DASH_{name.upper()}")
     if env is None:
         return default
 

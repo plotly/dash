@@ -53,12 +53,20 @@ jobs:
             set -eo pipefail
             pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
-            npm i
-            npm run build
+            npm ci
+            npm run build.sequential
             python setup.py sdist
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
             ls -la dash-package
           no_output_timeout: 30m
+      - run:
+          name: Display npm errors and exit on failed builds
+          command: |
+            if [ -d "/home/circleci/.npm/_logs" ]
+            then
+              cat /home/circleci/.npm/_logs/*
+              exit 1
+            fi
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
           paths:
@@ -111,8 +119,8 @@ jobs:
             . venv/bin/activate
             set -eo pipefail
             pip install -e . --progress-bar off && pip list | grep dash
-            npm install --production && npm run initialize
-            npm run build
+            npm ci npm run initialize
+            npm run build.sequential
             npm run lint
       - run:
           name: 🐍 Python Unit Tests & ☕ JS Unit Tests
@@ -181,7 +189,7 @@ jobs:
           name: ️️🏗️ Install package
           command: |
             . venv/bin/activate
-            npm install
+            npm ci
             pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
       - run:
@@ -286,7 +294,7 @@ jobs:
             . venv/bin/activate && rm -rf components/dash-core-components/dash_core_components
             cd components/dash-core-components
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" ${TESTFILES}
+            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" ${TESTFILES} --reruns 3
       - store_artifacts:
           path: ~/dash/components/dash-core-components/test-reports
       - store_test_results:
@@ -377,7 +385,7 @@ jobs:
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
-    parallelism: 4
+    parallelism: 5
 
     steps:
       - checkout:

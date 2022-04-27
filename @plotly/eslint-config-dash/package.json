@@ -1,17 +1,17 @@
 {
   "name": "@plotly/eslint-config-dash",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "index.js",
   "author": "Marc-André Rivet",
   "license": "MIT",
   "devDependencies": {
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.23.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-react": "^7.23.1",
-    "prettier": "^2.2.1"
+    "eslint": "^8.13.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-react": "^7.29.4",
+    "prettier": "^2.6.2"
   },
   "peerDependencies": {
     "babel-eslint": "^10.1.0",

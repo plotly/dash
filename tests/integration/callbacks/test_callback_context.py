@@ -2,7 +2,7 @@ import json
 import operator
 import pytest
 
-from dash import Dash, Input, Output, html, dcc, callback_context
+from dash import Dash, ALL, Input, Output, html, dcc, callback_context, ctx
 
 from dash.exceptions import PreventUpdate, MissingCallbackContextException
 import dash.testing.wait as wait
@@ -330,3 +330,59 @@ def test_cbcx006_initial_callback_predecessor(dash_duo):
     assert len(keys1) == 2
     assert "sum-number.value" in keys1
     assert "input-number-2.value" in keys1
+
+
+def test_cbcx007_triggered_id(dash_duo):
+    app = Dash(__name__)
+
+    btns = ["btn-{}".format(x) for x in range(1, 6)]
+
+    app.layout = html.Div(
+        [html.Div([html.Button(btn, id=btn) for btn in btns]), html.Div(id="output")]
+    )
+
+    @app.callback(Output("output", "children"), [Input(x, "n_clicks") for x in btns])
+    def on_click(*args):
+        if not ctx.triggered:
+            raise PreventUpdate
+        for btn in btns:
+            if btn in ctx.triggered_prop_ids.values():
+                assert btn == ctx.triggered_id
+                return f"Just clicked {btn}"
+
+    dash_duo.start_server(app)
+
+    for i in range(1, 5):
+        for btn in btns:
+            dash_duo.find_element("#" + btn).click()
+            dash_duo.wait_for_text_to_equal("#output", f"Just clicked {btn}")
+
+
+def test_cbcx008_triggered_id_pmc(dash_duo):
+
+    app = Dash()
+    app.layout = html.Div(
+        [
+            html.Button("Click me", id={"type": "btn", "index": "myindex"}),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"), Input({"type": "btn", "index": ALL}, "n_clicks")
+    )
+    def func(n_clicks):
+        if ctx.triggered:
+            triggered_id, dict_id = next(iter(ctx.triggered_prop_ids.items()))
+
+            assert dict_id == ctx.triggered_id
+
+            if dict_id == {"type": "btn", "index": "myindex"}:
+                return dict_id["index"]
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element(
+        '#\\{\\"index\\"\\:\\"myindex\\"\\,\\"type\\"\\:\\"btn\\"\\}'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#output", "myindex")

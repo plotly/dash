@@ -10,23 +10,60 @@ import convertToMoment from '../utils/convertToMoment';
 export default class DatePickerSingle extends Component {
     constructor() {
         super();
+        this.propsToState = this.propsToState.bind(this);
         this.isOutsideRange = this.isOutsideRange.bind(this);
         this.onDateChange = this.onDateChange.bind(this);
         this.state = {focused: false};
     }
 
-    isOutsideRange(date) {
-        const {max_date_allowed, min_date_allowed, disabled_days} =
-            convertToMoment(this.props, [
-                'max_date_allowed',
-                'min_date_allowed',
-                'disabled_days',
-            ]);
+    propsToState(newProps, force = false) {
+        const state = {};
 
+        if (
+            force ||
+            newProps.max_date_allowed !== this.props.max_date_allowed
+        ) {
+            state.max_date_allowed = convertToMoment(newProps, [
+                'max_date_allowed',
+            ]).max_date_allowed;
+        }
+
+        if (
+            force ||
+            newProps.min_date_allowed !== this.props.min_date_allowed
+        ) {
+            state.min_date_allowed = convertToMoment(newProps, [
+                'min_date_allowed',
+            ]).min_date_allowed;
+        }
+
+        if (force || newProps.disabled_days !== this.props.disabled_days) {
+            state.disabled_days = convertToMoment(newProps, [
+                'disabled_days',
+            ]).disabled_days;
+        }
+
+        if (Object.keys(state).length) {
+            this.setState(state);
+        }
+    }
+
+    UNSAFE_componentWillReceiveProps(newProps) {
+        this.propsToState(newProps);
+    }
+
+    UNSAFE_componentWillMount() {
+        this.propsToState(this.props, true);
+    }
+
+    isOutsideRange(date) {
         return (
-            (min_date_allowed && date.isBefore(min_date_allowed)) ||
-            (max_date_allowed && date.isAfter(max_date_allowed)) ||
-            (disabled_days && disabled_days.some(d => date.isSame(d, 'day')))
+            (this.state.min_date_allowed &&
+                date.isBefore(this.state.min_date_allowed)) ||
+            (this.state.max_date_allowed &&
+                date.isAfter(this.state.max_date_allowed)) ||
+            (this.state.disabled_days &&
+                this.state.disabled_days.some(d => date.isSame(d, 'day')))
         );
     }
 

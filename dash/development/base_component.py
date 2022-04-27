@@ -93,6 +93,7 @@ class Component(metaclass=ComponentMeta):
             )
             # e.g. "The dash_core_components.Dropdown component (version 1.6.0)
             # with the ID "my-dropdown"
+            id_suffix = f' with the ID "{kwargs["id"]}"' if "id" in kwargs else ""
             try:
                 # Get fancy error strings that have the version numbers
                 error_string_prefix = "The `{}.{}` component (version {}){}"
@@ -107,9 +108,7 @@ class Component(metaclass=ComponentMeta):
                         dash_packages[self._namespace],
                         self._type,
                         dash.__version__,
-                        ' with the ID "{}"'.format(kwargs["id"])
-                        if "id" in kwargs
-                        else "",
+                        id_suffix,
                     )
                 else:
                     # Otherwise import the package and extract the version number
@@ -117,34 +116,29 @@ class Component(metaclass=ComponentMeta):
                         self._namespace,
                         self._type,
                         getattr(__import__(self._namespace), "__version__", "unknown"),
-                        ' with the ID "{}"'.format(kwargs["id"])
-                        if "id" in kwargs
-                        else "",
+                        id_suffix,
                     )
             except ImportError:
                 # Our tests create mock components with libraries that
                 # aren't importable
-                error_string_prefix = "The `{}` component{}".format(
-                    self._type,
-                    ' with the ID "{}"'.format(kwargs["id"]) if "id" in kwargs else "",
-                )
+                error_string_prefix = f"The `{self._type}` component{id_suffix}"
 
             if not k_in_propnames and not k_in_wildcards:
+                allowed_args = ", ".join(
+                    sorted(self._prop_names)
+                )  # pylint: disable=no-member
                 raise TypeError(
-                    "{} received an unexpected keyword argument: `{}`".format(
-                        error_string_prefix, k
-                    )
-                    + "\nAllowed arguments: {}".format(  # pylint: disable=no-member
-                        ", ".join(sorted(self._prop_names))
-                    )
+                    f"{error_string_prefix} received an unexpected keyword argument: `{k}`"
+                    f"\nAllowed arguments: {allowed_args}"
                 )
 
             if k != "children" and isinstance(v, Component):
                 raise TypeError(
                     error_string_prefix
                     + " detected a Component for a prop other than `children`\n"
+                    + f"Prop {k} has value {v!r}\n\n"
                     + "Did you forget to wrap multiple `children` in an array?\n"
-                    + "Prop {} has value {}\n".format(k, repr(v))
+                    + "For example, it must be html.Div([\"a\", \"b\", \"c\"]) not html.Div(\"a\", \"b\", \"c\")\n"
                 )
 
             if k == "id":
@@ -153,17 +147,15 @@ class Component(metaclass=ComponentMeta):
                         if not isinstance(id_key, str):
                             raise TypeError(
                                 "dict id keys must be strings,\n"
-                                + "found {!r} in id {!r}".format(id_key, v)
+                                + f"found {id_key!r} in id {v!r}"
                             )
                         if not isinstance(id_val, (str, int, float, bool)):
                             raise TypeError(
                                 "dict id values must be strings, numbers or bools,\n"
-                                + "found {!r} in id {!r}".format(id_val, v)
+                                + f"found {id_val!r} in id {v!r}"
                             )
                 elif not isinstance(v, str):
-                    raise TypeError(
-                        "`id` prop must be a string or dict, not {!r}".format(v)
-                    )
+                    raise TypeError(f"`id` prop must be a string or dict, not {v!r}")
 
             setattr(self, k, v)
 
@@ -196,7 +188,7 @@ class Component(metaclass=ComponentMeta):
                 """
             )
 
-        v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
+        v = str(uuid.UUID(int=rd.randint(0, 2**128)))
         setattr(self, "id", v)
         return v
 
@@ -324,7 +316,7 @@ class Component(metaclass=ComponentMeta):
     @staticmethod
     def _id_str(component):
         id_ = stringify_id(getattr(component, "id", ""))
-        return id_ and " (id={:s})".format(id_)
+        return id_ and f" (id={id_:s})"
 
     def _traverse_with_paths(self):
         """Yield each item with its path in the tree."""
@@ -342,9 +334,7 @@ class Component(metaclass=ComponentMeta):
         # children is a list of components
         elif isinstance(children, (tuple, MutableSequence)):
             for idx, i in enumerate(children):
-                list_path = "[{:d}] {:s}{}".format(
-                    idx, type(i).__name__, self._id_str(i)
-                )
+                list_path = f"[{idx:d}] {type(i).__name__:s}{self._id_str(i)}"
                 yield list_path, i
 
                 if isinstance(i, Component):
@@ -396,14 +386,11 @@ class Component(metaclass=ComponentMeta):
         ]
         if any(p != "children" for p in props_with_values):
             props_string = ", ".join(
-                "{prop}={value}".format(prop=p, value=repr(getattr(self, p)))
-                for p in props_with_values
+                f"{p}={getattr(self, p)!r}" for p in props_with_values
             )
         else:
             props_string = repr(getattr(self, "children", None))
-        return "{type}({props_string})".format(
-            type=self._type, props_string=props_string
-        )
+        return f"{self._type}({props_string})"
 
 
 def _explicitize_args(func):
@@ -415,7 +402,7 @@ def _explicitize_args(func):
         varnames = func.__code__.co_varnames
 
     def wrapper(*args, **kwargs):
-        if "_explicit_args" in kwargs.keys():
+        if "_explicit_args" in kwargs:
             raise Exception("Variable _explicit_args should not be set.")
         kwargs["_explicit_args"] = list(
             set(list(varnames[: len(args)]) + [k for k, _ in kwargs.items()])
