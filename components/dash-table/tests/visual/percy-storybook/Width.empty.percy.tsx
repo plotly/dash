@@ -34,33 +34,33 @@ const props = Object.assign({}, baseProps, {
     columns: columns.map(id => ({id: id, name: id.toUpperCase()}))
 });
 
-storiesOf('DashTable/Empty', module)
-    .add('with column filters -- no query', () => <DataTable {...props} />)
-    .add('with column filters -- invalid query', () => (
+storiesOf('DashTable/Empty', module).add('all variants', () => (
+    <div>
+        <div>with column filters -- no query</div>
+        <DataTable {...props} />
+        <div>with column filters -- invalid query</div>
         <DataTable
-            {...R.merge(props, {
+            {...R.mergeRight(props, {
                 filter_query: '{a} !'
             })}
         />
-    ))
-    .add('with column filters -- single query', () => (
+        <div>with column filters -- single query</div>
         <DataTable
-            {...R.merge(props, {
+            {...R.mergeRight(props, {
                 filter_query: '{a} ge 0'
             })}
         />
-    ))
-    .add('with column filters -- multi query', () => (
+        <div>with column filters -- multi query</div>
         <DataTable
-            {...R.merge(props, {
+            {...R.mergeRight(props, {
                 filter_query: '{a} ge 0 && {b} ge 0'
             })}
         />
-    ))
-    .add('with column filters -- multi query, no data', () => (
+        <div>with column filters -- multi query, no data</div>
         <DataTable
-            {...R.merge(props, {
+            {...R.mergeRight(props, {
                 filter_query: '{a} gt 1000 && {b} gt 1000'
             })}
         />
-    ));
+    </div>
+));

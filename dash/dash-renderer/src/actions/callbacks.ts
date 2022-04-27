@@ -200,7 +200,7 @@ const getVals = (input: any) =>
 const zipIfArray = (a: any, b: any) =>
     Array.isArray(a) ? zip(a, b) : [[a, b]];
 
-function handleClientside(
+async function handleClientside(
     dispatch: any,
     clientside_function: any,
     config: any,
@@ -246,14 +246,12 @@ function handleClientside(
         dc.callback_context.states_list = state;
         dc.callback_context.states = stateDict;
 
-        const returnValue = dc[namespace][function_name](...args);
+        let returnValue = dc[namespace][function_name](...args);
+
+        delete dc.callback_context;
 
         if (typeof returnValue?.then === 'function') {
-            throw new Error(
-                'The clientside function returned a Promise. ' +
-                    'Promises are not supported in Dash clientside ' +
-                    'right now, but may be in the future.'
-            );
+            returnValue = await returnValue;
         }
 
         zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
@@ -504,15 +502,13 @@ export function executeCallback(
 
                 if (clientside_function) {
                     try {
-                        return {
-                            data: handleClientside(
-                                dispatch,
-                                clientside_function,
-                                config,
-                                payload
-                            ),
+                        const data = await handleClientside(
+                            dispatch,
+                            clientside_function,
+                            config,
                             payload
-                        };
+                        );
+                        return {data, payload};
                     } catch (error: any) {
                         return {error, payload};
                     }

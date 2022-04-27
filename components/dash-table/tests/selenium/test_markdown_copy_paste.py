@@ -1,5 +1,6 @@
-import dash
 import pytest
+
+import dash
 from dash.testing import wait
 from dash.dash_table import DataTable
 
@@ -94,8 +95,7 @@ def test_tmcp003_copy_text_to_markdown(test):
 
     wait.until(
         lambda: target.cell(1, "Product")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p")
+        .find_inside(".dash-cell-value > p")
         .get_attribute("innerHTML")
         == df[1].get("Sub-product"),
         3,
@@ -116,8 +116,7 @@ def test_tmcp004_copy_null_text_to_markdown(test):
 
     wait.until(
         lambda: target.cell(0, "Product")
-        .get()
-        .find_element_by_css_selector(".dash-cell-value > p")
+        .find_inside(".dash-cell-value > p")
         .get_attribute("innerHTML")
         == "null",
         3,

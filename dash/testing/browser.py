@@ -20,10 +20,6 @@ from selenium.common.exceptions import (
     MoveTargetOutOfBoundsException,
 )
 
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.utils import ChromeType
-from webdriver_manager.firefox import GeckoDriverManager
-
 from dash.testing.wait import text_to_equal, style_to_equal, contains_text, until
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
@@ -116,7 +112,7 @@ class Browser(DashPageMixin):
             path = resource_path.lstrip("/")
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
-            self.driver.get("{}/{}".format(self.server_url.rstrip("/"), path))
+            self.driver.get(f"{self.server_url.rstrip('/')}/{path}")
 
             # wait for the hook_id to present and all callbacks get fired
             self.wait_for_element_by_id(hook_id)
@@ -127,7 +123,7 @@ class Browser(DashPageMixin):
                 widths=widths,
             )
             if assert_check:
-                assert not self.driver.find_elements_by_css_selector(
+                assert not self.find_elements(
                     "div.dash-debug-alert"
                 ), "devtools should not raise an error alert"
             if not stay_on_page:
@@ -152,13 +148,11 @@ class Browser(DashPageMixin):
         - widths: a list of pixel widths for percy to render the page with. Note
             that this does not change the browser in which the DOM is constructed,
             so the width will only affect CSS, not JS-driven layout.
-            Defaults to [375, 1280]
+            Defaults to [1280]
         """
         if widths is None:
-            widths = [375, 1280]
-        snapshot_name = "{} - py{}.{}".format(
-            name, sys.version_info.major, sys.version_info.minor
-        )
+            widths = [1280]
+        snapshot_name = f"{name} - py{sys.version_info.major}.{sys.version_info.minor}"
         logger.info("taking snapshot name => %s", snapshot_name)
         try:
             if wait_for_callbacks:
@@ -229,22 +223,20 @@ class Browser(DashPageMixin):
             except OSError:
                 logger.exception("cannot make artifacts")
 
-        self.driver.save_screenshot(
-            "{}/{}_{}.png".format(target, name, self.session_id)
-        )
+        self.driver.save_screenshot(f"{target}/{name}_{self.session_id}.png")
 
     def find_element(self, selector):
         """find_element returns the first found element by the css `selector`
-        shortcut to `driver.find_element_by_css_selector`."""
-        return self.driver.find_element_by_css_selector(selector)
+        shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`."""
+        return self.driver.find_element(By.CSS_SELECTOR, selector)
 
     def find_elements(self, selector):
         """find_elements returns a list of all elements matching the css
         `selector`.
 
-        shortcut to `driver.find_elements_by_css_selector`.
+        shortcut to `driver.find_elements(By.CSS_SELECTOR, ...)`.
         """
-        return self.driver.find_elements_by_css_selector(selector)
+        return self.driver.find_elements(By.CSS_SELECTOR, selector)
 
     def _get_element(self, elem_or_selector):
         if isinstance(elem_or_selector, str):
@@ -278,9 +270,7 @@ class Browser(DashPageMixin):
             EC.presence_of_element_located,
             ((By.CSS_SELECTOR, selector),),
             timeout,
-            "timeout {}s => waiting for selector {}".format(
-                timeout if timeout else self._wait_timeout, selector
-            ),
+            f"timeout {timeout or self._wait_timeout}s => waiting for selector {selector}",
         )
 
     def wait_for_no_elements(self, selector, timeout=None):
@@ -290,10 +280,10 @@ class Browser(DashPageMixin):
             # if we use get_elements it waits a long time to see if they appear
             # so this one calls out directly to execute_script
             lambda: self.driver.execute_script(
-                "return document.querySelectorAll('{}').length".format(selector)
+                f"return document.querySelectorAll('{selector}').length"
             )
             == 0,
-            timeout if timeout else self._wait_timeout,
+            timeout or self._wait_timeout,
         )
 
     def wait_for_element_by_id(self, element_id, timeout=None):
@@ -304,9 +294,7 @@ class Browser(DashPageMixin):
             EC.presence_of_element_located,
             ((By.ID, element_id),),
             timeout,
-            "timeout {}s => waiting for element id {}".format(
-                timeout if timeout else self._wait_timeout, element_id
-            ),
+            f"timeout {timeout or self._wait_timeout}s => waiting for element id {element_id}",
         )
 
     def wait_for_style_to_equal(self, selector, style, val, timeout=None):
@@ -317,9 +305,7 @@ class Browser(DashPageMixin):
             method=style_to_equal,
             args=(selector, style, val),
             timeout=timeout,
-            msg="style val => {} {} not found within {}s".format(
-                style, val, timeout if timeout else self._wait_timeout
-            ),
+            msg=f"style val => {style} {val} not found within {timeout or self._wait_timeout}s",
         )
 
     def wait_for_text_to_equal(self, selector, text, timeout=None):
@@ -333,9 +319,7 @@ class Browser(DashPageMixin):
             method=text_to_equal,
             args=(selector, text),
             timeout=timeout,
-            msg="text -> {} not found within {}s".format(
-                text, timeout if timeout else self._wait_timeout
-            ),
+            msg=f"text -> {text} not found within {timeout or self._wait_timeout}s",
         )
 
     def wait_for_contains_text(self, selector, text, timeout=None):
@@ -349,9 +333,7 @@ class Browser(DashPageMixin):
             method=contains_text,
             args=(selector, text),
             timeout=timeout,
-            msg="text -> {} not found inside element within {}s".format(
-                text, timeout if timeout else self._wait_timeout
-            ),
+            msg=f"text -> {text} not found inside element within {timeout or self._wait_timeout}s",
         )
 
     def wait_for_page(self, url=None, timeout=10):
@@ -367,33 +349,27 @@ class Browser(DashPageMixin):
             )
         except TimeoutException as exc:
             logger.exception("dash server is not loaded within %s seconds", timeout)
-            logger.debug(self.get_logs())
+            logs = "\n".join((str(log) for log in self.get_logs()))
+            logger.debug(logs)
+            html = self.find_element("body").get_property("innerHTML")
             raise DashAppLoadingError(
                 "the expected Dash react entry point cannot be loaded"
-                " in browser\n HTML => {}\n Console Logs => {}\n".format(
-                    self.driver.find_element_by_tag_name("body").get_property(
-                        "innerHTML"
-                    ),
-                    "\n".join((str(log) for log in self.get_logs())),
-                )
+                f" in browser\n HTML => {html}\n Console Logs => {logs}\n"
             ) from exc
 
         if self._pause:
-            try:
-                import pdb as pdb_  # pylint: disable=import-outside-toplevel
-            except ImportError:
-                import ipdb as pdb_  # pylint: disable=import-outside-toplevel
+            import pdb  # pylint: disable=import-outside-toplevel
 
-            pdb_.set_trace()  # pylint: disable=forgotten-debug-statement
+            pdb.set_trace()  # pylint: disable=forgotten-debug-statement
 
     def select_dcc_dropdown(self, elem_or_selector, value=None, index=None):
         dropdown = self._get_element(elem_or_selector)
         dropdown.click()
 
-        menu = dropdown.find_element_by_css_selector("div.Select-menu-outer")
+        menu = dropdown.find_element(By.CSS_SELECTOR, "div.Select-menu-outer")
         logger.debug("the available options are %s", "|".join(menu.text.split("\n")))
 
-        options = menu.find_elements_by_css_selector("div.VirtualizedSelectOption")
+        options = menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
         if options:
             if isinstance(index, int):
                 options[index].click()
@@ -425,14 +401,12 @@ class Browser(DashPageMixin):
     def open_new_tab(self, url=None):
         """Open a new tab in browser url is not set, equals to `server_url`."""
         self.driver.execute_script(
-            'window.open("{}", "new window")'.format(
-                self.server_url if url is None else url
-            )
+            f'window.open("{url or self.server_url}", "new window")'
         )
 
     def get_webdriver(self):
         try:
-            return getattr(self, "_get_{}".format(self._browser))()
+            return getattr(self, f"_get_{self._browser}")()
         except WebDriverException:
             logger.exception("<<<Webdriver not initialized correctly>>>")
             return None
@@ -469,6 +443,10 @@ class Browser(DashPageMixin):
                 "safebrowsing.disable_download_protection": True,
             },
         )
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--remote-debugging-port=9222")
 
         chrome = (
             webdriver.Remote(
@@ -477,11 +455,7 @@ class Browser(DashPageMixin):
                 desired_capabilities=capabilities,
             )
             if self._remote
-            else webdriver.Chrome(
-                ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install(),
-                options=options,
-                desired_capabilities=capabilities,
-            )
+            else webdriver.Chrome(options=options, desired_capabilities=capabilities)
         )
 
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
@@ -524,10 +498,7 @@ class Browser(DashPageMixin):
             )
             if self._remote
             else webdriver.Firefox(
-                executable_path=GeckoDriverManager().install(),
-                firefox_profile=fp,
-                options=options,
-                capabilities=capabilities,
+                firefox_profile=fp, options=options, capabilities=capabilities
             )
         )
 
@@ -535,10 +506,12 @@ class Browser(DashPageMixin):
     def _is_windows():
         return sys.platform == "win32"
 
-    def multiple_click(self, elem_or_selector, clicks):
+    def multiple_click(self, elem_or_selector, clicks, delay=None):
         """multiple_click click the element with number of `clicks`."""
         for _ in range(clicks):
             self._get_element(elem_or_selector).click()
+            if delay:
+                time.sleep(delay)
 
     def clear_input(self, elem_or_selector):
         """Simulate key press to clear the input."""

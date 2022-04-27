@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from multiprocessing import Value
+from multiprocessing import Value, Lock
 
 from dash import Dash, Input, Output, State, ClientsideFunction, ALL, html, dcc
 from selenium.webdriver.common.keys import Keys
@@ -221,30 +221,6 @@ def test_clsd004_clientside_multiple_outputs(dash_duo):
         ["#output-4", "15"],
     ]:
         dash_duo.wait_for_text_to_equal(selector, expected)
-
-
-def test_clsd005_clientside_fails_when_returning_a_promise(dash_duo):
-    app = Dash(__name__, assets_folder="assets")
-
-    app.layout = html.Div(
-        [
-            html.Div(id="input", children="hello"),
-            html.Div(id="side-effect"),
-            html.Div(id="output", children="output"),
-        ]
-    )
-
-    app.clientside_callback(
-        ClientsideFunction("clientside", "side_effect_and_return_a_promise"),
-        Output("output", "children"),
-        [Input("input", "children")],
-    )
-
-    dash_duo.start_server(app)
-
-    dash_duo.wait_for_text_to_equal("#input", "hello")
-    dash_duo.wait_for_text_to_equal("#side-effect", "side effect")
-    dash_duo.wait_for_text_to_equal("#output", "output")
 
 
 def test_clsd006_PreventUpdate(dash_duo):
@@ -716,3 +692,140 @@ def test_clsd014_input_output_callback(dash_duo):
     assert call_count == 2, "initial + changed once"
 
     assert dash_duo.get_logs() == []
+
+
+def test_clsd015_clientside_chained_callbacks_returning_promise(dash_duo):
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [
+            html.Div(id="input", children=["initial"]),
+            html.Div(id="div-1"),
+            html.Div(id="div-2"),
+        ]
+    )
+
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside", function_name="chained_promise"),
+        Output("div-1", "children"),
+        Input("input", "children"),
+    )
+
+    @app.callback(Output("div-2", "children"), Input("div-1", "children"))
+    def callback(value):
+        return value + "-twice"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#div-1", "initial-chained")
+    dash_duo.wait_for_text_to_equal("#div-2", "initial-chained-twice")
+
+
+def test_clsd016_serverside_clientside_shared_input_with_promise(dash_duo):
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [
+            html.Div(id="input", children=["initial"]),
+            html.Div(id="clientside-div"),
+            html.Div(id="serverside-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside", function_name="delayed_promise"),
+        Output("clientside-div", "children"),
+        Input("input", "children"),
+    )
+
+    @app.callback(Output("serverside-div", "children"), Input("input", "children"))
+    def callback(value):
+        return "serverside-" + value[0]
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#serverside-div", "serverside-initial")
+    dash_duo.driver.execute_script("window.callbackDone('deferred')")
+    dash_duo.wait_for_text_to_equal("#clientside-div", "clientside-initial-deferred")
+
+
+def test_clsd017_clientside_serverside_shared_input_with_promise(dash_duo):
+    lock = Lock()
+    lock.acquire()
+
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [
+            html.Div(id="input", children=["initial"]),
+            html.Div(id="clientside-div"),
+            html.Div(id="serverside-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside", function_name="non_delayed_promise"),
+        Output("clientside-div", "children"),
+        Input("input", "children"),
+    )
+
+    @app.callback(Output("serverside-div", "children"), Input("input", "children"))
+    def callback(value):
+        with lock:
+            return "serverside-" + value[0] + "-deferred"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#clientside-div", "clientside-initial")
+    lock.release()
+    dash_duo.wait_for_text_to_equal("#serverside-div", "serverside-initial-deferred")
+
+
+def test_clsd018_clientside_inline_async_function(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Div(id="input", children=["initial"]),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        async function(input) {
+            return input + "-inline";
+        }
+        """,
+        Output("output-div", "children"),
+        Input("input", "children"),
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#output-div", "initial-inline")
+
+
+def test_clsd019_clientside_inline_promise(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Div(id="input", children=["initial"]),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        function(inputValue) {
+            return new Promise(function (resolve) {
+                resolve(inputValue + "-inline");
+            });
+        }
+        """,
+        Output("output-div", "children"),
+        Input("input", "children"),
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#output-div", "initial-inline")
