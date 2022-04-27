@@ -136,9 +136,8 @@ class Component(metaclass=ComponentMeta):
                 raise TypeError(
                     error_string_prefix
                     + " detected a Component for a prop other than `children`\n"
-                    + f"Prop {k} has value {v!r}\n"                    
-                    + "Did you forget to wrap multiple `children` in an list?\n"
-                    + "For example, it must be html.Div([\"a\", \"b\", \"c\"]) not html.Div(\"a\", \"b\", \"c\")\n"
+                    + "Did you forget to wrap multiple `children` in an array?\n"
+                    + f"Prop {k} has value {v!r}\n"
                 )
 
             if k == "id":
