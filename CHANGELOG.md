@@ -28,6 +28,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#1751](https://github.com/plotly/dash/pull/1751) Rename `app.run_server` to `app.run` while preserving `app.run_server` for backwards compatibility.
 
+- [#2027](https://github.com/plotly/dash/pull/1751) Improve the error message when a user doesn't wrap children in a list
 
 ### Updated
 - [#2016](https://github.com/plotly/dash/pull/2016) Widespread dependency upgrades
