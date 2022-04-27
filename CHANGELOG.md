@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2009](https://github.com/plotly/dash/pull/2009) Add support for Promises within Client-side callbacks as requested in [#1364](https://github.com/plotly/dash/pull/1364).
 
+- [#1956](https://github.com/plotly/dash/pull/1956) Add TypeScript components generation.
+
 ### Fixed
 
 - [#1968](https://github.com/plotly/dash/pull/1968) Fix bug [#1877](https://github.com/plotly/dash/issues/1877), code which uses `merge_duplicate_headers` and `style_header_conditional` to highlight columns, it incorrectly highlights header cells.
