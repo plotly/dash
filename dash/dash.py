@@ -2258,7 +2258,7 @@ class Dash:
                     page["layout"]() if callable(page["layout"]) else page["layout"]
                     for page in _pages.PAGE_REGISTRY.values()
                 ]
-                + [self.layout() if callable(self.layout) else self.layout]
+                + [self.layout() if callable(self.layout) else self.layout]   # pylint: disable=not-callable
             )
             if _ID_CONTENT not in self.validation_layout:
                 raise Exception("`dash.page_container` not found in the layout")
