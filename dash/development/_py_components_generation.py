@@ -111,9 +111,10 @@ def generate_class_string(
         if len(default_arglist) > final_max_props:
             default_arglist = default_arglist[:final_max_props]
             docstring += (
-                "\n\nNote: due to the large number of props for this component,"
-                "\nnot all of them appear in the constructor signature, but"
-                "\nthey may still be used as keyword arguments."
+                "\n\n"
+                "Note: due to the large number of props for this component,\n"
+                "not all of them appear in the constructor signature, but\n"
+                "they may still be used as keyword arguments."
             )
 
     default_argtext += ", ".join(default_arglist + ["**kwargs"])
