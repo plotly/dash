@@ -18,6 +18,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- [#2029](https://github.com/plotly/dash/pull/2029) Restrict the number of props listed explicitly in generated component constructors - default is 250. This prevents exceeding the Python 3.6 limit of 255 arguments. The omitted props are still in the docstring and can still be provided the same as before, they just won't appear in the signature so autocompletion may be affected.
+
 - [#1968](https://github.com/plotly/dash/pull/1968) Fix bug [#1877](https://github.com/plotly/dash/issues/1877), code which uses `merge_duplicate_headers` and `style_header_conditional` to highlight columns, it incorrectly highlights header cells.
 
 - [#2015](https://github.com/plotly/dash/pull/2015) Fix bug [#1854](https://github.com/plotly/dash/issues/1854) in which the combination of row_selectable="single or multi" and filter_action="native" caused the JS error.
