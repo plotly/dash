@@ -9,9 +9,14 @@ from ._all_keywords import python_keywords
 from .base_component import Component
 
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument,too-many-locals
 def generate_class_string(
-    typename, props, description, namespace, prop_reorder_exceptions=None
+    typename,
+    props,
+    description,
+    namespace,
+    prop_reorder_exceptions=None,
+    max_props=None,
 ):
     """Dynamically generate class strings to have nicely formatted docstrings,
     keyword arguments, and repr.
@@ -56,7 +61,7 @@ def generate_class_string(
             {list_of_valid_wildcard_attr_prefixes}
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
-        _locals.update(kwargs)  # For wildcard attrs
+        _locals.update(kwargs)  # For wildcard attrs and excess named props
         args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
         for k in {required_props}:
             if k not in args:
@@ -91,18 +96,28 @@ def generate_class_string(
     else:
         default_argtext = ""
         argtext = "**args"
-    default_argtext += ", ".join(
-        [
-            (
-                f"{p:s}=Component.REQUIRED"
-                if props[p]["required"]
-                else f"{p:s}=Component.UNDEFINED"
+    default_arglist = [
+        (
+            f"{p:s}=Component.REQUIRED"
+            if props[p]["required"]
+            else f"{p:s}=Component.UNDEFINED"
+        )
+        for p in prop_keys
+        if not p.endswith("-*") and p not in python_keywords and p != "setProps"
+    ]
+
+    if max_props:
+        final_max_props = max_props - (1 if "children" in props else 0)
+        if len(default_arglist) > final_max_props:
+            default_arglist = default_arglist[:final_max_props]
+            docstring += (
+                "\n\n"
+                "Note: due to the large number of props for this component,\n"
+                "not all of them appear in the constructor signature, but\n"
+                "they may still be used as keyword arguments."
             )
-            for p in prop_keys
-            if not p.endswith("-*") and p not in python_keywords and p != "setProps"
-        ]
-        + ["**kwargs"]
-    )
+
+    default_argtext += ", ".join(default_arglist + ["**kwargs"])
     required_args = required_props(filtered_props)
     return c.format(
         typename=typename,
@@ -118,7 +133,12 @@ def generate_class_string(
 
 
 def generate_class_file(
-    typename, props, description, namespace, prop_reorder_exceptions=None
+    typename,
+    props,
+    description,
+    namespace,
+    prop_reorder_exceptions=None,
+    max_props=None,
 ):
     """Generate a Python class file (.py) given a class string.
     Parameters
@@ -138,7 +158,7 @@ def generate_class_file(
     )
 
     class_string = generate_class_string(
-        typename, props, description, namespace, prop_reorder_exceptions
+        typename, props, description, namespace, prop_reorder_exceptions, max_props
     )
     file_name = f"{typename:s}.py"
 

@@ -10,7 +10,7 @@
   "scripts": {
     "build:js": "webpack --mode production",
     "setup": "python setup.py sdist",
-    "build:py_and_r": "dash-generate-components ./src/components dash_generator_test_component_standard && cp base/** dash_generator_test_component_standard/ && dash-generate-components ./src/components dash_generator_test_component_standard --r-prefix 'dgtc_standard'",
+    "build:py_and_r": "dash-generate-components ./src/components dash_generator_test_component_standard && cp base/** dash_generator_test_component_standard/ && dash-generate-components ./src/components dash_generator_test_component_standard --r-prefix 'dgtc_standard' --max-props 2",
     "build": "run-s build:js build:py_and_r setup"
   },
   "author": "Chris Parmer <chris@plotly.com>",
