@@ -1,0 +1,248 @@
+import child_process from 'child_process';
+import path from 'path';
+import R from 'ramda';
+
+function getMetadata() {
+    return new Promise((resolve, reject) => {
+        const cp = child_process.spawn(
+            process.execPath,
+            [
+                path.resolve(__dirname, '..', '..', 'dash', 'extract-meta.js'),
+                '""', // ignore pattern
+                '""', // reserved keywords
+                path.join(__dirname, 'src', 'components')
+            ],
+            // To debug `meta-ts.js` using pycharm debugger:
+            //  comment `env` and add `MODULES_PATH=./node_modules`
+            //  in the run config environment variables.
+            {
+                env: {MODULES_PATH: path.resolve(__dirname, './node_modules')},
+                cwd: __dirname
+            }
+        );
+        const meta = [];
+        const err = [];
+        cp.stdout.on('data', data => {
+            meta.push(data);
+        });
+        cp.stderr.on('data', data => {
+            err.push(data);
+        });
+        cp.on('close', code => {
+            if (code === 0) {
+                resolve(
+                    R.values(JSON.parse(meta.join(''))).reduce((acc, c) => {
+                        // Map them back to component name for easier access.
+                        acc[c.displayName] = c;
+                        return acc;
+                    }, {})
+                );
+            } else {
+                reject(err.join(''));
+            }
+        });
+        cp.on('error', error => {
+            console.error(error);
+            reject(error);
+        });
+    });
+}
+
+describe('Test Typescript component metadata generation', () => {
+    let metadata;
+
+    beforeAll(async () => {
+        metadata = await getMetadata();
+    });
+
+    const propPath = (componentName, propName) => [
+        componentName,
+        'props',
+        propName
+    ];
+
+    describe.each([
+        'TypeScriptComponent',
+        'TypeScriptClassComponent',
+        'MemoTypeScriptComponent'
+    ])('Test prop type names', componentName => {
+        const getPropTypeName = (name, data) =>
+            R.path(propPath(componentName, name).concat('type', 'name'), data);
+        const testTypeFactory = (name, expectedType) => () =>
+            expect(getPropTypeName(name, metadata)).toBe(expectedType);
+
+        test(
+            `${componentName} string type`,
+            testTypeFactory('a_string', 'string')
+        );
+        test(
+            `${componentName} number type`,
+            testTypeFactory('a_number', 'number')
+        );
+        test(
+            `${componentName} array type`,
+            testTypeFactory('array_string', 'arrayOf')
+        );
+        test(`${componentName} object type`, testTypeFactory('obj', 'shape'));
+        test(`${componentName} union type`, testTypeFactory('union', 'union'));
+        test(
+            `${componentName} enum type`,
+            testTypeFactory('enum_string', 'enum')
+        );
+        test(
+            `${componentName} children React.Node`,
+            testTypeFactory('children', 'node')
+        );
+        test(
+            `${componentName} element JSX.Element`,
+            testTypeFactory('element', 'node')
+        );
+        test(
+            `${componentName} boolean type`,
+            testTypeFactory('a_bool', 'bool')
+        );
+        test(
+            `${componentName} setProps func`,
+            testTypeFactory('setProps', 'func')
+        );
+    });
+
+    describe('Test prop attributes', () => {
+        test('Required props', () => {
+            expect(
+                R.path(
+                    propPath('TypeScriptComponent', 'required_string').concat(
+                        'required'
+                    ),
+                    metadata
+                )
+            ).toBeTruthy();
+            expect(
+                R.path(
+                    propPath('TypeScriptComponent', 'a_string').concat(
+                        'required'
+                    ),
+                    metadata
+                )
+            ).toBeFalsy();
+        });
+        test('Component prop has comment', () => {
+            // Comments with `@` in them will not work due the way the typescript compiler handle them with jsdoc.
+            // To fix & add test once they add back the ability to get raw comments.
+            expect(
+                R.path(
+                    propPath('TypeScriptComponent', 'required_string').concat(
+                        'description'
+                    ),
+                    metadata
+                )
+            ).toBe('A string');
+        });
+        test('Enum options', () => {
+            expect(
+                R.path(
+                    propPath('TypeScriptComponent', 'enum_string').concat(
+                        'type',
+                        'value'
+                    ),
+                    metadata
+                )
+            ).toStrictEqual([
+                {value: "'one'", computed: false},
+                {value: "'two'", computed: false}
+            ]);
+        });
+        test('Union of number and string', () => {
+            const propType = R.path(
+                propPath('TypeScriptComponent', 'union').concat('type'),
+                metadata
+            );
+            expect(propType.value.map(R.prop('name'))).toStrictEqual([
+                'string',
+                'number'
+            ]);
+        });
+        test('Union of shape and string', () => {
+            const propType = R.path(
+                propPath('TypeScriptComponent', 'union_shape').concat(
+                    'type',
+                    'value'
+                ),
+                metadata
+            );
+            const types = propType.map(R.prop('name'));
+            expect(types).toHaveLength(2);
+            expect(types).toContainEqual('shape');
+            expect(types).toContainEqual('string');
+        });
+        test('Array of union of shapes and string', () => {
+            const propType = R.path(
+                propPath('TypeScriptComponent', 'array_union_shape').concat(
+                    'type'
+                ),
+                metadata
+            );
+            expect(propType.value.name).toBe('union');
+            expect(propType.value.value.length).toBe(2);
+            expect(propType.value.value[0].name).toBe('string');
+            expect(propType.value.value[1].name).toBe('shape');
+        });
+        test('Obj properties', () => {
+            const propType = R.path(
+                propPath('TypeScriptComponent', 'obj').concat('type', 'value'),
+                metadata
+            );
+            expect(propType.value.name).toBe('any');
+            expect(propType.label.name).toBe('string');
+        });
+        test.each(['TypeScriptComponent', 'TypeScriptClassComponent'])(
+            'Default props',
+            (componentName: string) => {
+                const defaultValue = (field: string) =>
+                    R.path(
+                        propPath(componentName, field).concat(
+                            'defaultValue',
+                            'value'
+                        ),
+                        metadata
+                    );
+                expect(defaultValue('string_default')).toBe("'default'");
+                expect(defaultValue('number_default')).toBe('42');
+                expect(defaultValue('bool_default')).toBe(
+                    componentName === 'TypeScriptComponent' ? 'true' : 'false'
+                );
+                expect(defaultValue('null_default')).toBe('null');
+                expect(eval(`(${defaultValue('obj_default')})`)).toStrictEqual({
+                    a: 'a',
+                    b: 3
+                });
+            }
+        );
+    });
+
+    describe('Test component comments', () => {
+        test('Component has docstring', () => {
+            expect(
+                R.path(['TypeScriptComponent', 'description'], metadata)
+            ).toBe('Component docstring');
+        });
+        test.each(['TypeScriptClassComponent', 'MemoTypeScriptComponent'])(
+            'Component with `@` in docstring',
+            componentName => {
+                expect(R.path([componentName, 'description'], metadata)).toBe(
+                    'Description\n' +
+                        'Example:\n```\n' +
+                        '@app.callback(...)\n' +
+                        'def on_click(*args):\n' +
+                        '    return 1\n' +
+                        '```'
+                );
+            }
+        );
+    });
+    describe('Test mixed generation', () => {
+        test('Standard js component is parsed', () => {
+            expect(R.path(['StandardComponent'], metadata)).toBeDefined();
+        });
+    });
+});

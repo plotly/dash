@@ -81,12 +81,10 @@ class Component(metaclass=ComponentMeta):
 
     REQUIRED = _REQUIRED()
 
-    def __init__(self, **kwargs):  # pylint: disable=too-many-branches,too-many-locals
+    def __init__(self, **kwargs):
         import dash  # pylint: disable=import-outside-toplevel, cyclic-import
 
-        self._children_props = []
-
-        # pylint: disable=super-init-not-called,too-many-nested-blocks
+        # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
             # pylint: disable=no-member
             k_in_propnames = k in self._prop_names
@@ -134,26 +132,14 @@ class Component(metaclass=ComponentMeta):
                     f"\nAllowed arguments: {allowed_args}"
                 )
 
-            if k not in ("children", "id", "style", "className") and not k_in_wildcards:
-                if isinstance(v, Component):
-                    self._children_props.append(k)
-                elif isinstance(v, dict):
-                    for key, value in v.items():
-                        if isinstance(value, Component):
-                            self._children_props.append(k + "." + key)
-                elif hasattr(v, "__iter__"):
-                    for item in v:
-                        if isinstance(item, Component):
-                            self._children_props.append(k)
-                            break
-                        if isinstance(item, dict):
-                            found = False
-                            for key, value in item.items():
-                                if isinstance(value, Component):
-                                    self._children_props.append("[]" + k + "." + key)
-                                    found = True
-                            if found:
-                                break
+            if k != "children" and isinstance(v, Component):
+                raise TypeError(
+                    error_string_prefix
+                    + " detected a Component for a prop other than `children`\n"
+                    + f"Prop {k} has value {v!r}\n\n"
+                    + "Did you forget to wrap multiple `children` in an array?\n"
+                    + 'For example, it must be html.Div(["a", "b", "c"]) not html.Div("a", "b", "c")\n'
+                )
 
             if k == "id":
                 if isinstance(v, dict):
@@ -202,7 +188,7 @@ class Component(metaclass=ComponentMeta):
                 """
             )
 
-        v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
+        v = str(uuid.UUID(int=rd.randint(0, 2**128)))
         setattr(self, "id", v)
         return v
 
@@ -230,9 +216,6 @@ class Component(metaclass=ComponentMeta):
             "type": self._type,  # pylint: disable=no-member
             "namespace": self._namespace,  # pylint: disable=no-member
         }
-
-        if self._children_props:
-            as_json["childrenProps"] = self._children_props
 
         return as_json
 

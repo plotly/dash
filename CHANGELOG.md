@@ -14,7 +14,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2009](https://github.com/plotly/dash/pull/2009) Add support for Promises within Client-side callbacks as requested in [#1364](https://github.com/plotly/dash/pull/1364).
 
+- [#1956](https://github.com/plotly/dash/pull/1956) Add TypeScript components generation.
+
 ### Fixed
+
+- [#2029](https://github.com/plotly/dash/pull/2029) Restrict the number of props listed explicitly in generated component constructors - default is 250. This prevents exceeding the Python 3.6 limit of 255 arguments. The omitted props are still in the docstring and can still be provided the same as before, they just won't appear in the signature so autocompletion may be affected.
 
 - [#1968](https://github.com/plotly/dash/pull/1968) Fix bug [#1877](https://github.com/plotly/dash/issues/1877), code which uses `merge_duplicate_headers` and `style_header_conditional` to highlight columns, it incorrectly highlights header cells.
 
@@ -28,6 +32,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#1751](https://github.com/plotly/dash/pull/1751) Rename `app.run_server` to `app.run` while preserving `app.run_server` for backwards compatibility.
 
+- [#2027](https://github.com/plotly/dash/pull/1751) Improve the error message when a user doesn't wrap children in a list
 
 ### Updated
 - [#2016](https://github.com/plotly/dash/pull/2016) Widespread dependency upgrades
