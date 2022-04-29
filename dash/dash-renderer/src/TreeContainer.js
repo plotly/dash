@@ -18,6 +18,7 @@ import {
     pickBy,
     pipe,
     propOr,
+    path as rpath,
     type
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
@@ -211,6 +212,9 @@ class BaseTreeContainer extends Component {
                         if (childrenProp.startsWith('[]')) {
                             const frontPath = path[0].slice(2);
                             node = _dashprivate_layout.props[frontPath];
+                            if (!node) {
+                                return;
+                            }
                             nodeValue = node.map((n, i) => ({
                                 ...n,
                                 [path[1]]: this.createContainer(
@@ -226,7 +230,10 @@ class BaseTreeContainer extends Component {
                             }));
                             path = [frontPath];
                         } else {
-                            node = _dashprivate_layout.props[path[0]][path[1]];
+                            node = rpath(path, _dashprivate_layout.props);
+                            if (!node) {
+                                return;
+                            }
                             nodeValue = this.createContainer(
                                 this.props,
                                 node,

@@ -6,6 +6,7 @@ from textwrap import fill
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
+from ._collect_nodes import collect_nodes
 from .base_component import Component
 
 
@@ -49,6 +50,7 @@ def generate_class_string(
     # not all component authors will supply those.
     c = '''class {typename}(Component):
     """{docstring}"""
+    _children_props = {children_props}
     @_explicitize_args
     def __init__(self, {default_argtext}):
         self._prop_names = {list_of_valid_keys}
@@ -129,6 +131,7 @@ def generate_class_string(
         default_argtext=default_argtext,
         argtext=argtext,
         required_props=required_args,
+        children_props=collect_nodes(props),
     )
 
 

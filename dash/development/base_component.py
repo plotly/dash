@@ -63,6 +63,9 @@ def _check_if_has_indexable_children(item):
 
 
 class Component(metaclass=ComponentMeta):
+    _children_props = []
+    _base_nodes = []
+
     class _UNDEFINED:
         def __repr__(self):
             return "undefined"
@@ -132,7 +135,9 @@ class Component(metaclass=ComponentMeta):
                     f"\nAllowed arguments: {allowed_args}"
                 )
 
-            if k != "children" and isinstance(v, Component):
+            if k not in self._get_base_nodes() + ["children"] and isinstance(
+                v, Component
+            ):
                 raise TypeError(
                     error_string_prefix
                     + " detected a Component for a prop other than `children`\n"
@@ -188,7 +193,7 @@ class Component(metaclass=ComponentMeta):
                 """
             )
 
-        v = str(uuid.UUID(int=rd.randint(0, 2**128)))
+        v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
         setattr(self, "id", v)
         return v
 
@@ -215,6 +220,7 @@ class Component(metaclass=ComponentMeta):
             "props": props,
             "type": self._type,  # pylint: disable=no-member
             "namespace": self._namespace,  # pylint: disable=no-member
+            "childrenProps": self._children_props,
         }
 
         return as_json
@@ -391,6 +397,14 @@ class Component(metaclass=ComponentMeta):
         else:
             props_string = repr(getattr(self, "children", None))
         return f"{self._type}({props_string})"
+
+    @classmethod
+    def _get_base_nodes(cls):
+        if not cls._base_nodes:
+            cls._base_nodes = [
+                n.replace("[]", "").split(".")[0] for n in cls._children_props
+            ]
+        return cls._base_nodes
 
 
 def _explicitize_args(func):
