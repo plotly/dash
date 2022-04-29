@@ -11,6 +11,7 @@ import {
     equals,
     isEmpty,
     isNil,
+    has,
     keys,
     map,
     mergeRight,
@@ -69,6 +70,15 @@ function createElement(element, props, extraProps, children) {
         return React.createElement(element, allProps, ...children);
     }
     return React.createElement(element, allProps, children);
+}
+
+function isDryComponent(obj) {
+    return (
+        type(obj) === 'Object' &&
+        has('type', obj) &&
+        has('namespace', obj) &&
+        has('props', obj)
+    );
 }
 
 const TreeContainer = memo(props => (
@@ -212,27 +222,32 @@ class BaseTreeContainer extends Component {
                         if (childrenProp.startsWith('[]')) {
                             const frontPath = path[0].slice(2);
                             node = _dashprivate_layout.props[frontPath];
-                            if (!node) {
+                            if (node === undefined) {
                                 return;
                             }
                             nodeValue = node.map((n, i) => ({
                                 ...n,
-                                [path[1]]: this.createContainer(
-                                    this.props,
-                                    n[path[1]],
-                                    concat(this.props._dashprivate_path, [
-                                        'props',
-                                        frontPath,
-                                        i,
-                                        path[1]
-                                    ])
-                                )
+                                [path[1]]: isDryComponent(n[path[1]])
+                                    ? this.createContainer(
+                                          this.props,
+                                          n[path[1]],
+                                          concat(this.props._dashprivate_path, [
+                                              'props',
+                                              frontPath,
+                                              i,
+                                              path[1]
+                                          ])
+                                      )
+                                    : n
                             }));
                             path = [frontPath];
                         } else {
                             node = rpath(path, _dashprivate_layout.props);
-                            if (!node) {
+                            if (node === undefined) {
                                 return;
+                            }
+                            if (!isDryComponent(node)) {
+                                return node;
                             }
                             nodeValue = this.createContainer(
                                 this.props,
@@ -247,22 +262,26 @@ class BaseTreeContainer extends Component {
                         return assocPath(path, nodeValue);
                     }
                     const node = _dashprivate_layout.props[childrenProp];
-                    if (node) {
+                    if (node !== undefined) {
                         if (Array.isArray(node)) {
                             return assoc(
                                 childrenProp,
                                 node.map((n, i) =>
-                                    this.createContainer(
-                                        this.props,
-                                        n,
-                                        concat(this.props._dashprivate_path, [
-                                            'props',
-                                            childrenProp,
-                                            i
-                                        ])
-                                    )
+                                    isDryComponent(n)
+                                        ? this.createContainer(
+                                              this.props,
+                                              n,
+                                              concat(
+                                                  this.props._dashprivate_path,
+                                                  ['props', childrenProp, i]
+                                              )
+                                          )
+                                        : n
                                 )
                             );
+                        }
+                        if (!isDryComponent(node)) {
+                            return node;
                         }
                         return assoc(
                             childrenProp,
@@ -277,7 +296,7 @@ class BaseTreeContainer extends Component {
                         );
                     }
                 })
-                .filter(e => e)
+                .filter(e => e !== undefined)
         )(_dashprivate_layout.props);
 
         if (type(props.id) === 'Object') {
