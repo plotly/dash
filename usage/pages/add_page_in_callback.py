@@ -2,12 +2,14 @@ from dash import html, dcc, callback, Input, Output
 
 import dash
 
+app = dash.get_app()
+
 dash.register_page(__name__)
 
 layout = (html.Button("Add a Page Button", id="button"), html.Div(id="content"))
 
 
-@callback(
+@app.callback(
     Output("content", "children"),
     Input("button", "n_clicks"),
     prevent_initial_call=True,

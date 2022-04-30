@@ -59,7 +59,7 @@ from . import _get_paths
 from . import _dash_renderer
 from . import _validate
 from . import _watch
-from . import _server
+from . import _get_app
 
 from ._grouping import (
     flatten_grouping,
@@ -369,22 +369,15 @@ class Dash:
     ):
         _validate.check_obsolete(obsolete)
 
-        # We have 3 cases: server is either True (we create the server here or use the one created in dash_server),
-        # False (defer server creation) or a Flask app instance (we use their server)
-
-        # server created by dash.get_server()
-        self.server = _server.SERVER
-
+        # We have 3 cases: server is either True (we create the server), False
+        # (defer server creation) or a Flask app instance (we use their server)
         if isinstance(server, flask.Flask):
-            if self.server and self.server != server:
-                raise Exception("Server already exists")
             self.server = server
             if name is None:
                 name = getattr(server, "name", "__main__")
         elif isinstance(server, bool):
-            if not self.server:
-                name = name if name else "__main__"
-                self.server = flask.Flask(name) if server else None
+            name = name if name else "__main__"
+            self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
@@ -573,7 +566,7 @@ class Dash:
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
-        _server.SERVER = self.server
+        _get_app.APP = self
         self.enable_pages()
 
     def _add_url(self, name, view_func, methods=("GET",)):
@@ -2173,8 +2166,14 @@ class Dash:
                 pages_folder = (
                     self.pages_folder.replace("\\", "/").lstrip("/").replace("/", ".")
                 )
+
                 module_name = ".".join([pages_folder, page_filename])
-                page_module = importlib.import_module(module_name)
+
+                spec = importlib.util.spec_from_file_location(
+                    module_name, os.path.join(root, file)
+                )
+                page_module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(page_module)
 
                 if (
                     module_name in _pages.PAGE_REGISTRY
@@ -2258,7 +2257,12 @@ class Dash:
                     page["layout"]() if callable(page["layout"]) else page["layout"]
                     for page in _pages.PAGE_REGISTRY.values()
                 ]
-                + [self.layout() if callable(self.layout) else self.layout]   # pylint: disable=not-callable
+                + [
+                    # pylint: disable=not-callable
+                    self.layout()
+                    if callable(self.layout)
+                    else self.layout
+                ]
             )
             if _ID_CONTENT not in self.validation_layout:
                 raise Exception("`dash.page_container` not found in the layout")

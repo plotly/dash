@@ -7,7 +7,7 @@ import copy
 import time
 
 import dash
-from dash import Dash, dcc, html, Input, Output, callback, get_server
+from dash import Dash, dcc, html, Input, Output, callback
 
 import numpy as np
 import pandas as pd
@@ -15,14 +15,14 @@ from flask_caching import Cache
 
 dash.register_page(__name__)
 
-
+app = dash.get_app()
 CACHE_CONFIG = {
     # try 'FileSystemCache' if you don't want to setup redis
     "CACHE_TYPE": "redis",
     "CACHE_REDIS_URL": os.environ.get("REDIS_URL", "redis://localhost:6379"),
 }
 cache = Cache()
-cache.init_app(get_server(), config=CACHE_CONFIG)
+cache.init_app(app.server, config=CACHE_CONFIG)
 
 N = 100
 

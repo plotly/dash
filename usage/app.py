@@ -1,19 +1,29 @@
 from dash import Dash, html, dcc, Output, Input
 import dash
 import flask
+from dash.long_callback import DiskcacheLongCallbackManager
 
 
-external_stylesheets = [
-    # Dash CSS
-    "https://codepen.io/chriddyp/pen/bWLwgP.css",
-    # Loading screen CSS
-    "https://codepen.io/chriddyp/pen/brPBPO.css",
-]
+## Diskcache
+import diskcache
 
-server = flask.Flask("flaskapp")
+cache_lc = diskcache.Cache("./cache_lc")
+long_callback_manager = DiskcacheLongCallbackManager(cache_lc)
+
+# Thi is the css from the cash example in the docs.  It's not compatible with long_callback
+# external_stylesheets = [
+#     # Dash CSS
+#     "https://codepen.io/chriddyp/pen/bWLwgP.css",
+#     # Loading screen CSS
+#     "https://codepen.io/chriddyp/pen/brPBPO.css",
+# ]
+
+server = flask.Flask("my_server")
 app = Dash(
-    __name__, use_pages=True, external_stylesheets=external_stylesheets, server=server
+    __name__, use_pages=True, server=False, long_callback_manager=long_callback_manager
 )
+app.init_app(server)
+
 
 dash.register_page("another_home", layout=html.Div("We're home!"), path="/")
 dash.register_page(
@@ -36,7 +46,7 @@ app.layout = html.Div(
         ),
         dash.page_container,
         # example of using the url for doing something other than serving the layout to dash.page_container
-        dcc.Location(id="url", refresh=False),
+        dcc.Location(id="url", refresh=True),
         html.Div(id="custom_output", style={"marginTop": 50}),
     ]
 )
@@ -48,4 +58,4 @@ def example_custom_output(pathname):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, processes=6, threaded=False)
+    app.run_server(debug=True)

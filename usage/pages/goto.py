@@ -11,7 +11,7 @@ Example of:
 """
 
 import dash
-from dash import html, Output, Input, callback
+from dash import html, Output, Input, callback, ctx
 import random
 
 
@@ -24,7 +24,7 @@ dash.register_page(
 
 def layout(data=None, data2=None):
     return dash.html.Div(
-        [html.Button("goto", id="goto"), f"goto:  {data}-{data2}"],
+        [html.Button("goto", id="goto", n_clicks=0), f"goto:  {data}-{data2}"],
     )
 
 
@@ -32,5 +32,7 @@ def layout(data=None, data2=None):
     Output("url", "pathname"), Input("goto", "n_clicks"), prevent_initial_call=True
 )
 def goto(n):
-    x = random.randrange(1, 10)
-    return f"goto-{x}-and-{x+2}-data"
+    if n > 0:
+        x = random.randrange(1, 10)
+        return f"goto-{x}-and-{x+2}-data"
+    return dash.no_update

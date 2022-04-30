@@ -20,29 +20,33 @@ dash.register_page(
     "very_important", layout=html.Div("Don't miss it!"), path="/important", order=0
 )
 
+
 def serve_layout():
     return html.Div(
-    [
-        html.H1("App Frame"),
-        html.Div(
-            [
-                html.Div(
-                    dcc.Link(
-                        f"{page['name']} - {page['path']}", href=page["relative_path"]
+        [
+            html.H1("App Frame"),
+            html.Div(
+                [
+                    html.Div(
+                        dcc.Link(
+                            f"{page['name']} - {page['path']}",
+                            href=page["relative_path"],
+                        )
                     )
-                )
-                for page in dash.page_registry.values()
-                if page["module"] != "pages.not_found_404"
-            ]
-        ),
-        dash.page_container,
-        # example of using the url for doing something other than serving the layout to dash.page_container
-        dcc.Location(id="url", refresh=False),
-        html.Div(id="custom_output", style={"marginTop": 50}),
-    ]
-)
+                    for page in dash.page_registry.values()
+                    if page["module"] != "pages.not_found_404"
+                ]
+            ),
+            dash.page_container,
+            # example of using the url for doing something other than serving the layout to dash.page_container
+            dcc.Location(id="url", refresh=False),
+            html.Div(id="custom_output", style={"marginTop": 50}),
+        ]
+    )
+
 
 app.layout = serve_layout
+
 
 @app.callback(Output("custom_output", "children"), Input("url", "pathname"))
 def example_custom_output(pathname):
