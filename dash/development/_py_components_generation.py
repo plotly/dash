@@ -131,7 +131,9 @@ def generate_class_string(
         default_argtext=default_argtext,
         argtext=argtext,
         required_props=required_args,
-        children_props=collect_nodes(props),
+        children_props=collect_nodes(
+            {k: v for k, v in props.items() if k != "children"}
+        ),
     )
 
 

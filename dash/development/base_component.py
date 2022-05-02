@@ -220,8 +220,10 @@ class Component(metaclass=ComponentMeta):
             "props": props,
             "type": self._type,  # pylint: disable=no-member
             "namespace": self._namespace,  # pylint: disable=no-member
-            "childrenProps": self._children_props,
         }
+
+        if self._children_props:
+            as_json["childrenProps"] = self._children_props
 
         return as_json
 
