@@ -247,7 +247,7 @@ class BaseTreeContainer extends Component {
                                 return;
                             }
                             if (!isDryComponent(node)) {
-                                return node;
+                                return assocPath(path, node);
                             }
                             nodeValue = this.createContainer(
                                 this.props,
@@ -281,7 +281,7 @@ class BaseTreeContainer extends Component {
                             );
                         }
                         if (!isDryComponent(node)) {
-                            return node;
+                            return assoc(childrenProp, node);
                         }
                         return assoc(
                             childrenProp,
