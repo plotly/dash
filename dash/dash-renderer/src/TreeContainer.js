@@ -225,6 +225,13 @@ class BaseTreeContainer extends Component {
                             if (node === undefined) {
                                 return;
                             }
+                            if (!node.length) {
+                                return assoc(frontPath, node);
+                            }
+                            const firstNode = node[0][path[1]];
+                            if (!firstNode) {
+                                return assoc(frontPath, node);
+                            }
                             nodeValue = node.map((n, i) => ({
                                 ...n,
                                 [path[1]]: isDryComponent(n[path[1]])
@@ -238,7 +245,7 @@ class BaseTreeContainer extends Component {
                                               path[1]
                                           ])
                                       )
-                                    : n
+                                    : n[path[1]]
                             }));
                             path = [frontPath];
                         } else {
