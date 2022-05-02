@@ -51,11 +51,11 @@ def generate_class_string(
     c = '''class {typename}(Component):
     """{docstring}"""
     _children_props = {children_props}
+    _namespace = '{namespace}'
+    _type = '{typename}'
     @_explicitize_args
     def __init__(self, {default_argtext}):
         self._prop_names = {list_of_valid_keys}
-        self._type = '{typename}'
-        self._namespace = '{namespace}'
         self._valid_wildcard_attributes =\
             {list_of_valid_wildcard_attr_prefixes}
         self.available_properties = {list_of_valid_keys}

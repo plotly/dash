@@ -20,6 +20,7 @@ import {
     pipe,
     propOr,
     path as rpath,
+    pathOr,
     type
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
@@ -210,7 +211,15 @@ class BaseTreeContainer extends Component {
         const element = Registry.resolve(_dashprivate_layout);
 
         // Hydrate components props
-        const childrenProps = propOr([], 'childrenProps', _dashprivate_layout);
+        const childrenProps = pathOr(
+            [],
+            [
+                'children_props',
+                _dashprivate_layout.namespace,
+                _dashprivate_layout.type
+            ],
+            _dashprivate_config
+        );
         const props = pipe(
             dissoc('children'),
             ...childrenProps

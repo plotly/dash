@@ -1,4 +1,5 @@
 import abc
+import collections
 import inspect
 import sys
 import uuid
@@ -16,6 +17,7 @@ class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
     registry = set()
+    children_props = collections.defaultdict(dict)
 
     @classmethod
     def get_resources(cls, resource_name):
@@ -41,6 +43,9 @@ class ComponentMeta(abc.ABCMeta):
             return component
 
         ComponentRegistry.registry.add(module)
+        ComponentRegistry.children_props[attributes.get("_namespace", module)][
+            name
+        ] = attributes.get("_children_props")
 
         return component
 
@@ -221,9 +226,6 @@ class Component(metaclass=ComponentMeta):
             "type": self._type,  # pylint: disable=no-member
             "namespace": self._namespace,  # pylint: disable=no-member
         }
-
-        if self._children_props:
-            as_json["childrenProps"] = self._children_props
 
         return as_json
 
