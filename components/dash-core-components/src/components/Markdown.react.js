@@ -52,6 +52,12 @@ DashMarkdown.propTypes = {
      * (https://en.wikipedia.org/wiki/Cross-site_scripting) attack.
      */
     dangerously_allow_html: PropTypes.bool,
+    
+    
+    /**
+     * A string for the target attribute to use on links (such as "_blank")
+     */
+    link_target: PropTypes.string,
 
     /**
      * A markdown string (or array of strings) that adhreres to the CommonMark spec
