@@ -53,7 +53,6 @@ DashMarkdown.propTypes = {
      */
     dangerously_allow_html: PropTypes.bool,
     
-    
     /**
      * A string for the target attribute to use on links (such as "_blank")
      */
