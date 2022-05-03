@@ -5,6 +5,7 @@ import time
 import logging
 import warnings
 import percy
+import requests
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -188,8 +189,14 @@ class Browser(DashPageMixin):
             """
             )
 
+        try:
             self.percy_runner.snapshot(name=snapshot_name, widths=widths)
+        except requests.HTTPError as err:
+            # Ignore retries.
+            if err.request.status_code != 400:
+                raise err
 
+        if convert_canvases:
             self.driver.execute_script(
                 """
                 const stash = window._canvasStash;
@@ -203,9 +210,6 @@ class Browser(DashPageMixin):
                 delete window._canvasStash;
             """
             )
-
-        else:
-            self.percy_runner.snapshot(name=snapshot_name, widths=widths)
 
     def take_snapshot(self, name):
         """Hook method to take snapshot when a selenium test fails. The

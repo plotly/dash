@@ -26,6 +26,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#1976](https://github.com/plotly/dash/pull/1976) Fix [#1962](https://github.com/plotly/dash/issues/1962) in which DatePickerSingle and DatePickerRange are extremely slow when provided a long list of disabled_days.
 
+- [#2035](https://github.com/plotly/dash/pull/2035) Fix [#2033](https://github.com/plotly/dash/issues/2033) In-App error reporting does not render HTML.
+
 ### Changed
 
 - [#2016](https://github.com/plotly/dash/pull/2016) Drop the 375px width from default percy_snapshot calls, keep only 1280px
@@ -35,8 +37,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2027](https://github.com/plotly/dash/pull/1751) Improve the error message when a user doesn't wrap children in a list
 
 ### Updated
-- [#2016](https://github.com/plotly/dash/pull/2016) Widespread dependency upgrades
-  - Upgrade Plotly.js to v2.11.1 (from v2.11.0). Patch release [2.11.1](https://github.com/plotly/plotly.js/releases/tag/v2.11.1) fixes regl-based traces in strict CSP mode, however you must manually switch to the strict bundle to use this.
+- [#2016](https://github.com/plotly/dash/pull/2016) and [#2032](https://github.com/plotly/dash/pull/2032) Widespread dependency upgrades
+  - Upgrade Plotly.js to v2.12.0 (from v2.11.0).
+    - Feature release [2.12.0](https://github.com/plotly/plotly.js/releases/tag/v2.12.0) adds minor ticks and gridlines, as well as dashed gridlines.
+    - Patch release [2.11.1](https://github.com/plotly/plotly.js/releases/tag/v2.11.1) fixes regl-based traces in strict CSP mode, however you must manually switch to the strict bundle to use this.
   - Upgrade `black` to v22.3.0 for Python 3.7+ - if you use `dash[ci]` and you call `black`, this may alter your code formatting slightly, including more consistently breaking Python 2 compatibility.
   - Many other mainly JS dependency upgrades to the internals of Dash renderer and components. These may patch bugs or improve performance.
 
