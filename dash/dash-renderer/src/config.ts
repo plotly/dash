@@ -12,12 +12,18 @@ type Config = {
     };
     validation_layout: any;
     children_props: {[k: string]: {[k: string]: string[]}};
+    fetch: {
+        credentials: string;
+        headers: {
+            Accept: string;
+            'Content-Type': string;
+        };
+    };
 };
 
-const configElement = document.getElementById('_dash-config');
-
-const config: Config = JSON.parse(
-    configElement?.textContent ? configElement?.textContent : '{}'
-);
-
-export default config;
+export default function getConfigFromDOM(): Config {
+    const configElement = document.getElementById('_dash-config');
+    return JSON.parse(
+        configElement?.textContent ? configElement?.textContent : '{}'
+    );
+}

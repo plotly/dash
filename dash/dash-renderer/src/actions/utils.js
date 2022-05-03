@@ -1,7 +1,6 @@
 import {append, concat, has, path, pathOr, type} from 'ramda';
 
-import config from '../config';
-
+import store from '../store';
 /*
  * requests_pathname_prefix is the new config parameter introduced in
  * dash==0.18.0. The previous versions just had url_base_pathname
@@ -56,6 +55,8 @@ export const crawlLayout = (
             const newPath = concat(currentPath, propsChildren);
             crawlLayout(children, func, newPath);
         }
+        const {config} = store.store.getState();
+
         const childrenProps = pathOr(
             [],
             ['children_props', object.namespace, object.type],

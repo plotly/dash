@@ -5,7 +5,7 @@ import APIController from './APIController.react';
 import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
 import Reloader from './components/core/Reloader.react';
-import config from './config';
+import getConfigFromDOM from './config';
 import {setHooks, setConfig} from './actions/index';
 import {type, memoizeWith, identity} from 'ramda';
 
@@ -36,6 +36,7 @@ class UnconnectedAppContainer extends React.Component {
 
     UNSAFE_componentWillMount() {
         const {dispatch} = this.props;
+        const config = getConfigFromDOM();
 
         // preset common request params in the config
         config.fetch = {

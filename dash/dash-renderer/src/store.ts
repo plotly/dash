@@ -28,7 +28,7 @@ export interface IStoreObserver {
     inputs: string[];
 }
 
-export default class RendererStore {
+class RendererStore {
     constructor() {
         this.__store = this.initializeStore();
     }
@@ -106,3 +106,6 @@ export default class RendererStore {
         return this.__store;
     };
 }
+const store = new RendererStore();
+
+export default store;
