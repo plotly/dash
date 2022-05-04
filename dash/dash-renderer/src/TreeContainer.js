@@ -195,6 +195,32 @@ class BaseTreeContainer extends Component {
               );
     }
 
+    wrapChildrenProp(node, childrenProp) {
+        if (Array.isArray(node)) {
+            return node.map((n, i) =>
+                isDryComponent(n)
+                    ? this.createContainer(
+                          this.props,
+                          n,
+                          concat(this.props._dashprivate_path, [
+                              'props',
+                              ...childrenProp,
+                              i
+                          ])
+                      )
+                    : n
+            );
+        }
+        if (!isDryComponent(node)) {
+            return node;
+        }
+        return this.createContainer(
+            this.props,
+            node,
+            concat(this.props._dashprivate_path, ['props', ...childrenProp])
+        );
+    }
+
     getComponent(_dashprivate_layout, children, loading_state, setProps) {
         const {_dashprivate_config, _dashprivate_dispatch, _dashprivate_error} =
             this.props;
@@ -243,18 +269,11 @@ class BaseTreeContainer extends Component {
                             }
                             nodeValue = node.map((n, i) => ({
                                 ...n,
-                                [path[1]]: isDryComponent(n[path[1]])
-                                    ? this.createContainer(
-                                          this.props,
-                                          n[path[1]],
-                                          concat(this.props._dashprivate_path, [
-                                              'props',
-                                              frontPath,
-                                              i,
-                                              path[1]
-                                          ])
-                                      )
-                                    : n[path[1]]
+                                [path[1]]: this.wrapChildrenProp(n[path[1]], [
+                                    frontPath,
+                                    i,
+                                    path[1]
+                                ])
                             }));
                             path = [frontPath];
                         } else {
@@ -262,53 +281,18 @@ class BaseTreeContainer extends Component {
                             if (node === undefined) {
                                 return;
                             }
-                            if (!isDryComponent(node)) {
-                                return assocPath(path, node);
-                            }
-                            nodeValue = this.createContainer(
-                                this.props,
-                                node,
-                                concat(this.props._dashprivate_path, [
-                                    'props',
-                                    path[0],
-                                    path[1]
-                                ])
-                            );
+                            nodeValue = this.wrapChildrenProp(node, [
+                                path[0],
+                                path[1]
+                            ]);
                         }
                         return assocPath(path, nodeValue);
                     }
                     const node = _dashprivate_layout.props[childrenProp];
                     if (node !== undefined) {
-                        if (Array.isArray(node)) {
-                            return assoc(
-                                childrenProp,
-                                node.map((n, i) =>
-                                    isDryComponent(n)
-                                        ? this.createContainer(
-                                              this.props,
-                                              n,
-                                              concat(
-                                                  this.props._dashprivate_path,
-                                                  ['props', childrenProp, i]
-                                              )
-                                          )
-                                        : n
-                                )
-                            );
-                        }
-                        if (!isDryComponent(node)) {
-                            return assoc(childrenProp, node);
-                        }
                         return assoc(
                             childrenProp,
-                            this.createContainer(
-                                this.props,
-                                node,
-                                concat(this.props._dashprivate_path, [
-                                    'props',
-                                    childrenProp
-                                ])
-                            )
+                            this.wrapChildrenProp(node, [childrenProp])
                         );
                     }
                 })

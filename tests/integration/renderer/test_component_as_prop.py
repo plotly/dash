@@ -69,6 +69,18 @@ def test_rdcap001_component_as_prop(dash_duo):
                     },
                 ],
             ),
+            ComponentAsProp(
+                id="list-of-list-of-nodes",
+                list_of_shapes=[
+                    {
+                        "label": [
+                            Div("first-label", id="first-label"),
+                            Div("second-label", id="second-label"),
+                        ],
+                        "value": 2,
+                    }
+                ],
+            ),
         ]
     )
 
@@ -159,5 +171,8 @@ def test_rdcap001_component_as_prop(dash_duo):
 
     dash_duo.find_element("#update-list-of-dict").click()
     dash_duo.wait_for_text_to_equal("#update-in-list-of-dict", "Updated: 1")
+
+    dash_duo.wait_for_text_to_equal("#first-label", "first-label")
+    dash_duo.wait_for_text_to_equal("#second-label", "second-label")
 
     assert dash_duo.get_logs() == []
