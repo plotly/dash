@@ -1,5 +1,6 @@
 import pytest
 from dash import Dash, dcc, html, Input, Output
+from dash.testing.wait import until
 
 
 def test_mkdw001_img(dash_dcc):
@@ -374,3 +375,16 @@ def test_mkdw008_mathjax_visual(dash_dcc):
     dash_dcc.percy_snapshot("mkdw008 - markdown and graph with/without mathjax")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_mkdw009_target_blank_links(dash_dcc):
+
+    app = Dash(__name__)
+
+    app.layout = dcc.Markdown("[link](https://duckduckgo.com)", link_target="_blank")
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.find_element("a").click()
+
+    until(lambda: len(dash_dcc.driver.window_handles) == 2, timeout=1)

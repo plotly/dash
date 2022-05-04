@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#1956](https://github.com/plotly/dash/pull/1956) Add TypeScript components generation.
 
+- [#2034](https://github.com/plotly/dash/pull/2034) Add `link_target` prop to dcc.Markdown component. Closes [#1827](https://github.com/plotly/dash/issues/1827)
+
 ### Fixed
 
 - [#2029](https://github.com/plotly/dash/pull/2029) Restrict the number of props listed explicitly in generated component constructors - default is 250. This prevents exceeding the Python 3.6 limit of 255 arguments. The omitted props are still in the docstring and can still be provided the same as before, they just won't appear in the signature so autocompletion may be affected.
