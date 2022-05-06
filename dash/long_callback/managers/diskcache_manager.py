@@ -1,10 +1,13 @@
 import traceback
+from multiprocessing import Lock
 
 from . import BaseLongCallbackManager
 from ..._callback import NoUpdate
 from ...exceptions import PreventUpdate
 
 _pending_value = "__$pending__"
+
+_lock = Lock()
 
 
 class OriginalException:
@@ -145,7 +148,8 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 def _make_job_fn(fn, cache, progress, args_deps):
     def job_fn(result_key, progress_key, user_callback_args):
         def _set_progress(progress_value):
-            cache.set(progress_key, progress_value)
+            with _lock:
+                cache.set(progress_key, progress_value)
 
         maybe_progress = [_set_progress] if progress else []
 
@@ -157,18 +161,21 @@ def _make_job_fn(fn, cache, progress, args_deps):
             else:
                 user_callback_output = fn(*maybe_progress, user_callback_args)
         except PreventUpdate:
-            cache.set(result_key, NoUpdate())
+            with _lock:
+                cache.set(result_key, NoUpdate())
         except Exception as err:  # pylint: disable=broad-except
-            cache.set(
-                result_key,
-                {
-                    "long_callback_error": {
-                        "msg": str(err),
-                        "tb": traceback.format_exc(),
-                    }
-                },
-            )
+            with _lock:
+                cache.set(
+                    result_key,
+                    {
+                        "long_callback_error": {
+                            "msg": str(err),
+                            "tb": traceback.format_exc(),
+                        }
+                    },
+                )
         else:
-            cache.set(result_key, user_callback_output)
+            with _lock:
+                cache.set(result_key, user_callback_output)
 
     return job_fn
