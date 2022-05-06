@@ -207,7 +207,7 @@ def test_spfi008_reset_updates(test):
     assert target.column("ddd").filter_value() == "lt 12500"
     assert target.column("eee").filter_value() == "is prime"
 
-    test.driver.find_element_by_css_selector("#btn").click()
+    test.find_element("#btn").click()
 
     assert target.cell(0, "ccc").get_text() == ccc0
     assert target.cell(1, "ccc").get_text() == ccc1

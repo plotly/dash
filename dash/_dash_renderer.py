@@ -1,4 +1,4 @@
-__version__ = "1.11.0"
+__version__ = "1.11.4"
 
 _js_dist_dependencies = [
     {
@@ -7,13 +7,13 @@ _js_dist_dependencies = [
                 "https://unpkg.com/@babel/polyfill@7.12.1/dist/polyfill.min.js",
                 "https://unpkg.com/react@16.14.0/umd/react.production.min.js",
                 "https://unpkg.com/react-dom@16.14.0/umd/react-dom.production.min.js",
-                "https://unpkg.com/prop-types@15.7.2/prop-types.min.js",
+                "https://unpkg.com/prop-types@15.8.1/prop-types.min.js",
             ],
             "dev": [
                 "https://unpkg.com/@babel/polyfill@7.12.1/dist/polyfill.min.js",
                 "https://unpkg.com/react@16.14.0/umd/react.development.js",
                 "https://unpkg.com/react-dom@16.14.0/umd/react-dom.development.js",
-                "https://unpkg.com/prop-types@15.7.2/prop-types.js",
+                "https://unpkg.com/prop-types@15.8.1/prop-types.js",
             ],
         },
         "relative_package_path": {
@@ -21,13 +21,13 @@ _js_dist_dependencies = [
                 "deps/polyfill@7.12.1.min.js",
                 "deps/react@16.14.0.min.js",
                 "deps/react-dom@16.14.0.min.js",
-                "deps/prop-types@15.7.2.min.js",
+                "deps/prop-types@15.8.1.min.js",
             ],
             "dev": [
                 "deps/polyfill@7.12.1.min.js",
                 "deps/react@16.14.0.js",
                 "deps/react-dom@16.14.0.js",
-                "deps/prop-types@15.7.2.js",
+                "deps/prop-types@15.8.1.js",
             ],
         },
         "namespace": "dash",
@@ -39,7 +39,7 @@ _js_dist = [
     {
         "relative_package_path": "dash-renderer/build/dash_renderer.min.js",
         "dev_package_path": "dash-renderer/build/dash_renderer.dev.js",
-        "external_url": "https://unpkg.com/dash-renderer@1.11.0"
+        "external_url": "https://unpkg.com/dash-renderer@1.11.4"
         "/build/dash_renderer.min.js",
         "namespace": "dash",
     },

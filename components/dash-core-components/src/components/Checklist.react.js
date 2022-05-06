@@ -148,11 +148,11 @@ Checklist.propTypes = {
     ),
 
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
+     * Indicates whether labelStyle should be inline or not
+     * True: Automatically set { 'display': 'inline-block' } to labelStyle
+     * False: No additional styles are passed into labelStyle.
      */
-    id: PropTypes.string,
+    inline: PropTypes.bool,
 
     /**
      * The class of the container (div)
@@ -185,6 +185,13 @@ Checklist.propTypes = {
      *  and the option's label
      */
     labelClassName: PropTypes.string,
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the value changes.
@@ -237,13 +244,6 @@ Checklist.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
-
-    /**
-     * Indicates whether labelStyle should be inline or not
-     * True: Automatically set { 'display': 'inline-block' } to labelStyle
-     * False: No additional styles are passed into labelStyle.
-     */
-    inline: PropTypes.bool,
 };
 
 Checklist.defaultProps = {

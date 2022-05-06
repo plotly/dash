@@ -49,7 +49,7 @@ def test_lipa002_path(dash_dcc):
             dcc.Link(
                 children="Absolute Path",
                 id="link1",
-                href=dash_dcc.server.url + "/extra/eseehc",
+                href="/extra/eseehc",
                 refresh=True,
             ),
             dcc.Location(id="url", refresh=False),

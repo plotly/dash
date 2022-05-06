@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import {asyncDecorator} from '@plotly/dash-component-plugins';
 import graph from '../utils/LazyLoader/graph';
 import plotly from '../utils/LazyLoader/plotly';
+import lazyLoadMathJax from '../utils/LazyLoader/mathjax';
 import {
     privatePropTypes,
     privateDefaultProps,
@@ -20,6 +21,10 @@ const EMPTY_DATA = [];
 class PlotlyGraph extends Component {
     constructor(props) {
         super(props);
+
+        if (props.mathjax) {
+            PlotlyGraph._loadMathjax = true;
+        }
 
         this.state = {
             prependData: [],
@@ -120,7 +125,11 @@ class PlotlyGraph extends Component {
 }
 
 const RealPlotlyGraph = asyncDecorator(PlotlyGraph, () =>
-    Promise.all([plotly(), graph()]).then(([, graph]) => graph)
+    Promise.all([
+        graph(),
+        plotly(),
+        PlotlyGraph._loadMathjax ? lazyLoadMathJax() : undefined,
+    ]).then(([graph]) => graph)
 );
 
 const ControlledPlotlyGraph = memo(props => {
@@ -144,6 +153,8 @@ const ControlledPlotlyGraph = memo(props => {
         </Suspense>
     );
 });
+
+ControlledPlotlyGraph.displayName = 'ControlledPlotlyGraph';
 
 PlotlyGraph.propTypes = {
     ...privatePropTypes,
@@ -265,6 +276,11 @@ PlotlyGraph.propTypes = {
      * className of the parent div
      */
     className: PropTypes.string,
+
+    /**
+     * If true, loads mathjax v3 (tex-svg) into the page and use it in the graph
+     */
+    mathjax: PropTypes.bool,
 
     /**
      * Beta: If true, animate between updates using
@@ -574,6 +590,7 @@ PlotlyGraph.defaultProps = {
         frames: [],
     },
     responsive: 'auto',
+    mathjax: false,
     animate: false,
     animation_options: {
         frame: {

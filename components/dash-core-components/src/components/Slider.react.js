@@ -34,13 +34,6 @@ Slider.propTypes = {
     step: PropTypes.number,
 
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
-    /**
      * Marks on the slider.
      * The key determines the position (a number),
      * and the value determines what will show.
@@ -67,11 +60,6 @@ Slider.propTypes = {
      * The value of the input during a drag
      */
     drag_value: PropTypes.number,
-
-    /**
-     * Additional CSS class for the root DOM node
-     */
-    className: PropTypes.string,
 
     /**
      * If true, the handles can't be moved.
@@ -120,16 +108,6 @@ Slider.propTypes = {
     }),
 
     /**
-     * If true, the slider will be vertical
-     */
-    vertical: PropTypes.bool,
-
-    /**
-     * The height, in px, of the slider if it is vertical.
-     */
-    verticalHeight: PropTypes.number,
-
-    /**
      * Determines when the component should update its `value`
      * property. If `mouseup` (the default) then the slider
      * will only trigger its value when the user has finished
@@ -140,6 +118,28 @@ Slider.propTypes = {
      * for the continuously updating value.
      */
     updatemode: PropTypes.oneOf(['mouseup', 'drag']),
+
+    /**
+     * If true, the slider will be vertical
+     */
+    vertical: PropTypes.bool,
+
+    /**
+     * The height, in px, of the slider if it is vertical.
+     */
+    verticalHeight: PropTypes.number,
+
+    /**
+     * Additional CSS class for the root DOM node
+     */
+    className: PropTypes.string,
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the value or drag_value changes.

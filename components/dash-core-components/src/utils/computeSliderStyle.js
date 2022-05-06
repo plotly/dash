@@ -1,4 +1,4 @@
-import {memoizeWith, identity, contains} from 'ramda';
+import {memoizeWith, identity, includes} from 'ramda';
 
 export default () => {
     return memoizeWith(identity, (vertical, verticalHeight, tooltip) => {
@@ -12,7 +12,7 @@ export default () => {
             if (
                 !tooltip ||
                 !tooltip.always_visible ||
-                !contains(tooltip.placement, [
+                !includes(tooltip.placement, [
                     'left',
                     'topRight',
                     'bottomRight',
@@ -24,7 +24,7 @@ export default () => {
             if (
                 !tooltip ||
                 !tooltip.always_visible ||
-                !contains(tooltip.placement, ['top', 'topLeft', 'topRight'])
+                !includes(tooltip.placement, ['top', 'topLeft', 'topRight'])
             ) {
                 style.paddingTop = '0px';
             }

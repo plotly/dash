@@ -47,7 +47,8 @@ export default () => {
             uiViewport,
             virtualization,
             visibleColumns
-        } = R.merge(props, state) as SanitizedAndDerivedProps & StandaloneState;
+        } = R.mergeRight(props, state) as SanitizedAndDerivedProps &
+            StandaloneState;
 
         const virtual = getVirtual(
             visibleColumns,

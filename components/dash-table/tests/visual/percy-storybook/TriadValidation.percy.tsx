@@ -8,22 +8,33 @@ const actions = [TableAction.Native, TableAction.Custom];
 
 const setProps = () => {};
 
-let stories = storiesOf('DashTable/Props Validation', module);
+const elements: [React.ReactNode?] = [];
 
 actions.forEach(filter => {
     actions.forEach(sort => {
         actions.forEach(page => {
-            stories = stories.add(
-                `filter=${filter}, sorting=${sort}, pagination=${page}`,
-                () => (
-                    <DataTable
-                        filter_action={filter}
-                        sort_action={sort}
-                        page_action={page}
-                        setProps={setProps}
-                    />
-                )
+            elements.push(
+                <div
+                    style={{marginTop: '10px'}}
+                >{`filter=${filter}, sorting=${sort}, pagination=${page}`}</div>
+            );
+            elements.push(
+                <DataTable
+                    columns={[
+                        {name: 'A', id: 'a'},
+                        {name: 'B', id: 'b'}
+                    ]}
+                    data={[{a: 1, b: 2}]}
+                    filter_action={filter}
+                    sort_action={sort}
+                    page_action={page}
+                    setProps={setProps}
+                />
             );
         });
     });
 });
+
+storiesOf('DashTable/Props Validation', module).add('all variants', () => (
+    <div style={{width: '500px'}}>{elements}</div>
+));

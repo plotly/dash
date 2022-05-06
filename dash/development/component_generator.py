@@ -8,7 +8,6 @@ import os
 import argparse
 import shutil
 import functools
-
 import pkg_resources
 import yaml
 
@@ -20,12 +19,10 @@ from ._py_components_generation import generate_classes_files
 from ._jl_components_generation import generate_struct_file
 from ._jl_components_generation import generate_module
 
-
 reserved_words = [
     "UNDEFINED",
     "REQUIRED",
     "to_plotly_json",
-    "set_random_id",
     "available_properties",
     "available_wildcard_properties",
     "_.*",
@@ -38,7 +35,7 @@ class _CombinedFormatter(
     pass
 
 
-# pylint: disable=too-many-locals, too-many-arguments
+# pylint: disable=too-many-locals, too-many-arguments, too-many-branches, too-many-statements
 def generate_components(
     components_source,
     project_shortname,
@@ -50,6 +47,8 @@ def generate_components(
     rsuggests="",
     jlprefix=None,
     metadata=None,
+    keep_prop_order=None,
+    max_props=None,
 ):
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
@@ -58,7 +57,7 @@ def generate_components(
 
     extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
 
-    reserved_patterns = "|".join("^{}$".format(p) for p in reserved_words)
+    reserved_patterns = "|".join(f"^{p}$" for p in reserved_words)
 
     os.environ["NODE_PATH"] = "node_modules"
 
@@ -67,15 +66,22 @@ def generate_components(
     )
 
     if not metadata:
+        env = os.environ.copy()
+
+        # Ensure local node modules is used when the script is packaged.
+        env["MODULES_PATH"] = os.path.abspath("./node_modules")
+
         cmd = shlex.split(
-            'node {} "{}" "{}" {}'.format(
-                extract_path, ignore, reserved_patterns, components_source
-            ),
+            f'node {extract_path} "{ignore}" "{reserved_patterns}" {components_source}',
             posix=not is_windows,
         )
 
         proc = subprocess.Popen(  # pylint: disable=consider-using-with
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=is_windows,
+            env=env,
         )
         out, err = proc.communicate()
         status = proc.poll()
@@ -85,16 +91,24 @@ def generate_components(
 
         if not out:
             print(
-                "Error generating metadata in {} (status={})".format(
-                    project_shortname, status
-                ),
+                f"Error generating metadata in {project_shortname} (status={status})",
                 file=sys.stderr,
             )
             sys.exit(1)
 
         metadata = safe_json_loads(out.decode("utf-8"))
 
-    generator_methods = [generate_class_file]
+    py_generator_kwargs = {}
+    if keep_prop_order is not None:
+        keep_prop_order = [
+            component.strip(" ") for component in keep_prop_order.split(",")
+        ]
+        py_generator_kwargs["prop_reorder_exceptions"] = keep_prop_order
+
+    if max_props:
+        py_generator_kwargs["max_props"] = max_props
+
+    generator_methods = [functools.partial(generate_class_file, **py_generator_kwargs)]
 
     if rprefix is not None or jlprefix is not None:
         with open("package.json", "r") as f:
@@ -201,6 +215,25 @@ def component_build_arg_parser():
         help="Specify a prefix for Dash for R component names, write "
         "components to R dir, create R package.",
     )
+    parser.add_argument(
+        "-k",
+        "--keep-prop-order",
+        default=None,
+        help="Specify a comma-separated list of components which will use the prop "
+        "order described in the component proptypes instead of alphabetically reordered "
+        "props. Pass the 'ALL' keyword to have every component retain "
+        "its original prop order.",
+    )
+    parser.add_argument(
+        "--max-props",
+        type=int,
+        default=250,
+        help="Specify the max number of props to list in the component signature. "
+        "More props will still be shown in the docstring, and will still work when "
+        "provided as kwargs to the component. Python <3.7 only supports 255 args, "
+        "but you may also want to reduce further for improved readability at the "
+        "expense of auto-completion for the later props. Use 0 to include all props.",
+    )
     return parser
 
 
@@ -216,6 +249,8 @@ def cli():
         rimports=args.r_imports,
         rsuggests=args.r_suggests,
         jlprefix=args.jl_prefix,
+        keep_prop_order=args.keep_prop_order,
+        max_props=args.max_props,
     )
 
 

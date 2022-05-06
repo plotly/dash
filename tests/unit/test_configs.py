@@ -13,7 +13,16 @@ from dash._configs import (
     get_combined_config,
     load_dash_env_vars,
 )
-from dash._utils import get_asset_path, get_relative_path, strip_relative_path
+
+from dash._utils import AttributeDict
+from dash._get_paths import (
+    app_get_asset_url,
+    app_get_relative_path,
+    app_strip_relative_path,
+    get_asset_url,
+    get_relative_path,
+    strip_relative_path,
+)
 
 
 @pytest.fixture
@@ -101,7 +110,8 @@ def test_pathname_prefix_environ_requests(empty_environ):
     ],
 )
 def test_pathname_prefix_assets(empty_environ, req, expected):
-    path = get_asset_path(req, "reset.css", "assets")
+    config = AttributeDict(assets_external_path=req, assets_url_path="assets")
+    path = app_get_asset_url(config, "reset.css")
     assert path == expected
 
 
@@ -135,8 +145,51 @@ def test_asset_url(
         assets_url_path=assets_url_path,
     )
 
-    path = app.get_asset_url("reset.css")
-    assert path == expected
+    app_path = app.get_asset_url("reset.css")
+    dash_path = get_asset_url("reset.css")
+    assert app_path == dash_path == expected
+
+
+@pytest.mark.parametrize(
+    "requests_pathname_prefix, expected",
+    [
+        (None, "/page2"),
+        ("/app/", "/app/page2"),
+    ],
+)
+def test_get_relative_path(
+    empty_environ,
+    requests_pathname_prefix,
+    expected,
+):
+    app = Dash(
+        "Dash",
+        requests_pathname_prefix=requests_pathname_prefix,
+    )
+    app_path = app.get_relative_path("/page2")
+    dash_path = get_relative_path("/page2")
+    assert app_path == dash_path == expected
+
+
+@pytest.mark.parametrize(
+    "requests_pathname_prefix, expected",
+    [
+        (None, "/app/page2"),
+        ("/app/", "/page2"),
+    ],
+)
+def test_strip_relative_path(
+    empty_environ,
+    requests_pathname_prefix,
+    expected,
+):
+    app = Dash(
+        "Dash",
+        requests_pathname_prefix=requests_pathname_prefix,
+    )
+    app_path = app.strip_relative_path("/app/page2")
+    dash_path = strip_relative_path("/app/page2")
+    assert app_path == dash_path == expected
 
 
 def test_get_combined_config_dev_tools_ui(empty_environ):
@@ -209,7 +262,7 @@ def test_app_name_server(empty_environ, name, server, expected):
     ],
 )
 def test_pathname_prefix_relative_url(prefix, partial_path, expected):
-    path = get_relative_path(prefix, partial_path)
+    path = app_get_relative_path(prefix, partial_path)
     assert path == expected
 
 
@@ -219,7 +272,7 @@ def test_pathname_prefix_relative_url(prefix, partial_path, expected):
 )
 def test_invalid_get_relative_path(prefix, partial_path):
     with pytest.raises(_exc.UnsupportedRelativePath):
-        get_relative_path(prefix, partial_path)
+        app_get_relative_path(prefix, partial_path)
 
 
 @pytest.mark.parametrize(
@@ -247,7 +300,7 @@ def test_invalid_get_relative_path(prefix, partial_path):
     ],
 )
 def test_strip_relative_path(prefix, partial_path, expected):
-    path = strip_relative_path(prefix, partial_path)
+    path = app_strip_relative_path(prefix, partial_path)
     assert path == expected
 
 
@@ -261,13 +314,13 @@ def test_strip_relative_path(prefix, partial_path, expected):
 )
 def test_invalid_strip_relative_path(prefix, partial_path):
     with pytest.raises(_exc.UnsupportedRelativePath):
-        strip_relative_path(prefix, partial_path)
+        app_strip_relative_path(prefix, partial_path)
 
 
 def test_port_env_fail_str(empty_environ):
     app = Dash()
     with pytest.raises(Exception) as excinfo:
-        app.run_server(port="garbage")
+        app.run(port="garbage")
     assert (
         excinfo.exconly()
         == "ValueError: Expecting an integer from 1 to 65535, found port='garbage'"
@@ -277,14 +330,14 @@ def test_port_env_fail_str(empty_environ):
 def test_port_env_fail_range(empty_environ):
     app = Dash()
     with pytest.raises(Exception) as excinfo:
-        app.run_server(port="0")
+        app.run(port="0")
     assert (
         excinfo.exconly()
         == "AssertionError: Expecting an integer from 1 to 65535, found port=0"
     )
 
     with pytest.raises(Exception) as excinfo:
-        app.run_server(port="65536")
+        app.run(port="65536")
     assert (
         excinfo.exconly()
         == "AssertionError: Expecting an integer from 1 to 65535, found port=65536"
@@ -304,7 +357,7 @@ def test_no_proxy_success(mocker, caplog, empty_environ, setlevel_warning):
     # mock out the run method so we don't actually start listening forever
     mocker.patch.object(app.server, "run")
 
-    app.run_server(port=8787)
+    app.run(port=8787)
 
     STARTUP_MESSAGE = "Dash is running on http://127.0.0.1:8787/\n"
     if setlevel_warning:
@@ -328,7 +381,7 @@ def test_proxy_success(mocker, caplog, empty_environ, proxy, host, port, path):
     app = Dash(url_base_pathname=path)
     mocker.patch.object(app.server, "run")
 
-    app.run_server(proxy=proxystr, host=host, port=port)
+    app.run(proxy=proxystr, host=host, port=port)
 
     assert "Dash is running on {}{}\n".format(proxy, path) in caplog.text
 
@@ -341,23 +394,21 @@ def test_proxy_failure(mocker, empty_environ):
     mocker.patch.object(app.server, "run")
 
     with pytest.raises(_exc.ProxyError) as excinfo:
-        app.run_server(
+        app.run(
             proxy="https://127.0.0.1:8055::http://plot.ly", host="127.0.0.1", port=8055
         )
     assert "protocol: http is incompatible with the proxy" in excinfo.exconly()
     assert "you must use protocol: https" in excinfo.exconly()
 
     with pytest.raises(_exc.ProxyError) as excinfo:
-        app.run_server(
+        app.run(
             proxy="http://0.0.0.0:8055::http://plot.ly", host="127.0.0.1", port=8055
         )
     assert "host: 127.0.0.1 is incompatible with the proxy" in excinfo.exconly()
     assert "you must use host: 0.0.0.0" in excinfo.exconly()
 
     with pytest.raises(_exc.ProxyError) as excinfo:
-        app.run_server(
-            proxy="http://0.0.0.0:8155::http://plot.ly", host="0.0.0.0", port=8055
-        )
+        app.run(proxy="http://0.0.0.0:8155::http://plot.ly", host="0.0.0.0", port=8055)
     assert "port: 8055 is incompatible with the proxy" in excinfo.exconly()
     assert "you must use port: 8155" in excinfo.exconly()
 
@@ -370,3 +421,19 @@ def test_title():
     assert "<title>Hello World</title>" in app.index()
     app = Dash(title="Custom Title")
     assert "<title>Custom Title</title>" in app.index()
+
+
+def test_app_delayed_config():
+    app = Dash(server=False)
+    app.init_app(app=Flask("test"), requests_pathname_prefix="/dash/")
+
+    assert app.config.requests_pathname_prefix == "/dash/"
+
+    with pytest.raises(AttributeError):
+        app.config.name = "cannot update me"
+
+
+def test_app_invalid_delayed_config():
+    app = Dash(server=False)
+    with pytest.raises(AttributeError):
+        app.init_app(app=Flask("test"), name="too late 2 update")

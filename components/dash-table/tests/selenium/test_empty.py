@@ -40,8 +40,8 @@ def test_empt001_clear_(test):
     target = test.table("table")
 
     assert target.is_ready()
-    assert len(test.driver.find_elements_by_css_selector("tr")) == 3
-    test.driver.find_element_by_css_selector("#clear-table").click()
+    assert len(test.find_elements("tr")) == 3
+    test.find_element("#clear-table").click()
     assert target.is_ready()
-    assert len(test.driver.find_elements_by_css_selector("tr")) == 0
+    assert len(test.find_elements("tr")) == 0
     assert test.get_log_errors() == []

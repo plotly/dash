@@ -151,6 +151,10 @@ export default class EdgeFactory {
         const iNext = 0;
         const iTarget = hTarget.rows - 1;
 
+        if (!isFinite(iTarget)) {
+            return;
+        }
+
         R.forEach(
             j =>
                 !EdgeFactory.hasPrecedence(

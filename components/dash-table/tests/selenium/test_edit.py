@@ -29,8 +29,8 @@ def test_edit001_can_delete_dropdown(test, props):
     cell.click()
     assert cell.is_dropdown()
 
-    cell.get().find_element_by_css_selector(".Select-clear").click()
-    assert cell.get().find_element_by_css_selector(".Select-placeholder") is not None
+    cell.find_inside(".Select-clear").click()
+    assert cell.find_inside(".Select-placeholder") is not None
 
     assert test.get_log_errors() == []
 
@@ -45,13 +45,13 @@ def test_edit002_can_delete_dropown_and_set(test, props):
     cell.click()
     assert cell.is_dropdown()
 
-    cell.get().find_element_by_css_selector(".Select-clear").click()
-    assert cell.get().find_element_by_css_selector(".Select-placeholder") is not None
+    cell.find_inside(".Select-clear").click()
+    assert cell.find_inside(".Select-placeholder") is not None
 
-    cell.get().find_element_by_css_selector(".Select-arrow").click()
-    cell.get().find_element_by_css_selector(".Select-option").click()
+    cell.find_inside(".Select-arrow").click()
+    cell.find_inside(".Select-option").click()
 
-    assert len(cell.get().find_elements_by_css_selector(".Select-placeholder")) == 0
+    assert len(cell.find_all_inside(".Select-placeholder")) == 0
 
     assert test.get_log_errors() == []
 
@@ -63,22 +63,19 @@ def test_edit003_can_edit_dropdown(test, props):
     target = test.table("table")
     cell = target.cell(0, "bbb")
 
-    cell.get().find_element_by_css_selector(".Select-arrow").click()
-    cell.get().find_element_by_css_selector(".Select-arrow").click()
+    cell.find_inside(".Select-arrow").click()
+    cell.find_inside(".Select-arrow").click()
 
-    for i in range(len(cell.get().find_elements_by_css_selector(".Select-option"))):
-        option = cell.get().find_elements_by_css_selector(".Select-option")[i]
+    for i in range(len(cell.find_all_inside(".Select-option"))):
+        option = cell.find_all_inside(".Select-option")[i]
 
         value = option.get_attribute("innerHTML")
         option.click()
 
         assert (
-            cell.get()
-            .find_element_by_css_selector(".Select-value-label")
-            .get_attribute("innerHTML")
-            == value
+            cell.find_inside(".Select-value-label").get_attribute("innerHTML") == value
         )
-        cell.get().find_element_by_css_selector(".Select-arrow").click()
+        cell.find_inside(".Select-arrow").click()
 
     assert test.get_log_errors() == []
 

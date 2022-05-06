@@ -101,6 +101,7 @@ export const defaultProps = {
         'columns.name',
         'filter_query',
         'hidden_columns',
+        'page_current',
         'selected_columns',
         'selected_rows',
         'sort_by'
@@ -137,6 +138,76 @@ export const propTypes = {
      */
     columns: PropTypes.arrayOf(
         PropTypes.exact({
+            /**
+             * The `id` of the column.
+             * The column `id` is used to match cells in data with particular columns.
+             * The `id` is not visible in the table.
+             */
+            id: PropTypes.string.isRequired,
+
+            /**
+             * The `name` of the column, as it appears in the column header.
+             * If `name` is a list of strings, then the columns
+             * will render with multiple headers rows.
+             */
+            name: PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.arrayOf(PropTypes.string)
+            ]).isRequired,
+
+            /**
+             * The data-type provides support for per column typing and allows for data
+             * validation and coercion.
+             * 'numeric': represents both floats and ints.
+             * 'text': represents a string.
+             * 'datetime': a string representing a date or date-time, in the form:
+             *   'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must
+             *   have 4 digits, unless you use `validation.allow_YY: true`. Also
+             *   accepts 'T' or 't' between date and time, and allows timezone info
+             *   at the end. To convert these strings to Python `datetime` objects,
+             *   use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the
+             *   `parsedate` library.
+             *   WARNING: these parsers do not work with 2-digit years, if you use
+             *   `validation.allow_YY: true` and do not coerce to 4-digit years.
+             *   And parsers that do work with 2-digit years may make a different
+             *   guess about the century than we make on the front end.
+             * 'any': represents any type of data.
+             * Defaults to 'any' if undefined.
+             *
+             *
+             */
+            type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime']),
+
+            /**
+             * The `presentation` to use to display data. Markdown can be used on
+             * columns with type 'text'.  See 'dropdown' for more info.
+             * Defaults to 'input' for ['datetime', 'numeric', 'text', 'any'].
+             */
+            presentation: PropTypes.oneOf(['input', 'dropdown', 'markdown']),
+
+            /**
+             * If true, the user can select the column by clicking on the checkbox or radio button
+             * in the column. If there are multiple header rows, true will display the input
+             * on each row.
+             * If `last`, the input will only appear on the last header row. If `first` it will only
+             * appear on the first header row. These are respectively shortcut equivalents to
+             * `[false, ..., false, true]` and `[true, false, ..., false]`.
+             * If there are merged, multi-header columns then you can choose which column header
+             * row to display the input in by supplying an array of booleans.
+             * For example, `[true, false]` will display the `selectable` input on the first row,
+             * but now on the second row.
+             * If the `selectable` input appears on a merged columns, then clicking on that input
+             * will select *all* of the merged columns associated with it.
+             * The table-level prop `column_selectable` is used to determine the type of column
+             * selection to use.
+             *
+             */
+            selectable: PropTypes.oneOfType([
+                PropTypes.oneOf(['first', 'last']),
+                PropTypes.bool,
+                PropTypes.arrayOf(PropTypes.bool)
+            ]),
+
             /**
              * If true, the user can clear the column by clicking on the `clear`
              * action button on the column. If there are multiple header rows, true
@@ -195,19 +266,6 @@ export const propTypes = {
             editable: PropTypes.bool,
 
             /**
-             * There are two `filter_options` props in the table.
-             * This is the column-level filter_options prop and there is
-             * also the table-level `filter_options` prop.
-             * These props determine whether the applicable filter relational
-             * operators will default to `sensitive` or `insensitive` comparison.
-             * If the column-level `filter_options` prop is set it overrides
-             * the table-level `filter_options` prop for that column.
-             */
-            filter_options: PropTypes.shape({
-                case: PropTypes.oneOf(['sensitive', 'insensitive'])
-            }),
-
-            /**
              * If true, the user can hide the column by clicking on the `hide`
              * action button on the column. If there are multiple header rows, true
              * will display the action button on each row.
@@ -252,27 +310,17 @@ export const propTypes = {
             ]),
 
             /**
-             * If true, the user can select the column by clicking on the checkbox or radio button
-             * in the column. If there are multiple header rows, true will display the input
-             * on each row.
-             * If `last`, the input will only appear on the last header row. If `first` it will only
-             * appear on the first header row. These are respectively shortcut equivalents to
-             * `[false, ..., false, true]` and `[true, false, ..., false]`.
-             * If there are merged, multi-header columns then you can choose which column header
-             * row to display the input in by supplying an array of booleans.
-             * For example, `[true, false]` will display the `selectable` input on the first row,
-             * but now on the second row.
-             * If the `selectable` input appears on a merged columns, then clicking on that input
-             * will select *all* of the merged columns associated with it.
-             * The table-level prop `column_selectable` is used to determine the type of column
-             * selection to use.
-             *
+             * There are two `filter_options` props in the table.
+             * This is the column-level filter_options prop and there is
+             * also the table-level `filter_options` prop.
+             * These props determine whether the applicable filter relational
+             * operators will default to `sensitive` or `insensitive` comparison.
+             * If the column-level `filter_options` prop is set it overrides
+             * the table-level `filter_options` prop for that column.
              */
-            selectable: PropTypes.oneOfType([
-                PropTypes.oneOf(['first', 'last']),
-                PropTypes.bool,
-                PropTypes.arrayOf(PropTypes.bool)
-            ]),
+            filter_options: PropTypes.shape({
+                case: PropTypes.oneOf(['sensitive', 'insensitive'])
+            }),
 
             /**
              * The formatting applied to the column's data.
@@ -335,30 +383,6 @@ export const propTypes = {
             }),
 
             /**
-             * The `id` of the column.
-             * The column `id` is used to match cells in data with particular columns.
-             * The `id` is not visible in the table.
-             */
-            id: PropTypes.string.isRequired,
-
-            /**
-             * The `name` of the column, as it appears in the column header.
-             * If `name` is a list of strings, then the columns
-             * will render with multiple headers rows.
-             */
-            name: PropTypes.oneOfType([
-                PropTypes.string,
-                PropTypes.arrayOf(PropTypes.string)
-            ]).isRequired,
-
-            /**
-             * The `presentation` to use to display data. Markdown can be used on
-             * columns with type 'text'.  See 'dropdown' for more info.
-             * Defaults to 'input' for ['datetime', 'numeric', 'text', 'any'].
-             */
-            presentation: PropTypes.oneOf(['input', 'dropdown', 'markdown']),
-
-            /**
              * The `on_change` behavior of the column for user-initiated modifications.
              */
             on_change: PropTypes.exact({
@@ -411,144 +435,9 @@ export const propTypes = {
                  *   `action: 'coerce'`, will convert user input to a 4-digit year.
                  */
                 allow_YY: PropTypes.bool
-            }),
-
-            /**
-             * The data-type provides support for per column typing and allows for data
-             * validation and coercion.
-             * 'numeric': represents both floats and ints.
-             * 'text': represents a string.
-             * 'datetime': a string representing a date or date-time, in the form:
-             *   'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must
-             *   have 4 digits, unless you use `validation.allow_YY: true`. Also
-             *   accepts 'T' or 't' between date and time, and allows timezone info
-             *   at the end. To convert these strings to Python `datetime` objects,
-             *   use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the
-             *   `parsedate` library.
-             *   WARNING: these parsers do not work with 2-digit years, if you use
-             *   `validation.allow_YY: true` and do not coerce to 4-digit years.
-             *   And parsers that do work with 2-digit years may make a different
-             *   guess about the century than we make on the front end.
-             * 'any': represents any type of data.
-             * Defaults to 'any' if undefined.
-             *
-             *
-             */
-            type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime'])
+            })
         })
     ),
-
-    /**
-     * The row and column indices and IDs of the currently active cell.
-     * `row_id` is only returned if the data rows have an `id` key.
-     */
-    active_cell: PropTypes.exact({
-        row: PropTypes.number,
-        column: PropTypes.number,
-        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        column_id: PropTypes.string
-    }),
-
-    /**
-     * If true, headers are included when copying from the table to different
-     * tabs and elsewhere. Note that headers are ignored when copying from the table onto itself and
-     * between two tables within the same tab.
-     */
-    include_headers_on_copy_paste: PropTypes.bool,
-
-    /**
-     * The localization specific formatting information applied to all columns in the table.
-     * This prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.
-     * When left unspecified, each individual nested prop will default to a pre-determined value.
-     */
-    locale_format: PropTypes.exact({
-        /**
-         *   (default: ['$', '']). A  list of two strings representing the
-         *   prefix and suffix symbols. Typically used for currency, and implemented using d3's
-         *   currency format, but you can use this for other symbols such as measurement units.
-         */
-        symbol: PropTypes.arrayOf(PropTypes.string),
-        /**
-         * (default: '.'). The string used for the decimal separator.
-         */
-        decimal: PropTypes.string,
-        /**
-         * (default: ','). The string used for the groups separator.
-         */
-        group: PropTypes.string,
-        /**
-         * (default: [3]). A  list of integers representing the grouping pattern.
-         */
-        grouping: PropTypes.arrayOf(PropTypes.number),
-        /**
-         * A list of ten strings used as replacements for numbers 0-9.
-         */
-        numerals: PropTypes.arrayOf(PropTypes.string),
-        /**
-         * (default: '%'). The string used for the percentage symbol.
-         */
-        percent: PropTypes.string,
-        /**
-         * (default: True). Separate integers with 4-digits or less.
-         */
-        separate_4digits: PropTypes.bool
-    }),
-
-    /**
-     * The `markdown_options` property allows customization of the markdown cells behavior.
-     */
-    markdown_options: PropTypes.exact({
-        /**
-         * (default: '_blank').  The link's behavior (_blank opens the link in a
-         * new tab, _parent opens the link in the parent frame, _self opens the link in the
-         * current tab, and _top opens the link in the top frame) or a string
-         */
-        link_target: PropTypes.oneOfType([
-            PropTypes.string,
-            PropTypes.oneOf(['_blank', '_parent', '_self', '_top'])
-        ]),
-        /**
-         * (default: False)  If True, html may be used in markdown cells
-         * Be careful enabling html if the content being rendered can come
-         * from an untrusted user, as this may create an XSS vulnerability.
-         */
-        html: PropTypes.bool
-    }),
-
-    /**
-     * The `css` property is a way to embed CSS selectors and rules
-     * onto the page.
-     * We recommend starting with the `style_*` properties
-     * before using this `css` property.
-     * Example:
-     * [
-     *     {"selector": ".dash-spreadsheet", "rule": 'font-family: "monospace"'}
-     * ]
-     */
-    css: PropTypes.arrayOf(
-        PropTypes.exact({
-            selector: PropTypes.string.isRequired,
-            rule: PropTypes.string.isRequired
-        })
-    ),
-
-    /**
-     * The previous state of `data`. `data_previous`
-     * has the same structure as `data` and it will be updated
-     * whenever `data` changes, either through a callback or
-     * by editing the table.
-     * This is a read-only property: setting this property will not
-     * have any impact on the table.
-     */
-    data_previous: PropTypes.arrayOf(PropTypes.object),
-
-    /**
-     * The unix timestamp when the data was last edited.
-     * Use this property with other timestamp properties
-     * (such as `n_clicks_timestamp` in `dash_html_components`)
-     * to determine which property has changed within a callback.
-     */
-    data_timestamp: PropTypes.number,
 
     /**
      * If True, then the data in all of the cells is editable.
@@ -561,75 +450,6 @@ export const propTypes = {
      * property.
      */
     editable: PropTypes.bool,
-
-    /**
-     * When selecting multiple cells
-     * (via clicking on a cell and then shift-clicking on another cell),
-     * `end_cell` represents the row / column coordinates and IDs of the cell
-     * in one of the corners of the region.
-     * `start_cell` represents the coordinates of the other corner.
-     */
-    end_cell: PropTypes.exact({
-        row: PropTypes.number,
-        column: PropTypes.number,
-        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        column_id: PropTypes.string
-    }),
-
-    /**
-     * Denotes the columns that will be used in the export data file.
-     * If `all`, all columns will be used (visible + hidden). If `visible`,
-     * only the visible columns will be used. Defaults to `visible`.
-     */
-    export_columns: PropTypes.oneOf(['all', 'visible']),
-
-    /**
-     * Denotes the type of the export data file,
-     * Defaults to `'none'`
-     */
-    export_format: PropTypes.oneOf(['csv', 'xlsx', 'none']),
-
-    /**
-     * Denotes the format of the headers in the export data file.
-     * If `'none'`, there will be no header. If `'display'`, then the header
-     * of the data file will be be how it is currently displayed. Note that
-     * `'display'` is only supported for `'xlsx'` export_format and will behave
-     * like `'names'` for `'csv'` export format. If `'ids'` or `'names'`,
-     * then the headers of data file will be the column id or the column
-     * names, respectively
-     */
-    export_headers: PropTypes.oneOf(['none', 'ids', 'names', 'display']),
-
-    /**
-     * `fill_width` toggles between a set of CSS for two common behaviors:
-     * True: The table container's width will grow to fill the available space;
-     * False: The table container's width will equal the width of its content.
-     */
-    fill_width: PropTypes.bool,
-
-    /**
-     * List of columns ids of the columns that are currently hidden.
-     * See the associated nested prop `columns.hideable`.
-     */
-    hidden_columns: PropTypes.arrayOf(PropTypes.string),
-
-    /**
-     * The ID of the table.
-     */
-    id: PropTypes.string,
-
-    /**
-     * If True, then the `active_cell` is in a focused state.
-     */
-    is_focused: PropTypes.bool,
-
-    /**
-     * If True, then column headers that have neighbors with duplicate names
-     * will be merged into a single cell.
-     * This will be applied for single column headers and multi-column
-     * headers.
-     */
-    merge_duplicate_headers: PropTypes.bool,
 
     /**
      * `fixed_columns` will "fix" the set of columns so that
@@ -714,12 +534,6 @@ export const propTypes = {
     column_selectable: PropTypes.oneOf(['single', 'multi', false]),
 
     /**
-     * If True, then a `x` will appear next to each `row`
-     * and the user can delete the row.
-     */
-    row_deletable: PropTypes.bool,
-
-    /**
      * If True (default), then it is possible to click and navigate
      * table cells.
      */
@@ -736,6 +550,23 @@ export const propTypes = {
      * in `selected_rows`.
      */
     row_selectable: PropTypes.oneOf(['single', 'multi', false]),
+
+    /**
+     * If True, then a `x` will appear next to each `row`
+     * and the user can delete the row.
+     */
+    row_deletable: PropTypes.bool,
+
+    /**
+     * The row and column indices and IDs of the currently active cell.
+     * `row_id` is only returned if the data rows have an `id` key.
+     */
+    active_cell: PropTypes.exact({
+        row: PropTypes.number,
+        column: PropTypes.number,
+        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        column_id: PropTypes.string
+    }),
 
     /**
      * `selected_cells` represents the set of cells that are selected,
@@ -777,11 +608,6 @@ export const propTypes = {
     ),
 
     /**
-     * Dash-assigned callback that gets fired when the user makes changes.
-     */
-    setProps: PropTypes.func,
-
-    /**
      * When selecting multiple cells
      * (via clicking on a cell and then shift-clicking on another cell),
      * `start_cell` represents the [row, column] coordinates of the cell
@@ -796,10 +622,86 @@ export const propTypes = {
     }),
 
     /**
-     * If True, then the table will be styled like a list view
-     * and not have borders between the columns.
+     * When selecting multiple cells
+     * (via clicking on a cell and then shift-clicking on another cell),
+     * `end_cell` represents the row / column coordinates and IDs of the cell
+     * in one of the corners of the region.
+     * `start_cell` represents the coordinates of the other corner.
      */
-    style_as_list_view: PropTypes.bool,
+    end_cell: PropTypes.exact({
+        row: PropTypes.number,
+        column: PropTypes.number,
+        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        column_id: PropTypes.string
+    }),
+
+    /**
+     * The previous state of `data`. `data_previous`
+     * has the same structure as `data` and it will be updated
+     * whenever `data` changes, either through a callback or
+     * by editing the table.
+     * This is a read-only property: setting this property will not
+     * have any impact on the table.
+     */
+    data_previous: PropTypes.arrayOf(PropTypes.object),
+
+    /**
+     * List of columns ids of the columns that are currently hidden.
+     * See the associated nested prop `columns.hideable`.
+     */
+    hidden_columns: PropTypes.arrayOf(PropTypes.string),
+
+    /**
+     * If True, then the `active_cell` is in a focused state.
+     */
+    is_focused: PropTypes.bool,
+
+    /**
+     * If True, then column headers that have neighbors with duplicate names
+     * will be merged into a single cell.
+     * This will be applied for single column headers and multi-column
+     * headers.
+     */
+    merge_duplicate_headers: PropTypes.bool,
+
+    /**
+     * The unix timestamp when the data was last edited.
+     * Use this property with other timestamp properties
+     * (such as `n_clicks_timestamp` in `dash_html_components`)
+     * to determine which property has changed within a callback.
+     */
+    data_timestamp: PropTypes.number,
+
+    /**
+     * If true, headers are included when copying from the table to different
+     * tabs and elsewhere. Note that headers are ignored when copying from the table onto itself and
+     * between two tables within the same tab.
+     */
+    include_headers_on_copy_paste: PropTypes.bool,
+
+    /**
+     * Denotes the columns that will be used in the export data file.
+     * If `all`, all columns will be used (visible + hidden). If `visible`,
+     * only the visible columns will be used. Defaults to `visible`.
+     */
+    export_columns: PropTypes.oneOf(['all', 'visible']),
+
+    /**
+     * Denotes the type of the export data file,
+     * Defaults to `'none'`
+     */
+    export_format: PropTypes.oneOf(['csv', 'xlsx', 'none']),
+
+    /**
+     * Denotes the format of the headers in the export data file.
+     * If `'none'`, there will be no header. If `'display'`, then the header
+     * of the data file will be be how it is currently displayed. Note that
+     * `'display'` is only supported for `'xlsx'` export_format and will behave
+     * like `'names'` for `'csv'` export format. If `'ids'` or `'names'`,
+     * then the headers of data file will be the column id or the column
+     * names, respectively
+     */
+    export_headers: PropTypes.oneOf(['none', 'ids', 'names', 'display']),
 
     /**
      * `page_action` refers to a mode of the table where
@@ -843,6 +745,103 @@ export const propTypes = {
      * displayed on a particular page when `page_action` is `'custom'` or `'native'`
      */
     page_size: PropTypes.number,
+
+    /**
+     * If `filter_action` is enabled, then the current filtering
+     * string is represented in this `filter_query`
+     * property.
+     */
+    filter_query: PropTypes.string,
+
+    /**
+     * The `filter_action` property controls the behavior of the `filtering` UI.
+     * If `'none'`, then the filtering UI is not displayed.
+     * If `'native'`, then the filtering UI is displayed and the filtering
+     * logic is handled by the table. That is, it is performed on the data
+     * that exists in the `data` property.
+     * If `'custom'`, then the filtering UI is displayed but it is the
+     * responsibility of the developer to program the filtering
+     * through a callback (where `filter_query` or `derived_filter_query_structure` would be the input
+     * and `data` would be the output).
+     */
+    filter_action: PropTypes.oneOfType([
+        PropTypes.oneOf(['custom', 'native', 'none']),
+        PropTypes.shape({
+            type: PropTypes.oneOf(['custom', 'native']).isRequired,
+            operator: PropTypes.oneOf(['and', 'or'])
+        })
+    ]),
+
+    /**
+     * There are two `filter_options` props in the table.
+     * This is the table-level filter_options prop and there is
+     * also the column-level `filter_options` prop.
+     * These props determine whether the applicable filter relational
+     * operators will default to `sensitive` or `insensitive` comparison.
+     * If the column-level `filter_options` prop is set it overrides
+     * the table-level `filter_options` prop for that column.
+     */
+    filter_options: PropTypes.shape({
+        case: PropTypes.oneOf(['sensitive', 'insensitive'])
+    }),
+    /**
+     * The `sort_action` property enables data to be
+     * sorted on a per-column basis.
+     * If `'none'`, then the sorting UI is not displayed.
+     * If `'native'`, then the sorting UI is displayed and the sorting
+     * logic is handled by the table. That is, it is performed on the data
+     * that exists in the `data` property.
+     * If `'custom'`, the the sorting UI is displayed but it is the
+     * responsibility of the developer to program the sorting
+     * through a callback (where `sort_by` would be the input and `data`
+     * would be the output).
+     * Clicking on the sort arrows will update the
+     * `sort_by` property.
+     */
+    sort_action: PropTypes.oneOf(['custom', 'native', 'none']),
+
+    /**
+     * Sorting can be performed across multiple columns
+     * (e.g. sort by country, sort within each country,
+     *  sort by year) or by a single column.
+     * NOTE - With multi-column sort, it's currently
+     * not possible to determine the order in which
+     * the columns were sorted through the UI.
+     * See [https://github.com/plotly/dash-table/issues/170](https://github.com/plotly/dash-table/issues/170)
+     */
+    sort_mode: PropTypes.oneOf(['single', 'multi']),
+
+    /**
+     * `sort_by` describes the current state
+     * of the sorting UI.
+     * That is, if the user clicked on the sort arrow
+     * of a column, then this property will be updated
+     * with the column ID and the direction
+     * (`asc` or `desc`) of the sort.
+     * For multi-column sorting, this will be a list of
+     * sorting parameters, in the order in which they were
+     * clicked.
+     */
+    sort_by: PropTypes.arrayOf(
+        PropTypes.exact({
+            column_id: PropTypes.string.isRequired,
+            direction: PropTypes.oneOf(['asc', 'desc']).isRequired
+        })
+    ),
+
+    /**
+     * An array of string, number and boolean values that are treated as `None`
+     * (i.e. ignored and always displayed last) when sorting.
+     * This value will be used by columns without `sort_as_null`.
+     * Defaults to `[]`.
+     */
+    sort_as_null: PropTypes.arrayOf(
+        PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.number,
+            PropTypes.bool
+        ])
+    ),
 
     /**
      * `dropdown` specifies dropdown options for different columns.
@@ -1146,100 +1145,92 @@ export const propTypes = {
     tooltip_duration: PropTypes.number,
 
     /**
-     * If `filter_action` is enabled, then the current filtering
-     * string is represented in this `filter_query`
-     * property.
+     * The localization specific formatting information applied to all columns in the table.
+     * This prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.
+     * When left unspecified, each individual nested prop will default to a pre-determined value.
      */
-    filter_query: PropTypes.string,
-
-    /**
-     * The `filter_action` property controls the behavior of the `filtering` UI.
-     * If `'none'`, then the filtering UI is not displayed.
-     * If `'native'`, then the filtering UI is displayed and the filtering
-     * logic is handled by the table. That is, it is performed on the data
-     * that exists in the `data` property.
-     * If `'custom'`, then the filtering UI is displayed but it is the
-     * responsibility of the developer to program the filtering
-     * through a callback (where `filter_query` or `derived_filter_query_structure` would be the input
-     * and `data` would be the output).
-     */
-    filter_action: PropTypes.oneOfType([
-        PropTypes.oneOf(['custom', 'native', 'none']),
-        PropTypes.shape({
-            type: PropTypes.oneOf(['custom', 'native']).isRequired,
-            operator: PropTypes.oneOf(['and', 'or'])
-        })
-    ]),
-
-    /**
-     * There are two `filter_options` props in the table.
-     * This is the table-level filter_options prop and there is
-     * also the column-level `filter_options` prop.
-     * These props determine whether the applicable filter relational
-     * operators will default to `sensitive` or `insensitive` comparison.
-     * If the column-level `filter_options` prop is set it overrides
-     * the table-level `filter_options` prop for that column.
-     */
-    filter_options: PropTypes.shape({
-        case: PropTypes.oneOf(['sensitive', 'insensitive'])
+    locale_format: PropTypes.exact({
+        /**
+         *   (default: ['$', '']). A  list of two strings representing the
+         *   prefix and suffix symbols. Typically used for currency, and implemented using d3's
+         *   currency format, but you can use this for other symbols such as measurement units.
+         */
+        symbol: PropTypes.arrayOf(PropTypes.string),
+        /**
+         * (default: '.'). The string used for the decimal separator.
+         */
+        decimal: PropTypes.string,
+        /**
+         * (default: ','). The string used for the groups separator.
+         */
+        group: PropTypes.string,
+        /**
+         * (default: [3]). A  list of integers representing the grouping pattern.
+         */
+        grouping: PropTypes.arrayOf(PropTypes.number),
+        /**
+         * A list of ten strings used as replacements for numbers 0-9.
+         */
+        numerals: PropTypes.arrayOf(PropTypes.string),
+        /**
+         * (default: '%'). The string used for the percentage symbol.
+         */
+        percent: PropTypes.string,
+        /**
+         * (default: True). Separate integers with 4-digits or less.
+         */
+        separate_4digits: PropTypes.bool
     }),
-    /**
-     * The `sort_action` property enables data to be
-     * sorted on a per-column basis.
-     * If `'none'`, then the sorting UI is not displayed.
-     * If `'native'`, then the sorting UI is displayed and the sorting
-     * logic is handled by the table. That is, it is performed on the data
-     * that exists in the `data` property.
-     * If `'custom'`, the the sorting UI is displayed but it is the
-     * responsibility of the developer to program the sorting
-     * through a callback (where `sort_by` would be the input and `data`
-     * would be the output).
-     * Clicking on the sort arrows will update the
-     * `sort_by` property.
-     */
-    sort_action: PropTypes.oneOf(['custom', 'native', 'none']),
 
     /**
-     * Sorting can be performed across multiple columns
-     * (e.g. sort by country, sort within each country,
-     *  sort by year) or by a single column.
-     * NOTE - With multi-column sort, it's currently
-     * not possible to determine the order in which
-     * the columns were sorted through the UI.
-     * See [https://github.com/plotly/dash-table/issues/170](https://github.com/plotly/dash-table/issues/170)
+     * If True, then the table will be styled like a list view
+     * and not have borders between the columns.
      */
-    sort_mode: PropTypes.oneOf(['single', 'multi']),
+    style_as_list_view: PropTypes.bool,
 
     /**
-     * `sort_by` describes the current state
-     * of the sorting UI.
-     * That is, if the user clicked on the sort arrow
-     * of a column, then this property will be updated
-     * with the column ID and the direction
-     * (`asc` or `desc`) of the sort.
-     * For multi-column sorting, this will be a list of
-     * sorting parameters, in the order in which they were
-     * clicked.
+     * `fill_width` toggles between a set of CSS for two common behaviors:
+     * True: The table container's width will grow to fill the available space;
+     * False: The table container's width will equal the width of its content.
      */
-    sort_by: PropTypes.arrayOf(
-        PropTypes.exact({
-            column_id: PropTypes.string.isRequired,
-            direction: PropTypes.oneOf(['asc', 'desc']).isRequired
-        })
-    ),
+    fill_width: PropTypes.bool,
 
     /**
-     * An array of string, number and boolean values that are treated as `None`
-     * (i.e. ignored and always displayed last) when sorting.
-     * This value will be used by columns without `sort_as_null`.
-     * Defaults to `[]`.
+     * The `markdown_options` property allows customization of the markdown cells behavior.
      */
-    sort_as_null: PropTypes.arrayOf(
-        PropTypes.oneOfType([
+    markdown_options: PropTypes.exact({
+        /**
+         * (default: '_blank').  The link's behavior (_blank opens the link in a
+         * new tab, _parent opens the link in the parent frame, _self opens the link in the
+         * current tab, and _top opens the link in the top frame) or a string
+         */
+        link_target: PropTypes.oneOfType([
             PropTypes.string,
-            PropTypes.number,
-            PropTypes.bool
-        ])
+            PropTypes.oneOf(['_blank', '_parent', '_self', '_top'])
+        ]),
+        /**
+         * (default: False)  If True, html may be used in markdown cells
+         * Be careful enabling html if the content being rendered can come
+         * from an untrusted user, as this may create an XSS vulnerability.
+         */
+        html: PropTypes.bool
+    }),
+
+    /**
+     * The `css` property is a way to embed CSS selectors and rules
+     * onto the page.
+     * We recommend starting with the `style_*` properties
+     * before using this `css` property.
+     * Example:
+     * [
+     *     {"selector": ".dash-spreadsheet", "rule": 'font-family: "monospace"'}
+     * ]
+     */
+    css: PropTypes.arrayOf(
+        PropTypes.exact({
+            selector: PropTypes.string.isRequired,
+            rule: PropTypes.string.isRequired
+        })
     ),
 
     /**
@@ -1496,6 +1487,16 @@ export const propTypes = {
     ),
 
     /**
+     * The ID of the table.
+     */
+    id: PropTypes.string,
+
+    /**
+     * Dash-assigned callback that gets fired when the user makes changes.
+     */
+    setProps: PropTypes.func,
+
+    /**
      * Object that holds the loading state object coming from dash-renderer
      */
     loading_state: PropTypes.shape({
@@ -1537,6 +1538,7 @@ export const propTypes = {
             'data',
             'filter_query',
             'hidden_columns',
+            'page_current',
             'selected_columns',
             'selected_rows',
             'sort_by'

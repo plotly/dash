@@ -35,13 +35,6 @@ RangeSlider.propTypes = {
     step: PropTypes.number,
 
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
-    /**
      * Marks on the slider.
      * The key determines the position (a number),
      * and the value determines what will show.
@@ -75,20 +68,23 @@ RangeSlider.propTypes = {
     allowCross: PropTypes.bool,
 
     /**
-     * Additional CSS class for the root DOM node
+     * pushable could be set as true to allow pushing of
+     * surrounding handles when moving an handle.
+     * When set to a number, the number will be the
+     * minimum ensured distance between handles.
      */
-    className: PropTypes.string,
+    pushable: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
+
+    /**
+     * If true, the handles can't be moved.
+     */
+    disabled: PropTypes.bool,
 
     /**
      * Determine how many ranges to render, and multiple handles
      * will be rendered (number + 1).
      */
     count: PropTypes.number,
-
-    /**
-     * If true, the handles can't be moved.
-     */
-    disabled: PropTypes.bool,
 
     /**
      * When the step value is greater than 1,
@@ -102,14 +98,6 @@ RangeSlider.propTypes = {
      * value is included. Otherwise, it is an independent value.
      */
     included: PropTypes.bool,
-
-    /**
-     * pushable could be set as true to allow pushing of
-     * surrounding handles when moving an handle.
-     * When set to a number, the number will be the
-     * minimum ensured distance between handles.
-     */
-    pushable: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
 
     /**
      * Configuration for tooltips describing the current slider values
@@ -140,6 +128,17 @@ RangeSlider.propTypes = {
     }),
 
     /**
+     * Determines when the component should update its `value`
+     * property. If `mouseup` (the default) then the slider
+     * will only trigger its value when the user has finished
+     * dragging the slider. If `drag`, then the slider will
+     * update its value continuously as it is being dragged.
+     * Note that for the latter case, the `drag_value`
+     * property could be used instead.
+     */
+    updatemode: PropTypes.oneOf(['mouseup', 'drag']),
+
+    /**
      * If true, the slider will be vertical
      */
     vertical: PropTypes.bool,
@@ -150,15 +149,16 @@ RangeSlider.propTypes = {
     verticalHeight: PropTypes.number,
 
     /**
-     * Determines when the component should update its `value`
-     * property. If `mouseup` (the default) then the slider
-     * will only trigger its value when the user has finished
-     * dragging the slider. If `drag`, then the slider will
-     * update its value continuously as it is being dragged.
-     * Note that for the latter case, the `drag_value`
-     * property could be used instead.
+     * Additional CSS class for the root DOM node
      */
-    updatemode: PropTypes.oneOf(['mouseup', 'drag']),
+    className: PropTypes.string,
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the value or drag_value changes.
