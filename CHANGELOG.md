@@ -38,9 +38,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- [#2016](https://github.com/plotly/dash/pull/2016) Drop the 375px width from default percy_snapshot calls, keep only 1280px
-
 - [#1751](https://github.com/plotly/dash/pull/1751) Rename `app.run_server` to `app.run` while preserving `app.run_server` for backwards compatibility.
+
+- [#1839](https://github.com/plotly/dash/pull/1839) The `callback` decorator returns the original function, not the wrapped function, so that you can still call these functions directly, for example in tests. Note that in this case there will be no callback context so not all callbacks can be tested this way.
+
+- [#2016](https://github.com/plotly/dash/pull/2016) Drop the 375px width from default percy_snapshot calls, keep only 1280px
 
 - [#2027](https://github.com/plotly/dash/pull/1751) Improve the error message when a user doesn't wrap children in a list
 
