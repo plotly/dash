@@ -767,7 +767,7 @@ def test_cbsc016_extra_components_callback(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_cbsc017_callback_directly_callable(dash_duo):
+def test_cbsc017_callback_directly_callable():
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -782,7 +782,5 @@ def test_cbsc017_callback_directly_callable(dash_duo):
     )
     def update_output(value):
         return f"returning {value}"
-
-    dash_duo.start_server(app)
 
     assert update_output("my-value") == "returning my-value"
