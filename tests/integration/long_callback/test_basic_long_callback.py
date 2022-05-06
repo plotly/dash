@@ -21,7 +21,7 @@ def kill(proc_pid):
 
 
 if "REDIS_URL" in os.environ:
-    managers = ["diskcache", "celery"]
+    managers = ["celery", "diskcache"]
 else:
     print("Skipping celery tests because REDIS_URL is not defined")
     managers = ["diskcache"]

@@ -155,7 +155,7 @@ def _make_job_fn(fn, celery_app, progress, args_deps):
                             "msg": str(err),
                             "tb": traceback.format_exc(),
                         }
-                    }
+                    },
                 ),
             )
         else:

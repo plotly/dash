@@ -24,7 +24,9 @@ from . import _validate
 
 class NoUpdate:
     # pylint: disable=too-few-public-methods
-    pass
+
+    def to_plotly_json(self):  # pylint: disable=no-self-use
+        return {"no_update": "no_update"}
 
 
 GLOBAL_CALLBACK_LIST = []

@@ -1242,7 +1242,10 @@ class Dash:
 
                     if isinstance(result, dict) and result.get("long_callback_error"):
                         error = result.get("long_callback_error")
-                        print(result["long_callback_error"]["tb"], file=sys.stderr)
+                        print(
+                            result["long_callback_error"]["tb"],
+                            file=sys.stderr,
+                        )
                         return dict(
                             error=f"An error occurred inside a long callback: {error['msg']}\n"
                             + error["tb"],
@@ -1252,6 +1255,12 @@ class Dash:
                             progress=clear_progress,
                             user_store_data=user_store_data,
                         )
+
+                    if (
+                        isinstance(result, dict)
+                        and result.get("no_update") == "no_update"
+                    ):
+                        result = NoUpdate()
 
                     # Disable interval if this value was pulled from cache.
                     # If this value was the result of a background calculation, don't

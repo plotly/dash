@@ -1,3 +1,4 @@
+import os
 import time
 
 import dash
@@ -29,7 +30,9 @@ app.layout = html.Div(
     prevent_initial_call=True,
 )
 def callback(n_clicks):
-    time.sleep(1)
+    if os.getenv("LONG_CALLBACK_MANAGER") != "celery":
+        # Diskmanager needs some time, celery takes too long.
+        time.sleep(1)
     if n_clicks == 2:
         raise Exception("bad error")
 
