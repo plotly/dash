@@ -29,7 +29,7 @@ app.layout = html.Div(
     prevent_initial_call=True,
 )
 def callback(n_clicks):
-    time.sleep(0.5)
+    time.sleep(1)
     if n_clicks == 2:
         raise Exception("bad error")
 
