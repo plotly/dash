@@ -196,7 +196,7 @@ def register_callback(
 
         callback_map[callback_id]["callback"] = add_context
 
-        return add_context
+        return func
 
     return wrap_func
 

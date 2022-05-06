@@ -1,5 +1,6 @@
 import dash
 from dash._grouping import make_grouping_by_index, grouping_len, flatten_grouping
+from dash._utils import create_callback_id
 from dash.dependencies import Input, State, Output, ClientsideFunction
 import mock
 import json
@@ -39,11 +40,17 @@ def check_output_for_grouping(grouping):
     app = dash.Dash()
     mock_fn = mock.Mock()
     mock_fn.return_value = grouping
+    if multi:
+        callback_id = create_callback_id(flatten_grouping(outputs))
+    else:
+        callback_id = create_callback_id(outputs)
 
-    wrapped_fn = app.callback(
+    app.callback(
         outputs,
         Input("input-a", "prop"),
     )(mock_fn)
+
+    wrapped_fn = app.callback_map[callback_id]["callback"]
 
     expected_outputs = [
         (dep.component_id, dep.component_property, val)
@@ -96,10 +103,12 @@ def check_callback_inputs_for_grouping(grouping):
     mock_fn = mock.Mock()
     mock_fn.return_value = 23
 
-    wrapped_fn = app.callback(
+    app.callback(
         Output("output-a", "prop"),
         inputs,
     )(mock_fn)
+
+    wrapped_fn = app.callback_map["output-a.prop"]["callback"]
 
     flat_input_state_values = flatten_grouping(grouping)
     flat_input_values = flat_input_state_values[0::2]

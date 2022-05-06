@@ -142,17 +142,19 @@ class ThreadedRunner(BaseDashRunner):
         super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.thread = None
 
+    def running_and_accessible(self, url):
+        if self.thread.is_alive():
+            return self.accessible(url)
+        raise DashAppLoadingError("Thread is not alive.")
+
     # pylint: disable=arguments-differ
-    def start(self, app, **kwargs):
+    def start(self, app, start_timeout=3, **kwargs):
         """Start the app server in threading flavor."""
 
         def _handle_error():
             self.stop()
 
         app.server.errorhandler(500)(_handle_error)
-
-        if self.thread and self.thread.is_alive():
-            self.stop()
 
         def run():
             app.scripts.config.serve_locally = True
@@ -170,16 +172,24 @@ class ThreadedRunner(BaseDashRunner):
                 app.run(threaded=True, **options)
             except SystemExit:
                 logger.info("Server stopped")
+            except Exception as error:
+                logger.exception(error)
+                raise error
 
         retries = 0
 
         while not self.started and retries < 3:
             try:
+                if self.thread and self.thread.is_alive():
+                    self.stop()
+
                 self.thread = KillerThread(target=run)
                 self.thread.daemon = True
                 self.thread.start()
                 # wait until server is able to answer http request
-                wait.until(lambda: self.accessible(self.url), timeout=2)
+                wait.until(
+                    lambda: self.running_and_accessible(self.url), timeout=start_timeout
+                )
                 self.started = self.thread.is_alive()
             except Exception as err:  # pylint: disable=broad-except
                 logger.exception(err)

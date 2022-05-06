@@ -87,6 +87,7 @@ export default class DashMarkdown extends Component {
             highlight_config,
             loading_state,
             dangerously_allow_html,
+            link_target,
             mathjax,
             children,
             dedent,
@@ -134,6 +135,7 @@ export default class DashMarkdown extends Component {
                 <Markdown
                     source={displayText}
                     escapeHtml={!dangerously_allow_html}
+                    linkTarget={link_target}
                     plugins={mathjax ? [RemarkMath] : []}
                     renderers={{
                         math: props => (
