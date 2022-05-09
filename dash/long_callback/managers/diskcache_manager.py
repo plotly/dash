@@ -1,13 +1,10 @@
 import traceback
-from multiprocessing import Lock
 
 from . import BaseLongCallbackManager
 from ..._callback import NoUpdate
 from ...exceptions import PreventUpdate
 
 _pending_value = "__$pending__"
-
-_lock = Lock()
 
 
 class OriginalException:
@@ -57,6 +54,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 
         super().__init__(cache_by)
         self.expire = expire
+        self.lock = diskcache.Lock(self.handle, "long-callback-lock")
 
     def terminate_job(self, job):
         import psutil  # pylint: disable=import-outside-toplevel,import-error
@@ -105,7 +103,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
         return False
 
     def make_job_fn(self, fn, progress, args_deps):
-        return _make_job_fn(fn, self.handle, progress, args_deps)
+        return _make_job_fn(fn, self.handle, progress, args_deps, self.lock)
 
     def clear_cache_entry(self, key):
         self.handle.delete(key)
@@ -145,10 +143,10 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
         return result
 
 
-def _make_job_fn(fn, cache, progress, args_deps):
+def _make_job_fn(fn, cache, progress, args_deps, lock):
     def job_fn(result_key, progress_key, user_callback_args):
         def _set_progress(progress_value):
-            with _lock:
+            with lock:
                 cache.set(progress_key, progress_value)
 
         maybe_progress = [_set_progress] if progress else []
@@ -161,10 +159,10 @@ def _make_job_fn(fn, cache, progress, args_deps):
             else:
                 user_callback_output = fn(*maybe_progress, user_callback_args)
         except PreventUpdate:
-            with _lock:
+            with lock:
                 cache.set(result_key, NoUpdate())
         except Exception as err:  # pylint: disable=broad-except
-            with _lock:
+            with lock:
                 cache.set(
                     result_key,
                     {
@@ -175,7 +173,7 @@ def _make_job_fn(fn, cache, progress, args_deps):
                     },
                 )
         else:
-            with _lock:
+            with lock:
                 cache.set(result_key, user_callback_output)
 
     return job_fn
