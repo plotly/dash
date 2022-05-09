@@ -442,8 +442,9 @@ def test_lcbc008_long_callbacks_error(dash_duo, manager):
         clicker = dash_duo.find_element("#button")
 
         def click_n_wait():
-            clicker.click()
-            dash_duo.wait_for_element("#button:disabled")
+            with app.test_lock:
+                clicker.click()
+                dash_duo.wait_for_element("#button:disabled")
             dash_duo.wait_for_element("#button:not([disabled])")
 
         clicker.click()
@@ -468,7 +469,9 @@ def test_lcbc008_long_callbacks_error(dash_duo, manager):
         multi = dash_duo.wait_for_element("#multi-output")
 
         for i in range(1, 4):
-            multi.click()
+            with app.test_lock:
+                multi.click()
+                dash_duo.wait_for_element("#multi-output:disabled")
             expect = make_expect(i)
             dash_duo.wait_for_text_to_equal("#output-status", f"Updated: {i}")
             for j, e in enumerate(expect):

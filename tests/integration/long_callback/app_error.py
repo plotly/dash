@@ -24,6 +24,7 @@ app.layout = html.Div(
         html.Button("multi-output", id="multi-output"),
     ]
 )
+app.test_lock = lock = long_callback_manager.test_lock
 
 
 @app.long_callback(
@@ -38,12 +39,13 @@ def callback(n_clicks):
     if os.getenv("LONG_CALLBACK_MANAGER") != "celery":
         # Diskmanager needs some time, celery takes too long.
         time.sleep(1)
-    if n_clicks == 2:
-        raise Exception("bad error")
+    with lock:
+        if n_clicks == 2:
+            raise Exception("bad error")
 
-    if n_clicks == 4:
-        raise PreventUpdate
-    return f"Clicked {n_clicks} times"
+        if n_clicks == 4:
+            raise PreventUpdate
+        return f"Clicked {n_clicks} times"
 
 
 @app.long_callback(
@@ -56,13 +58,12 @@ def callback(n_clicks):
     prevent_initial_call=True,
 )
 def long_multi(n_clicks):
-    if os.getenv("LONG_CALLBACK_MANAGER") != "celery":
-        time.sleep(1)
-    return (
-        [f"Updated: {n_clicks}"]
-        + [i for i in range(1, n_clicks + 1)]
-        + [no_update for _ in range(n_clicks + 1, 4)]
-    )
+    with lock:
+        return (
+            [f"Updated: {n_clicks}"]
+            + [i for i in range(1, n_clicks + 1)]
+            + [no_update for _ in range(n_clicks + 1, 4)]
+        )
 
 
 if __name__ == "__main__":
