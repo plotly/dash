@@ -2,7 +2,7 @@ import os
 import time
 
 import dash
-from dash import html
+from dash import html, no_update
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
@@ -17,6 +17,11 @@ app.layout = html.Div(
     [
         html.Div([html.P(id="output", children=["Button not clicked"])]),
         html.Button(id="button", children="Run Job!"),
+        html.Div(id="output-status"),
+        html.Div(id="output1"),
+        html.Div(id="output2"),
+        html.Div(id="output3"),
+        html.Button("multi-output", id="multi-output"),
     ]
 )
 
@@ -39,6 +44,25 @@ def callback(n_clicks):
     if n_clicks == 4:
         raise PreventUpdate
     return f"Clicked {n_clicks} times"
+
+
+@app.long_callback(
+    output=[Output("output-status", "children")]
+    + [Output(f"output{i}", "children") for i in range(1, 4)],
+    inputs=[Input("multi-output", "n_clicks")],
+    running=[
+        (Output("multi-output", "disabled"), True, False),
+    ],
+    prevent_initial_call=True,
+)
+def long_multi(n_clicks):
+    if os.getenv("LONG_CALLBACK_MANAGER") != "celery":
+        time.sleep(1)
+    return (
+        [f"Updated: {n_clicks}"]
+        + [i for i in range(1, n_clicks + 1)]
+        + [no_update for _ in range(n_clicks + 1, 4)]
+    )
 
 
 if __name__ == "__main__":

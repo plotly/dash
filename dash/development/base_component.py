@@ -188,7 +188,7 @@ class Component(metaclass=ComponentMeta):
                 """
             )
 
-        v = str(uuid.UUID(int=rd.randint(0, 2**128)))
+        v = str(uuid.UUID(int=rd.randint(0, 2 ** 128)))
         setattr(self, "id", v)
         return v
 

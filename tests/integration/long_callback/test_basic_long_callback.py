@@ -461,3 +461,15 @@ def test_lcbc008_long_callbacks_error(dash_duo, manager):
         dash_duo.wait_for_text_to_equal("#output", "Clicked 3 times")
         click_n_wait()
         dash_duo.wait_for_text_to_equal("#output", "Clicked 5 times")
+
+        def make_expect(n):
+            return [str(x) for x in range(1, n + 1)] + ["" for _ in range(n + 1, 4)]
+
+        multi = dash_duo.wait_for_element("#multi-output")
+
+        for i in range(1, 4):
+            multi.click()
+            expect = make_expect(i)
+            dash_duo.wait_for_text_to_equal("#output-status", f"Updated: {i}")
+            for j, e in enumerate(expect):
+                assert dash_duo.find_element(f"#output{j + 1}").text == e

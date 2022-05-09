@@ -1144,6 +1144,7 @@ class Dash:
         ) = handle_grouped_callback_args(_args, _kwargs)
         inputs_and_state = flat_inputs + flat_state
         args_deps = map_grouping(lambda i: inputs_and_state[i], inputs_state_indices)
+        multi_output = isinstance(output, (list, tuple)) and len(output) > 1
 
         # Disallow wildcard dependencies
         for deps in [output, flat_inputs, flat_state]:
@@ -1256,11 +1257,14 @@ class Dash:
                             user_store_data=user_store_data,
                         )
 
-                    if (
-                        isinstance(result, dict)
-                        and result == {"_dash_no_update": "_dash_no_update"}
-                    ):
+                    if NoUpdate.is_no_update(result):
                         result = NoUpdate()
+
+                    if multi_output and isinstance(result, (list, tuple)):
+                        result = [
+                            NoUpdate() if NoUpdate.is_no_update(r) else r
+                            for r in result
+                        ]
 
                     # Disable interval if this value was pulled from cache.
                     # If this value was the result of a background calculation, don't
