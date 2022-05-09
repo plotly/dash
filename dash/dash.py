@@ -1258,7 +1258,7 @@ class Dash:
 
                     if (
                         isinstance(result, dict)
-                        and result.get("no_update") == "no_update"
+                        and result == {"_dash_no_update": "_dash_no_update"}
                     ):
                         result = NoUpdate()
 

@@ -26,7 +26,7 @@ class NoUpdate:
     # pylint: disable=too-few-public-methods
 
     def to_plotly_json(self):  # pylint: disable=no-self-use
-        return {"no_update": "no_update"}
+        return {"_dash_no_update": "_dash_no_update"}
 
 
 GLOBAL_CALLBACK_LIST = []
