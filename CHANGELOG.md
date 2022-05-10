@@ -47,10 +47,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2027](https://github.com/plotly/dash/pull/1751) Improve the error message when a user doesn't wrap children in a list
 
 ### Updated
-- [#2016](https://github.com/plotly/dash/pull/2016) and [#2032](https://github.com/plotly/dash/pull/2032) Widespread dependency upgrades
-  - Upgrade Plotly.js to v2.12.0 (from v2.11.0).
+- [#2016](https://github.com/plotly/dash/pull/2016), [#2032](https://github.com/plotly/dash/pull/2032), and [#2042](https://github.com/plotly/dash/pull/2042) Widespread dependency upgrades
+  - Upgrade Plotly.js to v2.12.1 (from v2.11.0).
     - Feature release [2.12.0](https://github.com/plotly/plotly.js/releases/tag/v2.12.0) adds minor ticks and gridlines, as well as dashed gridlines.
     - Patch release [2.11.1](https://github.com/plotly/plotly.js/releases/tag/v2.11.1) fixes regl-based traces in strict CSP mode, however you must manually switch to the strict bundle to use this.
+    - Patch release [2.12.1](https://github.com/plotly/plotly.js/releases/tag/v2.12.1) fixes several bugs.
   - Upgrade `black` to v22.3.0 for Python 3.7+ - if you use `dash[ci]` and you call `black`, this may alter your code formatting slightly, including more consistently breaking Python 2 compatibility.
   - Many other mainly JS dependency upgrades to the internals of Dash renderer and components. These may patch bugs or improve performance.
 
