@@ -388,3 +388,20 @@ def test_mkdw009_target_blank_links(dash_dcc):
     dash_dcc.find_element("a").click()
 
     until(lambda: len(dash_dcc.driver.window_handles) == 2, timeout=1)
+
+
+def test_mkdw010_mathjax_with_html(dash_dcc):
+
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        dcc.Markdown(
+            "<p>Some paragraph with $E = mc^2$  inline math</p>",
+            dangerously_allow_html=True,
+            mathjax=True,
+        )
+    )
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_element(".MathJax")
