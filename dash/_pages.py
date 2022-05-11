@@ -126,6 +126,7 @@ def register_page(
     title=None,
     description=None,
     image=None,
+    image_url=None,
     redirect_from=None,
     layout=None,
     **kwargs,
@@ -196,6 +197,11 @@ def register_page(
         - A logo at `assets/logo.<extension>`
         When inferring the image file, it will look for the following extensions:
         APNG, AVIF, GIF, JPEG, JPG, PNG, SVG, WebP.
+
+    -  `image_url`:
+       This will use the exact image url provided when sharing on social media.
+       This is appealing when the image you want to share is hosted on a CDN.
+       Using this attribute overrides the image attribute.
 
     - `redirect_from`:
        A list of paths that should redirect to this page.
@@ -268,8 +274,9 @@ def register_page(
         **kwargs,
     )
     page.update(
-        image=(image if image is not None else _infer_image(module)),
         supplied_image=image,
+        image=(image if image is not None else _infer_image(module)),
+        image_url=image_url,
     )
     page.update(redirect_from=redirect_from)
 

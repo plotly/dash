@@ -424,10 +424,10 @@ def validate_template(template):
 def check_for_duplicate_pathnames(registry):
     path_to_module = {}
     for page in registry.values():
-        if page["relative_path"] not in path_to_module:
-            path_to_module[page["relative_path"]] = [page["module"]]
+        if page["path"] not in path_to_module:
+            path_to_module[page["path"]] = [page["module"]]
         else:
-            path_to_module[page["relative_path"]].append(page["module"])
+            path_to_module[page["path"]].append(page["module"])
 
     for modules in path_to_module.values():
         if len(modules) > 1:

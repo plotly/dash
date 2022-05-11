@@ -860,9 +860,16 @@ class Dash:
 
     def _pages_meta_tags(self):
         start_page, path_variables = self._path_to_page(flask.request.path.strip("/"))
+
+        # use the supplied image_url or create url based on image in the assets folder
         image = start_page.get("image", "")
         if image:
             image = self.get_asset_url(image)
+        assets_image_url = (
+            "".join([flask.request.url_root, image.lstrip("/")]) if image else None
+        )
+        supplied_image_url = start_page.get("image_url")
+        image_url = supplied_image_url if supplied_image_url else assets_image_url
 
         title = start_page.get("title", self.title)
         if callable(title):
@@ -878,16 +885,16 @@ class Dash:
             f"""
             <meta name="description" content="{description}" />
             <!-- Twitter Card data -->
-            <meta property="twitter:card" content="{description}">
-            <meta property="twitter:url" content="https://metatags.io/">
+            <meta property="twitter:card" content="summary_large_image">
+            <meta property="twitter:url" content="{flask.request.url}">
             <meta property="twitter:title" content="{title}">
             <meta property="twitter:description" content="{description}">
-            <meta property="twitter:image" content="{image}">
+            <meta property="twitter:image" content="{image_url}">
             <!-- Open Graph data -->
             <meta property="og:title" content="{title}" />
             <meta property="og:type" content="website" />
             <meta property="og:description" content="{description}" />
-            <meta property="og:image" content="{image}">
+            <meta property="og:image" content="{image_url}">
             """
         )
 
@@ -2154,7 +2161,7 @@ class Dash:
             for file in files:
                 if file.startswith("_") or not file.endswith(".py"):
                     continue
-                with open(os.path.join(root, file)) as f:
+                with open(os.path.join(root, file), encoding="utf-8") as f:
                     content = f.read()
                     if "register_page" not in content:
                         continue

@@ -105,15 +105,24 @@ def test_pala002_meta_tags_default(dash_duo):
     # These are the inferred defaults if description, title, image are not supplied
     metas_layout2 = [
         {"name": "description", "content": ""},
-        {"property": "twitter:card", "content": ""},
-        {"property": "twitter:url", "content": "https://metatags.io/"},
+        {"property": "twitter:card", "content": "summary_large_image"},
+        {
+            "property": "twitter:url",
+            "content": f"http://localhost:{dash_duo.server.port}/",
+        },
         {"property": "twitter:title", "content": "Multi layout2"},
         {"property": "twitter:description", "content": ""},
-        {"property": "twitter:image", "content": "/assets/app.jpeg"},
+        {
+            "property": "twitter:image",
+            "content": f"http://localhost:{dash_duo.server.port}/assets/app.jpeg",
+        },
         {"property": "og:title", "content": "Multi layout2"},
         {"property": "og:type", "content": "website"},
         {"property": "og:description", "content": ""},
-        {"property": "og:image", "content": "/assets/app.jpeg"},
+        {
+            "property": "og:image",
+            "content": f"http://localhost:{dash_duo.server.port}/assets/app.jpeg",
+        },
     ]
 
     dash_duo.start_server(get_app(path1="/layout1", path2="/"))
@@ -124,18 +133,27 @@ def test_pala003_meta_tags_custom(dash_duo):
     # In the "multi_layout1" module, the description, title, image are supplied
     metas_layout1 = [
         {"name": "description", "content": "This is the supplied description"},
-        {"property": "twitter:card", "content": "This is the supplied description"},
-        {"property": "twitter:url", "content": "https://metatags.io/"},
+        {"property": "twitter:card", "content": "summary_large_image"},
+        {
+            "property": "twitter:url",
+            "content": f"http://localhost:{dash_duo.server.port}/",
+        },
         {"property": "twitter:title", "content": "Supplied Title"},
         {
             "property": "twitter:description",
             "content": "This is the supplied description",
         },
-        {"property": "twitter:image", "content": "/assets/birds.jpeg"},
+        {
+            "property": "twitter:image",
+            "content": f"http://localhost:{dash_duo.server.port}/assets/birds.jpeg",
+        },
         {"property": "og:title", "content": "Supplied Title"},
         {"property": "og:type", "content": "website"},
         {"property": "og:description", "content": "This is the supplied description"},
-        {"property": "og:image", "content": "/assets/birds.jpeg"},
+        {
+            "property": "og:image",
+            "content": f"http://localhost:{dash_duo.server.port}/assets/birds.jpeg",
+        },
     ]
 
     dash_duo.start_server(get_app())
