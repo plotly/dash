@@ -85,7 +85,8 @@ class Time(Component):
         changed most recently.
 
     - role (string; optional):
-        The ARIA role attribute.
+        Defines an explicit role for an element for use by assistive
+        technologies.
 
     - spellCheck (string; optional):
         Indicates whether spell checking is allowed for the element.
@@ -108,7 +109,6 @@ class Time(Component):
         n_clicks=Component.UNDEFINED,
         n_clicks_timestamp=Component.UNDEFINED,
         key=Component.UNDEFINED,
-        role=Component.UNDEFINED,
         dateTime=Component.UNDEFINED,
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
@@ -118,6 +118,7 @@ class Time(Component):
         draggable=Component.UNDEFINED,
         hidden=Component.UNDEFINED,
         lang=Component.UNDEFINED,
+        role=Component.UNDEFINED,
         spellCheck=Component.UNDEFINED,
         style=Component.UNDEFINED,
         tabIndex=Component.UNDEFINED,
@@ -179,7 +180,7 @@ class Time(Component):
         self.available_wildcard_properties = ["data-", "aria-"]
         _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
-        _locals.update(kwargs)  # For wildcard attrs
+        _locals.update(kwargs)  # For wildcard attrs and excess named props
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:

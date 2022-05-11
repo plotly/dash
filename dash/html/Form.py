@@ -111,7 +111,8 @@ class Form(Component):
         submitted.
 
     - role (string; optional):
-        The ARIA role attribute.
+        Defines an explicit role for an element for use by assistive
+        technologies.
 
     - spellCheck (string; optional):
         Indicates whether spell checking is allowed for the element.
@@ -139,7 +140,6 @@ class Form(Component):
         n_clicks=Component.UNDEFINED,
         n_clicks_timestamp=Component.UNDEFINED,
         key=Component.UNDEFINED,
-        role=Component.UNDEFINED,
         accept=Component.UNDEFINED,
         acceptCharset=Component.UNDEFINED,
         action=Component.UNDEFINED,
@@ -157,6 +157,7 @@ class Form(Component):
         draggable=Component.UNDEFINED,
         hidden=Component.UNDEFINED,
         lang=Component.UNDEFINED,
+        role=Component.UNDEFINED,
         spellCheck=Component.UNDEFINED,
         style=Component.UNDEFINED,
         tabIndex=Component.UNDEFINED,
@@ -234,7 +235,7 @@ class Form(Component):
         self.available_wildcard_properties = ["data-", "aria-"]
         _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
-        _locals.update(kwargs)  # For wildcard attrs
+        _locals.update(kwargs)  # For wildcard attrs and excess named props
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:

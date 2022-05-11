@@ -3575,6 +3575,13 @@
           "computed": false
         }
       },
+      "link_target": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A string for the target attribute to use on links (such as \"_blank\")"
+      },
       "children": {
         "type": {
           "name": "union",

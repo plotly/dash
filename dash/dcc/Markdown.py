@@ -43,6 +43,10 @@ class Markdown(Component):
         - theme (a value equal to: 'dark', 'light'; optional):
             Color scheme; default 'light'.
 
+    - link_target (string; optional):
+        A string for the target attribute to use on links (such as
+        \"_blank\").
+
     - loading_state (dict; optional):
         Object that holds the loading state object coming from
         dash-renderer.
@@ -73,6 +77,7 @@ class Markdown(Component):
         className=Component.UNDEFINED,
         mathjax=Component.UNDEFINED,
         dangerously_allow_html=Component.UNDEFINED,
+        link_target=Component.UNDEFINED,
         dedent=Component.UNDEFINED,
         highlight_config=Component.UNDEFINED,
         loading_state=Component.UNDEFINED,
@@ -86,6 +91,7 @@ class Markdown(Component):
             "dangerously_allow_html",
             "dedent",
             "highlight_config",
+            "link_target",
             "loading_state",
             "mathjax",
             "style",
@@ -100,6 +106,7 @@ class Markdown(Component):
             "dangerously_allow_html",
             "dedent",
             "highlight_config",
+            "link_target",
             "loading_state",
             "mathjax",
             "style",
@@ -107,7 +114,7 @@ class Markdown(Component):
         self.available_wildcard_properties = []
         _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
-        _locals.update(kwargs)  # For wildcard attrs
+        _locals.update(kwargs)  # For wildcard attrs and excess named props
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
         for k in []:
             if k not in args:

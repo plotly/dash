@@ -47,13 +47,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -198,6 +191,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -307,13 +307,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -401,6 +394,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -511,13 +511,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -605,6 +598,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -715,13 +715,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -809,6 +802,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -918,13 +918,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -1084,6 +1077,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -1193,13 +1193,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -1287,6 +1280,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -1397,13 +1397,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -1491,6 +1484,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -1600,13 +1600,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -1821,6 +1814,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -1930,13 +1930,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -2024,6 +2017,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -2134,13 +2134,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -2242,6 +2235,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -2352,13 +2352,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -2446,6 +2439,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -2556,13 +2556,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -2650,6 +2643,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -2760,13 +2760,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -2854,6 +2847,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -2964,13 +2964,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -3058,6 +3051,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -3168,13 +3168,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -3262,6 +3255,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -3372,13 +3372,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -3473,6 +3466,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -3583,13 +3583,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -3677,6 +3670,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -3786,13 +3786,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -4021,6 +4014,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -4129,13 +4129,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -4255,6 +4248,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -4364,13 +4364,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -4458,6 +4451,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -4568,13 +4568,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -4662,6 +4655,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -4772,13 +4772,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -4866,6 +4859,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -4976,13 +4976,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -5070,6 +5063,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -5180,13 +5180,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -5281,6 +5274,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -5391,13 +5391,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -5492,6 +5485,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -5602,13 +5602,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -5696,6 +5689,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -5806,13 +5806,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -5907,6 +5900,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -6017,13 +6017,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -6111,6 +6104,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -6221,13 +6221,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -6315,6 +6308,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -6425,13 +6425,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -6533,6 +6526,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -6643,13 +6643,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -6687,7 +6680,7 @@
           ]
         },
         "required": false,
-        "description": "Indicates whether the the contents are currently visible (in the case of a <details> element) or whether the dialog is active and can be interacted with (in the case of a <dialog> element)."
+        "description": "Indicates whether the contents are currently visible (in the case of a <details> element) or whether the dialog is active and can be interacted with (in the case of a <dialog> element)."
       },
       "accessKey": {
         "type": {
@@ -6762,6 +6755,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -6872,13 +6872,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -6966,6 +6959,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -7076,13 +7076,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -7120,7 +7113,7 @@
           ]
         },
         "required": false,
-        "description": "Indicates whether the the contents are currently visible (in the case of a <details> element) or whether the dialog is active and can be interacted with (in the case of a <dialog> element)."
+        "description": "Indicates whether the contents are currently visible (in the case of a <details> element) or whether the dialog is active and can be interacted with (in the case of a <dialog> element)."
       },
       "accessKey": {
         "type": {
@@ -7195,6 +7188,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -7305,13 +7305,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -7399,6 +7392,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -7509,13 +7509,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -7603,6 +7596,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -7713,13 +7713,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -7807,6 +7800,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -7917,13 +7917,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -8011,6 +8004,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -8120,13 +8120,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -8260,6 +8253,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -8368,13 +8368,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -8503,6 +8496,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -8612,13 +8612,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -8706,6 +8699,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -8816,13 +8816,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -8910,6 +8903,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -9020,13 +9020,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -9114,6 +9107,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -9224,13 +9224,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -9318,6 +9311,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -9427,13 +9427,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -9608,6 +9601,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -9717,13 +9717,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -9811,6 +9804,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -9921,13 +9921,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -10015,6 +10008,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -10125,13 +10125,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -10219,6 +10212,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -10329,13 +10329,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -10423,6 +10416,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -10533,13 +10533,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -10627,6 +10620,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -10737,13 +10737,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -10831,6 +10824,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -10941,13 +10941,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -11035,6 +11028,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -11145,13 +11145,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -11239,6 +11232,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -11349,13 +11349,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -11443,6 +11436,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -11553,13 +11553,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -11647,6 +11640,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -11757,13 +11757,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -11851,6 +11844,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -11961,13 +11961,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -12055,6 +12048,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -12164,13 +12164,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -12332,6 +12325,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -12440,13 +12440,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -12615,6 +12608,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -12724,13 +12724,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -12832,6 +12825,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -12942,13 +12942,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -13036,6 +13029,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -13145,13 +13145,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -13323,6 +13316,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -13432,13 +13432,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -13540,6 +13533,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -13650,13 +13650,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -13744,6 +13737,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -13854,13 +13854,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -13955,6 +13948,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -14064,13 +14064,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -14223,6 +14216,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -14332,13 +14332,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -14426,6 +14419,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -14536,13 +14536,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -14637,6 +14630,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -14747,13 +14747,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -14841,6 +14834,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -14950,13 +14950,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -15071,6 +15064,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -15179,13 +15179,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -15303,6 +15296,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -15411,13 +15411,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -15572,6 +15565,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -15681,13 +15681,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -15775,6 +15768,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -15885,13 +15885,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -15979,6 +15972,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -16089,13 +16089,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -16183,6 +16176,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -16292,13 +16292,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -16453,6 +16446,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -16561,13 +16561,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -16689,6 +16682,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -16797,13 +16797,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -16925,6 +16918,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -17033,13 +17033,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -17193,6 +17186,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -17301,13 +17301,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -17418,6 +17411,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -17527,13 +17527,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -17621,6 +17614,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -17731,13 +17731,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -17839,6 +17832,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -17949,13 +17949,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -18043,6 +18036,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -18153,13 +18153,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -18247,6 +18240,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -18357,13 +18357,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -18451,6 +18444,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -18560,13 +18560,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -18685,6 +18678,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -18794,13 +18794,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -18895,6 +18888,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -19005,13 +19005,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -19099,6 +19092,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -19209,13 +19209,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -19303,6 +19296,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -19413,13 +19413,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -19507,6 +19500,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -19617,13 +19617,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -19711,6 +19704,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -19821,13 +19821,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -19915,6 +19908,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -20025,13 +20025,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -20119,6 +20112,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -20229,13 +20229,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -20323,6 +20316,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -20432,13 +20432,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -20620,6 +20613,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -20729,13 +20729,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -20823,6 +20816,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -20932,13 +20932,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -21168,6 +21161,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -21277,13 +21277,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -21371,6 +21364,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -21481,13 +21481,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -21575,6 +21568,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -21685,13 +21685,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -21779,6 +21772,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -21888,13 +21888,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -22019,6 +22012,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -22128,13 +22128,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -22222,6 +22215,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -22332,13 +22332,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -22426,6 +22419,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -22536,13 +22536,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -22630,6 +22623,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -22740,13 +22740,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -22834,6 +22827,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -22944,13 +22944,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -23038,6 +23031,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -23148,13 +23148,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -23242,6 +23235,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -23352,13 +23352,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -23446,6 +23439,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -23556,13 +23556,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -23576,13 +23569,6 @@
         },
         "required": false,
         "description": "A wildcard aria attribute"
-      },
-      "summary": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": ""
       },
       "accessKey": {
         "type": {
@@ -23657,6 +23643,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -23767,13 +23760,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -23861,6 +23847,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -23970,13 +23963,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -24103,6 +24089,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -24212,13 +24205,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -24306,6 +24292,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -24415,13 +24408,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -24699,6 +24685,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -24808,13 +24801,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -24902,6 +24888,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -25011,13 +25004,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -25151,6 +25137,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -25260,13 +25253,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -25354,6 +25340,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -25464,13 +25457,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -25565,6 +25551,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -25675,13 +25668,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -25769,6 +25755,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -25879,13 +25872,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -25973,6 +25959,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -26082,13 +26075,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -26231,6 +26217,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -26340,13 +26333,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -26434,6 +26420,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -26544,13 +26537,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -26638,6 +26624,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -26748,13 +26741,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -26842,6 +26828,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -26951,13 +26944,6 @@
         },
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
-      },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
       },
       "data-*": {
         "type": {
@@ -27209,6 +27195,13 @@
         "required": false,
         "description": "Defines the language used in the element."
       },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
+      },
       "spellCheck": {
         "type": {
           "name": "string"
@@ -27318,13 +27311,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -27412,6 +27398,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
@@ -27522,13 +27515,6 @@
         "required": false,
         "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
-      "role": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ARIA role attribute"
-      },
       "data-*": {
         "type": {
           "name": "string"
@@ -27616,6 +27602,13 @@
         },
         "required": false,
         "description": "Defines the language used in the element."
+      },
+      "role": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines an explicit role for an element for use by assistive technologies."
       },
       "spellCheck": {
         "type": {
