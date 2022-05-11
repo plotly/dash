@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+
+- Fix [#2045](https://github.com/plotly/dash/issues/2045) import error when using pytest but `dash[testing]` is not installed.
+
 ## [2.4.0] - 2022-05-11
 
 ### Added
