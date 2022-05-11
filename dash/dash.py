@@ -49,6 +49,7 @@ from ._utils import (
     patch_collections_abc,
     split_callback_id,
     to_json,
+    convert_to_AttributeDict,
     gen_salt,
 )
 from . import _callback
@@ -465,8 +466,10 @@ class Dash:
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
 
-        self.config.update(kwargs)
-        self.config.set_read_only(
+        config = self.config
+
+        config.update(kwargs)
+        config.set_read_only(
             [
                 "url_base_pathname",
                 "routes_pathname_prefix",
@@ -475,25 +478,19 @@ class Dash:
             "Read-only: can only be set in the Dash constructor or during init_app()",
         )
 
-        config = self.config
-
         if app is not None:
             self.server = app
 
-        assets_blueprint_name = "{}{}".format(
-            config.routes_pathname_prefix.replace("/", "_").replace(".", "_"),
-            "dash_assets",
-        )
+        bp_prefix = config.routes_pathname_prefix.replace("/", "_").replace(".", "_")
+        assets_blueprint_name = f"{bp_prefix}dash_assets"
 
         self.server.register_blueprint(
             flask.Blueprint(
                 assets_blueprint_name,
                 config.name,
                 static_folder=self.config.assets_folder,
-                static_url_path="{}{}".format(
-                    config.routes_pathname_prefix,
-                    self.config.assets_url_path.lstrip("/"),
-                ),
+                static_url_path=config.routes_pathname_prefix
+                + self.config.assets_url_path.lstrip("/"),
             )
         )
 
@@ -668,7 +665,7 @@ class Dash:
             ):
                 relative_package_path = relative_package_path.replace("dash.", "")
                 version = importlib.import_module(
-                    "{}.{}".format(namespace, os.path.split(relative_package_path)[0])
+                    f"{namespace}.{os.path.split(relative_package_path)[0]}"
                 ).__version__
             else:
                 version = importlib.import_module(namespace).__version__
@@ -679,11 +676,8 @@ class Dash:
 
             modified = int(os.stat(module_path).st_mtime)
 
-            return "{}_dash-component-suites/{}/{}".format(
-                self.config.requests_pathname_prefix,
-                namespace,
-                build_fingerprint(relative_package_path, version, modified),
-            )
+            fingerprint = build_fingerprint(relative_package_path, version, modified)
+            return f"{self.config.requests_pathname_prefix}_dash-component-suites/{namespace}/{fingerprint}"
 
         srcs = []
         for resource in resources:
@@ -717,7 +711,7 @@ class Dash:
             elif "asset_path" in resource:
                 static_url = self.get_asset_url(resource["asset_path"])
                 # Add a cache-busting query param
-                static_url += "?m={}".format(resource["ts"])
+                static_url += f"?m={resource['ts']}"
                 srcs.append(static_url)
         return srcs
 
@@ -783,23 +777,17 @@ class Dash:
             [
                 format_tag("script", src)
                 if isinstance(src, dict)
-                else '<script src="{}"></script>'.format(src)
+                else f'<script src="{src}"></script>'
                 for src in srcs
             ]
-            + ["<script>{}</script>".format(src) for src in self._inline_scripts]
+            + [f"<script>{src}</script>" for src in self._inline_scripts]
         )
 
     def _generate_config_html(self):
-        return '<script id="_dash-config" type="application/json">{}</script>'.format(
-            to_json(self._config())
-        )
+        return f'<script id="_dash-config" type="application/json">{to_json(self._config())}</script>'
 
     def _generate_renderer(self):
-        return (
-            '<script id="_dash-renderer" type="application/javascript">'
-            "{}"
-            "</script>"
-        ).format(self.renderer)
+        return f'<script id="_dash-renderer" type="application/javascript">{self.renderer}</script>'
 
     def _generate_meta_html(self):
         meta_tags = self.config.meta_tags
@@ -852,7 +840,7 @@ class Dash:
 
             request_etag = flask.request.headers.get("If-None-Match")
 
-            if '"{}"'.format(tag) == request_etag:
+            if f'"{tag}"' == request_etag:
                 response = flask.Response(None, status=304)
 
         return response
@@ -871,13 +859,10 @@ class Dash:
             favicon_mod_time = os.path.getmtime(
                 os.path.join(self.config.assets_folder, self._favicon)
             )
-            favicon_url = self.get_asset_url(self._favicon) + "?m={}".format(
-                favicon_mod_time
-            )
+            favicon_url = f"{self.get_asset_url(self._favicon)}?m={favicon_mod_time}"
         else:
-            favicon_url = "{}_favicon.ico?v={}".format(
-                self.config.requests_pathname_prefix, __version__
-            )
+            prefix = self.config.requests_pathname_prefix
+            favicon_url = f"{prefix}_favicon.ico?v={__version__}"
 
         favicon = format_tag(
             "link",
@@ -1313,6 +1298,7 @@ class Dash:
 
     def dispatch(self):
         body = flask.request.get_json()
+
         flask.g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
             "inputs", []
         )
@@ -1347,9 +1333,12 @@ class Dash:
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = inputs + state
+            inputs_state = convert_to_AttributeDict(inputs_state)
+
             args_grouping = map_grouping(
                 lambda ind: inputs_state[ind], inputs_state_indices
             )
+
             flask.g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
             flask.g.using_args_grouping = (  # pylint: disable=assigning-non-slot
                 not isinstance(inputs_state_indices, int)
@@ -1378,8 +1367,8 @@ class Dash:
             )
 
         except KeyError as missing_callback_function:
-            msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
-            raise KeyError(msg.format(output)) from missing_callback_function
+            msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
+            raise KeyError(msg) from missing_callback_function
         response.set_data(func(*args, outputs_list=outputs_list))
         return response
 
@@ -1407,10 +1396,8 @@ class Dash:
 
             if k in self.callback_map:
                 raise DuplicateCallback(
-                    "The callback `{}` provided with `dash.callback` was already ".format(
-                        k
-                    )
-                    + "assigned with `app.callback`."
+                    f"The callback `{k}` provided with `dash.callback` was already "
+                    "assigned with `app.callback`."
                 )
 
             self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP.pop(k)
@@ -1495,16 +1482,16 @@ class Dash:
 
         method = getattr(hashlib, hash_algorithm)
 
+        def _hash(script):
+            return base64.b64encode(method(script.encode("utf-8")).digest()).decode(
+                "utf-8"
+            )
+
         self._inline_scripts.extend(_callback.GLOBAL_INLINE_SCRIPTS)
         _callback.GLOBAL_INLINE_SCRIPTS.clear()
 
         return [
-            "'{hash_algorithm}-{base64_hash}'".format(
-                hash_algorithm=hash_algorithm,
-                base64_hash=base64.b64encode(
-                    method(script.encode("utf-8")).digest()
-                ).decode("utf-8"),
-            )
+            f"'{hash_algorithm}-{_hash(script)}'"
             for script in (self._inline_scripts + [self.renderer])
         ]
 
@@ -1643,7 +1630,7 @@ class Dash:
         dev_tools_silence_routes_logging=None,
         dev_tools_prune_errors=None,
     ):
-        """Activate the dev tools, called by `run_server`. If your application
+        """Activate the dev tools, called by `run`. If your application
         is served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
 
@@ -1666,7 +1653,7 @@ class Dash:
         :param debug: Enable/disable all the dev tools unless overridden by the
             arguments or environment variables. Default is ``True`` when
             ``enable_dev_tools`` is called directly, and ``False`` when called
-            via ``run_server``. env: ``DASH_DEBUG``
+            via ``run``. env: ``DASH_DEBUG``
         :type debug: bool
 
         :param dev_tools_ui: Show the dev tools UI. env: ``DASH_UI``
@@ -1825,10 +1812,10 @@ class Dash:
 
                     value = name
                     if info.get("desc") is not None:
-                        value += ';desc="{}"'.format(info["desc"])
+                        value += f';desc="{info["desc"]}"'
 
                     if info.get("dur") is not None:
-                        value += ";dur={}".format(info["dur"])
+                        value += f";dur={info['dur']}"
 
                     response.headers.add("Server-Timing", value)
 
@@ -1904,7 +1891,7 @@ class Dash:
                         # pylint: disable=protected-access
                         delete_resource(self.css._resources._resources)
 
-    def run_server(
+    def run(
         self,
         host=os.getenv("HOST", "127.0.0.1"),
         port=os.getenv("PORT", "8050"),
@@ -1950,7 +1937,7 @@ class Dash:
         :param debug: Enable/disable all the dev tools unless overridden by the
             arguments or environment variables. Default is ``True`` when
             ``enable_dev_tools`` is called directly, and ``False`` when called
-            via ``run_server``. env: ``DASH_DEBUG``
+            via ``run``. env: ``DASH_DEBUG``
         :type debug: bool
 
         :param dev_tools_ui: Show the dev tools UI. env: ``DASH_UI``
@@ -2018,9 +2005,7 @@ class Dash:
             port = int(port)
             assert port in range(1, 65536)
         except Exception as e:
-            e.args = [
-                "Expecting an integer from 1 to 65535, found port={}".format(repr(port))
-            ]
+            e.args = [f"Expecting an integer from 1 to 65535, found port={repr(port)}"]
             raise
 
         # so we only see the "Running on" message once with hot reloading
@@ -2036,18 +2021,12 @@ class Dash:
                 def verify_url_part(served_part, url_part, part_name):
                     if served_part != url_part:
                         raise ProxyError(
+                            f"""
+                            {part_name}: {url_part} is incompatible with the proxy:
+                                {proxy}
+                            To see your app at {proxied_url.geturl()},
+                            you must use {part_name}: {served_part}
                             """
-                            {0}: {1} is incompatible with the proxy:
-                                {3}
-                            To see your app at {4},
-                            you must use {0}: {2}
-                        """.format(
-                                part_name,
-                                url_part,
-                                served_part,
-                                proxy,
-                                proxied_url.geturl(),
-                            )
                         )
 
                 verify_url_part(served_url.scheme, protocol, "protocol")
@@ -2057,11 +2036,11 @@ class Dash:
                 display_url = (
                     proxied_url.scheme,
                     proxied_url.hostname,
-                    (":{}".format(proxied_url.port) if proxied_url.port else ""),
+                    f":{proxied_url.port}" if proxied_url.port else "",
                     path,
                 )
             else:
-                display_url = (protocol, host, ":{}".format(port), path)
+                display_url = (protocol, host, f":{port}", path)
 
             self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
 
@@ -2076,3 +2055,11 @@ class Dash:
                     extra_files.append(path)
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
+
+    def run_server(self, *args, **kwargs):
+        """`run_server` is a deprecated alias of `run` and may be removed in a
+        future version. We recommend using `app.run` instead.
+
+        See `app.run` for usage information.
+        """
+        self.run(*args, **kwargs)

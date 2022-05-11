@@ -1,8 +1,9 @@
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.webdriver.common.by import By
+
 import dash
 
-from utils import (
-    get_props,
-)
+from utils import get_props
 
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -50,44 +51,71 @@ base_props = dict(
 )
 
 
-def cells_are_same_width(target, table):
-    wait.until(lambda: abs(target.size["width"] - table.size["width"]) <= 1, 3)
-
-    target_cells = target.find_elements_by_css_selector(
-        ".cell-1-1 > table > tbody > tr:last-of-type > *"
-    )
-    table_r0c0_cells = table.find_elements_by_css_selector(
-        ".cell-0-0 > table > tbody > tr:last-of-type > *"
-    )
-    table_r0c1_cells = table.find_elements_by_css_selector(
-        ".cell-0-1 > table > tbody > tr:last-of-type > *"
-    )
-    table_r1c0_cells = table.find_elements_by_css_selector(
-        ".cell-1-0 > table > tbody > tr:last-of-type > *"
-    )
-    table_r1c1_cells = table.find_elements_by_css_selector(
-        ".cell-1-1 > table > tbody > tr:last-of-type > *"
-    )
-
+def cells_are_same_width(test, target_selector, table_selector):
     # this test is very dependent on the table's implementation details..  we are testing that all the cells are
     # the same width after all..
 
-    # make sure the r1c1 fragment contains all the cells
-    assert len(target_cells) == len(table_r1c1_cells)
+    def assertions():
+        target = test.wait_for_element(target_selector)
+        table = test.wait_for_element(table_selector)
 
-    # for each cell of each fragment, allow a difference of up to 1px either way since
-    # the resize algorithm can be off by 1px for cycles
-    for i, target_cell in enumerate(target_cells):
-        assert abs(target_cell.size["width"] - table_r1c1_cells[i].size["width"]) <= 1
+        wait.until(
+            lambda: target.size["width"] != 0
+            and abs(target.size["width"] - table.size["width"]) <= 1,
+            3,
+        )
+        target_cells = target.find_elements(
+            By.CSS_SELECTOR, ".cell-1-1 > table > tbody > tr:last-of-type > *"
+        )
+        table_r0c0_cells = table.find_elements(
+            By.CSS_SELECTOR, ".cell-0-0 > table > tbody > tr:last-of-type > *"
+        )
+        table_r0c1_cells = table.find_elements(
+            By.CSS_SELECTOR, ".cell-0-1 > table > tbody > tr:last-of-type > *"
+        )
+        table_r1c0_cells = table.find_elements(
+            By.CSS_SELECTOR, ".cell-1-0 > table > tbody > tr:last-of-type > *"
+        )
+        table_r1c1_cells = table.find_elements(
+            By.CSS_SELECTOR, ".cell-1-1 > table > tbody > tr:last-of-type > *"
+        )
 
-    if len(table_r0c0_cells) != 0:
-        assert abs(target_cell.size["width"] - table_r0c0_cells[i].size["width"]) <= 1
+        # make sure the r1c1 fragment contains all the cells
+        assert len(target_cells) == len(table_r1c1_cells)
 
-    if len(table_r0c1_cells) != 0:
-        assert abs(target_cell.size["width"] - table_r0c1_cells[i].size["width"]) <= 1
+        # for each cell of each fragment, allow a difference of up to 1px either way since
+        # the resize algorithm can be off by 1px for cycles
+        for i, target_cell in enumerate(target_cells):
+            assert (
+                abs(target_cell.size["width"] - table_r1c1_cells[i].size["width"]) <= 1
+            )
 
-    if len(table_r1c0_cells) != 0:
-        assert abs(target_cell.size["width"] - table_r1c0_cells[i].size["width"]) <= 1
+            if len(table_r0c0_cells) != 0:
+                assert (
+                    abs(target_cell.size["width"] - table_r0c0_cells[i].size["width"])
+                    <= 1
+                )
+
+            if len(table_r0c1_cells) != 0:
+                assert (
+                    abs(target_cell.size["width"] - table_r0c1_cells[i].size["width"])
+                    <= 1
+                )
+
+            if len(table_r1c0_cells) != 0:
+                assert (
+                    abs(target_cell.size["width"] - table_r1c0_cells[i].size["width"])
+                    <= 1
+                )
+
+    retry = 0
+
+    while retry < 3:
+        try:
+            assertions()
+            break
+        except StaleElementReferenceException:
+            retry += 1
 
 
 def szng003_on_prop_change_impl(
@@ -110,11 +138,10 @@ def szng003_on_prop_change_impl(
 
     test.start_server(app)
 
-    target = test.driver.find_element_by_css_selector("#table")
-    cells_are_same_width(target, target)
+    cells_are_same_width(test, "#table", "#table")
 
-    test.driver.find_element_by_css_selector("#btn").click()
-    cells_are_same_width(target, target)
+    test.find_element("#btn").click()
+    cells_are_same_width(test, "#table", "#table")
 
     assert test.get_log_errors() == []
 
@@ -223,16 +250,12 @@ def test_szng001_widths_on_style_change(test):
     for style in styles:
         display = style.get("style_table", dict()).get("display")
         width = style.get("style_table", dict()).get("width")
-        target = (
-            test.driver.find_element_by_css_selector("#table{}".format(width))
-            if display != "none"
-            else None
-        )
+        target_selector = "#table{}".format(width)
+        target = test.find_element(target_selector) if display != "none" else None
 
         for variation in variations:
-            table = test.driver.find_element_by_css_selector(
-                "#{}".format(variation["id"])
-            )
+            table_selector = "#{}".format(variation["id"])
+            table = test.find_element(table_selector)
             if target is None:
                 assert table is not None
                 assert (
@@ -244,9 +267,9 @@ def test_szng001_widths_on_style_change(test):
                     == "none"
                 )
             else:
-                cells_are_same_width(target, table)
+                cells_are_same_width(test, target_selector, table_selector)
 
-        test.driver.find_element_by_css_selector("#btn").click()
+        test.find_element("#btn").click()
 
     assert test.get_log_errors() == []
 
@@ -279,12 +302,10 @@ def test_szng002_percentages_result_in_same_widths(test):
 
     test.start_server(app)
 
-    target = test.driver.find_element_by_css_selector("#table0")
-    cells_are_same_width(target, target)
+    cells_are_same_width(test, "#table0", "#table0")
 
     for i in range(1, len(variations)):
-        table = test.driver.find_element_by_css_selector("#table{}".format(i))
-        cells_are_same_width(target, table)
+        cells_are_same_width(test, "#table0", "#table{}".format(i))
 
     assert test.get_log_errors() == []
 
@@ -312,10 +333,10 @@ def on_focus(test, props, data_fn):
     for i in range(len(baseProps1.get("columns"))):
         table2.cell(0, i).click()
 
-        t1 = test.driver.find_element_by_css_selector("#table1")
-        t2 = test.driver.find_element_by_css_selector("#table2")
+        t1 = "#table1"
+        t2 = "#table2"
 
-        cells_are_same_width(t1, t1)
-        cells_are_same_width(t1, t2)
+        cells_are_same_width(test, t1, t1)
+        cells_are_same_width(test, t1, t2)
 
     assert test.get_log_errors() == []

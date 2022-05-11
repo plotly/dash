@@ -67,6 +67,7 @@ npm-debug*
 dash_generator_test_component_standard/
 dash_generator_test_component_nested/
 dash_test_components/
+dash_generator_test_component_typescript/
 inst/
 man/
 R/

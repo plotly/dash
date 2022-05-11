@@ -73,10 +73,10 @@ def test_tedi001_loading_on_data_change(test):
         test.find_element("#blocking").click()
         target.is_loading()
         target.cell(0, 0).click()
-        assert len(target.cell(0, 0).get().find_elements_by_css_selector("input")) == 0
+        assert len(target.cell(0, 0).find_all_inside("input")) == 0
 
     target.is_ready()
-    assert target.cell(0, 0).get().find_element_by_css_selector("input") is not None
+    assert target.cell(0, 0).find_inside("input") is not None
     assert test.get_log_errors() == []
 
 
@@ -91,10 +91,10 @@ def test_tedi002_ready_on_non_data_change(test):
         test.find_element("#non-blocking").click()
         target.is_ready()
         target.cell(0, 0).click()
-        assert target.cell(0, 0).get().find_element_by_css_selector("input") is not None
+        assert target.cell(0, 0).find_inside("input") is not None
 
     target.is_ready()
-    assert target.cell(0, 0).get().find_element_by_css_selector("input") is not None
+    assert target.cell(0, 0).find_inside("input") is not None
     assert test.get_log_errors() == []
 
 

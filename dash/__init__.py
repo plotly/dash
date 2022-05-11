@@ -26,3 +26,5 @@ from ._get_paths import (  # noqa: F401,E402
     get_relative_path,
     strip_relative_path,
 )
+
+ctx = callback_context

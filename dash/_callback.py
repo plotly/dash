@@ -196,7 +196,7 @@ def register_callback(
 
         callback_map[callback_id]["callback"] = add_context
 
-        return add_context
+        return func
 
     return wrap_func
 
@@ -215,7 +215,7 @@ def register_clientside_callback(
     inline_scripts,
     clientside_function,
     *args,
-    **kwargs
+    **kwargs,
 ):
     output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
     insert_callback(
@@ -238,8 +238,8 @@ def register_clientside_callback(
         if isinstance(output, (list, tuple)):
             out0 = output[0]
 
-        namespace = "_dashprivate_{}".format(out0.component_id)
-        function_name = "{}".format(out0.component_property)
+        namespace = f"_dashprivate_{out0.component_id}"
+        function_name = out0.component_property
 
         inline_scripts.append(
             _inline_clientside_template.format(
