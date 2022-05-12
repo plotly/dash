@@ -394,14 +394,37 @@ def test_mkdw010_mathjax_with_html(dash_dcc):
 
     app = Dash(__name__)
 
+    CONTENT = [
+        """
+    <details>
+        <summary>Topic</summary>
+        Some details
+    </details>
+
+    $E = mc^2$
+    """,
+        """
+    <p>Some paragraph</p>
+
+    $E = mc^2$
+    """,
+        """
+    <p>Some paragraph</p>
+    $E = mc^2$
+    """,
+        """
+    <p>Some paragraph</p> $E = mc^2$
+    """,
+        """
+    <p>Some paragraph with $E = mc^2$ inline math</p>
+    """,
+    ]
+
     app.layout = html.Div(
-        dcc.Markdown(
-            "<p>Some paragraph with $E = mc^2$  inline math</p>",
-            dangerously_allow_html=True,
-            mathjax=True,
-        )
+        [dcc.Markdown(c, dangerously_allow_html=True, mathjax=True) for c in CONTENT]
     )
 
     dash_dcc.start_server(app)
 
     dash_dcc.wait_for_element(".MathJax")
+    assert len(dash_dcc.find_elements((".MathJax"))) == len(CONTENT)
