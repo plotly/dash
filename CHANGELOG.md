@@ -2,6 +2,14 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- [#2043](https://github.com/plotly/dash/pull/2043) Fix bug 
+[#2003](https://github.com/plotly/dash/issues/2003) in which 
+`dangerously_allow_html=True` + `mathjax=True` works in some cases, and in some cases not.
+
 ## [2.4.1] - 2022-05-11
 
 ### Fixed
