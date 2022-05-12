@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring,redefined-outer-name
+from typing import Any
+
 import pytest
 from .consts import SELENIUM_GRID_DEFAULT
 
@@ -13,7 +15,15 @@ try:
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
 except ImportError:
-    pass
+    # Running pytest without dash[testing] installed.
+    ThreadedRunner = Any
+    ProcessRunner = Any
+    RRunner = Any
+    JuliaRunner = Any
+    Browser = Any
+    DashComposite = Any
+    DashRComposite = Any
+    DashJuliaComposite = Any
 
 
 def pytest_addoption(parser):
