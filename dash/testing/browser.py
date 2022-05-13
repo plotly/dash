@@ -26,6 +26,7 @@ from dash.testing.wait import (
     style_to_equal,
     class_to_equal,
     contains_text,
+    contains_class,
     until,
 )
 from dash.testing.dash_page import DashPageMixin
@@ -341,6 +342,20 @@ class Browser(DashPageMixin):
             args=(selector, text),
             timeout=timeout,
             msg=f"text -> {text} not found within {timeout or self._wait_timeout}s",
+        )
+
+    def wait_for_contains_class(self, selector, classname, timeout=None):
+        """Explicit wait until the element's classes contains the expected `classname`.
+
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with customized `contains_class`
+        condition.
+        """
+        return self._wait_for(
+            method=contains_class,
+            args=(selector, classname),
+            timeout=timeout,
+            msg=f"classname -> {classname} not found inside element within {timeout or self._wait_timeout}s",
         )
 
     def wait_for_contains_text(self, selector, text, timeout=None):

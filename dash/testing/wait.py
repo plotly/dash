@@ -68,6 +68,23 @@ class contains_text:
             return False
 
 
+class contains_class:
+    def __init__(self, selector, classname):
+        self.selector = selector
+        self.classname = classname
+
+    def __call__(self, driver):
+        try:
+            elem = driver.find_element(By.CSS_SELECTOR, self.selector)
+            classname = elem.get_attribute("class")
+            logger.debug(
+                "contains class {%s} => expected %s", classname, self.classname
+            )
+            return self.classname in str(classname)
+        except WebDriverException:
+            return False
+
+
 class text_to_equal:
     def __init__(self, selector, text):
         self.selector = selector
