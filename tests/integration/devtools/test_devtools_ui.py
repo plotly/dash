@@ -256,4 +256,4 @@ def test_dvui007_other_before_request_func(dash_thread_server, dash_br):
     )
 
     driver.get(dash_thread_server.url)
-    driver.find_element_by_id("alternative_id")
+    dash_br.find_element("alternative_id", attribute="ID")
