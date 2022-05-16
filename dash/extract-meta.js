@@ -180,7 +180,7 @@ function gatherComponents(sources, components = {}) {
         return components;
     }
 
-    const program = ts.createProgram(filepaths, {...tsconfig, esModuleInterop: true, jsx: "react"});
+    const program = ts.createProgram(filepaths, {...tsconfig, esModuleInterop: true});
     const checker = program.getTypeChecker();
 
     const coerceValue = t => {
