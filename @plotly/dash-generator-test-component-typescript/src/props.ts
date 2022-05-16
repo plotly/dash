@@ -36,3 +36,8 @@ export type TypescriptComponentProps = {
     className?: string;
     style?: any;
 };
+
+export type WrappedHTMLProps = {
+    children?: React.ReactNode;
+    id?: string;
+} & Pick<React.ButtonHTMLAttributes<any>, 'autoFocus'>

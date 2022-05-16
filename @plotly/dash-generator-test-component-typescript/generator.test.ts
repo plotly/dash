@@ -12,11 +12,8 @@ function getMetadata() {
                 '""', // reserved keywords
                 path.join(__dirname, 'src', 'components')
             ],
-            // To debug `meta-ts.js` using pycharm debugger:
-            //  comment `env` and add `MODULES_PATH=./node_modules`
-            //  in the run config environment variables.
             {
-                env: {MODULES_PATH: path.resolve(__dirname, './node_modules')},
+                env: {MODULES_PATH: path.resolve(__dirname, './node_modules'), ...process.env},
                 cwd: __dirname
             }
         );
@@ -245,4 +242,9 @@ describe('Test Typescript component metadata generation', () => {
             expect(R.path(['StandardComponent'], metadata)).toBeDefined();
         });
     });
+    describe('Test namespace props', () => {
+        test('Component with picked boolean prop', () => {
+            expect(R.path(['WrappedHTML', "props", "autoFocus", "type", "name"], metadata)).toBe("bool");
+        })
+    })
 });

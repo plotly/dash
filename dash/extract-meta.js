@@ -37,7 +37,7 @@ if (!src.length) {
 }
 
 if (fs.existsSync('tsconfig.json')) {
-    tsconfig = JSON.parse(fs.readFileSync('tsconfig.json'));
+    tsconfig = JSON.parse(fs.readFileSync('tsconfig.json')).compilerOptions;
 }
 
 let failedBuild = false;
@@ -180,7 +180,7 @@ function gatherComponents(sources, components = {}) {
         return components;
     }
 
-    const program = ts.createProgram(filepaths, tsconfig);
+    const program = ts.createProgram(filepaths, {...tsconfig, esModuleInterop: true, jsx: "react"});
     const checker = program.getTypeChecker();
 
     const coerceValue = t => {
