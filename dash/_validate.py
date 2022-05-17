@@ -2,6 +2,7 @@ from collections.abc import MutableSequence
 import re
 from textwrap import dedent
 from keyword import iskeyword
+import flask
 
 from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
@@ -462,6 +463,11 @@ def validate_pages_layout(module, page):
 def validate_use_pages(config):
     if not config.get("assets_folder", None):
         raise Exception("`dash.register_page()` must be called after app instantiation")
+
+    if flask.has_request_context():
+        raise Exception(
+            "dash.register_page() is being called within a callback. This isn't supported."
+        )
 
 
 def validate_module_name(module):

@@ -40,6 +40,7 @@ def get_app(path1="/", path2="/layout2"):
                 ]
             ),
             dash.page_container,
+            dcc.Location(id="url", refresh=True),
         ]
     )
     return app
@@ -64,6 +65,12 @@ def test_pala001_layout(dash_duo):
         dash_duo.driver.current_url
         == f"http://localhost:{dash_duo.server.port}/redirect"
     )
+
+    # test redirect with button and user defined dcc.Location
+    # note:  dcc.Location must be defined in app.py
+    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/page1")
+    dash_duo.find_element("#btn1").click()
+    dash_duo.wait_for_text_to_equal("#text_page2", "text for page2")
 
     # test query strings
     dash_duo.wait_for_page(
@@ -102,6 +109,7 @@ def check_metas(dash_duo, metas):
 
 
 def test_pala002_meta_tags_default(dash_duo):
+    dash_duo.start_server(get_app(path1="/layout1", path2="/"))
     # These are the inferred defaults if description, title, image are not supplied
     metas_layout2 = [
         {"name": "description", "content": ""},
@@ -125,11 +133,11 @@ def test_pala002_meta_tags_default(dash_duo):
         },
     ]
 
-    dash_duo.start_server(get_app(path1="/layout1", path2="/"))
     check_metas(dash_duo, metas_layout2)
 
 
 def test_pala003_meta_tags_custom(dash_duo):
+    dash_duo.start_server(get_app())
     # In the "multi_layout1" module, the description, title, image are supplied
     metas_layout1 = [
         {"name": "description", "content": "This is the supplied description"},
@@ -156,5 +164,4 @@ def test_pala003_meta_tags_custom(dash_duo):
         },
     ]
 
-    dash_duo.start_server(get_app())
     check_metas(dash_duo, metas_layout1)
