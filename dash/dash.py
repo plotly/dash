@@ -21,7 +21,6 @@ from pkg_resources import get_distribution, parse_version
 from dash import dcc
 from dash import html
 from dash import dash_table
-from ._callback import NoUpdate
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
@@ -1226,7 +1225,7 @@ class Dash:
                         in_progress=[val for (_, _, val) in running],
                         progress=clear_progress,
                         user_store_data=user_store_data,
-                        error=NoUpdate(),
+                        error=no_update,
                     )
 
                 # Look up progress value if a job is in progress
@@ -1250,19 +1249,19 @@ class Dash:
                         return dict(
                             error=f"An error occurred inside a long callback: {error['msg']}\n"
                             + error["tb"],
-                            user_callback_output=NoUpdate(),
+                            user_callback_output=no_update,
                             in_progress=[val for (_, _, val) in running],
                             interval_disabled=pending_job is None,
                             progress=clear_progress,
                             user_store_data=user_store_data,
                         )
 
-                    if NoUpdate.is_no_update(result):
-                        result = NoUpdate()
+                    if _callback.NoUpdate.is_no_update(result):
+                        result = no_update
 
                     if multi_output and isinstance(result, (list, tuple)):
                         result = [
-                            NoUpdate() if NoUpdate.is_no_update(r) else r
+                            no_update if _callback.NoUpdate.is_no_update(r) else r
                             for r in result
                         ]
 
@@ -1278,7 +1277,7 @@ class Dash:
                         in_progress=[val for (_, _, val) in running],
                         progress=clear_progress,
                         user_store_data=user_store_data,
-                        error=NoUpdate(),
+                        error=no_update,
                     )
                 if progress_value:
                     return dict(
@@ -1287,7 +1286,7 @@ class Dash:
                         in_progress=[val for (_, val, _) in running],
                         progress=progress_value or {},
                         user_store_data=user_store_data,
-                        error=NoUpdate(),
+                        error=no_update,
                     )
 
                 # Check if there is a running calculation that can now
@@ -1313,7 +1312,7 @@ class Dash:
                     in_progress=[val for (_, val, _) in running],
                     progress=clear_progress,
                     user_store_data=user_store_data,
-                    error=NoUpdate(),
+                    error=no_update,
                 )
 
             self.clientside_callback(

@@ -7,10 +7,6 @@ from ...exceptions import PreventUpdate
 _pending_value = "__$pending__"
 
 
-class OriginalException:
-    pass
-
-
 class DiskcacheLongCallbackManager(BaseLongCallbackManager):
     def __init__(self, cache=None, cache_by=None, expire=None):
         """
