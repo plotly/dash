@@ -1989,7 +1989,7 @@ class Dash:
         """
         if debug is None:
             debug = get_combined_config("debug", None, False)
-        
+
         debug = self.enable_dev_tools(
             debug,
             dev_tools_ui,
