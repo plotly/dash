@@ -1161,7 +1161,7 @@ class Dash:
         self._long_callback_count += 1
         long_callback_id = self._long_callback_count
 
-        # Create Interval and Store for long callback and add them to the app's
+        # Create Interval and Stores for long callback and add them to the app's
         # _extra_components list
         interval_id = f"_long_callback_interval_{long_callback_id}"
         interval_component = dcc.Interval(
@@ -1169,7 +1169,12 @@ class Dash:
         )
         store_id = f"_long_callback_store_{long_callback_id}"
         store_component = dcc.Store(id=store_id, data={})
-        self._extra_components.extend([interval_component, store_component])
+        result_id = f"_long_callback_result_{long_callback_id}"
+        result_component = dcc.Store(id=result_id, data={})
+
+        self._extra_components.extend(
+            [interval_component, store_component, result_component]
+        )
 
         # Compute full component plus property name for the cancel dependencies
         cancel_prop_ids = tuple(
@@ -1179,7 +1184,7 @@ class Dash:
         def wrapper(fn):
             background_fn = callback_manager.make_job_fn(fn, bool(progress), args_deps)
 
-            def callback(_triggers, user_store_data, user_callback_args):
+            def polling_callback(_triggers, user_store_data, user_callback_args):
                 # Build result cache key from inputs
                 pending_key = callback_manager.build_cache_key(
                     fn, user_callback_args, cache_args_to_ignore
@@ -1209,7 +1214,7 @@ class Dash:
                     callback_manager.terminate_job(pending_job)
 
                     return dict(
-                        user_callback_output=map_grouping(lambda x: no_update, output),
+                        result_data=no_update,
                         interval_disabled=True,
                         in_progress=[val for (_, _, val) in running],
                         progress=clear_progress,
@@ -1223,19 +1228,24 @@ class Dash:
                     progress_value = None
 
                 if callback_manager.result_ready(pending_key):
-                    result = callback_manager.get_result(pending_key, pending_job)
-                    # Set current key (hash of data stored in client)
-                    # to pending key (hash of data requested by client)
-                    user_store_data["current_key"] = pending_key
+                    user_store_data["current_key"] = None
+                    user_store_data["pending_key"] = None
+                    user_store_data["pending_job"] = None
 
-                    # Disable interval if this value was pulled from cache.
-                    # If this value was the result of a background calculation, don't
-                    # disable yet. If no other calculations are in progress,
-                    # interval will be disabled in should_cancel logic above
-                    # the next time the interval fires.
-                    interval_disabled = pending_job is None
+                    # Stop the interval right away, so this callback
+                    # won't be called again before the fetch_result_callback
+                    # is finished
+                    interval_disabled = True
+
+                    self.logger.debug(
+                        "Result key ready for long_callback_id=%s: %s",
+                        long_callback_id,
+                        pending_key,
+                    )
                     return dict(
-                        user_callback_output=result,
+                        result_data=dict(
+                            result_key=pending_key, result_job=pending_job
+                        ),
                         interval_disabled=interval_disabled,
                         in_progress=[val for (_, _, val) in running],
                         progress=clear_progress,
@@ -1243,7 +1253,7 @@ class Dash:
                     )
                 if progress_value:
                     return dict(
-                        user_callback_output=map_grouping(lambda x: no_update, output),
+                        result_data=no_update,
                         interval_disabled=False,
                         in_progress=[val for (_, val, _) in running],
                         progress=progress_value or {},
@@ -1268,12 +1278,35 @@ class Dash:
                     )
 
                 return dict(
-                    user_callback_output=map_grouping(lambda x: no_update, output),
+                    result_data=no_update,
                     interval_disabled=False,
                     in_progress=[val for (_, val, _) in running],
                     progress=clear_progress,
                     user_store_data=user_store_data,
                 )
+
+            def fetch_result_callback(result_data):
+                result_key = result_data.get("result_key")
+
+                if result_key is None:
+                    self.logger.debug("Skipping result fetch")
+                    result = map_grouping(lambda x: no_update, output)
+                else:
+                    self.logger.debug(
+                        "Fetching long_callback_id=%s result key: %s",
+                        long_callback_id,
+                        result_key,
+                    )
+                    result = callback_manager.get_result(
+                        result_key, result_data.get("result_job")
+                    )
+                return dict(user_callback_output=result)
+
+            self.callback(
+                inputs=dict(result_data=Input(result_id, "data")),
+                output=dict(user_callback_output=output),
+                prevent_initial_call=True,
+            )(fetch_result_callback)
 
             return self.callback(
                 inputs=dict(
@@ -1285,14 +1318,14 @@ class Dash:
                     user_callback_args=args_deps,
                 ),
                 output=dict(
-                    user_callback_output=output,
+                    result_data=Output(result_id, "data"),
                     interval_disabled=Output(interval_id, "disabled"),
                     in_progress=[dep for (dep, _, _) in running],
                     progress=progress,
                     user_store_data=Output(store_id, "data"),
                 ),
                 prevent_initial_call=prevent_initial_call,
-            )(callback)
+            )(polling_callback)
 
         return wrapper
 
