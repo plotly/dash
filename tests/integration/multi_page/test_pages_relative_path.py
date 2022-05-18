@@ -5,14 +5,10 @@ from dash import Dash, dcc, html
 def get_app(app):
     app = app
 
-    # test for storing arbitrary keyword arguments: An `id` prop is defined for every page
-    # test for defining multiple pages within a single file: layout is passed directly to `register_page`
-    # in the following two modules:
     dash.register_page(
         "multi_layout1",
         layout=html.Div("text for multi_layout1", id="text_multi_layout1"),
         path="/",
-        relative_path="/app1/",
         title="Supplied Title",
         description="This is the supplied description",
         name="Supplied name",
@@ -23,7 +19,6 @@ def get_app(app):
         "multi_layout2",
         layout=html.Div("text for multi_layout2", id="text_multi_layout2"),
         path="/layout2",
-        relative_path="/app1/layout2",
         id="multi_layout2",
     )
 
@@ -60,14 +55,15 @@ def test_pare001_relative_path(dash_duo):
     assert dash_duo.get_logs() == [], "browser console should contain no error"
 
 
-def test_pare002_relative_path_with_url_base_pathname(dash_duo):
-    dash_duo.start_server(
+def test_pare002_relative_path_with_url_base_pathname(dash_br, dash_thread_server):
+    dash_thread_server(
         get_app(Dash(__name__, use_pages=True, url_base_pathname="/app1/"))
     )
+    dash_br.server_url = "http://localhost:{}/app1/".format(dash_thread_server.port)
 
     for page in dash.page_registry.values():
-        dash_duo.find_element("#" + page["id"]).click()
-        dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
-        assert dash_duo.driver.title == page["title"], "check that page title updates"
+        dash_br.find_element("#" + page["id"]).click()
+        dash_br.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
+        assert dash_br.driver.title == page["title"], "check that page title updates"
 
-    assert dash_duo.get_logs() == [], "browser console should contain no error"
+    assert dash_br.get_logs() == [], "browser console should contain no error"
