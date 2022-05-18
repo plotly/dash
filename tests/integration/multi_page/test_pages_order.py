@@ -40,6 +40,7 @@ def test_paor001_order(dash_duo):
                 ]
             ),
             dash.page_container,
+            dcc.Location(id="url", refresh=True),
         ]
     )
 
@@ -50,6 +51,8 @@ def test_paor001_order(dash_duo):
         "pages.defaults",
         "pages.metas",
         "pages.not_found_404",
+        "pages.page1",
+        "pages.page2",
         "pages.path_variables",
         "pages.query_string",
         "pages.redirect",
