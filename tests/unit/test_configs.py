@@ -461,6 +461,7 @@ def test_debug_mode_run(empty_environ, debug_env, debug, expected):
         app.run(debug=debug, port=-1)
     assert app._dev_tools.ui == expected
 
+
 @pytest.mark.parametrize(
     "debug_env, debug, expected",
     [
@@ -482,4 +483,3 @@ def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
     # with pytest.raises(AssertionError):
     app.enable_dev_tools(debug=debug)
     assert app._dev_tools.ui == expected
-
