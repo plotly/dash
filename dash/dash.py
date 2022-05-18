@@ -1702,7 +1702,7 @@ class Dash:
         :return: debug
         """
         if debug is None:
-            debug = get_combined_config("debug", None, False)
+            debug = get_combined_config("debug", None, True)
 
         dev_tools = self._setup_dev_tools(
             debug=debug,
@@ -1987,6 +1987,9 @@ class Dash:
 
         :return:
         """
+        if debug is None:
+            debug = get_combined_config("debug", None, False)
+        
         debug = self.enable_dev_tools(
             debug,
             dev_tools_ui,
