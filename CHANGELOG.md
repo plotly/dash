@@ -10,8 +10,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 [#2003](https://github.com/plotly/dash/issues/2003) in which 
 `dangerously_allow_html=True` + `mathjax=True` works in some cases, and in some cases not.
 
-- [#2049](https://github.com/plotly/dash/pull/2043) Added `wait_for_class_to_equal` and `wait_for_contains_class` methods to `dash.testing`
+### Added
 
+- [#2049](https://github.com/plotly/dash/pull/2043) Added `wait_for_class_to_equal` and `wait_for_contains_class` methods to `dash.testing`
 
 ## [2.4.1] - 2022-05-11
 

@@ -80,7 +80,7 @@ class contains_class:
             logger.debug(
                 "contains class {%s} => expected %s", classname, self.classname
             )
-            return self.classname in str(classname)
+            return self.classname in str(classname).split(" ")
         except WebDriverException:
             return False
 
