@@ -480,6 +480,5 @@ def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
     if debug_env:
         os.environ['DASH_DEBUG'] = debug_env
     app = Dash()
-    # with pytest.raises(AssertionError):
     app.enable_dev_tools(debug=debug)
     assert app._dev_tools.ui == expected
