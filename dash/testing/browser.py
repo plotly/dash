@@ -12,7 +12,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.action_chains import ActionChains
 
 from selenium.common.exceptions import (
@@ -229,18 +228,27 @@ class Browser(DashPageMixin):
 
         self.driver.save_screenshot(f"{target}/{name}_{self.session_id}.png")
 
-    def find_element(self, selector):
-        """find_element returns the first found element by the css `selector`
-        shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`."""
-        return self.driver.find_element(By.CSS_SELECTOR, selector)
-
-    def find_elements(self, selector):
-        """find_elements returns a list of all elements matching the css
-        `selector`.
-
-        shortcut to `driver.find_elements(By.CSS_SELECTOR, ...)`.
+    def find_element(self, selector, attribute="CSS_SELECTOR"):
+        """find_element returns the first found element by the attribute `selector`
+        shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`.
+        args:
+        - attribute: the attribute type to search for, aligns with the Selenium
+            API's `By` class. default "CSS_SELECTOR"
+            valid values: "CSS_SELECTOR", "ID", "NAME", "TAG_NAME",
+            "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
         """
-        return self.driver.find_elements(By.CSS_SELECTOR, selector)
+        return self.driver.find_element(getattr(By, attribute.upper()), selector)
+
+    def find_elements(self, selector, attribute="CSS_SELECTOR"):
+        """find_elements returns a list of all elements matching the attribute
+        `selector`. Shortcut to `driver.find_elements(By.CSS_SELECTOR, ...)`.
+        args:
+        - attribute: the attribute type to search for, aligns with the Selenium
+            API's `By` class. default "CSS_SELECTOR"
+            valid values: "CSS_SELECTOR", "ID", "NAME", "TAG_NAME",
+            "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
+        """
+        return self.driver.find_elements(getattr(By, attribute.upper()), selector)
 
     def _get_element(self, elem_or_selector):
         if isinstance(elem_or_selector, str):
@@ -430,9 +438,8 @@ class Browser(DashPageMixin):
     def _get_chrome(self):
         options = self._get_wd_options()
 
-        capabilities = DesiredCapabilities.CHROME
-        capabilities["loggingPrefs"] = {"browser": "SEVERE"}
-        capabilities["goog:loggingPrefs"] = {"browser": "SEVERE"}
+        options.set_capability("loggingPrefs", {"browser": "SEVERE"})
+        options.set_capability("goog:loggingPrefs", {"browser": "SEVERE"})
 
         if "DASH_TEST_CHROMEPATH" in os.environ:
             options.binary_location = os.environ["DASH_TEST_CHROMEPATH"]
@@ -453,13 +460,9 @@ class Browser(DashPageMixin):
         options.add_argument("--remote-debugging-port=9222")
 
         chrome = (
-            webdriver.Remote(
-                command_executor=self._remote_url,
-                options=options,
-                desired_capabilities=capabilities,
-            )
+            webdriver.Remote(command_executor=self._remote_url, options=options)
             if self._remote
-            else webdriver.Chrome(options=options, desired_capabilities=capabilities)
+            else webdriver.Chrome(options=options)
         )
 
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
@@ -482,15 +485,12 @@ class Browser(DashPageMixin):
     def _get_firefox(self):
         options = self._get_wd_options()
 
-        capabilities = DesiredCapabilities.FIREFOX
-        capabilities["loggingPrefs"] = {"browser": "SEVERE"}
-        capabilities["marionette"] = True
+        options.set_capability("loggingPrefs", {"browser": "SEVERE"})
+        options.set_capability("marionette", True)
 
-        # https://developer.mozilla.org/en-US/docs/Download_Manager_preferences
-        fp = webdriver.FirefoxProfile()
-        fp.set_preference("browser.download.dir", self.download_path)
-        fp.set_preference("browser.download.folderList", 2)
-        fp.set_preference(
+        options.set_preference("browser.download.dir", self.download_path)
+        options.set_preference("browser.download.folderList", 2)
+        options.set_preference(
             "browser.helperApps.neverAsk.saveToDisk",
             "application/octet-stream",  # this MIME is generic for binary
         )
@@ -498,12 +498,9 @@ class Browser(DashPageMixin):
             webdriver.Remote(
                 command_executor=self._remote_url,
                 options=options,
-                desired_capabilities=capabilities,
             )
             if self._remote
-            else webdriver.Firefox(
-                firefox_profile=fp, options=options, capabilities=capabilities
-            )
+            else webdriver.Firefox(options=options)
         )
 
     @staticmethod
