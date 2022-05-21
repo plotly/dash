@@ -10,6 +10,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 [#2003](https://github.com/plotly/dash/issues/2003) in which 
 `dangerously_allow_html=True` + `mathjax=True` works in some cases, and in some cases not.
 
+### Changed
+
+- [#2050](https://github.com/plotly/dash/pull/2050) Changed `find_element` and `find_elements` to accept an `attribute` argument that aligns with Selenium's `By` class, allowing you to search elements by other attributes. Default value is `CSS_SELECTOR` to maintain backwards compatibility with previous `find_elements`.
+
 ## [2.4.1] - 2022-05-11
 
 ### Fixed

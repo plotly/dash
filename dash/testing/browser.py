@@ -230,13 +230,23 @@ class Browser(DashPageMixin):
 
     def find_element(self, selector, attribute="CSS_SELECTOR"):
         """find_element returns the first found element by the attribute `selector`
-        shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`."""
+        shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`.
+        args:
+        - attribute: the attribute type to search for, aligns with the Selenium
+            API's `By` class. default "CSS_SELECTOR"
+            valid values: "CSS_SELECTOR", "ID", "NAME", "TAG_NAME",
+            "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
+        """
         return self.driver.find_element(getattr(By, attribute.upper()), selector)
 
     def find_elements(self, selector, attribute="CSS_SELECTOR"):
         """find_elements returns a list of all elements matching the attribute
-        `selector`
-        shortcut to `driver.find_elements(By.CSS_SELECTOR, ...)`.
+        `selector`. Shortcut to `driver.find_elements(By.CSS_SELECTOR, ...)`.
+        args:
+        - attribute: the attribute type to search for, aligns with the Selenium
+            API's `By` class. default "CSS_SELECTOR"
+            valid values: "CSS_SELECTOR", "ID", "NAME", "TAG_NAME",
+            "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
         """
         return self.driver.find_elements(getattr(By, attribute.upper()), selector)
 
@@ -450,10 +460,7 @@ class Browser(DashPageMixin):
         options.add_argument("--remote-debugging-port=9222")
 
         chrome = (
-            webdriver.Remote(
-                command_executor=self._remote_url,
-                options=options
-            )
+            webdriver.Remote(command_executor=self._remote_url, options=options)
             if self._remote
             else webdriver.Chrome(options=options)
         )
