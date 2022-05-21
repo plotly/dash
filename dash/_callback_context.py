@@ -127,7 +127,7 @@ class CallbackContext:
         args_grouping is a dict of the inputs used with flexible callback signatures. The keys are the variable names
         and the values are dictionaries containing:
         - “id”: (string or dict) the component id. If it’s a pattern matching id, it will be a dict.
-        - “id_str”: (str) for pattern matching ids, it’s the strigified dict id with no white spaces.
+        - “id_str”: (str) for pattern matching ids, it’s the stringified dict id with no white spaces.
         - “property”: (str) The component property used in the callback.
         - “value”: the value of the component property at the time the callback was fired.
         - “triggered”: (bool)Whether this input triggered the callback.
