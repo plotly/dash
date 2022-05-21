@@ -20,7 +20,14 @@ from selenium.common.exceptions import (
     MoveTargetOutOfBoundsException,
 )
 
-from dash.testing.wait import text_to_equal, style_to_equal, contains_text, until
+from dash.testing.wait import (
+    text_to_equal,
+    style_to_equal,
+    class_to_equal,
+    contains_text,
+    contains_class,
+    until,
+)
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
 from dash.testing.consts import SELENIUM_GRID_DEFAULT
@@ -309,6 +316,17 @@ class Browser(DashPageMixin):
             f"timeout {timeout or self._wait_timeout}s => waiting for element id {element_id}",
         )
 
+    def wait_for_class_to_equal(self, selector, classname, timeout=None):
+        """Explicit wait until the element's class has expected `value` timeout
+        if not set, equals to the fixture's `wait_timeout` shortcut to
+        `WebDriverWait` with customized `class_to_equal` condition."""
+        return self._wait_for(
+            method=class_to_equal,
+            args=(selector, classname),
+            timeout=timeout,
+            msg=f"classname => {classname} not found within {timeout or self._wait_timeout}s",
+        )
+
     def wait_for_style_to_equal(self, selector, style, val, timeout=None):
         """Explicit wait until the element's style has expected `value` timeout
         if not set, equals to the fixture's `wait_timeout` shortcut to
@@ -332,6 +350,20 @@ class Browser(DashPageMixin):
             args=(selector, text),
             timeout=timeout,
             msg=f"text -> {text} not found within {timeout or self._wait_timeout}s",
+        )
+
+    def wait_for_contains_class(self, selector, classname, timeout=None):
+        """Explicit wait until the element's classes contains the expected `classname`.
+
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with customized `contains_class`
+        condition.
+        """
+        return self._wait_for(
+            method=contains_class,
+            args=(selector, classname),
+            timeout=timeout,
+            msg=f"classname -> {classname} not found inside element within {timeout or self._wait_timeout}s",
         )
 
     def wait_for_contains_text(self, selector, text, timeout=None):
