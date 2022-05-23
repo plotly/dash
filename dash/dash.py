@@ -1400,10 +1400,9 @@ class Dash:
                     "assigned with `app.callback`."
                 )
 
-            self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP.pop(k)
+            self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP[k]
 
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
-        _callback.GLOBAL_CALLBACK_LIST.clear()
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
