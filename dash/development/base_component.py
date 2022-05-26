@@ -406,7 +406,7 @@ class Component(metaclass=ComponentMeta):
     def _get_base_nodes(cls):
         if not cls._base_nodes:
             cls._base_nodes = [
-                n.replace("[]", "").split(".")[0] for n in cls._children_props
+                n for n in cls._children_props if not any(e in n for e in ("[]", "."))
             ]
         return cls._base_nodes
 

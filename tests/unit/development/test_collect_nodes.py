@@ -1,4 +1,5 @@
 from dash.development._collect_nodes import collect_nodes
+from dash.development.base_component import Component
 
 metadata = {
     "string": {"type": {"name": "string"}},
@@ -60,3 +61,10 @@ def test_dcn001_collect_nodes():
         "mixed",
         "direct",
     ]
+
+
+def test_dcn002_base_nodes():
+    class CustomComponent(Component):
+        _children_props = collect_nodes(metadata)
+
+    assert CustomComponent._get_base_nodes() == ["list_of_nodes", "mixed", "direct"]
