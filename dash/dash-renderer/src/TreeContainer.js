@@ -254,37 +254,55 @@ class BaseTreeContainer extends Component {
                         let path = childrenProp.split('.');
                         let node;
                         let nodeValue;
-                        if (childrenProp.startsWith('[]')) {
-                            const frontPath = path[0].slice(2);
-                            node = _dashprivate_layout.props[frontPath];
+                        if (childrenProp.includes('[]')) {
+                            let frontPath = [],
+                                backPath = [],
+                                found = false;
+                            path.forEach(p => {
+                                if (!found) {
+                                    if (p.includes('[]')) {
+                                        found = true;
+                                        frontPath.push(p.replace('[]', ''));
+                                    } else {
+                                        frontPath.push(p);
+                                    }
+                                } else {
+                                    backPath.push(p);
+                                }
+                            });
+
+                            node = rpath(frontPath, _dashprivate_layout.props);
                             if (node === undefined) {
                                 return;
                             }
                             if (!node.length) {
-                                return assoc(frontPath, node);
+                                return assocPath(frontPath, node);
                             }
-                            const firstNode = node[0][path[1]];
+                            const firstNode = rpath(backPath, node[0]);
                             if (!firstNode) {
-                                return assoc(frontPath, node);
+                                return assocPath(frontPath, node);
                             }
-                            nodeValue = node.map((n, i) => ({
-                                ...n,
-                                [path[1]]: this.wrapChildrenProp(n[path[1]], [
+                            nodeValue = node.map((element, i) => {
+                                const elementPath = concat(
                                     frontPath,
-                                    i,
-                                    path[1]
-                                ])
-                            }));
-                            path = [frontPath];
+                                    concat([i], backPath)
+                                );
+                                return assocPath(
+                                    backPath,
+                                    this.wrapChildrenProp(
+                                        rpath(backPath, element),
+                                        elementPath
+                                    ),
+                                    element
+                                );
+                            });
+                            path = frontPath;
                         } else {
                             node = rpath(path, _dashprivate_layout.props);
                             if (node === undefined) {
                                 return;
                             }
-                            nodeValue = this.wrapChildrenProp(node, [
-                                path[0],
-                                path[1]
-                            ]);
+                            nodeValue = this.wrapChildrenProp(node, path);
                         }
                         return assocPath(path, nodeValue);
                     }

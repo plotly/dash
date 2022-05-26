@@ -11,9 +11,9 @@ def collect_array(a_value, base, nodes):
     if is_node(a_type):
         nodes.append(base)
     elif a_type in ("shape", "exact"):
-        nodes = collect_nodes(a_value["value"], "[]" + base, nodes)
+        nodes = collect_nodes(a_value["value"], base + "[]", nodes)
     elif a_type == "union":
-        nodes = collect_union(a_value["value"], "[]" + base, nodes)
+        nodes = collect_union(a_value["value"], base + "[]", nodes)
     return nodes
 
 

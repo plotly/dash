@@ -1,4 +1,4 @@
-import {append, concat, has, path, pathOr, type} from 'ramda';
+import {append, concat, has, path, pathOr, type, path as rpath} from 'ramda';
 
 /*
  * requests_pathname_prefix is the new config parameter introduced in
@@ -38,9 +38,9 @@ export const crawlLayout = (
         object.forEach((child, i) => {
             if (extraPath) {
                 crawlLayout(
-                    child[extraPath],
+                    rpath(extraPath, child),
                     func,
-                    concat(currentPath, [i, extraPath])
+                    concat(currentPath, concat([i], extraPath))
                 );
             } else {
                 crawlLayout(child, func, append(i, currentPath));
@@ -61,16 +61,13 @@ export const crawlLayout = (
             window.__dashprivate_childrenProps
         );
         childrenProps.forEach(childrenProp => {
-            if (childrenProp.startsWith('[]')) {
-                let [frontPath, backPath] = childrenProp.split('.');
-                frontPath = frontPath.slice(2);
-                const basePath = concat(currentPath, ['props', frontPath]);
-                crawlLayout(
-                    path(['props', frontPath], object),
-                    func,
-                    basePath,
-                    backPath
-                );
+            if (childrenProp.includes('[]')) {
+                let [frontPath, backPath] = childrenProp
+                    .split('[]')
+                    .map(p => p.split('.').filter(e => e));
+                const front = concat(['props'], frontPath);
+                const basePath = concat(currentPath, front);
+                crawlLayout(path(front, object), func, basePath, backPath);
             } else {
                 const newPath = concat(currentPath, [
                     'props',
