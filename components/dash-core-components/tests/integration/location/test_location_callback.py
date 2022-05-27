@@ -143,3 +143,56 @@ def test_loca002_location_link(dash_dcc):
     dash_dcc.percy_snapshot("link -- /test/pathname/a?queryA=valueA")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_loca003_location_callback(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Location(id="url", refresh=False),
+            dcc.Location(id="callback-url", refresh="callback-nav"),
+            html.Button(id="callback-btn", n_clicks=0),
+            html.Div(id="content"),
+        ]
+    )
+
+    @app.callback(Output("content", "children"), [Input("url", "pathname")])
+    def display_page(pathname):
+        if pathname is None or pathname == "/page-1":
+            return html.Div("1", id="div1")
+        elif pathname == "/":
+            return html.Div("base", id="div0")
+        else:
+            return "404"
+
+
+    @app.callback(Output("callback-url", "pathname"),
+                  Input("callback-btn", "n_clicks"),
+                  )
+    def update_location(n):
+        if n>0:
+            return "/page-1"
+
+
+
+    dash_dcc.start_server(app)
+    dash_dcc.driver.execute_script(
+        """
+        window.addEventListener('_dashprivate_pushstate', function() {
+            window._test_link_event_counter = (window._test_link_event_counter || 0) + 1;
+        });
+
+        window.addEventListener('_dashprivate_historychange', function() {
+            window._test_history_event_counter = (window._test_history_event_counter || 0) + 1;
+        });
+    """
+    )
+
+    dash_dcc.wait_for_element_by_id("div0")
+
+    dash_dcc.find_element("#callback-btn").click()
+
+    dash_dcc.wait_for_element_by_id("div1")
+
+    assert dash_dcc.get_logs() == []
+
