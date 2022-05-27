@@ -21,12 +21,14 @@ def _parse_query_string(search):
 
 app.layout = html.Div(
     [
-        "App frame",
+        html.Div("Navigate with dcc.Link"),
         dcc.Link("home  ", href="/"),
         dcc.Link("frozen  ", href="frozen"),
         dcc.Link("produce  ", href="produce"),
+
+
         dcc.Location("url-main", refresh="callback-nav"),
-        html.Div(id="app-content"),
+        html.Div(id="app-content", style={"marginTop":10}),
 
     ]
 )

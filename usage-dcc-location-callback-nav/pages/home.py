@@ -4,6 +4,7 @@ from dash import dcc, html, Input, Output, State, callback, ctx
 
 layout = html.Div(
     [
+        html.Div("Navigate by updating dcc.Location with refresh='callback-nav'"),
         "Enter a product code",
         dcc.Input(id="product", type="number", value=200),
         html.Button("submit", id="btn", n_clicks=0),
