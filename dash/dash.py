@@ -1897,7 +1897,7 @@ class Dash:
         host=os.getenv("HOST", "127.0.0.1"),
         port=os.getenv("PORT", "8050"),
         proxy=os.getenv("DASH_PROXY", None),
-        debug=False,
+        debug=None,
         dev_tools_ui=None,
         dev_tools_props_check=None,
         dev_tools_serve_dev_bundles=None,
@@ -1988,6 +1988,9 @@ class Dash:
 
         :return:
         """
+        if debug is None:
+            debug = get_combined_config("debug", None, False)
+
         debug = self.enable_dev_tools(
             debug,
             dev_tools_ui,

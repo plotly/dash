@@ -4,6 +4,30 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- [#2043](https://github.com/plotly/dash/pull/2043) Fix bug 
+[#2003](https://github.com/plotly/dash/issues/2003) in which 
+`dangerously_allow_html=True` + `mathjax=True` works in some cases, and in some cases not.
+- [#2047](https://github.com/plotly/dash/pull/2047) Fix bug [#1979](https://github.com/plotly/dash/issues/1979) in which `DASH_DEBUG` as enviroment variable gets ignored.
+- [#2065](https://github.com/plotly/dash/pull/2065) Fix bug [#2064](https://github.com/plotly/dash/issues/2064) rendering of `dcc.Dropdown` with a value but no options.
+
+### Changed
+
+- [#2050](https://github.com/plotly/dash/pull/2050) Changed `find_element` and `find_elements` to accept an `attribute` argument that aligns with Selenium's `By` class, allowing you to search elements by other attributes. Default value is `CSS_SELECTOR` to maintain backwards compatibility with previous `find_elements`.
+
+### Added
+
+- [#2049](https://github.com/plotly/dash/pull/2043) Added `wait_for_class_to_equal` and `wait_for_contains_class` methods to `dash.testing`
+
+## [2.4.1] - 2022-05-11
+
+### Fixed
+
+- Fix [#2045](https://github.com/plotly/dash/issues/2045) import error when using pytest but `dash[testing]` is not installed.
+
+## [2.4.0] - 2022-05-11
+
 ### Added
 - [#1952](https://github.com/plotly/dash/pull/1952) Improved callback_context
   - Closes [#1818](https://github.com/plotly/dash/issues/1818) Closes [#1054](https://github.com/plotly/dash/issues/1054)
@@ -15,6 +39,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2009](https://github.com/plotly/dash/pull/2009) Add support for Promises within Client-side callbacks as requested in [#1364](https://github.com/plotly/dash/pull/1364).
 
 - [#1956](https://github.com/plotly/dash/pull/1956) Add TypeScript components generation.
+
+- [#2034](https://github.com/plotly/dash/pull/2034) Add `link_target` prop to dcc.Markdown component. Closes [#1827](https://github.com/plotly/dash/issues/1827)
+
+- [#2035](https://github.com/plotly/dash/pull/2036) Add type annotations to testing fixtures.
 
 ### Fixed
 
@@ -28,27 +56,29 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2035](https://github.com/plotly/dash/pull/2035) Fix [#2033](https://github.com/plotly/dash/issues/2033) In-App error reporting does not render HTML.
 
+- [#1970](https://github.com/plotly/dash/pull/1970) dcc.Dropdown Refactor fixes:
+  - Fix bug [#1868](https://github.com/plotly/dash/issues/1868) value does not update when selected option removed from options.
+  - Fix bug [#1908](https://github.com/plotly/dash/issues/1908) Selected options not showing when the value contains a comma.
+
 ### Changed
 
-- [#2016](https://github.com/plotly/dash/pull/2016) Drop the 375px width from default percy_snapshot calls, keep only 1280px
-
 - [#1751](https://github.com/plotly/dash/pull/1751) Rename `app.run_server` to `app.run` while preserving `app.run_server` for backwards compatibility.
+
+- [#1839](https://github.com/plotly/dash/pull/1839) The `callback` decorator returns the original function, not the wrapped function, so that you can still call these functions directly, for example in tests. Note that in this case there will be no callback context so not all callbacks can be tested this way.
+
+- [#2016](https://github.com/plotly/dash/pull/2016) Drop the 375px width from default percy_snapshot calls, keep only 1280px
 
 - [#2027](https://github.com/plotly/dash/pull/1751) Improve the error message when a user doesn't wrap children in a list
 
 ### Updated
-- [#2016](https://github.com/plotly/dash/pull/2016) and [#2032](https://github.com/plotly/dash/pull/2032) Widespread dependency upgrades
-  - Upgrade Plotly.js to v2.12.0 (from v2.11.0).
+- [#2016](https://github.com/plotly/dash/pull/2016), [#2032](https://github.com/plotly/dash/pull/2032), and [#2042](https://github.com/plotly/dash/pull/2042) Widespread dependency upgrades
+  - Upgrade Plotly.js to v2.12.1 (from v2.11.0).
     - Feature release [2.12.0](https://github.com/plotly/plotly.js/releases/tag/v2.12.0) adds minor ticks and gridlines, as well as dashed gridlines.
     - Patch release [2.11.1](https://github.com/plotly/plotly.js/releases/tag/v2.11.1) fixes regl-based traces in strict CSP mode, however you must manually switch to the strict bundle to use this.
+    - Patch release [2.12.1](https://github.com/plotly/plotly.js/releases/tag/v2.12.1) fixes several bugs.
   - Upgrade `black` to v22.3.0 for Python 3.7+ - if you use `dash[ci]` and you call `black`, this may alter your code formatting slightly, including more consistently breaking Python 2 compatibility.
   - Many other mainly JS dependency upgrades to the internals of Dash renderer and components. These may patch bugs or improve performance.
 
-### Fixed
-
-- [#1970](https://github.com/plotly/dash/pull/1970) dcc.Dropdown Refactor fixes:
-  - Fix bug [#1868](https://github.com/plotly/dash/issues/1868) value does not update when selected option removed from options.
-  - Fix bug [#1908](https://github.com/plotly/dash/issues/1908) Selected options not showing when the value contains a comma.
 
 ## [2.3.1] - 2022-03-29
 

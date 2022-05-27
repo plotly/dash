@@ -391,7 +391,7 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
                         "string",
                         html.Div(
                             id="output-1",
-                            **{"data-cb": "initial value", "aria-cb": "initial value"}
+                            **{"data-cb": "initial value", "aria-cb": "initial value"},
                         ),
                     ]
                 )
@@ -765,3 +765,22 @@ def test_cbsc016_extra_components_callback(dash_duo):
 
     assert store_data.value == 123
     assert dash_duo.get_logs() == []
+
+
+def test_cbsc017_callback_directly_callable():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value="initial value"),
+            html.Div(html.Div([1.5, None, "string", html.Div(id="output-1")])),
+        ]
+    )
+
+    @app.callback(
+        Output("output-1", "children"),
+        [Input("input", "value")],
+    )
+    def update_output(value):
+        return f"returning {value}"
+
+    assert update_output("my-value") == "returning my-value"

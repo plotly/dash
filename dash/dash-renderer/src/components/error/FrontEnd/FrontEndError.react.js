@@ -110,9 +110,8 @@ function UnconnectedErrorContent({error, base}) {
             )}
             {/* Backend Error */}
             {typeof error.html !== 'string' ? null : error.html
-                  .split()[0]
-                  .toLowerCase()
-                  .startsWith('<!doctype') ? (
+                  .substring(0, '<!doctype'.length)
+                  .toLowerCase() === '<!doctype' ? (
                 <div className='dash-be-error__st'>
                     <div className='dash-backend-error'>
                         {/* Embed werkzeug debugger in an iframe to prevent
