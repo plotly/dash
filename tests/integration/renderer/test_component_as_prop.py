@@ -30,7 +30,7 @@ def test_rdcap001_component_as_prop(dash_duo):
             ),
             ComponentAsProp(
                 id="elements",
-                elements=[
+                element=[
                     Div("one", id="list-one"),
                     Div("two", id="list-two"),
                     Div(id="list-output"),
@@ -81,6 +81,15 @@ def test_rdcap001_component_as_prop(dash_duo):
                     }
                 ],
             ),
+            ComponentAsProp(
+                id="list-in-shape",
+                shapeEl={
+                    "header": [
+                        Div("one", id="first-in-shape"),
+                        Div("two", id="second-in-shape")
+                    ]
+                }
+            )
         ]
     )
 
@@ -133,7 +142,7 @@ def test_rdcap001_component_as_prop(dash_duo):
 
     dash_duo.start_server(app)
 
-    # assert dash_duo.get_logs() == []
+    assert dash_duo.get_logs() == []
 
     dash_duo.wait_for_text_to_equal("#as-props", "as-props")
 
@@ -174,5 +183,8 @@ def test_rdcap001_component_as_prop(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#first-label", "first-label")
     dash_duo.wait_for_text_to_equal("#second-label", "second-label")
+
+    dash_duo.wait_for_text_to_equal("#first-in-shape", "one")
+    dash_duo.wait_for_text_to_equal("#second-in-shape", "two")
 
     assert dash_duo.get_logs() == []
