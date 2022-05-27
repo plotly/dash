@@ -165,15 +165,13 @@ def test_loca003_location_callback(dash_dcc):
         else:
             return "404"
 
-
-    @app.callback(Output("callback-url", "pathname"),
-                  Input("callback-btn", "n_clicks"),
-                  )
+    @app.callback(
+        Output("callback-url", "pathname"),
+        Input("callback-btn", "n_clicks"),
+    )
     def update_location(n):
-        if n>0:
+        if n > 0:
             return "/page-1"
-
-
 
     dash_dcc.start_server(app)
     dash_dcc.driver.execute_script(
@@ -195,4 +193,3 @@ def test_loca003_location_callback(dash_dcc):
     dash_dcc.wait_for_element_by_id("div1")
 
     assert dash_dcc.get_logs() == []
-
