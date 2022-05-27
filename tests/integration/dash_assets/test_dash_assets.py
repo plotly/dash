@@ -52,7 +52,6 @@ def test_dada001_assets(dash_duo):
     ]
 
     assert order == tested, "the content and order is expected"
-    dash_duo.percy_snapshot("test assets includes")
 
 
 def test_dada002_external_files_init(dash_duo):

@@ -46,9 +46,6 @@ def test_grva001_candlestick(dash_dcc, is_eager):
         EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph .main-svg"))
     )
 
-    dash_dcc.percy_snapshot(
-        "candlestick - initial ({})".format("eager" if is_eager else "lazy")
-    )
     button.click()
     time.sleep(1)
     dash_dcc.percy_snapshot(
@@ -178,11 +175,19 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
         return prev_graph
 
     dash_dcc.start_server(app)
-    button = dash_dcc.wait_for_element("#click")
-    button.click()
+    dash_dcc.wait_for_element(".js-plotly-plot")
+    assert dash_dcc.driver.execute_script(
+        """
+        return (document.querySelector('.js-plotly-plot').data || []).length === 1;
+    """
+    )
+
+    dash_dcc.wait_for_element("#click").click()
     time.sleep(2)  # Wait for graph to re-render
-    dash_dcc.percy_snapshot(
-        "render-empty-graph ({})".format("eager" if is_eager else "lazy")
+    assert dash_dcc.driver.execute_script(
+        """
+        return (document.querySelector('.js-plotly-plot').data || []).length === 0;
+    """
     )
 
     assert dash_dcc.get_logs() == []

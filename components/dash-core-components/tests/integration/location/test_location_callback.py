@@ -87,8 +87,17 @@ def test_loca002_location_link(dash_dcc):
 
     dash_dcc.start_server(app)
 
-    dash_dcc.wait_for_text_to_equal("#test-pathname", "/")
-    dash_dcc.percy_snapshot("link -- location")
+    def check_path_parts(pathname, search, _hash):
+        dash_dcc.wait_for_text_to_equal("#test-pathname", pathname)
+        dash_dcc.wait_for_text_to_equal("#test-search", search)
+        dash_dcc.wait_for_text_to_equal("#test-hash", _hash)
+
+        expected = f"http://localhost:{dash_dcc.server.port}{pathname}{search}{_hash}"
+        assert dash_dcc.driver.current_url == expected
+
+        assert dash_dcc.get_logs() == []
+
+    check_path_parts("/", "", "")
 
     # Check that link updates pathname
     dash_dcc.find_element("#test-link").click()
@@ -99,47 +108,31 @@ def test_loca002_location_link(dash_dcc):
         == "/test/pathname",
         3,
     )
-    dash_dcc.wait_for_text_to_equal("#test-pathname", "/test/pathname")
+    check_path_parts("/test/pathname", "", "")
 
     # Check that hash is updated in the Location
     dash_dcc.find_element("#test-link-hash").click()
-    dash_dcc.wait_for_text_to_equal("#test-pathname", "/test/pathname")
-    dash_dcc.wait_for_text_to_equal("#test-hash", "#test")
-    dash_dcc.percy_snapshot("link -- /test/pathname#test")
+    check_path_parts("/test/pathname", "", "#test")
 
     # Check that search is updated in the Location
     # note that this goes through href and therefore wipes the hash
     dash_dcc.find_element("#test-link-search").click()
-    dash_dcc.wait_for_text_to_equal("#test-search", "?testQuery=testValue")
-    dash_dcc.wait_for_text_to_equal("#test-hash", "")
-    dash_dcc.percy_snapshot("link -- /test/pathname?testQuery=testValue")
+    check_path_parts("/test/pathname", "?testQuery=testValue", "")
 
     # Check that pathname is updated through a Button click via props
     dash_dcc.find_element("#test-button").click()
-    dash_dcc.wait_for_text_to_equal("#test-pathname", "/new/pathname")
-    dash_dcc.wait_for_text_to_equal("#test-search", "?testQuery=testValue")
-    dash_dcc.percy_snapshot("link -- /new/pathname?testQuery=testValue")
+    check_path_parts("/new/pathname", "?testQuery=testValue", "")
 
     # Check that pathname is updated through an a tag click via props
     dash_dcc.find_element("#test-a").click()
-
-    dash_dcc.wait_for_text_to_equal("#test-pathname", "/test/pathname/a")
-    dash_dcc.wait_for_text_to_equal("#test-search", "")
-    dash_dcc.wait_for_text_to_equal("#test-hash", "")
-    dash_dcc.percy_snapshot("link -- /test/pathname/a")
+    check_path_parts("/test/pathname/a", "", "")
 
     # Check that hash is updated through an a tag click via props
     dash_dcc.find_element("#test-a-hash").click()
-    dash_dcc.wait_for_text_to_equal("#test-pathname", "/test/pathname/a")
-    dash_dcc.wait_for_text_to_equal("#test-search", "")
-    dash_dcc.wait_for_text_to_equal("#test-hash", "#test-hash")
-    dash_dcc.percy_snapshot("link -- /test/pathname/a#test-hash")
+    check_path_parts("/test/pathname/a", "", "#test-hash")
 
     # Check that hash is updated through an a tag click via props
     dash_dcc.find_element("#test-a-query").click()
-    dash_dcc.wait_for_text_to_equal("#test-pathname", "/test/pathname/a")
-    dash_dcc.wait_for_text_to_equal("#test-search", "?queryA=valueA")
-    dash_dcc.wait_for_text_to_equal("#test-hash", "")
-    dash_dcc.percy_snapshot("link -- /test/pathname/a?queryA=valueA")
+    check_path_parts("/test/pathname/a", "?queryA=valueA", "")
 
     assert dash_dcc.get_logs() == []
