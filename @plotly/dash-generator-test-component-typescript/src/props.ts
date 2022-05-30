@@ -1,6 +1,11 @@
 // Needs to export types if not in a d.ts file or if any import is present in the d.ts
 import React from 'react';
 
+
+type Nested = {
+    nested: Nested;
+}
+
 export type TypescriptComponentProps = {
     children?: React.ReactNode;
     id?: string;
@@ -35,6 +40,8 @@ export type TypescriptComponentProps = {
     setProps?: (props: Record<string, any>) => void;
     className?: string;
     style?: any;
+
+    nested?: Nested;
 };
 
 export type WrappedHTMLProps = {
