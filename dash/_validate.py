@@ -466,7 +466,10 @@ def validate_use_pages(config):
 
     if flask.has_request_context():
         raise Exception(
-            "dash.register_page() is being called within a callback. This isn't supported."
+            """
+            dash.register_page() can’t be called within a callback as it updates dash.page_registry, which is a global variable.
+             For more details, see https://dash.plotly.com/sharing-data-between-callbacks#why-global-variables-will-break-your-app
+            """
         )
 
 

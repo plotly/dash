@@ -1,5 +1,7 @@
+import pytest
 import dash
 from dash import Dash, dcc, html
+from dash.exceptions import NoLayoutException
 
 
 def get_app(path1="/", path2="/layout2"):
@@ -165,3 +167,12 @@ def test_pala003_meta_tags_custom(dash_duo):
     ]
 
     check_metas(dash_duo, metas_layout1)
+
+
+def test_pala004_no_layout_exception():
+    error_msg = 'No layout found in module pages_error.page1\nA variable or a function named "layout" is required.'
+
+    with pytest.raises(NoLayoutException) as err:
+        Dash(__name__, use_pages=True, pages_folder="pages_error")
+
+    assert error_msg in err.value.args[0]

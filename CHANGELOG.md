@@ -18,6 +18,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- [#1947](https://github.com/plotly/dash/pull/1947)  Added `pages` - a better way to build multi-page apps. For more information see the [forum post.](https://community.plotly.com/t/introducing-dash-pages-a-dash-2-x-feature-preview/57775)
+
+
 - [#2049](https://github.com/plotly/dash/pull/2043) Added `wait_for_class_to_equal` and `wait_for_contains_class` methods to `dash.testing`
 
 ## [2.4.1] - 2022-05-11
@@ -81,9 +84,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 
 ## [2.3.1] - 2022-03-29
-
-### Added
-- [#1947](https://github.com/plotly/dash/pull/1947)  Added `\pages` - a better way to build multi-page apps. For more information see the [forum post.](https://community.plotly.com/t/introducing-dash-pages-a-dash-2-x-feature-preview/57775)
 
 ### Fixed
 

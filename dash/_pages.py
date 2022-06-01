@@ -54,7 +54,7 @@ def _infer_image(module):
     return logo_file
 
 
-def _filename_to_name(filename):
+def _module_name_to_page_name(filename):
     return filename.split(".")[-1].replace("_", " ").capitalize()
 
 
@@ -260,7 +260,7 @@ def register_page(
         path_template=path_template,
         path=path if path is not None else _infer_path(module, path_template),
         supplied_name=name,
-        name=name if name is not None else _filename_to_name(module),
+        name=name if name is not None else _module_name_to_page_name(module),
     )
     page.update(
         supplied_title=title,
