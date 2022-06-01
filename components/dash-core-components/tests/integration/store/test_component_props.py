@@ -109,7 +109,7 @@ def test_stcp003_initial_falsy(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#content", "memory\nlocal\nsession")
 
     for storage_type in ("local", "session"):
-        getter = getattr(dash_dcc, "get_{}_storage".format(storage_type))
+        getter = getattr(dash_dcc, f"get_{storage_type}_storage")
         assert getter("zero-" + storage_type) == 0, storage_type
         assert getter("false-" + storage_type) is False, storage_type
         assert getter("null-" + storage_type) is None, storage_type

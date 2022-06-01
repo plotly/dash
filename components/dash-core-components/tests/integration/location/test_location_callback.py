@@ -103,7 +103,7 @@ def test_loca002_location_link(dash_dcc):
     dash_dcc.find_element("#test-link").click()
     until(
         lambda: dash_dcc.driver.current_url.replace(
-            "http://localhost:{}".format(dash_dcc.server.port), ""
+            f"http://localhost:{dash_dcc.server.port}", ""
         )
         == "/test/pathname",
         3,

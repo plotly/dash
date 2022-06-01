@@ -67,7 +67,7 @@ def test_cdpr002_updatemodes(dash_dcc):
         ],
     )
     def update_output(start_date, end_date):
-        return "{} - {}".format(start_date, end_date)
+        return f"{start_date} - {end_date}"
 
     dash_dcc.start_server(app=app)
 
