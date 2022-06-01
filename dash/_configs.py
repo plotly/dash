@@ -139,6 +139,6 @@ def pages_folder_config(name, pages_folder, use_pages):
         pages_folder_path = os.path.join(
             flask.helpers.get_root_path(name), pages_folder
         )
-    if pages_folder and not os.path.exists(pages_folder_path):
+    if pages_folder and not os.path.isdir(pages_folder_path):
         raise Exception(error_msg)
     return pages_folder_path
