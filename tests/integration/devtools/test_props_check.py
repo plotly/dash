@@ -129,6 +129,7 @@ test_cases = {
     },
     "allow-null-3": {
         "fail": False,
+        "logs": True,
         "name": "allow null in properties",
         "component": dcc.Input,
         "props": {"value": None},
@@ -198,7 +199,10 @@ def test_dvpc001_prop_check_errors_with_path(dash_duo):
         route_url = "{}/{}".format(dash_duo.server_url, tc)
         dash_duo.wait_for_page(url=route_url)
 
-        if test_cases[tc]["fail"]:
+        fail = test_cases[tc]["fail"]
+        logs = test_cases[tc].get("logs", fail)
+
+        if fail:
             dash_duo.wait_for_element(".test-devtools-error-toggle").click()
             dash_duo.wait_for_element(".dash-fe-error__info")
             dash_duo.percy_snapshot(
@@ -206,6 +210,9 @@ def test_dvpc001_prop_check_errors_with_path(dash_duo):
             )
         else:
             dash_duo.wait_for_element("#new-component")
-            dash_duo.percy_snapshot(
-                "devtools validation no exception: {}".format(test_cases[tc]["name"])
-            )
+            dash_duo.wait_for_no_elements(".test-devtools-error-toggle")
+
+        if logs:
+            assert dash_duo.get_logs(), tc
+        else:
+            assert dash_duo.get_logs() == [], tc

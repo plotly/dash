@@ -20,7 +20,7 @@ def test_slsl001_always_visible_slider(dash_dcc):
 
     @app.callback(Output("out", "children"), [Input("slider", "value")])
     def update_output(value):
-        return "You have selected {}".format(value)
+        return f"You have selected {value}"
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#out", "You have selected 5")
@@ -53,7 +53,7 @@ def test_slsl002_always_visible_rangeslider(dash_dcc):
 
     @app.callback(Output("out", "children"), [Input("rangeslider", "value")])
     def update_output(rng):
-        return "You have selected {}-{}".format(*rng)
+        return f"You have selected {rng[0]}-{rng[1]}"
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#out", "You have selected 5-15")
@@ -71,11 +71,7 @@ def test_slsl003_out_of_range_marks_slider(dash_dcc):
 
     app = Dash(__name__)
     app.layout = html.Div(
-        [
-            dcc.Slider(
-                min=0, max=5, marks={i: "Label {}".format(i) for i in range(-1, 10)}
-            )
-        ]
+        [dcc.Slider(min=0, max=5, marks={i: f"Label {i}" for i in range(-1, 10)})]
     )
 
     dash_dcc.start_server(app)
@@ -89,11 +85,7 @@ def test_slsl004_out_of_range_marks_rangeslider(dash_dcc):
 
     app = Dash(__name__)
     app.layout = html.Div(
-        [
-            dcc.RangeSlider(
-                min=0, max=5, marks={i: "Label {}".format(i) for i in range(-1, 10)}
-            )
-        ]
+        [dcc.RangeSlider(min=0, max=5, marks={i: f"Label {i}" for i in range(-1, 10)})]
     )
 
     dash_dcc.start_server(app)
@@ -257,11 +249,11 @@ def test_slsl007_drag_value_slider(dash_dcc):
 
     @app.callback(Output("out-drag-value", "children"), [Input("slider", "drag_value")])
     def update_output1(value):
-        return "You have dragged {}".format(value)
+        return f"You have dragged {value}"
 
     @app.callback(Output("out-value", "children"), [Input("slider", "value")])
     def update_output2(value):
-        return "You have selected {}".format(value)
+        return f"You have selected {value}"
 
     dash_dcc.start_server(app)
     slider = dash_dcc.find_element("#slider")
@@ -301,11 +293,11 @@ def test_slsl008_drag_value_rangeslider(dash_dcc):
     @app.callback(Output("out-drag-value", "children"), [Input("slider", "drag_value")])
     def update_output1(value):
         value = value or (None, None)
-        return "You have dragged {}-{}".format(*value)
+        return f"You have dragged {value[0]}-{value[1]}"
 
     @app.callback(Output("out-value", "children"), [Input("slider", "value")])
     def update_output2(value):
-        return "You have selected {}-{}".format(*value)
+        return f"You have selected {value[0]}-{value[1]}"
 
     dash_dcc.start_server(app)
     slider = dash_dcc.find_element("#slider")
@@ -335,9 +327,7 @@ def test_slsl009_loading_state(dash_dcc):
                 id="horizontal-slider",
                 min=0,
                 max=9,
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 value=5,
             ),
         ]
@@ -374,9 +364,7 @@ def test_slsl010_range_loading_state(dash_dcc):
                 id="horizontal-range-slider",
                 min=0,
                 max=9,
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 value=[4, 6],
             ),
         ]
@@ -420,9 +408,7 @@ def test_slsl011_horizontal_slider(dash_dcc):
                 id="horizontal-slider",
                 min=0,
                 max=9,
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 value=5,
             ),
         ]
@@ -445,9 +431,7 @@ def test_slsl012_vertical_slider(dash_dcc):
                 id="vertical-slider",
                 min=0,
                 max=9,
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 value=5,
                 vertical=True,
             ),
@@ -472,9 +456,7 @@ def test_slsl013_horizontal_range_slider(dash_dcc):
                 id="horizontal-range-slider",
                 min=0,
                 max=9,
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 value=[4, 6],
             ),
         ]
@@ -502,9 +484,7 @@ def test_slsl014_vertical_range_slider(dash_dcc):
                 id="vertical-range-slider",
                 min=0,
                 max=9,
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 value=[4, 6],
                 vertical=True,
             ),
@@ -534,9 +514,7 @@ def test_slsl015_range_slider_step_none(dash_dcc):
                 id="none-step-slider",
                 min=0,
                 max=6,
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 step=None,
                 value=4.6,
                 vertical=False,
@@ -563,9 +541,7 @@ def test_slsl015_range_slider_no_min_max(dash_dcc):
             html.Label("No Min or Max Slider"),
             dcc.Slider(
                 id="no-min-max-step-slider",
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 step=None,
                 value=5,
                 vertical=False,

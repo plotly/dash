@@ -29,11 +29,11 @@ const columns2 = R.map(
     ['City', 'Neighborhood', 'Temperature (F)']
 );
 
-storiesOf('DashTable/Dropdown', module)
-    .add('readonly dropdown shows label', () => (
+storiesOf('DashTable/Dropdown', module).add('all variants', () => (
+    <div>
+        <div>readonly dropdown shows label</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={data}
             columns={columns}
             editable={false}
@@ -52,11 +52,9 @@ storiesOf('DashTable/Dropdown', module)
                 }
             }}
         />
-    ))
-    .add('editable dropdown shows label', () => (
+        <div>editable dropdown shows label</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={data}
             columns={columns}
             editable={true}
@@ -75,11 +73,9 @@ storiesOf('DashTable/Dropdown', module)
                 }
             }}
         />
-    ))
-    .add('dropdown by column', () => (
+        <div>dropdown by column</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={data}
             columns={columns}
             editable={true}
@@ -98,11 +94,9 @@ storiesOf('DashTable/Dropdown', module)
                 }
             }}
         />
-    ))
-    .add('dropdown by filtering', () => (
+        <div>dropdown by filtering</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={data2}
             columns={columns2}
             editable={true}
@@ -139,11 +133,9 @@ storiesOf('DashTable/Dropdown', module)
                 }
             ]}
         />
-    ))
-    .add('dropdown by cell (deprecated)', () => (
+        <div>dropdown by cell (deprecated)</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={data2}
             columns={columns2}
             editable={true}
@@ -174,4 +166,119 @@ storiesOf('DashTable/Dropdown', module)
                 }
             ]}
         />
-    ));
+        <div>dropdown when data are loading (disabled)</div>
+        <DataTable
+            setProps={setProps}
+            data={data2}
+            columns={columns2}
+            editable={true}
+            dropdown_data={[
+                {
+                    Neighborhood: {
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Brooklyn', 'Queens', 'Staten Island']
+                        )
+                    }
+                },
+                {
+                    Neighborhood: {
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Mile End', 'Plateau', 'Hochelaga']
+                        )
+                    }
+                },
+                {
+                    Neighborhood: {
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Venice', 'Hollywood', 'Los Feliz']
+                        )
+                    }
+                }
+            ]}
+            loading_state={{
+                is_loading: true,
+                prop_name: 'data',
+                component_name: 'table'
+            }}
+        />
+        <div>dropdown when another prop is loading (not disabled)</div>
+        <DataTable
+            setProps={setProps}
+            data={data2}
+            columns={columns2}
+            editable={true}
+            dropdown_data={[
+                {
+                    Neighborhood: {
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Brooklyn', 'Queens', 'Staten Island']
+                        )
+                    }
+                },
+                {
+                    Neighborhood: {
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Mile End', 'Plateau', 'Hochelaga']
+                        )
+                    }
+                },
+                {
+                    Neighborhood: {
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Venice', 'Hollywood', 'Los Feliz']
+                        )
+                    }
+                }
+            ]}
+            loading_state={{
+                is_loading: true,
+                prop_name: 'style_cell_conditional',
+                component_name: 'table'
+            }}
+        />
+        <div>dropdown when nothing in the table is loading (not disabled)</div>
+        <DataTable
+            setProps={setProps}
+            data={data2}
+            columns={columns2}
+            editable={true}
+            dropdown_data={[
+                {
+                    Neighborhood: {
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Brooklyn', 'Queens', 'Staten Island']
+                        )
+                    }
+                },
+                {
+                    Neighborhood: {
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Mile End', 'Plateau', 'Hochelaga']
+                        )
+                    }
+                },
+                {
+                    Neighborhood: {
+                        options: R.map(
+                            i => ({label: i, value: i}),
+                            ['Venice', 'Hollywood', 'Los Feliz']
+                        )
+                    }
+                }
+            ]}
+            loading_state={{
+                is_loading: false,
+                prop_name: 'data',
+                component_name: 'table'
+            }}
+        />
+    </div>
+));
