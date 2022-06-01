@@ -67,7 +67,7 @@ def test_inbs002_user_class(dash_dcc):
     dash_dcc.start_server(app)
 
     dash_dcc.wait_for_style_to_equal(
-        ".test-input-css input", "borderColor", "rgb(255, 10, 180)"
+        ".test-input-css input", "borderColor", "rgb(255, 105, 180)"
     )
     dash_dcc.wait_for_style_to_equal(".test-input-css input", "width", "420px")
 
