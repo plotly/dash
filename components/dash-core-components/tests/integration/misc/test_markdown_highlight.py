@@ -24,7 +24,9 @@ def test_msmh001_no_window_variable(dash_dcc):
 
 def test_msmh002_window_override(dash_dcc):
     app = Dash(__name__)
-    app.layout = html.Div([html.Button(id="md-trigger"), html.Div(id="md-container")])
+    app.layout = html.Div(
+        [html.Button("Click", id="md-trigger"), html.Div(id="md-container")]
+    )
 
     # we can't run the script below until after the page has loaded,
     # so we need to trigger a rerender of the markdown component
@@ -42,6 +44,5 @@ def test_msmh002_window_override(dash_dcc):
 
     dash_dcc.find_element("#md-trigger").click()
     dash_dcc.wait_for_text_to_equal("#md-container code", "hljs override")
-    dash_dcc.percy_snapshot("md_code_highlight_override")
 
     assert dash_dcc.get_logs() == []

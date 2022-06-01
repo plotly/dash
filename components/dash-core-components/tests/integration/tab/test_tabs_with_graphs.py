@@ -83,10 +83,10 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
         EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph-1-tabs .main-svg"))
     )
 
+    is_eager = "eager" if is_eager else "lazy"
+
     dash_dcc.percy_snapshot(
-        "Tabs with Graph - initial (graph should not resize) ({})".format(
-            "eager" if is_eager else "lazy"
-        )
+        f"Tabs with Graph - initial (graph should not resize) ({is_eager})"
     )
     tab_two.click()
 
@@ -96,9 +96,7 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
     )
 
     dash_dcc.percy_snapshot(
-        "Tabs with Graph - clicked tab 2 (graph should not resize) ({})".format(
-            "eager" if is_eager else "lazy"
-        )
+        f"Tabs with Graph - clicked tab 2 (graph should not resize) ({is_eager})"
     )
 
     WebDriverWait(dash_dcc.driver, 10).until(
@@ -113,9 +111,7 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
     )
 
     dash_dcc.percy_snapshot(
-        "Tabs with Graph - clicked tab 1 (graph should not resize) ({})".format(
-            "eager" if is_eager else "lazy"
-        )
+        f"Tabs with Graph - clicked tab 1 (graph should not resize) ({is_eager})"
     )
 
     assert dash_dcc.get_logs() == []
@@ -148,7 +144,7 @@ def test_tabs_render_without_selected(dash_dcc, is_eager):
 
     for i in ("one", "two"):
 
-        @app.callback(Output("tabs-{}".format(i), "style"), [Input(i, "n_clicks")])
+        @app.callback(Output(f"tabs-{i}", "style"), [Input(i, "n_clicks")])
         def on_click_update_tabs(n_clicks):
             if n_clicks is None:
                 raise PreventUpdate
@@ -157,7 +153,7 @@ def test_tabs_render_without_selected(dash_dcc, is_eager):
                 return {"display": "block"}
             return {"display": "none"}
 
-        @app.callback(Output("graph-{}".format(i), "figure"), [Input(i, "n_clicks")])
+        @app.callback(Output(f"graph-{i}", "figure"), [Input(i, "n_clicks")])
         def on_click_update_graph(n_clicks):
             if n_clicks is None:
                 raise PreventUpdate
@@ -179,10 +175,10 @@ def test_tabs_render_without_selected(dash_dcc, is_eager):
         EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph-one .main-svg"))
     )
 
+    is_eager = "eager" if is_eager else "lazy"
+
     time.sleep(1)
-    dash_dcc.percy_snapshot(
-        "Tabs-1 rendered ({})".format("eager" if is_eager else "lazy")
-    )
+    dash_dcc.percy_snapshot(f"Tabs-1 rendered ({is_eager})")
 
     button_two.click()
 
@@ -192,9 +188,7 @@ def test_tabs_render_without_selected(dash_dcc, is_eager):
     )
 
     time.sleep(1)
-    dash_dcc.percy_snapshot(
-        "Tabs-2 rendered ({})".format("eager" if is_eager else "lazy")
-    )
+    dash_dcc.percy_snapshot(f"Tabs-2 rendered ({is_eager})")
 
     # do some extra tests while we're here
     # and have access to Graph and plotly.js

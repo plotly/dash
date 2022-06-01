@@ -5,13 +5,13 @@ import time
 import logging
 import warnings
 import percy
+import requests
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.action_chains import ActionChains
 
 from selenium.common.exceptions import (
@@ -20,7 +20,14 @@ from selenium.common.exceptions import (
     MoveTargetOutOfBoundsException,
 )
 
-from dash.testing.wait import text_to_equal, style_to_equal, contains_text, until
+from dash.testing.wait import (
+    text_to_equal,
+    style_to_equal,
+    class_to_equal,
+    contains_text,
+    contains_class,
+    until,
+)
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
 from dash.testing.consts import SELENIUM_GRID_DEFAULT
@@ -188,8 +195,14 @@ class Browser(DashPageMixin):
             """
             )
 
+        try:
             self.percy_runner.snapshot(name=snapshot_name, widths=widths)
+        except requests.HTTPError as err:
+            # Ignore retries.
+            if err.request.status_code != 400:
+                raise err
 
+        if convert_canvases:
             self.driver.execute_script(
                 """
                 const stash = window._canvasStash;
@@ -203,9 +216,6 @@ class Browser(DashPageMixin):
                 delete window._canvasStash;
             """
             )
-
-        else:
-            self.percy_runner.snapshot(name=snapshot_name, widths=widths)
 
     def take_snapshot(self, name):
         """Hook method to take snapshot when a selenium test fails. The
@@ -225,18 +235,27 @@ class Browser(DashPageMixin):
 
         self.driver.save_screenshot(f"{target}/{name}_{self.session_id}.png")
 
-    def find_element(self, selector):
-        """find_element returns the first found element by the css `selector`
-        shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`."""
-        return self.driver.find_element(By.CSS_SELECTOR, selector)
-
-    def find_elements(self, selector):
-        """find_elements returns a list of all elements matching the css
-        `selector`.
-
-        shortcut to `driver.find_elements(By.CSS_SELECTOR, ...)`.
+    def find_element(self, selector, attribute="CSS_SELECTOR"):
+        """find_element returns the first found element by the attribute `selector`
+        shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`.
+        args:
+        - attribute: the attribute type to search for, aligns with the Selenium
+            API's `By` class. default "CSS_SELECTOR"
+            valid values: "CSS_SELECTOR", "ID", "NAME", "TAG_NAME",
+            "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
         """
-        return self.driver.find_elements(By.CSS_SELECTOR, selector)
+        return self.driver.find_element(getattr(By, attribute.upper()), selector)
+
+    def find_elements(self, selector, attribute="CSS_SELECTOR"):
+        """find_elements returns a list of all elements matching the attribute
+        `selector`. Shortcut to `driver.find_elements(By.CSS_SELECTOR, ...)`.
+        args:
+        - attribute: the attribute type to search for, aligns with the Selenium
+            API's `By` class. default "CSS_SELECTOR"
+            valid values: "CSS_SELECTOR", "ID", "NAME", "TAG_NAME",
+            "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
+        """
+        return self.driver.find_elements(getattr(By, attribute.upper()), selector)
 
     def _get_element(self, elem_or_selector):
         if isinstance(elem_or_selector, str):
@@ -297,6 +316,17 @@ class Browser(DashPageMixin):
             f"timeout {timeout or self._wait_timeout}s => waiting for element id {element_id}",
         )
 
+    def wait_for_class_to_equal(self, selector, classname, timeout=None):
+        """Explicit wait until the element's class has expected `value` timeout
+        if not set, equals to the fixture's `wait_timeout` shortcut to
+        `WebDriverWait` with customized `class_to_equal` condition."""
+        return self._wait_for(
+            method=class_to_equal,
+            args=(selector, classname),
+            timeout=timeout,
+            msg=f"classname => {classname} not found within {timeout or self._wait_timeout}s",
+        )
+
     def wait_for_style_to_equal(self, selector, style, val, timeout=None):
         """Explicit wait until the element's style has expected `value` timeout
         if not set, equals to the fixture's `wait_timeout` shortcut to
@@ -320,6 +350,20 @@ class Browser(DashPageMixin):
             args=(selector, text),
             timeout=timeout,
             msg=f"text -> {text} not found within {timeout or self._wait_timeout}s",
+        )
+
+    def wait_for_contains_class(self, selector, classname, timeout=None):
+        """Explicit wait until the element's classes contains the expected `classname`.
+
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with customized `contains_class`
+        condition.
+        """
+        return self._wait_for(
+            method=contains_class,
+            args=(selector, classname),
+            timeout=timeout,
+            msg=f"classname -> {classname} not found inside element within {timeout or self._wait_timeout}s",
         )
 
     def wait_for_contains_text(self, selector, text, timeout=None):
@@ -426,9 +470,8 @@ class Browser(DashPageMixin):
     def _get_chrome(self):
         options = self._get_wd_options()
 
-        capabilities = DesiredCapabilities.CHROME
-        capabilities["loggingPrefs"] = {"browser": "SEVERE"}
-        capabilities["goog:loggingPrefs"] = {"browser": "SEVERE"}
+        options.set_capability("loggingPrefs", {"browser": "SEVERE"})
+        options.set_capability("goog:loggingPrefs", {"browser": "SEVERE"})
 
         if "DASH_TEST_CHROMEPATH" in os.environ:
             options.binary_location = os.environ["DASH_TEST_CHROMEPATH"]
@@ -449,13 +492,9 @@ class Browser(DashPageMixin):
         options.add_argument("--remote-debugging-port=9222")
 
         chrome = (
-            webdriver.Remote(
-                command_executor=self._remote_url,
-                options=options,
-                desired_capabilities=capabilities,
-            )
+            webdriver.Remote(command_executor=self._remote_url, options=options)
             if self._remote
-            else webdriver.Chrome(options=options, desired_capabilities=capabilities)
+            else webdriver.Chrome(options=options)
         )
 
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
@@ -478,15 +517,12 @@ class Browser(DashPageMixin):
     def _get_firefox(self):
         options = self._get_wd_options()
 
-        capabilities = DesiredCapabilities.FIREFOX
-        capabilities["loggingPrefs"] = {"browser": "SEVERE"}
-        capabilities["marionette"] = True
+        options.set_capability("loggingPrefs", {"browser": "SEVERE"})
+        options.set_capability("marionette", True)
 
-        # https://developer.mozilla.org/en-US/docs/Download_Manager_preferences
-        fp = webdriver.FirefoxProfile()
-        fp.set_preference("browser.download.dir", self.download_path)
-        fp.set_preference("browser.download.folderList", 2)
-        fp.set_preference(
+        options.set_preference("browser.download.dir", self.download_path)
+        options.set_preference("browser.download.folderList", 2)
+        options.set_preference(
             "browser.helperApps.neverAsk.saveToDisk",
             "application/octet-stream",  # this MIME is generic for binary
         )
@@ -494,12 +530,9 @@ class Browser(DashPageMixin):
             webdriver.Remote(
                 command_executor=self._remote_url,
                 options=options,
-                desired_capabilities=capabilities,
             )
             if self._remote
-            else webdriver.Firefox(
-                firefox_profile=fp, options=options, capabilities=capabilities
-            )
+            else webdriver.Firefox(options=options)
         )
 
     @staticmethod

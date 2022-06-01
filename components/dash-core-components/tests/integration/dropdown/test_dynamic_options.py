@@ -67,3 +67,17 @@ def test_dddo002_array_comma_value(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#react-select-2--value-0", "San Francisco, CA\n ")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_dddo003_value_no_options(dash_dcc):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Dropdown(value="foobar", id="dropdown"),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    assert dash_dcc.get_logs() == []
+    dash_dcc.wait_for_element("#dropdown")

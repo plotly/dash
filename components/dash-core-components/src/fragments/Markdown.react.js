@@ -87,6 +87,7 @@ export default class DashMarkdown extends Component {
             highlight_config,
             loading_state,
             dangerously_allow_html,
+            link_target,
             mathjax,
             children,
             dedent,
@@ -107,6 +108,20 @@ export default class DashMarkdown extends Component {
                     )}
                 />
             ),
+            dashMathjax: props => (
+                <Math tex={props.value} inline={props.inline} />
+            ),
+        };
+
+        const regexMath = value => {
+            const newValue = value.replace(
+                /(\${1,2})((?:\\.|[^$])+)\1/g,
+                function (m, tag, src) {
+                    const inline = tag.length === 1 || src.indexOf('\n') === -1;
+                    return `<dashMathjax value='${src}' inline='${inline}'/>`;
+                }
+            );
+            return newValue;
         };
 
         return (
@@ -134,6 +149,7 @@ export default class DashMarkdown extends Component {
                 <Markdown
                     source={displayText}
                     escapeHtml={!dangerously_allow_html}
+                    linkTarget={link_target}
                     plugins={mathjax ? [RemarkMath] : []}
                     renderers={{
                         math: props => (
@@ -149,7 +165,11 @@ export default class DashMarkdown extends Component {
                                 props.value
                             ) : (
                                 <JsxParser
-                                    jsx={props.value}
+                                    jsx={
+                                        mathjax
+                                            ? regexMath(props.value)
+                                            : props.value
+                                    }
                                     components={componentTransforms}
                                     renderInWrapper={false}
                                 />

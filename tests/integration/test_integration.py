@@ -2,6 +2,7 @@ import datetime
 import flask
 import json
 import pytest
+import re
 
 from bs4 import BeautifulSoup
 
@@ -44,7 +45,7 @@ def test_inin004_wildcard_data_attributes(dash_duo):
 
     assert actual == expected, "all attrs are included except None values"
 
-    assert not dash_duo.get_logs()
+    assert dash_duo.get_logs() == []
 
 
 def test_inin005_no_props_component(dash_duo):
@@ -56,13 +57,18 @@ def test_inin005_no_props_component(dash_duo):
             <h1>No Props Component</h1>
         """
             )
-        ]
+        ],
+        id="app",
     )
 
     dash_duo.start_server(app)
 
-    assert not dash_duo.get_logs()
-    dash_duo.percy_snapshot(name="no-props-component")
+    assert dash_duo.get_logs() == []
+    assert dash_duo.find_element("h1").text == "No Props Component"
+
+    inner = dash_duo.find_element("#app").get_property("innerHTML")
+    expected = "<div> <h1>No Props Component</h1> </div>"
+    assert re.sub("\\s+", " ", inner) == expected
 
 
 def test_inin006_flow_component(dash_duo):
@@ -168,9 +174,10 @@ def test_inin008_index_customization(dash_duo):
 
     assert dash_duo.find_element("#custom-header").text == "My custom header"
     assert dash_duo.find_element("#custom-footer").text == "My custom footer"
+    assert dash_duo.find_element("#app").text == "Dash app"
     assert dash_duo.wait_for_element("#add").text == "Got added"
 
-    dash_duo.percy_snapshot("custom-index")
+    assert dash_duo.get_logs() == []
 
 
 def test_inin009_invalid_index_string(dash_duo):

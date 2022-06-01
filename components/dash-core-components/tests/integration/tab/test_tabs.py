@@ -83,12 +83,16 @@ def test_tabs003_without_children_undefined(dash_dcc):
             html.H1("Dash Tabs component demo"),
             dcc.Tabs(id="tabs", value="tab-1"),
             html.Div(id="tabs-content"),
-        ]
+        ],
+        id="app",
     )
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_element("#tabs-content")
-    dash_dcc.percy_snapshot("Core Tabs component with children undefined")
+    assert dash_dcc.find_element("#app").text == "Dash Tabs component demo"
+    assert dash_dcc.find_element(".tab-content").get_property("innerHTML") == ""
+    assert dash_dcc.find_element("#tabs").get_property("innerHTML") == ""
+    assert dash_dcc.find_element("#tabs-content").get_property("innerHTML") == ""
     assert dash_dcc.get_logs() == []
 
 
@@ -120,7 +124,6 @@ def test_tabs004_without_value(dash_dcc):
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#tabs-content", "Default selected Tab content 1")
-    dash_dcc.percy_snapshot("Core Tab 1 should be selected by default")
     assert dash_dcc.get_logs() == []
 
 
