@@ -22,10 +22,6 @@ def get_app(app):
         id="multi_layout2",
     )
 
-    # removes the error page from previous test
-    if "pages_error.no_layout_page" in dash.page_registry:
-        del dash.page_registry["pages_error.no_layout_page"]
-
     app.layout = html.Div(
         [
             html.Div(

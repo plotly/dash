@@ -27,10 +27,6 @@ def get_app(path1="/", path2="/layout2"):
         id="multi_layout2",
     )
 
-    # removes the error page from previous test
-    if "pages_error.no_layout_page" in dash.page_registry:
-        del dash.page_registry["pages_error.no_layout_page"]
-
     app.layout = html.Div(
         [
             html.Div(
@@ -178,5 +174,8 @@ def test_pala004_no_layout_exception():
 
     with pytest.raises(NoLayoutException) as err:
         Dash(__name__, use_pages=True, pages_folder="pages_error")
+
+    # clean up after this test, so the broken entry doesn't affect other pages tests
+    del dash.page_registry["pages_error.no_layout_page"]
 
     assert error_msg in err.value.args[0]
