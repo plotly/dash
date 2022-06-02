@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 `dangerously_allow_html=True` + `mathjax=True` works in some cases, and in some cases not.
 - [#2047](https://github.com/plotly/dash/pull/2047) Fix bug [#1979](https://github.com/plotly/dash/issues/1979) in which `DASH_DEBUG` as enviroment variable gets ignored.
 - [#2065](https://github.com/plotly/dash/pull/2065) Fix bug [#2064](https://github.com/plotly/dash/issues/2064) rendering of `dcc.Dropdown` with a value but no options.
+- [#2070](https://github.com/plotly/dash/pull/2070) Fix bug [#2066](https://github.com/plotly/dash/issues/2066) nested types triggering maximum call stack error when building typescript components.
 
 ### Changed
 

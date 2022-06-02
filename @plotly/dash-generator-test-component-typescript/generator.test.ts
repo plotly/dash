@@ -215,6 +215,21 @@ describe('Test Typescript component metadata generation', () => {
                 });
             }
         );
+
+        test(
+            'Nested props to any', () => {
+                expect(
+                    R.path([
+                        'TypeScriptComponent',
+                        'props',
+                        'nested',
+                        'type',
+                        'value',
+                        'nested',
+                        'name'
+                    ], metadata)).toBe('any')
+            }
+        )
     });
 
     describe('Test component comments', () => {
