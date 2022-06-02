@@ -63,7 +63,6 @@ def test_dvui002_disable_ui_config(dash_duo):
     assert not dash_duo.find_elements(
         ".dash-debug-menu"
     ), "the debug menu icon should NOT show up"
-    dash_duo.percy_snapshot("devtools - disable dev tools UI - no debug menu")
 
 
 def test_dvui003_callback_graph(dash_duo):

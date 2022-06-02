@@ -59,11 +59,11 @@ def test_grrs001_graph(dash_dcc, responsive, autosize, height, width, is_respons
         [
             html.Div(
                 [
-                    "responsive: {}, ".format(responsive),
-                    "autosize: {}, ".format(autosize),
-                    "height: {}, ".format(height),
-                    "width: {}, ".format(width),
-                    "is_responsive: {}".format(is_responsive),
+                    f"responsive: {responsive}, ",
+                    f"autosize: {autosize}, ",
+                    f"height: {height}, ",
+                    f"width: {width}, ",
+                    f"is_responsive: {is_responsive}",
                 ]
             ),
             html.Div(id="card", style=card_style, children=[header, graph]),

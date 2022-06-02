@@ -4,17 +4,23 @@ import Registry from './registry';
 import {propTypeErrorHandler} from './exceptions';
 import {
     addIndex,
+    assoc,
+    assocPath,
     concat,
     dissoc,
     equals,
     isEmpty,
     isNil,
+    has,
     keys,
     map,
     mergeRight,
     pick,
     pickBy,
+    pipe,
     propOr,
+    path as rpath,
+    pathOr,
     type
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
@@ -65,6 +71,15 @@ function createElement(element, props, extraProps, children) {
         return React.createElement(element, allProps, ...children);
     }
     return React.createElement(element, allProps, children);
+}
+
+function isDryComponent(obj) {
+    return (
+        type(obj) === 'Object' &&
+        has('type', obj) &&
+        has('namespace', obj) &&
+        has('props', obj)
+    );
 }
 
 const TreeContainer = memo(props => (
@@ -180,6 +195,32 @@ class BaseTreeContainer extends Component {
               );
     }
 
+    wrapChildrenProp(node, childrenProp) {
+        if (Array.isArray(node)) {
+            return node.map((n, i) =>
+                isDryComponent(n)
+                    ? this.createContainer(
+                          this.props,
+                          n,
+                          concat(this.props._dashprivate_path, [
+                              'props',
+                              ...childrenProp,
+                              i
+                          ])
+                      )
+                    : n
+            );
+        }
+        if (!isDryComponent(node)) {
+            return node;
+        }
+        return this.createContainer(
+            this.props,
+            node,
+            concat(this.props._dashprivate_path, ['props', ...childrenProp])
+        );
+    }
+
     getComponent(_dashprivate_layout, children, loading_state, setProps) {
         const {_dashprivate_config, _dashprivate_dispatch, _dashprivate_error} =
             this.props;
@@ -195,7 +236,86 @@ class BaseTreeContainer extends Component {
 
         const element = Registry.resolve(_dashprivate_layout);
 
-        const props = dissoc('children', _dashprivate_layout.props);
+        // Hydrate components props
+        const childrenProps = pathOr(
+            [],
+            [
+                'children_props',
+                _dashprivate_layout.namespace,
+                _dashprivate_layout.type
+            ],
+            _dashprivate_config
+        );
+        const props = pipe(
+            dissoc('children'),
+            ...childrenProps
+                .map(childrenProp => {
+                    if (childrenProp.includes('.')) {
+                        let path = childrenProp.split('.');
+                        let node;
+                        let nodeValue;
+                        if (childrenProp.includes('[]')) {
+                            let frontPath = [],
+                                backPath = [],
+                                found = false;
+                            path.forEach(p => {
+                                if (!found) {
+                                    if (p.includes('[]')) {
+                                        found = true;
+                                        frontPath.push(p.replace('[]', ''));
+                                    } else {
+                                        frontPath.push(p);
+                                    }
+                                } else {
+                                    backPath.push(p);
+                                }
+                            });
+
+                            node = rpath(frontPath, _dashprivate_layout.props);
+                            if (node === undefined) {
+                                return;
+                            }
+                            if (!node.length) {
+                                return assocPath(frontPath, node);
+                            }
+                            const firstNode = rpath(backPath, node[0]);
+                            if (!firstNode) {
+                                return assocPath(frontPath, node);
+                            }
+                            nodeValue = node.map((element, i) => {
+                                const elementPath = concat(
+                                    frontPath,
+                                    concat([i], backPath)
+                                );
+                                return assocPath(
+                                    backPath,
+                                    this.wrapChildrenProp(
+                                        rpath(backPath, element),
+                                        elementPath
+                                    ),
+                                    element
+                                );
+                            });
+                            path = frontPath;
+                        } else {
+                            node = rpath(path, _dashprivate_layout.props);
+                            if (node === undefined) {
+                                return;
+                            }
+                            nodeValue = this.wrapChildrenProp(node, path);
+                        }
+                        return assocPath(path, nodeValue);
+                    }
+                    const node = _dashprivate_layout.props[childrenProp];
+                    if (node !== undefined) {
+                        return assoc(
+                            childrenProp,
+                            this.wrapChildrenProp(node, [childrenProp])
+                        );
+                    }
+                })
+                .filter(e => e !== undefined)
+        )(_dashprivate_layout.props);
 
         if (type(props.id) === 'Object') {
             // Turn object ids (for wildcards) into unique strings.
