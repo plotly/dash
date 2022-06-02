@@ -27,6 +27,10 @@ def get_app(path1="/", path2="/layout2"):
         id="multi_layout2",
     )
 
+    # removes the error page from previous test
+    if "pages_error.no_layout_page" in dash.page_registry:
+        del dash.page_registry["pages_error.no_layout_page"]
+
     app.layout = html.Div(
         [
             html.Div(
@@ -170,7 +174,7 @@ def test_pala003_meta_tags_custom(dash_duo):
 
 
 def test_pala004_no_layout_exception():
-    error_msg = 'No layout found in module pages_error.page1\nA variable or a function named "layout" is required.'
+    error_msg = 'No layout found in module pages_error.no_layout_page\nA variable or a function named "layout" is required.'
 
     with pytest.raises(NoLayoutException) as err:
         Dash(__name__, use_pages=True, pages_folder="pages_error")

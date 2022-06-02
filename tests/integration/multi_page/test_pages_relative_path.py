@@ -22,6 +22,10 @@ def get_app(app):
         id="multi_layout2",
     )
 
+    # removes the error page from previous test
+    if "pages_error.no_layout_page" in dash.page_registry:
+        del dash.page_registry["pages_error.no_layout_page"]
+
     app.layout = html.Div(
         [
             html.Div(
@@ -46,7 +50,6 @@ def get_app(app):
 def test_pare001_relative_path(dash_duo):
 
     dash_duo.start_server(get_app(Dash(__name__, use_pages=True)))
-
     for page in dash.page_registry.values():
         dash_duo.find_element("#" + page["id"]).click()
         dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
