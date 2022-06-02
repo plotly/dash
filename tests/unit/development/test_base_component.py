@@ -423,6 +423,22 @@ def test_debc025_iter():
     assert len(keys) == len(keys2), "iteration produces no extra keys"
 
 
+def test_debc026_component_not_children():
+    children = [Component(id="a"), html.Div(id="b"), "c", 1]
+    for i in range(len(children)):
+        # cycle through each component in each position
+        children = children[1:] + [children[0]]
+
+        # use html.Div because only real components accept positional args
+        html.Div(children)
+        # the first arg is children, and a single component works there
+        html.Div(children[0], id="x")
+
+        with pytest.raises(TypeError):
+            # If you forget the `[]` around children you get this:
+            html.Div(children[0], children[1], children[2], children[3])
+
+
 def test_debc027_component_error_message():
     with pytest.raises(TypeError) as e:
         Component(asdf=True)
