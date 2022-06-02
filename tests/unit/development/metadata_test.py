@@ -87,6 +87,7 @@ Keyword arguments:
 
 - optionalUnion (string | number; optional)"""
     _children_props = ['optionalNode', 'optionalElement']
+    _base_nodes = ['optionalNode', 'optionalElement', 'children']
     _namespace = 'TableComponents'
     _type = 'Table'
     @_explicitize_args

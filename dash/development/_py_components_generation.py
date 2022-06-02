@@ -6,7 +6,7 @@ from textwrap import fill
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
-from ._collect_nodes import collect_nodes
+from ._collect_nodes import collect_nodes, filter_base_nodes
 from .base_component import Component
 
 
@@ -51,6 +51,7 @@ def generate_class_string(
     c = '''class {typename}(Component):
     """{docstring}"""
     _children_props = {children_props}
+    _base_nodes = {base_nodes}
     _namespace = '{namespace}'
     _type = '{typename}'
     @_explicitize_args
@@ -121,6 +122,7 @@ def generate_class_string(
 
     default_argtext += ", ".join(default_arglist + ["**kwargs"])
     required_args = required_props(filtered_props)
+    nodes = collect_nodes({k: v for k, v in props.items() if k != "children"})
     return c.format(
         typename=typename,
         namespace=namespace,
@@ -131,9 +133,8 @@ def generate_class_string(
         default_argtext=default_argtext,
         argtext=argtext,
         required_props=required_args,
-        children_props=collect_nodes(
-            {k: v for k, v in props.items() if k != "children"}
-        ),
+        children_props=nodes,
+        base_nodes=filter_base_nodes(nodes) + ["children"],
     )
 
 

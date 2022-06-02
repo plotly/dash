@@ -51,3 +51,7 @@ def collect_nodes(metadata, base="", nodes=None):
             nodes = collect_union(t_value["value"], key, nodes)
 
     return nodes
+
+
+def filter_base_nodes(nodes):
+    return [n for n in nodes if not any(e in n for e in ("[]", "."))]

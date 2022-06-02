@@ -86,10 +86,10 @@ def test_rdcap001_component_as_prop(dash_duo):
                 shapeEl={
                     "header": [
                         Div("one", id="first-in-shape"),
-                        Div("two", id="second-in-shape")
+                        Div("two", id="second-in-shape"),
                     ]
-                }
-            )
+                },
+            ),
         ]
     )
 
