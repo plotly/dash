@@ -56,8 +56,7 @@ Dropdown.propTypes = {
                 /**
                  * The option's label
                  */
-                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                    .isRequired,
+                label: PropTypes.node.isRequired,
 
                 /**
                  * The value of the option. This value

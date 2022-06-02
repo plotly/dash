@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 
 - [#2049](https://github.com/plotly/dash/pull/2043) Added `wait_for_class_to_equal` and `wait_for_contains_class` methods to `dash.testing`
+- [#1965](https://github.com/plotly/dash/pull/1965) Add component as props.
 
 ## [2.4.1] - 2022-05-11
 
