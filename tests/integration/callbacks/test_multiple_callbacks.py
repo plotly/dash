@@ -9,7 +9,9 @@ from dash.exceptions import PreventUpdate
 
 def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
     app = Dash(__name__)
-    app.layout = html.Div([html.Button(id="input", n_clicks=0), html.Div(id="output")])
+    app.layout = html.Div(
+        [html.Button("Click", id="input", n_clicks=0), html.Div(id="output")]
+    )
 
     call_count = Value("i", 0)
 
@@ -29,10 +31,7 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
     assert dash_duo.find_element("#output").text == "3", "clicked button 3 times"
 
     assert not dash_duo.redux_state_is_loading
-
-    dash_duo.percy_snapshot(
-        name="test_callbacks_called_multiple_times_and_out_of_order"
-    )
+    assert dash_duo.get_logs() == []
 
 
 def test_cbmt002_canceled_intermediate_callback(dash_duo):

@@ -20,7 +20,6 @@ from dash.testing.errors import (
 )
 from dash.testing import wait
 
-
 logger = logging.getLogger(__name__)
 
 

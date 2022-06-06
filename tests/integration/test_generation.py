@@ -31,7 +31,8 @@ def test_gene001_simple_callback(dash_duo):
                 id="typescript-class", required_string="TypeScriptClass"
             ),
             StandardComponent(id="ts-standard", children="jsx"),
-        ]
+        ],
+        id="outer",
     )
 
     dash_duo.start_server(app)
@@ -41,14 +42,20 @@ def test_gene001_simple_callback(dash_duo):
     assert dash_duo.wait_for_element("#typescript").text == "TypeScript"
     assert dash_duo.wait_for_element("#typescript-class").text == "TypeScriptClass"
     assert dash_duo.wait_for_element("#ts-standard").text == "jsx"
-
-    dash_duo.percy_snapshot(name="gene001-simple-callback")
+    expected_html = (
+        '<div id="standard">Standard</div>'
+        '<div id="nested">Nested</div>'
+        '<div id="typescript">TypeScript</div>'
+        '<div class="typescript-class-component" id="typescript-class">TypeScriptClass</div>'
+        '<div id="ts-standard">jsx</div>'
+    )
+    assert dash_duo.find_element("#outer").get_property("innerHTML") == expected_html
 
 
 def test_gene002_arbitrary_resources(dash_duo):
     app = Dash(__name__)
 
-    app.layout = Div([Button(id="btn"), Div(id="container")])
+    app.layout = Div([Button("Click", id="btn"), Div(id="container")])
 
     @app.callback(Output("container", "children"), [Input("btn", "n_clicks")])
     def update_container(n_clicks):
@@ -67,7 +74,7 @@ def test_gene002_arbitrary_resources(dash_duo):
     )
 
     dash_duo.wait_for_element("#btn").click()
-    assert dash_duo.wait_for_element("#styled").text == "Styled"
+    dash_duo.wait_for_text_to_equal("#styled", "Styled")
 
     WebDriverWait(dash_duo.driver, 10).until(
         lambda _: dash_duo.driver.execute_script(
@@ -75,8 +82,6 @@ def test_gene002_arbitrary_resources(dash_duo):
         )
         is True,
     )
-
-    dash_duo.percy_snapshot(name="gene002-arbitrary-resource")
 
 
 def test_gene003_max_props():

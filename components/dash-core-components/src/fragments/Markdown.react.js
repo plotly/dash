@@ -108,6 +108,20 @@ export default class DashMarkdown extends Component {
                     )}
                 />
             ),
+            dashMathjax: props => (
+                <Math tex={props.value} inline={props.inline} />
+            ),
+        };
+
+        const regexMath = value => {
+            const newValue = value.replace(
+                /(\${1,2})((?:\\.|[^$])+)\1/g,
+                function (m, tag, src) {
+                    const inline = tag.length === 1 || src.indexOf('\n') === -1;
+                    return `<dashMathjax value='${src}' inline='${inline}'/>`;
+                }
+            );
+            return newValue;
         };
 
         return (
@@ -151,7 +165,11 @@ export default class DashMarkdown extends Component {
                                 props.value
                             ) : (
                                 <JsxParser
-                                    jsx={props.value}
+                                    jsx={
+                                        mathjax
+                                            ? regexMath(props.value)
+                                            : props.value
+                                    }
                                     components={componentTransforms}
                                     renderInWrapper={false}
                                 />

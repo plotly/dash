@@ -2,6 +2,33 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.5.0] - 2022-06-06
+
+### Added
+
+- [#1947](https://github.com/plotly/dash/pull/1947)  Added `pages` - a better way to build multi-page apps. For more information see the [forum post.](https://community.plotly.com/t/introducing-dash-pages-a-dash-2-x-feature-preview/57775)
+- [#1965](https://github.com/plotly/dash/pull/1965) Add component as props.
+- [#2049](https://github.com/plotly/dash/pull/2043) Added `wait_for_class_to_equal` and `wait_for_contains_class` methods to `dash.testing`
+
+### Changed
+
+- [#2050](https://github.com/plotly/dash/pull/2050) Changed `find_element` and `find_elements` to accept an `attribute` argument that aligns with Selenium's `By` class, allowing you to search elements by other attributes. Default value is `CSS_SELECTOR` to maintain backwards compatibility with previous `find_elements`.
+
+### Fixed
+
+- [#2043](https://github.com/plotly/dash/pull/2043) Fix bug 
+[#2003](https://github.com/plotly/dash/issues/2003) in which 
+`dangerously_allow_html=True` + `mathjax=True` works in some cases, and in some cases not.
+- [#2065](https://github.com/plotly/dash/pull/2065) Fix bug [#2064](https://github.com/plotly/dash/issues/2064) rendering of `dcc.Dropdown` with a value but no options.
+- [#2047](https://github.com/plotly/dash/pull/2047) Fix bug [#1979](https://github.com/plotly/dash/issues/1979) in which `DASH_DEBUG` as environment variable gets ignored.
+- [#2070](https://github.com/plotly/dash/pull/2070) Fix bug [#2066](https://github.com/plotly/dash/issues/2066) nested types triggering maximum call stack error when building typescript components.
+
+## [2.4.1] - 2022-05-11
+
+### Fixed
+
+- Fix [#2045](https://github.com/plotly/dash/issues/2045) import error when using pytest but `dash[testing]` is not installed.
+
 ## [2.4.0] - 2022-05-11
 
 ### Added
