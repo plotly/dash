@@ -98,6 +98,11 @@ class Dd(Component):
     - title (string; optional):
         Text to be displayed in a tooltip when hovering over the element."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_html_components"
+    _type = "Dd"
+
     @_explicitize_args
     def __init__(
         self,
@@ -145,8 +150,6 @@ class Dd(Component):
             "tabIndex",
             "title",
         ]
-        self._type = "Dd"
-        self._namespace = "dash_html_components"
         self._valid_wildcard_attributes = ["data-", "aria-"]
         self.available_properties = [
             "children",

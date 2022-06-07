@@ -313,6 +313,11 @@ class Graph(Component):
     - style (dict; optional):
         Generic style overrides on the plot div."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Graph"
+
     @_explicitize_args
     def __init__(
         self,
@@ -358,8 +363,6 @@ class Graph(Component):
             "selectedData",
             "style",
         ]
-        self._type = "Graph"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "id",

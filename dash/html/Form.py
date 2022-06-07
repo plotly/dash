@@ -132,6 +132,11 @@ class Form(Component):
     - title (string; optional):
         Text to be displayed in a tooltip when hovering over the element."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_html_components"
+    _type = "Form"
+
     @_explicitize_args
     def __init__(
         self,
@@ -197,8 +202,6 @@ class Form(Component):
             "target",
             "title",
         ]
-        self._type = "Form"
-        self._namespace = "dash_html_components"
         self._valid_wildcard_attributes = ["data-", "aria-"]
         self.available_properties = [
             "children",

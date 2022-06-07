@@ -32,6 +32,11 @@ class Interval(Component):
     - n_intervals (number; default 0):
         Number of times the interval has passed."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Interval"
+
     @_explicitize_args
     def __init__(
         self,
@@ -49,8 +54,6 @@ class Interval(Component):
             "max_intervals",
             "n_intervals",
         ]
-        self._type = "Interval"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "id",

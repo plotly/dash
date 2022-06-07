@@ -1119,6 +1119,11 @@ class DataTable(Component):
         kept after the browser quit. session: window.sessionStorage, data
         is cleared once the browser quit."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_table"
+    _type = "DataTable"
+
     @_explicitize_args
     def __init__(
         self,
@@ -1280,8 +1285,6 @@ class DataTable(Component):
             "persisted_props",
             "persistence_type",
         ]
-        self._type = "DataTable"
-        self._namespace = "dash_table"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "data",

@@ -110,6 +110,11 @@ class Canvas(Component):
         legacy attribute, in which case the CSS width property should be
         used instead."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_html_components"
+    _type = "Canvas"
+
     @_explicitize_args
     def __init__(
         self,
@@ -161,8 +166,6 @@ class Canvas(Component):
             "title",
             "width",
         ]
-        self._type = "Canvas"
-        self._namespace = "dash_html_components"
         self._valid_wildcard_attributes = ["data-", "aria-"]
         self.available_properties = [
             "children",

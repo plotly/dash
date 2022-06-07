@@ -59,6 +59,11 @@ class ConfirmDialogProvider(Component):
     - submit_n_clicks_timestamp (number; default -1):
         Last time the submit button was clicked."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "ConfirmDialogProvider"
+
     @_explicitize_args
     def __init__(
         self,
@@ -84,8 +89,6 @@ class ConfirmDialogProvider(Component):
             "submit_n_clicks",
             "submit_n_clicks_timestamp",
         ]
-        self._type = "ConfirmDialogProvider"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "children",

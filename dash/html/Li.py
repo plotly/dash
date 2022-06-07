@@ -102,6 +102,11 @@ class Li(Component):
         Defines a default value which will be displayed in the element on
         page load."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_html_components"
+    _type = "Li"
+
     @_explicitize_args
     def __init__(
         self,
@@ -151,8 +156,6 @@ class Li(Component):
             "title",
             "value",
         ]
-        self._type = "Li"
-        self._namespace = "dash_html_components"
         self._valid_wildcard_attributes = ["data-", "aria-"]
         self.available_properties = [
             "children",

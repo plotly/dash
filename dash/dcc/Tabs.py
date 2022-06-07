@@ -101,6 +101,11 @@ class Tabs(Component):
     - vertical (boolean; default False):
         Renders the tabs vertically (on the side)."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Tabs"
+
     @_explicitize_args
     def __init__(
         self,
@@ -140,8 +145,6 @@ class Tabs(Component):
             "value",
             "vertical",
         ]
-        self._type = "Tabs"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "children",

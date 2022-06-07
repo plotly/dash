@@ -129,6 +129,11 @@ class Img(Component):
         legacy attribute, in which case the CSS width property should be
         used instead."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_html_components"
+    _type = "Img"
+
     @_explicitize_args
     def __init__(
         self,
@@ -194,8 +199,6 @@ class Img(Component):
             "useMap",
             "width",
         ]
-        self._type = "Img"
-        self._namespace = "dash_html_components"
         self._valid_wildcard_attributes = ["data-", "aria-"]
         self.available_properties = [
             "children",
