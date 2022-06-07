@@ -38,6 +38,11 @@ class Download(Component):
         Default value for type, used when not set as part of the data
         property."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Download"
+
     @_explicitize_args
     def __init__(
         self,
@@ -48,8 +53,6 @@ class Download(Component):
         **kwargs
     ):
         self._prop_names = ["id", "base64", "data", "type"]
-        self._type = "Download"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = ["id", "base64", "data", "type"]
         self.available_wildcard_properties = []

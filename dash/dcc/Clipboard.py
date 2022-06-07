@@ -49,6 +49,11 @@ class Clipboard(Component):
     - title (string; optional):
         The text shown as a tooltip when hovering over the copy icon."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Clipboard"
+
     @_explicitize_args
     def __init__(
         self,
@@ -72,8 +77,6 @@ class Clipboard(Component):
             "target_id",
             "title",
         ]
-        self._type = "Clipboard"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "id",

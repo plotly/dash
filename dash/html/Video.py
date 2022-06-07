@@ -139,6 +139,11 @@ class Video(Component):
         legacy attribute, in which case the CSS width property should be
         used instead."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_html_components"
+    _type = "Video"
+
     @_explicitize_args
     def __init__(
         self,
@@ -206,8 +211,6 @@ class Video(Component):
             "title",
             "width",
         ]
-        self._type = "Video"
-        self._namespace = "dash_html_components"
         self._valid_wildcard_attributes = ["data-", "aria-"]
         self.available_properties = [
             "children",

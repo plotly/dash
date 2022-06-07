@@ -77,6 +77,11 @@ class Tooltip(Component):
         with higher values will be displayed on top of components with
         lower values."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Tooltip"
+
     @_explicitize_args
     def __init__(
         self,
@@ -110,8 +115,6 @@ class Tooltip(Component):
             "targetable",
             "zindex",
         ]
-        self._type = "Tooltip"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "children",

@@ -60,6 +60,11 @@ class Loading(Component):
         Property that determines which spinner to show one of 'graph',
         'cube', 'circle', 'dot', or 'default'."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Loading"
+
     @_explicitize_args
     def __init__(
         self,
@@ -89,8 +94,6 @@ class Loading(Component):
             "style",
             "type",
         ]
-        self._type = "Loading"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "children",

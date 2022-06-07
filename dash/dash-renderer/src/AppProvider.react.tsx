@@ -7,7 +7,6 @@ import AppContainer from './AppContainer.react';
 
 const AppProvider = ({hooks}: any) => {
     const [{store}] = useState(() => new Store());
-
     return (
         <Provider store={store}>
             <AppContainer hooks={hooks} />

@@ -127,6 +127,11 @@ class Link(Component):
     - type (string; optional):
         Defines the type of the element."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_html_components"
+    _type = "Link"
+
     @_explicitize_args
     def __init__(
         self,
@@ -192,8 +197,6 @@ class Link(Component):
             "title",
             "type",
         ]
-        self._type = "Link"
-        self._namespace = "dash_html_components"
         self._valid_wildcard_attributes = ["data-", "aria-"]
         self.available_properties = [
             "children",

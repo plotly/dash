@@ -62,6 +62,11 @@ class Tab(Component):
     - value (string; optional):
         Value for determining which Tab is currently selected."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Tab"
+
     @_explicitize_args
     def __init__(
         self,
@@ -93,8 +98,6 @@ class Tab(Component):
             "style",
             "value",
         ]
-        self._type = "Tab"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "children",

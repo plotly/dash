@@ -31,6 +31,11 @@ class Location(Component):
     - search (string; optional):
         search in window.location - e.g., \"?myargument=1\"."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Location"
+
     @_explicitize_args
     def __init__(
         self,
@@ -43,8 +48,6 @@ class Location(Component):
         **kwargs
     ):
         self._prop_names = ["id", "hash", "href", "pathname", "refresh", "search"]
-        self._type = "Location"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "id",

@@ -236,6 +236,11 @@ class Input(Component):
         kept after the browser quit. session: window.sessionStorage, data
         is cleared once the browser quit."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Input"
+
     @_explicitize_args
     def __init__(
         self,
@@ -313,8 +318,6 @@ class Input(Component):
             "persisted_props",
             "persistence_type",
         ]
-        self._type = "Input"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "value",

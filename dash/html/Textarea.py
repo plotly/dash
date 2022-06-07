@@ -146,6 +146,11 @@ class Textarea(Component):
     - wrap (string; optional):
         Indicates whether the text should be wrapped."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_html_components"
+    _type = "Textarea"
+
     @_explicitize_args
     def __init__(
         self,
@@ -221,8 +226,6 @@ class Textarea(Component):
             "title",
             "wrap",
         ]
-        self._type = "Textarea"
-        self._namespace = "dash_html_components"
         self._valid_wildcard_attributes = ["data-", "aria-"]
         self.available_properties = [
             "children",

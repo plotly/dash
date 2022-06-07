@@ -36,18 +36,7 @@
                 "name": "exact",
                 "value": {
                   "label": {
-                    "name": "union",
-                    "value": [
-                      {
-                        "name": "string"
-                      },
-                      {
-                        "name": "number"
-                      },
-                      {
-                        "name": "bool"
-                      }
-                    ],
+                    "name": "node",
                     "description": "The option's label",
                     "required": true
                   },
@@ -1527,15 +1516,7 @@
                 "name": "exact",
                 "value": {
                   "label": {
-                    "name": "union",
-                    "value": [
-                      {
-                        "name": "string"
-                      },
-                      {
-                        "name": "number"
-                      }
-                    ],
+                    "name": "node",
                     "description": "The option's label",
                     "required": true
                   },
@@ -3709,18 +3690,7 @@
                 "name": "exact",
                 "value": {
                   "label": {
-                    "name": "union",
-                    "value": [
-                      {
-                        "name": "string"
-                      },
-                      {
-                        "name": "number"
-                      },
-                      {
-                        "name": "bool"
-                      }
-                    ],
+                    "name": "node",
                     "description": "The option's label",
                     "required": true
                   },

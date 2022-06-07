@@ -68,6 +68,23 @@ class contains_text:
             return False
 
 
+class contains_class:
+    def __init__(self, selector, classname):
+        self.selector = selector
+        self.classname = classname
+
+    def __call__(self, driver):
+        try:
+            elem = driver.find_element(By.CSS_SELECTOR, self.selector)
+            classname = elem.get_attribute("class")
+            logger.debug(
+                "contains class {%s} => expected %s", classname, self.classname
+            )
+            return self.classname in str(classname).split(" ")
+        except WebDriverException:
+            return False
+
+
 class text_to_equal:
     def __init__(self, selector, text):
         self.selector = selector
@@ -97,5 +114,22 @@ class style_to_equal:
             val = elem.value_of_css_property(self.style)
             logger.debug("style to equal {%s} => expected %s", val, self.val)
             return val == self.val
+        except WebDriverException:
+            return False
+
+
+class class_to_equal:
+    def __init__(self, selector, classname):
+        self.selector = selector
+        self.classname = classname
+
+    def __call__(self, driver):
+        try:
+            elem = driver.find_element(By.CSS_SELECTOR, self.selector)
+            classname = elem.get_attribute("class")
+            logger.debug(
+                "class to equal {%s} => expected %s", classname, self.classname
+            )
+            return str(classname) == self.classname
         except WebDriverException:
             return False

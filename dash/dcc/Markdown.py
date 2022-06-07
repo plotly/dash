@@ -69,6 +69,11 @@ class Markdown(Component):
     - style (dict; optional):
         User-defined inline styles for the rendered Markdown."""
 
+    _children_props = []
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Markdown"
+
     @_explicitize_args
     def __init__(
         self,
@@ -96,8 +101,6 @@ class Markdown(Component):
             "mathjax",
             "style",
         ]
-        self._type = "Markdown"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "children",

@@ -27,7 +27,7 @@ class Dropdown(Component):
         - disabled (boolean; optional):
             If True, this option is disabled and cannot be selected.
 
-        - label (string | number; required):
+        - label (a list of or a singular dash component, string or number; required):
             The option's label.
 
         - title (string; optional):
@@ -117,6 +117,11 @@ class Dropdown(Component):
         kept after the browser quit. session: window.sessionStorage, data
         is cleared once the browser quit."""
 
+    _children_props = ["options[].label"]
+    _base_nodes = ["children"]
+    _namespace = "dash_core_components"
+    _type = "Dropdown"
+
     @_explicitize_args
     def __init__(
         self,
@@ -156,8 +161,6 @@ class Dropdown(Component):
             "persisted_props",
             "persistence_type",
         ]
-        self._type = "Dropdown"
-        self._namespace = "dash_core_components"
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "options",

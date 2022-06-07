@@ -22,7 +22,7 @@ def test_slsh001_rangeslider_shorthand_props(dash_dcc):
     for t in TEST_CASES:
         min, max, steps = t
         marks = {
-            i: "Label {}".format(i) if i == 1 else str(i)
+            i: f"Label {i}" if i == 1 else str(i)
             for i in range(math.ceil(min), math.floor(max))
         }
 
