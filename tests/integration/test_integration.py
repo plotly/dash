@@ -133,6 +133,29 @@ def test_inin007_meta_tags(dash_duo):
         assert meta_tag.get_attribute("content") == meta_info["content"]
 
 
+def test_inin007b_change_viewport_meta_tag(dash_duo):
+    """
+    As of dash 2.5 the default viewport meta tag is:
+        [{"name": "viewport", "content": "width=device-width, initial-scale=1"}]
+    Test verifies that this feature can be disabled by using an empty viewport tag.
+    """
+
+    app = Dash(meta_tags=[{"name": "viewport"}])
+
+    app.layout = html.Div(id="content")
+
+    dash_duo.start_server(app)
+
+    meta = dash_duo.find_elements("meta")
+
+    # -3 for the meta charset, http-equiv and viewport.
+    assert len(meta) == 3, "Should have 3 meta tags"
+
+    viewport_meta = meta[2]
+    assert viewport_meta.get_attribute("name") == "viewport"
+    assert viewport_meta.get_attribute("content") == ""
+
+
 def test_inin008_index_customization(dash_duo):
     app = Dash()
 
