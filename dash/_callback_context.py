@@ -170,7 +170,8 @@ class CallbackContext:
             if isinstance(g, (tuple, list)):
                 for i in g:
                     update_args_grouping(i)
-                    recursive_update(i)
+                    if not isinstance(i.get("id"), dict):
+                        recursive_update(i)
             if isinstance(g, dict):
                 for i in g.values():
                     update_args_grouping(i)

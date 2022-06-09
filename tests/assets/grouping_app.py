@@ -64,7 +64,7 @@ def grouping_app():
             html.Div(
                 [
                     dcc.Checklist(
-                        id={"id": i, "action": "done"},
+                        id={"id": i, "property": "done"},
                         options=[{"label": "", "value": "done"}],
                         style={"display": "inline"},
                     ),
