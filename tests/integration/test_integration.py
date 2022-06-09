@@ -16,7 +16,7 @@ from dash.exceptions import PreventUpdate
 from dash.testing.wait import until
 
 
-def test_inin004_wildcard_data_attributes(dash_duo):
+def test_inin003_wildcard_data_attributes(dash_duo):
     app = Dash()
     test_time = datetime.datetime(2012, 1, 10, 2, 3)
     test_date = datetime.date(test_time.year, test_time.month, test_time.day)
@@ -48,7 +48,7 @@ def test_inin004_wildcard_data_attributes(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_inin005_no_props_component(dash_duo):
+def test_inin004_no_props_component(dash_duo):
     app = Dash()
     app.layout = html.Div(
         [
@@ -71,7 +71,7 @@ def test_inin005_no_props_component(dash_duo):
     assert re.sub("\\s+", " ", inner) == expected
 
 
-def test_inin006_flow_component(dash_duo):
+def test_inin005_flow_component(dash_duo):
     app = Dash()
 
     app.layout = html.Div(
@@ -109,7 +109,7 @@ def test_inin006_flow_component(dash_duo):
     dash_duo.percy_snapshot(name="flowtype")
 
 
-def test_inin007_meta_tags(dash_duo):
+def test_inin006_meta_tags(dash_duo):
     metas = [
         {"name": "description", "content": "my dash app"},
         {"name": "custom", "content": "customized"},
@@ -133,7 +133,7 @@ def test_inin007_meta_tags(dash_duo):
         assert meta_tag.get_attribute("content") == meta_info["content"]
 
 
-def test_inin007b_change_viewport_meta_tag(dash_duo):
+def test_inin007_change_viewport_meta_tag(dash_duo):
     """
     As of dash 2.5 the default viewport meta tag is:
         [{"name": "viewport", "content": "width=device-width, initial-scale=1"}]
@@ -146,14 +146,10 @@ def test_inin007b_change_viewport_meta_tag(dash_duo):
 
     dash_duo.start_server(app)
 
-    meta = dash_duo.find_elements("meta")
+    viewport_meta = dash_duo.find_elements('meta[name="viewport"]')
 
-    # -3 for the meta charset, http-equiv and viewport.
-    assert len(meta) == 3, "Should have 3 meta tags"
-
-    viewport_meta = meta[2]
-    assert viewport_meta.get_attribute("name") == "viewport"
-    assert viewport_meta.get_attribute("content") == ""
+    assert len(viewport_meta) == 1, "Should have 1 viewport meta tags"
+    assert viewport_meta[0].get_attribute("content") == ""
 
 
 def test_inin008_index_customization(dash_duo):
