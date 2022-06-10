@@ -716,14 +716,14 @@ function gatherComponents(sources, components = {}) {
                 return null
             }
 
-            // if (isArrowFunction) {
-            //     const signature = checker.getSignaturesOfType(type, ts.SignatureKind.Call)[0];
-            //     const returnType = checker.typeToString(signature.getReturnType());
-            //     if (returnType !== 'Element') {
-            //         // Not JSX so no need to classifiy as compnent
-            //         return null;
-            //     }
-            // }
+            if (isArrowFunction) {
+                const signature = checker.getSignaturesOfType(type, ts.SignatureKind.Call)[0];
+                const returnType = checker.typeToString(signature.getReturnType());
+                if (!['Element', 'any', 'null'].includes(returnType)) {
+                    // Not JSX so no need to classifiy as compnent
+                    return null;
+                }
+            }
 
             let defaultProps = getDefaultProps(typeSymbol, source);
             const propsType = getPropsForFunctionalComponent(type);
