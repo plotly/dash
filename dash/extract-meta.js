@@ -118,13 +118,14 @@ function checkDocstring(name, value) {
 function docstringWarning(doc) {
     checkDocstring(doc.displayName, doc.description);
 
+    const exportedDisplayName = doc.exportedName || doc.displayName
     if (doc && doc.props) {
         Object.entries(doc.props || {}).forEach(([name, p]) =>
-            checkDocstring(`${doc.displayName}.${name}`, p.description)
+            checkDocstring(`${exportedDisplayName}.${name}`, p.description)
         );
     } else {
         // Soft fail
-        console.warn(`${doc.displayName} does not have any props`)
+        console.warn(`${exportedDisplayName} does not have any props`)
     }
 }
 
@@ -733,14 +734,14 @@ function gatherComponents(sources, components = {}) {
                 return null
             }
 
-            if (isArrowFunction) {
-                const signature = checker.getSignaturesOfType(type, ts.SignatureKind.Call)[0];
-                const returnType = checker.typeToString(signature.getReturnType());
-                if (returnType !== 'Element') {
-                    // Not JSX so no need to classifiy as compnent
-                    return null;
-                }
-            }
+            // if (isArrowFunction) {
+            //     const signature = checker.getSignaturesOfType(type, ts.SignatureKind.Call)[0];
+            //     const returnType = checker.typeToString(signature.getReturnType());
+            //     if (returnType !== 'Element') {
+            //         // Not JSX so no need to classifiy as compnent
+            //         return null;
+            //     }
+            // }
 
             let defaultProps = getDefaultProps(typeSymbol, source);
             const propsType = getPropsForFunctionalComponent(type);
@@ -783,10 +784,11 @@ function gatherComponents(sources, components = {}) {
                     .join('');
             }
             const doc = {
-                displayName: `${name} - ${rootExp.name}`,
+                displayName: name,
                 description,
                 props,
-                isContext
+                isContext,
+                exportedName: rootExp.name
             };
             docstringWarning(doc);
 
