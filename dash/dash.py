@@ -843,7 +843,7 @@ class Dash:
             x.get("http-equiv", "") == "X-UA-Compatible" for x in meta_tags
         )
         has_charset = any("charset" in x for x in meta_tags)
-        has_viewport = any("viewport" in x for x in meta_tags)
+        has_viewport = any(x.get("name") == "viewport" for x in meta_tags)
 
         tags = []
         if not has_ie_compat:
