@@ -726,22 +726,23 @@ function gatherComponents(sources, components = {}) {
                 }
             }
 
-            const isArrowFunction = typeSymbol.declarations && typeSymbol.declarations[0].kind === ts.SyntaxKind.ArrowFunction
+            const isArrowFunction = ts.isArrowFunction(declaration)
             const isClass = ts.isClassDeclaration(declaration);
+            const isFunction = ts.isFunctionDeclaration(declaration)
 
-            if (!isArrowFunction && !isClass) {
+            if (!isArrowFunction && !isClass && !isFunction) {
                 // we do not care about these exports
                 return null
             }
 
-            // if (isArrowFunction) {
-            //     const signature = checker.getSignaturesOfType(type, ts.SignatureKind.Call)[0];
-            //     const returnType = checker.typeToString(signature.getReturnType());
-            //     if (returnType !== 'Element') {
-            //         // Not JSX so no need to classifiy as compnent
-            //         return null;
-            //     }
-            // }
+            if (isArrowFunction || isFunction) {
+                const signature = checker.getSignaturesOfType(type, ts.SignatureKind.Call)[0];
+                const returnType = checker.typeToString(signature.getReturnType());
+                if (!['Element', 'any', 'null'].includes(returnType)) {
+                    // Not JSX so no need to classifiy as compnent
+                    return null;
+                }
+            }
 
             let defaultProps = getDefaultProps(typeSymbol, source);
             const propsType = getPropsForFunctionalComponent(type);
