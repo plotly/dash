@@ -11,7 +11,7 @@ def test_ddsv001_search_value(dash_duo):
         Output("output", "children"), inputs=[Input("dropdown", "search_value")]
     )
     def update_output(search_value):
-        return 'search_value="{}"'.format(search_value)
+        return f'search_value="{search_value}"'
 
     dash_duo.start_server(app)
 

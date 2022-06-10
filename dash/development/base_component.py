@@ -1,4 +1,5 @@
 import abc
+import collections
 import inspect
 import sys
 import uuid
@@ -16,6 +17,7 @@ class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
     registry = set()
+    children_props = collections.defaultdict(dict)
 
     @classmethod
     def get_resources(cls, resource_name):
@@ -41,6 +43,9 @@ class ComponentMeta(abc.ABCMeta):
             return component
 
         ComponentRegistry.registry.add(module)
+        ComponentRegistry.children_props[attributes.get("_namespace", module)][
+            name
+        ] = attributes.get("_children_props")
 
         return component
 
@@ -63,6 +68,9 @@ def _check_if_has_indexable_children(item):
 
 
 class Component(metaclass=ComponentMeta):
+    _children_props = []
+    _base_nodes = ["children"]
+
     class _UNDEFINED:
         def __repr__(self):
             return "undefined"
@@ -132,7 +140,7 @@ class Component(metaclass=ComponentMeta):
                     f"\nAllowed arguments: {allowed_args}"
                 )
 
-            if k != "children" and isinstance(v, Component):
+            if k not in self._base_nodes and isinstance(v, Component):
                 raise TypeError(
                     error_string_prefix
                     + " detected a Component for a prop other than `children`\n"

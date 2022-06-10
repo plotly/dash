@@ -6,7 +6,7 @@ from dash import Dash, Input, State, Output, dcc, html
 from dash.exceptions import PreventUpdate
 
 
-UUID = "store-test-{}".format(uuid.uuid4().hex)
+UUID = f"store-test-{uuid.uuid4().hex}"
 
 
 @pytest.fixture(scope="module")
@@ -68,10 +68,7 @@ def csv_5mb():
     while sys.getsizeof(buf) <= limit:
         g = mimesis.Generic()
         chunk = "\n".join(
-            (
-                "{},{}".format(g.person.full_name(), g.person.email())
-                for _ in range(10000)
-            )
+            (f"{g.person.full_name()},{g.person.email()}" for _ in range(10000))
         )
         chunks.append(chunk)
         buf = "".join(chunks)

@@ -85,7 +85,11 @@ const Dropdown = props => {
     );
 
     useEffect(() => {
-        if (optionsCheck !== sanitizedOptions && !isNil(value)) {
+        if (
+            !isNil(sanitizedOptions) &&
+            optionsCheck !== sanitizedOptions &&
+            !isNil(value)
+        ) {
             const values = sanitizedOptions.map(option => option.value);
             if (multi && Array.isArray(value)) {
                 const invalids = value.filter(v => !values.includes(v));

@@ -37,7 +37,7 @@ if (!src.length) {
 }
 
 if (fs.existsSync('tsconfig.json')) {
-    tsconfig = JSON.parse(fs.readFileSync('tsconfig.json'));
+    tsconfig = JSON.parse(fs.readFileSync('tsconfig.json')).compilerOptions;
 }
 
 let failedBuild = false;
@@ -55,6 +55,13 @@ const PRIMITIVES = [
     'node'
 ];
 
+// These types take too long to parse because of heavy nesting.
+const BANNED_TYPES = [
+    'Document',
+    'ShadowRoot',
+    'ChildNode',
+    'ParentNode',
+];
 const unionSupport = PRIMITIVES.concat('boolean', 'Element');
 
 const reArray = new RegExp(`(${unionSupport.join('|')})\\[\\]`);
@@ -180,7 +187,7 @@ function gatherComponents(sources, components = {}) {
         return components;
     }
 
-    const program = ts.createProgram(filepaths, tsconfig);
+    const program = ts.createProgram(filepaths, {...tsconfig, esModuleInterop: true});
     const checker = program.getTypeChecker();
 
     const coerceValue = t => {
@@ -236,9 +243,10 @@ function gatherComponents(sources, components = {}) {
         }))
     });
 
-    const getUnion = (typeObj, propObj) => {
+    const getUnion = (typeObj, propObj, parentType) => {
         let name = 'union',
             value;
+
         // Union only do base types
         value = typeObj.types
             .filter(t => {
@@ -253,7 +261,7 @@ function gatherComponents(sources, components = {}) {
                     isArray(checker.typeToString(t))
                 );
             })
-            .map(t => getPropType(t, propObj));
+            .map(t => getPropType(t, propObj, parentType));
 
         if (!value.length) {
             name = 'any';
@@ -282,17 +290,19 @@ function gatherComponents(sources, components = {}) {
         return propName;
     };
 
-    const getPropType = (propType, propObj) => {
+    const getPropType = (propType, propObj, parentType = null) => {
         // Types can get namespace prefixes or not.
         let name = checker.typeToString(propType).replace(/^React\./, '');
         let value;
         const raw = name;
 
+        const newParentType = (parentType || []).concat(raw)
+
         if (propType.isUnion()) {
             if (isUnionLiteral(propType)) {
                 return {...getEnum(propType), raw};
             } else if (raw.includes('|')) {
-                return {...getUnion(propType, propObj), raw};
+                return {...getUnion(propType, propObj, newParentType), raw};
             }
         }
 
@@ -318,12 +328,20 @@ function gatherComponents(sources, components = {}) {
                     const [nodeType] = checker.getTypeArguments(propType);
 
                     if (nodeType) {
-                        value = getPropType(nodeType, propObj);
+                        value = getPropType(
+                            nodeType, propObj, newParentType,
+                        );
                     } else {
                         // Not sure, might be unsupported here.
                         name = 'array';
                     }
                 }
+            } else if (
+                BANNED_TYPES.includes(name) ||
+                (parentType && parentType.includes(name))
+            ) {
+                console.error(`Warning nested type: ${name}`);
+                name = 'any';
             } else {
                 name = 'shape';
                 // If the type is declared as union it will have a types attribute.
@@ -331,7 +349,10 @@ function gatherComponents(sources, components = {}) {
                     if (isUnionLiteral(propType)) {
                         return {...getEnum(propType), raw};
                     }
-                    return {...getUnion(propType, propObj), raw};
+                    return {
+                        ...getUnion(propType, propObj, newParentType),
+                        raw
+                    };
                 }
 
                 value = getProps(
@@ -339,7 +360,8 @@ function gatherComponents(sources, components = {}) {
                     propObj,
                     [],
                     {},
-                    true
+                    true,
+                    newParentType,
                 );
             }
         }
@@ -543,7 +565,8 @@ function gatherComponents(sources, components = {}) {
         propsObj,
         baseProps = [],
         defaultProps = {},
-        flat = false
+        flat = false,
+        parentType = null,
     ) => {
         const results = {};
 
@@ -571,7 +594,7 @@ function gatherComponents(sources, components = {}) {
                 required,
                 defaultValue
             };
-            const type = getPropType(propType, propsObj);
+            const type = getPropType(propType, propsObj, parentType);
             // root object is inserted as type,
             // otherwise it's flat in the value prop.
             if (!flat) {
