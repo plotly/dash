@@ -1,11 +1,10 @@
 import functools
 import warnings
 import json
-from copy import deepcopy
 import flask
 
 from . import exceptions
-from ._utils import stringify_id, AttributeDict
+from ._utils import AttributeDict
 
 
 def has_context(func):
@@ -147,59 +146,7 @@ class CallbackContext:
                return "No clicks yet"
 
         """
-        triggered = getattr(flask.g, "triggered_inputs", [])
-        triggered = [item["prop_id"] for item in triggered]
-        grouping = getattr(flask.g, "args_grouping", {})
-
-        def update_args_grouping(g):
-            if isinstance(g, dict) and "id" in g:
-                str_id = stringify_id(g["id"])
-                prop_id = f"{str_id}.{g['property']}"
-
-                new_values = {
-                    "value": g.get("value"),
-                    "str_id": str_id,
-                    "triggered": prop_id in triggered,
-                    "id": AttributeDict(g["id"])
-                    if isinstance(g["id"], dict)
-                    else g["id"],
-                }
-                g.update(new_values)
-
-        def recursive_update(g):
-            if isinstance(g, (tuple, list)):
-                for i in g:
-                    update_args_grouping(i)
-                    recursive_update(i)
-            if isinstance(g, dict):
-                for i in g.values():
-                    update_args_grouping(i)
-                    recursive_update(i)
-
-        recursive_update(grouping)
-
-        return grouping
-
-    # todo not sure whether we need this, but it removes a level of nesting so
-    #  you don't need to use `.value` to get the value.
-    @property
-    @has_context
-    def args_grouping_values(self):
-        grouping = getattr(flask.g, "args_grouping", {})
-        grouping = deepcopy(grouping)
-
-        def recursive_update(g):
-            if isinstance(g, (tuple, list)):
-                for i in g:
-                    recursive_update(i)
-            if isinstance(g, dict):
-                for k, v in g.items():
-                    if isinstance(v, dict) and "id" in v:
-                        g[k] = v["value"]
-                    recursive_update(v)
-
-        recursive_update(grouping)
-        return grouping
+        return getattr(flask.g, "args_grouping", [])
 
     @property
     @has_context
