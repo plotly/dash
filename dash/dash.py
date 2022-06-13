@@ -2171,7 +2171,9 @@ class Dash:
                         continue
 
                 page_filename = os.path.join(root, file).replace("\\", "/")
-                _, _, page_filename = page_filename.partition(walk_dir.replace("\\", "/") + "/")
+                _, _, page_filename = page_filename.partition(
+                    walk_dir.replace("\\", "/") + "/"
+                )
                 page_filename = page_filename.replace(".py", "").replace("/", ".")
 
                 pages_folder = (

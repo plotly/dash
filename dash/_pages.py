@@ -61,7 +61,7 @@ def _module_name_to_page_name(filename):
 def _infer_path(filename, template):
     if template is None:
         if CONFIG.pages_folder:
-            pages_folder = CONFIG.pages_folder.split("/")[-1]
+            pages_folder = CONFIG.pages_folder.replace("\\", "/").split("/")[-1]
             path = (
                 filename.replace("_", "-")
                 .replace(".", "/")
