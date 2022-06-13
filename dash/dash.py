@@ -61,11 +61,7 @@ from . import _validate
 from . import _watch
 from . import _get_app
 
-from ._grouping import (
-    flatten_grouping,
-    map_grouping,
-    grouping_len,
-)
+from ._grouping import flatten_grouping, map_grouping, grouping_len, update_args_group
 
 from . import _pages
 from ._pages import (
@@ -1479,6 +1475,14 @@ class Dash:
             inputs_state = inputs + state
             inputs_state = convert_to_AttributeDict(inputs_state)
 
+            # update args_grouping attributes
+            for g in inputs_state:
+                # check for pattern matching: list of inputs or state
+                if isinstance(g, list):
+                    for pattern_match_g in g:
+                        update_args_group(pattern_match_g, changed_props)
+                update_args_group(g, changed_props)
+
             args_grouping = map_grouping(
                 lambda ind: inputs_state[ind], inputs_state_indices
             )
@@ -2219,7 +2223,9 @@ class Dash:
                         continue
 
                 page_filename = os.path.join(root, file).replace("\\", "/")
-                _, _, page_filename = page_filename.partition(walk_dir + "/")
+                _, _, page_filename = page_filename.partition(
+                    walk_dir.replace("\\", "/") + "/"
+                )
                 page_filename = page_filename.replace(".py", "").replace("/", ".")
 
                 pages_folder = (
