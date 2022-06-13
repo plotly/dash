@@ -1,7 +1,6 @@
 import traceback
 
 from . import BaseLongCallbackManager
-from ..._callback import NoUpdate
 from ...exceptions import PreventUpdate
 
 _pending_value = "__$pending__"
@@ -48,15 +47,17 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
                 )
             self.handle = cache
 
-        super().__init__(cache_by)
-        self.expire = expire
         self.lock = diskcache.Lock(self.handle, "long-callback-lock")
+        self.expire = expire
+        super().__init__(cache_by)
 
     def terminate_job(self, job):
         import psutil  # pylint: disable=import-outside-toplevel,import-error
 
         if job is None:
             return
+
+        job = int(job)
 
         # Use diskcache transaction so multiple process don't try to kill the
         # process at the same time
@@ -83,6 +84,8 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
     def terminate_unhealthy_job(self, job):
         import psutil  # pylint: disable=import-outside-toplevel,import-error
 
+        job = int(job)
+
         if job and psutil.pid_exists(job):
             if not self.job_running(job):
                 self.terminate_job(job)
@@ -93,13 +96,15 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
     def job_running(self, job):
         import psutil  # pylint: disable=import-outside-toplevel,import-error
 
+        job = int(job)
+
         if job and psutil.pid_exists(job):
             proc = psutil.Process(job)
             return proc.status() != psutil.STATUS_ZOMBIE
         return False
 
-    def make_job_fn(self, fn, progress, args_deps):
-        return _make_job_fn(fn, self.handle, progress, args_deps, self.lock)
+    def make_job_fn(self, fn, progress):
+        return _make_job_fn(fn, self.handle, progress, self.lock)
 
     def clear_cache_entry(self, key):
         self.handle.delete(key)
@@ -122,9 +127,9 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 
     def get_result(self, key, job):
         # Get result value
-        result = self.handle.get(key)
-        if result is None:
-            return None
+        result = self.handle.get(key, self.UNDEFINED)
+        if result is self.UNDEFINED:
+            return self.UNDEFINED
 
         # Clear result if not caching
         if self.cache_by is None:
@@ -135,28 +140,32 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 
         self.clear_cache_entry(self._make_progress_key(key))
 
-        self.terminate_job(job)
+        if job:
+            self.terminate_job(job)
         return result
 
 
-def _make_job_fn(fn, cache, progress, args_deps, lock):
+def _make_job_fn(fn, cache, progress, lock):
     def job_fn(result_key, progress_key, user_callback_args):
         def _set_progress(progress_value):
+            if not isinstance(progress_value, (list, tuple)):
+                progress_value = [progress_value]
+
             with lock:
                 cache.set(progress_key, progress_value)
 
         maybe_progress = [_set_progress] if progress else []
 
         try:
-            if isinstance(args_deps, dict):
+            if isinstance(user_callback_args, dict):
                 user_callback_output = fn(*maybe_progress, **user_callback_args)
-            elif isinstance(args_deps, (list, tuple)):
+            elif isinstance(user_callback_args, (list, tuple)):
                 user_callback_output = fn(*maybe_progress, *user_callback_args)
             else:
                 user_callback_output = fn(*maybe_progress, user_callback_args)
         except PreventUpdate:
             with lock:
-                cache.set(result_key, NoUpdate())
+                cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
         except Exception as err:  # pylint: disable=broad-except
             with lock:
                 cache.set(

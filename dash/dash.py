@@ -27,9 +27,7 @@ from dash import dash_table
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
 from .dependencies import (
-    handle_grouped_callback_args,
     Output,
-    State,
     Input,
 )
 from .development.base_component import ComponentRegistry
@@ -61,7 +59,7 @@ from . import _validate
 from . import _watch
 from . import _get_app
 
-from ._grouping import flatten_grouping, map_grouping, grouping_len, update_args_group
+from ._grouping import map_grouping, grouping_len, update_args_group
 
 from . import _pages
 from ._pages import (
@@ -1118,6 +1116,7 @@ class Dash:
             **kwargs,
         )
 
+    # pylint: disable=R0201
     def callback(self, *_args, **_kwargs):
         """
         Normally used as a decorator, `@app.callback` provides a server-side
@@ -1132,16 +1131,28 @@ class Dash:
 
 
         """
-        return _callback.register_callback(
-            self._callback_list,
-            self.callback_map,
-            self.config.prevent_initial_callbacks,
+        return _callback.callback(
             *_args,
+            config_prevent_initial_callbacks=self.config.prevent_initial_callbacks,
             **_kwargs,
         )
 
-    def long_callback(self, *_args, **_kwargs):  # pylint: disable=too-many-statements
+    # pylint: disable=R0201
+    def long_callback(
+        self,
+        *_args,
+        manager=None,
+        interval=None,
+        running=None,
+        cancel=None,
+        progress=None,
+        progress_default=None,
+        cache_args_to_ignore=None,
+        **_kwargs,
+    ):  # pylint: disable=too-many-statements
         """
+        Deprecation Notice, use long
+
         Normally used as a decorator, `@app.long_callback` is an alternative to
         `@app.callback` designed for callbacks that take a long time to run,
         without locking up the Dash app or timing out.
@@ -1200,241 +1211,18 @@ class Dash:
                 this should be a list of argument names as strings. Otherwise,
                 this should be a list of argument indices as integers.
         """
-        # pylint: disable-next=import-outside-toplevel
-        from dash._callback_context import callback_context
-
-        # pylint: disable-next=import-outside-toplevel
-        from dash.exceptions import WildcardInLongCallback
-
-        # Get long callback manager
-        callback_manager = _kwargs.pop("manager", self._long_callback_manager)
-        if callback_manager is None:
-            raise ValueError(
-                "The @app.long_callback decorator requires a long callback manager\n"
-                "instance.  This may be provided to the app using the \n"
-                "long_callback_manager argument to the dash.Dash constructor, or\n"
-                "it may be provided to the @app.long_callback decorator as the \n"
-                "manager argument"
-            )
-
-        # Extract special long_callback kwargs
-        running = _kwargs.pop("running", ())
-        cancel = _kwargs.pop("cancel", ())
-        progress = _kwargs.pop("progress", ())
-        progress_default = _kwargs.pop("progress_default", None)
-        interval_time = _kwargs.pop("interval", 1000)
-        cache_args_to_ignore = _kwargs.pop("cache_args_to_ignore", [])
-
-        # Parse remaining args just like app.callback
-        (
-            output,
-            flat_inputs,
-            flat_state,
-            inputs_state_indices,
-            prevent_initial_call,
-        ) = handle_grouped_callback_args(_args, _kwargs)
-        inputs_and_state = flat_inputs + flat_state
-        args_deps = map_grouping(lambda i: inputs_and_state[i], inputs_state_indices)
-        multi_output = isinstance(output, (list, tuple)) and len(output) > 1
-
-        # Disallow wildcard dependencies
-        for deps in [output, flat_inputs, flat_state]:
-            for dep in flatten_grouping(deps):
-                if dep.has_wildcard():
-                    raise WildcardInLongCallback(
-                        f"""
-                        @app.long_callback does not support dependencies with
-                        pattern-matching ids
-                            Received: {repr(dep)}\n"""
-                    )
-
-        # Get unique id for this long_callback definition.  This increment is not
-        # thread safe, but it doesn't need to be because callback definitions
-        # happen on the main thread before the app starts
-        self._long_callback_count += 1
-        long_callback_id = self._long_callback_count
-
-        # Create Interval and Store for long callback and add them to the app's
-        # _extra_components list
-        interval_id = f"_long_callback_interval_{long_callback_id}"
-        interval_component = dcc.Interval(
-            id=interval_id, interval=interval_time, disabled=prevent_initial_call
+        return _callback.callback(
+            *_args,
+            long=True,
+            long_manager=manager,
+            long_interval=interval,
+            long_progress=progress,
+            long_progress_default=progress_default,
+            long_running=running,
+            long_cancel=cancel,
+            long_cache_args_to_ignore=cache_args_to_ignore,
+            **_kwargs,
         )
-        store_id = f"_long_callback_store_{long_callback_id}"
-        store_component = dcc.Store(id=store_id, data={})
-        error_id = f"_long_callback_error_{long_callback_id}"
-        error_store_component = dcc.Store(id=error_id)
-        error_dummy = f"_long_callback_error_dummy_{long_callback_id}"
-        self._extra_components.extend(
-            [
-                interval_component,
-                store_component,
-                error_store_component,
-                dcc.Store(id=error_dummy),
-            ]
-        )
-
-        # Compute full component plus property name for the cancel dependencies
-        cancel_prop_ids = tuple(
-            ".".join([dep.component_id, dep.component_property]) for dep in cancel
-        )
-
-        def wrapper(fn):
-            background_fn = callback_manager.make_job_fn(fn, bool(progress), args_deps)
-
-            def callback(_triggers, user_store_data, user_callback_args):
-                # Build result cache key from inputs
-                pending_key = callback_manager.build_cache_key(
-                    fn, user_callback_args, cache_args_to_ignore
-                )
-                current_key = user_store_data.get("current_key", None)
-                pending_job = user_store_data.get("pending_job", None)
-
-                should_cancel = pending_key == current_key or any(
-                    trigger["prop_id"] in cancel_prop_ids
-                    for trigger in callback_context.triggered
-                )
-
-                # Compute grouping of values to set the progress component's to
-                # when cleared
-                if progress_default is None:
-                    clear_progress = (
-                        map_grouping(lambda x: None, progress) if progress else ()
-                    )
-                else:
-                    clear_progress = progress_default
-
-                if should_cancel:
-                    user_store_data["current_key"] = None
-                    user_store_data["pending_key"] = None
-                    user_store_data["pending_job"] = None
-
-                    callback_manager.terminate_job(pending_job)
-
-                    return dict(
-                        user_callback_output=map_grouping(lambda x: no_update, output),
-                        interval_disabled=True,
-                        in_progress=[val for (_, _, val) in running],
-                        progress=clear_progress,
-                        user_store_data=user_store_data,
-                        error=no_update,
-                    )
-
-                # Look up progress value if a job is in progress
-                if pending_job:
-                    progress_value = callback_manager.get_progress(pending_key)
-                else:
-                    progress_value = None
-
-                if callback_manager.result_ready(pending_key):
-                    result = callback_manager.get_result(pending_key, pending_job)
-                    # Set current key (hash of data stored in client)
-                    # to pending key (hash of data requested by client)
-                    user_store_data["current_key"] = pending_key
-
-                    if isinstance(result, dict) and result.get("long_callback_error"):
-                        error = result.get("long_callback_error")
-                        print(
-                            result["long_callback_error"]["tb"],
-                            file=sys.stderr,
-                        )
-                        return dict(
-                            error=f"An error occurred inside a long callback: {error['msg']}\n"
-                            + error["tb"],
-                            user_callback_output=no_update,
-                            in_progress=[val for (_, _, val) in running],
-                            interval_disabled=pending_job is None,
-                            progress=clear_progress,
-                            user_store_data=user_store_data,
-                        )
-
-                    if _callback.NoUpdate.is_no_update(result):
-                        result = no_update
-
-                    if multi_output and isinstance(result, (list, tuple)):
-                        result = [
-                            no_update if _callback.NoUpdate.is_no_update(r) else r
-                            for r in result
-                        ]
-
-                    # Disable interval if this value was pulled from cache.
-                    # If this value was the result of a background calculation, don't
-                    # disable yet. If no other calculations are in progress,
-                    # interval will be disabled in should_cancel logic above
-                    # the next time the interval fires.
-                    interval_disabled = pending_job is None
-                    return dict(
-                        user_callback_output=result,
-                        interval_disabled=interval_disabled,
-                        in_progress=[val for (_, _, val) in running],
-                        progress=clear_progress,
-                        user_store_data=user_store_data,
-                        error=no_update,
-                    )
-                if progress_value:
-                    return dict(
-                        user_callback_output=map_grouping(lambda x: no_update, output),
-                        interval_disabled=False,
-                        in_progress=[val for (_, val, _) in running],
-                        progress=progress_value or {},
-                        user_store_data=user_store_data,
-                        error=no_update,
-                    )
-
-                # Check if there is a running calculation that can now
-                # be canceled
-                old_pending_key = user_store_data.get("pending_key", None)
-                if (
-                    old_pending_key
-                    and old_pending_key != pending_key
-                    and callback_manager.job_running(pending_job)
-                ):
-                    callback_manager.terminate_job(pending_job)
-
-                user_store_data["pending_key"] = pending_key
-                callback_manager.terminate_unhealthy_job(pending_job)
-                if not callback_manager.job_running(pending_job):
-                    user_store_data["pending_job"] = callback_manager.call_job_fn(
-                        pending_key, background_fn, user_callback_args
-                    )
-
-                return dict(
-                    user_callback_output=map_grouping(lambda x: no_update, output),
-                    interval_disabled=False,
-                    in_progress=[val for (_, val, _) in running],
-                    progress=clear_progress,
-                    user_store_data=user_store_data,
-                    error=no_update,
-                )
-
-            self.clientside_callback(
-                "function (error) {throw new Error(error)}",
-                Output(error_dummy, "data"),
-                [Input(error_id, "data")],
-                prevent_initial_call=True,
-            )
-
-            return self.callback(
-                inputs=dict(
-                    _triggers=dict(
-                        n_intervals=Input(interval_id, "n_intervals"),
-                        cancel=cancel,
-                    ),
-                    user_store_data=State(store_id, "data"),
-                    user_callback_args=args_deps,
-                ),
-                output=dict(
-                    user_callback_output=output,
-                    interval_disabled=Output(interval_id, "disabled"),
-                    in_progress=[dep for (dep, _, _) in running],
-                    progress=progress,
-                    user_store_data=Output(store_id, "data"),
-                    error=Output(error_id, "data"),
-                ),
-                prevent_initial_call=prevent_initial_call,
-            )(callback)
-
-        return wrapper
 
     def dispatch(self):
         body = flask.request.get_json()
@@ -1455,6 +1243,7 @@ class Dash:
         flask.g.state_values = inputs_to_dict(  # pylint: disable=assigning-non-slot
             state
         )
+        flask.g.long_callback_manager = self._long_callback_manager  # pylint: disable=E0237
         changed_props = body.get("changedPropIds", [])
         flask.g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
@@ -1517,7 +1306,14 @@ class Dash:
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg) from missing_callback_function
-        response.set_data(func(*args, outputs_list=outputs_list))
+        # noinspection PyArgumentList
+        response.set_data(
+            func(
+                *args,
+                outputs_list=outputs_list,
+                long_callback_manager=self._long_callback_manager,
+            )
+        )
         return response
 
     def _setup_server(self):

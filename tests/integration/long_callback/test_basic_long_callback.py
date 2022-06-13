@@ -451,9 +451,14 @@ def test_lcbc008_long_callbacks_error(dash_duo, manager):
         dash_duo.wait_for_text_to_equal("#output", "Clicked 1 times")
 
         click_n_wait()
-        dash_duo.wait_for_contains_text(
-            ".dash-fe-error__title", "An error occurred inside a long callback:"
+        dash_duo.wait_for_element(".dash-fe-error__title").click()
+
+        dash_duo.driver.switch_to.frame(dash_duo.find_element("iframe"))
+        assert (
+            "Exception: An error occurred inside a long callback:"
+            in dash_duo.wait_for_element(".errormsg").text
         )
+        dash_duo.driver.switch_to.default_content()
 
         click_n_wait()
         dash_duo.wait_for_text_to_equal("#output", "Clicked 3 times")
