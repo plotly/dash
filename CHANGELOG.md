@@ -5,9 +5,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Unreleased
 
 ### Fixed
+
+- [#2087](https://github.com/plotly/dash/pull/2087) Fix bug [#2086](https://github.com/plotly/dash/issues/2086) in which using id as a key within a component's id breaks the new callback context's `args_grouping` function.
 - [#2084](https://github.com/plotly/dash/pull/2084) In dash 2.5.0, a default viewport meta tag was added as recommended for mobile-optimized sites by [mdn](https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag)
 This feature can be disabled by providing an empty viewport meta tag.  e.g. `app = Dash(meta_tags=[{"name": "viewport"}])`
 - [#2090](https://github.com/plotly/dash/pull/2090), [#2092](https://github.com/plotly/dash/pull/2092).  Fixed bug where the `path` to the `pages_folder` was incorrect on Windows.
+
+### Removed
+
+- [#2087](https://github.com/plotly/dash/pull/2087) Removed the undocumented callback context `args_grouping_values` property which was incompatible with pattern-matching callbacks.
 
 ## [2.5.0] - 2022-06-07
 
