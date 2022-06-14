@@ -1,7 +1,6 @@
 import pytest
 
 from dash import Dash, Input, Output, State, html
-from dash._callback import GLOBAL_CALLBACK_MAP
 from dash.exceptions import InvalidCallbackReturnValue, IncorrectTypeException
 
 
@@ -78,7 +77,7 @@ def test_cbva002_callback_return_validation():
     def single(a):
         return set([1])
 
-    single_wrapped = GLOBAL_CALLBACK_MAP["b.children"]["callback"]
+    single_wrapped = app.callback_map["b.children"]["callback"]
 
     with pytest.raises(InvalidCallbackReturnValue):
         # outputs_list (normally callback_context.outputs_list) is provided

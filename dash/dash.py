@@ -1134,6 +1134,8 @@ class Dash:
         return _callback.callback(
             *_args,
             config_prevent_initial_callbacks=self.config.prevent_initial_callbacks,
+            callback_list=self._callback_list,
+            callback_map=self.callback_map,
             **_kwargs,
         )
 
