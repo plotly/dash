@@ -20,6 +20,7 @@
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-react": "^7.16.7",
     "@types/jest": "^27.4.1",
+    "@types/ramda": "^0.28.14",
     "@types/react": "^17.0.39",
     "babel-loader": "^8.2.5",
     "jest": "^27.5.1",
