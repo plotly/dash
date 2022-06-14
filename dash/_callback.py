@@ -115,7 +115,7 @@ def callback(
                     manager = long_manager or flask.g.long_callback_manager
                     if job_ids:
                         for job_id in job_ids:
-                            manager.terminate_job(int(job_id))
+                            manager.terminate_job(job_id)
                     return NoUpdate()
 
             except DuplicateCallback:
