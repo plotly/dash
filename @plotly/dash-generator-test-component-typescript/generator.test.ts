@@ -257,6 +257,9 @@ describe('Test Typescript component metadata generation', () => {
         test('Standard js component is parsed', () => {
             expect(R.path(['StandardComponent'], metadata)).toBeDefined();
         });
+        test('Mixed component prop-type & typescript', () => {
+            expect(R.path(['MixedComponent', 'props', 'prop', 'type', 'name'], metadata)).toBe('arrayOf')
+        })
     });
     describe('Test special cases', () => {
         test('Component with picked boolean prop', () => {

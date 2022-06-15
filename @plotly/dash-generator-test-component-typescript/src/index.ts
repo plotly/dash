@@ -5,6 +5,7 @@ import StandardComponent from './components/StandardComponent.react';
 import WrappedHTML from './components/WrappedHTML';
 import FCComponent from './components/FCComponent';
 import EmptyComponent from './components/EmptyComponent';
+import MixedComponent from './components/MixedComponent';
 
 export {
   TypeScriptComponent,
@@ -14,4 +15,5 @@ export {
   WrappedHTML,
   FCComponent,
   EmptyComponent,
+  MixedComponent,
 };
