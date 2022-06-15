@@ -725,7 +725,7 @@ function gatherComponents(sources, components = {}) {
             }
 
             const fullText = source.getFullText();
-            let description;
+            let description = '';
             const commentRanges = ts.getLeadingCommentRanges(
                 fullText,
                 commentSource.getFullStart()
