@@ -1116,7 +1116,6 @@ class Dash:
             **kwargs,
         )
 
-    # pylint: disable=R0201
     def callback(self, *_args, **_kwargs):
         """
         Normally used as a decorator, `@app.callback` provides a server-side
@@ -1139,7 +1138,6 @@ class Dash:
             **_kwargs,
         )
 
-    # pylint: disable=R0201
     def long_callback(
         self,
         *_args,
@@ -1151,67 +1149,10 @@ class Dash:
         progress_default=None,
         cache_args_to_ignore=None,
         **_kwargs,
-    ):  # pylint: disable=too-many-statements
+    ):
         """
-        Deprecation Notice, use long
-
-        Normally used as a decorator, `@app.long_callback` is an alternative to
-        `@app.callback` designed for callbacks that take a long time to run,
-        without locking up the Dash app or timing out.
-
-        `@long_callback` is designed to support multiple callback managers.
-        Two long callback managers are currently implemented:
-
-            - A diskcache manager (`DiskcacheLongCallbackManager`) that runs callback
-              logic in a separate process and stores the results to disk using the
-              diskcache library. This is the easiest backend to use for local
-              development.
-            - A Celery manager (`CeleryLongCallbackManager`) that runs callback logic
-              in a celery worker and returns results to the Dash app through a Celery
-              broker like RabbitMQ or Redis.
-
-        The following arguments may include any valid arguments to `@app.callback`.
-        In addition, `@app.long_callback` supports the following optional
-        keyword arguments:
-
-        :Keyword Arguments:
-            :param manager:
-                A long callback manager instance. Currently an instance of one of
-                `DiskcacheLongCallbackManager` or `CeleryLongCallbackManager`.
-                Defaults to the `long_callback_manager` instance provided to the
-                `dash.Dash constructor`.
-            :param running:
-                A list of 3-element tuples. The first element of each tuple should be
-                an `Output` dependency object referencing a property of a component in
-                the app layout. The second element is the value that the property
-                should be set to while the callback is running, and the third element
-                is the value the property should be set to when the callback completes.
-            :param cancel:
-                A list of `Input` dependency objects that reference a property of a
-                component in the app's layout.  When the value of this property changes
-                while a callback is running, the callback is canceled.
-                Note that the value of the property is not significant, any change in
-                value will result in the cancellation of the running job (if any).
-            :param progress:
-                An `Output` dependency grouping that references properties of
-                components in the app's layout. When provided, the decorated function
-                will be called with an extra argument as the first argument to the
-                function.  This argument, is a function handle that the decorated
-                function should call in order to provide updates to the app on its
-                current progress. This function accepts a single argument, which
-                correspond to the grouping of properties specified in the provided
-                `Output` dependency grouping
-            :param progress_default:
-                A grouping of values that should be assigned to the components
-                specified by the `progress` argument when the callback is not in
-                progress. If `progress_default` is not provided, all the dependency
-                properties specified in `progress` will be set to `None` when the
-                callback is not running.
-            :param cache_args_to_ignore:
-                Arguments to ignore when caching is enabled. If callback is configured
-                with keyword arguments (Input/State provided in a dict),
-                this should be a list of argument names as strings. Otherwise,
-                this should be a list of argument indices as integers.
+        Deprecation Notice, long callbacks are now supported natively with regular callbacks,
+        use `long=True` with `dash.callback` or `app.callback` instead.
         """
         return _callback.callback(
             *_args,
@@ -1223,6 +1164,9 @@ class Dash:
             long_running=running,
             long_cancel=cancel,
             long_cache_args_to_ignore=cache_args_to_ignore,
+            callback_map=self.callback_map,
+            callback_list=self._callback_list,
+            config_prevent_initial_callbacks=self.config.prevent_initial_callbacks,
             **_kwargs,
         )
 

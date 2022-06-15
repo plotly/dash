@@ -76,6 +76,58 @@ def callback(
     The last, optional argument `prevent_initial_call` causes the callback
     not to fire when its outputs are first added to the page. Defaults to
     `False` and unlike `app.callback` is not configurable at the app level.
+
+    :Keyword Arguments:
+        :param long:
+            Mark the callback as a long callback to execute in a manager for
+            callbacks that take a long time without locking up the Dash app
+            or timing out.
+        :param long_manager:
+            A long callback manager instance. Currently an instance of one of
+            `DiskcacheLongCallbackManager` or `CeleryLongCallbackManager`.
+            Defaults to the `long_callback_manager` instance provided to the
+            `dash.Dash constructor`.
+            - A diskcache manager (`DiskcacheLongCallbackManager`) that runs callback
+              logic in a separate process and stores the results to disk using the
+              diskcache library. This is the easiest backend to use for local
+              development.
+            - A Celery manager (`CeleryLongCallbackManager`) that runs callback logic
+              in a celery worker and returns results to the Dash app through a Celery
+              broker like RabbitMQ or Redis.
+        :param long_running:
+            A list of 3-element tuples. The first element of each tuple should be
+            an `Output` dependency object referencing a property of a component in
+            the app layout. The second element is the value that the property
+            should be set to while the callback is running, and the third element
+            is the value the property should be set to when the callback completes.
+        :param long_cancel:
+            A list of `Input` dependency objects that reference a property of a
+            component in the app's layout.  When the value of this property changes
+            while a callback is running, the callback is canceled.
+            Note that the value of the property is not significant, any change in
+            value will result in the cancellation of the running job (if any).
+        :param long_progress:
+            An `Output` dependency grouping that references properties of
+            components in the app's layout. When provided, the decorated function
+            will be called with an extra argument as the first argument to the
+            function.  This argument, is a function handle that the decorated
+            function should call in order to provide updates to the app on its
+            current progress. This function accepts a single argument, which
+            correspond to the grouping of properties specified in the provided
+            `Output` dependency grouping
+        :param long_progress_default:
+            A grouping of values that should be assigned to the components
+            specified by the `progress` argument when the callback is not in
+            progress. If `progress_default` is not provided, all the dependency
+            properties specified in `progress` will be set to `None` when the
+            callback is not running.
+        :param long_cache_args_to_ignore:
+            Arguments to ignore when caching is enabled. If callback is configured
+            with keyword arguments (Input/State provided in a dict),
+            this should be a list of argument names as strings. Otherwise,
+            this should be a list of argument indices as integers.
+        :param long_interval:
+            Time to wait between the long callback update requests.
     """
 
     long_spec = None
