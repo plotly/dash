@@ -258,9 +258,12 @@ describe('Test Typescript component metadata generation', () => {
             expect(R.path(['StandardComponent'], metadata)).toBeDefined();
         });
     });
-    describe('Test namespace props', () => {
+    describe('Test special cases', () => {
         test('Component with picked boolean prop', () => {
             expect(R.path(['WrappedHTML', "props", "autoFocus", "type", "name"], metadata)).toBe("bool");
-        })
-    })
+        });
+        test('Empty Component', () => {
+            expect(R.path(['EmptyComponent', 'props'], metadata)).toBeDefined();
+        });
+    });
 });

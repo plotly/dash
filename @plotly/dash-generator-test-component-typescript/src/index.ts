@@ -4,6 +4,7 @@ import MemoTypeScriptComponent from './components/MemoTypeScriptComponent';
 import StandardComponent from './components/StandardComponent.react';
 import WrappedHTML from './components/WrappedHTML';
 import FCComponent from './components/FCComponent';
+import EmptyComponent from './components/EmptyComponent';
 
 export {
   TypeScriptComponent,
@@ -12,4 +13,5 @@ export {
   StandardComponent,
   WrappedHTML,
   FCComponent,
+  EmptyComponent,
 };

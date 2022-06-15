@@ -113,7 +113,7 @@ function checkDocstring(name, value) {
 function docstringWarning(doc) {
     checkDocstring(doc.displayName, doc.description);
 
-    Object.entries(doc.props).forEach(([name, p]) =>
+    Object.entries(doc.props || {}).forEach(([name, p]) =>
         checkDocstring(`${doc.displayName}.${name}`, p.description)
     );
 }
@@ -717,6 +717,11 @@ function gatherComponents(sources, components = {}) {
                     source,
                     defaultProps
                 );
+            }
+
+            if (!props) {
+                // Ensure empty components has props.
+                props = {};
             }
 
             const fullText = source.getFullText();
