@@ -61,7 +61,8 @@ describe('Test Typescript component metadata generation', () => {
     describe.each([
         'TypeScriptComponent',
         'TypeScriptClassComponent',
-        'MemoTypeScriptComponent'
+        'MemoTypeScriptComponent',
+        'FCComponent',
     ])('Test prop type names', componentName => {
         const getPropTypeName = (name, data) =>
             R.path(propPath(componentName, name).concat('type', 'name'), data);

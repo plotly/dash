@@ -672,14 +672,14 @@ function gatherComponents(sources, components = {}) {
                 } else {
                     // Function components.
                     rootExp = typeSymbol;
-                    commentSource = rootExp.valueDeclaration;
+                    commentSource = rootExp.valueDeclaration || rootExp.declarations[0];
                     if (
-                        rootExp.valueDeclaration &&
-                        rootExp.valueDeclaration.parent
+                        commentSource &&
+                        commentSource.parent
                     ) {
                         // Function with export later like `const MyComponent = (props) => <></>;`
                         commentSource = getParent(
-                            rootExp.valueDeclaration.parent
+                            commentSource.parent
                         );
                     }
                 }
