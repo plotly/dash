@@ -8,7 +8,13 @@ from .dependencies import (
     handle_grouped_callback_args,
     Output,
 )
-from .exceptions import PreventUpdate, WildcardInLongCallback, DuplicateCallback
+from .exceptions import (
+    PreventUpdate,
+    WildcardInLongCallback,
+    DuplicateCallback,
+    MissingLongCallbackManagerError,
+    LongCallbackError,
+)
 
 from ._grouping import (
     flatten_grouping,
@@ -309,9 +315,7 @@ def register_callback(  # pylint: disable=R0914
         def add_context(*args, **kwargs):
             output_spec = kwargs.pop("outputs_list")
             app_callback_manager = kwargs.pop("long_callback_manager", None)
-            callback_manager = long and long.get(
-                "manager", app_callback_manager
-            )
+            callback_manager = long and long.get("manager", app_callback_manager)
             _validate.validate_output_spec(insert_output, output_spec, Output)
 
             func_args, func_kwargs = _validate.validate_and_group_input_args(
@@ -321,6 +325,16 @@ def register_callback(  # pylint: disable=R0914
             response = {"multi": True}
 
             if long is not None:
+                if not callback_manager:
+                    raise MissingLongCallbackManagerError(
+                        "Running `long` callbacks requires a manager to be installed.\n"
+                        "Available managers:\n"
+                        "- Diskcache (`pip install dash[diskcache]`) to run callbacks in a separate Process"
+                        " and store results on the local filesystem.\n"
+                        "- Celery (`pip install dash[celery]`) to run callbacks in a celery worker"
+                        " and store results on redis.\n"
+                    )
+
                 progress_outputs = long.get("progress")
                 cache_key = flask.request.args.get("cacheKey")
                 job_id = flask.request.args.get("job")
@@ -369,8 +383,7 @@ def register_callback(  # pylint: disable=R0914
                     progress = callback_manager.get_progress(cache_key)
                     if progress:
                         response["progress"] = {
-                            str(x): progress[i]
-                            for i, x in enumerate(progress_outputs)
+                            str(x): progress[i] for i, x in enumerate(progress_outputs)
                         }
 
                 output_value = callback_manager.get_result(cache_key, job_id)
@@ -385,7 +398,7 @@ def register_callback(  # pylint: disable=R0914
                     and "long_callback_error" in output_value
                 ):
                     error = output_value.get("long_callback_error")
-                    raise Exception(
+                    raise LongCallbackError(
                         f"An error occurred inside a long callback: {error['msg']}\n{error['tb']}"
                     )
 

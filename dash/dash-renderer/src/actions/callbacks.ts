@@ -642,7 +642,6 @@ export function executeCallback(
                         if (inter.length) {
                             additionalArgs.push(['cancelJob', job.jobId]);
                             if (job.progressDefault) {
-                                console.log(job.progressDefault);
                                 sideUpdate(
                                     job.progressDefault,
                                     dispatch,
