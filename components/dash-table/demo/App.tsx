@@ -88,7 +88,7 @@ class App extends Component<any, any> {
         return (newProps: any) => {
             Logger.debug('--->', newProps);
             this.setState((prevState: any) => ({
-                tableProps: R.merge(prevState.tableProps, newProps)
+                tableProps: R.mergeRight(prevState.tableProps, newProps)
             }));
         };
     });

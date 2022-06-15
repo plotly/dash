@@ -1,7 +1,6 @@
 import {connect} from 'react-redux';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import Radium from 'radium';
 import {DebugMenu} from './menu/DebugMenu.react';
 
 class UnconnectedGlobalErrorContainer extends Component {
@@ -30,6 +29,6 @@ UnconnectedGlobalErrorContainer.propTypes = {
 const GlobalErrorContainer = connect(state => ({
     config: state.config,
     error: state.error
-}))(Radium(UnconnectedGlobalErrorContainer));
+}))(UnconnectedGlobalErrorContainer);
 
 export default GlobalErrorContainer;

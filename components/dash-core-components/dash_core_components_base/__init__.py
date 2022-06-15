@@ -4,13 +4,20 @@ import sys as _sys
 import dash as _dash
 
 from ._imports_ import *  # noqa: F401, F403, E402
-from ._imports_ import __all__  # noqa: E402
+from ._imports_ import __all__ as _components
 from .express import (  # noqa: F401, E402
     send_bytes,
     send_data_frame,
     send_file,
     send_string,
 )
+
+__all__ = _components + [
+    "send_bytes",
+    "send_data_frame",
+    "send_file",
+    "send_string",
+]
 
 _basepath = _os.path.dirname(__file__)
 _filepath = _os.path.abspath(_os.path.join(_basepath, "package-info.json"))
@@ -41,6 +48,7 @@ async_resources = [
     "graph",
     "highlight",
     "markdown",
+    "mathjax",
     "slider",
     "upload",
 ]

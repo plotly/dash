@@ -80,6 +80,8 @@ def test_ttbs001_canonical_behavior(dash_dcc):
     assert 175 < coords[0] < 185, "x0 is about 200 minus half a marker size"
     assert 175 < coords[1] < 185, "y0 is about 200 minus half a marker size"
 
-    ActionChains(dash_dcc.driver).move_to_element_with_offset(elem, 0, 0).perform()
+    ActionChains(dash_dcc.driver).move_to_element_with_offset(
+        elem, 5, elem.size["height"] - 5
+    ).perform()
 
     until(lambda: not dash_dcc.find_element("#graph-tooltip").is_displayed(), 3)

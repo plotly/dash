@@ -1,3 +1,4 @@
+# pylint: disable=consider-using-f-string
 import os
 import sys
 import shutil
@@ -452,7 +453,12 @@ def write_help_file(name, props, description, prefix, rpkg_data):
 
 # pylint: disable=too-many-arguments
 def write_class_file(
-    name, props, description, project_shortname, prefix=None, rpkg_data=None
+    name,
+    props,
+    description,
+    project_shortname,
+    prefix=None,
+    rpkg_data=None,
 ):
     props = reorder_props(props=props)
 

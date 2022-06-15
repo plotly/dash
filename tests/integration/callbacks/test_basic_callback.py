@@ -1,7 +1,10 @@
 import json
+import os
 from multiprocessing import Lock, Value
 import pytest
 import time
+
+import werkzeug
 
 from dash_test_components import (
     AsyncComponent,
@@ -21,7 +24,6 @@ from dash import (
     callback_context,
 )
 from dash.exceptions import PreventUpdate
-from dash.testing import wait
 from tests.integration.utils import json_engine
 
 
@@ -45,8 +47,7 @@ def test_cbsc001_simple_callback(dash_duo):
 
     dash_duo.start_server(app)
 
-    assert dash_duo.find_element("#output-1").text == "initial value"
-    dash_duo.percy_snapshot(name="simple-callback-initial")
+    dash_duo.wait_for_text_to_equal("#output-1", "initial value")
 
     input_ = dash_duo.find_element("#input")
     dash_duo.clear_input(input_)
@@ -55,8 +56,7 @@ def test_cbsc001_simple_callback(dash_duo):
         with lock:
             input_.send_keys(key)
 
-    wait.until(lambda: dash_duo.find_element("#output-1").text == "hello world", 2)
-    dash_duo.percy_snapshot(name="simple-callback-hello-world")
+    dash_duo.wait_for_text_to_equal("#output-1", "hello world")
 
     assert call_count.value == 2 + len("hello world"), "initial count + each key stroke"
 
@@ -87,7 +87,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
 
     @app.callback(Output("sub-output-1", "children"), [Input("sub-input-1", "value")])
     def update_input(value):
-        call_count.value = call_count.value + 1
+        call_count.value += 1
         return value
 
     dash_duo.start_server(app)
@@ -109,8 +109,6 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
     assert (
         pad_div.text == pad_input.attrs["value"] and pad_div.get("id") == "sub-output-1"
     ), "the sub-output-1 content reflects to sub-input-1 value"
-
-    dash_duo.percy_snapshot(name="callback-generating-function-1")
 
     paths = dash_duo.redux_state_paths
     assert paths["objs"] == {}
@@ -142,11 +140,6 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
     # editing the input should modify the sub output
     dash_duo.find_element("#sub-input-1").send_keys("deadbeef")
 
-    assert (
-        dash_duo.find_element("#sub-output-1").text
-        == pad_input.attrs["value"] + "deadbeef"
-    ), "deadbeef is added"
-
     # the total updates is initial one + the text input changes
     dash_duo.wait_for_text_to_equal(
         "#sub-output-1", pad_input.attrs["value"] + "deadbeef"
@@ -154,7 +147,6 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
 
     assert not dash_duo.redux_state_is_loading, "loadingMap is empty"
 
-    dash_duo.percy_snapshot(name="callback-generating-function-2")
     assert dash_duo.get_logs() == [], "console is clean"
 
 
@@ -312,6 +304,11 @@ def test_cbsc006_array_of_objects(dash_duo, engine):
             dash_duo.select_dcc_dropdown("#dd", "opt{}".format(i))
 
 
+@pytest.mark.xfail(
+    condition=werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with 204 and Transfer-Encoding",
+    strict=False,
+)
 @pytest.mark.parametrize("refresh", [False, True])
 def test_cbsc007_parallel_updates(refresh, dash_duo):
     # This is a funny case, that seems to mostly happen with dcc.Location
@@ -382,7 +379,7 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
                         "string",
                         html.Div(
                             id="output-1",
-                            **{"data-cb": "initial value", "aria-cb": "initial value"}
+                            **{"data-cb": "initial value", "aria-cb": "initial value"},
                         ),
                     ]
                 )
@@ -391,11 +388,18 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
     )
 
     input_call_count = Value("i", 0)
+    percy_enabled = Value("b", False)
+
+    def snapshot(name):
+        percy_enabled.value = os.getenv("PERCY_ENABLE", "") != ""
+        dash_duo.percy_snapshot(name=name)
+        percy_enabled.value = False
 
     @app.callback(Output("output-1", "data-cb"), [Input("input", "value")])
     def update_data(value):
         with lock:
-            input_call_count.value += 1
+            if not percy_enabled.value:
+                input_call_count.value += 1
             return value
 
     @app.callback(Output("output-1", "children"), [Input("output-1", "data-cb")])
@@ -404,7 +408,9 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
 
     dash_duo.start_server(app)
     dash_duo.wait_for_text_to_equal("#output-1", "initial value")
-    dash_duo.percy_snapshot(name="wildcard-callback-1")
+    assert (
+        dash_duo.find_element("#output-1").get_attribute("data-cb") == "initial value"
+    )
 
     input1 = dash_duo.find_element("#input")
     dash_duo.clear_input(input1)
@@ -414,13 +420,13 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
             input1.send_keys(key)
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
-    dash_duo.percy_snapshot(name="wildcard-callback-2")
+    assert dash_duo.find_element("#output-1").get_attribute("data-cb") == "hello world"
 
     # an initial call, one for clearing the input
     # and one for each hello world character
     assert input_call_count.value == 2 + len("hello world")
 
-    assert not dash_duo.get_logs()
+    assert dash_duo.get_logs() == []
 
 
 def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
@@ -445,25 +451,16 @@ def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
 
     dash_duo.start_server(app)
 
-    wait.until(lambda: dash_duo.find_element("#output").text == '[null, null, "A"]', 3)
+    dash_duo.wait_for_text_to_equal("#output", '[null, null, "A"]')
     dash_duo.wait_for_element("#d").click()
 
-    wait.until(
-        lambda: dash_duo.find_element("#output").text == '[null, 1, "A"]',
-        3,
-    )
+    dash_duo.wait_for_text_to_equal("#output", '[null, 1, "A"]')
 
     dash_duo.wait_for_element("#n").click()
-    wait.until(
-        lambda: dash_duo.find_element("#output").text == '[1, 1, "A"]',
-        3,
-    )
+    dash_duo.wait_for_text_to_equal("#output", '[1, 1, "A"]')
 
     dash_duo.wait_for_element("#d").click()
-    wait.until(
-        lambda: dash_duo.find_element("#output").text == '[1, 2, "A"]',
-        3,
-    )
+    dash_duo.wait_for_text_to_equal("#output", '[1, 2, "A"]')
 
 
 def test_cbsc010_event_properties(dash_duo):
@@ -511,13 +508,17 @@ def test_cbsc011_one_call_for_multiple_outputs_initial(dash_duo):
     )
     def dynamic_output(*args):
         call_count.value += 1
-        return json.dumps(args, indent=2)
+        return json.dumps(args)
 
     dash_duo.start_server(app)
     dash_duo.wait_for_text_to_equal("#input-9", "Input 9")
+    dash_duo.wait_for_contains_text("#container", "Input 9")
 
     assert call_count.value == 1
-    dash_duo.percy_snapshot("test_rendering_layout_calls_callback_once_per_output")
+    inputs = [f'"Input {i}"' for i in range(10)]
+    expected = f'[{", ".join(inputs)}]'
+    dash_duo.wait_for_text_to_equal("#container", expected)
+    assert dash_duo.get_logs() == []
 
 
 def test_cbsc012_one_call_for_multiple_outputs_update(dash_duo):
@@ -554,7 +555,7 @@ def test_cbsc012_one_call_for_multiple_outputs_update(dash_duo):
     )
     def dynamic_output(*args):
         call_count.value += 1
-        return json.dumps(args, indent=2)
+        return json.dumps(args)
 
     dash_duo.start_server(app)
 
@@ -562,15 +563,17 @@ def test_cbsc012_one_call_for_multiple_outputs_update(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#input-9", "Input 9")
     assert call_count.value == 1
-
-    dash_duo.percy_snapshot("test_rendering_new_content_calls_callback_once_per_output")
+    inputs = [f'"Input {i}"' for i in range(10)]
+    expected = f'[{", ".join(inputs)}]'
+    dash_duo.wait_for_text_to_equal("#dynamic-output", expected)
+    assert dash_duo.get_logs() == []
 
 
 def test_cbsc013_multi_output_out_of_order(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
         [
-            html.Button(id="input", n_clicks=0),
+            html.Button("Click", id="input", n_clicks=0),
             html.Div(id="output1"),
             html.Div(id="output2"),
         ]
@@ -601,10 +604,8 @@ def test_cbsc013_multi_output_out_of_order(dash_duo):
     dash_duo.wait_for_text_to_equal("#output1", "2")
     dash_duo.wait_for_text_to_equal("#output2", "3")
     assert call_count.value == 3
-    dash_duo.percy_snapshot(
-        "test_callbacks_called_multiple_times_and_out_of_order_multi_output"
-    )
     assert dash_duo.driver.execute_script("return !window.store.getState().isLoading;")
+    assert dash_duo.get_logs() == []
 
 
 def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_duo):
@@ -616,8 +617,8 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     app.layout = html.Div(
         [
             html.Div(id="container"),
-            html.Button("Click", id="button-1", n_clicks=0, n_clicks_timestamp=-1),
-            html.Button("Click", id="button-2", n_clicks=0, n_clicks_timestamp=-1),
+            html.Button("Click 1", id="button-1", n_clicks=0, n_clicks_timestamp=-1),
+            html.Button("Click 2", id="button-2", n_clicks=0, n_clicks_timestamp=-1),
         ]
     )
 
@@ -640,14 +641,12 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_1.value == -1
     assert timestamp_2.value == -1
     assert call_count.value == 1
-    dash_duo.percy_snapshot("Dash button-1 initialization 1")
 
     dash_duo.find_element("#button-1").click()
     dash_duo.wait_for_text_to_equal("#container", "1, 0")
     assert timestamp_1.value > ((time.time() - (24 * 60 * 60)) * 1000)
     assert timestamp_2.value == -1
     assert call_count.value == 2
-    dash_duo.percy_snapshot("Dash button-1 click")
     prev_timestamp_1 = timestamp_1.value
 
     dash_duo.find_element("#button-2").click()
@@ -655,7 +654,6 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_1.value == prev_timestamp_1
     assert timestamp_2.value > ((time.time() - 24 * 60 * 60) * 1000)
     assert call_count.value == 3
-    dash_duo.percy_snapshot("Dash button-2 click")
     prev_timestamp_2 = timestamp_2.value
 
     dash_duo.find_element("#button-2").click()
@@ -664,7 +662,6 @@ def test_cbsc014_multiple_properties_update_at_same_time_on_same_component(dash_
     assert timestamp_2.value > prev_timestamp_2
     assert timestamp_2.value > timestamp_1.value
     assert call_count.value == 4
-    dash_duo.percy_snapshot("Dash button-2 click again")
 
 
 def test_cbsc015_input_output_callback(dash_duo):
@@ -705,7 +702,7 @@ def test_cbsc015_input_output_callback(dash_duo):
         with lock:
             input_.send_keys(key)
 
-    wait.until(lambda: dash_duo.find_element("#input-text").text == "3", 2)
+    dash_duo.wait_for_text_to_equal("#input-text", "3")
 
     assert call_count.value == 2, "initial + changed once"
 
@@ -739,13 +736,32 @@ def test_cbsc016_extra_components_callback(dash_duo):
 
     dash_duo.start_server(app)
 
-    assert dash_duo.find_element("#output-1").text == "initial value"
+    dash_duo.wait_for_text_to_equal("#output-1", "initial value")
 
     input_ = dash_duo.find_element("#input")
     dash_duo.clear_input(input_)
     input_.send_keys("A")
 
-    wait.until(lambda: dash_duo.find_element("#output-1").text == "A", 2)
+    dash_duo.wait_for_text_to_equal("#output-1", "A")
 
     assert store_data.value == 123
     assert dash_duo.get_logs() == []
+
+
+def test_cbsc017_callback_directly_callable():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value="initial value"),
+            html.Div(html.Div([1.5, None, "string", html.Div(id="output-1")])),
+        ]
+    )
+
+    @app.callback(
+        Output("output-1", "children"),
+        [Input("input", "value")],
+    )
+    def update_output(value):
+        return f"returning {value}"
+
+    assert update_output("my-value") == "returning my-value"

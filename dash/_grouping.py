@@ -14,6 +14,7 @@ structure
 
 """
 from dash.exceptions import InvalidCallbackReturnValue
+from ._utils import AttributeDict, stringify_id
 
 
 def flatten_grouping(grouping, schema=None):
@@ -94,20 +95,16 @@ def make_grouping_by_index(schema, flat_values):
     if not isinstance(flat_values, list):
         raise ValueError(
             "The flat_values argument must be a list. "
-            "Received value of type {typ}".format(typ=type(flat_values))
+            f"Received value of type {type(flat_values)}"
         )
 
     expected_length = len(flatten_grouping(schema))
     if len(flat_values) != expected_length:
         raise ValueError(
-            "The specified grouping pattern requires {n} elements but received {m}\n"
-            "    Grouping patter: {pattern}\n"
-            "    Values: {flat_values}".format(
-                n=expected_length,
-                m=len(flat_values),
-                pattern=repr(schema),
-                flat_values=flat_values,
-            )
+            f"The specified grouping pattern requires {expected_length} "
+            f"elements but received {len(flat_values)}\n"
+            f"    Grouping pattern: {repr(schema)}\n"
+            f"    Values: {flat_values}"
         )
 
     return _perform_make_grouping_like(schema, list(flat_values))
@@ -127,14 +124,14 @@ def map_grouping(fn, grouping):
         return [map_grouping(fn, g) for g in grouping]
 
     if isinstance(grouping, dict):
-        return {k: map_grouping(fn, g) for k, g in grouping.items()}
+        return AttributeDict({k: map_grouping(fn, g) for k, g in grouping.items()})
 
     return fn(grouping)
 
 
 def make_grouping_by_key(schema, source, default=None):
     """
-    Create a grouping from a schema by ujsing the schema's scalar values to look up
+    Create a grouping from a schema by using the schema's scalar values to look up
     items in the provided source object.
 
     :param schema: A grouping of potential keys in source
@@ -225,3 +222,17 @@ def validate_grouping(grouping, schema, full_schema=None, path=()):
             )
     else:
         pass
+
+
+def update_args_group(g, triggered):
+    if isinstance(g, dict):
+        str_id = stringify_id(g["id"])
+        prop_id = f"{str_id}.{g['property']}"
+
+        new_values = {
+            "value": g.get("value"),
+            "str_id": str_id,
+            "triggered": prop_id in triggered,
+            "id": AttributeDict(g["id"]) if isinstance(g["id"], dict) else g["id"],
+        }
+        g.update(new_values)

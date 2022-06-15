@@ -2,23 +2,17 @@
 import pytest
 import time
 import json
+
+import werkzeug
+
 from dash import Dash, Input, Output, State, dcc, html
 from dash.exceptions import PreventUpdate
+
+from dash.testing.wait import until
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-
-def findSyncPlotlyJs(scripts):
-    for script in scripts:
-        if "dash_core_components/plotly-" in script.get_attribute("src"):
-            return script
-
-
-def findAsyncPlotlyJs(scripts):
-    for script in scripts:
-        if "dash_core_components/async-plotlyjs" in script.get_attribute("src"):
-            return script
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -55,20 +49,15 @@ def test_grva001_candlestick(dash_dcc, is_eager):
         EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph .main-svg"))
     )
 
-    dash_dcc.percy_snapshot(
-        "candlestick - initial ({})".format("eager" if is_eager else "lazy")
-    )
-    button.click()
-    time.sleep(1)
-    dash_dcc.percy_snapshot(
-        "candlestick - 1 click ({})".format("eager" if is_eager else "lazy")
-    )
+    is_eager = "eager" if is_eager else "lazy"
 
     button.click()
     time.sleep(1)
-    dash_dcc.percy_snapshot(
-        "candlestick - 2 click ({})".format("eager" if is_eager else "lazy")
-    )
+    dash_dcc.percy_snapshot(f"candlestick - 1 click ({is_eager})")
+
+    button.click()
+    time.sleep(1)
+    dash_dcc.percy_snapshot(f"candlestick - 2 click ({is_eager})")
 
     assert dash_dcc.get_logs() == []
 
@@ -87,7 +76,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
                             "x": [1, 2, 3],
                             "y": [2, 4, 5],
                             "type": "bar",
-                            "name": u"Montréal",
+                            "name": "Montréal",
                         },
                     ],
                     "layout": {"title": "Dash Data Visualization"},
@@ -107,7 +96,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
                             "x": [11, 22, 33],
                             "y": [22, 44, 55],
                             "type": "bar",
-                            "name": u"Montréal",
+                            "name": "Montréal",
                         },
                     ],
                     "layout": {"title": "Dash Data Visualization"},
@@ -140,7 +129,7 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
 
     # use this opportunity to test restyleData, since there are multiple
     # traces on this graph
-    legendToggle = dash_dcc.driver.find_element_by_css_selector(
+    legendToggle = dash_dcc.find_element(
         "#example-graph .traces:first-child .legendtoggle"
     )
     legendToggle.click()
@@ -148,13 +137,13 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
         "#restyle-data", '[{"visible": ["legendonly"]}, [0]]'
     )
 
+    is_eager = "eager" if is_eager else "lazy"
+
     # move snapshot after click, so it's more stable with the wait
-    dash_dcc.percy_snapshot(
-        "2 graphs with different figures ({})".format("eager" if is_eager else "lazy")
-    )
+    dash_dcc.percy_snapshot(f"2 graphs with different figures ({is_eager})")
 
     # and test relayoutData while we're at it
-    autoscale = dash_dcc.driver.find_element_by_css_selector("#example-graph .ewdrag")
+    autoscale = dash_dcc.find_element("#example-graph .ewdrag")
     autoscale.click()
     autoscale.click()
     dash_dcc.wait_for_text_to_equal("#relayout-data", '{"xaxis.autorange": true}')
@@ -187,29 +176,40 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
         return prev_graph
 
     dash_dcc.start_server(app)
-    button = dash_dcc.wait_for_element("#click")
-    button.click()
-    time.sleep(2)  # Wait for graph to re-render
-    dash_dcc.percy_snapshot(
-        "render-empty-graph ({})".format("eager" if is_eager else "lazy")
-    )
+
+    def num_traces():
+        return dash_dcc.driver.execute_script(
+            """
+            return (document.querySelector('.js-plotly-plot').data || []).length;
+        """
+        )
+
+    dash_dcc.wait_for_element(".js-plotly-plot")
+    assert num_traces() == 1
+
+    dash_dcc.wait_for_element("#click").click()
+    until(lambda: num_traces() == 0, timeout=2)
 
     assert dash_dcc.get_logs() == []
 
 
+@pytest.mark.skipif(
+    werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with no_update 204 responses get Transfer-Encoding header.",
+)
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
 
-    def generate_with_id(id, data=None):
+    def generate_with_id(_id, data=None):
         if data is None:
             data = [{"x": [10, 11, 12, 13, 14], "y": [0, 0.5, 1, 0.5, 0]}]
 
         return html.Div(
             [
-                html.P(id),
-                dcc.Graph(id=id, figure=dict(data=data)),
-                html.Div(id="output_{}".format(id)),
+                html.P(_id),
+                dcc.Graph(id=_id, figure=dict(data=data)),
+                html.Div(id=f"output_{_id}"),
             ]
         )
 
@@ -219,7 +219,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
         "trace_will_prepend_with_max_points",
     ]
 
-    layout = [generate_with_id(id) for id in figs]
+    layout = [generate_with_id(_id) for _id in figs]
 
     figs.append("trace_will_allow_repeated_prepend")
     data = [{"y": [0, 0, 0]}]
@@ -254,7 +254,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_allow_repeated_prepend", "prependData"),
-        [Input("interval_prependablegraph_prependtwice", "n_intervals")],
+        Input("interval_prependablegraph_prependtwice", "n_intervals"),
     )
     def trace_will_allow_repeated_prepend(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -264,7 +264,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_prepend", "prependData"),
-        [Input("interval_prependablegraph_update", "n_intervals")],
+        Input("interval_prependablegraph_update", "n_intervals"),
     )
     def trace_will_prepend(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -276,7 +276,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_prepend_selectively", "prependData"),
-        [Input("interval_prependablegraph_update", "n_intervals")],
+        Input("interval_prependablegraph_update", "n_intervals"),
     )
     def trace_will_prepend_selectively(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -288,7 +288,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_prepend_with_no_indices", "prependData"),
-        [Input("interval_prependablegraph_update", "n_intervals")],
+        Input("interval_prependablegraph_update", "n_intervals"),
     )
     def trace_will_prepend_with_no_indices(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -300,7 +300,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_prepend_with_max_points", "prependData"),
-        [Input("interval_prependablegraph_update", "n_intervals")],
+        Input("interval_prependablegraph_update", "n_intervals"),
     )
     def trace_will_prepend_with_max_points(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -310,12 +310,12 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
         y_new = [0.1, 0.2, 0.3, 0.4, 0.5]
         return dict(x=[x_new], y=[y_new]), [0], 7
 
-    for id in figs:
+    for _id in figs:
 
         @app.callback(
-            Output("output_{}".format(id), "children"),
-            [Input(id, "prependData")],
-            [State(id, "figure")],
+            Output(f"output_{_id}", "children"),
+            Input(_id, "prependData"),
+            State(_id, "figure"),
         )
         def display_data(trigger, fig):
             return json.dumps(fig["data"])
@@ -369,19 +369,23 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
+@pytest.mark.skipif(
+    werkzeug.__version__ in ("2.1.0", "2.1.1"),
+    reason="Bug with no_update 204 responses get Transfer-Encoding header.",
+)
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva005_graph_extend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
 
-    def generate_with_id(id, data=None):
+    def generate_with_id(_id, data=None):
         if data is None:
             data = [{"x": [0, 1, 2, 3, 4], "y": [0, 0.5, 1, 0.5, 0]}]
 
         return html.Div(
             [
-                html.P(id),
-                dcc.Graph(id=id, figure=dict(data=data)),
-                html.Div(id="output_{}".format(id)),
+                html.P(_id),
+                dcc.Graph(id=_id, figure=dict(data=data)),
+                html.Div(id=f"output_{_id}"),
             ]
         )
 
@@ -391,7 +395,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
         "trace_will_extend_with_max_points",
     ]
 
-    layout = [generate_with_id(id) for id in figs]
+    layout = [generate_with_id(_id) for _id in figs]
 
     figs.append("trace_will_allow_repeated_extend")
     data = [{"y": [0, 0, 0]}]
@@ -426,7 +430,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_allow_repeated_extend", "extendData"),
-        [Input("interval_extendablegraph_extendtwice", "n_intervals")],
+        Input("interval_extendablegraph_extendtwice", "n_intervals"),
     )
     def trace_will_allow_repeated_extend(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -436,7 +440,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_extend", "extendData"),
-        [Input("interval_extendablegraph_update", "n_intervals")],
+        Input("interval_extendablegraph_update", "n_intervals"),
     )
     def trace_will_extend(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -448,7 +452,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_extend_selectively", "extendData"),
-        [Input("interval_extendablegraph_update", "n_intervals")],
+        Input("interval_extendablegraph_update", "n_intervals"),
     )
     def trace_will_extend_selectively(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -460,7 +464,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_extend_with_no_indices", "extendData"),
-        [Input("interval_extendablegraph_update", "n_intervals")],
+        Input("interval_extendablegraph_update", "n_intervals"),
     )
     def trace_will_extend_with_no_indices(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -472,7 +476,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_extend_with_max_points", "extendData"),
-        [Input("interval_extendablegraph_update", "n_intervals")],
+        Input("interval_extendablegraph_update", "n_intervals"),
     )
     def trace_will_extend_with_max_points(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -482,12 +486,12 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
         y_new = [0.1, 0.2, 0.3, 0.4, 0.5]
         return dict(x=[x_new], y=[y_new]), [0], 7
 
-    for id in figs:
+    for _id in figs:
 
         @app.callback(
-            Output("output_{}".format(id), "children"),
-            [Input(id, "extendData")],
-            [State(id, "figure")],
+            Output(f"output_{_id}", "children"),
+            Input(_id, "extendData"),
+            State(_id, "figure"),
         )
         def display_data(trigger, fig):
             return json.dumps(fig["data"])
@@ -567,7 +571,7 @@ def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
                                                     "x": [1, 2, 3],
                                                     "y": [2, 4, 5],
                                                     "type": "scattergl",
-                                                    "name": u"Montréal",
+                                                    "name": "Montréal",
                                                 },
                                             ]
                                         },
@@ -594,7 +598,7 @@ def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
                                             "x": [1, 2, 3],
                                             "y": [1, 2, 3],
                                             "type": "scattergl",
-                                            "name": u"Montréal",
+                                            "name": "Montréal",
                                         },
                                     ]
                                 },
@@ -637,11 +641,14 @@ def test_grva006_unmounted_graph_resize(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
-def test_grva007_external_plotlyjs_prevents_lazy(dash_dcc):
+@pytest.mark.parametrize("is_eager", [False, True])
+def test_grva007_external_plotlyjs_prevents_lazy(is_eager, dash_dcc):
+    # specific plotly.js version that's older than the built-in version
+    v = "2.8.1"
     app = Dash(
         __name__,
-        eager_loading=False,
-        external_scripts=["https://unpkg.com/plotly.js/dist/plotly.min.js"],
+        eager_loading=is_eager,
+        external_scripts=[f"https://unpkg.com/plotly.js-dist-min@{v}/plotly.min.js"],
     )
 
     app.layout = html.Div(id="div", children=[html.Button(id="btn")])
@@ -664,18 +671,22 @@ def test_grva007_external_plotlyjs_prevents_lazy(dash_dcc):
     # Give time for the async dependency to be requested (if any)
     time.sleep(2)
 
-    scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
-    assert findSyncPlotlyJs(scripts) is None
-    assert findAsyncPlotlyJs(scripts) is None
+    v_loaded = dash_dcc.driver.execute_script("return Plotly.version")
+
+    # TODO: in eager mode, built-in plotly.js wins!! I don't think this is what we want.
+    # But need to look into why we use the bare plotly.js bundle in eager mode, rather
+    # than simply preloading the regular async chunk.
+    if not is_eager:
+        # as loaded in external_scripts
+        assert v_loaded == v
 
     dash_dcc.find_element("#btn").click()
 
     # Give time for the async dependency to be requested (if any)
     time.sleep(2)
 
-    scripts = dash_dcc.driver.find_elements(By.CSS_SELECTOR, "script")
-    assert findSyncPlotlyJs(scripts) is None
-    assert findAsyncPlotlyJs(scripts) is None
+    # Check that the originally-loaded version is still the one we have
+    assert dash_dcc.driver.execute_script("return Plotly.version") == v_loaded
 
     assert dash_dcc.get_logs() == []
 
@@ -847,3 +858,203 @@ def test_grva009_originals_maintained_for_responsive_override(mutate_fig, dash_d
     assert graph_dims() == responsive_size
 
     assert dash_dcc.get_logs() == []
+
+
+def test_grva010_external_mathjax_prevents_lazy(dash_dcc):
+    # specific MathJax version that's older than the built-in version
+    v = "3.1.4"
+    app = Dash(
+        __name__,
+        eager_loading=False,
+        external_scripts=[f"https://cdn.jsdelivr.net/npm/mathjax@{v}/es5/tex-svg.js"],
+    )
+
+    app.layout = html.Div(id="div", children=[html.Button(id="btn")])
+
+    @app.callback(Output("div", "children"), [Input("btn", "n_clicks")])
+    def load_chart(n_clicks):
+        if n_clicks is None:
+            raise PreventUpdate
+
+        return dcc.Graph(
+            mathjax=True,
+            id="output",
+            figure={
+                "data": [{"y": [3, 1, 2]}],
+                "layout": {"title": {"text": "$E=mc^2$"}},
+            },
+        )
+
+    dash_dcc.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    # Give time for the async dependency to be requested (if any)
+    dash_dcc.wait_for_element("button#btn")
+
+    # even in eager mode (when the async bundle is preloaded) we keep the
+    # external version, which seems to be a pleasant effect of how
+    # webpack bundles these chunks!
+    assert dash_dcc.driver.execute_script("return MathJax.version") == v
+
+    dash_dcc.find_element("#btn").click()
+    dash_dcc.wait_for_element(".gtitle-math")
+
+    # We still have the external version, not the built-in one
+    assert dash_dcc.driver.execute_script("return MathJax.version") == v
+
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva011_without_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager, assets_folder="../../assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="output",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": "Apple: $2, Orange: $3"}},
+                },
+            )
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    assert dash_dcc.wait_for_element(".gtitle").text == "Apple: $2, Orange: $3"
+
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva012_with_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager, assets_folder="../../assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                mathjax=True,
+                id="output",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": "Equation: $E=mc^2$"}},
+                },
+            )
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element(".gtitle-math")
+
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva013_toggle_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager)
+
+    gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
+
+    app.layout = html.Div(
+        [
+            html.Button("Toggle MathJax", id="btn"),
+            dcc.Graph(
+                id="gd",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": gravity}},
+                },
+            ),
+        ]
+    )
+
+    @app.callback(
+        Output("gd", "mathjax"), Input("btn", "n_clicks"), prevent_initial_call=True
+    )
+    def toggle(n):
+        return (n or 0) % 2 != 0
+
+    dash_dcc.start_server(app)
+
+    # Initial state: no MathJax loaded or rendered, unformatted text is shown
+    dash_dcc.wait_for_contains_text(".gtitle", gravity)
+
+    # Note: in eager mode, the async-mathjax bundle IS loaded, but it seems like
+    # it isn't executed until we ask for MathJax with import()
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn = dash_dcc.find_element("#btn")
+    btn.click()
+
+    # One click: MathJax is rendered, unformatted text is gone
+
+    dash_dcc.wait_for_element(".gtitle-math")
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn.click()
+
+    # Second click: Back to initial state except that MathJax library is still loaded
+    dash_dcc.wait_for_contains_text(".gtitle", gravity)
+    dash_dcc.wait_for_no_elements(".gtitle-math")
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")
+
+
+@pytest.mark.parametrize("is_eager", [True, False])
+def test_grva014_load_mathjax(dash_dcc, is_eager):
+    app = Dash(__name__, eager_loading=is_eager)
+
+    gravity = "$F=\\frac{Gm_1m_2}{r^2}$"
+
+    app.layout = html.Div(
+        [
+            html.Button("Add Second MathJax", id="btn"),
+            dcc.Graph(
+                mathjax=False,
+                id="gd",
+                figure={
+                    "data": [{"y": [3, 1, 2]}],
+                    "layout": {"title": {"text": gravity}},
+                },
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Output("out", "children"), Input("btn", "n_clicks"), prevent_initial_call=True
+    )
+    def add_math(n):
+        return dcc.Graph(
+            mathjax=True,
+            id="gd2",
+            figure={
+                "data": [{"y": [3, 1, 2]}],
+                "layout": {"title": {"text": gravity}},
+            },
+        )
+
+    dash_dcc.start_server(app)
+
+    # Initial state: no MathJax loaded or rendered, unformatted text is shown
+    dash_dcc.wait_for_contains_text("#gd .gtitle", gravity)
+    dash_dcc.wait_for_no_elements("#gd .gtitle-math")
+    assert not dash_dcc.driver.execute_script("return !!window.MathJax")
+
+    btn = dash_dcc.find_element("#btn")
+    btn.click()
+
+    # One click: MathJax is loaded and rendered on the second, unformatted text is gone
+
+    dash_dcc.wait_for_element("#gd2 .gtitle-math")
+    assert gravity not in dash_dcc._get_element("#gd2 .gtitle").text
+    assert dash_dcc.driver.execute_script("return !!window.MathJax")

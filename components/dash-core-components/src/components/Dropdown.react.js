@@ -56,8 +56,7 @@ Dropdown.propTypes = {
                 /**
                  * The option's label
                  */
-                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                    .isRequired,
+                label: PropTypes.node.isRequired,
 
                 /**
                  * The value of the option. This value
@@ -107,21 +106,9 @@ Dropdown.propTypes = {
     ]),
 
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
+     * If true, the user can select multiple values
      */
-    id: PropTypes.string,
-
-    /**
-     * height of each option. Can be increased when label lengths would wrap around
-     */
-    optionHeight: PropTypes.number,
-
-    /**
-     * className of the dropdown element
-     */
-    className: PropTypes.string,
+    multi: PropTypes.bool,
 
     /**
      * Whether or not the dropdown is "clearable", that is, whether or
@@ -129,21 +116,6 @@ Dropdown.propTypes = {
      * the selected value.
      */
     clearable: PropTypes.bool,
-
-    /**
-     * If true, this dropdown is disabled and the selection cannot be changed.
-     */
-    disabled: PropTypes.bool,
-
-    /**
-     * If true, the user can select multiple values
-     */
-    multi: PropTypes.bool,
-
-    /**
-     * The grey, default text shown when no option is selected
-     */
-    placeholder: PropTypes.string,
 
     /**
      * Whether to enable the searching feature or not
@@ -156,14 +128,41 @@ Dropdown.propTypes = {
     search_value: PropTypes.string,
 
     /**
-     * Dash-assigned callback that gets fired when the input changes
+     * The grey, default text shown when no option is selected
      */
-    setProps: PropTypes.func,
+    placeholder: PropTypes.string,
+
+    /**
+     * If true, this dropdown is disabled and the selection cannot be changed.
+     */
+    disabled: PropTypes.bool,
+
+    /**
+     * height of each option. Can be increased when label lengths would wrap around
+     */
+    optionHeight: PropTypes.number,
 
     /**
      * Defines CSS styles which will override styles previously set.
      */
     style: PropTypes.object,
+
+    /**
+     * className of the dropdown element
+     */
+    className: PropTypes.string,
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
+
+    /**
+     * Dash-assigned callback that gets fired when the input changes
+     */
+    setProps: PropTypes.func,
 
     /**
      * Object that holds the loading state object coming from dash-renderer

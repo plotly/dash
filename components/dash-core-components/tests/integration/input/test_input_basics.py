@@ -18,15 +18,19 @@ ALLOWED_TYPES = (
 
 def test_inbs001_all_types(dash_dcc):
     def input_id(type_):
-        return "input_{}".format(type_)
+        return f"input_{type_}"
 
     app = Dash(__name__)
     app.layout = html.Div(
         [
-            dcc.Input(id=input_id(_), type=_, placeholder="input type {}".format(_))
+            dcc.Input(id=input_id(_), type=_, placeholder=f"input type {_}")
             for _ in ALLOWED_TYPES
         ]
         + [html.Div(id="output")]
+        + [
+            dcc.Input(id=input_id(_) + "2", type=_, placeholder=f"input type {_}")
+            for _ in ALLOWED_TYPES
+        ]
     )
 
     @app.callback(
@@ -42,11 +46,9 @@ def test_inbs001_all_types(dash_dcc):
         dash_dcc.find_element("#input_hidden").get_attribute("type") == "hidden"
     ), "hidden input element should present with hidden type"
 
-    dash_dcc.percy_snapshot("intp001 - dcc init state")
-
     for atype in ALLOWED_TYPES[:-1]:
-        dash_dcc.find_element("#input_{}".format(atype)).send_keys(
-            "test intp001 - input[{}]".format(atype)
+        dash_dcc.find_element(f"#input_{atype}").send_keys(
+            f"test intp001 - input[{atype}]"
         )
 
     with pytest.raises(WebDriverException):
@@ -64,7 +66,9 @@ def test_inbs002_user_class(dash_dcc):
 
     dash_dcc.start_server(app)
 
-    dash_dcc.find_element(".test-input-css")
-    dash_dcc.percy_snapshot("dcc styled input - width: 100%, border-color: hotpink")
+    dash_dcc.wait_for_style_to_equal(
+        ".test-input-css input", "borderColor", "rgb(255, 105, 180)"
+    )
+    dash_dcc.wait_for_style_to_equal(".test-input-css input", "width", "420px")
 
     assert dash_dcc.get_logs() == []

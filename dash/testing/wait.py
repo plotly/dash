@@ -3,6 +3,7 @@
 import time
 import logging
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.by import By
 from dash.testing.errors import TestingTimeoutError
 
 
@@ -58,11 +59,28 @@ class contains_text:
 
     def __call__(self, driver):
         try:
-            elem = driver.find_element_by_css_selector(self.selector)
+            elem = driver.find_element(By.CSS_SELECTOR, self.selector)
             logger.debug("contains text {%s} => expected %s", elem.text, self.text)
             return self.text in str(elem.text) or self.text in str(
                 elem.get_attribute("value")
             )
+        except WebDriverException:
+            return False
+
+
+class contains_class:
+    def __init__(self, selector, classname):
+        self.selector = selector
+        self.classname = classname
+
+    def __call__(self, driver):
+        try:
+            elem = driver.find_element(By.CSS_SELECTOR, self.selector)
+            classname = elem.get_attribute("class")
+            logger.debug(
+                "contains class {%s} => expected %s", classname, self.classname
+            )
+            return self.classname in str(classname).split(" ")
         except WebDriverException:
             return False
 
@@ -74,7 +92,7 @@ class text_to_equal:
 
     def __call__(self, driver):
         try:
-            elem = driver.find_element_by_css_selector(self.selector)
+            elem = driver.find_element(By.CSS_SELECTOR, self.selector)
             logger.debug("text to equal {%s} => expected %s", elem.text, self.text)
             return (
                 str(elem.text) == self.text
@@ -92,9 +110,26 @@ class style_to_equal:
 
     def __call__(self, driver):
         try:
-            elem = driver.find_element_by_css_selector(self.selector)
+            elem = driver.find_element(By.CSS_SELECTOR, self.selector)
             val = elem.value_of_css_property(self.style)
             logger.debug("style to equal {%s} => expected %s", val, self.val)
             return val == self.val
+        except WebDriverException:
+            return False
+
+
+class class_to_equal:
+    def __init__(self, selector, classname):
+        self.selector = selector
+        self.classname = classname
+
+    def __call__(self, driver):
+        try:
+            elem = driver.find_element(By.CSS_SELECTOR, self.selector)
+            classname = elem.get_attribute("class")
+            logger.debug(
+                "class to equal {%s} => expected %s", classname, self.classname
+            )
+            return str(classname) == self.classname
         except WebDriverException:
             return False

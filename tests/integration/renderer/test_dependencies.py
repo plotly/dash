@@ -4,7 +4,7 @@ from dash import Dash, html, dcc, Input, Output
 
 
 def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
-    app = Dash(__name__)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [dcc.Input(id="input", value="initial value"), html.Div(id="output-1")]
     )
@@ -18,7 +18,6 @@ def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
 
     # callback for component that doesn't yet exist in the dom
     # in practice, it might get added by some other callback
-    app.config.suppress_callback_exceptions = True
     output_2_call_count = Value("i", 0)
 
     @app.callback(Output("output-2", "children"), [Input("input", "value")])
@@ -30,7 +29,6 @@ def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
 
     assert dash_duo.find_element("#output-1").text == "initial value"
     assert output_1_call_count.value == 1 and output_2_call_count.value == 0
-    dash_duo.percy_snapshot(name="dependencies")
 
     dash_duo.find_element("#input").send_keys("a")
     assert dash_duo.find_element("#output-1").text == "initial valuea"

@@ -14,7 +14,7 @@ def test_intv001_interval(dash_dcc):
 
     @app.callback(Output("output", "children"), [Input("interval", "n_intervals")])
     def update_text(n):
-        return "{}".format(n)
+        return str(n)
 
     dash_dcc.start_server(app)
 
@@ -55,7 +55,7 @@ def test_intv002_restart(dash_dcc):
 
     @app.callback(Output("output", "children"), [Input("interval", "n_intervals")])
     def display_data(n_intervals):
-        return "Updated {}".format(n_intervals)
+        return f"Updated {n_intervals}"
 
     dash_dcc.start_server(app)
 

@@ -99,11 +99,7 @@ RadioItems.propTypes = {
                 /**
                  * The option's label
                  */
-                label: PropTypes.oneOfType([
-                    PropTypes.string,
-                    PropTypes.number,
-                    PropTypes.bool,
-                ]).isRequired,
+                label: PropTypes.node.isRequired,
 
                 /**
                  * The value of the option. This value
@@ -132,13 +128,6 @@ RadioItems.propTypes = {
     ]),
 
     /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
-    /**
      * The currently selected value
      */
     value: PropTypes.oneOfType([
@@ -146,6 +135,13 @@ RadioItems.propTypes = {
         PropTypes.number,
         PropTypes.bool,
     ]),
+
+    /**
+     * Indicates whether labelStyle should be inline or not
+     * True: Automatically set { 'display': 'inline-block' } to labelStyle
+     * False: No additional styles are passed into labelStyle.
+     */
+    inline: PropTypes.bool,
 
     /**
      * The style of the container (div)
@@ -178,6 +174,13 @@ RadioItems.propTypes = {
      *  and the option's label
      */
     labelClassName: PropTypes.string,
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the value changes.
@@ -230,13 +233,6 @@ RadioItems.propTypes = {
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
-
-    /**
-     * Indicates whether labelStyle should be inline or not
-     * True: Automatically set { 'display': 'inline-block' } to labelStyle
-     * False: No additional styles are passed into labelStyle.
-     */
-    inline: PropTypes.bool,
 };
 
 RadioItems.defaultProps = {

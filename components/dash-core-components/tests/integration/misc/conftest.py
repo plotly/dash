@@ -6,10 +6,10 @@ from dash import Dash, dcc, html
 
 OPTIONS = [
     {"label": "New York City", "value": "NYC"},
-    {"label": u"Montréal", "value": "MTL"},
+    {"label": "Montréal", "value": "MTL"},
     {"label": "San Francisco", "value": "SF"},
-    {"label": u"北京", "value": u"帝都"},
-    {"label": u"臺北", "value": u"天龍國"},
+    {"label": "北京", "value": "帝都"},
+    {"label": "臺北", "value": "天龍國"},
 ]
 
 
@@ -97,9 +97,7 @@ def platter_app():
             dcc.Slider(
                 min=0,
                 max=9,
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 value=5,
             ),
             html.Label("Graph"),
@@ -107,7 +105,7 @@ def platter_app():
                 id="graph",
                 figure={
                     "data": [{"x": [1, 2, 3], "y": [4, 1, 4]}],
-                    "layout": {"title": u"北京"},
+                    "layout": {"title": "北京"},
                 },
             ),
             html.Div(

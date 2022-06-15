@@ -24,12 +24,10 @@ class Resources:
             if "async" in s:
                 if "dynamic" in s:
                     raise exceptions.ResourceException(
-                        """
+                        f"""
                         Can't have both 'dynamic' and 'async'.
-                        {}
-                        """.format(
-                            json.dumps(filtered_resource)
-                        )
+                        {json.dumps(filtered_resource)}
+                        """
                     )
 
                 # Async assigns a value dynamically to 'dynamic'
@@ -63,23 +61,21 @@ class Resources:
                 warnings.warn(
                     (
                         "You have set your config to `serve_locally=True` but "
-                        "A local version of {} is not available.\n"
+                        f"A local version of {s['external_url']} is not available.\n"
                         "If you added this file with "
                         "`app.scripts.append_script` "
                         "or `app.css.append_css`, use `external_scripts` "
                         "or `external_stylesheets` instead.\n"
                         "See https://dash.plotly.com/external-resources"
-                    ).format(s["external_url"])
+                    )
                 )
                 continue
             else:
                 raise exceptions.ResourceException(
+                    f"""
+                    {json.dumps(filtered_resource)} does not have a
+                    relative_package_path, absolute_path, or an external_url.
                     """
-                    {} does not have a relative_package_path, absolute_path,
-                    or an external_url.
-                    """.format(
-                        json.dumps(filtered_resource)
-                    )
                 )
 
             filtered_resources.append(filtered_resource)

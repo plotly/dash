@@ -13,12 +13,12 @@ class _Wildcard:  # pylint: disable=too-few-public-methods
         return self._name
 
     def __repr__(self):
-        return "<{}>".format(self)
+        return f"<{self}>"
 
     def to_json(self):
         # used in serializing wildcards - arrays are not allowed as
         # id values, so make the wildcards look like length-1 arrays.
-        return '["{}"]'.format(self._name)
+        return f'["{self._name}"]'
 
 
 MATCH = _Wildcard("MATCH")
@@ -30,17 +30,17 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     def __init__(self, component_id, component_property):
 
         if isinstance(component_id, Component):
-            self.component_id = component_id.set_random_id()
+            self.component_id = component_id._set_random_id()
         else:
             self.component_id = component_id
 
         self.component_property = component_property
 
     def __str__(self):
-        return "{}.{}".format(self.component_id_str(), self.component_property)
+        return f"{self.component_id_str()}.{self.component_property}"
 
     def __repr__(self):
-        return "<{} `{}`>".format(self.__class__.__name__, self)
+        return f"<{self.__class__.__name__} `{self}`>"
 
     def component_id_str(self):
         i = self.component_id
@@ -50,7 +50,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
 
         def _json(k, v):
             vstr = v.to_json() if hasattr(v, "to_json") else json.dumps(v)
-            return "{}:{}".format(json.dumps(k), vstr)
+            return f"{json.dumps(k)}:{vstr}"
 
         if isinstance(i, dict):
             return "{" + ",".join(_json(k, i[k]) for k in sorted(i)) + "}"
@@ -144,14 +144,14 @@ class ClientsideFunction:  # pylint: disable=too-few-public-methods
 
         if namespace in ["PreventUpdate", "no_update"]:
             raise ValueError(
-                '"{}" is a forbidden namespace in' " dash_clientside.".format(namespace)
+                f'"{namespace}" is a forbidden namespace in dash_clientside.'
             )
 
         self.namespace = namespace
         self.function_name = function_name
 
     def __repr__(self):
-        return "ClientsideFunction({}, {})".format(self.namespace, self.function_name)
+        return f"ClientsideFunction({self.namespace}, {self.function_name})"
 
 
 def extract_grouped_output_callback_args(args, kwargs):

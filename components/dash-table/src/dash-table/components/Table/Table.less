@@ -476,7 +476,6 @@
                 position: relative;
 
                 & input {
-                    position: absolute;
                     left: 0;
                     top: 0;
                     height: 100%;
@@ -687,16 +686,27 @@
     	}
 
 	    .dash-spreadsheet-inner {
-            .dash-header>div {
+            .dash-header>div,
+            .dash-filter>div {
                 display: flex;
+
+                input[type="text"] {
+                    flex: 1;
+                    line-height: unset;
+                    &::placeholder {
+                        font-size: 0.9em;
+                    }
+                }
+            }
+            .dash-filter>div {
+                flex-direction: row-reverse;
             }
             .column-actions {
                 display: flex;
-                flex-wrap: wrap;
             }
 
             .column-header-name {
-                margin-left: auto;
+                flex-grow: 1;
             }
 
             [class^='column-header--'], [class^='dash-filter--'] {

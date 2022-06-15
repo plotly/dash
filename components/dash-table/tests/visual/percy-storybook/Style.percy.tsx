@@ -38,8 +38,9 @@ const DEFAULT_TABLE = {
     ]
 };
 
-storiesOf('DashTable/Style type condition', module)
-    .add('with 1 column', () => (
+storiesOf('DashTable/Style type condition', module).add('all variants', () => (
+    <div>
+        <div>with 1 column</div>
         <DataTable
             setProps={setProps}
             id='table'
@@ -91,8 +92,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('row padding', () => (
+        <div>row padding</div>
         <DataTable
             id='styling-2'
             data={data}
@@ -104,8 +104,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('dark theme with cells', () => (
+        <div>dark theme with cells</div>
         <DataTable
             id='styling-6'
             data={data}
@@ -139,8 +138,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('highlight columns', () => (
+        <div>highlight columns</div>
         <DataTable
             id='styling-9'
             data={data}
@@ -161,8 +159,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('highlight cells', () => (
+        <div>highlight cells</div>
         <DataTable
             id='styling-10'
             data={data}
@@ -187,8 +184,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('single selected cells on dark themes', () => (
+        <div>single selected cells on dark themes</div>
         <DataTable
             id='styling-11'
             data={data}
@@ -207,8 +203,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('multiple selected cells on dark themes', () => (
+        <div>multiple selected cells on dark themes</div>
         <DataTable
             id='styling-12'
             data={data}
@@ -232,8 +227,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('yellow if table is editable', () => (
+        <div>yellow if table is editable</div>
         <DataTable
             id='styling-13'
             data={[
@@ -260,8 +254,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('green if table is not editable', () => (
+        <div>green if table is not editable</div>
         <DataTable
             id='styling-14'
             data={[
@@ -287,8 +280,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('first column is editable and blue', () => (
+        <div>first column is editable and blue</div>
         <DataTable
             id='styling-15'
             data={[
@@ -314,8 +306,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('first column is editable and not blue', () => (
+        <div>first column is editable and not blue</div>
         <DataTable
             id='styling-16'
             data={[
@@ -341,8 +332,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('style header and column based on edibility', () => (
+        <div>style header and column based on edibility</div>
         <DataTable
             id='styling-17'
             data={[
@@ -374,8 +364,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('header, filter, column colors depend on editbility', () => (
+        <div>header, filter, column colors depend on editbility</div>
         <DataTable
             id='styling-18'
             data={[
@@ -426,8 +415,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('column wins over table edibility', () => (
+        <div>column wins over table edibility</div>
         <DataTable
             id='styling-19'
             data={[
@@ -467,13 +455,12 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('paging', () => (
+        <div>paging</div>
         <DataTable
             id='styling-20'
             data={mock.data}
             columns={mock.columns.map((col: any) =>
-                R.merge(col, {
+                R.mergeRight(col, {
                     name: col.name,
                     deletable: true
                 })
@@ -493,13 +480,12 @@ storiesOf('DashTable/Style type condition', module)
             page_current={0}
             page_size={10}
         />
-    ))
-    .add('large current page', () => (
+        <div>large current page</div>
         <DataTable
             id='paging-large-current-page'
             data={mock.data.slice(0, 10)}
             columns={mock.columns.map((col: any) =>
-                R.merge(col, {
+                R.mergeRight(col, {
                     name: col.name,
                     deletable: true
                 })
@@ -521,13 +507,12 @@ storiesOf('DashTable/Style type condition', module)
             page_current={987654}
             page_size={10}
         />
-    ))
-    .add('large current page and unknown page count', () => (
+        <div>large current page and unknown page count</div>
         <DataTable
             id='paging-large-current-page'
             data={mock.data.slice(0, 10)}
             columns={mock.columns.map((col: any) =>
-                R.merge(col, {
+                R.mergeRight(col, {
                     name: col.name,
                     deletable: true
                 })
@@ -548,8 +533,7 @@ storiesOf('DashTable/Style type condition', module)
             page_current={987654}
             page_size={10}
         />
-    ))
-    .add('data column_id array', () => (
+        <div>data column_id array</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='data-column-id-array'
@@ -562,8 +546,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('data row_index array', () => (
+        <div>data row_index array</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='data-column-id-array'
@@ -576,8 +559,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('header header_index array', () => (
+        <div>header header_index array</div>
         <DataTable
             setProps={setProps}
             id='table'
@@ -594,9 +576,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-
-    .add('cell column_id array', () => (
+        <div>cell column_id array</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='data-column-id-array'
@@ -609,8 +589,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('filter column_id array', () => (
+        <div>filter column_id array</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='data-column-id-array'
@@ -624,8 +603,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('header column_id array', () => (
+        <div>header column_id array</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='data-column-id-array'
@@ -638,8 +616,7 @@ storiesOf('DashTable/Style type condition', module)
                 }
             ]}
         />
-    ))
-    .add('active styling', () => (
+        <div>active styling</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='active-styling'
@@ -654,8 +631,7 @@ storiesOf('DashTable/Style type condition', module)
             ]}
             active_cell={{row: 1, column: 1}}
         />
-    ))
-    .add('selected styling (applied to active)', () => (
+        <div>selected styling (applied to active)</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='data-column-id-array'
@@ -676,8 +652,7 @@ storiesOf('DashTable/Style type condition', module)
             ]}
             active_cell={{row: 1, column: 1}}
         />
-    ))
-    .add('active styling partially overrides selected', () => (
+        <div>active styling partially overrides selected</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='data-column-id-array'
@@ -705,8 +680,7 @@ storiesOf('DashTable/Style type condition', module)
             ]}
             active_cell={{row: 1, column: 1}}
         />
-    ))
-    .add('active styling overrides selected', () => (
+        <div>active styling overrides selected</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='data-column-id-array'
@@ -735,8 +709,7 @@ storiesOf('DashTable/Style type condition', module)
             ]}
             active_cell={{row: 1, column: 1}}
         />
-    ))
-    .add('unselectable cells', () => (
+        <div>unselectable cells</div>
         <DataTable
             {...DEFAULT_TABLE}
             id='unselectable-cells'
@@ -749,4 +722,5 @@ storiesOf('DashTable/Style type condition', module)
             ]}
             active_cell={{row: 1, column: 1}}
         />
-    ));
+    </div>
+));

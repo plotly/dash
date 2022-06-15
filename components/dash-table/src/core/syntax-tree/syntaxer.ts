@@ -75,6 +75,6 @@ export default (lexerResult: ILexerResult): ISyntaxerResult => {
     try {
         return {tree: parser(lexemes), valid: true};
     } catch (error) {
-        return {valid: false, error};
+        return {valid: false, error: String(error)};
     }
 };

@@ -1,6 +1,7 @@
 import pytest
 import re
 from selenium.webdriver.common.keys import Keys
+import json
 
 from dash.testing import wait
 import dash
@@ -8,6 +9,12 @@ from dash import Dash, Input, Output, State, ALL, ALLSMALLER, MATCH, html, dcc
 
 from tests.assets.todo_app import todo_app
 from tests.assets.grouping_app import grouping_app
+
+
+def stringify_id(id_):
+    if isinstance(id_, dict):
+        return json.dumps(id_, sort_keys=True, separators=(",", ":"))
+    return id_
 
 
 def css_escape(s):
@@ -413,14 +420,38 @@ def test_cbwc006_grouping_callbacks(dash_duo):
         args_grouping = dict(
             items=dict(
                 all=[
-                    {"id": {"item": i}, "property": "children", "value": text}
+                    {
+                        "id": {"id": i},
+                        "property": "children",
+                        "value": text,
+                        "str_id": stringify_id({"id": i}),
+                        "triggered": False,
+                    }
                     for i, text in enumerate(items_text[:-1])
                 ],
-                new=dict(id="new-item", property="value", value=items_text[-1]),
+                new=dict(
+                    id="new-item",
+                    property="value",
+                    value=items_text[-1],
+                    str_id="new-item",
+                    triggered=False,
+                ),
             ),
             triggers=[
-                {"id": "add", "property": "n_clicks", "value": len(items_text)},
-                {"id": "new-item", "property": "n_submit"},
+                {
+                    "id": "add",
+                    "property": "n_clicks",
+                    "value": len(items_text),
+                    "str_id": "add",
+                    "triggered": True,
+                },
+                {
+                    "id": "new-item",
+                    "property": "n_submit",
+                    "value": None,
+                    "str_id": "new-item",
+                    "triggered": False,
+                },
             ],
         )
         dash_duo.wait_for_text_to_equal("#cc-args-grouping", repr(args_grouping))
