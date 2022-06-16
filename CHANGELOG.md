@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+
+- [#2097](https://github.com/plotly/dash/pull/2097) Fix bug [#2095](https://github.com/plotly/dash/issues/2095) with TypeScript compiler and `React.FC` empty valueDeclaration error & support empty props components.
+
 ## [2.5.1] - 2022-06-13
 
 ### Fixed
