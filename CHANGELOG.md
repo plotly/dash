@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- [#2098](https://github.com/plotly/dash/pull/2098) Accept HTTP code 400 as well as 401 for JWT expiry
 - [#2097](https://github.com/plotly/dash/pull/2097) Fix bug [#2095](https://github.com/plotly/dash/issues/2095) with TypeScript compiler and `React.FC` empty valueDeclaration error & support empty props components.
 
 ## [2.5.1] - 2022-06-13
@@ -35,8 +36,8 @@ This feature can be disabled by providing an empty viewport meta tag.  e.g. `app
 
 ### Fixed
 
-- [#2043](https://github.com/plotly/dash/pull/2043) Fix bug 
-[#2003](https://github.com/plotly/dash/issues/2003) in which 
+- [#2043](https://github.com/plotly/dash/pull/2043) Fix bug
+[#2003](https://github.com/plotly/dash/issues/2003) in which
 `dangerously_allow_html=True` + `mathjax=True` works in some cases, and in some cases not.
 - [#2065](https://github.com/plotly/dash/pull/2065) Fix bug [#2064](https://github.com/plotly/dash/issues/2064) rendering of `dcc.Dropdown` with a value but no options.
 - [#2047](https://github.com/plotly/dash/pull/2047) Fix bug [#1979](https://github.com/plotly/dash/issues/1979) in which `DASH_DEBUG` as environment variable gets ignored.

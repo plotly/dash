@@ -536,7 +536,8 @@ export function executeCallback(
                         lastError = res;
                         if (
                             retry <= MAX_AUTH_RETRIES &&
-                            res.status === STATUS.UNAUTHORIZED
+                            (res.status === STATUS.UNAUTHORIZED ||
+                                res.status === STATUS.BAD_REQUEST)
                         ) {
                             const body = await res.text();
 
