@@ -33,8 +33,6 @@ from .long_callback.managers import BaseLongCallbackManager
 
 
 class NoUpdate:
-    # pylint: disable=too-few-public-methods
-
     def to_plotly_json(self):  # pylint: disable=no-self-use
         return {"_dash_no_update": "_dash_no_update"}
 

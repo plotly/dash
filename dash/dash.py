@@ -164,11 +164,6 @@ def _get_traceback(secret, error: Exception):
     return tb[0] + "".join(tb[skip:])
 
 
-class _NoUpdate:
-    # pylint: disable=too-few-public-methods
-    pass
-
-
 # Singleton signal to not update an output, alternative to PreventUpdate
 no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
@@ -1189,7 +1184,9 @@ class Dash:
         flask.g.state_values = inputs_to_dict(  # pylint: disable=assigning-non-slot
             state
         )
-        flask.g.long_callback_manager = self._long_callback_manager  # pylint: disable=E0237
+        flask.g.long_callback_manager = (
+            self._long_callback_manager
+        )  # pylint: disable=E0237
         changed_props = body.get("changedPropIds", [])
         flask.g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
