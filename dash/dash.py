@@ -1146,7 +1146,7 @@ class Dash:
         **_kwargs,
     ):
         """
-        Deprecation Notice, long callbacks are now supported natively with regular callbacks,
+        Deprecated: long callbacks are now supported natively with regular callbacks,
         use `long=True` with `dash.callback` or `app.callback` instead.
         """
         return _callback.callback(
