@@ -59,9 +59,6 @@ def callback(
     long_cancel=None,
     long_manager=None,
     long_cache_args_to_ignore=None,
-    config_prevent_initial_callbacks=False,
-    callback_map=None,
-    callback_list=None,
     **_kwargs,
 ):
     """
@@ -136,6 +133,12 @@ def callback(
 
     long_spec = None
 
+    config_prevent_initial_callbacks = _kwargs.pop(
+        "config_prevent_initial_callbacks", False
+    )
+    callback_map = _kwargs.pop("callback_map", GLOBAL_CALLBACK_MAP)
+    callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
+
     if long:
         long_spec = {
             "interval": long_interval,
@@ -185,16 +188,9 @@ def callback(
         if long_cache_args_to_ignore:
             long_spec["cache_args_to_ignore"] = long_cache_args_to_ignore
 
-    call_list = GLOBAL_CALLBACK_LIST
-    if callback_list is not None:
-        call_list = callback_list
-    call_map = GLOBAL_CALLBACK_MAP
-    if callback_map is not None:
-        call_map = callback_map
-
     return register_callback(
-        call_list,
-        call_map,
+        callback_list,
+        callback_map,
         config_prevent_initial_callbacks,
         *_args,
         **_kwargs,
