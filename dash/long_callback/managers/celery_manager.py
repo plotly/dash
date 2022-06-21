@@ -1,6 +1,7 @@
 import json
 import inspect
 import hashlib
+import os
 import traceback
 
 from _plotly_utils.utils import PlotlyJSONEncoder
@@ -85,8 +86,8 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
     def clear_cache_entry(self, key):
         self.handle.backend.delete(key)
 
-    def call_job_fn(self, key, job_fn, args):
-        task = job_fn.delay(key, self._make_progress_key(key), args)
+    def call_job_fn(self, key, job_fn, args, context):
+        task = job_fn.delay(key, self._make_progress_key(key), args, context)
         return task.task_id
 
     def get_progress(self, key):
@@ -130,12 +131,15 @@ def _make_job_fn(fn, celery_app, progress):
     fn_hash = hashlib.sha1(fn_str.encode("utf-8")).hexdigest()
 
     @celery_app.task(name=f"long_callback_{fn_hash}")
-    def job_fn(result_key, progress_key, user_callback_args, fn=fn):
+    def job_fn(result_key, progress_key, user_callback_args, context=None):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
 
             cache.set(progress_key, json.dumps(progress_value, cls=PlotlyJSONEncoder))
+
+        if context:
+            os.environ["DASH_LONG_CALLBACK_CTX"] = json.dumps(context)
 
         maybe_progress = [_set_progress] if progress else []
 

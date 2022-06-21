@@ -351,6 +351,18 @@ def register_callback(  # pylint: disable=R0914
                         cache_key,
                         job_fn,
                         args,
+                        dict(
+                            args_grouping=flask.g.args_grouping,
+                            using_args_grouping=flask.g.using_args_grouping,
+                            outputs_grouping=flask.g.outputs_grouping,
+                            using_outputs_grouping=flask.g.using_outputs_grouping,
+                            inputs_list=flask.g.inputs_list,
+                            states_list=flask.g.states_list,
+                            outputs_list=flask.g.outputs_list,
+                            input_values=flask.g.input_values,
+                            state_values=flask.g.state_values,
+                            triggered_inputs=flask.g.triggered_inputs,
+                        ),
                     )
 
                     data = {

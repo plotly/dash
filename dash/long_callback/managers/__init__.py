@@ -39,7 +39,7 @@ class BaseLongCallbackManager(ABC):
     def make_job_fn(self, fn, progress):
         raise NotImplementedError
 
-    def call_job_fn(self, key, job_fn, args):
+    def call_job_fn(self, key, job_fn, args, context):
         raise NotImplementedError
 
     def get_progress(self, key):
