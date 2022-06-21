@@ -37,7 +37,7 @@ import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
-import {updateProps} from './index';
+import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
@@ -321,6 +321,9 @@ function sideUpdate(outputs: any, dispatch: any, paths: any) {
                 itempath: componentPath
             })
         );
+        dispatch(
+            notifyObservers({id: componentId, props: {[propName]: value}})
+        );
     });
 }
 
@@ -483,7 +486,10 @@ function handleServerside(
                         finishLine(data);
                     } else {
                         // Poll chain.
-                        setTimeout(handle, long.interval || 500);
+                        setTimeout(
+                            handle,
+                            long.interval !== undefined ? long.interval : 500
+                        );
                     }
                 });
             } else if (status === STATUS.PREVENT_UPDATE) {
