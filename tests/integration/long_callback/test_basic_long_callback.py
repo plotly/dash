@@ -1,3 +1,4 @@
+import json
 from multiprocessing import Lock
 import os
 from contextlib import contextmanager
@@ -512,3 +513,14 @@ def test_lcbc011_long_pattern_matching(dash_duo, manager):
                 dash_duo.find_element(f"button:nth-child({i})").click()
 
             dash_duo.wait_for_text_to_equal("#result", f"Clicked '{i}'")
+
+
+def test_lcbc012_long_callback_ctx(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_callback_ctx") as app:
+        dash_duo.start_server(app)
+        dash_duo.find_element("button:nth-child(1)").click()
+        dash_duo.wait_for_text_to_equal("#running", "off")
+
+        output = json.loads(dash_duo.find_element("#result").text)
+
+        assert output["triggered"]["index"] == 0
