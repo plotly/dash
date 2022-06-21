@@ -255,6 +255,8 @@ def insert_callback(
         "outputs_indices": outputs_indices,
         "inputs_state_indices": inputs_state_indices,
         "long": long,
+        "output": output,
+        "raw_inputs": inputs,
     }
     callback_list.append(callback_spec)
 

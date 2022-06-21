@@ -1295,6 +1295,8 @@ class Dash:
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
         _callback.GLOBAL_CALLBACK_LIST.clear()
 
+        _validate.validate_long_callbacks(self.callback_map)
+
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:
