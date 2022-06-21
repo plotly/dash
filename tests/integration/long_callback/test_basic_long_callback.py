@@ -502,3 +502,13 @@ def test_lcbc010_side_updates(dash_duo, manager):
         dash_duo.find_element("#run-button").click()
         for i in range(1, 4):
             dash_duo.wait_for_text_to_equal("#side-status", f"Side Progress {i}/4")
+
+
+def test_lcbc011_long_pattern_matching(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_pattern_matching") as app:
+        dash_duo.start_server(app)
+        for i in range(1, 4):
+            for _ in range(i):
+                dash_duo.find_element(f"button:nth-child({i})").click()
+
+            dash_duo.wait_for_text_to_equal("#result", f"Clicked '{i}'")
