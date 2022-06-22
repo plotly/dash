@@ -1,7 +1,9 @@
+import functools
 import os
 import sys
 import collections
 import importlib
+from contextvars import copy_context
 from importlib.machinery import ModuleSpec
 import pkgutil
 import threading
@@ -1168,32 +1170,30 @@ class Dash:
     def dispatch(self):
         body = flask.request.get_json()
 
-        flask.g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
+        g = AttributeDict({})
+
+        g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
             "inputs", []
         )
-        flask.g.states_list = state = body.get(  # pylint: disable=assigning-non-slot
+        g.states_list = state = body.get(  # pylint: disable=assigning-non-slot
             "state", []
         )
         output = body["output"]
         outputs_list = body.get("outputs") or split_callback_id(output)
-        flask.g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
+        g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
 
-        flask.g.input_values = (  # pylint: disable=assigning-non-slot
+        g.input_values = (  # pylint: disable=assigning-non-slot
             input_values
         ) = inputs_to_dict(inputs)
-        flask.g.state_values = inputs_to_dict(  # pylint: disable=assigning-non-slot
-            state
-        )
-        flask.g.long_callback_manager = (
-            self._long_callback_manager
-        )  # pylint: disable=E0237
+        g.state_values = inputs_to_dict(state)  # pylint: disable=assigning-non-slot
+        g.long_callback_manager = self._long_callback_manager  # pylint: disable=E0237
         changed_props = body.get("changedPropIds", [])
-        flask.g.triggered_inputs = [  # pylint: disable=assigning-non-slot
+        g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
         ]
 
         response = (
-            flask.g.dash_response  # pylint: disable=assigning-non-slot
+            g.dash_response  # pylint: disable=assigning-non-slot
         ) = flask.Response(mimetype="application/json")
 
         args = inputs_to_vals(inputs + state)
@@ -1208,19 +1208,19 @@ class Dash:
             inputs_state = convert_to_AttributeDict(inputs_state)
 
             # update args_grouping attributes
-            for g in inputs_state:
+            for s in inputs_state:
                 # check for pattern matching: list of inputs or state
-                if isinstance(g, list):
-                    for pattern_match_g in g:
+                if isinstance(s, list):
+                    for pattern_match_g in s:
                         update_args_group(pattern_match_g, changed_props)
-                update_args_group(g, changed_props)
+                update_args_group(s, changed_props)
 
             args_grouping = map_grouping(
                 lambda ind: inputs_state[ind], inputs_state_indices
             )
 
-            flask.g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
-            flask.g.using_args_grouping = (  # pylint: disable=assigning-non-slot
+            g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
+            g.using_args_grouping = (  # pylint: disable=assigning-non-slot
                 not isinstance(inputs_state_indices, int)
                 and (
                     inputs_state_indices
@@ -1238,10 +1238,8 @@ class Dash:
             outputs_grouping = map_grouping(
                 lambda ind: flat_outputs[ind], outputs_indices
             )
-            flask.g.outputs_grouping = (  # pylint: disable=assigning-non-slot
-                outputs_grouping
-            )
-            flask.g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
+            g.outputs_grouping = outputs_grouping  # pylint: disable=assigning-non-slot
+            g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
                 not isinstance(outputs_indices, int)
                 and outputs_indices != list(range(grouping_len(outputs_indices)))
             )
@@ -1249,12 +1247,17 @@ class Dash:
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg) from missing_callback_function
+        ctx = copy_context()
         # noinspection PyArgumentList
         response.set_data(
-            func(
-                *args,
-                outputs_list=outputs_list,
-                long_callback_manager=self._long_callback_manager,
+            ctx.run(
+                functools.partial(
+                    func,
+                    *args,
+                    outputs_list=outputs_list,
+                    long_callback_manager=self._long_callback_manager,
+                    callback_context=g,
+                )
             )
         )
         return response

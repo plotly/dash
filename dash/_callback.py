@@ -26,10 +26,12 @@ from ._utils import (
     stringify_id,
     to_json,
     coerce_to_list,
+    AttributeDict,
 )
 
 from . import _validate
 from .long_callback.managers import BaseLongCallbackManager
+from ._callback_context import context_value
 
 
 class NoUpdate:
@@ -311,8 +313,11 @@ def register_callback(  # pylint: disable=R0914
         def add_context(*args, **kwargs):
             output_spec = kwargs.pop("outputs_list")
             app_callback_manager = kwargs.pop("long_callback_manager", None)
+            callback_ctx = kwargs.pop("callback_context", {})
             callback_manager = long and long.get("manager", app_callback_manager)
             _validate.validate_output_spec(insert_output, output_spec, Output)
+
+            context_value.set(callback_ctx)
 
             func_args, func_kwargs = _validate.validate_and_group_input_args(
                 args, inputs_state_indices
@@ -351,17 +356,17 @@ def register_callback(  # pylint: disable=R0914
                         cache_key,
                         job_fn,
                         args,
-                        dict(
-                            args_grouping=flask.g.args_grouping,
-                            using_args_grouping=flask.g.using_args_grouping,
-                            outputs_grouping=flask.g.outputs_grouping,
-                            using_outputs_grouping=flask.g.using_outputs_grouping,
-                            inputs_list=flask.g.inputs_list,
-                            states_list=flask.g.states_list,
-                            outputs_list=flask.g.outputs_list,
-                            input_values=flask.g.input_values,
-                            state_values=flask.g.state_values,
-                            triggered_inputs=flask.g.triggered_inputs,
+                        AttributeDict(
+                            args_grouping=callback_ctx.args_grouping,
+                            using_args_grouping=callback_ctx.using_args_grouping,
+                            outputs_grouping=callback_ctx.outputs_grouping,
+                            using_outputs_grouping=callback_ctx.using_outputs_grouping,
+                            inputs_list=callback_ctx.inputs_list,
+                            states_list=callback_ctx.states_list,
+                            outputs_list=callback_ctx.outputs_list,
+                            input_values=callback_ctx.input_values,
+                            state_values=callback_ctx.state_values,
+                            triggered_inputs=callback_ctx.triggered_inputs,
                         ),
                     )
 

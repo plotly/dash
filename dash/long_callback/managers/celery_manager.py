@@ -1,11 +1,13 @@
 import json
 import inspect
 import hashlib
-import os
 import traceback
+from contextvars import copy_context
 
 from _plotly_utils.utils import PlotlyJSONEncoder
 
+from dash._callback_context import context_value
+from dash._utils import AttributeDict
 from dash.exceptions import PreventUpdate
 from dash.long_callback.managers import BaseLongCallbackManager
 
@@ -138,41 +140,44 @@ def _make_job_fn(fn, celery_app, progress):
 
             cache.set(progress_key, json.dumps(progress_value, cls=PlotlyJSONEncoder))
 
-        if context:
-            os.environ["DASH_LONG_CALLBACK_CTX"] = json.dumps(context)
-
         maybe_progress = [_set_progress] if progress else []
 
-        try:
-            if isinstance(user_callback_args, dict):
-                user_callback_output = fn(*maybe_progress, **user_callback_args)
-            elif isinstance(user_callback_args, (list, tuple)):
-                user_callback_output = fn(*maybe_progress, *user_callback_args)
+        ctx = copy_context()
+
+        def run():
+            context_value.set(AttributeDict(**context))
+            try:
+                if isinstance(user_callback_args, dict):
+                    user_callback_output = fn(*maybe_progress, **user_callback_args)
+                elif isinstance(user_callback_args, (list, tuple)):
+                    user_callback_output = fn(*maybe_progress, *user_callback_args)
+                else:
+                    user_callback_output = fn(*maybe_progress, user_callback_args)
+            except PreventUpdate:
+                # Put NoUpdate dict directly to avoid circular imports.
+                cache.set(
+                    result_key,
+                    json.dumps(
+                        {"_dash_no_update": "_dash_no_update"}, cls=PlotlyJSONEncoder
+                    ),
+                )
+            except Exception as err:  # pylint: disable=broad-except
+                cache.set(
+                    result_key,
+                    json.dumps(
+                        {
+                            "long_callback_error": {
+                                "msg": str(err),
+                                "tb": traceback.format_exc(),
+                            }
+                        },
+                    ),
+                )
             else:
-                user_callback_output = fn(*maybe_progress, user_callback_args)
-        except PreventUpdate:
-            # Put NoUpdate dict directly to avoid circular imports.
-            cache.set(
-                result_key,
-                json.dumps(
-                    {"_dash_no_update": "_dash_no_update"}, cls=PlotlyJSONEncoder
-                ),
-            )
-        except Exception as err:  # pylint: disable=broad-except
-            cache.set(
-                result_key,
-                json.dumps(
-                    {
-                        "long_callback_error": {
-                            "msg": str(err),
-                            "tb": traceback.format_exc(),
-                        }
-                    },
-                ),
-            )
-        else:
-            cache.set(
-                result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
-            )
+                cache.set(
+                    result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
+                )
+
+        ctx.run(run)
 
     return job_fn

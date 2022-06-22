@@ -1,5 +1,3 @@
-import json
-import os
 import traceback
 
 from . import BaseLongCallbackManager
@@ -116,9 +114,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
         from multiprocess import Process
 
         # pylint: disable-next=not-callable
-        proc = Process(
-            target=job_fn, args=(key, self._make_progress_key(key), args, context)
-        )
+        proc = Process(target=job_fn, args=(key, self._make_progress_key(key), args))
         proc.start()
         return proc.pid
 
@@ -150,16 +146,13 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 
 
 def _make_job_fn(fn, cache, progress, lock):
-    def job_fn(result_key, progress_key, user_callback_args, context=None):
+    def job_fn(result_key, progress_key, user_callback_args):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
 
             with lock:
                 cache.set(progress_key, progress_value)
-
-        if context:
-            os.environ["DASH_LONG_CALLBACK_CTX"] = json.dumps(context)
 
         maybe_progress = [_set_progress] if progress else []
 
