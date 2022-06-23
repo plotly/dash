@@ -12,11 +12,16 @@ MutableSequence = patch_collections_abc("MutableSequence")
 rd = random.Random(0)
 
 
+class OrderedSet(collections.OrderedDict):
+    def add(self, item):
+        self[item] = None
+
+
 # pylint: disable=no-init,too-few-public-methods
 class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
-    registry = set()
+    registry = OrderedSet()
     children_props = collections.defaultdict(dict)
 
     @classmethod
