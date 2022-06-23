@@ -3,6 +3,7 @@ import warnings
 import json
 import contextvars
 
+import flask
 
 from . import exceptions
 from ._utils import AttributeDict
@@ -214,14 +215,14 @@ class CallbackContext:
         :param description: A description of the resource.
         :type description: string or None
         """
-        timing_information = getattr(_get_context_value(), "timing_information", {})
+        timing_information = getattr(flask.g, "timing_information", {})
 
         if name in timing_information:
             raise KeyError(f'Duplicate resource name "{name}" found.')
 
         timing_information[name] = {"dur": round(duration * 1000), "desc": description}
 
-        setattr(_get_context_value(), "timing_information", timing_information)
+        setattr(flask.g, "timing_information", timing_information)
 
     @property
     @has_context
@@ -240,6 +241,11 @@ class CallbackContext:
         Output dependencies.
         """
         return getattr(_get_context_value(), "using_outputs_grouping", [])
+
+    @property
+    @has_context
+    def timing_information(self):
+        return getattr(flask.g, "timing_information", {})
 
 
 callback_context = CallbackContext()
