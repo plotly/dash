@@ -1,6 +1,6 @@
 import time
 
-from selenium.webdriver import Keys
+from selenium.webdriver.common.keys import Keys
 
 from dash import Dash, Input, Output, dcc, html
 from dash.exceptions import PreventUpdate
