@@ -176,7 +176,7 @@ def callback(
                 @callback(cancels_output, cancel_inputs, prevent_initial_call=True)
                 def cancel_call(*_):
                     job_ids = flask.request.args.getlist("cancelJob")
-                    manager = long_manager or flask.g.long_callback_manager
+                    manager = long_manager or context_value.get().long_callback_manager
                     if job_ids:
                         for job_id in job_ids:
                             manager.terminate_job(job_id)
