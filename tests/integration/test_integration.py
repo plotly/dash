@@ -414,11 +414,4 @@ def test_inin027_multi_page_without_pages_folder(dash_duo):
         dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
         assert dash_duo.driver.title == page["title"], "check that page title updates"
 
-    # test registration of not_found_404
-    dash.register_page(
-        "not_found_404",
-        layout=html.Div("text for custom not_found_404"),
-    )
-    assert "not_found_404" in dash.page_registry.keys(), "check custom not_found_404"
-
     assert not dash_duo.get_logs()

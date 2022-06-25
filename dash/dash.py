@@ -2242,11 +2242,7 @@ class Dash:
 
                 # get layout
                 if page == {}:
-                    module_404 = (
-                        ".".join([self.pages_folder, "not_found_404"])
-                        if self.pages_folder
-                        else "not_found_404"
-                    )
+                    module_404 = ".".join([self.pages_folder, "not_found_404"]) if self.pages_folder else "not_found_404"
                     not_found_404 = _pages.PAGE_REGISTRY.get(module_404)
                     if not_found_404:
                         layout = not_found_404["layout"]
