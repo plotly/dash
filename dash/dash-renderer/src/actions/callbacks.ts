@@ -93,6 +93,7 @@ const updateResourceUsage = createAction('UPDATE_RESOURCE_USAGE');
 
 const addCallbackJob = createAction('ADD_CALLBACK_JOB');
 const removeCallbackJob = createAction('REMOVE_CALLBACK_JOB');
+const setCallbackJobOutdated = createAction('CALLBACK_JOB_OUTDATED');
 
 function unwrapIfNotMulti(
     paths: any,
@@ -333,8 +334,10 @@ function handleServerside(
     config: any,
     payload: any,
     paths: any,
-    long?: LongCallbackInfo,
-    additionalArgs?: [string, string][]
+    long: LongCallbackInfo | undefined,
+    additionalArgs: [string, string, boolean?][] | undefined,
+    getState: any,
+    output: string
 ): Promise<CallbackResponse> {
     if (hooks.request_pre) {
         hooks.request_pre(payload);
@@ -346,6 +349,7 @@ function handleServerside(
     let job: string;
     let runningOff: any;
     let progressDefault: any;
+    let moreArgs = additionalArgs;
 
     const fetchCallback = () => {
         const headers = getCSRFHeader() as any;
@@ -365,8 +369,9 @@ function handleServerside(
             addArg('job', job);
         }
 
-        if (additionalArgs) {
-            additionalArgs.forEach(([key, value]) => addArg(key, value));
+        if (moreArgs) {
+            moreArgs.forEach(([key, value]) => addArg(key, value));
+            moreArgs = moreArgs.filter(([_, __, single]) => !single);
         }
 
         return fetch(
@@ -382,6 +387,14 @@ function handleServerside(
     return new Promise((resolve, reject) => {
         const handleOutput = (res: any) => {
             const {status} = res;
+
+            if (job) {
+                const callbackJob = getState().callbackJobs[job];
+                if (callbackJob?.outdated) {
+                    dispatch(removeCallbackJob({jobId: job}));
+                    return resolve({});
+                }
+            }
 
             function recordProfile(result: any) {
                 if (config.ui) {
@@ -462,7 +475,8 @@ function handleServerside(
                             jobId: data.job,
                             cacheKey: data.cacheKey as string,
                             cancelInputs: data.cancel,
-                            progressDefault: data.progressDefault
+                            progressDefault: data.progressDefault,
+                            output
                         };
                         dispatch(addCallbackJob(jobInfo));
                         job = data.job;
@@ -635,9 +649,19 @@ export function executeCallback(
                 let newHeaders: Record<string, string> | null = null;
                 let lastError: any;
 
-                const additionalArgs: [string, string][] = [];
+                const additionalArgs: [string, string, boolean?][] = [];
+                console.log(cb.callback.output, getState().callbackJobs);
                 values(getState().callbackJobs).forEach(
                     (job: CallbackJobPayload) => {
+                        if (cb.callback.output === job.output) {
+                            // Terminate the old jobs that are not completed
+                            // set as outdated for the callback promise to
+                            // resolve and remove after.
+                            additionalArgs.push(['oldJob', job.jobId, true]);
+                            dispatch(
+                                setCallbackJobOutdated({jobId: job.jobId})
+                            );
+                        }
                         if (!job.cancelInputs) {
                             return;
                         }
@@ -667,7 +691,9 @@ export function executeCallback(
                             payload,
                             paths,
                             long,
-                            additionalArgs.length ? additionalArgs : undefined
+                            additionalArgs.length ? additionalArgs : undefined,
+                            getState,
+                            cb.callback.output
                         );
 
                         if (newHeaders) {

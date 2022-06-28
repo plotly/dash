@@ -339,6 +339,7 @@ def register_callback(  # pylint: disable=R0914
                 progress_outputs = long.get("progress")
                 cache_key = flask.request.args.get("cacheKey")
                 job_id = flask.request.args.get("job")
+                old_job = flask.request.args.getlist("oldJob")
 
                 current_key = callback_manager.build_cache_key(
                     func,
@@ -346,6 +347,10 @@ def register_callback(  # pylint: disable=R0914
                     func_args if func_args else func_kwargs,
                     long.get("cache_args_to_ignore", []),
                 )
+
+                if old_job:
+                    for job in old_job:
+                        callback_manager.terminate_job(job)
 
                 if not cache_key:
                     cache_key = current_key
