@@ -1,4 +1,4 @@
-import {isNil, pluck, without, pick} from 'ramda';
+import {isNil, pluck, without, pick, head} from 'ramda';
 import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
@@ -47,12 +47,26 @@ const Dropdown = props => {
     } = props;
     const [optionsCheck, setOptionsCheck] = useState(null);
     const [sanitizedOptions, filterOptions] = useMemo(() => {
-        const sanitized = sanitizeOptions(options);
+        let sanitized = sanitizeOptions(options);
+        const firstOption = head(sanitized);
+        let labelKey = 'label';
+        if (firstOption && firstOption.search) {
+            labelKey = 'search';
+        } else if (firstOption && React.isValidElement(firstOption.label)) {
+            // Auto put the value as search
+            labelKey = 'search';
+            sanitized = sanitized.map(option => ({
+                ...option,
+                search: `${option.value}`,
+            }));
+        }
+
         return [
             sanitized,
             createFilterOptions({
                 options: sanitized,
                 tokenizer: TOKENIZER,
+                labelKey,
             }),
         ];
     }, [options]);
