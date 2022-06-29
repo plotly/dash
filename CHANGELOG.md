@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Added
+- [#2108](https://github.com/plotly/dash/pull/2108) Add `maxHeight` to Dropdown options menu.
+
 ### Fixed
 - [#2102](https://github.com/plotly/dash/pull/2102) Fix bug as reported in [dash-labs #113](https://github.com/plotly/dash-labs/issues/113) where files starting with `.` were not excluded when building `dash.page_registry`.
 - [#2098](https://github.com/plotly/dash/pull/2098) Accept HTTP code 400 as well as 401 for JWT expiry
