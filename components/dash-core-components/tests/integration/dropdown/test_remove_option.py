@@ -22,6 +22,7 @@ def test_ddro001_remove_option_single(dash_dcc):
             dcc.Dropdown(
                 options=dropdown_options,
                 value=value,
+                searchable=False,
                 id="dropdown",
             ),
             html.Button("Remove option", id="remove"),
@@ -61,6 +62,7 @@ def test_ddro002_remove_option_multi(dash_dcc):
                 value=value,
                 multi=True,
                 id="dropdown",
+                searchable=False,
             ),
             html.Button("Remove option", id="remove"),
             html.Div(id="value-output"),

@@ -37,6 +37,7 @@ const Dropdown = props => {
     const {
         id,
         clearable,
+        searchable,
         multi,
         options,
         setProps,
@@ -86,6 +87,7 @@ const Dropdown = props => {
 
     useEffect(() => {
         if (
+            !searchable &&
             !isNil(sanitizedOptions) &&
             optionsCheck !== sanitizedOptions &&
             !isNil(value)

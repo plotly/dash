@@ -1959,7 +1959,11 @@ class Dash:
 
         for (root, _, files) in os.walk(walk_dir):
             for file in files:
-                if file.startswith("_") or not file.endswith(".py"):
+                if (
+                    file.startswith("_")
+                    or file.startswith(".")
+                    or not file.endswith(".py")
+                ):
                     continue
                 with open(os.path.join(root, file), encoding="utf-8") as f:
                     content = f.read()
