@@ -41,3 +41,10 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
     dash_dcc.find_element("#dropdown").click()
     dash_dcc.wait_for_text_to_equal("#dropdown h4", "h4")
     dash_dcc.wait_for_text_to_equal("#dropdown h6", "h6")
+
+    search_input = dash_dcc.find_element("#dropdown input")
+    search_input.send_keys("4")
+    options = dash_dcc.find_elements("#dropdown .VirtualizedSelectOption")
+
+    assert len(options) == 1
+    assert options[0].text == "h4"
