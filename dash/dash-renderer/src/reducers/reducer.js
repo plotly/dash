@@ -17,6 +17,7 @@ import isLoading from './isLoading';
 import layout from './layout';
 import loadingMap from './loadingMap';
 import paths from './paths';
+import callbackJobs from './callbackJobs';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -44,6 +45,8 @@ function mainReducer() {
     forEach(r => {
         parts[r] = createApiReducer(r);
     }, apiRequests);
+
+    parts.callbackJobs = callbackJobs;
 
     return combineReducers(parts);
 }
