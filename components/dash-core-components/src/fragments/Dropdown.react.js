@@ -48,7 +48,7 @@ const Dropdown = props => {
     const [optionsCheck, setOptionsCheck] = useState(null);
     const [sanitizedOptions, filterOptions] = useMemo(() => {
         let sanitized = sanitizeOptions(options);
-        const firstOption = head(sanitized);
+        const firstOption = sanitized ? head(sanitized) : null;
         let labelKey = 'label';
         if (firstOption && firstOption.search) {
             labelKey = 'search';
