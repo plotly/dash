@@ -13,6 +13,8 @@ from dash.long_callback.managers import BaseLongCallbackManager
 
 
 class CeleryLongCallbackManager(BaseLongCallbackManager):
+    """Deprecated: use `import CeleryManager from dash` instead."""
+
     def __init__(self, celery_app, cache_by=None, expire=None):
         """
         Long callback manager that runs callback logic on a celery task queue,

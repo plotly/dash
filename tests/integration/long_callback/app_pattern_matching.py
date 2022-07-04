@@ -20,7 +20,7 @@ app.layout = html.Div(
 @callback(
     Output("result", "children"),
     [Input({"type": "run-button", "index": ALL}, "n_clicks")],
-    long=True,
+    background=True,
     prevent_initial_call=True,
 )
 def update_output(n_clicks):

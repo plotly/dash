@@ -7,6 +7,8 @@ _pending_value = "__$pending__"
 
 
 class DiskcacheLongCallbackManager(BaseLongCallbackManager):
+    """Deprecated: use `import DiskcacheManager from dash` instead."""
+
     def __init__(self, cache=None, cache_by=None, expire=None):
         """
         Long callback manager that runs callback logic in a subprocess and stores

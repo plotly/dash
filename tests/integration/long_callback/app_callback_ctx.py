@@ -23,9 +23,9 @@ app.layout = html.Div(
 @callback(
     Output("result", "children"),
     [Input({"type": "run-button", "index": ALL}, "n_clicks")],
-    long=True,
+    background=True,
     prevent_initial_call=True,
-    long_running=[(Output("running", "children"), "on", "off")],
+    running=[(Output("running", "children"), "on", "off")],
 )
 def update_output(n_clicks):
     triggered = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])

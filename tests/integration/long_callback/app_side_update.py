@@ -22,11 +22,11 @@ app.layout = html.Div(
 @callback(
     Output("result", "children"),
     [Input("run-button", "n_clicks")],
-    long=True,
-    long_progress=Output("status", "children"),
-    long_progress_default="Finished",
-    long_cancel=[Input("cancel-button", "n_clicks")],
-    long_interval=0,
+    background=True,
+    progress=Output("status", "children"),
+    progress_default="Finished",
+    cancel=[Input("cancel-button", "n_clicks")],
+    interval=0,
     prevent_initial_call=True,
 )
 def update_output(set_progress, n_clicks):
