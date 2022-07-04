@@ -1,22 +1,32 @@
 import functools
 import warnings
 import json
+import contextvars
+
 import flask
 
 from . import exceptions
 from ._utils import AttributeDict
 
 
+context_value = contextvars.ContextVar("callback_context")
+context_value.set({})
+
+
 def has_context(func):
     @functools.wraps(func)
     def assert_context(*args, **kwargs):
-        if not flask.has_request_context():
+        if not context_value.get():
             raise exceptions.MissingCallbackContextException(
                 f"dash.callback_context.{getattr(func, '__name__')} is only available from a callback!"
             )
         return func(*args, **kwargs)
 
     return assert_context
+
+
+def _get_context_value():
+    return context_value.get()
 
 
 class FalsyList(list):
@@ -37,12 +47,12 @@ class CallbackContext:
     @property
     @has_context
     def inputs(self):
-        return getattr(flask.g, "input_values", {})
+        return getattr(_get_context_value(), "input_values", {})
 
     @property
     @has_context
     def states(self):
-        return getattr(flask.g, "state_values", {})
+        return getattr(_get_context_value(), "state_values", {})
 
     @property
     @has_context
@@ -64,7 +74,7 @@ class CallbackContext:
         # value - to avoid breaking existing apps, add a dummy item but
         # make the list still look falsy. So `if ctx.triggered` will make it
         # look empty, but you can still do `triggered[0]["prop_id"].split(".")`
-        return getattr(flask.g, "triggered_inputs", []) or falsy_triggered
+        return getattr(_get_context_value(), "triggered_inputs", []) or falsy_triggered
 
     @property
     @has_context
@@ -90,7 +100,7 @@ class CallbackContext:
         `if "btn-1.n_clicks" in ctx.triggered_prop_ids:
             do_something()`
         """
-        triggered = getattr(flask.g, "triggered_inputs", [])
+        triggered = getattr(_get_context_value(), "triggered_inputs", [])
         ids = AttributeDict({})
         for item in triggered:
             component_id, _, _ = item["prop_id"].rpartition(".")
@@ -146,12 +156,12 @@ class CallbackContext:
                return "No clicks yet"
 
         """
-        return getattr(flask.g, "args_grouping", [])
+        return getattr(_get_context_value(), "args_grouping", [])
 
     @property
     @has_context
     def outputs_grouping(self):
-        return getattr(flask.g, "outputs_grouping", [])
+        return getattr(_get_context_value(), "outputs_grouping", [])
 
     @property
     @has_context
@@ -162,7 +172,7 @@ class CallbackContext:
                 DeprecationWarning,
             )
 
-        return getattr(flask.g, "outputs_list", [])
+        return getattr(_get_context_value(), "outputs_list", [])
 
     @property
     @has_context
@@ -173,7 +183,7 @@ class CallbackContext:
                 DeprecationWarning,
             )
 
-        return getattr(flask.g, "inputs_list", [])
+        return getattr(_get_context_value(), "inputs_list", [])
 
     @property
     @has_context
@@ -183,12 +193,12 @@ class CallbackContext:
                 "states_list is deprecated, use args_grouping instead",
                 DeprecationWarning,
             )
-        return getattr(flask.g, "states_list", [])
+        return getattr(_get_context_value(), "states_list", [])
 
     @property
     @has_context
     def response(self):
-        return getattr(flask.g, "dash_response")
+        return getattr(_get_context_value(), "dash_response")
 
     @staticmethod
     @has_context
@@ -221,7 +231,7 @@ class CallbackContext:
         Return True if this callback is using dictionary or nested groupings for
         Input/State dependencies, or if Input and State dependencies are interleaved
         """
-        return getattr(flask.g, "using_args_grouping", [])
+        return getattr(_get_context_value(), "using_args_grouping", [])
 
     @property
     @has_context
@@ -230,7 +240,12 @@ class CallbackContext:
         Return True if this callback is using dictionary or nested groupings for
         Output dependencies.
         """
-        return getattr(flask.g, "using_outputs_grouping", [])
+        return getattr(_get_context_value(), "using_outputs_grouping", [])
+
+    @property
+    @has_context
+    def timing_information(self):
+        return getattr(flask.g, "timing_information", {})
 
 
 callback_context = CallbackContext()
