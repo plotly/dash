@@ -48,25 +48,38 @@ const Dropdown = props => {
     const [optionsCheck, setOptionsCheck] = useState(null);
     const [sanitizedOptions, filterOptions] = useMemo(() => {
         let sanitized = sanitizeOptions(options);
+
+        const indexes = ['strValue'];
+        let hasElement = false,
+            hasSearch = false;
         sanitized = Array.isArray(sanitized)
             ? sanitized.map(option => {
-                  let search = option.search || option.label;
-                  if (React.isValidElement(search)) {
-                      search = String(option.value);
+                  if (option.search) {
+                      hasSearch = true;
+                  }
+                  if (React.isValidElement(option.label)) {
+                      hasElement = true;
                   }
                   return {
                       ...option,
-                      search,
+                      strValue: String(option.value),
                   };
               })
             : sanitized;
+
+        if (!hasElement) {
+            indexes.push('label');
+        }
+        if (hasSearch) {
+            indexes.push('search');
+        }
 
         return [
             sanitized,
             createFilterOptions({
                 options: sanitized,
                 tokenizer: TOKENIZER,
-                labelKey: 'search',
+                indexes,
             }),
         ];
     }, [options]);

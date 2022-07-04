@@ -27,6 +27,13 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
                 ],
                 id="dropdown",
             ),
+            dcc.Dropdown(
+                [
+                    {"label": "one", "value": 1, "search": "uno"},
+                    {"label": "two", "value": 2, "search": "dos"},
+                ],
+                id="indexed-search",
+            ),
         ]
     )
 
@@ -48,3 +55,19 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
 
     assert len(options) == 1
     assert options[0].text == "h4"
+
+    def search_indexed(value, length, texts):
+        search = dash_dcc.find_element("#indexed-search input")
+        dash_dcc.clear_input(search)
+        search.send_keys(value)
+        opts = dash_dcc.find_elements("#indexed-search .VirtualizedSelectOption")
+
+        assert len(opts) == length
+        assert [o.text for o in opts] == texts
+
+    search_indexed("o", 2, ["one", "two"])
+    search_indexed("1", 1, ["one"])
+    search_indexed("uno", 1, ["one"])
+    # FIXME clear_input doesnt work well when the input is focused. (miss the o)
+    dash_dcc.clear_input("#indexed-search input")
+    search_indexed("dos", 1, ["two"])
