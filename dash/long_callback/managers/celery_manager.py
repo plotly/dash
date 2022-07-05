@@ -12,8 +12,8 @@ from dash.exceptions import PreventUpdate
 from dash.long_callback.managers import BaseLongCallbackManager
 
 
-class CeleryLongCallbackManager(BaseLongCallbackManager):
-    """Deprecated: use `import CeleryManager from dash` instead."""
+class CeleryManager(BaseLongCallbackManager):
+    """Manage background execution of callbacks with a celery queue."""
 
     def __init__(self, celery_app, cache_by=None, expire=None):
         """
@@ -183,3 +183,7 @@ def _make_job_fn(fn, celery_app, progress):
         ctx.run(run)
 
     return job_fn
+
+
+class CeleryLongCallbackManager(CeleryManager):
+    """Deprecated: use `from dash import CeleryManager` instead."""

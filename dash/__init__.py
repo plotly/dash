@@ -27,8 +27,8 @@ from ._get_paths import (  # noqa: F401,E402
     strip_relative_path,
 )
 from .long_callback import (  # noqa: F401,E402
-    CeleryBackgroundExecutor,
-    DiskcacheBackgroundExecutor,
+    CeleryManager,
+    DiskcacheManager,
 )
 
 
