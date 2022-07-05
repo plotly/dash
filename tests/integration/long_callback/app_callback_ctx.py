@@ -18,6 +18,7 @@ app.layout = html.Div(
         html.Div(id="running"),
     ]
 )
+app.test_lock = lock = long_callback_manager.test_lock
 
 
 @callback(
@@ -28,8 +29,9 @@ app.layout = html.Div(
     running=[(Output("running", "children"), "on", "off")],
 )
 def update_output(n_clicks):
-    triggered = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])
-    return json.dumps(dict(triggered=triggered, value=n_clicks[triggered["index"]]))
+    with lock:
+        triggered = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])
+        return json.dumps(dict(triggered=triggered, value=n_clicks[triggered["index"]]))
 
 
 if __name__ == "__main__":

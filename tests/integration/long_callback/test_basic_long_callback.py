@@ -487,7 +487,8 @@ def test_lcbc008_long_callbacks_error(dash_duo, manager):
 def test_lcbc009_short_interval(dash_duo, manager):
     with setup_long_callback_app(manager, "app_short_interval") as app:
         dash_duo.start_server(app)
-        dash_duo.find_element("#run-button").click()
+        with app.test_lock:
+            dash_duo.find_element("#run-button").click()
         dash_duo.wait_for_text_to_equal("#status", "Progress 2/4", 20)
         dash_duo.wait_for_text_to_equal("#status", "Finished", 12)
         dash_duo.wait_for_text_to_equal("#result", "Clicked '1'")
@@ -500,7 +501,8 @@ def test_lcbc009_short_interval(dash_duo, manager):
 def test_lcbc010_side_updates(dash_duo, manager):
     with setup_long_callback_app(manager, "app_side_update") as app:
         dash_duo.start_server(app)
-        dash_duo.find_element("#run-button").click()
+        with app.test_lock:
+            dash_duo.find_element("#run-button").click()
         for i in range(1, 4):
             dash_duo.wait_for_text_to_equal("#side-status", f"Side Progress {i}/4")
 
@@ -510,7 +512,8 @@ def test_lcbc011_long_pattern_matching(dash_duo, manager):
         dash_duo.start_server(app)
         for i in range(1, 4):
             for _ in range(i):
-                dash_duo.find_element(f"button:nth-child({i})").click()
+                with app.test_lock:
+                    dash_duo.find_element(f"button:nth-child({i})").click()
 
             dash_duo.wait_for_text_to_equal("#result", f"Clicked '{i}'")
 
@@ -518,7 +521,8 @@ def test_lcbc011_long_pattern_matching(dash_duo, manager):
 def test_lcbc012_long_callback_ctx(dash_duo, manager):
     with setup_long_callback_app(manager, "app_callback_ctx") as app:
         dash_duo.start_server(app)
-        dash_duo.find_element("button:nth-child(1)").click()
+        with app.test_lock:
+            dash_duo.find_element("button:nth-child(1)").click()
         dash_duo.wait_for_text_to_equal("#running", "off")
 
         output = json.loads(dash_duo.find_element("#result").text)
