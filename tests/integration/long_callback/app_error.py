@@ -1,4 +1,3 @@
-import os
 import time
 
 import dash
@@ -36,9 +35,7 @@ app.test_lock = lock = long_callback_manager.test_lock
     prevent_initial_call=True,
 )
 def callback(n_clicks):
-    if os.getenv("LONG_CALLBACK_MANAGER") != "celery":
-        # Diskmanager needs some time, celery takes too long.
-        time.sleep(1)
+    time.sleep(1)
     if n_clicks == 2:
         raise Exception("bad error")
 
@@ -57,6 +54,7 @@ def callback(n_clicks):
     prevent_initial_call=True,
 )
 def long_multi(n_clicks):
+    time.sleep(1)
     return (
         [f"Updated: {n_clicks}"]
         + [i for i in range(1, n_clicks + 1)]
