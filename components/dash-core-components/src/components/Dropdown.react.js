@@ -143,6 +143,11 @@ Dropdown.propTypes = {
     optionHeight: PropTypes.number,
 
     /**
+     * height of the options dropdown.
+     */
+    maxHeight: PropTypes.number,
+
+    /**
      * Defines CSS styles which will override styles previously set.
      */
     style: PropTypes.object,
@@ -218,6 +223,7 @@ Dropdown.defaultProps = {
     multi: false,
     searchable: true,
     optionHeight: 35,
+    maxHeight: 200,
     persisted_props: ['value'],
     persistence_type: 'local',
 };

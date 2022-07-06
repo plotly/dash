@@ -29,6 +29,7 @@ const RDProps = [
     'placeholder',
     'disabled',
     'optionHeight',
+    'maxHeight',
     'style',
     'className',
 ];
