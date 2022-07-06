@@ -12,6 +12,17 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2098](https://github.com/plotly/dash/pull/2098) Accept HTTP code 400 as well as 401 for JWT expiry
 - [#2097](https://github.com/plotly/dash/pull/2097) Fix bug [#2095](https://github.com/plotly/dash/issues/2095) with TypeScript compiler and `React.FC` empty valueDeclaration error & support empty props components.
 - [#2104](https://github.com/plotly/dash/pull/2104) Fix bug [#2099](https://github.com/plotly/dash/issues/2099) with Dropdown clearing search value when a value is selected.
+- [#2039](https://github.com/plotly/dash/pull/2039) Fix bugs in long callbacks:
+  - Fix [#1769](https://github.com/plotly/dash/issues/1769) and [#1852](https://github.com/plotly/dash/issues/1852) short interval makes job run in loop.
+  - Fix [#1974](https://github.com/plotly/dash/issues/1974) returning `no_update` or raising `PreventUpdate` not supported with celery.
+  - Fix use of the callback context in celery long callbacks.
+  - Fix support of pattern matching for long callbacks.
+
+### Added
+
+- [#2039](https://github.com/plotly/dash/pull/2039) Long callback changes:
+  - Add `long=False` to `dash.callback` to use instead of `app.long_callback`.
+  - Add previous `app.long_callback` arguments to `dash.callback` prefixed with `long_` (`interval`, `running`, `cancel`, `progress`, `progress_default`, `cache_args_to_ignore`, `manager`)
 
 ## [2.5.1] - 2022-06-13
 

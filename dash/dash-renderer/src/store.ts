@@ -82,7 +82,12 @@ export default class RendererStore {
             const reduxDTEC = (window as any)
                 .__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
             if (reduxDTEC) {
-                this.createAppStore(reducer, reduxDTEC(applyMiddleware(thunk)));
+                this.createAppStore(
+                    reducer,
+                    reduxDTEC({actionsDenylist: ['reloadRequest']})(
+                        applyMiddleware(thunk)
+                    )
+                );
             } else {
                 this.createAppStore(reducer, applyMiddleware(thunk));
             }
