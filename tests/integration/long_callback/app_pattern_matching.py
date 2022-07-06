@@ -25,9 +25,8 @@ app.test_lock = lock = long_callback_manager.test_lock
     prevent_initial_call=True,
 )
 def update_output(n_clicks):
-    with lock:
-        found = max(x for x in n_clicks if x is not None)
-        return f"Clicked '{found}'"
+    found = max(x for x in n_clicks if x is not None)
+    return f"Clicked '{found}'"
 
 
 if __name__ == "__main__":

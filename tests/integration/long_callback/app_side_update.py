@@ -31,10 +31,8 @@ app.test_lock = lock = long_callback_manager.test_lock
     prevent_initial_call=True,
 )
 def update_output(set_progress, n_clicks):
-    print("trigger")
     for i in range(4):
-        with lock:
-            set_progress(f"Progress {i}/4")
+        set_progress(f"Progress {i}/4")
         time.sleep(1)
     return f"Clicked '{n_clicks}'"
 
