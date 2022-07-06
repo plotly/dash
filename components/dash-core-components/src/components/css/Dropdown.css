@@ -3,5 +3,5 @@
 }
 
 .dash-dropdown .Select-menu, .Select-menu-outer {
-    max-height: 1000px;
+    max-height: >200;
 }

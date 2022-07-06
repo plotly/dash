@@ -47,7 +47,6 @@ def test_ddvi001_fixed_table(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-@pytest.mark.DCC788
 def test_ddvi002_maxHeight(dash_duo):
     app = Dash(__name__)
     app.layout = Div(
