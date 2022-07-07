@@ -69,7 +69,7 @@ class Contents {
         propsFn: () => ICellFactoryProps,
         private readonly handlers = derivedCellEventHandlerProps(propsFn)
     ) {
-        this.cell_selectable = propsFn().cell_selectable
+        this.cell_selectable = propsFn().cell_selectable;
     }
 
     partialGet = memoizeOne(
