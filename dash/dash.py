@@ -322,9 +322,12 @@ class Dash:
     want to control the document.title through a separate component or
     clientside callback.
 
-    :param long_callback_manager: Long callback manager instance to support the
-    ``@app.long_callback`` decorator. Currently an instance of one of
-    ``DiskcacheLongCallbackManager`` or ``CeleryLongCallbackManager``
+    :param long_callback_manager: Deprecated, use ``background_callback_manager``
+        instead.
+
+    :param background_callback_manager: Background callback manager instance
+        to support the ``@callback(..., background=True)`` decorator.
+        One of ``DiskcacheManager`` or ``CeleryManager`` currently supported.
     """
 
     def __init__(  # pylint: disable=too-many-statements
@@ -356,6 +359,7 @@ class Dash:
         title="Dash",
         update_title="Updating...",
         long_callback_manager=None,
+        background_callback_manager=None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -484,7 +488,7 @@ class Dash:
 
         self._assets_files = []
         self._long_callback_count = 0
-        self._long_callback_manager = long_callback_manager
+        self._background_manager = background_callback_manager or long_callback_manager
 
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
@@ -1153,14 +1157,14 @@ class Dash:
         """
         return _callback.callback(
             *_args,
-            long=True,
-            long_manager=manager,
-            long_interval=interval,
-            long_progress=progress,
-            long_progress_default=progress_default,
-            long_running=running,
-            long_cancel=cancel,
-            long_cache_args_to_ignore=cache_args_to_ignore,
+            background=True,
+            manager=manager,
+            interval=interval,
+            progress=progress,
+            progress_default=progress_default,
+            running=running,
+            cancel=cancel,
+            cache_args_to_ignore=cache_args_to_ignore,
             callback_map=self.callback_map,
             callback_list=self._callback_list,
             config_prevent_initial_callbacks=self.config.prevent_initial_callbacks,
@@ -1186,7 +1190,9 @@ class Dash:
             input_values
         ) = inputs_to_dict(inputs)
         g.state_values = inputs_to_dict(state)  # pylint: disable=assigning-non-slot
-        g.long_callback_manager = self._long_callback_manager  # pylint: disable=E0237
+        g.background_callback_manager = (
+            self._background_manager
+        )  # pylint: disable=E0237
         changed_props = body.get("changedPropIds", [])
         g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
@@ -1255,7 +1261,7 @@ class Dash:
                     func,
                     *args,
                     outputs_list=outputs_list,
-                    long_callback_manager=self._long_callback_manager,
+                    long_callback_manager=self._background_manager,
                     callback_context=g,
                 )
             )

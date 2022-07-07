@@ -15,12 +15,13 @@ app.layout = html.Div(
         html.Div(id="result", children="No results"),
     ]
 )
+app.test_lock = lock = long_callback_manager.test_lock
 
 
 @callback(
     Output("result", "children"),
     [Input({"type": "run-button", "index": ALL}, "n_clicks")],
-    long=True,
+    background=True,
     prevent_initial_call=True,
 )
 def update_output(n_clicks):

@@ -440,12 +440,11 @@ def test_lcbc008_long_callbacks_error(dash_duo, manager):
             dev_tools_ui=True,
         )
 
-        clicker = dash_duo.find_element("#button")
+        clicker = dash_duo.wait_for_element("#button")
 
         def click_n_wait():
-            with app.test_lock:
-                clicker.click()
-                dash_duo.wait_for_element("#button:disabled")
+            clicker.click()
+            dash_duo.wait_for_element("#button:disabled")
             dash_duo.wait_for_element("#button:not([disabled])")
 
         clicker.click()

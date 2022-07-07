@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Added
+- [#2109](https://github.com/plotly/dash/pull/2109) Add `maxHeight` to Dropdown options menu.
+
 ### Fixed
 - [#2114](https://github.com/plotly/dash/pull/2114) Fix bug [#1978](https://github.com/plotly/dash/issues/1978) where text could not be copied from cells in tables with `cell_selectable=False`.
 - [#2102](https://github.com/plotly/dash/pull/2102) Fix bug as reported in [dash-labs #113](https://github.com/plotly/dash-labs/issues/113) where files starting with `.` were not excluded when building `dash.page_registry`.
@@ -19,8 +22,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - [#2039](https://github.com/plotly/dash/pull/2039) Long callback changes:
-  - Add `long=False` to `dash.callback` to use instead of `app.long_callback`.
-  - Add previous `app.long_callback` arguments to `dash.callback` prefixed with `long_` (`interval`, `running`, `cancel`, `progress`, `progress_default`, `cache_args_to_ignore`, `manager`)
+  - Add `background=False` to `dash.callback` to use instead of `app.long_callback`.
+  - Add previous `app.long_callback` arguments to `dash.callback` (`interval`, `running`, `cancel`, `progress`, `progress_default`, `cache_args_to_ignore`, `manager`)
+
+## Changed
+
+- [#2116](https://github.com/plotly/dash/pull/2116) Rename long callbacks to background callbacks
+  - Deprecated `dash.long_callback.managers.CeleryLongCallbackManager`, use `dash.CeleryManager` instead.
+  - Deprecated `dash.long_callback.managers.DiskcacheLongCallbackManager`, use `dash.DiskcacheManager` instead.
+  - Deprecated dash constructor argument `long_callback_manager` in favor of `background_callback_manager`.
 
 ## [2.5.1] - 2022-06-13
 

@@ -6,7 +6,9 @@ from ...exceptions import PreventUpdate
 _pending_value = "__$pending__"
 
 
-class DiskcacheLongCallbackManager(BaseLongCallbackManager):
+class DiskcacheManager(BaseLongCallbackManager):
+    """Manage the background execution of callbacks with subprocesses and a diskcache result backend."""
+
     def __init__(self, cache=None, cache_by=None, expire=None):
         """
         Long callback manager that runs callback logic in a subprocess and stores
@@ -182,3 +184,7 @@ def _make_job_fn(fn, cache, progress, lock):
                 cache.set(result_key, user_callback_output)
 
     return job_fn
+
+
+class DiskcacheLongCallbackManager(DiskcacheManager):
+    """Deprecated: use `from dash import DiskcacheManager` instead."""
