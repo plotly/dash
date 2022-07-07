@@ -150,7 +150,8 @@ class ThreadedRunner(BaseDashRunner):
     def start(self, app, start_timeout=3, **kwargs):
         """Start the app server in threading flavor."""
 
-        def _handle_error():
+        def _handle_error(error):
+            logger.exception(error)
             self.stop()
 
         app.server.errorhandler(500)(_handle_error)
