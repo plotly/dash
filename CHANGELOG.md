@@ -21,8 +21,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - [#2039](https://github.com/plotly/dash/pull/2039) Long callback changes:
-  - Add `long=False` to `dash.callback` to use instead of `app.long_callback`.
-  - Add previous `app.long_callback` arguments to `dash.callback` prefixed with `long_` (`interval`, `running`, `cancel`, `progress`, `progress_default`, `cache_args_to_ignore`, `manager`)
+  - Add `background=False` to `dash.callback` to use instead of `app.long_callback`.
+  - Add previous `app.long_callback` arguments to `dash.callback` (`interval`, `running`, `cancel`, `progress`, `progress_default`, `cache_args_to_ignore`, `manager`)
+
+## Changed
+
+- [#2116](https://github.com/plotly/dash/pull/2116) Rename long callbacks to background callbacks
+  - Deprecated `dash.long_callback.managers.CeleryLongCallbackManager`, use `dash.CeleryManager` instead.
+  - Deprecated `dash.long_callback.managers.DiskcacheLongCallbackManager`, use `dash.DiskcacheManager` instead.
+  - Deprecated dash constructor argument `long_callback_manager` in favor of `background_callback_manager`.
 
 ## [2.5.1] - 2022-06-13
 
