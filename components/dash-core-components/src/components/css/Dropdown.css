@@ -1,3 +1,7 @@
 .dash-dropdown .Select-menu-outer {
     z-index: 1000;
 }
+
+.dash-dropdown .Select-menu, .Select-menu-outer {
+    max-height: none;
+}
