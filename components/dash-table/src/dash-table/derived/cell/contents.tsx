@@ -64,10 +64,13 @@ function getCellType(
 export default (propsFn: () => ICellFactoryProps) => new Contents(propsFn);
 
 class Contents {
+    private cell_selectable: boolean;
     constructor(
         propsFn: () => ICellFactoryProps,
         private readonly handlers = derivedCellEventHandlerProps(propsFn)
-    ) {}
+    ) {
+        this.cell_selectable = propsFn().cell_selectable
+    }
 
     partialGet = memoizeOne(
         (
@@ -167,6 +170,7 @@ class Contents {
         const className = [
             ...(active ? ['input-active'] : []),
             isFocused ? 'focused' : 'unfocused',
+            ...(this.cell_selectable ? ['selectable'] : []),
             'dash-cell-value'
         ].join(' ');
 
