@@ -104,8 +104,8 @@
     "style-loader": "^3.3.1",
     "ts-loader": "^9.3.0",
     "typescript": "^4.6.4",
-    "webpack": "^5.72.0",
-    "webpack-cli": "^4.9.2",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^3.11.2",
     "webpack-preprocessor": "^0.1.12",
     "xlsx": "^0.17.5"
