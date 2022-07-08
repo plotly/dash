@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 import uuid
 import shlex
 import threading
@@ -196,6 +197,7 @@ class ThreadedRunner(BaseDashRunner):
                 self.started = False
                 retries += 1
                 BaseDashRunner._next_port += 1
+                time.sleep(1)
 
         self.started = self.thread.is_alive()
         if not self.started:
