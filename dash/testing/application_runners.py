@@ -181,8 +181,11 @@ class ThreadedRunner(BaseDashRunner):
 
         while not self.started and retries < 3:
             try:
-                if self.thread and self.thread.is_alive():
-                    self.stop()
+                if self.thread:
+                    if self.thread.is_alive():
+                        self.stop()
+                    else:
+                        self.thread.kill()
 
                 self.thread = KillerThread(target=run)
                 self.thread.daemon = True
