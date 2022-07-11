@@ -415,3 +415,7 @@ def test_inin027_multi_page_without_pages_folder(dash_duo):
         assert dash_duo.driver.title == page["title"], "check that page title updates"
 
     assert not dash_duo.get_logs()
+
+    # clean up after this test, so it does not affect other pages tests
+    del dash.page_registry["multi_layout1"]
+    del dash.page_registry["multi_layout2"]
