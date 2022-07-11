@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- [#2100](https://github.com/plotly/dash/pull/2100) Fixes bug where module name in for a custom `not_found_404` page is incorrect in the `dash.page_registry` when not using the `pages` folder.
 - [#2098](https://github.com/plotly/dash/pull/2098) Accept HTTP code 400 as well as 401 for JWT expiry
 - [#2097](https://github.com/plotly/dash/pull/2097) Fix bug [#2095](https://github.com/plotly/dash/issues/2095) with TypeScript compiler and `React.FC` empty valueDeclaration error & support empty props components.
 
