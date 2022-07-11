@@ -26,6 +26,10 @@ from ._get_paths import (  # noqa: F401,E402
     get_relative_path,
     strip_relative_path,
 )
+from .long_callback import (  # noqa: F401,E402
+    CeleryManager,
+    DiskcacheManager,
+)
 
 
 from ._pages import register_page, PAGE_REGISTRY as page_registry  # noqa: F401,E402
@@ -34,5 +38,6 @@ from .dash import (  # noqa: F401,E402
     no_update,
     page_container,
 )
+
 
 ctx = callback_context

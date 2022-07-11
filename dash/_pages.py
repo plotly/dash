@@ -199,9 +199,7 @@ def register_page(
         APNG, AVIF, GIF, JPEG, JPG, PNG, SVG, WebP.
 
     -  `image_url`:
-       This will use the exact image url provided when sharing on social media.
-       This is appealing when the image you want to share is hosted on a CDN.
-       Using this attribute overrides the image attribute.
+       Overrides the image property and sets the `<image>` meta tag to the provided image URL.
 
     - `redirect_from`:
        A list of paths that should redirect to this page.

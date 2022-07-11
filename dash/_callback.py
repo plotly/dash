@@ -1,12 +1,20 @@
 import collections
 from functools import wraps
 
+import flask
+
 from .dependencies import (
     handle_callback_args,
     handle_grouped_callback_args,
     Output,
 )
-from .exceptions import PreventUpdate
+from .exceptions import (
+    PreventUpdate,
+    WildcardInLongCallback,
+    DuplicateCallback,
+    MissingLongCallbackManagerError,
+    LongCallbackError,
+)
 
 from ._grouping import (
     flatten_grouping,
@@ -17,14 +25,24 @@ from ._utils import (
     create_callback_id,
     stringify_id,
     to_json,
+    coerce_to_list,
+    AttributeDict,
 )
 
 from . import _validate
+from .long_callback.managers import BaseLongCallbackManager
+from ._callback_context import context_value
 
 
 class NoUpdate:
-    # pylint: disable=too-few-public-methods
-    pass
+    def to_plotly_json(self):  # pylint: disable=no-self-use
+        return {"_dash_no_update": "_dash_no_update"}
+
+    @staticmethod
+    def is_no_update(obj):
+        return isinstance(obj, NoUpdate) or obj == {
+            "_dash_no_update": "_dash_no_update"
+        }
 
 
 GLOBAL_CALLBACK_LIST = []
@@ -32,7 +50,19 @@ GLOBAL_CALLBACK_MAP = {}
 GLOBAL_INLINE_SCRIPTS = []
 
 
-def callback(*_args, **_kwargs):
+# pylint: disable=too-many-locals
+def callback(
+    *_args,
+    background=False,
+    interval=1000,
+    progress=None,
+    progress_default=None,
+    running=None,
+    cancel=None,
+    manager=None,
+    cache_args_to_ignore=None,
+    **_kwargs,
+):
     """
     Normally used as a decorator, `@dash.callback` provides a server-side
     callback relating the values of one or more `Output` items to one or
@@ -49,14 +79,138 @@ def callback(*_args, **_kwargs):
     The last, optional argument `prevent_initial_call` causes the callback
     not to fire when its outputs are first added to the page. Defaults to
     `False` and unlike `app.callback` is not configurable at the app level.
+
+    :Keyword Arguments:
+        :param background:
+            Mark the callback as a long callback to execute in a manager for
+            callbacks that take a long time without locking up the Dash app
+            or timing out.
+        :param manager:
+            A long callback manager instance. Currently, an instance of one of
+            `DiskcacheManager` or `CeleryManager`.
+            Defaults to the `background_callback_manager` instance provided to the
+            `dash.Dash constructor`.
+            - A diskcache manager (`DiskcacheManager`) that runs callback
+              logic in a separate process and stores the results to disk using the
+              diskcache library. This is the easiest backend to use for local
+              development.
+            - A Celery manager (`CeleryManager`) that runs callback logic
+              in a celery worker and returns results to the Dash app through a Celery
+              broker like RabbitMQ or Redis.
+        :param running:
+            A list of 3-element tuples. The first element of each tuple should be
+            an `Output` dependency object referencing a property of a component in
+            the app layout. The second element is the value that the property
+            should be set to while the callback is running, and the third element
+            is the value the property should be set to when the callback completes.
+        :param cancel:
+            A list of `Input` dependency objects that reference a property of a
+            component in the app's layout.  When the value of this property changes
+            while a callback is running, the callback is canceled.
+            Note that the value of the property is not significant, any change in
+            value will result in the cancellation of the running job (if any).
+        :param progress:
+            An `Output` dependency grouping that references properties of
+            components in the app's layout. When provided, the decorated function
+            will be called with an extra argument as the first argument to the
+            function.  This argument, is a function handle that the decorated
+            function should call in order to provide updates to the app on its
+            current progress. This function accepts a single argument, which
+            correspond to the grouping of properties specified in the provided
+            `Output` dependency grouping
+        :param progress_default:
+            A grouping of values that should be assigned to the components
+            specified by the `progress` argument when the callback is not in
+            progress. If `progress_default` is not provided, all the dependency
+            properties specified in `progress` will be set to `None` when the
+            callback is not running.
+        :param cache_args_to_ignore:
+            Arguments to ignore when caching is enabled. If callback is configured
+            with keyword arguments (Input/State provided in a dict),
+            this should be a list of argument names as strings. Otherwise,
+            this should be a list of argument indices as integers.
+        :param interval:
+            Time to wait between the long callback update requests.
     """
+
+    long_spec = None
+
+    config_prevent_initial_callbacks = _kwargs.pop(
+        "config_prevent_initial_callbacks", False
+    )
+    callback_map = _kwargs.pop("callback_map", GLOBAL_CALLBACK_MAP)
+    callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
+
+    if background:
+        long_spec = {
+            "interval": interval,
+        }
+
+        if manager:
+            long_spec["manager"] = manager
+
+        if progress:
+            long_spec["progress"] = coerce_to_list(progress)
+            validate_long_inputs(long_spec["progress"])
+
+        if progress_default:
+            long_spec["progressDefault"] = coerce_to_list(progress_default)
+
+            if not len(long_spec["progress"]) == len(long_spec["progressDefault"]):
+                raise Exception(
+                    "Progress and progress default needs to be of same length"
+                )
+
+        if running:
+            long_spec["running"] = coerce_to_list(running)
+            validate_long_inputs(x[0] for x in long_spec["running"])
+
+        if cancel:
+            cancel_inputs = coerce_to_list(cancel)
+            validate_long_inputs(cancel_inputs)
+
+            cancels_output = [Output(c.component_id, "id") for c in cancel_inputs]
+
+            try:
+
+                @callback(cancels_output, cancel_inputs, prevent_initial_call=True)
+                def cancel_call(*_):
+                    job_ids = flask.request.args.getlist("cancelJob")
+                    executor = (
+                        manager or context_value.get().background_callback_manager
+                    )
+                    if job_ids:
+                        for job_id in job_ids:
+                            executor.terminate_job(job_id)
+                    return NoUpdate()
+
+            except DuplicateCallback:
+                pass  # Already a callback to cancel, will get the proper jobs from the store.
+
+            long_spec["cancel"] = [c.to_dict() for c in cancel_inputs]
+
+        if cache_args_to_ignore:
+            long_spec["cache_args_to_ignore"] = cache_args_to_ignore
+
     return register_callback(
-        GLOBAL_CALLBACK_LIST,
-        GLOBAL_CALLBACK_MAP,
-        False,
+        callback_list,
+        callback_map,
+        config_prevent_initial_callbacks,
         *_args,
         **_kwargs,
+        long=long_spec,
     )
+
+
+def validate_long_inputs(deps):
+    for dep in deps:
+        if dep.has_wildcard():
+            raise WildcardInLongCallback(
+                f"""
+                long callbacks does not support dependencies with
+                pattern-matching ids
+                    Received: {repr(dep)}\n"""
+            )
 
 
 def clientside_callback(clientside_function, *args, **kwargs):
@@ -81,6 +235,7 @@ def insert_callback(
     state,
     inputs_state_indices,
     prevent_initial_call,
+    long=None,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -92,19 +247,28 @@ def insert_callback(
         "state": [c.to_dict() for c in state],
         "clientside_function": None,
         "prevent_initial_call": prevent_initial_call,
+        "long": long
+        and {
+            "interval": long["interval"],
+        },
     }
+
     callback_map[callback_id] = {
         "inputs": callback_spec["inputs"],
         "state": callback_spec["state"],
         "outputs_indices": outputs_indices,
         "inputs_state_indices": inputs_state_indices,
+        "long": long,
+        "output": output,
+        "raw_inputs": inputs,
     }
     callback_list.append(callback_spec)
 
     return callback_id
 
 
-def register_callback(
+# pylint: disable=R0912, R0915
+def register_callback(  # pylint: disable=R0914
     callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
 ):
     (
@@ -123,6 +287,8 @@ def register_callback(
         insert_output = flatten_grouping(output)
         multi = True
 
+    long = _kwargs.get("long")
+
     output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
     callback_id = insert_callback(
         callback_list,
@@ -134,23 +300,145 @@ def register_callback(
         flat_state,
         inputs_state_indices,
         prevent_initial_call,
+        long=long,
     )
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
+
+        if long is not None:
+            long_key = BaseLongCallbackManager.register_func(
+                func, long.get("progress") is not None
+            )
+
         @wraps(func)
         def add_context(*args, **kwargs):
             output_spec = kwargs.pop("outputs_list")
+            app_callback_manager = kwargs.pop("long_callback_manager", None)
+            callback_ctx = kwargs.pop("callback_context", {})
+            callback_manager = long and long.get("manager", app_callback_manager)
             _validate.validate_output_spec(insert_output, output_spec, Output)
+
+            context_value.set(callback_ctx)
 
             func_args, func_kwargs = _validate.validate_and_group_input_args(
                 args, inputs_state_indices
             )
 
-            # don't touch the comment on the next line - used by debugger
-            output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
+            response = {"multi": True}
 
-            if isinstance(output_value, NoUpdate):
+            if long is not None:
+                if not callback_manager:
+                    raise MissingLongCallbackManagerError(
+                        "Running `long` callbacks requires a manager to be installed.\n"
+                        "Available managers:\n"
+                        "- Diskcache (`pip install dash[diskcache]`) to run callbacks in a separate Process"
+                        " and store results on the local filesystem.\n"
+                        "- Celery (`pip install dash[celery]`) to run callbacks in a celery worker"
+                        " and store results on redis.\n"
+                    )
+
+                progress_outputs = long.get("progress")
+                cache_key = flask.request.args.get("cacheKey")
+                job_id = flask.request.args.get("job")
+                old_job = flask.request.args.getlist("oldJob")
+
+                current_key = callback_manager.build_cache_key(
+                    func,
+                    # Inputs provided as dict is kwargs.
+                    func_args if func_args else func_kwargs,
+                    long.get("cache_args_to_ignore", []),
+                )
+
+                if old_job:
+                    for job in old_job:
+                        callback_manager.terminate_job(job)
+
+                if not cache_key:
+                    cache_key = current_key
+
+                    job_fn = callback_manager.func_registry.get(long_key)
+
+                    job = callback_manager.call_job_fn(
+                        cache_key,
+                        job_fn,
+                        args,
+                        AttributeDict(
+                            args_grouping=callback_ctx.args_grouping,
+                            using_args_grouping=callback_ctx.using_args_grouping,
+                            outputs_grouping=callback_ctx.outputs_grouping,
+                            using_outputs_grouping=callback_ctx.using_outputs_grouping,
+                            inputs_list=callback_ctx.inputs_list,
+                            states_list=callback_ctx.states_list,
+                            outputs_list=callback_ctx.outputs_list,
+                            input_values=callback_ctx.input_values,
+                            state_values=callback_ctx.state_values,
+                            triggered_inputs=callback_ctx.triggered_inputs,
+                        ),
+                    )
+
+                    data = {
+                        "cacheKey": cache_key,
+                        "job": job,
+                    }
+
+                    running = long.get("running")
+
+                    if running:
+                        data["running"] = {str(r[0]): r[1] for r in running}
+                        data["runningOff"] = {str(r[0]): r[2] for r in running}
+                    cancel = long.get("cancel")
+                    if cancel:
+                        data["cancel"] = cancel
+
+                    progress_default = long.get("progressDefault")
+                    if progress_default:
+                        data["progressDefault"] = {
+                            str(o): x
+                            for o, x in zip(progress_outputs, progress_default)
+                        }
+                    return to_json(data)
+                if progress_outputs:
+                    # Get the progress before the result as it would be erased after the results.
+                    progress = callback_manager.get_progress(cache_key)
+                    if progress:
+                        response["progress"] = {
+                            str(x): progress[i] for i, x in enumerate(progress_outputs)
+                        }
+
+                output_value = callback_manager.get_result(cache_key, job_id)
+                # Must get job_running after get_result since get_results terminates it.
+                job_running = callback_manager.job_running(job_id)
+                if not job_running and output_value is callback_manager.UNDEFINED:
+                    # Job canceled -> no output to close the loop.
+                    output_value = NoUpdate()
+
+                elif (
+                    isinstance(output_value, dict)
+                    and "long_callback_error" in output_value
+                ):
+                    error = output_value.get("long_callback_error")
+                    raise LongCallbackError(
+                        f"An error occurred inside a long callback: {error['msg']}\n{error['tb']}"
+                    )
+
+                if job_running and output_value is not callback_manager.UNDEFINED:
+                    # cached results.
+                    callback_manager.terminate_job(job_id)
+
+                if multi and isinstance(output_value, (list, tuple)):
+                    output_value = [
+                        NoUpdate() if NoUpdate.is_no_update(r) else r
+                        for r in output_value
+                    ]
+
+                if output_value is callback_manager.UNDEFINED:
+                    return to_json(response)
+            else:
+                # don't touch the comment on the next line - used by debugger
+                output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
+
+            if NoUpdate.is_no_update(output_value):
                 raise PreventUpdate
 
             if not multi:
@@ -185,7 +473,7 @@ def register_callback(
             if not has_update:
                 raise PreventUpdate
 
-            response = {"response": component_ids, "multi": True}
+            response["response"] = component_ids
 
             try:
                 jsonResponse = to_json(response)
