@@ -25,6 +25,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - Fix use of the callback context in celery long callbacks.
   - Fix support of pattern matching for long callbacks.
 - [#2110](https://github.com/plotly/dash/pull/2110) Fix `dcc.Dropdown` search with component as prop for option label.
+- [#2131](https://github.com/plotly/dash/pull/2131) Add encoding to file open calls. Fix bug [#2127](https://github.com/plotly/dash/issues/2127).
 
 ## Changed
 
