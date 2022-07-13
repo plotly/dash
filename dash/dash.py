@@ -322,9 +322,12 @@ class Dash:
     want to control the document.title through a separate component or
     clientside callback.
 
-    :param long_callback_manager: Long callback manager instance to support the
-    ``@app.long_callback`` decorator. Currently an instance of one of
-    ``DiskcacheLongCallbackManager`` or ``CeleryLongCallbackManager``
+    :param long_callback_manager: Deprecated, use ``background_callback_manager``
+        instead.
+
+    :param background_callback_manager: Background callback manager instance
+        to support the ``@callback(..., background=True)`` decorator.
+        One of ``DiskcacheManager`` or ``CeleryManager`` currently supported.
     """
 
     def __init__(  # pylint: disable=too-many-statements
@@ -356,6 +359,7 @@ class Dash:
         title="Dash",
         update_title="Updating...",
         long_callback_manager=None,
+        background_callback_manager=None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -484,7 +488,7 @@ class Dash:
 
         self._assets_files = []
         self._long_callback_count = 0
-        self._long_callback_manager = long_callback_manager
+        self._background_manager = background_callback_manager or long_callback_manager
 
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
@@ -552,7 +556,8 @@ class Dash:
         self._add_url("_dash-update-component", self.dispatch, ["POST"])
         self._add_url("_reload-hash", self.serve_reload_hash)
         self._add_url("_favicon.ico", self._serve_default_favicon)
-        self._add_url("", self.index)
+        if not self.use_pages:
+            self._add_url("", self.index)
 
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
@@ -1153,14 +1158,14 @@ class Dash:
         """
         return _callback.callback(
             *_args,
-            long=True,
-            long_manager=manager,
-            long_interval=interval,
-            long_progress=progress,
-            long_progress_default=progress_default,
-            long_running=running,
-            long_cancel=cancel,
-            long_cache_args_to_ignore=cache_args_to_ignore,
+            background=True,
+            manager=manager,
+            interval=interval,
+            progress=progress,
+            progress_default=progress_default,
+            running=running,
+            cancel=cancel,
+            cache_args_to_ignore=cache_args_to_ignore,
             callback_map=self.callback_map,
             callback_list=self._callback_list,
             config_prevent_initial_callbacks=self.config.prevent_initial_callbacks,
@@ -1186,7 +1191,9 @@ class Dash:
             input_values
         ) = inputs_to_dict(inputs)
         g.state_values = inputs_to_dict(state)  # pylint: disable=assigning-non-slot
-        g.long_callback_manager = self._long_callback_manager  # pylint: disable=E0237
+        g.background_callback_manager = (
+            self._background_manager
+        )  # pylint: disable=E0237
         changed_props = body.get("changedPropIds", [])
         g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
@@ -1255,7 +1262,7 @@ class Dash:
                     func,
                     *args,
                     outputs_list=outputs_list,
-                    long_callback_manager=self._long_callback_manager,
+                    long_callback_manager=self._background_manager,
                     callback_context=g,
                 )
             )
@@ -2038,7 +2045,11 @@ class Dash:
 
                 # get layout
                 if page == {}:
-                    module_404 = ".".join([self.pages_folder, "not_found_404"])
+                    module_404 = (
+                        ".".join([self.pages_folder, "not_found_404"])
+                        if self.pages_folder
+                        else "not_found_404"
+                    )
                     not_found_404 = _pages.PAGE_REGISTRY.get(module_404)
                     if not_found_404:
                         layout = not_found_404["layout"]
@@ -2108,6 +2119,11 @@ class Dash:
                             fullname,
                             create_redirect_function(page["relative_path"]),
                         )
+            # set "/" if not redirected
+            try:
+                self._add_url("", self.index)
+            except AssertionError:
+                pass
 
     def run_server(self, *args, **kwargs):
         """`run_server` is a deprecated alias of `run` and may be removed in a
