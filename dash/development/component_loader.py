@@ -13,7 +13,7 @@ from .base_component import ComponentRegistry
 
 def _get_metadata(metadata_path):
     # Start processing
-    with open(metadata_path) as data_file:
+    with open(metadata_path, encoding="utf-8") as data_file:
         json_string = data_file.read()
         data = json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(
             json_string

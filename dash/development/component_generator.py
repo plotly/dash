@@ -111,7 +111,7 @@ def generate_components(
     generator_methods = [functools.partial(generate_class_file, **py_generator_kwargs)]
 
     if rprefix is not None or jlprefix is not None:
-        with open("package.json", "r") as f:
+        with open("package.json", "r", encoding="utf-8") as f:
             pkg_data = safe_json_loads(f.read())
 
     if rprefix is not None:
@@ -120,7 +120,7 @@ def generate_components(
         if not os.path.exists("R"):
             os.makedirs("R")
         if os.path.isfile("dash-info.yaml"):
-            with open("dash-info.yaml") as yamldata:
+            with open("dash-info.yaml", encoding="utf-8") as yamldata:
                 rpkg_data = yaml.safe_load(yamldata)
         else:
             rpkg_data = None
@@ -135,7 +135,9 @@ def generate_components(
 
     components = generate_classes_files(project_shortname, metadata, *generator_methods)
 
-    with open(os.path.join(project_shortname, "metadata.json"), "w") as f:
+    with open(
+        os.path.join(project_shortname, "metadata.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump(metadata, f, indent=2)
 
     generate_imports(project_shortname, components)
