@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - [#2109](https://github.com/plotly/dash/pull/2109) Add `maxHeight` to Dropdown options menu.
+- [#2039](https://github.com/plotly/dash/pull/2039) Long callback changes:
+  - Add `background=False` to `dash.callback` to use instead of `app.long_callback`.
+  - Add previous `app.long_callback` arguments to `dash.callback` (`interval`, `running`, `cancel`, `progress`, `progress_default`, `cache_args_to_ignore`, `manager`)
+- [#2110](https://github.com/plotly/dash/pull/2110) Add `search` prop to `dcc.Dropdown` options, allowing to search the dropdown options with something other than the label or value.
 
 ### Fixed
 - [#2126](https://github.com/plotly/dash/pull/2126) Fix bug where it was not possible to redirect from root when using pages.
@@ -20,12 +24,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - Fix [#1974](https://github.com/plotly/dash/issues/1974) returning `no_update` or raising `PreventUpdate` not supported with celery.
   - Fix use of the callback context in celery long callbacks.
   - Fix support of pattern matching for long callbacks.
-
-### Added
-
-- [#2039](https://github.com/plotly/dash/pull/2039) Long callback changes:
-  - Add `background=False` to `dash.callback` to use instead of `app.long_callback`.
-  - Add previous `app.long_callback` arguments to `dash.callback` (`interval`, `running`, `cancel`, `progress`, `progress_default`, `cache_args_to_ignore`, `manager`)
+- [#2110](https://github.com/plotly/dash/pull/2110) Fix `dcc.Dropdown` search with component as prop for option label.
 
 ## Changed
 
