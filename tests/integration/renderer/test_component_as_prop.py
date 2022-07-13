@@ -1,7 +1,7 @@
 from dash import Dash, Input, Output, callback_context
 
 from dash_test_components import ComponentAsProp
-from dash.html import Button, Div
+from dash.html import Button, Div, Span
 
 
 def test_rdcap001_component_as_prop(dash_duo):
@@ -89,6 +89,16 @@ def test_rdcap001_component_as_prop(dash_duo):
                         Div("two", id="second-in-shape"),
                     ]
                 },
+            ),
+            ComponentAsProp(
+                id="multi-component",
+                multi_components=[
+                    {
+                        "id": "multi",
+                        "first": Span("first"),
+                        "second": Span("second"),
+                    }
+                ],
             ),
         ]
     )
@@ -186,5 +196,7 @@ def test_rdcap001_component_as_prop(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#first-in-shape", "one")
     dash_duo.wait_for_text_to_equal("#second-in-shape", "two")
+
+    dash_duo.wait_for_text_to_equal("#multi", "first - second")
 
     assert dash_duo.get_logs() == []
