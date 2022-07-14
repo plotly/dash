@@ -34,6 +34,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - Deprecated `dash.long_callback.managers.DiskcacheLongCallbackManager`, use `dash.DiskcacheManager` instead.
   - Deprecated dash constructor argument `long_callback_manager` in favor of `background_callback_manager`.
 
+### Updated
+- [#2134](https://github.com/plotly/dash/pull/2134) Upgrade Plotly.js to [v2.13.0](https://github.com/plotly/plotly.js/releases/tag/v2.13.0) (from v2.12.1)
+  - Add persistent selections via layout attributes `selections`, `newselection`, and `activeselection`, along with an updated UI allowing you to modify a selection you created.
+  - Add unselected line styling to `parcoords` traces.
+  - Add more quartile algorithms to `violin` traces.
+  - More flexible axis `automargin` behavior.
+  - And several other enhancements and bug fixes.
+
 ## [2.5.1] - 2022-06-13
 
 ### Fixed
