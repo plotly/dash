@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [2.6.0] - 2022-07-14
 
 ### Added
 - [#2109](https://github.com/plotly/dash/pull/2109) Add `maxHeight` to Dropdown options menu.
