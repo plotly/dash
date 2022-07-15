@@ -404,7 +404,7 @@ def generate_package_file(project_shortname, components, pkg_data, prefix):
         base_package=base_package_name(project_shortname),
     )
     file_path = os.path.join("src", package_name + ".jl")
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(package_string)
     print("Generated {}".format(file_path))
 
@@ -435,7 +435,7 @@ def generate_toml_file(project_shortname, pkg_data):
         dash_uuid=base_package_uid(project_shortname),
     )
     file_path = "Project.toml"
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(toml_string)
     print("Generated {}".format(file_path))
 
@@ -509,7 +509,7 @@ def generate_struct_file(name, props, description, project_shortname, prefix):
         os.makedirs("src/jl")
 
     file_path = os.path.join("src", "jl", file_name)
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(import_string)
         f.write(class_string)
 

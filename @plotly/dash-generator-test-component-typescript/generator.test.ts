@@ -61,7 +61,8 @@ describe('Test Typescript component metadata generation', () => {
     describe.each([
         'TypeScriptComponent',
         'TypeScriptClassComponent',
-        'MemoTypeScriptComponent'
+        'MemoTypeScriptComponent',
+        'FCComponent',
     ])('Test prop type names', componentName => {
         const getPropTypeName = (name, data) =>
             R.path(propPath(componentName, name).concat('type', 'name'), data);
@@ -256,10 +257,16 @@ describe('Test Typescript component metadata generation', () => {
         test('Standard js component is parsed', () => {
             expect(R.path(['StandardComponent'], metadata)).toBeDefined();
         });
+        test('Mixed component prop-type & typescript', () => {
+            expect(R.path(['MixedComponent', 'props', 'prop', 'type', 'name'], metadata)).toBe('arrayOf')
+        })
     });
-    describe('Test namespace props', () => {
+    describe('Test special cases', () => {
         test('Component with picked boolean prop', () => {
             expect(R.path(['WrappedHTML', "props", "autoFocus", "type", "name"], metadata)).toBe("bool");
-        })
-    })
+        });
+        test('Empty Component', () => {
+            expect(R.path(['EmptyComponent', 'props'], metadata)).toBeDefined();
+        });
+    });
 });

@@ -169,7 +169,7 @@ def generate_class_file(
     file_name = f"{typename:s}.py"
 
     file_path = os.path.join(namespace, file_name)
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(import_string)
         f.write(class_string)
 
@@ -177,7 +177,9 @@ def generate_class_file(
 
 
 def generate_imports(project_shortname, components):
-    with open(os.path.join(project_shortname, "_imports_.py"), "w") as f:
+    with open(
+        os.path.join(project_shortname, "_imports_.py"), "w", encoding="utf-8"
+    ) as f:
         component_imports = "\n".join(f"from .{x} import {x}" for x in components)
         all_list = ",\n".join(f'    "{x}"' for x in components)
         imports_string = f"{component_imports}\n\n__all__ = [\n{all_list}\n]"

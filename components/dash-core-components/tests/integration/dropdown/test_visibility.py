@@ -45,3 +45,19 @@ def test_ddvi001_fixed_table(dash_duo):
     dash_duo.percy_snapshot("dcc.Dropdown dropdown overlaps table fixed rows/columns")
 
     assert dash_duo.get_logs() == []
+
+
+def test_ddvi002_maxHeight(dash_duo):
+    app = Dash(__name__)
+    app.layout = Div(
+        [Dropdown([str(i) for i in range(100)], "1", id="dropdown", maxHeight=800)]
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#dropdown").click()
+    dash_duo.wait_for_element("#dropdown .Select-menu-outer")
+
+    dash_duo.percy_snapshot("dcc.Dropdown dropdown menu maxHeight 800px")
+
+    assert dash_duo.get_logs() == []

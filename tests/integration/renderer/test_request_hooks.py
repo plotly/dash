@@ -1,6 +1,7 @@
 import json
 import functools
 import flask
+import pytest
 
 from dash import Dash, Output, Input, html, dcc
 from werkzeug.exceptions import HTTPException
@@ -195,7 +196,8 @@ def test_rdrh002_with_custom_renderer_interpolated(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_rdrh003_refresh_jwt(dash_duo):
+@pytest.mark.parametrize("expiry_code", [401, 400])
+def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
 
     app = Dash(__name__)
 
@@ -260,7 +262,7 @@ def test_rdrh003_refresh_jwt(dash_duo):
                 ):
                     # Read the data to prevent bug with base http server.
                     flask.request.get_json(silent=True)
-                    flask.abort(401, description="JWT Expired " + str(token))
+                    flask.abort(expiry_code, description="JWT Expired " + str(token))
             except HTTPException as e:
                 return e
             return func(*args, **kwargs)

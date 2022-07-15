@@ -29,7 +29,7 @@ class BuildProcess:
         self.asset_paths = (self.deps_folder, self.npm_modules)
 
     def _parse_package(self, path):
-        with open(path, "r") as fp:
+        with open(path, "r", encoding="utf-8") as fp:
             package = json.load(fp)
             self.version = package["version"]
             self.name = package["name"]
@@ -99,7 +99,7 @@ class BuildProcess:
             for copy in copies:
                 payload[f"MD5 ({copy})"] = compute_md5(self._concat(folder, copy))
 
-        with open(self._concat(self.main, "digest.json"), "w") as fp:
+        with open(self._concat(self.main, "digest.json"), "w", encoding="utf-8") as fp:
             json.dump(payload, fp, sort_keys=True, indent=4, separators=(",", ":"))
         logger.info(
             "bundle digest in digest.json:\n%s",
@@ -143,11 +143,13 @@ class BuildProcess:
         run_command_with_process(f"npm run {_script}")
 
         logger.info("generate the `__init__.py` from template and versions")
-        with open(self._concat(self.main, "init.template")) as fp:
+        with open(self._concat(self.main, "init.template"), encoding="utf-8") as fp:
             t = string.Template(fp.read())
 
         with open(
-            self._concat(self.deps_folder, os.pardir, "_dash_renderer.py"), "w"
+            self._concat(self.deps_folder, os.pardir, "_dash_renderer.py"),
+            "w",
+            encoding="utf-8",
         ) as fp:
             fp.write(t.safe_substitute(versions))
 

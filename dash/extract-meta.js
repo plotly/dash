@@ -113,7 +113,7 @@ function checkDocstring(name, value) {
 function docstringWarning(doc) {
     checkDocstring(doc.displayName, doc.description);
 
-    Object.entries(doc.props).forEach(([name, p]) =>
+    Object.entries(doc.props || {}).forEach(([name, p]) =>
         checkDocstring(`${doc.displayName}.${name}`, p.description)
     );
 }
@@ -672,14 +672,14 @@ function gatherComponents(sources, components = {}) {
                 } else {
                     // Function components.
                     rootExp = typeSymbol;
-                    commentSource = rootExp.valueDeclaration;
+                    commentSource = rootExp.valueDeclaration || rootExp.declarations[0];
                     if (
-                        rootExp.valueDeclaration &&
-                        rootExp.valueDeclaration.parent
+                        commentSource &&
+                        commentSource.parent
                     ) {
                         // Function with export later like `const MyComponent = (props) => <></>;`
                         commentSource = getParent(
-                            rootExp.valueDeclaration.parent
+                            commentSource.parent
                         );
                     }
                 }
@@ -719,8 +719,13 @@ function gatherComponents(sources, components = {}) {
                 );
             }
 
+            if (!props) {
+                // Ensure empty components has props.
+                props = {};
+            }
+
             const fullText = source.getFullText();
-            let description;
+            let description = '';
             const commentRanges = ts.getLeadingCommentRanges(
                 fullText,
                 commentSource.getFullStart()
