@@ -30,6 +30,12 @@ class Dropdown(Component):
         - label (a list of or a singular dash component, string or number; required):
             The option's label.
 
+        - search (string; optional):
+            Optional search value for the option, to use if the label is a
+            component or provide a custom search value different from the
+            label. If no search value and the label is a component, the
+            `value` will be used for search.
+
         - title (string; optional):
             The HTML 'title' attribute for the option. Allows for
             information on hover. For more information on this attribute,
@@ -71,6 +77,9 @@ class Dropdown(Component):
     - optionHeight (number; default 35):
         height of each option. Can be increased when label lengths would
         wrap around.
+
+    - maxHeight (number; default 200):
+        height of the options dropdown.
 
     - style (dict; optional):
         Defines CSS styles which will override styles previously set.
@@ -134,6 +143,7 @@ class Dropdown(Component):
         placeholder=Component.UNDEFINED,
         disabled=Component.UNDEFINED,
         optionHeight=Component.UNDEFINED,
+        maxHeight=Component.UNDEFINED,
         style=Component.UNDEFINED,
         className=Component.UNDEFINED,
         id=Component.UNDEFINED,
@@ -153,6 +163,7 @@ class Dropdown(Component):
             "placeholder",
             "disabled",
             "optionHeight",
+            "maxHeight",
             "style",
             "className",
             "id",
@@ -172,6 +183,7 @@ class Dropdown(Component):
             "placeholder",
             "disabled",
             "optionHeight",
+            "maxHeight",
             "style",
             "className",
             "id",

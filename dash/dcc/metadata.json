@@ -1545,6 +1545,11 @@
                     "name": "string",
                     "description": "The HTML 'title' attribute for the option. Allows for\ninformation on hover. For more information on this attribute,\nsee https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title",
                     "required": false
+                  },
+                  "search": {
+                    "name": "string",
+                    "description": "Optional search value for the option, to use if the label\nis a component or provide a custom search value different\nfrom the label. If no search value and the label is a\ncomponent, the `value` will be used for search.",
+                    "required": false
                   }
                 }
               },
@@ -1656,6 +1661,17 @@
         "description": "height of each option. Can be increased when label lengths would wrap around",
         "defaultValue": {
           "value": "35",
+          "computed": false
+        }
+      },
+      "maxHeight": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "height of the options dropdown.",
+        "defaultValue": {
+          "value": "200",
           "computed": false
         }
       },
