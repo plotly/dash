@@ -80,6 +80,14 @@ Dropdown.propTypes = {
                  * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
                  */
                 title: PropTypes.string,
+
+                /**
+                 * Optional search value for the option, to use if the label
+                 * is a component or provide a custom search value different
+                 * from the label. If no search value and the label is a
+                 * component, the `value` will be used for search.
+                 */
+                search: PropTypes.string,
             })
         ),
     ]),
@@ -141,6 +149,11 @@ Dropdown.propTypes = {
      * height of each option. Can be increased when label lengths would wrap around
      */
     optionHeight: PropTypes.number,
+
+    /**
+     * height of the options dropdown.
+     */
+    maxHeight: PropTypes.number,
 
     /**
      * Defines CSS styles which will override styles previously set.
@@ -218,6 +231,7 @@ Dropdown.defaultProps = {
     multi: false,
     searchable: true,
     optionHeight: 35,
+    maxHeight: 200,
     persisted_props: ['value'],
     persistence_type: 'local',
 };

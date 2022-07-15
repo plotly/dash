@@ -65,7 +65,10 @@ export default function apiThunk(endpoint, method, store, id, body) {
                     return;
                 }
 
-                if (res.status === STATUS.UNAUTHORIZED) {
+                if (
+                    res.status === STATUS.UNAUTHORIZED ||
+                    res.status === STATUS.BAD_REQUEST
+                ) {
                     if (hooks.request_refresh_jwt) {
                         const body = await res.text();
                         if (body.includes(JWT_EXPIRED_MESSAGE)) {

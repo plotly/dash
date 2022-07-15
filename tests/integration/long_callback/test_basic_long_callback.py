@@ -1,3 +1,4 @@
+import json
 from multiprocessing import Lock
 import os
 from contextlib import contextmanager
@@ -21,7 +22,7 @@ def kill(proc_pid):
 
 
 if "REDIS_URL" in os.environ:
-    managers = ["diskcache", "celery"]
+    managers = ["celery", "diskcache"]
 else:
     print("Skipping celery tests because REDIS_URL is not defined")
     managers = ["diskcache"]
@@ -426,3 +427,99 @@ def test_lcbc007_validation_layout(dash_duo, manager):
 
     assert not dash_duo.redux_state_is_loading
     assert dash_duo.get_logs() == []
+
+
+def test_lcbc008_long_callbacks_error(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_error") as app:
+        dash_duo.start_server(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+            dev_tools_ui=True,
+        )
+
+        clicker = dash_duo.wait_for_element("#button")
+
+        def click_n_wait():
+            clicker.click()
+            dash_duo.wait_for_element("#button:disabled")
+            dash_duo.wait_for_element("#button:not([disabled])")
+
+        clicker.click()
+        dash_duo.wait_for_text_to_equal("#output", "Clicked 1 times")
+
+        click_n_wait()
+        dash_duo.wait_for_element(".dash-fe-error__title").click()
+
+        dash_duo.driver.switch_to.frame(dash_duo.find_element("iframe"))
+        assert (
+            "dash.exceptions.LongCallbackError: An error occurred inside a long callback:"
+            in dash_duo.wait_for_element(".errormsg").text
+        )
+        dash_duo.driver.switch_to.default_content()
+
+        click_n_wait()
+        dash_duo.wait_for_text_to_equal("#output", "Clicked 3 times")
+
+        click_n_wait()
+        dash_duo.wait_for_text_to_equal("#output", "Clicked 3 times")
+        click_n_wait()
+        dash_duo.wait_for_text_to_equal("#output", "Clicked 5 times")
+
+        def make_expect(n):
+            return [str(x) for x in range(1, n + 1)] + ["" for _ in range(n + 1, 4)]
+
+        multi = dash_duo.wait_for_element("#multi-output")
+
+        for i in range(1, 4):
+            with app.test_lock:
+                multi.click()
+                dash_duo.wait_for_element("#multi-output:disabled")
+            expect = make_expect(i)
+            dash_duo.wait_for_text_to_equal("#output-status", f"Updated: {i}")
+            for j, e in enumerate(expect):
+                assert dash_duo.find_element(f"#output{j + 1}").text == e
+
+
+def test_lcbc009_short_interval(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_short_interval") as app:
+        dash_duo.start_server(app)
+        dash_duo.find_element("#run-button").click()
+        dash_duo.wait_for_text_to_equal("#status", "Progress 2/4", 20)
+        dash_duo.wait_for_text_to_equal("#status", "Finished", 12)
+        dash_duo.wait_for_text_to_equal("#result", "Clicked '1'")
+
+        time.sleep(2)
+        # Ensure the progress is still not running
+        assert dash_duo.find_element("#status").text == "Finished"
+
+
+def test_lcbc010_side_updates(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_side_update") as app:
+        dash_duo.start_server(app)
+        dash_duo.find_element("#run-button").click()
+        for i in range(1, 4):
+            dash_duo.wait_for_text_to_equal("#side-status", f"Side Progress {i}/4")
+
+
+def test_lcbc011_long_pattern_matching(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_pattern_matching") as app:
+        dash_duo.start_server(app)
+        for i in range(1, 4):
+            for _ in range(i):
+                dash_duo.find_element(f"button:nth-child({i})").click()
+
+            dash_duo.wait_for_text_to_equal("#result", f"Clicked '{i}'")
+
+
+def test_lcbc012_long_callback_ctx(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_callback_ctx") as app:
+        dash_duo.start_server(app)
+        dash_duo.find_element("button:nth-child(1)").click()
+        dash_duo.wait_for_text_to_equal("#running", "off")
+
+        output = json.loads(dash_duo.find_element("#result").text)
+
+        assert output["triggered"]["index"] == 0

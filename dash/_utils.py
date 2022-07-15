@@ -217,3 +217,9 @@ def gen_salt(chars):
     return "".join(
         secrets.choice(string.ascii_letters + string.digits) for _ in range(chars)
     )
+
+
+def coerce_to_list(obj):
+    if not isinstance(obj, (list, tuple)):
+        return [obj]
+    return obj
