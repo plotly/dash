@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+- [#2146](https://github.com/plotly/dash/pull/2146) Remove leftover debug console.log statement.
+
 ## [2.6.0] - 2022-07-14
 
 ### Added
