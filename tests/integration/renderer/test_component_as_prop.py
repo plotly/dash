@@ -97,6 +97,11 @@ def test_rdcap001_component_as_prop(dash_duo):
                         "id": "multi",
                         "first": Span("first"),
                         "second": Span("second"),
+                    },
+                    {
+                        "id": "multi2",
+                        "first": Span("foo"),
+                        "second": Span("bar"),
                     }
                 ],
             ),
@@ -198,5 +203,6 @@ def test_rdcap001_component_as_prop(dash_duo):
     dash_duo.wait_for_text_to_equal("#second-in-shape", "two")
 
     dash_duo.wait_for_text_to_equal("#multi", "first - second")
+    dash_duo.wait_for_text_to_equal("#multi2", "foo - bar")
 
     assert dash_duo.get_logs() == []
