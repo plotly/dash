@@ -556,7 +556,8 @@ class Dash:
         self._add_url("_dash-update-component", self.dispatch, ["POST"])
         self._add_url("_reload-hash", self.serve_reload_hash)
         self._add_url("_favicon.ico", self._serve_default_favicon)
-        self._add_url("", self.index)
+        if not self.use_pages:
+            self._add_url("", self.index)
 
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
@@ -1153,7 +1154,7 @@ class Dash:
     ):
         """
         Deprecated: long callbacks are now supported natively with regular callbacks,
-        use `long=True` with `dash.callback` or `app.callback` instead.
+        use `background=True` with `dash.callback` or `app.callback` instead.
         """
         return _callback.callback(
             *_args,
@@ -2044,7 +2045,11 @@ class Dash:
 
                 # get layout
                 if page == {}:
-                    module_404 = ".".join([self.pages_folder, "not_found_404"])
+                    module_404 = (
+                        ".".join([self.pages_folder, "not_found_404"])
+                        if self.pages_folder
+                        else "not_found_404"
+                    )
                     not_found_404 = _pages.PAGE_REGISTRY.get(module_404)
                     if not_found_404:
                         layout = not_found_404["layout"]
@@ -2114,6 +2119,11 @@ class Dash:
                             fullname,
                             create_redirect_function(page["relative_path"]),
                         )
+            # set "/" if not redirected
+            try:
+                self._add_url("", self.index)
+            except AssertionError:
+                pass
 
     def run_server(self, *args, **kwargs):
         """`run_server` is a deprecated alias of `run` and may be removed in a

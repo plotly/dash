@@ -317,7 +317,7 @@ class RRunner(ProcessRunner):
             logger.debug("content of the dashR app")
             logger.debug("%s", app)
 
-            with open(path, "w") as fp:
+            with open(path, "w", encoding="utf-8") as fp:
                 fp.write(app)
 
             app = path
@@ -414,7 +414,7 @@ class JuliaRunner(ProcessRunner):
             logger.debug("content of the Dash.jl app")
             logger.debug("%s", app)
 
-            with open(path, "w") as fp:
+            with open(path, "w", encoding="utf-8") as fp:
                 fp.write(app)
 
             app = path

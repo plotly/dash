@@ -650,7 +650,6 @@ export function executeCallback(
                 let lastError: any;
 
                 const additionalArgs: [string, string, boolean?][] = [];
-                console.log(cb.callback.output, getState().callbackJobs);
                 values(getState().callbackJobs).forEach(
                     (job: CallbackJobPayload) => {
                         if (cb.callback.output === job.output) {
