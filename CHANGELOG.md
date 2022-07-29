@@ -9,6 +9,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2152](https://github.com/plotly/dash/pull/2152) Fix bug [#2128](https://github.com/plotly/dash/issues/2128) preventing rendering of multiple components inside a dictionary.
 - [#2146](https://github.com/plotly/dash/pull/2146) Remove leftover debug console.log statement.
 
+### Updated
+
+- [#2167](https://github.com/plotly/dash/pull/2167) Update Plotly.js to v2.13.3 (from v2.13.1) including [patch release v2.13.2](https://github.com/plotly/plotly.js/releases/tag/v2.13.2) and [patch release v2.13.3](https://github.com/plotly/plotly.js/releases/tag/v2.13.3).
+  - Emit `plotly_selected` event on plot API calls and GUI edits.
+  - Fix `sankey` select error (regression introduced in 2.13.0).
+  - Handle missing drag layer of invisible `sankey` traces to fix select error.
+  - Emit selection event in shape drawing `dragmode`s when an existing selection is modified.
+
 ## [2.6.0] - 2022-07-14
 
 ### Added
