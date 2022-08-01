@@ -40,9 +40,11 @@ class NoUpdate:
 
     @staticmethod
     def is_no_update(obj):
-        return isinstance(obj, NoUpdate) or obj == {
-            "_dash_no_update": "_dash_no_update"
-        }
+        return (
+            isinstance(obj, NoUpdate)
+            or isinstance(obj, dict)
+            and obj == {"_dash_no_update": "_dash_no_update"}
+        )
 
 
 GLOBAL_CALLBACK_LIST = []
