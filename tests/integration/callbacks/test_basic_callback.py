@@ -765,3 +765,21 @@ def test_cbsc017_callback_directly_callable():
         return f"returning {value}"
 
     assert update_output("my-value") == "returning my-value"
+
+
+def test_cbsc018_callback_ndarray_output(dash_duo):
+    import numpy as np
+
+    app = Dash(__name__)
+    app.layout = html.Div([dcc.Store(id="output"), html.Button("click", id="clicker")])
+
+    @app.callback(
+        Output("output", "data"),
+        Input("clicker", "n_clicks"),
+    )
+    def on_click(_):
+        return np.array([[1, 2, 3], [4, 5, 6]], np.int32)
+
+    dash_duo.start_server(app)
+
+    assert dash_duo.get_logs() == []
