@@ -4,6 +4,7 @@ from multiprocessing import Lock, Value
 import pytest
 import time
 
+import numpy as np
 import werkzeug
 
 from dash_test_components import (
@@ -768,8 +769,6 @@ def test_cbsc017_callback_directly_callable():
 
 
 def test_cbsc018_callback_ndarray_output(dash_duo):
-    import numpy as np
-
     app = Dash(__name__)
     app.layout = html.Div([dcc.Store(id="output"), html.Button("click", id="clicker")])
 
