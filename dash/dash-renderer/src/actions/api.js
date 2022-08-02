@@ -60,6 +60,7 @@ export default function apiThunk(endpoint, method, store, id, body) {
                     // fetch rejection - this means the request didn't return,
                     // we don't get here from 400/500 errors, only network
                     // errors or unresponsive servers.
+                    // eslint-disable-next-line no-console
                     console.log('fetch error', res);
                     setConnectionStatus(false);
                     return;

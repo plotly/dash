@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 import uuid
 import shlex
 import threading
@@ -150,11 +151,6 @@ class ThreadedRunner(BaseDashRunner):
     def start(self, app, start_timeout=3, **kwargs):
         """Start the app server in threading flavor."""
 
-        def _handle_error():
-            self.stop()
-
-        app.server.errorhandler(500)(_handle_error)
-
         def run():
             app.scripts.config.serve_locally = True
             app.css.config.serve_locally = True
@@ -179,8 +175,11 @@ class ThreadedRunner(BaseDashRunner):
 
         while not self.started and retries < 3:
             try:
-                if self.thread and self.thread.is_alive():
-                    self.stop()
+                if self.thread:
+                    if self.thread.is_alive():
+                        self.stop()
+                    else:
+                        self.thread.kill()
 
                 self.thread = KillerThread(target=run)
                 self.thread.daemon = True
@@ -194,7 +193,7 @@ class ThreadedRunner(BaseDashRunner):
                 logger.exception(err)
                 self.started = False
                 retries += 1
-                BaseDashRunner._next_port += 1
+                time.sleep(1)
 
         self.started = self.thread.is_alive()
         if not self.started:

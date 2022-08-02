@@ -49,7 +49,6 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
                 )
             self.handle = cache
 
-        self.lock = diskcache.Lock(self.handle, "long-callback-lock")
         self.expire = expire
         super().__init__(cache_by)
 
@@ -79,7 +78,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
                     pass
 
                 try:
-                    process.wait(0.5)
+                    process.wait(1)
                 except (psutil.TimeoutExpired, psutil.NoSuchProcess):
                     pass
 
@@ -106,7 +105,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
         return False
 
     def make_job_fn(self, fn, progress):
-        return _make_job_fn(fn, self.handle, progress, self.lock)
+        return _make_job_fn(fn, self.handle, progress)
 
     def clear_cache_entry(self, key):
         self.handle.delete(key)
@@ -147,14 +146,13 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
         return result
 
 
-def _make_job_fn(fn, cache, progress, lock):
+def _make_job_fn(fn, cache, progress):
     def job_fn(result_key, progress_key, user_callback_args):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
 
-            with lock:
-                cache.set(progress_key, progress_value)
+            cache.set(progress_key, progress_value)
 
         maybe_progress = [_set_progress] if progress else []
 
@@ -166,22 +164,19 @@ def _make_job_fn(fn, cache, progress, lock):
             else:
                 user_callback_output = fn(*maybe_progress, user_callback_args)
         except PreventUpdate:
-            with lock:
-                cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
+            cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
         except Exception as err:  # pylint: disable=broad-except
-            with lock:
-                cache.set(
-                    result_key,
-                    {
-                        "long_callback_error": {
-                            "msg": str(err),
-                            "tb": traceback.format_exc(),
-                        }
-                    },
-                )
+            cache.set(
+                result_key,
+                {
+                    "long_callback_error": {
+                        "msg": str(err),
+                        "tb": traceback.format_exc(),
+                    }
+                },
+            )
         else:
-            with lock:
-                cache.set(result_key, user_callback_output)
+            cache.set(result_key, user_callback_output)
 
     return job_fn
 

@@ -2,6 +2,22 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.6.1] - 2022-08-01
+
+### Fixed
+
+- [#2175](https://github.com/plotly/dash/pull/2175) Fix [#2173](https://github.com/plotly/dash/issues/2173) callback output of ndarray and no_update check.
+- [#2146](https://github.com/plotly/dash/pull/2146) Remove leftover debug console.log statement.
+- [#2168](https://github.com/plotly/dash/pull/2168)  Reverts [#2126](https://github.com/plotly/dash/pull/2126) (supporting redirect from root when using pages) until the new bugs introduced by that PR are fixed.
+
+### Updated
+
+- [#2167](https://github.com/plotly/dash/pull/2167) Update Plotly.js to v2.13.3 (from v2.13.1) including [patch release v2.13.2](https://github.com/plotly/plotly.js/releases/tag/v2.13.2) and [patch release v2.13.3](https://github.com/plotly/plotly.js/releases/tag/v2.13.3).
+  - Emit `plotly_selected` event on plot API calls and GUI edits.
+  - Fix `sankey` select error (regression introduced in 2.13.0).
+  - Handle missing drag layer of invisible `sankey` traces to fix select error.
+  - Emit selection event in shape drawing `dragmode`s when an existing selection is modified.
+
 ## [2.6.0] - 2022-07-14
 
 ### Added

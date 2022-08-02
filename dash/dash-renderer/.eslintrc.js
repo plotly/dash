@@ -28,6 +28,7 @@ module.exports = {
         'prefer-arrow-callback': 2,
         'quote-props': [2, 'as-needed'],
         'quotes': [2, 'single', { 'avoidEscape': true }],
+        'no-console': 2,
         '@typescript-eslint/ban-types': 0,
         '@typescript-eslint/explicit-module-boundary-types': 0,
         '@typescript-eslint/array-type': 0,
