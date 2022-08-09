@@ -505,46 +505,27 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     dash_dcc.start_server(app)
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                y=[0, 0.5, 1, 0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],
-            )
-        ]
+    comparison = list(
+        zip(
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 0.5, 1, 0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5]
+        )
     )
-    dash_dcc.wait_for_text_to_equal("#output_trace_will_extend", comparison)
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_extend_with_no_indices", comparison
+    assert_graph_equals(dash_dcc, "#trace_will_extend", comparison)
+    assert_graph_equals(dash_dcc, "#trace_will_extend_with_no_indices", comparison)
+    compare1 = list(zip([0, 1, 2, 3, 4], [0, 0.5, 1, 0.5, 0]))
+    compare2 = list(
+        zip([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 1, 1, 1, 1, 0.1, 0.2, 0.3, 0.4, 0.5])
     )
-    comparison = json.dumps(
-        [
-            dict(x=[0, 1, 2, 3, 4], y=[0, 0.5, 1, 0.5, 0]),
-            dict(
-                x=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                y=[1, 1, 1, 1, 1, 0.1, 0.2, 0.3, 0.4, 0.5],
-            ),
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal("#output_trace_will_extend_selectively", comparison)
+    assert_graph_equals(dash_dcc, "#trace_will_extend_selectively", compare1 + compare2)
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[3, 4, 5, 6, 7, 8, 9],
-                y=[0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],
-            )
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_extend_with_max_points", comparison
-    )
+    comparison = list(zip([3, 4, 5, 6, 7, 8, 9], [0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5]))
+    assert_graph_equals(dash_dcc, "#trace_will_extend_with_max_points", comparison)
 
-    comparison = json.dumps(
-        [dict(y=[0, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5])]
+    comparison = list(
+        zip([], [0, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5])
     )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_allow_repeated_extend", comparison
+    assert_graph_equals(
+        dash_dcc, "#output_trace_will_allow_repeated_extend", comparison
     )
 
     assert dash_dcc.get_logs() == []
