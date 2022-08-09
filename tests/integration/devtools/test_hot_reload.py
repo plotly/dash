@@ -112,8 +112,7 @@ def test_dvhr001_hot_reload(dash_duo):
     dash_duo.percy_snapshot(name="hot-reload-available")
 
     dash_duo.server.stop()
-    sleep(1)  # make sure we would have requested the reload hash multiple times
-    dash_duo.find_element(".dash-debug-menu__button--unavailable")
+    dash_duo.wait_for_element(".dash-debug-menu__button--unavailable")
     dash_duo.wait_for_no_elements(".dash-fe-error__title")
     dash_duo.percy_snapshot(name="hot-reload-unavailable")
 

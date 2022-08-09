@@ -116,7 +116,7 @@ class KillerThread(threading.Thread):
 
     def kill(self):
         # Kill all the new threads.
-        for thread_id in threading._active:  # pylint: disable=W0212
+        for thread_id in list(threading._active):  # pylint: disable=W0212
             if thread_id in self._old_threads:
                 continue
 
