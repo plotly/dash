@@ -206,6 +206,44 @@ class ThreadedRunner(BaseDashRunner):
         self.started = False
 
 
+class MultiProcessRunner(BaseDashRunner):
+    def __init__(self, keep_open=False, stop_timeout=3):
+        super().__init__(keep_open, stop_timeout)
+        self.proc = None
+
+    # pylint: disable=arguments-differ
+    def start(self, app, start_timeout=3, **kwargs):
+        self.port = kwargs.get('port', 8050)
+
+        def target():
+            app.scripts.config.serve_locally = True
+            app.css.config.serve_locally = True
+
+            options = kwargs.copy()
+
+            try:
+                app.run(threaded=True, **options)
+            except SystemExit:
+                logger.info("Server stopped")
+                raise
+            except Exception as error:
+                logger.exception(error)
+                raise error
+
+        # pylint: disable=import-outside-toplevel,no-member
+        import multiprocess as mp
+
+        self.proc = mp.Process(target=target)
+        self.proc.start()
+
+        wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+        self.started = True
+
+    def stop(self):
+        self.proc.kill()
+        self.proc.join()
+
+
 class ProcessRunner(BaseDashRunner):
     """Runs a dash application in a waitress-serve subprocess.
 
