@@ -12,6 +12,7 @@ import ctypes
 
 import runpy
 import requests
+import psutil
 
 from dash.testing.errors import (
     NoAppFoundError,
@@ -240,8 +241,23 @@ class MultiProcessRunner(BaseDashRunner):
         self.started = True
 
     def stop(self):
-        self.proc.kill()
-        self.proc.join()
+        process = psutil.Process(self.proc.pid)
+
+        for proc in process.children(recursive=True):
+            try:
+                proc.kill()
+            except psutil.NoSuchProcess:
+                pass
+
+        try:
+            process.kill()
+        except psutil.NoSuchProcess:
+            pass
+
+        try:
+            process.wait(1)
+        except (psutil.TimeoutExpired, psutil.NoSuchProcess):
+            pass
 
 
 class ProcessRunner(BaseDashRunner):
