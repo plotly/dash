@@ -13,6 +13,8 @@ import ctypes
 import runpy
 import requests
 import psutil
+# pylint: disable=no-member
+import multiprocess
 
 from dash.testing.errors import (
     NoAppFoundError,
@@ -231,10 +233,7 @@ class MultiProcessRunner(BaseDashRunner):
                 logger.exception(error)
                 raise error
 
-        # pylint: disable=import-outside-toplevel,no-member
-        import multiprocess as mp
-
-        self.proc = mp.Process(target=target)
+        self.proc = multiprocess.Process(target=target)
         self.proc.start()
 
         wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
