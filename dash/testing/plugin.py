@@ -11,6 +11,7 @@ try:
         ProcessRunner,
         RRunner,
         JuliaRunner,
+        MultiProcessRunner,
     )
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
@@ -18,6 +19,7 @@ except ImportError:
     # Running pytest without dash[testing] installed.
     ThreadedRunner = Any
     ProcessRunner = Any
+    MultiProcessRunner = Any
     RRunner = Any
     JuliaRunner = Any
     Browser = Any
@@ -119,6 +121,12 @@ def dash_process_server() -> ProcessRunner:
 
 
 @pytest.fixture
+def dash_multi_process_server() -> MultiProcessRunner:
+    with MultiProcessRunner() as starter:
+        yield starter
+
+
+@pytest.fixture
 def dashr_server() -> RRunner:
     with RRunner() as starter:
         yield starter
@@ -150,6 +158,23 @@ def dash_br(request, tmpdir) -> Browser:
 def dash_duo(request, dash_thread_server, tmpdir) -> DashComposite:
     with DashComposite(
         dash_thread_server,
+        browser=request.config.getoption("webdriver"),
+        remote=request.config.getoption("remote"),
+        remote_url=request.config.getoption("remote_url"),
+        headless=request.config.getoption("headless"),
+        options=request.config.hook.pytest_setup_options(),
+        download_path=tmpdir.mkdir("download").strpath,
+        percy_assets_root=request.config.getoption("percy_assets"),
+        percy_finalize=request.config.getoption("nopercyfinalize"),
+        pause=request.config.getoption("pause"),
+    ) as dc:
+        yield dc
+
+
+@pytest.fixture
+def dash_duo_mp(request, dash_multi_process_server, tmpdir) -> DashComposite:
+    with DashComposite(
+        dash_multi_process_server,
         browser=request.config.getoption("webdriver"),
         remote=request.config.getoption("remote"),
         remote_url=request.config.getoption("remote_url"),
