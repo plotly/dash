@@ -1,8 +1,15 @@
 # pylint: disable=missing-docstring,redefined-outer-name
-from typing import Any
-
 import pytest
 from .consts import SELENIUM_GRID_DEFAULT
+
+
+# pylint: disable=too-few-public-methods
+class MissingDashTesting:
+    def __init__(self, **kwargs):
+        raise Exception(
+            "dash[testing] was not installed. "
+            "Please install to use the dash testing fixtures."
+        )
 
 
 try:
@@ -17,15 +24,15 @@ try:
     from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
 except ImportError:
     # Running pytest without dash[testing] installed.
-    ThreadedRunner = Any
-    ProcessRunner = Any
-    MultiProcessRunner = Any
-    RRunner = Any
-    JuliaRunner = Any
-    Browser = Any
-    DashComposite = Any
-    DashRComposite = Any
-    DashJuliaComposite = Any
+    ThreadedRunner = MissingDashTesting
+    ProcessRunner = MissingDashTesting
+    MultiProcessRunner = MissingDashTesting
+    RRunner = MissingDashTesting
+    JuliaRunner = MissingDashTesting
+    Browser = MissingDashTesting
+    DashComposite = MissingDashTesting
+    DashRComposite = MissingDashTesting
+    DashJuliaComposite = MissingDashTesting
 
 
 def pytest_addoption(parser):
