@@ -346,6 +346,7 @@ def test_tbcp010_copy_from_unselectable_cells_table(test):
 
     assert test.get_log_errors() == []
 
+
 def test_tbcp011_copy_double_quotes(test):
     test.start_server(get_app())
 
