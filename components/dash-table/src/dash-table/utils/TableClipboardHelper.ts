@@ -98,7 +98,7 @@ export default class TableClipboardHelper {
             ? TableClipboardHelper.localCopyWithoutHeaders
             : TableClipboardHelper.lastLocalCopy;
         const values =
-            localDf === text ? localCopy : SheetClip.prototype.parse(text);
+            localDf === text ? localCopy : TableClipboardHelper.parse(text);
 
         return applyClipboardToData(
             values,
@@ -110,5 +110,14 @@ export default class TableClipboardHelper {
             overflowColumns,
             overflowRows
         );
+    }
+
+    private static parse(str: string) {
+        const temprows = str.split('\n');
+        if (temprows.length > 1 && temprows[temprows.length - 1] === '') {
+            temprows.pop();
+        }
+        const rows = temprows.map(row => row.split('\t'));
+        return rows;
     }
 }
