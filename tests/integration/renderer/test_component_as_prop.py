@@ -102,7 +102,22 @@ def test_rdcap001_component_as_prop(dash_duo):
                         "id": "multi2",
                         "first": Span("foo"),
                         "second": Span("bar"),
-                    }
+                    },
+                ],
+            ),
+            ComponentAsProp(id="dynamic", dynamic={"inside-dynamic": Div("dynamic")}),
+            ComponentAsProp(
+                id="dynamic-dict", dynamic_dict={"node": {"dict-dyn": Div("dict-dyn")}}
+            ),
+            ComponentAsProp(
+                dynamic={
+                    "output-dynamic": Div(id="output-dynamic"),
+                    "dyn-clicker": Button("click", id="click-dynamic"),
+                },
+            ),
+            ComponentAsProp(
+                dynamic_list=[
+                    {"dyn-list": Div("dynamic-list")},
                 ],
             ),
         ]
@@ -155,6 +170,14 @@ def test_rdcap001_component_as_prop(dash_duo):
     def updated_from_list(*_):
         return callback_context.triggered[0]["prop_id"]
 
+    @app.callback(
+        Output("output-dynamic", "children"),
+        Input("click-dynamic", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_click(n_clicks):
+        return f"Clicked {n_clicks}"
+
     dash_duo.start_server(app)
 
     assert dash_duo.get_logs() == []
@@ -204,5 +227,14 @@ def test_rdcap001_component_as_prop(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#multi", "first - second")
     dash_duo.wait_for_text_to_equal("#multi2", "foo - bar")
+
+    dash_duo.wait_for_text_to_equal("#inside-dynamic", "dynamic")
+    dash_duo.wait_for_text_to_equal("#dict-dyn", "dict-dyn")
+
+    dash_duo.wait_for_text_to_equal("#dyn-list", "dynamic-list")
+
+    dash_duo.find_element("#click-dynamic").click()
+
+    dash_duo.wait_for_text_to_equal("#dynamic-output", "Clicked 1")
 
     assert dash_duo.get_logs() == []
