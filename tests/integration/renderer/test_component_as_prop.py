@@ -235,6 +235,6 @@ def test_rdcap001_component_as_prop(dash_duo):
 
     dash_duo.find_element("#click-dynamic").click()
 
-    dash_duo.wait_for_text_to_equal("#dynamic-output", "Clicked 1")
+    dash_duo.wait_for_text_to_equal("#output-dynamic", "Clicked 1")
 
     assert dash_duo.get_logs() == []

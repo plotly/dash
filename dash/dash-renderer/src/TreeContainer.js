@@ -20,7 +20,8 @@ import {
     propOr,
     path as rpath,
     pathOr,
-    type
+    type,
+    toPairs
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
@@ -249,6 +250,17 @@ class BaseTreeContainer extends Component {
 
         for (let i = 0; i < childrenProps.length; i++) {
             const childrenProp = childrenProps[i];
+
+            const handleObject = (obj, opath) => {
+                return keys(obj).reduce((acc, k) => {
+                    const node = acc[k];
+                    return {
+                        ...acc,
+                        [k]: this.wrapChildrenProp(node, [...opath, k])
+                    };
+                }, obj);
+            };
+
             if (childrenProp.includes('.')) {
                 let path = childrenProp.split('.');
                 let node;
@@ -256,17 +268,33 @@ class BaseTreeContainer extends Component {
                 if (childrenProp.includes('[]')) {
                     let frontPath = [],
                         backPath = [],
-                        found = false;
+                        found = false,
+                        hasObject = false;
                     path.forEach(p => {
                         if (!found) {
                             if (p.includes('[]')) {
                                 found = true;
-                                frontPath.push(p.replace('[]', ''));
+                                if (p.includes('{}')) {
+                                    hasObject = true;
+                                    frontPath.push(
+                                        p.replace('{}', '').replace('[]', '')
+                                    );
+                                } else {
+                                    frontPath.push(p.replace('[]', ''));
+                                }
+                            } else if (p.includes('{}')) {
+                                hasObject = true;
+                                frontPath.push(p.replace('{}', ''));
                             } else {
                                 frontPath.push(p);
                             }
                         } else {
-                            backPath.push(p);
+                            if (p.includes('{}')) {
+                                hasObject = true;
+                                backPath.push(p.replace('{}', ''));
+                            } else {
+                                backPath.push(p);
+                            }
                         }
                     });
 
@@ -278,38 +306,115 @@ class BaseTreeContainer extends Component {
                     if (!firstNode) {
                         continue;
                     }
+
                     nodeValue = node.map((element, i) => {
                         const elementPath = concat(
                             frontPath,
                             concat([i], backPath)
                         );
-                        return assocPath(
-                            backPath,
-                            this.wrapChildrenProp(
+                        let listValue;
+                        if (hasObject) {
+                            listValue = handleObject(element, elementPath);
+                        } else {
+                            listValue = this.wrapChildrenProp(
                                 rpath(backPath, element),
                                 elementPath
-                            ),
-                            element
-                        );
+                            );
+                        }
+                        return assocPath(backPath, listValue, element);
                     });
                     path = frontPath;
                 } else {
-                    node = rpath(path, props);
-                    if (node === undefined) {
-                        continue;
+                    if (childrenProp.includes('{}')) {
+                        // Only supports one level of nesting.
+                        const front = [];
+                        let dynamic = [];
+                        let hasBack = false;
+                        const backPath = [];
+
+                        for (let j = 0; j < path.length; j++) {
+                            const cur = path[j];
+                            if (cur.includes('{}')) {
+                                dynamic = concat(front, [
+                                    cur.replace('{}', '')
+                                ]);
+                                if (j < path.length - 1) {
+                                    hasBack = true;
+                                }
+                            } else {
+                                if (hasBack) {
+                                    backPath.push(cur);
+                                } else {
+                                    front.push(cur);
+                                }
+                            }
+                        }
+
+                        const dynValue = rpath(dynamic, props);
+                        if (dynValue !== undefined) {
+                            nodeValue = toPairs(dynValue).reduce(
+                                (acc, [k, d]) => ({
+                                    ...acc,
+                                    [k]: this.wrapChildrenProp(
+                                        hasBack ? rpath(backPath, d) : d,
+                                        hasBack
+                                            ? concat(
+                                                  dynamic,
+                                                  concat([k], backPath)
+                                              )
+                                            : concat(dynamic, [k])
+                                    )
+                                }),
+                                {}
+                            );
+                            path = dynamic;
+                        }
+                    } else {
+                        node = rpath(path, props);
+                        if (node === undefined) {
+                            continue;
+                        }
+                        nodeValue = this.wrapChildrenProp(node, path);
                     }
-                    nodeValue = this.wrapChildrenProp(node, path);
                 }
                 props = assocPath(path, nodeValue, props);
-                continue;
-            }
-            const node = props[childrenProp];
-            if (node !== undefined) {
-                props = assoc(
-                    childrenProp,
-                    this.wrapChildrenProp(node, [childrenProp]),
-                    props
-                );
+            } else {
+                if (childrenProp.includes('{}')) {
+                    let opath = childrenProp.replace('{}', '');
+                    const isArray = childrenProp.includes('[]');
+                    if (isArray) {
+                        opath = opath.replace('[]', '');
+                    }
+                    const node = props[opath];
+
+                    if (node !== undefined) {
+                        if (isArray) {
+                            for (let j = 0; j < node.length; j++) {
+                                const aPath = concat([opath], [j]);
+                                props = assocPath(
+                                    aPath,
+                                    handleObject(node[j], aPath),
+                                    props
+                                );
+                            }
+                        } else {
+                            props = assoc(
+                                opath,
+                                handleObject(node, [opath]),
+                                props
+                            );
+                        }
+                    }
+                } else {
+                    const node = props[childrenProp];
+                    if (node !== undefined) {
+                        props = assoc(
+                            childrenProp,
+                            this.wrapChildrenProp(node, [childrenProp]),
+                            props
+                        );
+                    }
+                }
             }
         }
 

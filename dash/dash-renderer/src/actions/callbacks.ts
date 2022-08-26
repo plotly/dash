@@ -160,7 +160,7 @@ function fillVals(
             inputList.map(({id, property, path: path_}: any) => ({
                 id,
                 property,
-                value: (path(path_, layout) as any).props[property]
+                value: path([...path_, 'props', property], layout) as any
             })),
             specs[i],
             cb.anyVals,

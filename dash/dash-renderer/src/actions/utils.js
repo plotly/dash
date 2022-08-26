@@ -65,19 +65,64 @@ export const crawlLayout = (
                 let [frontPath, backPath] = childrenProp
                     .split('[]')
                     .map(p => p.split('.').filter(e => e));
-                const front = concat(['props'], frontPath);
-                const basePath = concat(currentPath, front);
-                crawlLayout(path(front, object), func, basePath, backPath);
+                if (childrenProp.includes('{}')) {
+                    // TODO
+                } else {
+                    const front = concat(['props'], frontPath);
+                    const basePath = concat(currentPath, front);
+                    crawlLayout(path(front, object), func, basePath, backPath);
+                }
             } else {
-                const newPath = concat(currentPath, [
-                    'props',
-                    ...childrenProp.split('.')
-                ]);
-                crawlLayout(
-                    path(['props', ...childrenProp.split('.')], object),
-                    func,
-                    newPath
-                );
+                if (childrenProp.includes('{}')) {
+                    const opath = childrenProp.split('.');
+                    const frontPath = [];
+                    const backPath = [];
+                    let found = false;
+
+                    for (let i = 0; i < opath.length; i++) {
+                        const curPath = opath[i];
+                        if (!found && curPath.includes('{}')) {
+                            found = true;
+                            frontPath.push(curPath.replace('{}', ''));
+                        } else {
+                            if (found) {
+                                backPath.push(curPath);
+                            } else {
+                                frontPath.push(curPath);
+                            }
+                        }
+                    }
+                    const newPath = concat(currentPath, [
+                        'props',
+                        ...frontPath
+                    ]);
+
+                    const oValue = path(['props', ...frontPath], object);
+                    if (oValue !== undefined) {
+                        Object.keys(oValue).forEach(key => {
+                            const value = oValue[key];
+                            if (backPath.length) {
+                                crawlLayout(
+                                    path(backPath, value),
+                                    func,
+                                    concat(newPath, [key, ...backPath])
+                                );
+                            } else {
+                                crawlLayout(value, func, [...newPath, key]);
+                            }
+                        });
+                    }
+                } else {
+                    const newPath = concat(currentPath, [
+                        'props',
+                        ...childrenProp.split('.')
+                    ]);
+                    crawlLayout(
+                        path(['props', ...childrenProp.split('.')], object),
+                        func,
+                        newPath
+                    );
+                }
             }
         });
     }
