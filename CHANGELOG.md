@@ -2,6 +2,13 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+
+- [#2152](https://github.com/plotly/dash/pull/2152) Fix bug [#2128](https://github.com/plotly/dash/issues/2128) preventing rendering of multiple components inside a dictionary.
+- [#2187](https://github.com/plotly/dash/pull/2187) Fix confusing error message when trying to use pytest fixtures but `dash[testing]` is not installed.
+
 ## [2.6.1] - 2022-08-01
 
 ### Fixed

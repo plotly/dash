@@ -21,7 +21,7 @@
     "private::lint.prettier": "prettier --config .prettierrc src/**/*.js --list-different",
     "prepublishOnly": "rm -rf lib && babel src --out-dir lib --copy-files --config-file ./.lib.babelrc && rm -rf lib/jl/ lib/*.jl",
     "test": "run-s -c lint test:intg test:pyimport",
-    "test:intg": "pytest --nopercyfinalize --headless tests/integration --reruns 3",
+    "test:intg": "pytest --nopercyfinalize --headless tests/integration ",
     "test:pyimport": "python -m unittest tests/test_dash_import.py",
     "prebuild:js": "cp node_modules/plotly.js-dist-min/plotly.min.js dash_core_components_base/plotly.min.js",
     "build:js": "webpack --mode production",
