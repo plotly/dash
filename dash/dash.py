@@ -19,6 +19,7 @@ from textwrap import dedent
 
 import flask
 from flask_compress import Compress
+from flask_wtf.csrf import CSRFProtect
 
 from pkg_resources import get_distribution, parse_version
 
@@ -372,7 +373,10 @@ class Dash:
                 name = getattr(server, "name", "__main__")
         elif isinstance(server, bool):
             name = name if name else "__main__"
+            # OpenRefactory Warning: The 'flask.Flask' method creates a Flask app
+            # without Cross-Site Request Forgery (CSRF) protection.
             self.server = flask.Flask(name) if server else None
+            CSRFProtect(self.server)
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
