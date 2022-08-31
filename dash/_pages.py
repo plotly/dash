@@ -217,6 +217,7 @@ def register_page(
     `page_registry` stores the original property that was passed in under
     `supplied_<property>` and the coerced property under `<property>`.
     For example, if this was called:
+    
     ```
     register_page(
         'pages.historical_outlook',
@@ -224,26 +225,23 @@ def register_page(
         custom_key='custom value'
     )
     ```
+    
     Then this will appear in `page_registry`:
+    
     ```
     OrderedDict([
         (
             'pages.historical_outlook',
             dict(
                 module='pages.historical_outlook',
-
                 supplied_path=None,
                 path='/historical-outlook',
-
                 supplied_name='Our historical view',
                 name='Our historical view',
-
                 supplied_title=None,
                 title='Our historical view'
-
                 supplied_layout=None,
                 layout=<function pages.historical_outlook.layout>,
-
                 custom_key='custom value'
             )
         ),
