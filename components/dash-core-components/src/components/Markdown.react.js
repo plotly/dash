@@ -59,7 +59,7 @@ DashMarkdown.propTypes = {
     link_target: PropTypes.string,
 
     /**
-     * A markdown string (or array of strings) that adhreres to the CommonMark spec
+     * A markdown string (or array of strings) that adheres to the CommonMark spec
      */
     children: PropTypes.oneOfType([
         PropTypes.string,
