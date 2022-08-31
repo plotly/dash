@@ -48,6 +48,7 @@ class NoUpdate:
 GLOBAL_CALLBACK_LIST = []
 GLOBAL_CALLBACK_MAP = {}
 GLOBAL_INLINE_SCRIPTS = []
+GLOBAL_CALLBACK_FUNCTIONS = {}
 
 
 # pylint: disable=too-many-locals
@@ -305,6 +306,8 @@ def register_callback(  # pylint: disable=R0914
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
+
+        GLOBAL_CALLBACK_FUNCTIONS[callback_id] = func
 
         if long is not None:
             long_key = BaseLongCallbackManager.register_func(
