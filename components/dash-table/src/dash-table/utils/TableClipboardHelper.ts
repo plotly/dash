@@ -85,6 +85,7 @@ export default class TableClipboardHelper {
         includeHeaders: boolean
     ): {data: Data; columns: Columns} | void {
         const text = Clipboard.get(ev);
+        console.log(text);
         Logger.trace('TableClipboard -- get clipboard data: ', text);
 
         if (!text) {
@@ -134,15 +135,17 @@ export default class TableClipboardHelper {
                 }
                 if (multiline && c === 0) {
                     last = arr[a].length - 1;
-                    arr[a][last] = arr[a][last] + '\n' + row[0];
+                    arr[a][last] =
+                        arr[a][last] + '\n' + row[0].replace(/""/g, '"');
                     if (
                         multiline &&
                         TableClipboardHelper.countQuotes(row[0]) & 1
                     ) {
                         multiline = false;
-                        arr[a][last] = arr[a][last]
-                            .substring(0, arr[a][last].length - 1)
-                            .replace(/""/g, '"');
+                        arr[a][last] = arr[a][last].substring(
+                            0,
+                            arr[a][last].length - 1
+                        );
                     }
                 } else {
                     if (
