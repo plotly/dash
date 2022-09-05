@@ -102,7 +102,7 @@ def test_rdcap001_component_as_prop(dash_duo):
                         "id": "multi2",
                         "first": Span("foo"),
                         "second": Span("bar"),
-                    }
+                    },
                 ],
             ),
         ]
