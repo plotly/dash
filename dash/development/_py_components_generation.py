@@ -65,12 +65,14 @@ def generate_class_string(
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs and excess named props
-        args = {{k: _locals[k] for k in _explicit_args}}
+        args = {args}
         for k in {required_props}:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
-        args_without_children = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
+        if 'children' in {required_props} and 'children' not in _explicit_args:
+            raise TypeError(
+                    'Required argument children was not specified.')
         super({typename}, self).__init__({argtext})
 '''
 
@@ -96,10 +98,12 @@ def generate_class_string(
     if "children" in props:
         prop_keys.remove("children")
         default_argtext = "children=None, "
-        argtext = "children=children, **args_without_children"
+        args = "{k: _locals[k] for k in _explicit_args if k != 'children'}"
+        argtext = "children=children, **args"
     else:
         default_argtext = ""
-        argtext = "**args_without_children"
+        args = "{k: _locals[k] for k in _explicit_args}"
+        argtext = "**args"
     default_arglist = [
         (
             f"{p:s}=Component.REQUIRED"
@@ -132,6 +136,7 @@ def generate_class_string(
         list_of_valid_keys=list_of_valid_keys,
         docstring=docstring,
         default_argtext=default_argtext,
+        args=args,
         argtext=argtext,
         required_props=required_args,
         children_props=nodes,
