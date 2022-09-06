@@ -95,7 +95,7 @@ def generate_class_string(
 
     # pylint: disable=unused-variable
     prop_keys = list(props.keys())
-    if "children" in props:
+    if "children" in props and "children" in list_of_valid_keys:
         prop_keys.remove("children")
         default_argtext = "children=None, "
         args = "{k: _locals[k] for k in _explicit_args if k != 'children'}"
