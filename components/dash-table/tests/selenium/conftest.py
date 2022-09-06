@@ -26,7 +26,8 @@ _LOADING = ".dash-spreadsheet.dash-loading"
 _ANY = ".dash-spreadsheet"
 _TIMEOUT = 10
 
-CMD = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL 
+CMD = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
+
 
 class HoldKeyContext:
     @preconditions(_validate_mixin, _validate_key)
