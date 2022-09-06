@@ -88,7 +88,8 @@ def test_dvhr001_hot_reload(dash_duo_mp):
 
     try:
         until(
-            lambda: dash_duo_mp.driver.execute_script("return window.cheese") == "gouda",
+            lambda: dash_duo_mp.driver.execute_script("return window.cheese")
+            == "gouda",
             timeout=10,
         )
     finally:
@@ -97,7 +98,8 @@ def test_dvhr001_hot_reload(dash_duo_mp):
             f.write(old_hard)
 
     until(
-        lambda: dash_duo_mp.driver.execute_script("return window.cheese") == "roquefort",
+        lambda: dash_duo_mp.driver.execute_script("return window.cheese")
+        == "roquefort",
         timeout=10,
     )
 
