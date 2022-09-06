@@ -26,6 +26,7 @@ _LOADING = ".dash-spreadsheet.dash-loading"
 _ANY = ".dash-spreadsheet"
 _TIMEOUT = 10
 
+CMD = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL 
 
 class HoldKeyContext:
     @preconditions(_validate_mixin, _validate_key)
@@ -268,8 +269,6 @@ class DataTableColumnFacade(object):
         )
 
     def filter_clear(self):
-        CMD = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
-
         self.filter().find_element(By.CSS_SELECTOR, "input").click()
         ac = ActionChains(self.mixin.driver)
         ac.key_down(CMD)
@@ -518,11 +517,11 @@ class DataTableMixin(object):
         )
 
     def copy(self):
-        with self.hold(Keys.CONTROL):
+        with self.hold(CMD):
             self.send_keys("c")
 
     def paste(self):
-        with self.hold(Keys.CONTROL):
+        with self.hold(CMD):
             self.send_keys("v")
 
     @preconditions(_validate_key)

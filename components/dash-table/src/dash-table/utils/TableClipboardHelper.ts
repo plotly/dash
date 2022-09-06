@@ -85,7 +85,6 @@ export default class TableClipboardHelper {
         includeHeaders: boolean
     ): {data: Data; columns: Columns} | void {
         const text = Clipboard.get(ev);
-        console.log(text);
         Logger.trace('TableClipboard -- get clipboard data: ', text);
 
         if (!text) {

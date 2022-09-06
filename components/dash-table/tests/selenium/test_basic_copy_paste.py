@@ -185,14 +185,8 @@ def test_tbcp004_copy_9_and_10(test):
         ActionChains(test.driver).send_keys(Keys.DOWN).perform()
 
     test.copy()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("c").perform()
     target.cell(0, 0).click()
     test.paste()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("v").perform()
 
     for row in range(2):
         for col in range(1):
@@ -320,14 +314,8 @@ def test_tbcp009_copy_9_and_10_click(test):
         source.cell(10, 0).click()
 
     test.copy()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("c").perform()
     target.cell(0, 0).click()
     test.paste()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("v").perform()
 
     for row in range(2):
         for col in range(1):
@@ -350,9 +338,6 @@ def test_tbcp010_copy_from_unselectable_cells_table(test):
 
     # copy the source text to clipboard using CTRL+C or COMMAND+C
     test.copy()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("c").perform()
 
     # assert the target cell value is different before paste
     target.cell(1, 1).click()
@@ -360,9 +345,6 @@ def test_tbcp010_copy_from_unselectable_cells_table(test):
 
     # assert the target cell value has changed to the pasted value
     test.paste()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("v").perform()
     assert target.cell(1, 1).get_text() == source.cell(2, 2).get_text()
 
     assert test.get_log_errors() == []
@@ -379,14 +361,8 @@ def test_tbcp011_copy_double_quotes(test):
         source.cell(0, 1).click()
 
     test.copy()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("c").perform()
     target.cell(0, 0).click()
     test.paste()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("v").perform()
 
     for row in range(1):
         for col in range(2):
@@ -406,14 +382,8 @@ def test_tbcp011_copy_multiline(test):
         source.cell(1, 1).click()
 
     test.copy()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("c").perform()
     target.cell(1, 0).click()
     test.paste()
-    # Uncomment the following two lines if using a Mac computer
-    # with test.hold(Keys.COMMAND):
-    #     ActionChains(test.driver).send_keys("v").perform()
 
     for row in range(1, 2):
         for col in range(2):
