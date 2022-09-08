@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import copy
 import os
-from textwrap import fill
+from textwrap import fill, dedent
 
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
@@ -66,13 +66,7 @@ def generate_class_string(
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs and excess named props
         args = {args}
-        for k in {required_props}:
-            if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
-        if 'children' in {required_props} and 'children' not in _explicit_args:
-            raise TypeError(
-                    'Required argument children was not specified.')
+        {required_validation}
         super({typename}, self).__init__({argtext})
 '''
 
@@ -90,6 +84,9 @@ def generate_class_string(
         description=description,
         prop_reorder_exceptions=prop_reorder_exceptions,
     ).replace("\r\n", "\n")
+    required_args = required_props(filtered_props)
+    is_children_required = 'children' in required_args
+    required_args = list(filter(lambda arg: arg != 'children', required_args))
 
     prohibit_events(props)
 
@@ -104,6 +101,27 @@ def generate_class_string(
         default_argtext = ""
         args = "{k: _locals[k] for k in _explicit_args}"
         argtext = "**args"
+
+    if len(required_args) == 0:
+        required_validation = ""
+    else:
+        required_validation = dedent(
+            f"""
+            for k in {required_args}:
+                if k not in args:
+                    raise TypeError(
+                        'Required argument `' + k + '` was not specified.')
+            """
+        )
+
+    if is_children_required:
+        required_validation += dedent(
+            """
+            if 'children' not in args:
+                raise TypeError('Required argument children was not specified.')
+            """
+        )
+
     default_arglist = [
         (
             f"{p:s}=Component.REQUIRED"
@@ -126,8 +144,8 @@ def generate_class_string(
             )
 
     default_argtext += ", ".join(default_arglist + ["**kwargs"])
-    required_args = required_props(filtered_props)
     nodes = collect_nodes({k: v for k, v in props.items() if k != "children"})
+
     return c.format(
         typename=typename,
         namespace=namespace,
@@ -138,7 +156,7 @@ def generate_class_string(
         default_argtext=default_argtext,
         args=args,
         argtext=argtext,
-        required_props=required_args,
+        required_validation=required_validation,
         children_props=nodes,
         base_nodes=filter_base_nodes(nodes) + ["children"],
     )
