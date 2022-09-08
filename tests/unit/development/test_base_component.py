@@ -534,3 +534,8 @@ def test_debc029_random_id_errors():
     @app.callback(Output(output1, "children"), Input(input1, "value"))
     def update2(v):
         return f"Input 1 {v}"
+
+
+def test_debc030_invalid_children_args():
+    with pytest.raises(TypeError):
+        dcc.Input(children='invalid children')
