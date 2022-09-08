@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- [#2182](https://github.com/plotly/dash/pull/2182) Fix [#2172](https://github.com/plotly/dash/issues/2172)  Make it so that when using pages, if `suppress_callback_exceptions=True` the `validation_layout` is not set.
 - [#2152](https://github.com/plotly/dash/pull/2152) Fix bug [#2128](https://github.com/plotly/dash/issues/2128) preventing rendering of multiple components inside a dictionary.
 - [#2187](https://github.com/plotly/dash/pull/2187) Fix confusing error message when trying to use pytest fixtures but `dash[testing]` is not installed.
 - [#2202](https://github.com/plotly/dash/pull/2202) Fix bug [#2185](https://github.com/plotly/dash/issues/2185) when you copy text with multiple quotes into a table
@@ -14,7 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- [#2175](https://github.com/plotly/dash/pull/2175) Fix [#2173](https://github.com/plotly/dash/issues/2173) callback output of ndarray and no_update check.
+- [#2175](https://github.com/plotly/dash/pull/2175) Fix [#2172](https://github.com/plotly/dash/issues/2172) callback output of ndarray and no_update check.
 - [#2146](https://github.com/plotly/dash/pull/2146) Remove leftover debug console.log statement.
 - [#2168](https://github.com/plotly/dash/pull/2168)  Reverts [#2126](https://github.com/plotly/dash/pull/2126) (supporting redirect from root when using pages) until the new bugs introduced by that PR are fixed.
 
