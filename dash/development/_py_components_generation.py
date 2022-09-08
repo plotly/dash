@@ -105,22 +105,18 @@ def generate_class_string(
     if len(required_args) == 0:
         required_validation = ""
     else:
-        required_validation = dedent(
-            f"""
-            for k in {required_args}:
-                if k not in args:
-                    raise TypeError(
-                        'Required argument `' + k + '` was not specified.')
-            """
-        )
+        required_validation = f"""
+        for k in {required_args}:
+            if k not in args:
+                raise TypeError(
+                    'Required argument `' + k + '` was not specified.')
+        """
 
     if is_children_required:
-        required_validation += dedent(
-            """
-            if 'children' not in args:
-                raise TypeError('Required argument children was not specified.')
-            """
-        )
+        required_validation += """
+        if 'children' not in _explicit_args:
+            raise TypeError('Required argument children was not specified.')
+        """
 
     default_arglist = [
         (
