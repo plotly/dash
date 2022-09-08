@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import copy
 import os
-from textwrap import fill, dedent
+from textwrap import fill
 
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
