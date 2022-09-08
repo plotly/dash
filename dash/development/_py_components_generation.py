@@ -86,7 +86,7 @@ def generate_class_string(
     ).replace("\r\n", "\n")
     required_args = required_props(filtered_props)
     is_children_required = 'children' in required_args
-    required_args = list(filter(lambda arg: arg != 'children', required_args))
+    required_args = [arg for arg in required_args if arg != "children"]
 
     prohibit_events(props)
 
