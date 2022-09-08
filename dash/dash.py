@@ -497,9 +497,6 @@ class Dash:
             for plugin in plugins:
                 plugin.plug(self)
 
-        # tracks internally if a function already handled at least one request.
-        self._got_first_request = {"pages": False, "setup_server": False}
-
         if self.server is not None:
             self.init_app()
 
@@ -545,7 +542,7 @@ class Dash:
             """Handle a halted callback and return an empty 204 response."""
             return "", 204
 
-        self.server.before_request(self._setup_server)
+        self.server.before_first_request(self._setup_server)
 
         # add a handler for components suites errors to return 404
         self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
@@ -1272,10 +1269,6 @@ class Dash:
         return response
 
     def _setup_server(self):
-        if self._got_first_request["setup_server"]:
-            return
-        self._got_first_request["setup_server"] = True
-
         # Apply _force_eager_loading overrides from modules
         eager_loading = self.config.eager_loading
         for module_name in ComponentRegistry.registry:
@@ -2029,12 +2022,8 @@ class Dash:
         if self.pages_folder:
             self._import_layouts_from_pages()
 
-        @self.server.before_request
+        @self.server.before_first_request
         def router():
-            if self._got_first_request["pages"]:
-                return
-            self._got_first_request["pages"] = True
-
             @self.callback(
                 Output(_ID_CONTENT, "children"),
                 Output(_ID_STORE, "data"),
