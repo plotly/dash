@@ -16,7 +16,7 @@ const defaults = {
             },
             {
                 test: /\.jsx?$/,
-                include: /node_modules[\\\/](cytoscape-fcose|ramda)[\\\/]/,
+                include: /node_modules[\\\/](cytoscape-fcose|ramda|react-cytoscapejs)[\\\/]/,
                 use: {
                     loader: 'babel-loader',
                     options: {
