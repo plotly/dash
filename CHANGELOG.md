@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2152](https://github.com/plotly/dash/pull/2152) Fix bug [#2128](https://github.com/plotly/dash/issues/2128) preventing rendering of multiple components inside a dictionary.
 - [#2187](https://github.com/plotly/dash/pull/2187) Fix confusing error message when trying to use pytest fixtures but `dash[testing]` is not installed.
+- [#2202](https://github.com/plotly/dash/pull/2202) Fix bug [#2185](https://github.com/plotly/dash/issues/2185) when you copy text with multiple quotes into a table
 
 ## [2.6.1] - 2022-08-01
 

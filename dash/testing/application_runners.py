@@ -234,7 +234,7 @@ class MultiProcessRunner(BaseDashRunner):
                 logger.exception(error)
                 raise error
 
-        self.proc = multiprocess.Process(target=target)
+        self.proc = multiprocess.Process(target=target)  # pylint: disable=not-callable
         self.proc.start()
 
         wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
