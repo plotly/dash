@@ -9,6 +9,7 @@ from dash_generator_test_component_typescript import (
     TypeScriptComponent,
     TypeScriptClassComponent,
     StandardComponent,
+    RequiredChildrenComponent,
 )
 from dash_test_components import StyledComponent
 from dash.html import Button, Div
@@ -99,3 +100,10 @@ def test_gene003_max_props():
 
     with pytest.raises(TypeError):
         MyNestedComponent(valuey="nor this")
+
+
+def test_gene004_required_children_prop():
+    with pytest.raises(TypeError):
+        RequiredChildrenComponent()
+
+    RequiredChildrenComponent(children='worked')
