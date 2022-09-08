@@ -4,7 +4,7 @@ from dash import Dash, dcc, html
 
 def test_paor001_order(dash_duo):
 
-    app = Dash(__name__, use_pages=True)
+    app = Dash(__name__, use_pages=True, suppress_callback_exceptions=True)
 
     dash.register_page(
         "multi_layout1",
@@ -63,5 +63,8 @@ def test_paor001_order(dash_duo):
     assert (
         list(dash.page_registry) == modules
     ), "check order of modules in dash.page_registry"
+
+    # There should be no `validation_layout` when suppress_callback_exceptions=True`
+    assert app.validation_layout is None
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
