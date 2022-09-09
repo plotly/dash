@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import copy
 import os
-from textwrap import fill
+from textwrap import fill, dedent
 
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
@@ -142,20 +142,22 @@ def generate_class_string(
     default_argtext += ", ".join(default_arglist + ["**kwargs"])
     nodes = collect_nodes({k: v for k, v in props.items() if k != "children"})
 
-    return c.format(
-        typename=typename,
-        namespace=namespace,
-        filtered_props=filtered_props,
-        list_of_valid_wildcard_attr_prefixes=wildcard_prefixes,
-        list_of_valid_keys=list_of_valid_keys,
-        docstring=docstring,
-        default_argtext=default_argtext,
-        args=args,
-        argtext=argtext,
-        required_validation=required_validation,
-        children_props=nodes,
-        base_nodes=filter_base_nodes(nodes) + ["children"],
-    ).replace('        \n', '\n')
+    return dedent(
+        c.format(
+            typename=typename,
+            namespace=namespace,
+            filtered_props=filtered_props,
+            list_of_valid_wildcard_attr_prefixes=wildcard_prefixes,
+            list_of_valid_keys=list_of_valid_keys,
+            docstring=docstring,
+            default_argtext=default_argtext,
+            args=args,
+            argtext=argtext,
+            required_validation=required_validation,
+            children_props=nodes,
+            base_nodes=filter_base_nodes(nodes) + ["children"],
+        )
+    )
 
 
 def generate_class_file(
