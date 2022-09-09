@@ -155,7 +155,7 @@ def generate_class_string(
         required_validation=required_validation,
         children_props=nodes,
         base_nodes=filter_base_nodes(nodes) + ["children"],
-    )
+    ).replace('        \n', '\n')
 
 
 def generate_class_file(
