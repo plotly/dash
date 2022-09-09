@@ -1963,7 +1963,10 @@ class Dash:
     def _import_layouts_from_pages(self):
         walk_dir = self.config.pages_folder
 
-        for (root, _, files) in os.walk(walk_dir):
+        for (root, dirs, files) in os.walk(walk_dir):
+            dirs[:] = [
+                d for d in dirs if not d.startswith(".") and not d.startswith("_")
+            ]
             for file in files:
                 if (
                     file.startswith("_")
