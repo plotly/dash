@@ -93,3 +93,7 @@ class LongCallbackError(DashException):
 
 class MissingLongCallbackManagerError(DashException):
     pass
+
+
+class PageError(DashException):
+    pass
