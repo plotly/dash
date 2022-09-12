@@ -1208,6 +1208,8 @@ class Dash:
             cb = self.callback_map[output]
             func = cb["callback"]
 
+            g.ignore_register_page = cb.get("long", False)
+
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = inputs + state

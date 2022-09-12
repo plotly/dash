@@ -9,6 +9,7 @@ import re
 from . import _validate
 from ._utils import AttributeDict
 from ._get_paths import get_relative_path
+from ._callback_context import context_value
 
 
 CONFIG = AttributeDict()
@@ -250,6 +251,9 @@ def register_page(
     ])
     ```
     """
+    if context_value.get().get("ignore_register_page"):
+        return
+
     _validate.validate_use_pages(CONFIG)
 
     page = dict(
