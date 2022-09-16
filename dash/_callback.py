@@ -374,6 +374,7 @@ def register_callback(  # pylint: disable=R0914
                             input_values=callback_ctx.input_values,
                             state_values=callback_ctx.state_values,
                             triggered_inputs=callback_ctx.triggered_inputs,
+                            ignore_register_page=True,
                         ),
                     )
 

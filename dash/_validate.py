@@ -8,6 +8,7 @@ from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
 from ._utils import patch_collections_abc, stringify_id, to_json, coerce_to_list
+from .exceptions import PageError
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -462,10 +463,10 @@ def validate_pages_layout(module, page):
 
 def validate_use_pages(config):
     if not config.get("assets_folder", None):
-        raise Exception("`dash.register_page()` must be called after app instantiation")
+        raise PageError("`dash.register_page()` must be called after app instantiation")
 
     if flask.has_request_context():
-        raise Exception(
+        raise PageError(
             """
             dash.register_page() can’t be called within a callback as it updates dash.page_registry, which is a global variable.
              For more details, see https://dash.plotly.com/sharing-data-between-callbacks#why-global-variables-will-break-your-app

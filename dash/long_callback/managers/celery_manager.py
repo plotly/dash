@@ -147,7 +147,9 @@ def _make_job_fn(fn, celery_app, progress):
         ctx = copy_context()
 
         def run():
-            context_value.set(AttributeDict(**context))
+            c = AttributeDict(**context)
+            c.ignore_register_page = False
+            context_value.set(c)
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = fn(*maybe_progress, **user_callback_args)
