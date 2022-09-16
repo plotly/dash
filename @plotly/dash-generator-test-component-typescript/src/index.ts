@@ -6,6 +6,7 @@ import WrappedHTML from './components/WrappedHTML';
 import FCComponent from './components/FCComponent';
 import EmptyComponent from './components/EmptyComponent';
 import MixedComponent from './components/MixedComponent';
+import RequiredChildrenComponent from './components/RequiredChildrenComponent';
 
 export {
   TypeScriptComponent,
@@ -16,4 +17,5 @@ export {
   FCComponent,
   EmptyComponent,
   MixedComponent,
+  RequiredChildrenComponent,
 };
