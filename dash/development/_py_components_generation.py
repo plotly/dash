@@ -85,7 +85,7 @@ def generate_class_string(
         prop_reorder_exceptions=prop_reorder_exceptions,
     ).replace("\r\n", "\n")
     required_args = required_props(filtered_props)
-    is_children_required = 'children' in required_args
+    is_children_required = "children" in required_args
     required_args = [arg for arg in required_args if arg != "children"]
 
     prohibit_events(props)
