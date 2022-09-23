@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "husky": "7.0.4",
-    "lerna": "^4.0.0",
+    "lerna": "^5.5.2",
     "@lerna/filter-options": "^4.0.0"
   },
   "dependencies": {
