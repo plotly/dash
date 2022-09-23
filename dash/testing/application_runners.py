@@ -12,6 +12,10 @@ import ctypes
 
 import runpy
 import requests
+import psutil
+
+# pylint: disable=no-member
+import multiprocess
 
 from dash.testing.errors import (
     NoAppFoundError,
@@ -116,7 +120,7 @@ class KillerThread(threading.Thread):
 
     def kill(self):
         # Kill all the new threads.
-        for thread_id in threading._active:  # pylint: disable=W0212
+        for thread_id in list(threading._active):  # pylint: disable=W0212
             if thread_id in self._old_threads:
                 continue
 
@@ -204,6 +208,56 @@ class ThreadedRunner(BaseDashRunner):
         self.thread.join()
         wait.until_not(self.thread.is_alive, self.stop_timeout)
         self.started = False
+
+
+class MultiProcessRunner(BaseDashRunner):
+    def __init__(self, keep_open=False, stop_timeout=3):
+        super().__init__(keep_open, stop_timeout)
+        self.proc = None
+
+    # pylint: disable=arguments-differ
+    def start(self, app, start_timeout=3, **kwargs):
+        self.port = kwargs.get("port", 8050)
+
+        def target():
+            app.scripts.config.serve_locally = True
+            app.css.config.serve_locally = True
+
+            options = kwargs.copy()
+
+            try:
+                app.run(threaded=True, **options)
+            except SystemExit:
+                logger.info("Server stopped")
+                raise
+            except Exception as error:
+                logger.exception(error)
+                raise error
+
+        self.proc = multiprocess.Process(target=target)  # pylint: disable=not-callable
+        self.proc.start()
+
+        wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+        self.started = True
+
+    def stop(self):
+        process = psutil.Process(self.proc.pid)
+
+        for proc in process.children(recursive=True):
+            try:
+                proc.kill()
+            except psutil.NoSuchProcess:
+                pass
+
+        try:
+            process.kill()
+        except psutil.NoSuchProcess:
+            pass
+
+        try:
+            process.wait(1)
+        except (psutil.TimeoutExpired, psutil.NoSuchProcess):
+            pass
 
 
 class ProcessRunner(BaseDashRunner):

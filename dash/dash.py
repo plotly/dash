@@ -1208,6 +1208,8 @@ class Dash:
             cb = self.callback_map[output]
             func = cb["callback"]
 
+            g.ignore_register_page = cb.get("long", False)
+
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = inputs + state
@@ -1963,7 +1965,10 @@ class Dash:
     def _import_layouts_from_pages(self):
         walk_dir = self.config.pages_folder
 
-        for (root, _, files) in os.walk(walk_dir):
+        for (root, dirs, files) in os.walk(walk_dir):
+            dirs[:] = [
+                d for d in dirs if not d.startswith(".") and not d.startswith("_")
+            ]
             for file in files:
                 if (
                     file.startswith("_")
@@ -2075,20 +2080,21 @@ class Dash:
             _validate.validate_registry(_pages.PAGE_REGISTRY)
 
             # Set validation_layout
-            self.validation_layout = html.Div(
-                [
-                    page["layout"]() if callable(page["layout"]) else page["layout"]
-                    for page in _pages.PAGE_REGISTRY.values()
-                ]
-                + [
-                    # pylint: disable=not-callable
-                    self.layout()
-                    if callable(self.layout)
-                    else self.layout
-                ]
-            )
-            if _ID_CONTENT not in self.validation_layout:
-                raise Exception("`dash.page_container` not found in the layout")
+            if not self.config.suppress_callback_exceptions:
+                self.validation_layout = html.Div(
+                    [
+                        page["layout"]() if callable(page["layout"]) else page["layout"]
+                        for page in _pages.PAGE_REGISTRY.values()
+                    ]
+                    + [
+                        # pylint: disable=not-callable
+                        self.layout()
+                        if callable(self.layout)
+                        else self.layout
+                    ]
+                )
+                if _ID_CONTENT not in self.validation_layout:
+                    raise Exception("`dash.page_container` not found in the layout")
 
             # Update the page title on page navigation
             self.clientside_callback(

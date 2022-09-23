@@ -1,4 +1,4 @@
-__version__ = "1.14.1"
+__version__ = "1.14.2"
 
 _js_dist_dependencies = [
     {
@@ -39,7 +39,7 @@ _js_dist = [
     {
         "relative_package_path": "dash-renderer/build/dash_renderer.min.js",
         "dev_package_path": "dash-renderer/build/dash_renderer.dev.js",
-        "external_url": "https://unpkg.com/dash-renderer@1.14.1"
+        "external_url": "https://unpkg.com/dash-renderer@1.14.2"
         "/build/dash_renderer.min.js",
         "namespace": "dash",
     },

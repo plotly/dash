@@ -48,3 +48,7 @@ export type WrappedHTMLProps = {
     children?: React.ReactNode;
     id?: string;
 } & Pick<React.ButtonHTMLAttributes<any>, 'autoFocus'>
+
+export type RequiredChildrenComponentProps = {
+  children: React.ReactNode;
+}
