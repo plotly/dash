@@ -49,8 +49,8 @@ def get_app(path1="/", path2="/layout2"):
 
 
 def test_pala001_layout(dash_duo):
-
-    dash_duo.start_server(get_app())
+    app = get_app()
+    dash_duo.start_server(app)
 
     # test layout and title for each page in `page_registry` with link navigation
     for page in dash.page_registry.values():
@@ -92,6 +92,9 @@ def test_pala001_layout(dash_duo):
     # test page not found
     dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/find_me")
     dash_duo.wait_for_text_to_equal("#text_not_found_404", "text for not_found_404")
+
+    # test `validation_layout` exists when suppress_callback_exceptions=False`
+    assert app.validation_layout is not None
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
     # dash_duo.percy_snapshot("pala001_layout")

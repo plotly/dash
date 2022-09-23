@@ -4,6 +4,7 @@ import time
 import json
 
 import werkzeug
+from selenium.webdriver import ActionChains
 
 from dash import Dash, Input, Output, State, dcc, html
 from dash.exceptions import PreventUpdate
@@ -193,6 +194,37 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
+def get_graph_points(browser, graph_id, expected_len):
+    until(
+        lambda: len(browser.find_elements(f"{graph_id} .points path")) == expected_len,
+        5,
+    )
+
+    traces = browser.find_elements(f"{graph_id} .points")
+
+    for trace in traces:
+        elements = trace.find_elements(By.CSS_SELECTOR, "path")
+        for element in elements:
+            ActionChains(browser.driver).move_to_element(element).perform()
+            hover = browser.find_element(f"{graph_id} .hoverlayer")
+            content = hover.text
+            if not content.startswith("("):
+                continue  # Ignore the extra trace tooltip
+
+            x, y = content[1:-1].split(", ")
+
+            yield float(x), float(y)
+
+
+def assert_graph_equals(browser, graph_id, graph_data):
+
+    for i, (x, y) in enumerate(get_graph_points(browser, graph_id, len(graph_data))):
+        expected_x, expected_y = graph_data[i]
+
+        assert x == expected_x
+        assert y == expected_y
+
+
 @pytest.mark.skipif(
     werkzeug.__version__ in ("2.1.0", "2.1.1"),
     reason="Bug with no_update 204 responses get Transfer-Encoding header.",
@@ -310,62 +342,37 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
         y_new = [0.1, 0.2, 0.3, 0.4, 0.5]
         return dict(x=[x_new], y=[y_new]), [0], 7
 
-    for _id in figs:
-
-        @app.callback(
-            Output(f"output_{_id}", "children"),
-            Input(_id, "prependData"),
-            State(_id, "figure"),
-        )
-        def display_data(trigger, fig):
-            return json.dumps(fig["data"])
-
     dash_dcc.start_server(app)
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-                y=[0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5, 1, 0.5, 0],
-            )
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal("#output_trace_will_prepend", comparison)
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_prepend_with_no_indices", comparison
-    )
-    comparison = json.dumps(
-        [
-            dict(x=[10, 11, 12, 13, 14], y=[0, 0.5, 1, 0.5, 0]),
-            dict(
-                x=[5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-                y=[0.1, 0.2, 0.3, 0.4, 0.5, 1, 1, 1, 1, 1],
-            ),
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_prepend_selectively", comparison
+    compare = list(
+        zip(
+            [5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            [0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5, 1, 0.5, 0],
+        )
     )
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[5, 6, 7, 8, 9, 10, 11],
-                y=[0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5],
-            )
-        ]
+    assert_graph_equals(dash_dcc, "#trace_will_prepend", compare)
+    assert_graph_equals(dash_dcc, "#trace_will_prepend_with_no_indices", compare)
+
+    compare1 = list(zip([10, 11, 12, 13, 14], [0, 0.5, 1, 0.5, 0]))
+    compare2 = list(
+        zip(
+            [5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            [0.1, 0.2, 0.3, 0.4, 0.5, 1, 1, 1, 1, 1],
+        )
     )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_prepend_with_max_points", comparison
+    assert_graph_equals(
+        dash_dcc, "#trace_will_prepend_selectively", compare1 + compare2
     )
 
-    comparison = json.dumps(
-        [dict(y=[0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0, 0, 0])]
-    )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_allow_repeated_prepend", comparison
+    comparison = list(zip([5, 6, 7, 8, 9, 10, 11], [0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5]))
+    assert_graph_equals(dash_dcc, "#trace_will_prepend_with_max_points", comparison)
+
+    comparison = list(
+        zip([], [0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0, 0, 0])
     )
 
+    assert_graph_equals(dash_dcc, "#trace_will_all_repeated_prepend", comparison)
     assert dash_dcc.get_logs() == []
 
 
@@ -498,46 +505,27 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     dash_dcc.start_server(app)
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                y=[0, 0.5, 1, 0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],
-            )
-        ]
+    comparison = list(
+        zip(
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 0.5, 1, 0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5]
+        )
     )
-    dash_dcc.wait_for_text_to_equal("#output_trace_will_extend", comparison)
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_extend_with_no_indices", comparison
+    assert_graph_equals(dash_dcc, "#trace_will_extend", comparison)
+    assert_graph_equals(dash_dcc, "#trace_will_extend_with_no_indices", comparison)
+    compare1 = list(zip([0, 1, 2, 3, 4], [0, 0.5, 1, 0.5, 0]))
+    compare2 = list(
+        zip([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 1, 1, 1, 1, 0.1, 0.2, 0.3, 0.4, 0.5])
     )
-    comparison = json.dumps(
-        [
-            dict(x=[0, 1, 2, 3, 4], y=[0, 0.5, 1, 0.5, 0]),
-            dict(
-                x=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                y=[1, 1, 1, 1, 1, 0.1, 0.2, 0.3, 0.4, 0.5],
-            ),
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal("#output_trace_will_extend_selectively", comparison)
+    assert_graph_equals(dash_dcc, "#trace_will_extend_selectively", compare1 + compare2)
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[3, 4, 5, 6, 7, 8, 9],
-                y=[0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],
-            )
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_extend_with_max_points", comparison
-    )
+    comparison = list(zip([3, 4, 5, 6, 7, 8, 9], [0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5]))
+    assert_graph_equals(dash_dcc, "#trace_will_extend_with_max_points", comparison)
 
-    comparison = json.dumps(
-        [dict(y=[0, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5])]
+    comparison = list(
+        zip([], [0, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5])
     )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_allow_repeated_extend", comparison
+    assert_graph_equals(
+        dash_dcc, "#output_trace_will_allow_repeated_extend", comparison
     )
 
     assert dash_dcc.get_logs() == []

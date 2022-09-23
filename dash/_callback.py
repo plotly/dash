@@ -362,7 +362,7 @@ def register_callback(  # pylint: disable=R0914
                     job = callback_manager.call_job_fn(
                         cache_key,
                         job_fn,
-                        args,
+                        func_args if func_args else func_kwargs,
                         AttributeDict(
                             args_grouping=callback_ctx.args_grouping,
                             using_args_grouping=callback_ctx.using_args_grouping,
@@ -374,6 +374,7 @@ def register_callback(  # pylint: disable=R0914
                             input_values=callback_ctx.input_values,
                             state_values=callback_ctx.state_values,
                             triggered_inputs=callback_ctx.triggered_inputs,
+                            ignore_register_page=True,
                         ),
                     )
 

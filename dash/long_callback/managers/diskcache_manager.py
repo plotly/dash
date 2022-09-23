@@ -1,6 +1,9 @@
 import traceback
+from contextvars import copy_context
 
 from . import BaseLongCallbackManager
+from ..._callback_context import context_value
+from ..._utils import AttributeDict
 from ...exceptions import PreventUpdate
 
 _pending_value = "__$pending__"
@@ -110,12 +113,15 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
     def clear_cache_entry(self, key):
         self.handle.delete(key)
 
+    # noinspection PyUnresolvedReferences
     def call_job_fn(self, key, job_fn, args, context):
         # pylint: disable-next=import-outside-toplevel,no-name-in-module,import-error
         from multiprocess import Process
 
         # pylint: disable-next=not-callable
-        proc = Process(target=job_fn, args=(key, self._make_progress_key(key), args))
+        proc = Process(
+            target=job_fn, args=(key, self._make_progress_key(key), args, context)
+        )
         proc.start()
         return proc.pid
 
@@ -147,7 +153,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 
 
 def _make_job_fn(fn, cache, progress):
-    def job_fn(result_key, progress_key, user_callback_args):
+    def job_fn(result_key, progress_key, user_callback_args, context):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
@@ -156,27 +162,35 @@ def _make_job_fn(fn, cache, progress):
 
         maybe_progress = [_set_progress] if progress else []
 
-        try:
-            if isinstance(user_callback_args, dict):
-                user_callback_output = fn(*maybe_progress, **user_callback_args)
-            elif isinstance(user_callback_args, (list, tuple)):
-                user_callback_output = fn(*maybe_progress, *user_callback_args)
+        ctx = copy_context()
+
+        def run():
+            c = AttributeDict(**context)
+            c.ignore_register_page = False
+            context_value.set(c)
+            try:
+                if isinstance(user_callback_args, dict):
+                    user_callback_output = fn(*maybe_progress, **user_callback_args)
+                elif isinstance(user_callback_args, (list, tuple)):
+                    user_callback_output = fn(*maybe_progress, *user_callback_args)
+                else:
+                    user_callback_output = fn(*maybe_progress, user_callback_args)
+            except PreventUpdate:
+                cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
+            except Exception as err:  # pylint: disable=broad-except
+                cache.set(
+                    result_key,
+                    {
+                        "long_callback_error": {
+                            "msg": str(err),
+                            "tb": traceback.format_exc(),
+                        }
+                    },
+                )
             else:
-                user_callback_output = fn(*maybe_progress, user_callback_args)
-        except PreventUpdate:
-            cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
-        except Exception as err:  # pylint: disable=broad-except
-            cache.set(
-                result_key,
-                {
-                    "long_callback_error": {
-                        "msg": str(err),
-                        "tb": traceback.format_exc(),
-                    }
-                },
-            )
-        else:
-            cache.set(result_key, user_callback_output)
+                cache.set(result_key, user_callback_output)
+
+        ctx.run(run)
 
     return job_fn
 

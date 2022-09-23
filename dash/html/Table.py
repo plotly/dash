@@ -179,7 +179,5 @@ class Table(Component):
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs and excess named props
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
-        for k in []:
-            if k not in args:
-                raise TypeError("Required argument `" + k + "` was not specified.")
+
         super(Table, self).__init__(children=children, **args)

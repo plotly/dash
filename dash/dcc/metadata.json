@@ -3595,7 +3595,7 @@
           ]
         },
         "required": false,
-        "description": "A markdown string (or array of strings) that adhreres to the CommonMark spec"
+        "description": "A markdown string (or array of strings) that adheres to the CommonMark spec"
       },
       "dedent": {
         "type": {

@@ -17,7 +17,6 @@ import {
     mergeRight,
     pick,
     pickBy,
-    pipe,
     propOr,
     path as rpath,
     pathOr,
@@ -246,76 +245,73 @@ class BaseTreeContainer extends Component {
             ],
             _dashprivate_config
         );
-        const props = pipe(
-            dissoc('children'),
-            ...childrenProps
-                .map(childrenProp => {
-                    if (childrenProp.includes('.')) {
-                        let path = childrenProp.split('.');
-                        let node;
-                        let nodeValue;
-                        if (childrenProp.includes('[]')) {
-                            let frontPath = [],
-                                backPath = [],
-                                found = false;
-                            path.forEach(p => {
-                                if (!found) {
-                                    if (p.includes('[]')) {
-                                        found = true;
-                                        frontPath.push(p.replace('[]', ''));
-                                    } else {
-                                        frontPath.push(p);
-                                    }
-                                } else {
-                                    backPath.push(p);
-                                }
-                            });
+        let props = dissoc('children', _dashprivate_layout.props);
 
-                            node = rpath(frontPath, _dashprivate_layout.props);
-                            if (node === undefined) {
-                                return;
+        for (let i = 0; i < childrenProps.length; i++) {
+            const childrenProp = childrenProps[i];
+            if (childrenProp.includes('.')) {
+                let path = childrenProp.split('.');
+                let node;
+                let nodeValue;
+                if (childrenProp.includes('[]')) {
+                    let frontPath = [],
+                        backPath = [],
+                        found = false;
+                    path.forEach(p => {
+                        if (!found) {
+                            if (p.includes('[]')) {
+                                found = true;
+                                frontPath.push(p.replace('[]', ''));
+                            } else {
+                                frontPath.push(p);
                             }
-                            if (!node.length) {
-                                return assocPath(frontPath, node);
-                            }
-                            const firstNode = rpath(backPath, node[0]);
-                            if (!firstNode) {
-                                return assocPath(frontPath, node);
-                            }
-                            nodeValue = node.map((element, i) => {
-                                const elementPath = concat(
-                                    frontPath,
-                                    concat([i], backPath)
-                                );
-                                return assocPath(
-                                    backPath,
-                                    this.wrapChildrenProp(
-                                        rpath(backPath, element),
-                                        elementPath
-                                    ),
-                                    element
-                                );
-                            });
-                            path = frontPath;
                         } else {
-                            node = rpath(path, _dashprivate_layout.props);
-                            if (node === undefined) {
-                                return;
-                            }
-                            nodeValue = this.wrapChildrenProp(node, path);
+                            backPath.push(p);
                         }
-                        return assocPath(path, nodeValue);
+                    });
+
+                    node = rpath(frontPath, props);
+                    if (node === undefined || !node.length) {
+                        continue;
                     }
-                    const node = _dashprivate_layout.props[childrenProp];
-                    if (node !== undefined) {
-                        return assoc(
-                            childrenProp,
-                            this.wrapChildrenProp(node, [childrenProp])
+                    const firstNode = rpath(backPath, node[0]);
+                    if (!firstNode) {
+                        continue;
+                    }
+                    nodeValue = node.map((element, i) => {
+                        const elementPath = concat(
+                            frontPath,
+                            concat([i], backPath)
                         );
+                        return assocPath(
+                            backPath,
+                            this.wrapChildrenProp(
+                                rpath(backPath, element),
+                                elementPath
+                            ),
+                            element
+                        );
+                    });
+                    path = frontPath;
+                } else {
+                    node = rpath(path, props);
+                    if (node === undefined) {
+                        continue;
                     }
-                })
-                .filter(e => e !== undefined)
-        )(_dashprivate_layout.props);
+                    nodeValue = this.wrapChildrenProp(node, path);
+                }
+                props = assocPath(path, nodeValue, props);
+                continue;
+            }
+            const node = props[childrenProp];
+            if (node !== undefined) {
+                props = assoc(
+                    childrenProp,
+                    this.wrapChildrenProp(node, [childrenProp]),
+                    props
+                );
+            }
+        }
 
         if (type(props.id) === 'Object') {
             // Turn object ids (for wildcards) into unique strings.
