@@ -40,7 +40,7 @@
     "babel-loader": "^8.2.5",
     "cheerio": "^0.22.0",
     "cross-env": "^7.0.3",
-    "es-check": "^6.2.1",
+    "es-check": "^7.0.1",
     "eslint": "^8.19.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-react": "^7.30.1",
