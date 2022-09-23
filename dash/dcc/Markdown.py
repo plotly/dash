@@ -12,7 +12,7 @@ class Markdown(Component):
     Keyword arguments:
 
     - children (string | list of strings; optional):
-        A markdown string (or array of strings) that adhreres to the
+        A markdown string (or array of strings) that adheres to the
         CommonMark spec.
 
     - id (string; optional):
@@ -119,7 +119,5 @@ class Markdown(Component):
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs and excess named props
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
-        for k in []:
-            if k not in args:
-                raise TypeError("Required argument `" + k + "` was not specified.")
+
         super(Markdown, self).__init__(children=children, **args)
