@@ -119,7 +119,9 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
         from multiprocess import Process
 
         # pylint: disable-next=not-callable
-        proc = Process(target=job_fn, args=(key, self._make_progress_key(key), args, context))
+        proc = Process(
+            target=job_fn, args=(key, self._make_progress_key(key), args, context)
+        )
         proc.start()
         return proc.pid
 
