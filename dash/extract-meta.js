@@ -293,7 +293,7 @@ function gatherComponents(sources, components = {}) {
     const getPropType = (propType, propObj, parentType = null) => {
         // Types can get namespace prefixes or not.
         let name = checker.typeToString(propType).replace(/^React\./, '');
-        let value;
+        let value, elements;
         const raw = name;
 
         const newParentType = (parentType || []).concat(raw)
@@ -311,13 +311,13 @@ function gatherComponents(sources, components = {}) {
         // Shapes & array support.
         if (!PRIMITIVES.concat('enum', 'func', 'union').includes(name)) {
             if (
-                name.includes('[]') ||
-                name.includes('Array') ||
-                name === 'tuple'
+                // Excluding object with arrays in the raw.
+                (name.includes('[]') && name.endsWith("]")) ||
+                name.includes('Array')
             ) {
                 name = 'arrayOf';
                 const replaced = raw.replace('[]', '');
-                if (unionSupport.includes('replaced')) {
+                if (unionSupport.includes(replaced)) {
                     // Simple types are easier.
                     value = {
                         name: getPropTypeName(replaced),
@@ -336,6 +336,14 @@ function gatherComponents(sources, components = {}) {
                         name = 'array';
                     }
                 }
+            } else if (
+                name === 'tuple' ||
+                (name.startsWith('[') && name.endsWith(']'))
+            ) {
+                name = 'tuple';
+                elements = propType.resolvedTypeArguments.map(
+                    t => getPropType(t, propObj, newParentType)
+                );
             } else if (
                 BANNED_TYPES.includes(name) ||
                 (parentType && parentType.includes(name))
@@ -369,6 +377,7 @@ function gatherComponents(sources, components = {}) {
         return {
             name,
             value,
+            elements,
             raw
         };
     };

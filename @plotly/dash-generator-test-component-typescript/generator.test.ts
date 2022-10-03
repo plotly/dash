@@ -9,7 +9,7 @@ function getMetadata() {
             [
                 path.resolve(__dirname, '..', '..', 'dash', 'extract-meta.js'),
                 '""', // ignore pattern
-                '""', // reserved keywords
+                '^_.*$', // reserved keywords
                 path.join(__dirname, 'src', 'components')
             ],
             {
@@ -103,6 +103,10 @@ describe('Test Typescript component metadata generation', () => {
             `${componentName} setProps func`,
             testTypeFactory('setProps', 'func')
         );
+        test(
+            `${componentName} tuple tuple`,
+            testTypeFactory('a_tuple', 'tuple')
+        )
     });
 
     describe('Test prop attributes', () => {
@@ -229,6 +233,24 @@ describe('Test Typescript component metadata generation', () => {
                         'nested',
                         'name'
                     ], metadata)).toBe('any')
+            }
+        );
+
+        test(
+            'Tuple elements', () => {
+                const tuplePath: (string|number)[] = [
+                    'TypeScriptComponent',
+                    'props',
+                    'a_tuple',
+                    'type',
+                    'elements'
+                ]
+                expect(
+                    R.path(tuplePath.concat(0, 'name'), metadata)
+                ).toBe('number');
+                expect(
+                    R.path(tuplePath.concat(1, 'name'), metadata)
+                ).toBe('string');
             }
         )
     });
