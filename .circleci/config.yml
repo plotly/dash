@@ -204,6 +204,24 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
+  test-39-react-18:
+    <<: *test
+    docker:
+      - image: cimg/python:3.9.9-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PERCY_ENABLE: 0
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
+          PYVERSION: python36
+          REDIS_URL: redis://localhost:6379
+          REACT_VERSION: "18.2.0"
+      - image: cimg/redis:6.2.6
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+
   test-36:
     <<: *test
     docker:
@@ -258,7 +276,7 @@ jobs:
           PYVERSION: python36
           PERCY_ENABLE: 0
 
-  dcc-test-39: &dcc-test
+  dcc-39: &dcc-test
     working_directory: ~/dash
     docker:
       - image: cimg/python:3.9.9-browsers
@@ -302,7 +320,19 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  dcc-test-36:
+  dcc-39-react-18:
+    <<: *dcc-test
+    docker:
+      - image: cimg/python:3.9.9-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYVERSION: python36
+          PERCY_ENABLE: 0
+          REACT_VERSION: "18.2.0"
+
+  dcc-36:
     <<: *dcc-test
     docker:
       - image: cimg/python:3.6.15-browsers
@@ -313,7 +343,7 @@ jobs:
           PYVERSION: python36
           PERCY_ENABLE: 0
 
-  html-python-39: &html-test
+  html-39: &html-test
     working_directory: ~/dash
     docker:
       - image: cimg/python:3.9.9-browsers
@@ -365,7 +395,19 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  html-python-36:
+  html-39-react-18:
+    <<: *html-test
+    docker:
+      - image: cimg/python:3.9.9-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYVERSION: python36
+          PERCY_ENABLE: 0
+          REACT_VERSION: "18.2.0"
+
+  html-36:
     <<: *html-test
     docker:
       - image: cimg/python:3.6.15-browsers
@@ -376,7 +418,7 @@ jobs:
           PYVERSION: python36
           PERCY_ENABLE: 0
 
-  table-server-test:
+  table-server: &table-server
     working_directory: ~/dash
     docker:
       - image: cimg/python:3.9.9-browsers
@@ -422,6 +464,15 @@ jobs:
           path: ~/dash/components/dash-table/test-reports
       - store_artifacts:
           path: /tmp/dash_artifacts
+
+  table-server-react-18:
+    <<: *table-server
+    docker:
+      - image: cimg/python:3.9.9-browsers
+        environment:
+          PYVERSION: python39
+          PERCY_ENABLE: 0
+          REACT_VERSION: "18.2.0"
 
   table-unit-test:
     working_directory: ~/dash
@@ -552,6 +603,9 @@ workflows:
       - test-39:
           requires:
             - install-dependencies-39
+      - test-39-react-18:
+          requires:
+            - install-dependencies-39
       - test-36:
           requires:
             - install-dependencies-36
@@ -563,17 +617,23 @@ workflows:
           requires:
             - install-dependencies-36
 
-      - dcc-test-39:
+      - dcc-39:
           requires:
             - install-dependencies-39
-      - dcc-test-36:
+      - dcc-39-react-18:
+          requires:
+            - install-dependencies-39
+      - dcc-36:
           requires:
             - install-dependencies-36
 
-      - html-python-39:
+      - html-39:
           requires:
             - install-dependencies-39
-      - html-python-36:
+      - html-39-react-18:
+          requires:
+            - install-dependencies-39
+      - html-36:
           requires:
             - install-dependencies-36
 
@@ -584,16 +644,19 @@ workflows:
           requires:
             - install-dependencies-39
       - table-visual-test
-      - table-server-test:
+      - table-server:
+          requires:
+            - install-dependencies-39
+      - table-server-react-18:
           requires:
             - install-dependencies-39
 
       - percy/finalize_all:
           requires:
             - test-39
-            - dcc-test-39
-            - html-python-39
-            - table-server-test
+            - dcc-39
+            - html-39
+            - table-server
       - artifacts:
           requires:
             - percy/finalize_all
