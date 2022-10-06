@@ -37,9 +37,11 @@ const D3_DEFAULT_LOCALE: INumberLocale = {
 const DEFAULT_NULLY = '';
 const DEFAULT_SPECIFIER = '';
 const NULL_SELECTED_CELLS: SelectedCells = [];
+const DEFAULT_FILTER_PLACEHOLDER_TEXT = 'filter data...'
 
 const DEFAULT_FILTER_OPTIONS = {
-    case: FilterCase.Sensitive
+    case: FilterCase.Sensitive,
+    placeholder_text: DEFAULT_FILTER_PLACEHOLDER_TEXT
 };
 
 const data2number = (data?: any) => +data || 0;

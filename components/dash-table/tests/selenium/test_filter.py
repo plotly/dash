@@ -301,3 +301,40 @@ def test_filt003_sensitivity(test, filter_options, column_filter_options):
     else:
         assert target.cell(0, "c").get_text() == "abc"
         assert target.cell(1, "c").get_text() == "ABC"
+
+
+@pytest.mark.parametrize(
+    "column_placeholder_setting,table_placeholder_setting,expected_placeholder",
+    [
+        ("abc", None, "abc"),
+        (None, "def", "def"),
+        ("gah", "ijk", "gah"),
+        ("", None, ""),
+        (None, None, "filter data..."),
+    ],
+)
+def test_filt003_placeholder(
+    test, column_placeholder_setting, table_placeholder_setting, expected_placeholder
+):
+    props = dict(
+        id="table",
+        data=[],
+        columns=[
+            dict(
+                id="a",
+                name="a",
+                filter_options=dict(placeholder_text=column_placeholder_setting)
+                if column_placeholder_setting is not None
+                else None,
+                type="any",
+            ),
+        ],
+        filter_action="native",
+        filter_options=dict(placeholder_text=table_placeholder_setting)
+        if table_placeholder_setting is not None
+        else None,
+    )
+
+    test.start_server(get_app(props))
+    target = test.table("table")
+    assert target.column("a").filter_placeholder() == expected_placeholder

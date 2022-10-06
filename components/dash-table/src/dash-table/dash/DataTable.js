@@ -319,7 +319,8 @@ export const propTypes = {
              * the table-level `filter_options` prop for that column.
              */
             filter_options: PropTypes.shape({
-                case: PropTypes.oneOf(['sensitive', 'insensitive'])
+                case: PropTypes.oneOf(['sensitive', 'insensitive']),
+                placeholder_text: PropTypes.string
             }),
 
             /**
@@ -782,7 +783,8 @@ export const propTypes = {
      * the table-level `filter_options` prop for that column.
      */
     filter_options: PropTypes.shape({
-        case: PropTypes.oneOf(['sensitive', 'insensitive'])
+        case: PropTypes.oneOf(['sensitive', 'insensitive']),
+        placeholder_text: PropTypes.string
     }),
     /**
      * The `sort_action` property enables data to be
