@@ -214,7 +214,7 @@ jobs:
         environment:
           PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python36
+          PYVERSION: python39
           REDIS_URL: redis://localhost:6379
           REACT_VERSION: "18.2.0"
       - image: cimg/redis:6.2.6
@@ -328,7 +328,7 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python36
+          PYVERSION: python39
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
@@ -403,7 +403,7 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python36
+          PYVERSION: python39
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
