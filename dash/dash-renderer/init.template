@@ -18,8 +18,7 @@ def _set_react_version(v_react, v_reactdom=None):
     assert v_react in _available_react_versions, react_err
     assert v_reactdom in _available_reactdom_versions, reactdom_err
 
-    global _js_dist_dependencies
-    _js_dist_dependencies = [
+    _js_dist_dependencies[:] = [
         {
             "external_url": {
                 "prod": [
