@@ -572,7 +572,7 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
 
     def tuple_of():
         elements = [js_to_py_type(element) for element in type_object["elements"]]
-        return f"tuple of ({', '.join(elements)})"
+        return f"list of {len(elements)} elements: [{', '.join(elements)}]"
 
     return dict(
         array=lambda: "list",
