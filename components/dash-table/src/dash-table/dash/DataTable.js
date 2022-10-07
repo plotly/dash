@@ -1,7 +1,7 @@
 import * as R from 'ramda';
-import React, { Component, Suspense } from 'react';
+import React, {Component, Suspense} from 'react';
 import PropTypes from 'prop-types';
-import { asyncDecorator } from '@plotly/dash-component-plugins';
+import {asyncDecorator} from '@plotly/dash-component-plugins';
 
 import LazyLoader from 'dash-table/LazyLoader';
 
