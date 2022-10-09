@@ -5,11 +5,13 @@ import collections
 from urllib.parse import parse_qs
 from fnmatch import fnmatch
 import re
+import flask
 
 from . import _validate
 from ._utils import AttributeDict
 from ._get_paths import get_relative_path
 from ._callback_context import context_value
+from ._get_app import get_app
 
 
 CONFIG = AttributeDict()
@@ -116,6 +118,25 @@ def _parse_path_variables(pathname, path_template):
     variables = variables[0] if isinstance(variables[0], tuple) else variables
 
     return dict(zip(var_names, variables))
+
+
+def _create_redirect_function(redirect_to):
+    def redirect():
+        return flask.redirect(redirect_to, code=301)
+
+    return redirect
+
+
+def _set_redirect(redirect_from, path):
+    app = get_app()
+    if redirect_from and len(redirect_from):
+        for redirect in redirect_from:
+            fullname = app.get_relative_path(redirect)
+            app.server.add_url_rule(
+                fullname,
+                fullname,
+                _create_redirect_function(app.get_relative_path(path)),
+            )
 
 
 def register_page(
@@ -280,7 +301,7 @@ def register_page(
         image=(image if image is not None else _infer_image(module)),
         image_url=image_url,
     )
-    page.update(redirect_from=redirect_from)
+    page.update(redirect_from=_set_redirect(redirect_from, page["path"]))
 
     PAGE_REGISTRY[module] = page
 

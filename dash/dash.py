@@ -497,6 +497,9 @@ class Dash:
             for plugin in plugins:
                 plugin.plug(self)
 
+        # tracks internally if a function already handled at least one request.
+        self._got_first_request = {"pages": False, "setup_server": False}
+
         if self.server is not None:
             self.init_app()
 
@@ -542,7 +545,7 @@ class Dash:
             """Handle a halted callback and return an empty 204 response."""
             return "", 204
 
-        self.server.before_first_request(self._setup_server)
+        self.server.before_request(self._setup_server)
 
         # add a handler for components suites errors to return 404
         self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
@@ -1271,6 +1274,10 @@ class Dash:
         return response
 
     def _setup_server(self):
+        if self._got_first_request["setup_server"]:
+            return
+        self._got_first_request["setup_server"] = True
+
         # Apply _force_eager_loading overrides from modules
         eager_loading = self.config.eager_loading
         for module_name in ComponentRegistry.registry:
@@ -2027,8 +2034,12 @@ class Dash:
         if self.pages_folder:
             self._import_layouts_from_pages()
 
-        @self.server.before_first_request
+        @self.server.before_request
         def router():
+            if self._got_first_request["pages"]:
+                return
+            self._got_first_request["pages"] = True
+
             @self.callback(
                 Output(_ID_CONTENT, "children"),
                 Output(_ID_STORE, "data"),
@@ -2106,24 +2117,6 @@ class Dash:
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
             )
-
-            def create_redirect_function(redirect_to):
-                def redirect():
-                    return flask.redirect(redirect_to, code=301)
-
-                return redirect
-
-            # Set redirects
-            for module in _pages.PAGE_REGISTRY:
-                page = _pages.PAGE_REGISTRY[module]
-                if page["redirect_from"] and len(page["redirect_from"]):
-                    for redirect in page["redirect_from"]:
-                        fullname = self.get_relative_path(redirect)
-                        self.server.add_url_rule(
-                            fullname,
-                            fullname,
-                            create_redirect_function(page["relative_path"]),
-                        )
 
     def run_server(self, *args, **kwargs):
         """`run_server` is a deprecated alias of `run` and may be removed in a
