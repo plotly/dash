@@ -173,12 +173,11 @@ def test_pala003_meta_tags_custom(dash_duo):
 
 
 def test_pala004_no_layout_exception():
-    error_msg = 'No layout found in module pages_error.no_layout_page\nA variable or a function named "layout" is required.'
+    error_msg = 'No layout found in module test_pages_layout.pages_error.no_layout_page\nA variable or a function named "layout" is required.'
 
     with pytest.raises(NoLayoutException) as err:
         Dash(__name__, use_pages=True, pages_folder="pages_error")
-
     # clean up after this test, so the broken entry doesn't affect other pages tests
-    del dash.page_registry["pages_error.no_layout_page"]
+    del dash.page_registry["test_pages_layout.pages_error.no_layout_page"]
 
     assert error_msg in err.value.args[0]

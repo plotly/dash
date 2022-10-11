@@ -169,6 +169,12 @@ def _get_traceback(secret, error: Exception):
 no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
 
+def init_dash_globals():
+    """Ensure that all Dash global state is re-initialised."""
+    _pages.PAGE_REGISTRY.clear()
+    _pages.CONFIG.clear()
+
+
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash:
@@ -379,6 +385,8 @@ class Dash:
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
         )
+
+        init_dash_globals()
 
         self.config = AttributeDict(
             name=name,
@@ -2008,7 +2016,7 @@ class Dash:
                     self.pages_folder.replace("\\", "/").lstrip("/").replace("/", ".")
                 )
 
-                module_name = ".".join([pages_folder, page_filename])
+                module_name = ".".join([self.config.name, pages_folder, page_filename])
 
                 spec = importlib.util.spec_from_file_location(
                     module_name, os.path.join(root, file)

@@ -48,14 +48,14 @@ def test_paor001_order(dash_duo):
         "multi_layout3",
         "multi_layout2",
         "multi_layout1",
-        "pages.defaults",
-        "pages.metas",
-        "pages.not_found_404",
-        "pages.page1",
-        "pages.page2",
-        "pages.path_variables",
-        "pages.query_string",
-        "pages.redirect",
+        "test_pages_order.pages.defaults",
+        "test_pages_order.pages.metas",
+        "test_pages_order.pages.not_found_404",
+        "test_pages_order.pages.page1",
+        "test_pages_order.pages.page2",
+        "test_pages_order.pages.path_variables",
+        "test_pages_order.pages.query_string",
+        "test_pages_order.pages.redirect",
     ]
 
     dash_duo.start_server(app)
