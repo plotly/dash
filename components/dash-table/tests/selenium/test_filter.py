@@ -1,7 +1,6 @@
 import dash
 
 from dash.dash_table import DataTable
-from pyparsing import col
 
 import pytest
 
