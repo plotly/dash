@@ -297,6 +297,13 @@ class DataTableColumnFacade(object):
             self.filter_clear()
             self.mixin.driver.switch_to.active_element.send_keys(value + Keys.ENTER)
 
+    def filter_placeholder(self):
+        return (
+            self.filter()
+            .find_element(By.CSS_SELECTOR, "input")
+            .get_attribute("placeholder")
+        )
+
 
 class DataTableRowFacade(object):
     @preconditions(_validate_id, _validate_mixin, _validate_row, _validate_state)
