@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
 
+### Fixed
+
+- [#2257](https://github.com/plotly/dash/pull/2257) Fix tuple types in the TypeScript component generator.
+
 ## [2.6.2] - 2022-09-23
 
 ### Fixed
