@@ -172,7 +172,13 @@ no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 def init_dash_globals():
     """Ensure that all Dash global state is re-initialised."""
     _pages.PAGE_REGISTRY.clear()
-    _pages.CONFIG.clear()
+
+    # this line of thinking could be extended to potentially clear the following:
+    # _pages.CONFIG
+    # _get_paths.CONFIG
+    # _callback.GLOBAL_CALLBACK_MAP
+    # _callback.GLOBAL_CALLBACK_LIST
+    # _callback.GLOBAL_INLINE_SCRIPTS
 
 
 # pylint: disable=too-many-instance-attributes
