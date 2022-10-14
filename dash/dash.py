@@ -570,15 +570,17 @@ class Dash:
         self.server.add_url_rule(
             full_name, view_func=view_func, endpoint=full_name, methods=list(methods)
         )
-        
+
         if os.environ.get("DASH_ENTERPRISE_ENV", "") == "WORKSPACE":
 
             full_name_with_requests = self.config.requests_pathname_prefix + name
 
             self.server.add_url_rule(
-                full_name_with_requests, view_func=view_func, endpoint=full_name_with_requests, methods=list(methods)
+                full_name_with_requests,
+                view_func=view_func,
+                endpoint=full_name_with_requests,
+                methods=list(methods),
             )
-
 
         # record the url in Dash.routes so that it can be accessed later
         # e.g. for adding authentication with flask_login
