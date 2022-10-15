@@ -989,6 +989,7 @@ class Dash:
             _re_renderer_scripts_id,
         )
         _validate.validate_index("index", checks, index)
+        self.config.requests_pathname_prefix = old_prefix
         return index
 
     def interpolate_index(
