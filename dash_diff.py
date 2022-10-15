@@ -650,7 +650,7 @@ class Dash:
         # pieces of config needed by the front end
         config = {
             "url_base_pathname": self.config.url_base_pathname,
-            "requests_pathname_prefix": self.config.requests_pathname_prefix,
+            "requests_pathname_prefix": '',
             "ui": self._dev_tools.ui,
             "props_check": self._dev_tools.props_check,
             "show_undo_redo": self.config.show_undo_redo,
@@ -658,6 +658,7 @@ class Dash:
             "update_title": self.config.update_title,
             "children_props": ComponentRegistry.children_props,
         }
+        print('configs', config)
         if self._dev_tools.hot_reload:
             config["hot_reload"] = {
                 # convert from seconds to msec as used by js `setInterval`
@@ -933,7 +934,6 @@ class Dash:
         return response
 
     def index(self, *args, **kwargs):  # pylint: disable=unused-argument
-
         print('index fetched')
         old_prefix = self.config.requests_pathname_prefix
 
@@ -943,8 +943,9 @@ class Dash:
                 print('skipping url')
                 self.config.requests_pathname_prefix = ''
 
-
         scripts = self._generate_scripts_html()
+        print("request", request)
+        print('scripts', scripts)
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
         metas = self._generate_meta_html()
@@ -989,6 +990,8 @@ class Dash:
             _re_renderer_scripts_id,
         )
         _validate.validate_index("index", checks, index)
+
+        # self.config.requests_pathname_prefix = old_prefix
         return index
 
     def interpolate_index(
@@ -1218,8 +1221,6 @@ class Dash:
             cb = self.callback_map[output]
             func = cb["callback"]
 
-            g.ignore_register_page = cb.get("long", False)
-
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = inputs + state
@@ -1409,7 +1410,11 @@ class Dash:
         ]
 
     def get_asset_url(self, path):
-        return _get_paths.app_get_asset_url(self.config, path)
+        
+        ret_path = _get_paths.app_get_asset_url(self.config, path)
+        self.config.requests_pathname_prefix = ''
+        print('get asset', self.config.requests_pathname_prefix, ret_path)
+        return ret_path
 
     def get_relative_path(self, path):
         """
@@ -1975,10 +1980,7 @@ class Dash:
     def _import_layouts_from_pages(self):
         walk_dir = self.config.pages_folder
 
-        for (root, dirs, files) in os.walk(walk_dir):
-            dirs[:] = [
-                d for d in dirs if not d.startswith(".") and not d.startswith("_")
-            ]
+        for (root, _, files) in os.walk(walk_dir):
             for file in files:
                 if (
                     file.startswith("_")
@@ -2090,21 +2092,20 @@ class Dash:
             _validate.validate_registry(_pages.PAGE_REGISTRY)
 
             # Set validation_layout
-            if not self.config.suppress_callback_exceptions:
-                self.validation_layout = html.Div(
-                    [
-                        page["layout"]() if callable(page["layout"]) else page["layout"]
-                        for page in _pages.PAGE_REGISTRY.values()
-                    ]
-                    + [
-                        # pylint: disable=not-callable
-                        self.layout()
-                        if callable(self.layout)
-                        else self.layout
-                    ]
-                )
-                if _ID_CONTENT not in self.validation_layout:
-                    raise Exception("`dash.page_container` not found in the layout")
+            self.validation_layout = html.Div(
+                [
+                    page["layout"]() if callable(page["layout"]) else page["layout"]
+                    for page in _pages.PAGE_REGISTRY.values()
+                ]
+                + [
+                    # pylint: disable=not-callable
+                    self.layout()
+                    if callable(self.layout)
+                    else self.layout
+                ]
+            )
+            if _ID_CONTENT not in self.validation_layout:
+                raise Exception("`dash.page_container` not found in the layout")
 
             # Update the page title on page navigation
             self.clientside_callback(
@@ -2142,3 +2143,4 @@ class Dash:
         See `app.run` for usage information.
         """
         self.run(*args, **kwargs)
+:w
