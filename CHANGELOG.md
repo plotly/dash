@@ -6,11 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- [#2265](https://github.com/plotly/dash/pull/2265) Removed deprecated `before_first_request` as reported in [#2177](https://github.com/plotly/dash/issues/2177).
 - [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
 
 ### Fixed
 
+- [#2265](https://github.com/plotly/dash/pull/2265) Removed deprecated `before_first_request` as reported in [#2177](https://github.com/plotly/dash/issues/2177).
 - [#2257](https://github.com/plotly/dash/pull/2257) Fix tuple types in the TypeScript component generator.
 
 ## [2.6.2] - 2022-09-23
