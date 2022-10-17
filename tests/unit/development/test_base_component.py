@@ -538,4 +538,4 @@ def test_debc029_random_id_errors():
 
 def test_debc030_invalid_children_args():
     with pytest.raises(TypeError):
-        dcc.Input(children='invalid children')
+        dcc.Input(children="invalid children")

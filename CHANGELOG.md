@@ -2,10 +2,21 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## Unreleased
+
+### Added
+
+- [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
 
 ### Fixed
 
+- [#2257](https://github.com/plotly/dash/pull/2257) Fix tuple types in the TypeScript component generator.
+
+## [2.6.2] - 2022-09-23
+
+### Fixed
+
+- [#2237](https://github.com/plotly/dash/pull/2237) Ensure calls to `plotly.js` from `dcc.Graph` are properly sequenced even if React initiates multiple render cycles in quick succession.
 - [#2218](https://github.com/plotly/dash/pull/2218) Fix bug [#1348](https://github.com/plotly/dash/issues/1348) Validate children prop (required or not).
 - [#2223](https://github.com/plotly/dash/pull/2223) Exclude hidden folders when building `dash.page_registry`.
 - [#2182](https://github.com/plotly/dash/pull/2182) Fix [#2172](https://github.com/plotly/dash/issues/2172)  Make it so that when using pages, if `suppress_callback_exceptions=True` the `validation_layout` is not set.

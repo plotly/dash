@@ -106,4 +106,4 @@ def test_gene004_required_children_prop():
     with pytest.raises(TypeError):
         RequiredChildrenComponent()
 
-    RequiredChildrenComponent(children='worked')
+    RequiredChildrenComponent(children="worked")
