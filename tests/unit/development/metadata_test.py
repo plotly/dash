@@ -1,5 +1,6 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
 
 
@@ -91,7 +92,31 @@ Keyword arguments:
     _namespace = 'TableComponents'
     _type = 'Table'
     @_explicitize_args
-    def __init__(self, children=None, optionalArray=Component.UNDEFINED, optionalBool=Component.UNDEFINED, optionalFunc=Component.UNDEFINED, optionalNumber=Component.UNDEFINED, optionalObject=Component.UNDEFINED, optionalString=Component.UNDEFINED, optionalSymbol=Component.UNDEFINED, optionalNode=Component.UNDEFINED, optionalElement=Component.UNDEFINED, optionalMessage=Component.UNDEFINED, optionalEnum=Component.UNDEFINED, optionalUnion=Component.UNDEFINED, optionalArrayOf=Component.UNDEFINED, optionalObjectOf=Component.UNDEFINED, optionalObjectWithExactAndNestedDescription=Component.UNDEFINED, optionalObjectWithShapeAndNestedDescription=Component.UNDEFINED, optionalAny=Component.UNDEFINED, customProp=Component.UNDEFINED, customArrayProp=Component.UNDEFINED, id=Component.UNDEFINED, **kwargs):
+    def __init__(
+        self,
+        children: typing.Union[str, int, float, Component, typing.List[typing.Union[str, int, float, Component]]] = None,
+        optionalArray: typing.List = Component.UNDEFINED,
+        optionalBool: bool = Component.UNDEFINED,
+        optionalFunc: typing.Any = Component.UNDEFINED,
+        optionalNumber: typing.Union[float, int] = Component.UNDEFINED,
+        optionalObject: typing.Dict = Component.UNDEFINED,
+        optionalString: str = Component.UNDEFINED,
+        optionalSymbol: typing.Any = Component.UNDEFINED,
+        optionalNode: typing.Union[str, int, float, Component, typing.List[typing.Union[str, int, float, Component]]] = Component.UNDEFINED,
+        optionalElement: Component = Component.UNDEFINED,
+        optionalMessage: typing.Any = Component.UNDEFINED,
+        optionalEnum: typing.Any = Component.UNDEFINED,
+        optionalUnion: typing.Union[str, typing.Union[float, int], typing.Any] = Component.UNDEFINED,
+        optionalArrayOf: typing.List[typing.Union[float, int]] = Component.UNDEFINED,
+        optionalObjectOf: typing.Dict[str, typing.Union[float, int]] = Component.UNDEFINED,
+        optionalObjectWithExactAndNestedDescription: typing.Dict[str, typing.Union[str, typing.Union[float, int], typing.Dict[str, typing.Union[typing.List[typing.Dict], typing.Dict]]]] = Component.UNDEFINED,
+        optionalObjectWithShapeAndNestedDescription: typing.Dict[str, typing.Union[str, typing.Union[float, int], typing.Dict[str, typing.Union[typing.List[typing.Dict], typing.Dict]]]] = Component.UNDEFINED,
+        optionalAny: typing.Any = Component.UNDEFINED,
+        customProp: typing.Any = Component.UNDEFINED,
+        customArrayProp: typing.List[typing.Any] = Component.UNDEFINED,
+        id: str = Component.UNDEFINED,
+        **kwargs
+    ):
         self._prop_names = ['children', 'id', 'aria-*', 'customArrayProp', 'customProp', 'data-*', 'in', 'optionalAny', 'optionalArray', 'optionalArrayOf', 'optionalBool', 'optionalElement', 'optionalEnum', 'optionalNode', 'optionalNumber', 'optionalObject', 'optionalObjectOf', 'optionalObjectWithExactAndNestedDescription', 'optionalObjectWithShapeAndNestedDescription', 'optionalString', 'optionalUnion']
         self._valid_wildcard_attributes =            ['data-', 'aria-']
         self.available_properties = ['children', 'id', 'aria-*', 'customArrayProp', 'customProp', 'data-*', 'in', 'optionalAny', 'optionalArray', 'optionalArrayOf', 'optionalBool', 'optionalElement', 'optionalEnum', 'optionalNode', 'optionalNumber', 'optionalObject', 'optionalObjectOf', 'optionalObjectWithExactAndNestedDescription', 'optionalObjectWithShapeAndNestedDescription', 'optionalString', 'optionalUnion']

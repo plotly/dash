@@ -1,16 +1,18 @@
 from collections import OrderedDict
 import copy
 import os
+import typing
 from textwrap import fill, dedent
 
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from ._collect_nodes import collect_nodes, filter_base_nodes
+from ._py_prop_typing import get_prop_typing
 from .base_component import Component
 
 
-# pylint: disable=unused-argument,too-many-locals
+# pylint: disable=unused-argument,too-many-locals,too-many-branches
 def generate_class_string(
     typename,
     props,
@@ -55,7 +57,10 @@ def generate_class_string(
     _namespace = '{namespace}'
     _type = '{typename}'
     @_explicitize_args
-    def __init__(self, {default_argtext}):
+    def __init__(
+        self,
+        {default_argtext}
+    ):
         self._prop_names = {list_of_valid_keys}
         self._valid_wildcard_attributes =\
             {list_of_valid_wildcard_attr_prefixes}
@@ -94,7 +99,7 @@ def generate_class_string(
     prop_keys = list(props.keys())
     if "children" in props and "children" in list_of_valid_keys:
         prop_keys.remove("children")
-        default_argtext = "children=None, "
+        default_argtext = f"children: {get_prop_typing('node', {})} = None,\n        "
         args = "{k: _locals[k] for k in _explicit_args if k != 'children'}"
         argtext = "children=children, **args"
     else:
@@ -118,15 +123,33 @@ def generate_class_string(
             raise TypeError('Required argument children was not specified.')
         """
 
-    default_arglist = [
-        (
-            f"{p:s}=Component.REQUIRED"
-            if props[p]["required"]
-            else f"{p:s}=Component.UNDEFINED"
-        )
-        for p in prop_keys
-        if not p.endswith("-*") and p not in python_keywords and p != "setProps"
-    ]
+    default_arglist = []
+
+    for prop_key in prop_keys:
+        prop = props[prop_key]
+        if (
+            prop_key.endswith("-*")
+            or prop_key in python_keywords
+            or prop_key == "setProps"
+        ):
+            continue
+        required = prop.get("required")
+        type_info = prop.get("type")
+
+        default_value = "Component.REQUIRED" if required else "Component.UNDEFINED"
+
+        if not type_info:
+            print(f"Invalid prop type for typing: {prop_key}")
+            default_arglist.append(f"{prop_key} = {default_value}")
+            continue
+
+        type_name = type_info.get("name")
+
+        typed = get_prop_typing(type_name, type_info)
+
+        arg_value = f"{prop_key}: {typed} = {default_value}"
+
+        default_arglist.append(arg_value)
 
     if max_props:
         final_max_props = max_props - (1 if "children" in props else 0)
@@ -139,7 +162,7 @@ def generate_class_string(
                 "they may still be used as keyword arguments."
             )
 
-    default_argtext += ", ".join(default_arglist + ["**kwargs"])
+    default_argtext += ",\n        ".join(default_arglist + ["**kwargs"])
     nodes = collect_nodes({k: v for k, v in props.items() if k != "children"})
 
     return dedent(
@@ -181,8 +204,9 @@ def generate_class_file(
     """
     import_string = (
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
-        + "from dash.development.base_component import "
-        + "Component, _explicitize_args\n\n\n"
+        "import typing  # noqa: F401\n"
+        "from dash.development.base_component import "
+        "Component, _explicitize_args\n\n\n"
     )
 
     class_string = generate_class_string(
@@ -242,7 +266,11 @@ def generate_class(
     string = generate_class_string(
         typename, props, description, namespace, prop_reorder_exceptions
     )
-    scope = {"Component": Component, "_explicitize_args": _explicitize_args}
+    scope = {
+        "Component": Component,
+        "_explicitize_args": _explicitize_args,
+        "typing": typing,
+    }
     # pylint: disable=exec-used
     exec(string, scope)
     result = scope[typename]

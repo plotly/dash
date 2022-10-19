@@ -13,7 +13,7 @@ from . import _dir, has_trailing_space
 
 # Import string not included in generated class string
 import_string = (
-    "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
+    "# AUTO GENERATED FILE - DO NOT EDIT\n\nimport typing  # noqa: F401\n"
     + "from dash.development.base_component import"
     + " Component, _explicitize_args\n\n\n"
 )
