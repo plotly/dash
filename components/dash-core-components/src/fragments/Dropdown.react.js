@@ -2,7 +2,7 @@ import {isNil, pluck, without, pick} from 'ramda';
 import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
-import '../components/css/react-virtualized-select@3.1.0.css';
+import '../../../dash-core-components/node_modules/react-virtualized-select/styles.css';
 import '../components/css/react-virtualized@9.9.0.css';
 import '../components/css/Dropdown.css';
 
