@@ -29,6 +29,7 @@ const RDProps = [
     'placeholder',
     'disabled',
     'optionHeight',
+    'maxHeight',
     'style',
     'className',
 ];
@@ -37,6 +38,7 @@ const Dropdown = props => {
     const {
         id,
         clearable,
+        searchable,
         multi,
         options,
         setProps,
@@ -46,12 +48,39 @@ const Dropdown = props => {
     } = props;
     const [optionsCheck, setOptionsCheck] = useState(null);
     const [sanitizedOptions, filterOptions] = useMemo(() => {
-        const sanitized = sanitizeOptions(options);
+        let sanitized = sanitizeOptions(options);
+
+        const indexes = ['strValue'];
+        let hasElement = false,
+            hasSearch = false;
+        sanitized = Array.isArray(sanitized)
+            ? sanitized.map(option => {
+                  if (option.search) {
+                      hasSearch = true;
+                  }
+                  if (React.isValidElement(option.label)) {
+                      hasElement = true;
+                  }
+                  return {
+                      ...option,
+                      strValue: String(option.value),
+                  };
+              })
+            : sanitized;
+
+        if (!hasElement) {
+            indexes.push('label');
+        }
+        if (hasSearch) {
+            indexes.push('search');
+        }
+
         return [
             sanitized,
             createFilterOptions({
                 options: sanitized,
                 tokenizer: TOKENIZER,
+                indexes,
             }),
         ];
     }, [options]);
@@ -85,7 +114,12 @@ const Dropdown = props => {
     );
 
     useEffect(() => {
-        if (optionsCheck !== sanitizedOptions && !isNil(value)) {
+        if (
+            !searchable &&
+            !isNil(sanitizedOptions) &&
+            optionsCheck !== sanitizedOptions &&
+            !isNil(value)
+        ) {
             const values = sanitizedOptions.map(option => option.value);
             if (multi && Array.isArray(value)) {
                 const invalids = value.filter(v => !values.includes(v));

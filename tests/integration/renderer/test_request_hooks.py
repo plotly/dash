@@ -1,6 +1,7 @@
 import json
 import functools
 import flask
+import pytest
 
 from dash import Dash, Output, Input, html, dcc
 from werkzeug.exceptions import HTTPException
@@ -18,7 +19,7 @@ def test_rdrh001_request_hooks(dash_duo):
             {%css%}
         </head>
         <body>
-            <div>Testing custom DashRenderer</div>
+            <div id="top">Testing custom DashRenderer</div>
             {%app_entry%}
             <footer>
                 {%config%}
@@ -52,7 +53,7 @@ def test_rdrh001_request_hooks(dash_duo):
                     })
                 </script>
             </footer>
-            <div>With request hooks</div>
+            <div id="bottom">With request hooks</div>
         </body>
     </html>"""
 
@@ -107,7 +108,10 @@ def test_rdrh001_request_hooks(dash_duo):
         "output-1": {"children": "fire request hooks"}
     }
 
-    dash_duo.percy_snapshot(name="request-hooks render")
+    assert dash_duo.find_element("#top").text == "Testing custom DashRenderer"
+    assert dash_duo.find_element("#bottom").text == "With request hooks"
+
+    assert dash_duo.get_logs() == []
 
 
 def test_rdrh002_with_custom_renderer_interpolated(dash_duo):
@@ -186,11 +190,14 @@ def test_rdrh002_with_custom_renderer_interpolated(dash_duo):
     dash_duo.wait_for_text_to_equal("#output-1", "fire request hooks")
     assert dash_duo.find_element("#output-pre").text == "request_pre was here!"
     assert dash_duo.find_element("#output-post").text == "request_post!!!"
+    assert dash_duo.find_element("#custom-header").text == "My custom header"
+    assert dash_duo.find_element("#custom-footer").text == "My custom footer"
 
-    dash_duo.percy_snapshot(name="request-hooks interpolated")
+    assert dash_duo.get_logs() == []
 
 
-def test_rdrh003_refresh_jwt(dash_duo):
+@pytest.mark.parametrize("expiry_code", [401, 400])
+def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
 
     app = Dash(__name__)
 
@@ -255,7 +262,7 @@ def test_rdrh003_refresh_jwt(dash_duo):
                 ):
                     # Read the data to prevent bug with base http server.
                     flask.request.get_json(silent=True)
-                    flask.abort(401, description="JWT Expired " + str(token))
+                    flask.abort(expiry_code, description="JWT Expired " + str(token))
             except HTTPException as e:
                 return e
             return func(*args, **kwargs)
@@ -290,4 +297,4 @@ def test_rdrh003_refresh_jwt(dash_duo):
     dash_duo.wait_for_text_to_equal("#output-1", "fired request again")
     dash_duo.wait_for_text_to_equal("#output-token", "..")
 
-    dash_duo.percy_snapshot(name="request-hooks jwt-refresh")
+    assert len(dash_duo.get_logs()) == 2

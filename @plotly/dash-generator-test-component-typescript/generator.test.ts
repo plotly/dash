@@ -9,14 +9,11 @@ function getMetadata() {
             [
                 path.resolve(__dirname, '..', '..', 'dash', 'extract-meta.js'),
                 '""', // ignore pattern
-                '""', // reserved keywords
+                '^_.*$', // reserved keywords
                 path.join(__dirname, 'src', 'components')
             ],
-            // To debug `meta-ts.js` using pycharm debugger:
-            //  comment `env` and add `MODULES_PATH=./node_modules`
-            //  in the run config environment variables.
             {
-                env: {MODULES_PATH: path.resolve(__dirname, './node_modules')},
+                env: {MODULES_PATH: path.resolve(__dirname, './node_modules'), ...process.env},
                 cwd: __dirname
             }
         );
@@ -64,7 +61,8 @@ describe('Test Typescript component metadata generation', () => {
     describe.each([
         'TypeScriptComponent',
         'TypeScriptClassComponent',
-        'MemoTypeScriptComponent'
+        'MemoTypeScriptComponent',
+        'FCComponent',
     ])('Test prop type names', componentName => {
         const getPropTypeName = (name, data) =>
             R.path(propPath(componentName, name).concat('type', 'name'), data);
@@ -105,6 +103,10 @@ describe('Test Typescript component metadata generation', () => {
             `${componentName} setProps func`,
             testTypeFactory('setProps', 'func')
         );
+        test(
+            `${componentName} tuple tuple`,
+            testTypeFactory('a_tuple', 'tuple')
+        )
     });
 
     describe('Test prop attributes', () => {
@@ -218,6 +220,39 @@ describe('Test Typescript component metadata generation', () => {
                 });
             }
         );
+
+        test(
+            'Nested props to any', () => {
+                expect(
+                    R.path([
+                        'TypeScriptComponent',
+                        'props',
+                        'nested',
+                        'type',
+                        'value',
+                        'nested',
+                        'name'
+                    ], metadata)).toBe('any')
+            }
+        );
+
+        test(
+            'Tuple elements', () => {
+                const tuplePath: (string|number)[] = [
+                    'TypeScriptComponent',
+                    'props',
+                    'a_tuple',
+                    'type',
+                    'elements'
+                ]
+                expect(
+                    R.path(tuplePath.concat(0, 'name'), metadata)
+                ).toBe('number');
+                expect(
+                    R.path(tuplePath.concat(1, 'name'), metadata)
+                ).toBe('string');
+            }
+        )
     });
 
     describe('Test component comments', () => {
@@ -243,6 +278,17 @@ describe('Test Typescript component metadata generation', () => {
     describe('Test mixed generation', () => {
         test('Standard js component is parsed', () => {
             expect(R.path(['StandardComponent'], metadata)).toBeDefined();
+        });
+        test('Mixed component prop-type & typescript', () => {
+            expect(R.path(['MixedComponent', 'props', 'prop', 'type', 'name'], metadata)).toBe('arrayOf')
+        })
+    });
+    describe('Test special cases', () => {
+        test('Component with picked boolean prop', () => {
+            expect(R.path(['WrappedHTML', "props", "autoFocus", "type", "name"], metadata)).toBe("bool");
+        });
+        test('Empty Component', () => {
+            expect(R.path(['EmptyComponent', 'props'], metadata)).toBeDefined();
         });
     });
 });

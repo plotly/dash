@@ -2,7 +2,6 @@
 # __plotly_dash is for the "make sure you don't have a dash.py" check
 # must come before any other imports.
 __plotly_dash = True
-from .dash import Dash, no_update  # noqa: F401,E402
 from .dependencies import (  # noqa: F401,E402
     Input,  # noqa: F401,E402
     Output,  # noqa: F401,E402
@@ -21,10 +20,24 @@ from . import dash_table  # noqa: F401,E402
 from .version import __version__  # noqa: F401,E402
 from ._callback_context import callback_context  # noqa: F401,E402
 from ._callback import callback, clientside_callback  # noqa: F401,E402
+from ._get_app import get_app  # noqa: F401,E402
 from ._get_paths import (  # noqa: F401,E402
     get_asset_url,
     get_relative_path,
     strip_relative_path,
 )
+from .long_callback import (  # noqa: F401,E402
+    CeleryManager,
+    DiskcacheManager,
+)
+
+
+from ._pages import register_page, PAGE_REGISTRY as page_registry  # noqa: F401,E402
+from .dash import (  # noqa: F401,E402
+    Dash,
+    no_update,
+    page_container,
+)
+
 
 ctx = callback_context

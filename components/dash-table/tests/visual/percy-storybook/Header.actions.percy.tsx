@@ -15,7 +15,7 @@ const DATA_BASE = R.map(
         temp: i * -100,
         humidity: i * 0.1
     }),
-    R.range(0, 10)
+    R.range(0, 5)
 );
 
 const COLUMNS_BASE = [
@@ -227,13 +227,19 @@ const scenarios: ITest[] = [
 
 const tests = R.xprod(scenarios, variants);
 
-R.reduce(
-    (chain, [scenario, variant]) =>
-        chain.add(`${scenario.name} (${variant.name})`, () => (
-            <DataTable
-                {...R.mergeAll([DEFAULT_PROPS, variant.props, scenario.props])}
-            />
-        )),
-    storiesOf('DashTable/Headers, actions', module),
-    tests
-);
+storiesOf('DashTable/Headers, actions', module).add('all variants', () => (
+    <div>
+        {...tests.map(([scenario, variant]) => (
+            <div>
+                <div>{`${scenario.name} (${variant.name})`}</div>
+                <DataTable
+                    {...R.mergeAll([
+                        DEFAULT_PROPS,
+                        variant.props,
+                        scenario.props
+                    ])}
+                />
+            </div>
+        ))}
+    </div>
+));

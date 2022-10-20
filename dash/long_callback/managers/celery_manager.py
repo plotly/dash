@@ -1,12 +1,20 @@
 import json
 import inspect
 import hashlib
+import traceback
+from contextvars import copy_context
 
 from _plotly_utils.utils import PlotlyJSONEncoder
+
+from dash._callback_context import context_value
+from dash._utils import AttributeDict
+from dash.exceptions import PreventUpdate
 from dash.long_callback.managers import BaseLongCallbackManager
 
 
-class CeleryLongCallbackManager(BaseLongCallbackManager):
+class CeleryManager(BaseLongCallbackManager):
+    """Manage background execution of callbacks with a celery queue."""
+
     def __init__(self, celery_app, cache_by=None, expire=None):
         """
         Long callback manager that runs callback logic on a celery task queue,
@@ -44,9 +52,9 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         if isinstance(celery_app.backend, DisabledBackend):
             raise ValueError("Celery instance must be configured with a result backend")
 
-        super().__init__(cache_by)
         self.handle = celery_app
         self.expire = expire
+        super().__init__(cache_by)
 
     def terminate_job(self, job):
         if job is None:
@@ -70,8 +78,8 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
             "PROGRESS",
         )
 
-    def make_job_fn(self, fn, progress, args_deps):
-        return _make_job_fn(fn, self.handle, progress, args_deps)
+    def make_job_fn(self, fn, progress):
+        return _make_job_fn(fn, self.handle, progress)
 
     def get_task(self, job):
         if job:
@@ -82,8 +90,8 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
     def clear_cache_entry(self, key):
         self.handle.backend.delete(key)
 
-    def call_job_fn(self, key, job_fn, args):
-        task = job_fn.delay(key, self._make_progress_key(key), args)
+    def call_job_fn(self, key, job_fn, args, context):
+        task = job_fn.delay(key, self._make_progress_key(key), args, context)
         return task.task_id
 
     def get_progress(self, key):
@@ -101,7 +109,7 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         # Get result value
         result = self.handle.backend.get(key)
         if result is None:
-            return None
+            return self.UNDEFINED
 
         result = json.loads(result)
 
@@ -118,7 +126,7 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         return result
 
 
-def _make_job_fn(fn, celery_app, progress, args_deps):
+def _make_job_fn(fn, celery_app, progress):
     cache = celery_app.backend
 
     # Hash function source and module to create a unique (but stable) celery task name
@@ -127,18 +135,57 @@ def _make_job_fn(fn, celery_app, progress, args_deps):
     fn_hash = hashlib.sha1(fn_str.encode("utf-8")).hexdigest()
 
     @celery_app.task(name=f"long_callback_{fn_hash}")
-    def job_fn(result_key, progress_key, user_callback_args, fn=fn):
+    def job_fn(result_key, progress_key, user_callback_args, context=None):
         def _set_progress(progress_value):
+            if not isinstance(progress_value, (list, tuple)):
+                progress_value = [progress_value]
+
             cache.set(progress_key, json.dumps(progress_value, cls=PlotlyJSONEncoder))
 
         maybe_progress = [_set_progress] if progress else []
-        if isinstance(args_deps, dict):
-            user_callback_output = fn(*maybe_progress, **user_callback_args)
-        elif isinstance(args_deps, (list, tuple)):
-            user_callback_output = fn(*maybe_progress, *user_callback_args)
-        else:
-            user_callback_output = fn(*maybe_progress, user_callback_args)
 
-        cache.set(result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder))
+        ctx = copy_context()
+
+        def run():
+            c = AttributeDict(**context)
+            c.ignore_register_page = False
+            context_value.set(c)
+            try:
+                if isinstance(user_callback_args, dict):
+                    user_callback_output = fn(*maybe_progress, **user_callback_args)
+                elif isinstance(user_callback_args, (list, tuple)):
+                    user_callback_output = fn(*maybe_progress, *user_callback_args)
+                else:
+                    user_callback_output = fn(*maybe_progress, user_callback_args)
+            except PreventUpdate:
+                # Put NoUpdate dict directly to avoid circular imports.
+                cache.set(
+                    result_key,
+                    json.dumps(
+                        {"_dash_no_update": "_dash_no_update"}, cls=PlotlyJSONEncoder
+                    ),
+                )
+            except Exception as err:  # pylint: disable=broad-except
+                cache.set(
+                    result_key,
+                    json.dumps(
+                        {
+                            "long_callback_error": {
+                                "msg": str(err),
+                                "tb": traceback.format_exc(),
+                            }
+                        },
+                    ),
+                )
+            else:
+                cache.set(
+                    result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
+                )
+
+        ctx.run(run)
 
     return job_fn
+
+
+class CeleryLongCallbackManager(CeleryManager):
+    """Deprecated: use `from dash import CeleryManager` instead."""

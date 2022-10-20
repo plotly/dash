@@ -119,7 +119,7 @@ def build_components(components_source, concurrency):
             print(f"🚚 Moving build artifacts from {build_directory} to Dash 🚚")
             shutil.rmtree(dest_path)
             shutil.copytree(build_directory, dest_path)
-            with open(os.path.join(dest_path, ".gitkeep"), "w"):
+            with open(os.path.join(dest_path, ".gitkeep"), "w", encoding="utf-8"):
                 pass
             print(f"🟢 Finished moving build artifacts from {build_directory} to Dash 🟢")
 

@@ -4,9 +4,13 @@ import time
 import json
 
 import werkzeug
+from selenium.webdriver import ActionChains
 
 from dash import Dash, Input, Output, State, dcc, html
 from dash.exceptions import PreventUpdate
+
+from dash.testing.wait import until
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -46,20 +50,15 @@ def test_grva001_candlestick(dash_dcc, is_eager):
         EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph .main-svg"))
     )
 
-    dash_dcc.percy_snapshot(
-        "candlestick - initial ({})".format("eager" if is_eager else "lazy")
-    )
-    button.click()
-    time.sleep(1)
-    dash_dcc.percy_snapshot(
-        "candlestick - 1 click ({})".format("eager" if is_eager else "lazy")
-    )
+    is_eager = "eager" if is_eager else "lazy"
 
     button.click()
     time.sleep(1)
-    dash_dcc.percy_snapshot(
-        "candlestick - 2 click ({})".format("eager" if is_eager else "lazy")
-    )
+    dash_dcc.percy_snapshot(f"candlestick - 1 click ({is_eager})")
+
+    button.click()
+    time.sleep(1)
+    dash_dcc.percy_snapshot(f"candlestick - 2 click ({is_eager})")
 
     assert dash_dcc.get_logs() == []
 
@@ -139,10 +138,10 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
         "#restyle-data", '[{"visible": ["legendonly"]}, [0]]'
     )
 
+    is_eager = "eager" if is_eager else "lazy"
+
     # move snapshot after click, so it's more stable with the wait
-    dash_dcc.percy_snapshot(
-        "2 graphs with different figures ({})".format("eager" if is_eager else "lazy")
-    )
+    dash_dcc.percy_snapshot(f"2 graphs with different figures ({is_eager})")
 
     # and test relayoutData while we're at it
     autoscale = dash_dcc.find_element("#example-graph .ewdrag")
@@ -178,14 +177,52 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
         return prev_graph
 
     dash_dcc.start_server(app)
-    button = dash_dcc.wait_for_element("#click")
-    button.click()
-    time.sleep(2)  # Wait for graph to re-render
-    dash_dcc.percy_snapshot(
-        "render-empty-graph ({})".format("eager" if is_eager else "lazy")
-    )
+
+    def num_traces():
+        return dash_dcc.driver.execute_script(
+            """
+            return (document.querySelector('.js-plotly-plot').data || []).length;
+        """
+        )
+
+    dash_dcc.wait_for_element(".js-plotly-plot")
+    assert num_traces() == 1
+
+    dash_dcc.wait_for_element("#click").click()
+    until(lambda: num_traces() == 0, timeout=2)
 
     assert dash_dcc.get_logs() == []
+
+
+def get_graph_points(browser, graph_id, expected_len):
+    until(
+        lambda: len(browser.find_elements(f"{graph_id} .points path")) == expected_len,
+        5,
+    )
+
+    traces = browser.find_elements(f"{graph_id} .points")
+
+    for trace in traces:
+        elements = trace.find_elements(By.CSS_SELECTOR, "path")
+        for element in elements:
+            ActionChains(browser.driver).move_to_element(element).perform()
+            hover = browser.find_element(f"{graph_id} .hoverlayer")
+            content = hover.text
+            if not content.startswith("("):
+                continue  # Ignore the extra trace tooltip
+
+            x, y = content[1:-1].split(", ")
+
+            yield float(x), float(y)
+
+
+def assert_graph_equals(browser, graph_id, graph_data):
+
+    for i, (x, y) in enumerate(get_graph_points(browser, graph_id, len(graph_data))):
+        expected_x, expected_y = graph_data[i]
+
+        assert x == expected_x
+        assert y == expected_y
 
 
 @pytest.mark.skipif(
@@ -196,15 +233,15 @@ def test_grva003_empty_graph(dash_dcc, is_eager):
 def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
 
-    def generate_with_id(id, data=None):
+    def generate_with_id(_id, data=None):
         if data is None:
             data = [{"x": [10, 11, 12, 13, 14], "y": [0, 0.5, 1, 0.5, 0]}]
 
         return html.Div(
             [
-                html.P(id),
-                dcc.Graph(id=id, figure=dict(data=data)),
-                html.Div(id="output_{}".format(id)),
+                html.P(_id),
+                dcc.Graph(id=_id, figure=dict(data=data)),
+                html.Div(id=f"output_{_id}"),
             ]
         )
 
@@ -214,7 +251,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
         "trace_will_prepend_with_max_points",
     ]
 
-    layout = [generate_with_id(id) for id in figs]
+    layout = [generate_with_id(_id) for _id in figs]
 
     figs.append("trace_will_allow_repeated_prepend")
     data = [{"y": [0, 0, 0]}]
@@ -249,7 +286,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_allow_repeated_prepend", "prependData"),
-        [Input("interval_prependablegraph_prependtwice", "n_intervals")],
+        Input("interval_prependablegraph_prependtwice", "n_intervals"),
     )
     def trace_will_allow_repeated_prepend(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -259,7 +296,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_prepend", "prependData"),
-        [Input("interval_prependablegraph_update", "n_intervals")],
+        Input("interval_prependablegraph_update", "n_intervals"),
     )
     def trace_will_prepend(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -271,7 +308,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_prepend_selectively", "prependData"),
-        [Input("interval_prependablegraph_update", "n_intervals")],
+        Input("interval_prependablegraph_update", "n_intervals"),
     )
     def trace_will_prepend_selectively(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -283,7 +320,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_prepend_with_no_indices", "prependData"),
-        [Input("interval_prependablegraph_update", "n_intervals")],
+        Input("interval_prependablegraph_update", "n_intervals"),
     )
     def trace_will_prepend_with_no_indices(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -295,7 +332,7 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_prepend_with_max_points", "prependData"),
-        [Input("interval_prependablegraph_update", "n_intervals")],
+        Input("interval_prependablegraph_update", "n_intervals"),
     )
     def trace_will_prepend_with_max_points(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -305,62 +342,37 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
         y_new = [0.1, 0.2, 0.3, 0.4, 0.5]
         return dict(x=[x_new], y=[y_new]), [0], 7
 
-    for id in figs:
-
-        @app.callback(
-            Output("output_{}".format(id), "children"),
-            [Input(id, "prependData")],
-            [State(id, "figure")],
-        )
-        def display_data(trigger, fig):
-            return json.dumps(fig["data"])
-
     dash_dcc.start_server(app)
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-                y=[0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5, 1, 0.5, 0],
-            )
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal("#output_trace_will_prepend", comparison)
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_prepend_with_no_indices", comparison
-    )
-    comparison = json.dumps(
-        [
-            dict(x=[10, 11, 12, 13, 14], y=[0, 0.5, 1, 0.5, 0]),
-            dict(
-                x=[5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-                y=[0.1, 0.2, 0.3, 0.4, 0.5, 1, 1, 1, 1, 1],
-            ),
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_prepend_selectively", comparison
+    compare = list(
+        zip(
+            [5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            [0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5, 1, 0.5, 0],
+        )
     )
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[5, 6, 7, 8, 9, 10, 11],
-                y=[0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5],
-            )
-        ]
+    assert_graph_equals(dash_dcc, "#trace_will_prepend", compare)
+    assert_graph_equals(dash_dcc, "#trace_will_prepend_with_no_indices", compare)
+
+    compare1 = list(zip([10, 11, 12, 13, 14], [0, 0.5, 1, 0.5, 0]))
+    compare2 = list(
+        zip(
+            [5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            [0.1, 0.2, 0.3, 0.4, 0.5, 1, 1, 1, 1, 1],
+        )
     )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_prepend_with_max_points", comparison
+    assert_graph_equals(
+        dash_dcc, "#trace_will_prepend_selectively", compare1 + compare2
     )
 
-    comparison = json.dumps(
-        [dict(y=[0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0, 0, 0])]
-    )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_allow_repeated_prepend", comparison
+    comparison = list(zip([5, 6, 7, 8, 9, 10, 11], [0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5]))
+    assert_graph_equals(dash_dcc, "#trace_will_prepend_with_max_points", comparison)
+
+    comparison = list(
+        zip([], [0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0, 0, 0])
     )
 
+    assert_graph_equals(dash_dcc, "#trace_will_all_repeated_prepend", comparison)
     assert dash_dcc.get_logs() == []
 
 
@@ -372,15 +384,15 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
 def test_grva005_graph_extend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
 
-    def generate_with_id(id, data=None):
+    def generate_with_id(_id, data=None):
         if data is None:
             data = [{"x": [0, 1, 2, 3, 4], "y": [0, 0.5, 1, 0.5, 0]}]
 
         return html.Div(
             [
-                html.P(id),
-                dcc.Graph(id=id, figure=dict(data=data)),
-                html.Div(id="output_{}".format(id)),
+                html.P(_id),
+                dcc.Graph(id=_id, figure=dict(data=data)),
+                html.Div(id=f"output_{_id}"),
             ]
         )
 
@@ -390,7 +402,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
         "trace_will_extend_with_max_points",
     ]
 
-    layout = [generate_with_id(id) for id in figs]
+    layout = [generate_with_id(_id) for _id in figs]
 
     figs.append("trace_will_allow_repeated_extend")
     data = [{"y": [0, 0, 0]}]
@@ -425,7 +437,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_allow_repeated_extend", "extendData"),
-        [Input("interval_extendablegraph_extendtwice", "n_intervals")],
+        Input("interval_extendablegraph_extendtwice", "n_intervals"),
     )
     def trace_will_allow_repeated_extend(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -435,7 +447,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_extend", "extendData"),
-        [Input("interval_extendablegraph_update", "n_intervals")],
+        Input("interval_extendablegraph_update", "n_intervals"),
     )
     def trace_will_extend(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -447,7 +459,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_extend_selectively", "extendData"),
-        [Input("interval_extendablegraph_update", "n_intervals")],
+        Input("interval_extendablegraph_update", "n_intervals"),
     )
     def trace_will_extend_selectively(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -459,7 +471,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_extend_with_no_indices", "extendData"),
-        [Input("interval_extendablegraph_update", "n_intervals")],
+        Input("interval_extendablegraph_update", "n_intervals"),
     )
     def trace_will_extend_with_no_indices(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -471,7 +483,7 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
 
     @app.callback(
         Output("trace_will_extend_with_max_points", "extendData"),
-        [Input("interval_extendablegraph_update", "n_intervals")],
+        Input("interval_extendablegraph_update", "n_intervals"),
     )
     def trace_will_extend_with_max_points(n_intervals):
         if n_intervals is None or n_intervals < 1:
@@ -481,58 +493,39 @@ def test_grva005_graph_extend_trace(dash_dcc, is_eager):
         y_new = [0.1, 0.2, 0.3, 0.4, 0.5]
         return dict(x=[x_new], y=[y_new]), [0], 7
 
-    for id in figs:
+    for _id in figs:
 
         @app.callback(
-            Output("output_{}".format(id), "children"),
-            [Input(id, "extendData")],
-            [State(id, "figure")],
+            Output(f"output_{_id}", "children"),
+            Input(_id, "extendData"),
+            State(_id, "figure"),
         )
         def display_data(trigger, fig):
             return json.dumps(fig["data"])
 
     dash_dcc.start_server(app)
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                y=[0, 0.5, 1, 0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],
-            )
-        ]
+    comparison = list(
+        zip(
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 0.5, 1, 0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5]
+        )
     )
-    dash_dcc.wait_for_text_to_equal("#output_trace_will_extend", comparison)
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_extend_with_no_indices", comparison
+    assert_graph_equals(dash_dcc, "#trace_will_extend", comparison)
+    assert_graph_equals(dash_dcc, "#trace_will_extend_with_no_indices", comparison)
+    compare1 = list(zip([0, 1, 2, 3, 4], [0, 0.5, 1, 0.5, 0]))
+    compare2 = list(
+        zip([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 1, 1, 1, 1, 0.1, 0.2, 0.3, 0.4, 0.5])
     )
-    comparison = json.dumps(
-        [
-            dict(x=[0, 1, 2, 3, 4], y=[0, 0.5, 1, 0.5, 0]),
-            dict(
-                x=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                y=[1, 1, 1, 1, 1, 0.1, 0.2, 0.3, 0.4, 0.5],
-            ),
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal("#output_trace_will_extend_selectively", comparison)
+    assert_graph_equals(dash_dcc, "#trace_will_extend_selectively", compare1 + compare2)
 
-    comparison = json.dumps(
-        [
-            dict(
-                x=[3, 4, 5, 6, 7, 8, 9],
-                y=[0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5],
-            )
-        ]
-    )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_extend_with_max_points", comparison
-    )
+    comparison = list(zip([3, 4, 5, 6, 7, 8, 9], [0.5, 0, 0.1, 0.2, 0.3, 0.4, 0.5]))
+    assert_graph_equals(dash_dcc, "#trace_will_extend_with_max_points", comparison)
 
-    comparison = json.dumps(
-        [dict(y=[0, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5])]
+    comparison = list(
+        zip([], [0, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5])
     )
-    dash_dcc.wait_for_text_to_equal(
-        "#output_trace_will_allow_repeated_extend", comparison
+    assert_graph_equals(
+        dash_dcc, "#output_trace_will_allow_repeated_extend", comparison
     )
 
     assert dash_dcc.get_logs() == []
