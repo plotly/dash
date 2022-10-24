@@ -84,6 +84,9 @@ _default_index = """<!DOCTYPE html>
         {%css%}
     </head>
     <body>
+        <!--[if IE]><script>
+        alert("Dash v2.7+ does not support Internet Explorer. Please use a newer browser.");
+        </script><![endif]-->
         {%app_entry%}
         <footer>
             {%config%}
