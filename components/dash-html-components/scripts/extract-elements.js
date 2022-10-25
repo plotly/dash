@@ -27,6 +27,7 @@ function extractElements($) {
     // `<section>` is for some reason missing from the reference tables.
     const addElements = [
         'base',
+        'basefont',
         'section',
         'h1',
         'h2',
@@ -34,6 +35,7 @@ function extractElements($) {
         'h4',
         'h5',
         'h6',
+        'hgroup',
         'iframe',
     ];
 

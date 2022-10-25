@@ -317,6 +317,11 @@ PlotlyGraph.propTypes = {
         editable: PropTypes.bool,
 
         /**
+         * Enables moving selections
+         */
+        editSelection: PropTypes.bool,
+
+        /**
          * A set of editable properties
          */
         edits: PropTypes.exact({
