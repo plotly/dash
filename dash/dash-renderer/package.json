@@ -21,7 +21,6 @@
   "author": "chriddyp",
   "license": "MIT",
   "dependencies": {
-    "@babel/polyfill": "^7.12.1",
     "@plotly/dash-component-plugins": "^1.2.3",
     "cookie": "^0.5.0",
     "cytoscape": "^3.23.0",

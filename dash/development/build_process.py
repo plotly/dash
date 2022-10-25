@@ -160,7 +160,6 @@ class Renderer(BuildProcess):
         super().__init__(
             self._concat(os.path.dirname(__file__), os.pardir, "dash-renderer"),
             (
-                ("@babel", "polyfill", "dist", "polyfill.min.js", None),
                 (None, "react", "umd", "react.production.min.js", None),
                 (None, "react", "umd", "react.development.js", None),
                 (None, "react-dom", "umd", "react-dom.production.min.js", None),
