@@ -4,9 +4,22 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Removed
+
+- [#2282](https://github.com/plotly/dash/pull/2282) Dropped support for Internet Explorer. Our build process now targets vendor-supported browsers released in the last 7 years. Currently this means ES2015 but over time this will natually advance as older browser versions pass the 7-year threshold.
+
 ### Added
 
 - [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
+
+### Updated
+
+- [#2282](https://github.com/plotly/dash/pull/2282) Widespread dependency upgrades
+  - Update Plotly.js to v2.16.1 (from v2.13.3)
+    - Feature release [2.14.0](https://github.com/plotly/plotly.js/releases/tag/v2.14.0) adds arrows to `sankey` links, and `editSelection` option to config.
+    - Feature release [2.15.0](https://github.com/plotly/plotly.js/releases/tag/v2.15.0) adds directed arrowheads and markers to `scatter` and scatter-like traces and increased control of automargin and legend sizing
+    - Feature release [2.16.0](https://github.com/plotly/plotly.js/releases/tag/v2.16.0) adds clustering to `scattermapbox` traces and restricted bounds to `mapbox` plots.
+    - Patch releases [2.15.1](https://github.com/plotly/plotly.js/releases/tag/v2.15.1) and [2.16.1](https://github.com/plotly/plotly.js/releases/tag/v2.16.1) fix several bugs.
 
 ### Fixed
 
