@@ -45,6 +45,7 @@ def assert_pyright_output(
         assert ex_err in error
 
 
+@pytest.mark.skipif(sys.version_info < (3, 7), reason="pyright not available on 3.6")
 @pytest.mark.parametrize(
     "arguments, assertions",
     [
