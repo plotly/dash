@@ -2064,7 +2064,14 @@ class Dash:
                 # get layout
                 if page == {}:
                     module_404 = (
-                        ".".join([self.pages_folder, "not_found_404"])
+                        ".".join(
+                            [
+                                self.pages_folder.replace("\\", "/")
+                                .lstrip("/")
+                                .replace("/", "."),
+                                "not_found_404",
+                            ]
+                        )
                         if self.pages_folder
                         else "not_found_404"
                     )
