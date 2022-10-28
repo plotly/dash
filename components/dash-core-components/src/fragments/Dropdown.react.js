@@ -83,7 +83,7 @@ const Dropdown = props => {
                 indexes,
             }),
         ];
-    }, [options]);
+    }, [JSON.stringify(options)]);
 
     const onChange = useCallback(
         selectedOption => {
