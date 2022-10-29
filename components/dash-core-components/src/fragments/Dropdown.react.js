@@ -8,6 +8,7 @@ import '../components/css/Dropdown.css';
 
 import {propTypes, defaultProps} from '../components/Dropdown.react';
 import {sanitizeOptions} from '../utils/optionTypes';
+import * as util from "util";
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
 // Split on spaces
@@ -83,7 +84,7 @@ const Dropdown = props => {
                 indexes,
             }),
         ];
-    }, [JSON.stringify(options)]);
+    }, [util.inspect(options, {depth: 3})]);
 
     const onChange = useCallback(
         selectedOption => {
