@@ -1,6 +1,7 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
+import numbers # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
 
 
@@ -98,7 +99,7 @@ Keyword arguments:
         optionalArray: typing.List = Component.UNDEFINED,
         optionalBool: bool = Component.UNDEFINED,
         optionalFunc: typing.Any = Component.UNDEFINED,
-        optionalNumber: typing.Union[float, int] = Component.UNDEFINED,
+        optionalNumber: numbers.Number = Component.UNDEFINED,
         optionalObject: typing.Dict = Component.UNDEFINED,
         optionalString: str = Component.UNDEFINED,
         optionalSymbol: typing.Any = Component.UNDEFINED,
@@ -106,11 +107,11 @@ Keyword arguments:
         optionalElement: Component = Component.UNDEFINED,
         optionalMessage: typing.Any = Component.UNDEFINED,
         optionalEnum: typing.Any = Component.UNDEFINED,
-        optionalUnion: typing.Union[str, typing.Union[float, int], typing.Any] = Component.UNDEFINED,
-        optionalArrayOf: typing.List[typing.Union[float, int]] = Component.UNDEFINED,
-        optionalObjectOf: typing.Dict[str, typing.Union[float, int]] = Component.UNDEFINED,
-        optionalObjectWithExactAndNestedDescription: typing.Dict[str, typing.Union[str, typing.Union[float, int], typing.Dict[str, typing.Union[typing.List[typing.Dict], typing.Dict]]]] = Component.UNDEFINED,
-        optionalObjectWithShapeAndNestedDescription: typing.Dict[str, typing.Union[str, typing.Union[float, int], typing.Dict[str, typing.Union[typing.List[typing.Dict], typing.Dict]]]] = Component.UNDEFINED,
+        optionalUnion: typing.Union[str, numbers.Number, typing.Any] = Component.UNDEFINED,
+        optionalArrayOf: typing.List[numbers.Number] = Component.UNDEFINED,
+        optionalObjectOf: typing.Dict[typing.Union[str, float, int], numbers.Number] = Component.UNDEFINED,
+        optionalObjectWithExactAndNestedDescription: typing.Dict[str, typing.Union[str, numbers.Number, typing.Dict[str, typing.Union[typing.List[typing.Dict], typing.Dict]]]] = Component.UNDEFINED,
+        optionalObjectWithShapeAndNestedDescription: typing.Dict[str, typing.Union[str, numbers.Number, typing.Dict[str, typing.Union[typing.List[typing.Dict], typing.Dict]]]] = Component.UNDEFINED,
         optionalAny: typing.Any = Component.UNDEFINED,
         customProp: typing.Any = Component.UNDEFINED,
         customArrayProp: typing.List[typing.Any] = Component.UNDEFINED,

@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import copy
+import numbers
 import os
 import typing
 from textwrap import fill, dedent
@@ -271,6 +272,7 @@ def generate_class(
         "Component": Component,
         "_explicitize_args": _explicitize_args,
         "typing": typing,
+        "numbers": numbers,
     }
     # pylint: disable=exec-used
     exec(string, scope)
