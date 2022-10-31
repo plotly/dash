@@ -205,6 +205,7 @@ def generate_class_file(
     import_string = (
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
         "import typing  # noqa: F401\n"
+        "import numbers # noqa: F401\n"
         "from dash.development.base_component import "
         "Component, _explicitize_args\n\n\n"
     )
