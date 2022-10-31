@@ -38,7 +38,7 @@ def generate_array_of(t):
 
 def generate_object_of(t):
     typed = PROP_TYPING.get(t["value"]["name"], generate_any)(t["value"])
-    return f"typing.Dict[str, {typed}]"
+    return f"typing.Dict[typing.Union[str, float, int], {typed}]"
 
 
 def generate_type(typename):
