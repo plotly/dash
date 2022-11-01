@@ -8,7 +8,7 @@ import '../components/css/Dropdown.css';
 
 import {propTypes, defaultProps} from '../components/Dropdown.react';
 import {sanitizeOptions} from '../utils/optionTypes';
-import isEqual from "react-fast-compare";
+import isEqual from 'react-fast-compare';
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
 // Split on spaces
