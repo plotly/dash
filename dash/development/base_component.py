@@ -5,16 +5,11 @@ import sys
 import uuid
 import random
 
-from .._utils import patch_collections_abc, stringify_id
+from .._utils import patch_collections_abc, stringify_id, OrderedSet
 
 MutableSequence = patch_collections_abc("MutableSequence")
 
 rd = random.Random(0)
-
-
-class OrderedSet(collections.OrderedDict):
-    def add(self, item):
-        self[item] = None
 
 
 # pylint: disable=no-init,too-few-public-methods
