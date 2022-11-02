@@ -2070,15 +2070,11 @@ class Dash:
 
                 # get layout
                 if page == {}:
-                    module_404 = (
-                        ".".join([self.pages_folder, "not_found_404"])
-                        if self.pages_folder
-                        else "not_found_404"
-                    )
-                    not_found_404 = _pages.PAGE_REGISTRY.get(module_404)
-                    if not_found_404:
-                        layout = not_found_404["layout"]
-                        title = not_found_404["title"]
+                    for module, page in _pages.PAGE_REGISTRY.items():
+                        if module.split(".")[-1] == "not_found_404":
+                            layout = page["layout"]
+                            title = page["title"]
+                            break
                     else:
                         layout = html.H1("404 - Page not found")
                         title = self.title
