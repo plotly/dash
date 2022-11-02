@@ -18,7 +18,6 @@ from urllib.parse import urlparse
 from textwrap import dedent
 
 import flask
-from flask_compress import Compress
 
 from pkg_resources import get_distribution, parse_version
 
@@ -68,9 +67,6 @@ from ._pages import (
     _parse_path_variables,
     _parse_query_string,
 )
-
-
-_flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
@@ -261,6 +257,7 @@ class Dash:
     :type serve_locally: boolean
 
     :param compress: Use gzip to compress files and data served by Flask.
+        To use this option, you need to install dash[compress]
         Default ``False``
     :type compress: boolean
 
@@ -378,16 +375,6 @@ class Dash:
             self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
-
-        if (
-            self.server is not None
-            and not hasattr(self.server.config, "COMPRESS_ALGORITHM")
-            and _flask_compress_version >= parse_version("1.6.0")
-        ):
-            # flask-compress==1.6.0 changed default to ['br', 'gzip']
-            # and non-overridable default compression with Brotli is
-            # causing performance issues
-            self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
@@ -540,8 +527,28 @@ class Dash:
         )
 
         if config.compress:
-            # gzip
-            Compress(self.server)
+            try:
+                # pylint: disable=import-outside-toplevel
+                from flask_compress import Compress
+
+                # gzip
+                Compress(self.server)
+
+                _flask_compress_version = parse_version(
+                    get_distribution("flask-compress").version
+                )
+
+                if not hasattr(
+                    self.server.config, "COMPRESS_ALGORITHM"
+                ) and _flask_compress_version >= parse_version("1.6.0"):
+                    # flask-compress==1.6.0 changed default to ['br', 'gzip']
+                    # and non-overridable default compression with Brotli is
+                    # causing performance issues
+                    self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
+            except ImportError as error:
+                raise ImportError(
+                    "To use the compress option, you need to install dash[compress]"
+                ) from error
 
         @self.server.errorhandler(PreventUpdate)
         def _handle_error(_):
