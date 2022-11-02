@@ -40,11 +40,16 @@ export type TypescriptComponentProps = {
     setProps?: (props: Record<string, any>) => void;
     className?: string;
     style?: any;
-
     nested?: Nested;
+
+    a_tuple?: [number, string];
 };
 
 export type WrappedHTMLProps = {
     children?: React.ReactNode;
     id?: string;
 } & Pick<React.ButtonHTMLAttributes<any>, 'autoFocus'>
+
+export type RequiredChildrenComponentProps = {
+  children: React.ReactNode;
+}

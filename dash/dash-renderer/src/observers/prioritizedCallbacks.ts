@@ -110,7 +110,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     paths,
                                     layout,
                                     getStash(cb, paths),
-                                    dispatch
+                                    dispatch,
+                                    getState
                                 ),
                             pickedSyncCallbacks
                         )
@@ -162,7 +163,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     paths,
                     layout,
                     cb,
-                    dispatch
+                    dispatch,
+                    getState
                 );
 
                 dispatch(

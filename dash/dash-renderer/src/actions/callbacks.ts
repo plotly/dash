@@ -1,12 +1,15 @@
 import {
     concat,
     flatten,
+    intersection,
     keys,
     map,
     mergeDeepRight,
     path,
     pick,
     pluck,
+    values,
+    toPairs,
     zip
 } from 'ramda';
 
@@ -24,13 +27,18 @@ import {
     ICallbackPayload,
     IStoredCallback,
     IBlockedCallback,
-    IPrioritizedCallback
+    IPrioritizedCallback,
+    LongCallbackInfo,
+    CallbackResponse,
+    CallbackResponseData
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
+import {notifyObservers, updateProps} from './index';
+import {CallbackJobPayload} from '../reducers/callbackJobs';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -82,6 +90,10 @@ export const aggregateCallbacks = createAction<
 >(CallbackAggregateActionType.Aggregate);
 
 const updateResourceUsage = createAction('UPDATE_RESOURCE_USAGE');
+
+const addCallbackJob = createAction('ADD_CALLBACK_JOB');
+const removeCallbackJob = createAction('REMOVE_CALLBACK_JOB');
+const setCallbackJobOutdated = createAction('CALLBACK_JOB_OUTDATED');
 
 function unwrapIfNotMulti(
     paths: any,
@@ -300,29 +312,89 @@ async function handleClientside(
     return result;
 }
 
+function sideUpdate(outputs: any, dispatch: any, paths: any) {
+    toPairs(outputs).forEach(([id, value]) => {
+        const [componentId, propName] = id.split('.');
+        const componentPath = paths.strs[componentId];
+        dispatch(
+            updateProps({
+                props: {[propName]: value},
+                itempath: componentPath
+            })
+        );
+        dispatch(
+            notifyObservers({id: componentId, props: {[propName]: value}})
+        );
+    });
+}
+
 function handleServerside(
     dispatch: any,
     hooks: any,
     config: any,
-    payload: any
-): Promise<any> {
+    payload: any,
+    paths: any,
+    long: LongCallbackInfo | undefined,
+    additionalArgs: [string, string, boolean?][] | undefined,
+    getState: any,
+    output: string
+): Promise<CallbackResponse> {
     if (hooks.request_pre) {
         hooks.request_pre(payload);
     }
 
     const requestTime = Date.now();
     const body = JSON.stringify(payload);
+    let cacheKey: string;
+    let job: string;
+    let runningOff: any;
+    let progressDefault: any;
+    let moreArgs = additionalArgs;
 
-    return fetch(
-        `${urlBase(config)}_dash-update-component`,
-        mergeDeepRight(config.fetch, {
-            method: 'POST',
-            headers: getCSRFHeader() as any,
-            body
-        })
-    ).then(
-        (res: any) => {
+    const fetchCallback = () => {
+        const headers = getCSRFHeader() as any;
+        let url = `${urlBase(config)}_dash-update-component`;
+
+        const addArg = (name: string, value: string) => {
+            let delim = '?';
+            if (url.includes('?')) {
+                delim = '&';
+            }
+            url = `${url}${delim}${name}=${value}`;
+        };
+        if (cacheKey) {
+            addArg('cacheKey', cacheKey);
+        }
+        if (job) {
+            addArg('job', job);
+        }
+
+        if (moreArgs) {
+            moreArgs.forEach(([key, value]) => addArg(key, value));
+            moreArgs = moreArgs.filter(([_, __, single]) => !single);
+        }
+
+        return fetch(
+            url,
+            mergeDeepRight(config.fetch, {
+                method: 'POST',
+                headers,
+                body
+            })
+        );
+    };
+
+    return new Promise((resolve, reject) => {
+        const handleOutput = (res: any) => {
             const {status} = res;
+
+            if (job) {
+                const callbackJob = getState().callbackJobs[job];
+                if (callbackJob?.outdated) {
+                    dispatch(removeCallbackJob({jobId: job}));
+                    return resolve({});
+                }
+            }
 
             function recordProfile(result: any) {
                 if (config.ui) {
@@ -361,36 +433,90 @@ function handleServerside(
                 }
             }
 
+            const finishLine = (data: CallbackResponseData) => {
+                const {multi, response} = data;
+                if (hooks.request_post) {
+                    hooks.request_post(payload, response);
+                }
+
+                let result;
+                if (multi) {
+                    result = response as CallbackResponse;
+                } else {
+                    const {output} = payload;
+                    const id = output.substr(0, output.lastIndexOf('.'));
+                    result = {[id]: (response as CallbackResponse).props};
+                }
+
+                recordProfile(result);
+                resolve(result);
+            };
+
+            const completeJob = () => {
+                if (job) {
+                    dispatch(removeCallbackJob({jobId: job}));
+                }
+                if (runningOff) {
+                    sideUpdate(runningOff, dispatch, paths);
+                }
+                if (progressDefault) {
+                    sideUpdate(progressDefault, dispatch, paths);
+                }
+            };
+
             if (status === STATUS.OK) {
-                return res.json().then((data: any) => {
-                    const {multi, response} = data;
-                    if (hooks.request_post) {
-                        hooks.request_post(payload, response);
+                res.json().then((data: CallbackResponseData) => {
+                    if (!cacheKey && data.cacheKey) {
+                        cacheKey = data.cacheKey;
                     }
 
-                    let result;
-                    if (multi) {
-                        result = response;
+                    if (!job && data.job) {
+                        const jobInfo: CallbackJobPayload = {
+                            jobId: data.job,
+                            cacheKey: data.cacheKey as string,
+                            cancelInputs: data.cancel,
+                            progressDefault: data.progressDefault,
+                            output
+                        };
+                        dispatch(addCallbackJob(jobInfo));
+                        job = data.job;
+                    }
+
+                    if (data.progress) {
+                        sideUpdate(data.progress, dispatch, paths);
+                    }
+                    if (data.running) {
+                        sideUpdate(data.running, dispatch, paths);
+                    }
+                    if (!runningOff && data.runningOff) {
+                        runningOff = data.runningOff;
+                    }
+                    if (!progressDefault && data.progressDefault) {
+                        progressDefault = data.progressDefault;
+                    }
+
+                    if (!long || data.response !== undefined) {
+                        completeJob();
+                        finishLine(data);
                     } else {
-                        const {output} = payload;
-                        const id = output.substr(0, output.lastIndexOf('.'));
-                        result = {[id]: response.props};
+                        // Poll chain.
+                        setTimeout(
+                            handle,
+                            long.interval !== undefined ? long.interval : 500
+                        );
                     }
-
-                    recordProfile(result);
-                    return result;
                 });
-            }
-            if (status === STATUS.PREVENT_UPDATE) {
+            } else if (status === STATUS.PREVENT_UPDATE) {
+                completeJob();
                 recordProfile({});
-                return {};
+                resolve({});
+            } else {
+                completeJob();
+                reject(res);
             }
-            throw res;
-        },
-        () => {
-            // fetch rejection - this means the request didn't return,
-            // we don't get here from 400/500 errors, only network
-            // errors or unresponsive servers.
+        };
+
+        const handleError = () => {
             if (config.ui) {
                 dispatch(
                     updateResourceUsage({
@@ -402,9 +528,14 @@ function handleServerside(
                     })
                 );
             }
-            throw new Error('Callback failed: the server did not respond.');
-        }
-    );
+            reject(new Error('Callback failed: the server did not respond.'));
+        };
+
+        const handle = () => {
+            fetchCallback().then(handleOutput, handleError);
+        };
+        handle();
+    });
 }
 
 function inputsToDict(inputs_list: any) {
@@ -443,10 +574,10 @@ export function executeCallback(
     paths: any,
     layout: any,
     {allOutputs}: any,
-    dispatch: any
+    dispatch: any,
+    getState: any
 ): IExecutingCallback {
-    const {output, inputs, state, clientside_function} = cb.callback;
-
+    const {output, inputs, state, clientside_function, long} = cb.callback;
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
 
@@ -518,13 +649,50 @@ export function executeCallback(
                 let newHeaders: Record<string, string> | null = null;
                 let lastError: any;
 
+                const additionalArgs: [string, string, boolean?][] = [];
+                values(getState().callbackJobs).forEach(
+                    (job: CallbackJobPayload) => {
+                        if (cb.callback.output === job.output) {
+                            // Terminate the old jobs that are not completed
+                            // set as outdated for the callback promise to
+                            // resolve and remove after.
+                            additionalArgs.push(['oldJob', job.jobId, true]);
+                            dispatch(
+                                setCallbackJobOutdated({jobId: job.jobId})
+                            );
+                        }
+                        if (!job.cancelInputs) {
+                            return;
+                        }
+                        const inter = intersection(
+                            job.cancelInputs,
+                            cb.callback.inputs
+                        );
+                        if (inter.length) {
+                            additionalArgs.push(['cancelJob', job.jobId]);
+                            if (job.progressDefault) {
+                                sideUpdate(
+                                    job.progressDefault,
+                                    dispatch,
+                                    paths
+                                );
+                            }
+                        }
+                    }
+                );
+
                 for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
                     try {
                         const data = await handleServerside(
                             dispatch,
                             hooks,
                             newConfig,
-                            payload
+                            payload,
+                            paths,
+                            long,
+                            additionalArgs.length ? additionalArgs : undefined,
+                            getState,
+                            cb.callback.output
                         );
 
                         if (newHeaders) {

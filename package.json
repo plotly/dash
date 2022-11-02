@@ -26,10 +26,10 @@
     "private::test.R.deploy-components": "npm run private::test.setup-components && cd \\@plotly/dash-test-components && sudo R CMD INSTALL .",
     "private::test.R.deploy-nested": "npm run private::test.setup-nested && cd \\@plotly/dash-generator-test-component-nested && sudo R CMD INSTALL .",
     "private::test.R.deploy-standard": "npm run private::test.setup-standard && cd \\@plotly/dash-generator-test-component-standard && sudo R CMD INSTALL .",
-    "private::test.unit-dash": "pytest tests/unit --reruns 3",
+    "private::test.unit-dash": "pytest tests/unit",
     "private::test.unit-renderer": "cd dash/dash-renderer && npm run test",
     "private::test.unit-generation": "cd \\@plotly/dash-generator-test-component-typescript && npm ci && npm test",
-    "private::test.integration-dash": "TESTFILES=$(circleci tests glob \"tests/integration/**/test_*.py\" | circleci tests split --split-by=timings) && pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES} --reruns 3",
+    "private::test.integration-dash": "TESTFILES=$(circleci tests glob \"tests/integration/**/test_*.py\" | circleci tests split --split-by=timings) && pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}",
     "private::test.integration-dash-import": "cd tests/integration/dash && python dash_import_test.py",
     "cibuild": "run-s private::cibuild.*",
     "build": "run-s private::build.*",
@@ -45,9 +45,9 @@
     "test": "pytest && cd dash/dash-renderer && npm run test"
   },
   "devDependencies": {
-    "husky": "7.0.4",
-    "lerna": "^4.0.0",
-    "@lerna/filter-options": "^4.0.0"
+    "husky": "8.0.1",
+    "lerna": "^6.0.1",
+    "@lerna/filter-options": "^6.0.1"
   },
   "dependencies": {
     "npm-run-all": "4.1.5"
