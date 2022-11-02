@@ -28,6 +28,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2257](https://github.com/plotly/dash/pull/2257) Fix tuple types in the TypeScript component generator.
 - [#2293](https://github.com/plotly/dash/pull/2293) Fix Dropdown useMemo not detecting equal objects
 - [#2277](https://github.com/plotly/dash/pull/2277) Use dropdown styles from node_modules, instead of from stored css file
+- [#2105](https://github.com/plotly/dash/pull/2105) Fix order of dash component libraries imports.
 
 ### Changed
 
