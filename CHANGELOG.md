@@ -4,14 +4,33 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Removed
+
+- [#2282](https://github.com/plotly/dash/pull/2282) Dropped support for Internet Explorer. Our build process now targets vendor-supported browsers released in the last 7 years. Currently this means ES2015 but over time this will natually advance as older browser versions pass the 7-year threshold.
+
 ### Added
 
 - [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
 
+### Updated
+
+- [#2282](https://github.com/plotly/dash/pull/2282) Widespread dependency upgrades
+  - Update Plotly.js to v2.16.1 (from v2.13.3)
+    - Feature release [2.14.0](https://github.com/plotly/plotly.js/releases/tag/v2.14.0) adds arrows to `sankey` links, and `editSelection` option to config.
+    - Feature release [2.15.0](https://github.com/plotly/plotly.js/releases/tag/v2.15.0) adds directed arrowheads and markers to `scatter` and scatter-like traces and increased control of automargin and legend sizing
+    - Feature release [2.16.0](https://github.com/plotly/plotly.js/releases/tag/v2.16.0) adds clustering to `scattermapbox` traces and restricted bounds to `mapbox` plots.
+    - Patch releases [2.15.1](https://github.com/plotly/plotly.js/releases/tag/v2.15.1) and [2.16.1](https://github.com/plotly/plotly.js/releases/tag/v2.16.1) fix several bugs.
+
 ### Fixed
 
+- [#2292](https://github.com/plotly/dash/pull/2292) Pages: find the 404 page even if `pages_folder` is nested, or the 404 page is nested inside `pages_folder`.
 - [#2265](https://github.com/plotly/dash/pull/2265) Removed deprecated `before_first_request` as reported in [#2177](https://github.com/plotly/dash/issues/2177).
 - [#2257](https://github.com/plotly/dash/pull/2257) Fix tuple types in the TypeScript component generator.
+- [#2293](https://github.com/plotly/dash/pull/2293) Fix Dropdown useMemo not detecting equal objects
+
+### Changed
+
+- [#2291](https://github.com/plotly/dash/pull/2291) Move `flask-compress` dependency to new extras requires `dash[compress]`
 
 ## [2.6.2] - 2022-09-23
 

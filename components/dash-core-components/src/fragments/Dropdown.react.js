@@ -1,5 +1,5 @@
 import {isNil, pluck, without, pick} from 'ramda';
-import React, {useState, useCallback, useEffect, useMemo} from 'react';
+import React, {useState, useCallback, useEffect, useMemo, useRef} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
 import 'react-virtualized-select/styles.css';
@@ -8,6 +8,7 @@ import '../components/css/Dropdown.css';
 
 import {propTypes, defaultProps} from '../components/Dropdown.react';
 import {sanitizeOptions} from '../utils/optionTypes';
+import isEqual from 'react-fast-compare';
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
 // Split on spaces
@@ -47,6 +48,12 @@ const Dropdown = props => {
         value,
     } = props;
     const [optionsCheck, setOptionsCheck] = useState(null);
+    const persistentOptions = useRef(null);
+
+    if (!persistentOptions || !isEqual(options, persistentOptions.current)) {
+        persistentOptions.current = options;
+    }
+
     const [sanitizedOptions, filterOptions] = useMemo(() => {
         let sanitized = sanitizeOptions(options);
 
@@ -83,7 +90,7 @@ const Dropdown = props => {
                 indexes,
             }),
         ];
-    }, [options]);
+    }, [persistentOptions.current]);
 
     const onChange = useCallback(
         selectedOption => {
@@ -146,7 +153,7 @@ const Dropdown = props => {
         >
             <ReactDropdown
                 filterOptions={filterOptions}
-                options={sanitizeOptions(options)}
+                options={sanitizedOptions}
                 value={value}
                 onChange={onChange}
                 onInputChange={onInputChange}

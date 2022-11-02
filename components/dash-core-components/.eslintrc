@@ -100,7 +100,7 @@
     "react/no-did-update-set-state": ["error"],
     "react/no-direct-mutation-state": ["error"],
     "react/no-is-mounted": ["error"],
-    "react/no-unknown-property": ["error"],
+    "react/no-unknown-property": ["error", {"ignore": ["jsx"]}],
     "react/prefer-es6-class": ["error", "always"],
     "react/prop-types": "error",
     "valid-jsdoc": ["off"],
