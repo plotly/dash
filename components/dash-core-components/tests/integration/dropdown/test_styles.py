@@ -39,6 +39,8 @@ def test_ddst001_cursor_should_be_pointer(dash_duo):
     dash_duo.find_element("#dropdown").click()
     dash_duo.wait_for_element("#dropdown .Select-menu-outer")
 
-    items = dash_duo.find_elements("#dropdown .Select-menu-outer .VirtualizedSelectOption")
+    items = dash_duo.find_elements(
+        "#dropdown .Select-menu-outer .VirtualizedSelectOption"
+    )
 
-    assert items[0].value_of_css_property('cursor') == "pointer"
+    assert items[0].value_of_css_property("cursor") == "pointer"
