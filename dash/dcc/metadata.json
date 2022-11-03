@@ -2054,6 +2054,11 @@
               "description": "We can edit titles, move annotations, etc - sets all pieces of `edits`\nunless a separate `edits` config item overrides individual parts",
               "required": false
             },
+            "editSelection": {
+              "name": "bool",
+              "description": "Enables moving selections",
+              "required": false
+            },
             "edits": {
               "name": "exact",
               "value": {

@@ -262,10 +262,16 @@
                         "computed": false
                       }
                     ],
+                    "description": "(default: 'sensitive') Determine whether the applicable filter relational operators will default to `sensitive` or `insensitive` comparison.",
+                    "required": false
+                  },
+                  "placeholder_text": {
+                    "name": "string",
+                    "description": "(default: 'filter data...') The filter cell placeholder text.",
                     "required": false
                   }
                 },
-                "description": "There are two `filter_options` props in the table.\nThis is the column-level filter_options prop and there is\nalso the table-level `filter_options` prop.\nThese props determine whether the applicable filter relational\noperators will default to `sensitive` or `insensitive` comparison.\nIf the column-level `filter_options` prop is set it overrides\nthe table-level `filter_options` prop for that column.",
+                "description": "There are two `filter_options` props in the table.\nThis is the column-level filter_options prop and there is\nalso the table-level `filter_options` prop.\nIf the column-level `filter_options` prop is set it overrides\nthe table-level `filter_options` prop for that column.",
                 "required": false
               },
               "format": {
@@ -1086,12 +1092,18 @@
                   "computed": false
                 }
               ],
+              "description": "(default: 'sensitive') Determine whether the applicable filter relational operators will default to `sensitive` or `insensitive` comparison.",
+              "required": false
+            },
+            "placeholder_text": {
+              "name": "string",
+              "description": "(default: 'filter data...') The filter cell placeholder text.",
               "required": false
             }
           }
         },
         "required": false,
-        "description": "There are two `filter_options` props in the table.\nThis is the table-level filter_options prop and there is\nalso the column-level `filter_options` prop.\nThese props determine whether the applicable filter relational\noperators will default to `sensitive` or `insensitive` comparison.\nIf the column-level `filter_options` prop is set it overrides\nthe table-level `filter_options` prop for that column.",
+        "description": "There are two `filter_options` props in the table.\nThis is the table-level filter_options prop and there is\nalso the column-level `filter_options` prop.\nIf the column-level `filter_options` prop is set it overrides\nthe table-level `filter_options` prop for that column.",
         "defaultValue": {
           "value": "{}",
           "computed": false

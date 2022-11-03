@@ -66,6 +66,9 @@ class Graph(Component):
             value is 100 and the maximum value is 1000. By default this is
             300.
 
+        - editSelection (boolean; optional):
+            Enables moving selections.
+
         - editable (boolean; optional):
             We can edit titles, move annotations, etc - sets all pieces of
             `edits` unless a separate `edits` config item overrides

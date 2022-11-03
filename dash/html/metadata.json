@@ -16599,7 +16599,7 @@
           ]
         },
         "required": false,
-        "description": "Indicates whether the list should be displayed in a descending order instead of a ascending."
+        "description": "Indicates whether the list should be displayed in a descending order instead of an ascending order."
       },
       "start": {
         "type": {

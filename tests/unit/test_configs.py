@@ -482,3 +482,8 @@ def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
     app = Dash()
     app.enable_dev_tools(debug=debug)
     assert app._dev_tools.ui == expected
+
+
+def test_missing_flask_compress_raises():
+    with pytest.raises(ImportError):
+        Dash(compress=True)

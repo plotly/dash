@@ -18,7 +18,6 @@ from urllib.parse import urlparse
 from textwrap import dedent
 
 import flask
-from flask_compress import Compress
 
 from pkg_resources import get_distribution, parse_version
 
@@ -69,9 +68,6 @@ from ._pages import (
     _parse_query_string,
 )
 
-
-_flask_compress_version = parse_version(get_distribution("flask-compress").version)
-
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
 
@@ -84,6 +80,9 @@ _default_index = """<!DOCTYPE html>
         {%css%}
     </head>
     <body>
+        <!--[if IE]><script>
+        alert("Dash v2.7+ does not support Internet Explorer. Please use a newer browser.");
+        </script><![endif]-->
         {%app_entry%}
         <footer>
             {%config%}
@@ -258,6 +257,7 @@ class Dash:
     :type serve_locally: boolean
 
     :param compress: Use gzip to compress files and data served by Flask.
+        To use this option, you need to install dash[compress]
         Default ``False``
     :type compress: boolean
 
@@ -376,16 +376,6 @@ class Dash:
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
-        if (
-            self.server is not None
-            and not hasattr(self.server.config, "COMPRESS_ALGORITHM")
-            and _flask_compress_version >= parse_version("1.6.0")
-        ):
-            # flask-compress==1.6.0 changed default to ['br', 'gzip']
-            # and non-overridable default compression with Brotli is
-            # causing performance issues
-            self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
-
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
         )
@@ -497,6 +487,9 @@ class Dash:
             for plugin in plugins:
                 plugin.plug(self)
 
+        # tracks internally if a function already handled at least one request.
+        self._got_first_request = {"pages": False, "setup_server": False}
+
         if self.server is not None:
             self.init_app()
 
@@ -534,15 +527,35 @@ class Dash:
         )
 
         if config.compress:
-            # gzip
-            Compress(self.server)
+            try:
+                # pylint: disable=import-outside-toplevel
+                from flask_compress import Compress
+
+                # gzip
+                Compress(self.server)
+
+                _flask_compress_version = parse_version(
+                    get_distribution("flask-compress").version
+                )
+
+                if not hasattr(
+                    self.server.config, "COMPRESS_ALGORITHM"
+                ) and _flask_compress_version >= parse_version("1.6.0"):
+                    # flask-compress==1.6.0 changed default to ['br', 'gzip']
+                    # and non-overridable default compression with Brotli is
+                    # causing performance issues
+                    self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
+            except ImportError as error:
+                raise ImportError(
+                    "To use the compress option, you need to install dash[compress]"
+                ) from error
 
         @self.server.errorhandler(PreventUpdate)
         def _handle_error(_):
             """Handle a halted callback and return an empty 204 response."""
             return "", 204
 
-        self.server.before_first_request(self._setup_server)
+        self.server.before_request(self._setup_server)
 
         # add a handler for components suites errors to return 404
         self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
@@ -1271,6 +1284,10 @@ class Dash:
         return response
 
     def _setup_server(self):
+        if self._got_first_request["setup_server"]:
+            return
+        self._got_first_request["setup_server"] = True
+
         # Apply _force_eager_loading overrides from modules
         eager_loading = self.config.eager_loading
         for module_name in ComponentRegistry.registry:
@@ -2027,8 +2044,12 @@ class Dash:
         if self.pages_folder:
             self._import_layouts_from_pages()
 
-        @self.server.before_first_request
+        @self.server.before_request
         def router():
+            if self._got_first_request["pages"]:
+                return
+            self._got_first_request["pages"] = True
+
             @self.callback(
                 Output(_ID_CONTENT, "children"),
                 Output(_ID_STORE, "data"),
@@ -2049,15 +2070,11 @@ class Dash:
 
                 # get layout
                 if page == {}:
-                    module_404 = (
-                        ".".join([self.pages_folder, "not_found_404"])
-                        if self.pages_folder
-                        else "not_found_404"
-                    )
-                    not_found_404 = _pages.PAGE_REGISTRY.get(module_404)
-                    if not_found_404:
-                        layout = not_found_404["layout"]
-                        title = not_found_404["title"]
+                    for module, page in _pages.PAGE_REGISTRY.items():
+                        if module.split(".")[-1] == "not_found_404":
+                            layout = page["layout"]
+                            title = page["title"]
+                            break
                     else:
                         layout = html.H1("404 - Page not found")
                         title = self.title
@@ -2106,24 +2123,6 @@ class Dash:
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
             )
-
-            def create_redirect_function(redirect_to):
-                def redirect():
-                    return flask.redirect(redirect_to, code=301)
-
-                return redirect
-
-            # Set redirects
-            for module in _pages.PAGE_REGISTRY:
-                page = _pages.PAGE_REGISTRY[module]
-                if page["redirect_from"] and len(page["redirect_from"]):
-                    for redirect in page["redirect_from"]:
-                        fullname = self.get_relative_path(redirect)
-                        self.server.add_url_rule(
-                            fullname,
-                            fullname,
-                            create_redirect_function(page["relative_path"]),
-                        )
 
     def run_server(self, *args, **kwargs):
         """`run_server` is a deprecated alias of `run` and may be removed in a

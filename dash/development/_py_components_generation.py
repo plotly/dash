@@ -570,6 +570,10 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
             )
         return "list"
 
+    def tuple_of():
+        elements = [js_to_py_type(element) for element in type_object["elements"]]
+        return f"list of {len(elements)} elements: [{', '.join(elements)}]"
+
     return dict(
         array=lambda: "list",
         bool=lambda: "boolean",
@@ -601,6 +605,7 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
         shape=shape_or_exact,
         # React's PropTypes.exact
         exact=shape_or_exact,
+        tuple=tuple_of,
     )
 
 
