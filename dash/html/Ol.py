@@ -83,7 +83,7 @@ class Ol(Component):
 
     - reversed (a value equal to: 'reversed', 'REVERSED' | boolean; optional):
         Indicates whether the list should be displayed in a descending
-        order instead of a ascending.
+        order instead of an ascending order.
 
     - role (string; optional):
         Defines an explicit role for an element for use by assistive

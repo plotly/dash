@@ -76,15 +76,20 @@ class DataTable(Component):
         - filter_options (dict; optional):
             There are two `filter_options` props in the table. This is the
             column-level filter_options prop and there is also the
-            table-level `filter_options` prop. These props determine
-            whether the applicable filter relational operators will
-            default to `sensitive` or `insensitive` comparison. If the
-            column-level `filter_options` prop is set it overrides the
-            table-level `filter_options` prop for that column.
+            table-level `filter_options` prop. If the column-level
+            `filter_options` prop is set it overrides the table-level
+            `filter_options` prop for that column.
 
             `filter_options` is a dict with keys:
 
-            - case (a value equal to: 'sensitive', 'insensitive'; optional)
+            - case (a value equal to: 'sensitive', 'insensitive'; optional):
+                (default: 'sensitive') Determine whether the applicable
+                filter relational operators will default to `sensitive` or
+                `insensitive` comparison.
+
+            - placeholder_text (string; optional):
+                (default: 'filter data...') The filter cell placeholder
+                text.
 
         - format (dict; optional):
             The formatting applied to the column's data. This prop is
@@ -550,15 +555,19 @@ class DataTable(Component):
     - filter_options (dict; optional):
         There are two `filter_options` props in the table. This is the
         table-level filter_options prop and there is also the column-level
-        `filter_options` prop. These props determine whether the
-        applicable filter relational operators will default to `sensitive`
-        or `insensitive` comparison. If the column-level `filter_options`
-        prop is set it overrides the table-level `filter_options` prop for
-        that column.
+        `filter_options` prop. If the column-level `filter_options` prop
+        is set it overrides the table-level `filter_options` prop for that
+        column.
 
         `filter_options` is a dict with keys:
 
-        - case (a value equal to: 'sensitive', 'insensitive'; optional)
+        - case (a value equal to: 'sensitive', 'insensitive'; optional):
+            (default: 'sensitive') Determine whether the applicable filter
+            relational operators will default to `sensitive` or
+            `insensitive` comparison.
+
+        - placeholder_text (string; optional):
+            (default: 'filter data...') The filter cell placeholder text.
 
     - sort_action (a value equal to: 'custom', 'native', 'none'; default 'none'):
         The `sort_action` property enables data to be sorted on a
