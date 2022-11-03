@@ -33,6 +33,7 @@ setup(
         "testing": read_req_file("testing"),
         "celery": read_req_file("celery"),
         "diskcache": read_req_file("diskcache"),
+        "compress": read_req_file("compress"),
     },
     entry_points={
         "console_scripts": [
