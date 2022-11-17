@@ -20,7 +20,7 @@ import {crawlLayout} from './utils';
  * values: array of values in the id, in order of keys
  */
 
-export function computePaths(subTree, startingPath, oldPaths, events) {
+export function computePaths(subTree, startingPath, oldPaths) {
     const {strs: oldStrs, objs: oldObjs} = oldPaths || {strs: {}, objs: {}};
 
     const diffHead = path => startingPath.some((v, i) => path[i] !== v);
@@ -52,10 +52,7 @@ export function computePaths(subTree, startingPath, oldPaths, events) {
             }
         }
     });
-
-    // We include an event emitter here because it will be used along with
-    // paths to determine when the app is ready for callbacks.
-    return {strs, objs, events: events || oldPaths.events};
+    return {strs, objs};
 }
 
 export function getPath(paths, id) {

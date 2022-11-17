@@ -18,6 +18,8 @@ export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setPaths = createAction(getAction('SET_PATHS'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
+export const addPath = createAction(getAction('ADD_PATH'));
+export const setRendered = createAction(getAction('SET_RENDERED'));
 
 export const dispatchError = dispatch => (message, lines) =>
     dispatch(
@@ -27,10 +29,15 @@ export const dispatchError = dispatch => (message, lines) =>
         })
     );
 
-export function hydrateInitialOutputs() {
+export function initialLayoutValidationTrigger() {
     return function (dispatch, getState) {
         validateCallbacksToLayout(getState(), dispatchError(dispatch));
         triggerDefaultState(dispatch, getState);
+    };
+}
+
+export function setHydrated() {
+    return function (dispatch) {
         dispatch(setAppLifecycle(getAppState('HYDRATED')));
     };
 }

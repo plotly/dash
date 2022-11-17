@@ -69,6 +69,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             hooks,
             layout,
             paths,
+            rendered,
             appLifecycle
         } = getState();
         let {
@@ -86,7 +87,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         // Divide between sync and async
         const [syncCallbacks, asyncCallbacks] = partition(
-            cb => isAppReady(layout, paths, getIds(cb, paths)) === true,
+            cb =>
+                isAppReady(layout, paths, rendered, getIds(cb, paths)) === true,
             prioritized
         );
 

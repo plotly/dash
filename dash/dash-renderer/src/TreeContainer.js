@@ -1,4 +1,4 @@
-import React, {Component, memo} from 'react';
+import React, {Component, memo, useContext} from 'react';
 import PropTypes from 'prop-types';
 import Registry from './registry';
 import {propTypeErrorHandler} from './exceptions';
@@ -20,9 +20,10 @@ import {
     propOr,
     path as rpath,
     pathOr,
-    type
+    type,
+    props as rprops
 } from 'ramda';
-import {notifyObservers, updateProps} from './actions';
+import {addPath, notifyObservers, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
 import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
@@ -81,17 +82,19 @@ function isDryComponent(obj) {
     );
 }
 
-const TreeContainer = memo(props => (
-    <DashContext.Consumer>
-        {context => (
-            <BaseTreeContainer
-                {...context.fn()}
-                {...props}
-                _dashprivate_path={JSON.parse(props._dashprivate_path)}
-            />
-        )}
-    </DashContext.Consumer>
-));
+const Wrapper = props => {
+    const context = useContext(DashContext);
+
+    return (
+        <BaseTreeContainer
+            {...context.fn()}
+            {...props}
+            _dashprivate_path={JSON.parse(props._dashprivate_path)}
+        />
+    );
+};
+
+const TreeContainer = memo(Wrapper);
 
 class BaseTreeContainer extends Component {
     constructor(props) {
@@ -349,6 +352,34 @@ class BaseTreeContainer extends Component {
 
     getLayoutProps() {
         return propOr({}, 'props', this.props._dashprivate_layout);
+    }
+
+    componentDidMount() {
+        // Connect the component for callbacks
+        const {_dashprivate_dispatch: dispatch} = this.props;
+        const {id} = this.getLayoutProps();
+
+        if (id) {
+            if (type(id) === 'Object') {
+                const keys = Object.keys(id).sort();
+                const values = rprops(keys, id);
+                const keyStr = keys.join(',');
+                dispatch(
+                    addPath({
+                        objs: {
+                            [keyStr]: [
+                                {
+                                    values,
+                                    path: this.props._dashprivate_path
+                                }
+                            ]
+                        }
+                    })
+                );
+            } else {
+                dispatch(addPath({strs: {[id]: this.props._dashprivate_path}}));
+            }
+        }
     }
 
     render() {

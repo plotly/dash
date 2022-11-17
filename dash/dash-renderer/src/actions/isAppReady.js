@@ -5,15 +5,14 @@ import Registry from '../registry';
 import {getPath} from './paths';
 import {stringifyId} from './dependencies';
 
-export default (layout, paths, targets) => {
+export default (layout, paths, renderedEvents, targets) => {
     if (!targets.length) {
         return true;
     }
     const promises = [];
 
-    const {events} = paths;
     const rendered = new Promise(resolveRendered => {
-        events.once('rendered', resolveRendered);
+        renderedEvents.once('rendered', resolveRendered);
     });
 
     targets.forEach(id => {

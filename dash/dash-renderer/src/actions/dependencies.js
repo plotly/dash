@@ -455,7 +455,7 @@ export function validateCallbacksToLayout(state_, dispatchError) {
     let layout, paths;
     if (validateIds && config.validation_layout) {
         layout = config.validation_layout;
-        paths = computePaths(layout, [], null, paths_.events);
+        paths = computePaths(layout, [], null);
     } else {
         layout = layout_;
         paths = paths_;

@@ -7,7 +7,6 @@ import {
     path,
     forEach,
     keys,
-    has,
     pickBy,
     toPairs
 } from 'ramda';
@@ -27,14 +26,13 @@ import {parseIfWildcard} from '../actions/dependencies';
 import {
     combineIdAndProp,
     getCallbacksByInput,
-    getLayoutCallbacks,
     includeObservers
 } from '../actions/dependencies_ts';
 
 import {ICallback, IStoredCallback} from '../types/callbacks';
 
-import {updateProps, setPaths, handleAsyncError} from '../actions';
-import {getPath, computePaths} from '../actions/paths';
+import {updateProps, handleAsyncError} from '../actions';
+import {getPath} from '../actions/paths';
 
 import {applyPersistence, prunePersistence} from '../persistence';
 import {IStoreObserverDefinition} from '../StoreObserver';
@@ -96,11 +94,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             if (data !== undefined) {
                 forEach(([id, props]: [any, {[key: string]: any}]) => {
                     const parsedId = parseIfWildcard(id);
-                    const {
-                        graphs,
-                        layout: oldLayout,
-                        paths: oldPaths
-                    } = getState();
+                    const {graphs, paths: oldPaths} = getState();
 
                     // Components will trigger callbacks on their own as required (eg. derived)
                     const appliedProps = applyProps(parsedId, props);
@@ -125,49 +119,6 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             predecessors
                         }))
                     );
-
-                    // New layout - trigger callbacks for that explicitly
-                    if (has('children', appliedProps)) {
-                        const {children} = appliedProps;
-
-                        const oldChildrenPath: string[] = concat(
-                            getPath(oldPaths, parsedId) as string[],
-                            ['props', 'children']
-                        );
-                        const oldChildren = path(oldChildrenPath, oldLayout);
-
-                        const paths = computePaths(
-                            children,
-                            oldChildrenPath,
-                            oldPaths
-                        );
-                        dispatch(setPaths(paths));
-
-                        // Get callbacks for new layout (w/ execution group)
-                        requestedCallbacks = concat(
-                            requestedCallbacks,
-                            getLayoutCallbacks(graphs, paths, children, {
-                                chunkPath: oldChildrenPath
-                            }).map(rcb => ({
-                                ...rcb,
-                                predecessors
-                            }))
-                        );
-
-                        // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
-                        // even due to the deletion of components
-                        requestedCallbacks = concat(
-                            requestedCallbacks,
-                            getLayoutCallbacks(graphs, oldPaths, oldChildren, {
-                                removedArrayInputsOnly: true,
-                                newPaths: paths,
-                                chunkPath: oldChildrenPath
-                            }).map(rcb => ({
-                                ...rcb,
-                                predecessors
-                            }))
-                        );
-                    }
 
                     // persistence edge case: if you explicitly update the
                     // persistence key, other props may change that require us
