@@ -19,6 +19,7 @@ export const setPaths = createAction(getAction('SET_PATHS'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const addPath = createAction(getAction('ADD_PATH'));
+export const removePath = createAction(getAction('REMOVE_PATH'));
 export const setRendered = createAction(getAction('SET_RENDERED'));
 
 export const dispatchError = dispatch => (message, lines) =>

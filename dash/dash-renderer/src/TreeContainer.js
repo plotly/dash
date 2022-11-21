@@ -23,7 +23,7 @@ import {
     type,
     props as rprops
 } from 'ramda';
-import {addPath, notifyObservers, updateProps} from './actions';
+import {addPath, notifyObservers, removePath, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
 import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
@@ -378,6 +378,25 @@ class BaseTreeContainer extends Component {
                 );
             } else {
                 dispatch(addPath({strs: {[id]: this.props._dashprivate_path}}));
+            }
+        }
+    }
+
+    componentWillUnmount() {
+        const {_dashprivate_dispatch: dispatch} = this.props;
+        const {id} = this.getLayoutProps();
+
+        if (id) {
+            if (type(id) === 'Object') {
+                const key = stringifyId(id);
+                dispatch(
+                    removePath({
+                        path: ['objs', key],
+                        objPath: this.props._dashprivate_path
+                    })
+                );
+            } else {
+                dispatch(removePath({path: ['strs', id]}));
             }
         }
     }

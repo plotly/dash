@@ -1,4 +1,15 @@
-import {mergeDeepRight, mergeDeepWith, unionWith, eqBy, prop} from 'ramda';
+import {
+    concat,
+    mergeDeepRight,
+    mergeDeepWith,
+    unionWith,
+    eqBy,
+    prop,
+    dissocPath,
+    path,
+    propEq,
+    findIndex
+} from 'ramda';
 
 import {getAction} from '../actions/constants';
 
@@ -14,6 +25,15 @@ const paths = (state = initialPaths, action) => {
             state,
             action.payload
         );
+    } else if (action.type === getAction('REMOVE_PATH')) {
+        if (action.payload.objPath) {
+            const index = findIndex(
+                propEq('path', action.payload.objPath),
+                path(action.payload.path, state)
+            );
+            return dissocPath(concat(action.payload.path, [index]), state);
+        }
+        return dissocPath(action.payload.path, state);
     }
     return state;
 };

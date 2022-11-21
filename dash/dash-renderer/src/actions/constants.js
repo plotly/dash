@@ -10,6 +10,7 @@ const actionList = {
     ON_ERROR: 1,
     SET_HOOKS: 1,
     ADD_PATH: 1,
+    REMOVE_PATH: 1,
     SET_RENDERED: 1
 };
 
