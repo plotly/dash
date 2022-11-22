@@ -1,4 +1,4 @@
-import React, {Component, memo} from 'react';
+import React, {Component, memo, useContext} from 'react';
 import PropTypes from 'prop-types';
 import Registry from './registry';
 import {propTypeErrorHandler} from './exceptions';
@@ -81,17 +81,16 @@ function isDryComponent(obj) {
     );
 }
 
-const DashWrapper = props => (
-    <DashContext.Consumer>
-        {context => (
-            <BaseTreeContainer
-                {...context.fn()}
-                {...props}
-                _dashprivate_path={JSON.parse(props._dashprivate_path)}
-            />
-        )}
-    </DashContext.Consumer>
-);
+const DashWrapper = props => {
+    const context = useContext(DashContext);
+    return (
+        <BaseTreeContainer
+            {...context.fn()}
+            {...props}
+            _dashprivate_path={JSON.parse(props._dashprivate_path)}
+        />
+    );
+};
 
 const TreeContainer = memo(DashWrapper);
 
