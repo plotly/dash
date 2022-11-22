@@ -100,15 +100,16 @@ class BaseTreeContainer extends Component {
         this.setProps = this.setProps.bind(this);
     }
 
-    createContainer(props, component, path) {
+    createContainer(props, component, path, key = undefined) {
         return isSimpleComponent(component) ? (
             component
         ) : (
             <TreeContainer
                 key={
-                    component &&
-                    component.props &&
-                    stringifyId(component.props.id)
+                    (component &&
+                        component.props &&
+                        stringifyId(component.props.id)) ||
+                    key
                 }
                 _dashprivate_error={props._dashprivate_error}
                 _dashprivate_layout={component}
@@ -205,7 +206,8 @@ class BaseTreeContainer extends Component {
                               'props',
                               ...childrenProp,
                               i
-                          ])
+                          ]),
+                          i
                       )
                     : n
             );
