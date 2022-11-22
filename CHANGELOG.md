@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+
+- [#2332](https://github.com/plotly/dash/pull/2332) Add key to wrapped children props in list.
+
 ## [2.7.0] - 2022-11-03
 
 ### Removed
