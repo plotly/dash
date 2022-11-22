@@ -81,7 +81,7 @@ function isDryComponent(obj) {
     );
 }
 
-const TreeContainer = memo(props => (
+const DashWrapper = props => (
     <DashContext.Consumer>
         {context => (
             <BaseTreeContainer
@@ -91,7 +91,9 @@ const TreeContainer = memo(props => (
             />
         )}
     </DashContext.Consumer>
-));
+);
+
+const TreeContainer = memo(DashWrapper);
 
 class BaseTreeContainer extends Component {
     constructor(props) {
