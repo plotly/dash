@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+
+- [#2336](https://github.com/plotly/dash/pull/2336) Fix inserted dynamic ids in component as props.
+
 ## [2.7.0] - 2022-11-03
 
 ### Removed
