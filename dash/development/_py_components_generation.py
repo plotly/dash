@@ -9,7 +9,7 @@ from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from ._collect_nodes import collect_nodes, filter_base_nodes
-from ._py_prop_typing import get_prop_typing, enums
+from ._py_prop_typing import get_prop_typing, enums, shapes
 from .base_component import Component
 
 
@@ -58,6 +58,7 @@ def generate_class_string(
     _namespace = '{namespace}'
     _type = '{typename}'
 {enums}
+{shapes}
     @_explicitize_args
     def __init__(
         self,
@@ -184,6 +185,7 @@ def generate_class_string(
             children_props=nodes,
             base_nodes=filter_base_nodes(nodes) + ["children"],
             enums="\n".join(f"    {k} = {k}" for k in enums.get(typename, {}).keys()),
+            shapes="\n".join(f"    {k} = {k}" for k in shapes.get(typename, {}).keys()),
         )
     )
 
@@ -212,6 +214,7 @@ def generate_class_file(
         "import typing  # noqa: F401\n"
         "import numbers # noqa: F401\n"
         "import enum # noqa: F401\n"
+        "from typing_extensions import TypedDict, NotRequired # noqa: F401\n"
         "from dash.development.base_component import "
         "Component, _explicitize_args\n\n\n"
     )
@@ -225,6 +228,7 @@ def generate_class_file(
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(import_string)
         f.write("\n\n".join(enums.get(typename, {}).values()))
+        f.write("\n\n".join(shapes.get(typename, {}).values()))
         f.write(class_string)
 
     print(f"Generated {file_name}")

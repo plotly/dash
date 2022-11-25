@@ -1,6 +1,8 @@
 import json
+import string
 
 import stringcase
+
 
 enums = {}
 enum_template = """
@@ -14,22 +16,51 @@ class {name}(enum.Enum):
 enum_value_template = "    {name} = {value}"
 
 
+shapes = {}
+shape_template = """
+class {name}(TypedDict):
+{values}
+
+"""
+
+
+def _clean_key(key):
+    k = ""
+    for ch in key:
+        if ch not in string.ascii_letters + "_":
+            k += "_"
+        else:
+            k += ch
+    return k
+
+
 def generate_any(*_):
     return "typing.Any"
 
 
 def generate_shape(type_info, component_name: str, prop_name: str):
     props = []
+    name = stringcase.pascalcase(prop_name)
 
-    for prop in type_info["value"].values():
-        prop_type = get_prop_typing(prop["name"], component_name, prop_name, prop)
-        if prop_type not in props:
-            props.append(prop_type)
+    for prop_key, prop_type in type_info["value"].items():
+        if prop_key != _clean_key(prop_key):
+            # Got invalid keys
+            return "dict"
 
-    if len(props) == 0:
-        return "typing.Any"
+        typed = get_prop_typing(
+            prop_type["name"], component_name, f"{prop_name}_{prop_key}", prop_type
+        )
+        if not prop_type.get("required"):
+            props.append(f"    {prop_key}: NotRequired[{typed}]")
+        else:
+            props.append(f"    {prop_key}: {typed}")
 
-    return f"typing.Dict[str, typing.Union[{', '.join(props)}]]"
+    shapes.setdefault(component_name, {})
+    shapes[component_name][name] = shape_template.format(
+        name=name, values="\n".join(props)
+    )
+
+    return name
 
 
 def generate_union(type_info, component_name: str, prop_name: str):
@@ -89,8 +120,8 @@ def generate_enum(type_info, component_name: str, prop_name: str):
         name=name,
         values="\n".join(
             enum_value_template.format(
-                name=str(x),
-                value=json.dumps(x),
+                name=f"_{x}" if not isinstance(x, str) else _clean_key(x),
+                value=json.dumps(x) if not isinstance(x, bool) else str(x),
             )
             for x in values
         ),
@@ -108,7 +139,7 @@ def get_prop_typing(type_name: str, component_name: str, prop_name: str, type_in
 PROP_TYPING = {
     "array": generate_type("typing.List"),
     "arrayOf": generate_array_of,
-    "object": generate_type("typing.Dict"),
+    "object": generate_type("dict"),
     "shape": generate_shape,
     "exact": generate_shape,
     "string": generate_type("str"),
