@@ -9,7 +9,7 @@ from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from ._collect_nodes import collect_nodes, filter_base_nodes
-from ._py_prop_typing import get_prop_typing
+from ._py_prop_typing import get_prop_typing, enums
 from .base_component import Component
 
 
@@ -57,6 +57,7 @@ def generate_class_string(
     _base_nodes = {base_nodes}
     _namespace = '{namespace}'
     _type = '{typename}'
+{enums}
     @_explicitize_args
     def __init__(
         self,
@@ -100,7 +101,9 @@ def generate_class_string(
     prop_keys = list(props.keys())
     if "children" in props and "children" in list_of_valid_keys:
         prop_keys.remove("children")
-        default_argtext = f"children: {get_prop_typing('node', {})} = None,\n        "
+        default_argtext = (
+            f"children: {get_prop_typing('node', '', '', {})} = None,\n        "
+        )
         args = "{k: _locals[k] for k in _explicit_args if k != 'children'}"
         argtext = "children=children, **args"
     else:
@@ -146,7 +149,7 @@ def generate_class_string(
 
         type_name = type_info.get("name")
 
-        typed = get_prop_typing(type_name, type_info)
+        typed = get_prop_typing(type_name, typename, prop_key, type_info)
 
         arg_value = f"{prop_key}: {typed} = {default_value}"
 
@@ -180,6 +183,7 @@ def generate_class_string(
             required_validation=required_validation,
             children_props=nodes,
             base_nodes=filter_base_nodes(nodes) + ["children"],
+            enums="\n".join(f"    {k} = {k}" for k in enums.get(typename, {}).keys()),
         )
     )
 
@@ -207,6 +211,7 @@ def generate_class_file(
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
         "import typing  # noqa: F401\n"
         "import numbers # noqa: F401\n"
+        "import enum # noqa: F401\n"
         "from dash.development.base_component import "
         "Component, _explicitize_args\n\n\n"
     )
@@ -219,6 +224,7 @@ def generate_class_file(
     file_path = os.path.join(namespace, file_name)
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(import_string)
+        f.write("\n\n".join(enums.get(typename, {}).values()))
         f.write(class_string)
 
     print(f"Generated {file_name}")
