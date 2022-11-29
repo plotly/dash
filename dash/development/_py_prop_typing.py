@@ -3,6 +3,7 @@ import string
 
 import stringcase
 
+from ._all_keywords import python_keywords
 
 enums = {}
 enum_template = """class {name}(enum.Enum):
@@ -43,7 +44,7 @@ def generate_shape(type_info, component_name: str, prop_name: str):
     name = stringcase.pascalcase(prop_name)
 
     for prop_key, prop_type in type_info["value"].items():
-        if prop_key != _clean_key(prop_key):
+        if prop_key in python_keywords or prop_key != _clean_key(prop_key):
             # Got invalid keys
             return "dict"
 
@@ -110,20 +111,28 @@ def generate_type(typename):
 
 
 def generate_enum(type_info, component_name: str, prop_name: str):
-    name = stringcase.pascalcase(prop_name)
+    name = stringcase.pascalcase(prop_name) + "Enum"
 
     values = [json.loads(v["value"].replace("'", '"')) for v in type_info["value"] if v]
-    value_type = type(values[0]).__name__
+    types = [type(v).__name__ for v in values]
+    value_type = ", ".join(v for v in types if v != "NoneType")
+
+    if not value_type:
+        # FIXME tooltip_header type in dash table only got null.
+        return "typing.Any"
 
     enums.setdefault(component_name, {})
     enums[component_name][name] = enum_template.format(
         name=name,
         values="\n".join(
             enum_value_template.format(
-                name=f"_{x}" if not isinstance(x, str) else _clean_key(x),
+                name=f"_{x}"
+                if not isinstance(x, str) or x in python_keywords
+                else _clean_key(x),
                 value=json.dumps(x) if not isinstance(x, bool) else str(x),
             )
             for x in values
+            if x is not None
         ),
     )
 
