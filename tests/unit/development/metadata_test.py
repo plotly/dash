@@ -7,7 +7,7 @@ from typing_extensions import TypedDict, NotRequired # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
 
 
-class OptionalEnum(enum.Enum):
+class OptionalEnumEnum(enum.Enum):
     News = "News"
     Photos = "Photos"
 
@@ -124,7 +124,7 @@ Keyword arguments:
     _base_nodes = ['optionalNode', 'optionalElement', 'children']
     _namespace = 'TableComponents'
     _type = 'Table'
-    OptionalEnum = OptionalEnum
+    OptionalEnumEnum = OptionalEnumEnum
     OptionalObjectWithExactAndNestedDescriptionFigure = OptionalObjectWithExactAndNestedDescriptionFigure
     OptionalObjectWithExactAndNestedDescription = OptionalObjectWithExactAndNestedDescription
     OptionalObjectWithShapeAndNestedDescriptionFigure = OptionalObjectWithShapeAndNestedDescriptionFigure
@@ -143,7 +143,7 @@ Keyword arguments:
         optionalNode: typing.Union[str, int, float, Component, typing.List[typing.Union[str, int, float, Component]]] = Component.UNDEFINED,
         optionalElement: Component = Component.UNDEFINED,
         optionalMessage: typing.Any = Component.UNDEFINED,
-        optionalEnum: typing.Union[str, OptionalEnum] = Component.UNDEFINED,
+        optionalEnum: typing.Union[str, str, OptionalEnumEnum] = Component.UNDEFINED,
         optionalUnion: typing.Union[str, numbers.Number, typing.Any] = Component.UNDEFINED,
         optionalArrayOf: typing.List[numbers.Number] = Component.UNDEFINED,
         optionalObjectOf: typing.Dict[typing.Union[str, float, int], numbers.Number] = Component.UNDEFINED,
