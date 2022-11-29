@@ -2,7 +2,39 @@
 
 import typing  # noqa: F401
 import numbers # noqa: F401
+import enum # noqa: F401
+from typing_extensions import TypedDict, NotRequired # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+
+class OptionalEnum(enum.Enum):
+    News = "News"
+    Photos = "Photos"
+
+    def to_plotly_json(self):
+        return self.value
+
+
+class OptionalObjectWithExactAndNestedDescriptionFigure(TypedDict):
+    data: NotRequired[typing.List[dict]]
+    layout: NotRequired[dict]
+
+
+class OptionalObjectWithExactAndNestedDescription(TypedDict):
+    color: NotRequired[str]
+    fontSize: NotRequired[numbers.Number]
+    figure: NotRequired[OptionalObjectWithExactAndNestedDescriptionFigure]
+
+
+class OptionalObjectWithShapeAndNestedDescriptionFigure(TypedDict):
+    data: NotRequired[typing.List[dict]]
+    layout: NotRequired[dict]
+
+
+class OptionalObjectWithShapeAndNestedDescription(TypedDict):
+    color: NotRequired[str]
+    fontSize: NotRequired[numbers.Number]
+    figure: NotRequired[OptionalObjectWithShapeAndNestedDescriptionFigure]
 
 
 class Table(Component):
@@ -92,6 +124,11 @@ Keyword arguments:
     _base_nodes = ['optionalNode', 'optionalElement', 'children']
     _namespace = 'TableComponents'
     _type = 'Table'
+    OptionalEnum = OptionalEnum
+    OptionalObjectWithExactAndNestedDescriptionFigure = OptionalObjectWithExactAndNestedDescriptionFigure
+    OptionalObjectWithExactAndNestedDescription = OptionalObjectWithExactAndNestedDescription
+    OptionalObjectWithShapeAndNestedDescriptionFigure = OptionalObjectWithShapeAndNestedDescriptionFigure
+    OptionalObjectWithShapeAndNestedDescription = OptionalObjectWithShapeAndNestedDescription
     @_explicitize_args
     def __init__(
         self,
@@ -100,18 +137,18 @@ Keyword arguments:
         optionalBool: bool = Component.UNDEFINED,
         optionalFunc: typing.Any = Component.UNDEFINED,
         optionalNumber: numbers.Number = Component.UNDEFINED,
-        optionalObject: typing.Dict = Component.UNDEFINED,
+        optionalObject: dict = Component.UNDEFINED,
         optionalString: str = Component.UNDEFINED,
         optionalSymbol: typing.Any = Component.UNDEFINED,
         optionalNode: typing.Union[str, int, float, Component, typing.List[typing.Union[str, int, float, Component]]] = Component.UNDEFINED,
         optionalElement: Component = Component.UNDEFINED,
         optionalMessage: typing.Any = Component.UNDEFINED,
-        optionalEnum: typing.Any = Component.UNDEFINED,
+        optionalEnum: typing.Union[str, OptionalEnum] = Component.UNDEFINED,
         optionalUnion: typing.Union[str, numbers.Number, typing.Any] = Component.UNDEFINED,
         optionalArrayOf: typing.List[numbers.Number] = Component.UNDEFINED,
         optionalObjectOf: typing.Dict[typing.Union[str, float, int], numbers.Number] = Component.UNDEFINED,
-        optionalObjectWithExactAndNestedDescription: typing.Dict[str, typing.Union[str, numbers.Number, typing.Dict[str, typing.Union[typing.List[typing.Dict], typing.Dict]]]] = Component.UNDEFINED,
-        optionalObjectWithShapeAndNestedDescription: typing.Dict[str, typing.Union[str, numbers.Number, typing.Dict[str, typing.Union[typing.List[typing.Dict], typing.Dict]]]] = Component.UNDEFINED,
+        optionalObjectWithExactAndNestedDescription: OptionalObjectWithExactAndNestedDescription = Component.UNDEFINED,
+        optionalObjectWithShapeAndNestedDescription: OptionalObjectWithShapeAndNestedDescription = Component.UNDEFINED,
         optionalAny: typing.Any = Component.UNDEFINED,
         customProp: typing.Any = Component.UNDEFINED,
         customArrayProp: typing.List[typing.Any] = Component.UNDEFINED,
