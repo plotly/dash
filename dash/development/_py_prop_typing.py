@@ -5,21 +5,21 @@ import stringcase
 
 
 enums = {}
-enum_template = """
-class {name}(enum.Enum):
+enum_template = """class {name}(enum.Enum):
 {values}
 
     def to_plotly_json(self):
         return self.value
+
 
 """
 enum_value_template = "    {name} = {value}"
 
 
 shapes = {}
-shape_template = """
-class {name}(TypedDict):
+shape_template = """class {name}(TypedDict):
 {values}
+
 
 """
 

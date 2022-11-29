@@ -1,10 +1,12 @@
 from collections import OrderedDict
 import copy
+import enum
 import numbers
 import os
 import typing
 from textwrap import fill, dedent
 
+from typing_extensions import TypedDict, NotRequired
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
@@ -51,7 +53,7 @@ def generate_class_string(
     # it to be `null` or whether that was just the default value.
     # The solution might be to deal with default values better although
     # not all component authors will supply those.
-    c = '''class {typename}(Component):
+    c = '''{extra_types}class {typename}(Component):
     """{docstring}"""
     _children_props = {children_props}
     _base_nodes = {base_nodes}
@@ -184,6 +186,8 @@ def generate_class_string(
             required_validation=required_validation,
             children_props=nodes,
             base_nodes=filter_base_nodes(nodes) + ["children"],
+            extra_types="".join(enums.get(typename, {}).values())
+            + "".join(shapes.get(typename, {}).values()),
             enums="\n".join(f"    {k} = {k}" for k in enums.get(typename, {}).keys()),
             shapes="\n".join(f"    {k} = {k}" for k in shapes.get(typename, {}).keys()),
         )
@@ -227,8 +231,6 @@ def generate_class_file(
     file_path = os.path.join(namespace, file_name)
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(import_string)
-        f.write("\n\n".join(enums.get(typename, {}).values()))
-        f.write("\n\n".join(shapes.get(typename, {}).values()))
         f.write(class_string)
 
     print(f"Generated {file_name}")
@@ -283,6 +285,9 @@ def generate_class(
         "_explicitize_args": _explicitize_args,
         "typing": typing,
         "numbers": numbers,
+        "enum": enum,
+        "TypedDict": TypedDict,
+        "NotRequired": NotRequired,
     }
     # pylint: disable=exec-used
     exec(string, scope)
