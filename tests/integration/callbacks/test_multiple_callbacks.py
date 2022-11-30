@@ -582,14 +582,13 @@ def test_cbmt012_initialization_with_overlapping_outputs(generate, dash_duo):
     assert call_counts["container"].value == (1 if generate else 0)
 
 
-
 def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
     all_options = {
         "America": ["New York City", "San Francisco", "Cincinnati"],
         "Canada": ["Montreal", "Toronto", "Ottawa"],
     }
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.RadioItems(
@@ -618,7 +617,10 @@ def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
         Input("cities-radio", "value"),
     )
     def set_display_children(selected_country, selected_city):
-        return "{} is a city in {}".format(selected_city, selected_country,)
+        return "{} is a city in {}".format(
+            selected_city,
+            selected_country,
+        )
 
     dash_duo.start_server(app)
 

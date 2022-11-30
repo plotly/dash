@@ -190,19 +190,12 @@ export const getReadyCallbacks = (
     paths: any,
     candidates: ICallback[],
     callbacks: ICallback[] = candidates,
-    graphs:any = {}
+    graphs: any = {}
 ): ICallback[] => {
     // Skip if there's no candidates
     if (!candidates.length) {
         return [];
     }
-
-    console.log(
-        'dependencies:getReadyCallbacks callbacks',
-        callbacks,
-        'candidates',
-        candidates
-    );
 
     // Find all outputs of all active callbacks
     const outputs = map(
@@ -218,8 +211,7 @@ export const getReadyCallbacks = (
     let outputsMap: {[key: string]: boolean} = {};
     forEach(output => (outputsMap[output] = true), outputs);
 
-
-        // find all the outputs touched by activeCallbacks
+    // find all the outputs touched by activeCallbacks
     // remove this check if graph is accessible all the time
 
     if (Object.keys(graphs).length) {
@@ -229,11 +221,6 @@ export const getReadyCallbacks = (
                 cb => getAllSubsequentOutputsForCallback(graphs, paths, cb),
                 callbacks
             )
-        );
-
-        console.log(
-            'dependencies:getReadyCallbacks allTouchedOutputs',
-            allTouchedOutputs
         );
 
         // overrrides the outputsMap, will duplicate callbacks filtered
