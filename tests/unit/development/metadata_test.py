@@ -22,7 +22,7 @@ class OptionalObjectWithExactAndNestedDescriptionFigure(TypedDict):
 
 class OptionalObjectWithExactAndNestedDescription(TypedDict):
     color: NotRequired[str]
-    fontSize: NotRequired[numbers.Number]
+    fontSize: NotRequired[typing.Union[int, float, numbers.Number]]
     figure: NotRequired[OptionalObjectWithExactAndNestedDescriptionFigure]
 
 
@@ -33,7 +33,7 @@ class OptionalObjectWithShapeAndNestedDescriptionFigure(TypedDict):
 
 class OptionalObjectWithShapeAndNestedDescription(TypedDict):
     color: NotRequired[str]
-    fontSize: NotRequired[numbers.Number]
+    fontSize: NotRequired[typing.Union[int, float, numbers.Number]]
     figure: NotRequired[OptionalObjectWithShapeAndNestedDescriptionFigure]
 
 
@@ -136,7 +136,7 @@ Keyword arguments:
         optionalArray: typing.List = Component.UNDEFINED,
         optionalBool: bool = Component.UNDEFINED,
         optionalFunc: typing.Any = Component.UNDEFINED,
-        optionalNumber: numbers.Number = Component.UNDEFINED,
+        optionalNumber: typing.Union[int, float, numbers.Number] = Component.UNDEFINED,
         optionalObject: dict = Component.UNDEFINED,
         optionalString: str = Component.UNDEFINED,
         optionalSymbol: typing.Any = Component.UNDEFINED,
@@ -144,9 +144,9 @@ Keyword arguments:
         optionalElement: Component = Component.UNDEFINED,
         optionalMessage: typing.Any = Component.UNDEFINED,
         optionalEnum: typing.Union[str, str, OptionalEnumEnum] = Component.UNDEFINED,
-        optionalUnion: typing.Union[str, numbers.Number, typing.Any] = Component.UNDEFINED,
-        optionalArrayOf: typing.List[numbers.Number] = Component.UNDEFINED,
-        optionalObjectOf: typing.Dict[typing.Union[str, float, int], numbers.Number] = Component.UNDEFINED,
+        optionalUnion: typing.Union[str, typing.Union[int, float, numbers.Number], typing.Any] = Component.UNDEFINED,
+        optionalArrayOf: typing.List[typing.Union[int, float, numbers.Number]] = Component.UNDEFINED,
+        optionalObjectOf: typing.Dict[typing.Union[str, float, int], typing.Union[int, float, numbers.Number]] = Component.UNDEFINED,
         optionalObjectWithExactAndNestedDescription: OptionalObjectWithExactAndNestedDescription = Component.UNDEFINED,
         optionalObjectWithShapeAndNestedDescription: OptionalObjectWithShapeAndNestedDescription = Component.UNDEFINED,
         optionalAny: typing.Any = Component.UNDEFINED,

@@ -69,7 +69,8 @@ def assert_pyright_output(
             {
                 "expected_status": 1,
                 "expected_outputs": [
-                    'Argument of type "Literal[\'\']" cannot be assigned to parameter "a_number" of type "float | int"'
+                    'Argument of type "Literal[\'\']" cannot be assigned to parameter "a_number" '
+                    'of type "int | float | Number"'
                 ],
             },
         ),
@@ -102,7 +103,8 @@ def assert_pyright_output(
             {
                 "expected_status": 1,
                 "expected_outputs": [
-                    'Argument of type "dict[Any, Any]" cannot be assigned to parameter "array_string" of type "List[str]"'
+                    'Argument of type "dict[Any, Any]" cannot be assigned to parameter "array_string" '
+                    'of type "List[str]"'
                 ],
             },
         ),
@@ -131,7 +133,7 @@ def assert_pyright_output(
             },
         ),
         (
-            "array_obj=[{}]",
+            "array_obj=[{'a': 'b'}]",
             {
                 "expected_status": 0,
             },
@@ -202,7 +204,7 @@ def assert_pyright_output(
                 "expected_status": 1,
                 "expected_outputs": [
                     'Argument of type "tuple[Literal[1], Literal[2]]" cannot be assigned '
-                    'to parameter "a_tuple" of type "Tuple[float | int, str]"'
+                    'to parameter "a_tuple" of type "Tuple[int | float | Number, str]"'
                 ],
             },
         ),
