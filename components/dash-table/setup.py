@@ -15,4 +15,7 @@ setup(
     license=package["license"],
     description=package["description"] if "description" in package else package_name,
     install_requires=[],
+    classifiers=[
+        "License :: OSI Approved :: MIT License",
+    ],
 )
