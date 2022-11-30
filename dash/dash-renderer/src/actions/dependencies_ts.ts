@@ -145,15 +145,64 @@ export function getPriority(
     return map(i => Math.min(i, 35).toString(36), priority).join('');
 }
 
+export function getAllSubsequentOutputsForCallback(
+    graphs: any,
+    paths: any,
+    callback: ICallback
+) {
+    let callbacks: ICallback[] = [callback];
+    let touchedOutputs: {[key: string]: boolean} = {};
+
+    // this traverses the graph all the way to the end
+    while (callbacks.length) {
+        // don't add it if it already exists based on id and props
+        const outputs = filter(
+            o => !touchedOutputs[combineIdAndProp(o)],
+            flatten(map(cb => flatten(cb.getOutputs(paths)), callbacks))
+        );
+
+        touchedOutputs = reduce(
+            (touched, o) => assoc(combineIdAndProp(o), true, touched),
+            touchedOutputs,
+            outputs
+        );
+
+        callbacks = flatten(
+            map(
+                ({id, property}: any) =>
+                    getCallbacksByInput(
+                        graphs,
+                        paths,
+                        id,
+                        property,
+                        INDIRECT,
+                        false
+                    ),
+                outputs
+            )
+        );
+    }
+
+    return touchedOutputs;
+}
+
 export const getReadyCallbacks = (
     paths: any,
     candidates: ICallback[],
-    callbacks: ICallback[] = candidates
+    callbacks: ICallback[] = candidates,
+    graphs:any = {}
 ): ICallback[] => {
     // Skip if there's no candidates
     if (!candidates.length) {
         return [];
     }
+
+    console.log(
+        'dependencies:getReadyCallbacks callbacks',
+        callbacks,
+        'candidates',
+        candidates
+    );
 
     // Find all outputs of all active callbacks
     const outputs = map(
@@ -166,8 +215,36 @@ export const getReadyCallbacks = (
     );
 
     // Make `outputs` hash table for faster access
-    const outputsMap: {[key: string]: boolean} = {};
+    let outputsMap: {[key: string]: boolean} = {};
     forEach(output => (outputsMap[output] = true), outputs);
+
+
+        // find all the outputs touched by activeCallbacks
+    // remove this check if graph is accessible all the time
+
+    if (Object.keys(graphs).length) {
+        //not sure if graph will be accessible all the time
+        const allTouchedOutputs: {[key: string]: boolean}[] = flatten(
+            map(
+                cb => getAllSubsequentOutputsForCallback(graphs, paths, cb),
+                callbacks
+            )
+        );
+
+        console.log(
+            'dependencies:getReadyCallbacks allTouchedOutputs',
+            allTouchedOutputs
+        );
+
+        // overrrides the outputsMap, will duplicate callbacks filtered
+        // this is only done to silence typescript errors
+        if (allTouchedOutputs.length > 0) {
+            outputsMap = Object.assign(
+                allTouchedOutputs[0],
+                ...allTouchedOutputs
+            );
+        }
+    }
 
     // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
     // Outputs which overlap an input do not count as an outstanding output
