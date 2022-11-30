@@ -214,6 +214,36 @@ def assert_pyright_output(
                 "expected_status": 0,
             },
         ),
+        (
+            "obj=set()",
+            {
+                "expected_status": 1,
+            }
+        ),
+        (
+            "obj={}",
+            {
+                "expected_status": 1,
+                "expected_outputs": [
+                    '"value" is required in "Obj"'
+                ]
+            }
+        ),
+        (
+            "obj={'value': 'a', 'label': 1}",
+            {
+                "expected_status": 1,
+                "expected_outputs": [
+                    '"Literal[1]" is incompatible with "str"'
+                ]
+            }
+        ),
+        (
+            "obj={'value': 'a', 'label': 'lab'}",
+            {
+                "expected_status": 0,
+            }
+        )
     ],
 )
 def test_component_typing(arguments, assertions, tmp_path):
