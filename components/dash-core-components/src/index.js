@@ -7,6 +7,7 @@ import DatePickerRange from './components/DatePickerRange.react';
 import DatePickerSingle from './components/DatePickerSingle.react';
 import Download from './components/Download.react';
 import Dropdown from './components/Dropdown.react';
+import Geolocation from './components/Geolocation.react';
 import Graph from './components/Graph.react';
 import Input from './components/Input.react';
 import Interval from './components/Interval.react';
@@ -37,6 +38,7 @@ export {
     DatePickerSingle,
     Download,
     Dropdown,
+    Geolocation,
     Graph,
     Input,
     Interval,
