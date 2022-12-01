@@ -1,8 +1,5 @@
-import dash
-import dash_core_components as dcc
-from dash.dependencies import Input, Output
-import dash_html_components as html
 import time
+from dash import Dash, dcc, html, Input, Output
 
 
 def test_geol001_position(dash_dcc):
@@ -11,7 +8,7 @@ def test_geol001_position(dash_dcc):
         {"latitude": 45.527, "longitude": -73.5968, "accuracy": 100},
     )
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Geolocation(id="geolocation"),
