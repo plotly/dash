@@ -6,7 +6,7 @@ import typing
 import uuid
 import random
 
-from .._utils import patch_collections_abc, stringify_id
+from .._utils import patch_collections_abc, stringify_id, OrderedSet
 
 MutableSequence = patch_collections_abc("MutableSequence")
 
@@ -17,7 +17,7 @@ rd = random.Random(0)
 class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
-    registry = set()
+    registry = OrderedSet()
     children_props = collections.defaultdict(dict)
 
     @classmethod
