@@ -19,8 +19,12 @@ def test_geol001_position(dash_dcc):
     @app.callback(
         Output("text_position", "children"),
         Input("geolocation", "position"),
+        Input("geolocation", "position_error")
     )
-    def display_output(pos):
+    def display_output(pos, err):
+        if err:
+            print(f"Error {err['code']} : {err['message']}")
+            return f"Error {err['code']} : {err['message']}"
         if pos:
             return (
                 f"lat {pos['lat']},lon {pos['lon']}, accuracy {pos['accuracy']} meters"

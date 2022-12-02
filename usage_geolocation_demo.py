@@ -258,7 +258,7 @@ def update_interval(time):
 )
 def display_output(checklist, zoom, date, timestamp, pos, err):
     if err:
-        return "Error {} : {}".format(err["code"], err["message"])
+        return f"Error {err['code']} : {err['message']}"
 
     # update  message
     show_address = True if checklist and "address" in checklist else False
