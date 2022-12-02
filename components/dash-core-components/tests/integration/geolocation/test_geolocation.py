@@ -4,7 +4,7 @@ import pytest
 from dash import Dash, dcc, html, Input, Output
 
 
-@pytest.mark.skipif(os.getenv("CIRCLECI"), reason="geolocation is disabled on CI")
+@pytest.mark.skipif(os.getenv("CIRCLECI" is not None), reason="geolocation is disabled on CI")
 def test_geol001_position(dash_dcc):
     dash_dcc.driver.execute_cdp_cmd(
         "Emulation.setGeolocationOverride",
