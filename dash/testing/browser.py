@@ -484,7 +484,6 @@ class Browser(DashPageMixin):
                 "download.directory_upgrade": True,
                 "safebrowsing.enabled": False,
                 "safebrowsing.disable_download_protection": True,
-                "profile.default_content_setting_values.geolocation": 1
             },
         )
         options.add_argument("--disable-dev-shm-usage")
