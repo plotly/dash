@@ -57,12 +57,6 @@ When a change in renderer code doesn't reflect in your browser as expected, this
 
 Specific details on making changes and contributing to `dcc`, `html`, and `dash_table` can be found within their respective sub-directories in the `components` directory. Once changes have been made in the specific directories, the `dash-update-components` command line tool can be used to update the build artifacts and dependencies of the respective packages within Dash. For example, if a change has been made to `dash-core-components`, use `dash-update-components "dash-core-components"` to move the build artifacts to Dash. By default, this is set to update `all` packages.
 
-## Python 2 And 3 Compatibility
-
-Writing Python 2/3 compatible code might be a challenging task for contributors used to working on one particular version, especially new learners who start directly with Python 3.
-
-We use `python-future` as our tool to mainly write Python 3 code and make it back-compatible to Python 2.7 (the only Python 2 version Dash supports). Please refer to [this list of idioms](https://python-future.org/compatible_idioms.html "https://python-future.org/compatible_idioms.html") for more details on working with `python-future`.
-
 ## Git
 
 Use the [GitHub flow](https://guides.github.com/introduction/flow/) when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the default branch).
