@@ -14,6 +14,11 @@ export default class Geolocation extends Component {
         this.updatePosition = this.updatePosition.bind(this);
     }
     updatePosition() {
+        if (this.props.update_now) {
+            this.props.setProps({
+                update_now: false,
+            });
+        }
         if (!navigator.geolocation) {
             this.error({
                 code: 999,
@@ -23,10 +28,6 @@ export default class Geolocation extends Component {
                 alert(`ERROR(${this.error.code}): ${this.error.message}`);
             }
         } else {
-            this.props.setProps({
-                update_now: false,
-            });
-
             const positionOptions = {
                 enableHighAccuracy: this.props.high_accuracy,
                 maximumAge: this.props.maximum_age,
