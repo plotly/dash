@@ -7,9 +7,9 @@ import {
     path,
     forEach,
     keys,
-    has,
     pickBy,
-    toPairs
+    toPairs,
+    pathOr
 } from 'ramda';
 
 import {IStoreState} from '../store';
@@ -126,20 +126,25 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         }))
                     );
 
-                    // New layout - trigger callbacks for that explicitly
-                    if (has('children', appliedProps)) {
-                        const {children} = appliedProps;
+                    const basePath = getPath(oldPaths, parsedId);
+                    const oldObj = path(getPath(oldPaths, parsedId), oldLayout);
 
-                        const oldChildrenPath: string[] = concat(
-                            getPath(oldPaths, parsedId) as string[],
-                            ['props', 'children']
-                        );
-                        const oldChildren = path(oldChildrenPath, oldLayout);
+                    const childrenProps = pathOr(
+                        'defaultValue',
+                        [oldObj.namespace, oldObj.type],
+                        (window as any).__dashprivate_childrenProps
+                    );
 
+                    const handlePaths = (
+                        children: any,
+                        oldChildren: any,
+                        oldChildrenPath: any[]
+                    ) => {
+                        const oPaths = getState().paths;
                         const paths = computePaths(
                             children,
                             oldChildrenPath,
-                            oldPaths
+                            oPaths
                         );
                         dispatch(setPaths(paths));
 
@@ -167,7 +172,64 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                 predecessors
                             }))
                         );
-                    }
+                    };
+
+                    let recomputed = false;
+
+                    forEach(childrenProp => {
+                        if (recomputed) {
+                            return;
+                        }
+                        if (childrenProp.includes('[]')) {
+                            const [frontPath] = childrenProp
+                                .split('[]')
+                                .map(p => p.split('.').filter(e => e));
+
+                            const frontObj: any[] | undefined = path(
+                                frontPath,
+                                appliedProps
+                            );
+
+                            if (!frontObj) {
+                                return;
+                            }
+
+                            // Crawl layout needs the ns/type
+                            handlePaths(
+                                {
+                                    ...oldObj,
+                                    props: {
+                                        ...oldObj.props,
+                                        ...appliedProps
+                                    }
+                                },
+                                oldObj,
+                                basePath
+                            );
+                            // Only do it once for the component.
+                            recomputed = true;
+                        } else {
+                            const childrenPropPath = childrenProp.split('.');
+                            const children = path(
+                                childrenPropPath,
+                                appliedProps
+                            );
+                            if (!children) {
+                                return;
+                            }
+
+                            const oldChildrenPath = concat(
+                                getPath(oldPaths, parsedId) as string[],
+                                ['props'].concat(childrenPropPath)
+                            );
+                            const oldChildren = path(
+                                oldChildrenPath,
+                                oldLayout
+                            );
+
+                            handlePaths(children, oldChildren, oldChildrenPath);
+                        }
+                    }, ['children'].concat(childrenProps));
 
                     // persistence edge case: if you explicitly update the
                     // persistence key, other props may change that require us
