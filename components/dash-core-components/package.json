@@ -50,6 +50,7 @@
     "moment": "^2.29.4",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "plotly.js-dist-min": "2.16.1",
+    "pretty-ms": "^7.0.1",
     "prop-types": "^15.8.1",
     "ramda": "^0.28.0",
     "rc-slider": "^9.7.5",
