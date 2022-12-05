@@ -255,5 +255,6 @@ def test_rdcap002_component_as_props_dynamic_id(dash_duo):
 
     dash_duo.wait_for_element("#add-option").click()
     for i in range(1, n + 2):
+        dash_duo.wait_for_text_to_equal(f"#options label:nth-child({i}) span", "")
         dash_duo.wait_for_element(f"#options label:nth-child({i}) button").click()
         dash_duo.wait_for_text_to_equal(f"#options label:nth-child({i}) span", "1")
