@@ -648,7 +648,9 @@ def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
     assert out_call_count.value == 1
 
     all_labels = dash_duo.find_elements("label")
-    canada_opt = next(i for i in all_labels if i.text == "Canada").find_element("input")
+    canada_opt = next(
+        i for i in all_labels if i.text == "Canada"
+    ).find_element_by_tag_name("input")
 
     with out_lock:
         canada_opt.click()
