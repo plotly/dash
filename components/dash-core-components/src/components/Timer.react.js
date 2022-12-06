@@ -234,14 +234,12 @@ export default class Timer extends Component {
 Timer.propTypes = {
     /**
      * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
+     * in callbacks.
      */
     id: PropTypes.string,
 
     /**
-     * This component will increment the counter `n_intervals` every
-     * `interval` milliseconds
+     * This component will increment the counter `n_intervals` every `interval` milliseconds.
      */
     interval: PropTypes.number,
 
@@ -271,7 +269,7 @@ Timer.propTypes = {
     time: PropTypes.number,
 
     /**
-     * The timer will count down to zero in `countdown` mode and count up from zero in `stopwatch` mode
+     * The timer will count down to zero in `countdown` mode and count up from zero in `stopwatch` mode.
      */
     mode: PropTypes.oneOf(['stopwatch', 'countdown']),
 
@@ -287,16 +285,13 @@ Timer.propTypes = {
     reset: PropTypes.bool,
 
     /**
-     * A list of the time(s) in milliseconds at which to fire a callback. This can be used to start a task at a given
-     * time rather than using the timer. Since the timer is typically set at a small interval like one second, using
-     * fire_times can reduce the number of times a callback is fired and can increase app performance. Each time must be a
-     * multiple of the interval.
+     * A list of the time(s) in milliseconds at which to fire a callback. Each time must be a multiple of the interval.
      */
     fire_times: PropTypes.arrayOf(PropTypes.number),
 
     /**
      * This is updated when the timer reaches one of the times in the `fire_times` list. Using `at_fire_time` in a
-     * callback will trigger the callback at the time(s) in `fire_times` (Read only)
+     * callback will trigger the callback at the time(s) in `fire_times` (Read only).
      */
     at_fire_time: PropTypes.number,
 
@@ -306,16 +301,13 @@ Timer.propTypes = {
     rerun: PropTypes.bool,
 
     /**
-     * Timer messages to be displayed by the component rather than showing the timer. It is a dictionary in the form of:
-     * {integer: string} where integer is the time in milliseconds of when the string message is to be displayed.
-     * For example, {10000 : "updating in 10 seconds"} will display the message "updating in 10 seconds" once the
-     * timer equals 10000. Note: messages will over-ride the timer display.
+     * A dictionary in the form of: {integer: string} where integer is a time in milliseconds and string is the
+     * message to display upon reaching that time. Note - `messages` overrides any other timer display.
      */
     messages: PropTypes.objectOf(PropTypes.string),
 
     /**
-     * If a timer is displayed, it will override timer `messages`.  This formats the timer (milliseconds) into human
-     * readable formats.  The options are:
+     * This formats the timer (milliseconds) into human readable formats.  The options are:
      *  `'none'`: no timer will be displayed;
      *  `'default'`:  example - 1337000000 milliseconds will display as: '15d 11h 23m 20s';
      *  `'compact'`: will show only the first unit: 1h 10m --> 1h ;
