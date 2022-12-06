@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Added 
+
+- [#2352](https://github.com/plotly/dash/pull/2352) Added new dcc.Timer component.
+
 ### Fixed
 
 - [#2332](https://github.com/plotly/dash/pull/2332) Add key to wrapped children props in list.
