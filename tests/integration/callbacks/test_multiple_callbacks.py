@@ -1,5 +1,5 @@
 import time
-from multiprocessing import Value
+from multiprocessing import Value, Lock
 
 import pytest
 
@@ -19,7 +19,7 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
 
     @app.callback(Output("output", "children"), [Input("input", "n_clicks")])
     def update_output(n_clicks):
-        call_count.value = call_count.value + 1
+        call_count.value += 1
         if n_clicks == 1:
             time.sleep(1)
         return n_clicks
@@ -603,12 +603,19 @@ def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
         ]
     )
 
+    opts_call_count = Value("i", 0)
+    city_call_count = Value("i", 0)
+    out_call_count = Value("i", 0)
+    out_lock = Lock()
+
     @app.callback(Output("cities-radio", "options"), Input("countries-radio", "value"))
     def set_cities_options(selected_country):
+        opts_call_count.value += 1
         return [{"label": i, "value": i} for i in all_options[selected_country]]
 
     @app.callback(Output("cities-radio", "value"), Input("cities-radio", "options"))
     def set_cities_value(available_options):
+        city_call_count.value += 1
         return available_options[0]["value"]
 
     @app.callback(
@@ -617,64 +624,45 @@ def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
         Input("cities-radio", "value"),
     )
     def set_display_children(selected_country, selected_city):
-        return "{} is a city in {}".format(
-            selected_city,
-            selected_country,
-        )
+        # this may actually be the key to this whole test:
+        # these inputs should never be out of sync.
+        assert selected_city in all_options[selected_country]
+
+        out_call_count.value += 1
+        with out_lock:
+            return "{} is a city in {}".format(
+                selected_city,
+                selected_country,
+            )
 
     dash_duo.start_server(app)
 
-    not_null = (
-        lambda: dash_duo.find_element("#display-selected-values").get_attribute(
-            "innerText"
-        )
-        != ""
-    )
-
-    wait.until(not_null, 20)
-
     new_york_text = "New York City is a city in America"
-    current_text = dash_duo.find_element("#display-selected-values").get_attribute(
-        "innerText"
-    )
-
-    assert current_text == new_york_text, "{} should equal {}".format(
-        current_text, new_york_text
-    )
-
-    all_inputs = dash_duo.find_elements("input")
-
-    relevant_input = dash_duo.driver.execute_script(
-        """
-            var inp = arguments[0].filter((input)=>{
-                console.log(input.parentElement.innerText)
-                return input.parentElement.innerText=='Canada'
-            })
-            console.log("pringing something", inp)
-            return inp[0]
-        """,
-        all_inputs,
-    )
-
-    dash_duo.driver.set_network_conditions(
-        offline=False,
-        latency=5,  # additional latency (ms)
-        download_throughput=1 * 1024,  # maximal throughput
-        upload_throughput=1 * 1024,
-    )  # maximal throughput
-
-    relevant_input.click()
-
     canada_text = "Montreal is a city in Canada"
-    expected_text = [new_york_text, canada_text]
 
-    def wait_cond():
-        current_elem = dash_duo.find_element("#display-selected-values").get_attribute(
-            "innerText"
-        )
-        assert current_elem in expected_text, "{} should be one of {}".format(
-            current_elem, expected_text
-        )
-        return current_elem == "Montreal is a city in Canada"
+    # If we get to the correct initial state with only one call of each callback,
+    # then there mustn't have been any intermediate changes to the output text
+    dash_duo.wait_for_text_to_equal("#display-selected-values", new_york_text)
+    assert opts_call_count.value == 1
+    assert city_call_count.value == 1
+    assert out_call_count.value == 1
 
-    wait.until(wait_cond, 20)
+    all_labels = dash_duo.find_elements("label")
+    canada_opt = next(i for i in all_labels if i.text == "Canada").find_element("input")
+
+    with out_lock:
+        canada_opt.click()
+
+        # all three callbacks have fired once more, but since we haven't allowed the
+        # last one to execute, the output hasn't been changed
+        wait.until(lambda: out_call_count.value == 2, timeout=3)
+        assert opts_call_count.value == 2
+        assert city_call_count.value == 2
+        assert dash_duo.find_element("#display-selected-values").text == new_york_text
+
+    dash_duo.wait_for_text_to_equal("#display-selected-values", canada_text)
+    assert opts_call_count.value == 2
+    assert city_call_count.value == 2
+    assert out_call_count.value == 2
+
+    assert dash_duo.get_logs() == []
