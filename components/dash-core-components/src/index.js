@@ -22,6 +22,7 @@ import Store from './components/Store.react';
 import Tab from './components/Tab.react';
 import Tabs from './components/Tabs.react';
 import Textarea from './components/Textarea.react';
+import Timer from './components/Timer.react';
 import Tooltip from './components/Tooltip.react';
 import Upload from './components/Upload.react';
 
@@ -52,6 +53,7 @@ export {
     Tab,
     Tabs,
     Textarea,
+    Timer,
     Tooltip,
     Upload,
 };
