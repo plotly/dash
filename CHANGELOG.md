@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- [#2344](https://github.com/plotly/dash/pull/2344) Fix [#1519](https://github.com/plotly/dash/issues/1519), a case where dependent callbacks can be called too many times and with inconsistent inputs
 - [#2332](https://github.com/plotly/dash/pull/2332) Add key to wrapped children props in list.
 - [#2336](https://github.com/plotly/dash/pull/2336) Fix inserted dynamic ids in component as props.
 
