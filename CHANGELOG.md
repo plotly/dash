@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     - Path release [2.16.4](https://github.com/plotly/plotly.js/releases/tag/v2.16.4)
     - Patch release [2.16.3](https://github.com/plotly/plotly.js/releases/tag/v2.16.3)
     - Patch release [2.16.2](https://github.com/plotly/plotly.js/releases/tag/v2.16.2)
+- [#2363](https://github.com/plotly/dash/pull/2363) Update html attributes for ol
 
 ## [2.7.0] - 2022-11-03
 
