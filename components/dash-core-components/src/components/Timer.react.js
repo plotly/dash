@@ -31,6 +31,7 @@ export default class Timer extends Component {
         this.intervalId = null;
         this.renderMessage = null;
         this.intervalError = false;
+        this.startTime = 0;
         this.handleIntervalError = this.handleIntervalError.bind(this);
         this.displayIntervalErrorMessage =
             this.displayIntervalErrorMessage.bind(this);
@@ -129,19 +130,14 @@ export default class Timer extends Component {
     initTimer() {
         const {setProps, duration, mode} = this.props;
 
-        let startTime;
         if (mode === 'countdown' && duration > 0) {
-            startTime = duration;
-        } else {
-            // stopwatch
-            startTime = 0;
+            this.startTime = duration;
         }
-        this.handleMessages(startTime);
 
         setProps({
             n_intervals: 0,
             reset: false,
-            time: startTime,
+            time: this.startTime,
         });
     }
 
@@ -199,6 +195,7 @@ export default class Timer extends Component {
     componentDidMount() {
         this.initTimer();
         this.handleTimer();
+        this.handleMessages(this.startTime);
     }
 
     componentDidUpdate(prevProps) {
@@ -224,9 +221,9 @@ export default class Timer extends Component {
     render() {
         const {id, className, style} = this.props;
         return (
-            <div id={id} style={style} className={className}>
-                <div>{this.renderMessage}</div>
-            </div>
+            <span id={id} style={style} className={className}>
+                {this.renderMessage}
+            </span>
         );
     }
 }
