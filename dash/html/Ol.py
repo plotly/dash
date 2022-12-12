@@ -103,7 +103,10 @@ class Ol(Component):
         specified instead.
 
     - title (string; optional):
-        Text to be displayed in a tooltip when hovering over the element."""
+        Text to be displayed in a tooltip when hovering over the element.
+
+    - type (string; optional):
+        Defines the type of the element."""
 
     _children_props = []
     _base_nodes = ["children"]
@@ -120,6 +123,7 @@ class Ol(Component):
         key=Component.UNDEFINED,
         reversed=Component.UNDEFINED,
         start=Component.UNDEFINED,
+        type=Component.UNDEFINED,
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
@@ -160,6 +164,7 @@ class Ol(Component):
             "style",
             "tabIndex",
             "title",
+            "type",
         ]
         self._valid_wildcard_attributes = ["data-", "aria-"]
         self.available_properties = [
@@ -186,6 +191,7 @@ class Ol(Component):
             "style",
             "tabIndex",
             "title",
+            "type",
         ]
         self.available_wildcard_properties = ["data-", "aria-"]
         _explicit_args = kwargs.pop("_explicit_args")
