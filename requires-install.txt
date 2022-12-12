@@ -1,7 +1,7 @@
 Flask>=1.0.4
-flask-compress
 plotly>=5.0.0
 dash_html_components==2.0.0
 dash_core_components==2.0.0
 dash_table==5.0.0
 importlib-metadata==4.8.3;python_version<"3.7"
+contextvars==2.4;python_version<"3.7"

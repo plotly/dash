@@ -6,6 +6,7 @@ import MyPersistedComponent from './components/MyPersistedComponent';
 import MyPersistedComponentNested from './components/MyPersistedComponentNested';
 import StyledComponent from './components/StyledComponent';
 import WidthComponent from './components/WidthComponent';
+import ComponentAsProp from './components/ComponentAsProp';
 
 export {
     AsyncComponent,
@@ -15,5 +16,6 @@ export {
     MyPersistedComponent,
     MyPersistedComponentNested,
     StyledComponent,
-    WidthComponent
+    WidthComponent,
+    ComponentAsProp,
 };

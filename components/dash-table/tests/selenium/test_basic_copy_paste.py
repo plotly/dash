@@ -42,6 +42,29 @@ def get_app():
                 sort_action="native",
                 include_headers_on_copy_paste=True,
             ),
+            DataTable(
+                id="table3",
+                data=df[0:10],
+                columns=[
+                    {"name": i, "id": i, "deletable": True} for i in rawDf.columns
+                ],
+                cell_selectable=False,
+                sort_action="native",
+            ),
+            DataTable(
+                id="table4",
+                data=[
+                    {"string": 'a""b', "int": 10},
+                    {"string": 'hello\n""hi', "int": 11},
+                ],
+                columns=[
+                    {"name": "string", "id": "string"},
+                    {"name": "int", "id": "int"},
+                ],
+                editable=True,
+                sort_action="native",
+                include_headers_on_copy_paste=True,
+            ),
         ]
     )
 
@@ -299,5 +322,71 @@ def test_tbcp009_copy_9_and_10_click(test):
             assert (
                 target.cell(row, col).get_text() == source.cell(row + 9, col).get_text()
             )
+
+    assert test.get_log_errors() == []
+
+
+def test_tbcp010_copy_from_unselectable_cells_table(test):
+    test.start_server(get_app())
+
+    source = test.table("table3")  # this table has cell_selectable=False
+    target = test.table("table2")
+
+    # double click cell to (natively) mark the contained text
+    source.cell(2, 2).double_click()
+    assert source.cell(2, 2).get_text() == test.get_selected_text()
+
+    # copy the source text to clipboard using CTRL+C or COMMAND+C
+    test.copy()
+
+    # assert the target cell value is different before paste
+    target.cell(1, 1).click()
+    assert target.cell(1, 1).get_text() != source.cell(2, 2).get_text()
+
+    # assert the target cell value has changed to the pasted value
+    test.paste()
+    assert target.cell(1, 1).get_text() == source.cell(2, 2).get_text()
+
+    assert test.get_log_errors() == []
+
+
+def test_tbcp011_copy_double_quotes(test):
+    test.start_server(get_app())
+
+    source = test.table("table4")
+    target = test.table("table2")
+
+    source.cell(0, 0).click()
+    with test.hold(Keys.SHIFT):
+        source.cell(0, 1).click()
+
+    test.copy()
+    target.cell(0, 0).click()
+    test.paste()
+
+    for row in range(1):
+        for col in range(2):
+            assert target.cell(row, col).get_text() == source.cell(row, col).get_text()
+
+    assert test.get_log_errors() == []
+
+
+def test_tbcp011_copy_multiline(test):
+    test.start_server(get_app())
+
+    source = test.table("table4")
+    target = test.table("table2")
+
+    source.cell(1, 0).click()
+    with test.hold(Keys.SHIFT):
+        source.cell(1, 1).click()
+
+    test.copy()
+    target.cell(1, 0).click()
+    test.paste()
+
+    for row in range(1, 2):
+        for col in range(2):
+            assert target.cell(row, col).get_text() == source.cell(row, col).get_text()
 
     assert test.get_log_errors() == []

@@ -421,10 +421,10 @@ def test_cbwc006_grouping_callbacks(dash_duo):
             items=dict(
                 all=[
                     {
-                        "id": {"item": i},
+                        "id": {"id": i},
                         "property": "children",
                         "value": text,
-                        "str_id": stringify_id({"item": i}),
+                        "str_id": stringify_id({"id": i}),
                         "triggered": False,
                     }
                     for i, text in enumerate(items_text[:-1])

@@ -583,7 +583,7 @@
             "elements": [
                 "ol"
             ],
-            "description": "Indicates whether the list should be displayed in a descending order instead of a ascending."
+            "description": "Indicates whether the list should be displayed in a descending order instead of an ascending order."
         },
         "role": {
             "elements": [
@@ -736,6 +736,7 @@
                 "command",
                 "embed",
                 "object",
+                "ol",
                 "script",
                 "source",
                 "style",
@@ -1125,7 +1126,8 @@
         ],
         "ol": [
             "reversed",
-            "start"
+            "start",
+            "type"
         ],
         "col": [
             "span"

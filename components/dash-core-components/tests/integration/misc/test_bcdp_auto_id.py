@@ -1,7 +1,7 @@
 from dash import Dash, Input, Output, dcc, html
 
 
-def test_msps002_auto_id_assert(dash_dcc):
+def test_msai001_auto_id_assert(dash_dcc):
     app = Dash(__name__)
 
     input1 = dcc.Input(value="Hello Input 1")
@@ -42,5 +42,17 @@ def test_msps002_auto_id_assert(dash_dcc):
 
     dash_dcc.start_server(app)
 
+    def escape_id(dep):
+        _id = dep.id
+        if _id[0] in "0123456789":
+            _id = "\\3" + _id[0] + " " + _id[1:]
+        return "#" + _id
+
     dash_dcc.wait_for_element(".rc-slider")
-    dash_dcc.percy_snapshot("component_auto_id - test_msps002_auto_id_assert", True)
+    dash_dcc.find_element(escape_id(input1))
+    dash_dcc.find_element(escape_id(input2))
+    dash_dcc.wait_for_text_to_equal(escape_id(output1), "Output1: Input1=Hello Input 1")
+    dash_dcc.wait_for_text_to_equal(escape_id(output2), "Output2: Input2=Hello Input 2")
+    dash_dcc.wait_for_text_to_equal(
+        escape_id(output3), "Output3: Input1=Hello Input 1, Input2=Hello Input 2"
+    )

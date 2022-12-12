@@ -34,7 +34,7 @@ module.exports = {
     optimization: {
         splitChunks: {
             chunks: 'async',
-            name: true,
+            name: '[name].js',
             cacheGroups: {
                 async: {
                     chunks: 'async',

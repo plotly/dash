@@ -445,17 +445,17 @@ def test_app_invalid_delayed_config():
         (None, None, False),
         (None, True, True),
         (None, False, False),
-        ('True', None, True),
-        ('True', True, True),
-        ('True', False, False),
-        ('False', None, False),
-        ('False', True, True),
-        ('False', False, False),
+        ("True", None, True),
+        ("True", True, True),
+        ("True", False, False),
+        ("False", None, False),
+        ("False", True, True),
+        ("False", False, False),
     ],
 )
 def test_debug_mode_run(empty_environ, debug_env, debug, expected):
     if debug_env:
-        os.environ['DASH_DEBUG'] = debug_env
+        os.environ["DASH_DEBUG"] = debug_env
     app = Dash()
     with pytest.raises(AssertionError):
         app.run(debug=debug, port=-1)
@@ -468,17 +468,22 @@ def test_debug_mode_run(empty_environ, debug_env, debug, expected):
         (None, None, True),
         (None, True, True),
         (None, False, False),
-        ('True', None, True),
-        ('True', True, True),
-        ('True', False, False),
-        ('False', None, False),
-        ('False', True, True),
-        ('False', False, False),
+        ("True", None, True),
+        ("True", True, True),
+        ("True", False, False),
+        ("False", None, False),
+        ("False", True, True),
+        ("False", False, False),
     ],
 )
 def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
     if debug_env:
-        os.environ['DASH_DEBUG'] = debug_env
+        os.environ["DASH_DEBUG"] = debug_env
     app = Dash()
     app.enable_dev_tools(debug=debug)
     assert app._dev_tools.ui == expected
+
+
+def test_missing_flask_compress_raises():
+    with pytest.raises(ImportError):
+        Dash(compress=True)

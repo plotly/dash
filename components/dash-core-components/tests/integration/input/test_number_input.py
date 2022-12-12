@@ -7,21 +7,21 @@ def test_inni001_invalid_numbers(ninput_app, dash_dcc):
     dash_dcc.start_server(ninput_app)
     for invalid_number in ("10e10000", "e+++eeeeeE-", "12-.3"):
         for debounce in ("false", "true"):
-            elem = dash_dcc.find_element("#input_{}".format(debounce))
+            elem = dash_dcc.find_element(f"#input_{debounce}")
             assert not elem.get_attribute("value"), "input should have no initial value"
 
             # onblur
             elem.send_keys(invalid_number)
             elem.send_keys(Keys.TAB)
 
-            dash_dcc.wait_for_text_to_equal("#div_{}".format(debounce), "")
+            dash_dcc.wait_for_text_to_equal(f"#div_{debounce}", "")
 
             # Enter keypress
             dash_dcc.clear_input(elem)
             elem.send_keys(invalid_number)
             elem.send_keys(Keys.ENTER)
 
-            dash_dcc.wait_for_text_to_equal("#div_{}".format(debounce), "")
+            dash_dcc.wait_for_text_to_equal(f"#div_{debounce}", "")
 
             dash_dcc.clear_input(elem)
 

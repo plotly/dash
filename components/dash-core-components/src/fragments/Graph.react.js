@@ -136,6 +136,7 @@ class PlotlyGraph extends Component {
         this.gd = React.createRef();
         this._hasPlotted = false;
         this._prevGd = null;
+        this._queue = Promise.resolve();
 
         this.bindEvents = this.bindEvents.bind(this);
         this.getConfig = this.getConfig.bind(this);
@@ -144,6 +145,7 @@ class PlotlyGraph extends Component {
         this.getLayoutOverride = this.getLayoutOverride.bind(this);
         this.graphResize = this.graphResize.bind(this);
         this.isResponsive = this.isResponsive.bind(this);
+        this.amendTraces = this.amendTraces.bind(this);
 
         this.state = {override: {}, originals: {}};
     }
@@ -219,41 +221,78 @@ class PlotlyGraph extends Component {
             });
     }
 
-    mergeTraces(props, dataKey, plotlyFnKey) {
-        const clearState = props.clearState;
-        const dataArray = props[dataKey];
+    amendTraces(p, oldProps, newProps) {
+        const {prependData: oldPrepend, extendData: oldExtend} = oldProps;
+        const {prependData: newPrepend, extendData: newExtend} = newProps;
+        const _this = this;
 
-        let p = Promise.resolve();
+        function mergeTraces(props, dataKey, plotlyFnKey) {
+            const clearState = props.clearState;
+            const dataArray = props[dataKey];
 
-        dataArray.forEach(data => {
-            let updateData, traceIndices, maxPoints;
-            if (Array.isArray(data) && typeof data[0] === 'object') {
-                [updateData, traceIndices, maxPoints] = data;
-            } else {
-                updateData = data;
-            }
+            let _p = Promise.resolve();
 
-            if (!traceIndices) {
-                function getFirstProp(data) {
-                    return data[Object.keys(data)[0]];
+            dataArray.forEach(data => {
+                let updateData, traceIndices, maxPoints;
+                if (Array.isArray(data) && typeof data[0] === 'object') {
+                    [updateData, traceIndices, maxPoints] = data;
+                } else {
+                    updateData = data;
                 }
 
-                function generateIndices(data) {
-                    return Array.from(Array(getFirstProp(data).length).keys());
-                }
-                traceIndices = generateIndices(updateData);
-            }
+                if (!traceIndices) {
+                    function getFirstProp(data) {
+                        return data[Object.keys(data)[0]];
+                    }
 
-            p = p.then(() => {
-                const gd = this.gd.current;
-                return (
-                    gd &&
-                    Plotly[plotlyFnKey](gd, updateData, traceIndices, maxPoints)
-                );
+                    function generateIndices(data) {
+                        return Array.from(
+                            Array(getFirstProp(data).length).keys()
+                        );
+                    }
+                    traceIndices = generateIndices(updateData);
+                }
+
+                _p = _p.then(() => {
+                    const gd = _this.gd.current;
+                    return (
+                        gd &&
+                        Plotly[plotlyFnKey](
+                            gd,
+                            updateData,
+                            traceIndices,
+                            maxPoints
+                        )
+                    );
+                });
             });
-        });
 
-        p.then(() => clearState(dataKey));
+            return _p.then(() => clearState(dataKey));
+        }
+
+        let modified = false;
+
+        if (newPrepend?.length && oldPrepend !== newPrepend) {
+            modified = true;
+            p = p.then(() =>
+                mergeTraces(newProps, 'prependData', 'prependTraces')
+            );
+        }
+
+        if (newExtend?.length && oldExtend !== newExtend) {
+            modified = true;
+            p = p.then(() =>
+                mergeTraces(newProps, 'extendData', 'extendTraces')
+            );
+        }
+
+        if (modified) {
+            p = p.then(() =>
+                newProps._dashprivate_onFigureModified(newProps.figure)
+            );
+        }
+
+        return p;
     }
 
     getConfig(config, responsive) {
@@ -405,23 +444,8 @@ class PlotlyGraph extends Component {
     }
 
     componentDidMount() {
-        let p = this.plot(this.props);
-        if (this.props.prependData) {
-            p = p.then(() =>
-                this.mergeTraces(this.props, 'prependData', 'prependTraces')
-            );
-        }
-        if (this.props.extendData) {
-            p = p.then(() =>
-                this.mergeTraces(this.props, 'extendData', 'extendTraces')
-            );
-        }
-
-        if (this.props.prependData?.length || this.props.extendData?.length) {
-            p.then(() =>
-                this.props._dashprivate_onFigureModified(this.props.figure)
-            );
-        }
+        const p = this.plot(this.props);
+        this._queue = this.amendTraces(p, {}, this.props);
     }
 
     componentWillUnmount() {
@@ -454,7 +478,8 @@ class PlotlyGraph extends Component {
             return;
         }
 
-        let p = Promise.resolve();
+        let p = this._queue;
+
         if (
             this.props.mathjax !== nextProps.mathjax ||
             this.props.figure !== nextProps.figure ||
@@ -463,26 +488,10 @@ class PlotlyGraph extends Component {
             this.props._dashprivate_transformFigure !==
                 nextProps._dashprivate_transformFigure
         ) {
-            p = this.plot(nextProps);
+            p = p.then(() => this.plot(nextProps));
         }
 
-        if (this.props.prependData !== nextProps.prependData) {
-            p = p.then(() =>
-                this.mergeTraces(nextProps, 'prependData', 'prependTraces')
-            );
-        }
-
-        if (this.props.extendData !== nextProps.extendData) {
-            p = p.then(() =>
-                this.mergeTraces(nextProps, 'extendData', 'extendTraces')
-            );
-        }
-
-        if (this.props.prependData?.length || this.props.extendData?.length) {
-            p.then(() =>
-                this.props._dashprivate_onFigureModified(this.props.figure)
-            );
-        }
+        this._queue = this.amendTraces(p, this.props, nextProps);
     }
 
     componentDidUpdate(prevProps) {
@@ -490,7 +499,7 @@ class PlotlyGraph extends Component {
             prevProps.id !== this.props.id ||
             prevProps.mathjax !== this.props.mathjax
         ) {
-            this.plot(this.props);
+            this._queue = this._queue.then(() => this.plot(this.props));
         }
     }
 

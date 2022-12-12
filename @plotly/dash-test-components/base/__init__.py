@@ -13,10 +13,15 @@ from ._imports_ import *  # noqa: F401, F403
 from ._imports_ import __all__  # noqa: E402
 
 _js_dist = [
-    dict(
-        relative_package_path='dash_test_components.js',
-        namespace='dash_test_components'
-    )
+    {
+        "relative_package_path": "dash_test_components.js",
+        "namespace": "dash_test_components"
+    },
+    {
+        "relative_package_path": "async-test-async.js",
+        "namespace": "dash_test_components",
+        "async": "lazy",
+    },
 ]
 
 for _component in __all__:

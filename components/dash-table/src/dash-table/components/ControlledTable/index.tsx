@@ -794,14 +794,17 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             include_headers_on_copy_paste
         } = this.props;
 
-        TableClipboardHelper.toClipboard(
-            e,
-            selected_cells,
-            columns,
-            visibleColumns,
-            viewport.data,
-            include_headers_on_copy_paste
-        );
+        // if no cells are selected, fall back to the browser's default copy event handling
+        if (selected_cells.length) {
+            TableClipboardHelper.toClipboard(
+                e,
+                selected_cells,
+                columns,
+                visibleColumns,
+                viewport.data,
+                include_headers_on_copy_paste
+            );
+        }
         this.$el.focus();
     };
 

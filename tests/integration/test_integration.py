@@ -2,19 +2,21 @@ import datetime
 import flask
 import json
 import pytest
+import re
 
 from bs4 import BeautifulSoup
 
 import dash_dangerously_set_inner_html
 import dash_flow_example
 
+import dash
 from dash import Dash, html, dcc, Input, Output
 from dash.exceptions import PreventUpdate
 
 from dash.testing.wait import until
 
 
-def test_inin004_wildcard_data_attributes(dash_duo):
+def test_inin003_wildcard_data_attributes(dash_duo):
     app = Dash()
     test_time = datetime.datetime(2012, 1, 10, 2, 3)
     test_date = datetime.date(test_time.year, test_time.month, test_time.day)
@@ -43,10 +45,10 @@ def test_inin004_wildcard_data_attributes(dash_duo):
 
     assert actual == expected, "all attrs are included except None values"
 
-    assert not dash_duo.get_logs()
+    assert dash_duo.get_logs() == []
 
 
-def test_inin005_no_props_component(dash_duo):
+def test_inin004_no_props_component(dash_duo):
     app = Dash()
     app.layout = html.Div(
         [
@@ -55,16 +57,21 @@ def test_inin005_no_props_component(dash_duo):
             <h1>No Props Component</h1>
         """
             )
-        ]
+        ],
+        id="app",
     )
 
     dash_duo.start_server(app)
 
-    assert not dash_duo.get_logs()
-    dash_duo.percy_snapshot(name="no-props-component")
+    assert dash_duo.get_logs() == []
+    assert dash_duo.find_element("h1").text == "No Props Component"
+
+    inner = dash_duo.find_element("#app").get_property("innerHTML")
+    expected = "<div> <h1>No Props Component</h1> </div>"
+    assert re.sub("\\s+", " ", inner) == expected
 
 
-def test_inin006_flow_component(dash_duo):
+def test_inin005_flow_component(dash_duo):
     app = Dash()
 
     app.layout = html.Div(
@@ -102,7 +109,7 @@ def test_inin006_flow_component(dash_duo):
     dash_duo.percy_snapshot(name="flowtype")
 
 
-def test_inin007_meta_tags(dash_duo):
+def test_inin006_meta_tags(dash_duo):
     metas = [
         {"name": "description", "content": "my dash app"},
         {"name": "custom", "content": "customized"},
@@ -116,14 +123,33 @@ def test_inin007_meta_tags(dash_duo):
 
     meta = dash_duo.find_elements("meta")
 
-    # -2 for the meta charset and http-equiv.
-    assert len(meta) == len(metas) + 2, "Should have 2 extra meta tags"
+    # -3 for the meta charset, http-equiv and viewport.
+    assert len(meta) == len(metas) + 3, "Should have 3 extra meta tags"
 
-    for i in range(2, len(meta)):
+    for i in range(3, len(meta)):
         meta_tag = meta[i]
-        meta_info = metas[i - 2]
+        meta_info = metas[i - 3]
         assert meta_tag.get_attribute("name") == meta_info["name"]
         assert meta_tag.get_attribute("content") == meta_info["content"]
+
+
+def test_inin007_change_viewport_meta_tag(dash_duo):
+    """
+    As of dash 2.5 the default viewport meta tag is:
+        [{"name": "viewport", "content": "width=device-width, initial-scale=1"}]
+    Test verifies that this feature can be disabled by using an empty viewport tag.
+    """
+
+    app = Dash(meta_tags=[{"name": "viewport"}])
+
+    app.layout = html.Div(id="content")
+
+    dash_duo.start_server(app)
+
+    viewport_meta = dash_duo.find_elements('meta[name="viewport"]')
+
+    assert len(viewport_meta) == 1, "Should have 1 viewport meta tags"
+    assert viewport_meta[0].get_attribute("content") == ""
 
 
 def test_inin008_index_customization(dash_duo):
@@ -167,9 +193,10 @@ def test_inin008_index_customization(dash_duo):
 
     assert dash_duo.find_element("#custom-header").text == "My custom header"
     assert dash_duo.find_element("#custom-footer").text == "My custom footer"
+    assert dash_duo.find_element("#app").text == "Dash app"
     assert dash_duo.wait_for_element("#add").text == "Got added"
 
-    dash_duo.percy_snapshot("custom-index")
+    assert dash_duo.get_logs() == []
 
 
 def test_inin009_invalid_index_string(dash_duo):
@@ -337,3 +364,66 @@ def test_inin026_graphs_in_tabs_do_not_share_state(dash_duo):
     dash_duo.find_element("#graph2:not(.dash-graph--pending)").click()
 
     until(lambda: '"label": 3' in dash_duo.find_element("#graph2_info").text, timeout=3)
+
+
+def test_inin027_multi_page_without_pages_folder(dash_duo):
+    app = Dash(__name__, pages_folder="")
+
+    # test for storing arbitrary keyword arguments: An `id` prop is defined for every page
+    # test for defining multiple pages within a single file: layout is passed directly to `register_page`
+    # in the following two modules:
+    dash.register_page(
+        "multi_layout1",
+        layout=html.Div("text for multi_layout1", id="text_multi_layout1"),
+        path="/",
+        title="Supplied Title",
+        description="This is the supplied description",
+        name="Supplied name",
+        image="birds.jpeg",
+        id="multi_layout1",
+    )
+    dash.register_page(
+        "multi_layout2",
+        layout=html.Div("text for multi_layout2", id="text_multi_layout2"),
+        path="/layout2",
+        id="multi_layout2",
+    )
+
+    dash.register_page(
+        "not_found_404",
+        layout=html.Div("text for not_found_404", id="text_not_found_404"),
+        id="not_found_404",
+    )
+
+    app.layout = html.Div(
+        [
+            html.Div(
+                [
+                    html.Div(
+                        dcc.Link(
+                            f"{page['name']} - {page['path']}",
+                            id=page["id"],
+                            href=page["path"],
+                        )
+                    )
+                    for page in dash.page_registry.values()
+                ]
+            ),
+            dash.page_container,
+        ]
+    )
+
+    dash_duo.start_server(app)
+    # test layout and title for each page in `page_registry` with link navigation
+    for page in dash.page_registry.values():
+        dash_duo.find_element("#" + page["id"]).click()
+        dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
+        assert dash_duo.driver.title == page["title"], "check that page title updates"
+
+    # test registration of not_found_404
+    assert "not_found_404" in dash.page_registry.keys(), "check custom not_found_404"
+
+    # clean up so this page doesn't affect other tests
+    del dash.page_registry["not_found_404"]
+
+    assert not dash_duo.get_logs()

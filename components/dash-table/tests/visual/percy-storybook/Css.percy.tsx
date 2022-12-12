@@ -17,12 +17,15 @@ const props = {
     css: [{selector: 'td', rule: 'background-color: red !important;'}]
 };
 
-storiesOf('DashTable/CSS override', module)
-    .add('leading _ without letter', () => <DataTable {...props} id={'_123'} />)
-    .add('leading number', () => <DataTable {...props} id={'123'} />)
-    .add('escaped characters', () => (
+storiesOf('DashTable/CSS override', module).add('all variants', () => (
+    <div>
+        <div>leading _ without letter</div>
+        <DataTable {...props} id={'_123'} />
+        <div>leading number</div>
+        <DataTable {...props} id={'123'} />
+        <div>escaped characters</div>
         <DataTable {...props} id={'`~!@#$%^&*()=+ \\|/.,:;\'"`?[]<>{}'} />
-    ))
-    .add('stringified object as id', () => (
+        <div>stringified object as id</div>
         <DataTable {...props} id={"{ id: 3, group: 'A' }"} />
-    ));
+    </div>
+));

@@ -1,11 +1,14 @@
 from collections.abc import MutableSequence
 import re
 from textwrap import dedent
+from keyword import iskeyword
+import flask
 
 from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
-from ._utils import patch_collections_abc, stringify_id, to_json
+from ._utils import patch_collections_abc, stringify_id, to_json, coerce_to_list
+from .exceptions import PageError
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -408,3 +411,104 @@ def validate_layout(layout, layout_value):
                 """
             )
         component_ids.add(component_id)
+
+
+def validate_template(template):
+    variable_names = re.findall("<(.*?)>", template)
+
+    for name in variable_names:
+        if not name.isidentifier() or iskeyword(name):
+            raise Exception(
+                f'`{name}` is not a valid Python variable name in `path_template`: "{template}".'
+            )
+
+
+def check_for_duplicate_pathnames(registry):
+    path_to_module = {}
+    for page in registry.values():
+        if page["path"] not in path_to_module:
+            path_to_module[page["path"]] = [page["module"]]
+        else:
+            path_to_module[page["path"]].append(page["module"])
+
+    for modules in path_to_module.values():
+        if len(modules) > 1:
+            raise Exception(f"modules {modules} have duplicate paths")
+
+
+def validate_registry(registry):
+    for page in registry.values():
+        if "layout" not in page:
+            raise exceptions.NoLayoutException(
+                f"No layout in module `{page['module']}` in dash.page_registry"
+            )
+        if page["module"] == "__main__":
+            raise Exception(
+                """
+                When registering pages from app.py, `__name__` is not a valid module name.  Use a string instead.
+                For example, `dash.register_page("my_module_name")`, rather than `dash.register_page(__name__)`
+                """
+            )
+
+
+def validate_pages_layout(module, page):
+    if not hasattr(page, "layout"):
+        raise exceptions.NoLayoutException(
+            f"""
+            No layout found in module {module}
+            A variable or a function named "layout" is required.
+            """
+        )
+
+
+def validate_use_pages(config):
+    if not config.get("assets_folder", None):
+        raise PageError("`dash.register_page()` must be called after app instantiation")
+
+    if flask.has_request_context():
+        raise PageError(
+            """
+            dash.register_page() can’t be called within a callback as it updates dash.page_registry, which is a global variable.
+             For more details, see https://dash.plotly.com/sharing-data-between-callbacks#why-global-variables-will-break-your-app
+            """
+        )
+
+
+def validate_module_name(module):
+    if not isinstance(module, str):
+        raise Exception(
+            "The first attribute of dash.register_page() must be a string or '__name__'"
+        )
+    return module
+
+
+def validate_long_callbacks(callback_map):
+    # Validate that long callback side output & inputs are not circular
+    # If circular, triggering a long callback would result in a fatal server/computer crash.
+    all_outputs = set()
+    input_indexed = {}
+    for callback in callback_map.values():
+        out = coerce_to_list(callback["output"])
+        all_outputs.update(out)
+        for o in out:
+            input_indexed.setdefault(o, set())
+            input_indexed[o].update(coerce_to_list(callback["raw_inputs"]))
+
+    for callback in (x for x in callback_map.values() if x.get("long")):
+        long_info = callback["long"]
+        progress = long_info.get("progress", [])
+        running = long_info.get("running", [])
+
+        long_inputs = coerce_to_list(callback["raw_inputs"])
+        outputs = set([x[0] for x in running] + progress)
+        circular = [
+            x
+            for x in set(k for k, v in input_indexed.items() if v.intersection(outputs))
+            if x in long_inputs
+        ]
+
+        if circular:
+            raise exceptions.LongCallbackError(
+                f"Long callback circular error!\n{circular} is used as input for a long callback"
+                f" but also used as output from an input that is updated with progress or running argument."
+            )

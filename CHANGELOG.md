@@ -1,24 +1,158 @@
-# Change Log for Dash
+[# Change Log for Dash
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.7.1] - 2022-12-12
 
 ### Fixed
 
-- [#2043](https://github.com/plotly/dash/pull/2043) Fix bug 
-[#2003](https://github.com/plotly/dash/issues/2003) in which 
-`dangerously_allow_html=True` + `mathjax=True` works in some cases, and in some cases not.
-- [#2047](https://github.com/plotly/dash/pull/2047) Fix bug [#1979](https://github.com/plotly/dash/issues/1979) in which `DASH_DEBUG` as enviroment variable gets ignored.
-- [#2065](https://github.com/plotly/dash/pull/2065) Fix bug [#2064](https://github.com/plotly/dash/issues/2064) rendering of `dcc.Dropdown` with a value but no options.
+- [#2344](https://github.com/plotly/dash/pull/2344) Fix [#1519](https://github.com/plotly/dash/issues/1519), a case where dependent callbacks can be called too many times and with inconsistent inputs
+- [#2332](https://github.com/plotly/dash/pull/2332) Add key to wrapped children props in list.
+- [#2336](https://github.com/plotly/dash/pull/2336) Fix inserted dynamic ids in component as props.
+
+### Updated
+
+- [#2361](https://github.com/plotly/dash/pull/2361) Dependencies upgrade.
+  - Update Plotly.js to v2.16.4 (from v2.16.1): fix several bugs, particularly related to updating mapbox graphs.
+    - Patch release [2.16.4](https://github.com/plotly/plotly.js/releases/tag/v2.16.4)
+    - Patch release [2.16.3](https://github.com/plotly/plotly.js/releases/tag/v2.16.3)
+    - Patch release [2.16.2](https://github.com/plotly/plotly.js/releases/tag/v2.16.2)
+- [#2363](https://github.com/plotly/dash/pull/2363) Update html attributes for ol
+
+## [2.7.0] - 2022-11-03
+
+### Removed
+
+- [#2282](https://github.com/plotly/dash/pull/2282) Dropped support for Internet Explorer. Our build process now targets vendor-supported browsers released in the last 7 years. Currently this means ES2015 but over time this will natually advance as older browser versions pass the 7-year threshold.
+
+### Added
+
+- [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
+
+### Updated
+
+- [#2282](https://github.com/plotly/dash/pull/2282) Widespread dependency upgrades
+  - Update Plotly.js to v2.16.1 (from v2.13.3)
+    - Feature release [2.14.0](https://github.com/plotly/plotly.js/releases/tag/v2.14.0) adds arrows to `sankey` links, and `editSelection` option to config.
+    - Feature release [2.15.0](https://github.com/plotly/plotly.js/releases/tag/v2.15.0) adds directed arrowheads and markers to `scatter` and scatter-like traces and increased control of automargin and legend sizing
+    - Feature release [2.16.0](https://github.com/plotly/plotly.js/releases/tag/v2.16.0) adds clustering to `scattermapbox` traces and restricted bounds to `mapbox` plots.
+    - Patch releases [2.15.1](https://github.com/plotly/plotly.js/releases/tag/v2.15.1) and [2.16.1](https://github.com/plotly/plotly.js/releases/tag/v2.16.1) fix several bugs.
+
+### Fixed
+
+- [#2292](https://github.com/plotly/dash/pull/2292) Pages: find the 404 page even if `pages_folder` is nested, or the 404 page is nested inside `pages_folder`.
+- [#2265](https://github.com/plotly/dash/pull/2265) Removed deprecated `before_first_request` as reported in [#2177](https://github.com/plotly/dash/issues/2177).
+- [#2257](https://github.com/plotly/dash/pull/2257) Fix tuple types in the TypeScript component generator.
+- [#2293](https://github.com/plotly/dash/pull/2293) Fix Dropdown useMemo not detecting equal objects
+- [#2277](https://github.com/plotly/dash/pull/2277) Use dropdown styles from node_modules, instead of from stored css file
+- [#2105](https://github.com/plotly/dash/pull/2105) Fix order of dash component libraries imports.
+
+### Changed
+
+- [#2291](https://github.com/plotly/dash/pull/2291) Move `flask-compress` dependency to new extras requires `dash[compress]`
+
+## [2.6.2] - 2022-09-23
+
+### Fixed
+
+- [#2237](https://github.com/plotly/dash/pull/2237) Ensure calls to `plotly.js` from `dcc.Graph` are properly sequenced even if React initiates multiple render cycles in quick succession.
+- [#2218](https://github.com/plotly/dash/pull/2218) Fix bug [#1348](https://github.com/plotly/dash/issues/1348) Validate children prop (required or not).
+- [#2223](https://github.com/plotly/dash/pull/2223) Exclude hidden folders when building `dash.page_registry`.
+- [#2182](https://github.com/plotly/dash/pull/2182) Fix [#2172](https://github.com/plotly/dash/issues/2172)  Make it so that when using pages, if `suppress_callback_exceptions=True` the `validation_layout` is not set.
+- [#2152](https://github.com/plotly/dash/pull/2152) Fix bug [#2128](https://github.com/plotly/dash/issues/2128) preventing rendering of multiple components inside a dictionary.
+- [#2187](https://github.com/plotly/dash/pull/2187) Fix confusing error message when trying to use pytest fixtures but `dash[testing]` is not installed.
+- [#2202](https://github.com/plotly/dash/pull/2202) Fix bug [#2185](https://github.com/plotly/dash/issues/2185) when you copy text with multiple quotes into a table
+- [#2226](https://github.com/plotly/dash/pull/2226) Fix [#2219](https://github.com/plotly/dash/issues/2219) pages register & background callbacks.
+
+## [2.6.1] - 2022-08-01
+
+### Fixed
+
+- [#2175](https://github.com/plotly/dash/pull/2175) Fix [#2173](https://github.com/plotly/dash/issues/2173) callback output of ndarray and no_update check.
+- [#2146](https://github.com/plotly/dash/pull/2146) Remove leftover debug console.log statement.
+- [#2168](https://github.com/plotly/dash/pull/2168)  Reverts [#2126](https://github.com/plotly/dash/pull/2126) (supporting redirect from root when using pages) until the new bugs introduced by that PR are fixed.
+
+### Updated
+
+- [#2167](https://github.com/plotly/dash/pull/2167) Update Plotly.js to v2.13.3 (from v2.13.1) including [patch release v2.13.2](https://github.com/plotly/plotly.js/releases/tag/v2.13.2) and [patch release v2.13.3](https://github.com/plotly/plotly.js/releases/tag/v2.13.3).
+  - Emit `plotly_selected` event on plot API calls and GUI edits.
+  - Fix `sankey` select error (regression introduced in 2.13.0).
+  - Handle missing drag layer of invisible `sankey` traces to fix select error.
+  - Emit selection event in shape drawing `dragmode`s when an existing selection is modified.
+
+## [2.6.0] - 2022-07-14
+
+### Added
+- [#2109](https://github.com/plotly/dash/pull/2109) Add `maxHeight` to Dropdown options menu.
+- [#2039](https://github.com/plotly/dash/pull/2039) Long callback changes:
+  - Add `background=False` to `dash.callback` to use instead of `app.long_callback`.
+  - Add previous `app.long_callback` arguments to `dash.callback` (`interval`, `running`, `cancel`, `progress`, `progress_default`, `cache_args_to_ignore`, `manager`)
+- [#2110](https://github.com/plotly/dash/pull/2110) Add `search` prop to `dcc.Dropdown` options, allowing to search the dropdown options with something other than the label or value.
+
+### Fixed
+- [#2126](https://github.com/plotly/dash/pull/2126) Fix bug where it was not possible to redirect from root when using pages.
+- [#2114](https://github.com/plotly/dash/pull/2114) Fix bug [#1978](https://github.com/plotly/dash/issues/1978) where text could not be copied from cells in tables with `cell_selectable=False`.
+- [#2102](https://github.com/plotly/dash/pull/2102) Fix bug as reported in [dash-labs #113](https://github.com/plotly/dash-labs/issues/113) where files starting with `.` were not excluded when building `dash.page_registry`.
+- [#2100](https://github.com/plotly/dash/pull/2100) Fixes bug where module name in for a custom `not_found_404` page is incorrect in the `dash.page_registry` when not using the `pages` folder.
+- [#2098](https://github.com/plotly/dash/pull/2098) Accept HTTP code 400 as well as 401 for JWT expiry
+- [#2097](https://github.com/plotly/dash/pull/2097) Fix bug [#2095](https://github.com/plotly/dash/issues/2095) with TypeScript compiler and `React.FC` empty valueDeclaration error & support empty props components.
+- [#2104](https://github.com/plotly/dash/pull/2104) Fix bug [#2099](https://github.com/plotly/dash/issues/2099) with Dropdown clearing search value when a value is selected.
+- [#2039](https://github.com/plotly/dash/pull/2039) Fix bugs in long callbacks:
+  - Fix [#1769](https://github.com/plotly/dash/issues/1769) and [#1852](https://github.com/plotly/dash/issues/1852) short interval makes job run in loop.
+  - Fix [#1974](https://github.com/plotly/dash/issues/1974) returning `no_update` or raising `PreventUpdate` not supported with celery.
+  - Fix use of the callback context in celery long callbacks.
+  - Fix support of pattern matching for long callbacks.
+- [#2110](https://github.com/plotly/dash/pull/2110) Fix `dcc.Dropdown` search with component as prop for option label.
+- [#2131](https://github.com/plotly/dash/pull/2131) Add encoding to file open calls. Fix bug [#2127](https://github.com/plotly/dash/issues/2127).
+
+## Changed
+
+- [#2116](https://github.com/plotly/dash/pull/2116) Rename long callbacks to background callbacks
+  - Deprecated `dash.long_callback.managers.CeleryLongCallbackManager`, use `dash.CeleryManager` instead.
+  - Deprecated `dash.long_callback.managers.DiskcacheLongCallbackManager`, use `dash.DiskcacheManager` instead.
+  - Deprecated dash constructor argument `long_callback_manager` in favor of `background_callback_manager`.
+
+### Updated
+- [#2134](https://github.com/plotly/dash/pull/2134) Upgrade Plotly.js to v2.13.1 (from v2.12.1) including [feature release 2.13.0](https://github.com/plotly/plotly.js/releases/tag/v2.13.0) and [patch release 2.13.1](https://github.com/plotly/plotly.js/releases/tag/v2.13.1)
+  - Add persistent selections via layout attributes `selections`, `newselection`, and `activeselection`, along with an updated UI allowing you to modify a selection you created.
+  - Add unselected line styling to `parcoords` traces.
+  - Add more quartile algorithms to `violin` traces.
+  - More flexible axis `automargin` behavior.
+  - And several other enhancements and bug fixes.
+
+## [2.5.1] - 2022-06-13
+
+### Fixed
+
+- [#2087](https://github.com/plotly/dash/pull/2087) Fix bug [#2086](https://github.com/plotly/dash/issues/2086) in which using id as a key within a component's id breaks the new callback context's `args_grouping` function.
+- [#2084](https://github.com/plotly/dash/pull/2084) In dash 2.5.0, a default viewport meta tag was added as recommended for mobile-optimized sites by [mdn](https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag)
+This feature can be disabled by providing an empty viewport meta tag.  e.g. `app = Dash(meta_tags=[{"name": "viewport"}])`
+- [#2090](https://github.com/plotly/dash/pull/2090), [#2092](https://github.com/plotly/dash/pull/2092).  Fixed bug where the `path` to the `pages_folder` was incorrect on Windows.
+
+### Removed
+
+- [#2087](https://github.com/plotly/dash/pull/2087) Removed the undocumented callback context `args_grouping_values` property which was incompatible with pattern-matching callbacks.
+
+## [2.5.0] - 2022-06-07
+
+### Added
+
+- [#1947](https://github.com/plotly/dash/pull/1947)  Added `pages` - a better way to build multi-page apps. For more information see the [forum post.](https://community.plotly.com/t/introducing-dash-pages-a-dash-2-x-feature-preview/57775)
+- [#1965](https://github.com/plotly/dash/pull/1965) Add component as props.
+- [#2049](https://github.com/plotly/dash/pull/2049) Added `wait_for_class_to_equal` and `wait_for_contains_class` methods to `dash.testing`
 
 ### Changed
 
 - [#2050](https://github.com/plotly/dash/pull/2050) Changed `find_element` and `find_elements` to accept an `attribute` argument that aligns with Selenium's `By` class, allowing you to search elements by other attributes. Default value is `CSS_SELECTOR` to maintain backwards compatibility with previous `find_elements`.
 
-### Added
+### Fixed
 
-- [#2049](https://github.com/plotly/dash/pull/2043) Added `wait_for_class_to_equal` and `wait_for_contains_class` methods to `dash.testing`
+- [#2043](https://github.com/plotly/dash/pull/2043) Fix bug
+[#2003](https://github.com/plotly/dash/issues/2003) in which
+`dangerously_allow_html=True` + `mathjax=True` works in some cases, and in some cases not.
+- [#2065](https://github.com/plotly/dash/pull/2065) Fix bug [#2064](https://github.com/plotly/dash/issues/2064) rendering of `dcc.Dropdown` with a value but no options.
+- [#2047](https://github.com/plotly/dash/pull/2047) Fix bug [#1979](https://github.com/plotly/dash/issues/1979) in which `DASH_DEBUG` as environment variable gets ignored.
+- [#2070](https://github.com/plotly/dash/pull/2070) Fix bug [#2066](https://github.com/plotly/dash/issues/2066) nested types triggering maximum call stack error when building typescript components.
 
 ## [2.4.1] - 2022-05-11
 

@@ -1,45 +1,34 @@
-import os
 from multiprocessing import Value
 
 from dash import Dash, html, dcc, Input, Output
 
 
 def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
-    app = Dash(__name__)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [dcc.Input(id="input", value="initial value"), html.Div(id="output-1")]
     )
 
     output_1_call_count = Value("i", 0)
-    percy_enabled = Value("b")
-
-    def snapshot(name):
-        percy_enabled.value = os.getenv("PERCY_ENABLE", "") != ""
-        dash_duo.percy_snapshot(name=name)
-        percy_enabled.value = False
 
     @app.callback(Output("output-1", "children"), [Input("input", "value")])
     def update_output(value):
-        if not percy_enabled.value:
-            output_1_call_count.value += 1
+        output_1_call_count.value += 1
         return value
 
     # callback for component that doesn't yet exist in the dom
     # in practice, it might get added by some other callback
-    app.config.suppress_callback_exceptions = True
     output_2_call_count = Value("i", 0)
 
     @app.callback(Output("output-2", "children"), [Input("input", "value")])
     def update_output_2(value):
-        if not percy_enabled.value:
-            output_2_call_count.value += 1
+        output_2_call_count.value += 1
         return value
 
     dash_duo.start_server(app)
 
     assert dash_duo.find_element("#output-1").text == "initial value"
     assert output_1_call_count.value == 1 and output_2_call_count.value == 0
-    snapshot("dependencies")
 
     dash_duo.find_element("#input").send_keys("a")
     assert dash_duo.find_element("#output-1").text == "initial valuea"

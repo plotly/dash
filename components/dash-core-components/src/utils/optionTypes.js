@@ -1,9 +1,10 @@
+import React from 'react';
 import {type} from 'ramda';
 
 export const sanitizeOptions = options => {
     if (type(options) === 'Object') {
         return Object.entries(options).map(([value, label]) => ({
-            label: String(label),
+            label: React.isValidElement(label) ? label : String(label),
             value,
         }));
     }

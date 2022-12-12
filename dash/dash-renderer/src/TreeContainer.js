@@ -1,20 +1,25 @@
-import React, {Component, memo} from 'react';
+import React, {Component, memo, useContext} from 'react';
 import PropTypes from 'prop-types';
 import Registry from './registry';
 import {propTypeErrorHandler} from './exceptions';
 import {
     addIndex,
+    assoc,
+    assocPath,
     concat,
     dissoc,
     equals,
     isEmpty,
     isNil,
+    has,
     keys,
     map,
     mergeRight,
     pick,
     pickBy,
     propOr,
+    path as rpath,
+    pathOr,
     type
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
@@ -67,17 +72,27 @@ function createElement(element, props, extraProps, children) {
     return React.createElement(element, allProps, children);
 }
 
-const TreeContainer = memo(props => (
-    <DashContext.Consumer>
-        {context => (
-            <BaseTreeContainer
-                {...context.fn()}
-                {...props}
-                _dashprivate_path={JSON.parse(props._dashprivate_path)}
-            />
-        )}
-    </DashContext.Consumer>
-));
+function isDryComponent(obj) {
+    return (
+        type(obj) === 'Object' &&
+        has('type', obj) &&
+        has('namespace', obj) &&
+        has('props', obj)
+    );
+}
+
+const DashWrapper = props => {
+    const context = useContext(DashContext);
+    return (
+        <BaseTreeContainer
+            {...context.fn()}
+            {...props}
+            _dashprivate_path={JSON.parse(props._dashprivate_path)}
+        />
+    );
+};
+
+const TreeContainer = memo(DashWrapper);
 
 class BaseTreeContainer extends Component {
     constructor(props) {
@@ -86,15 +101,16 @@ class BaseTreeContainer extends Component {
         this.setProps = this.setProps.bind(this);
     }
 
-    createContainer(props, component, path) {
+    createContainer(props, component, path, key = undefined) {
         return isSimpleComponent(component) ? (
             component
         ) : (
             <TreeContainer
                 key={
-                    component &&
-                    component.props &&
-                    stringifyId(component.props.id)
+                    (component &&
+                        component.props &&
+                        stringifyId(component.props.id)) ||
+                    key
                 }
                 _dashprivate_error={props._dashprivate_error}
                 _dashprivate_layout={component}
@@ -180,6 +196,33 @@ class BaseTreeContainer extends Component {
               );
     }
 
+    wrapChildrenProp(node, childrenProp) {
+        if (Array.isArray(node)) {
+            return node.map((n, i) =>
+                isDryComponent(n)
+                    ? this.createContainer(
+                          this.props,
+                          n,
+                          concat(this.props._dashprivate_path, [
+                              'props',
+                              ...childrenProp,
+                              i
+                          ]),
+                          i
+                      )
+                    : n
+            );
+        }
+        if (!isDryComponent(node)) {
+            return node;
+        }
+        return this.createContainer(
+            this.props,
+            node,
+            concat(this.props._dashprivate_path, ['props', ...childrenProp])
+        );
+    }
+
     getComponent(_dashprivate_layout, children, loading_state, setProps) {
         const {_dashprivate_config, _dashprivate_dispatch, _dashprivate_error} =
             this.props;
@@ -195,7 +238,83 @@ class BaseTreeContainer extends Component {
 
         const element = Registry.resolve(_dashprivate_layout);
 
-        const props = dissoc('children', _dashprivate_layout.props);
+        // Hydrate components props
+        const childrenProps = pathOr(
+            [],
+            [
+                'children_props',
+                _dashprivate_layout.namespace,
+                _dashprivate_layout.type
+            ],
+            _dashprivate_config
+        );
+        let props = dissoc('children', _dashprivate_layout.props);
+
+        for (let i = 0; i < childrenProps.length; i++) {
+            const childrenProp = childrenProps[i];
+            if (childrenProp.includes('.')) {
+                let path = childrenProp.split('.');
+                let node;
+                let nodeValue;
+                if (childrenProp.includes('[]')) {
+                    let frontPath = [],
+                        backPath = [],
+                        found = false;
+                    path.forEach(p => {
+                        if (!found) {
+                            if (p.includes('[]')) {
+                                found = true;
+                                frontPath.push(p.replace('[]', ''));
+                            } else {
+                                frontPath.push(p);
+                            }
+                        } else {
+                            backPath.push(p);
+                        }
+                    });
+
+                    node = rpath(frontPath, props);
+                    if (node === undefined || !node.length) {
+                        continue;
+                    }
+                    const firstNode = rpath(backPath, node[0]);
+                    if (!firstNode) {
+                        continue;
+                    }
+                    nodeValue = node.map((element, i) => {
+                        const elementPath = concat(
+                            frontPath,
+                            concat([i], backPath)
+                        );
+                        return assocPath(
+                            backPath,
+                            this.wrapChildrenProp(
+                                rpath(backPath, element),
+                                elementPath
+                            ),
+                            element
+                        );
+                    });
+                    path = frontPath;
+                } else {
+                    node = rpath(path, props);
+                    if (node === undefined) {
+                        continue;
+                    }
+                    nodeValue = this.wrapChildrenProp(node, path);
+                }
+                props = assocPath(path, nodeValue, props);
+                continue;
+            }
+            const node = props[childrenProp];
+            if (node !== undefined) {
+                props = assoc(
+                    childrenProp,
+                    this.wrapChildrenProp(node, [childrenProp]),
+                    props
+                );
+            }
+        }
 
         if (type(props.id) === 'Object') {
             // Turn object ids (for wildcards) into unique strings.
