@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.7.0] - 2022-12-12
+## [2.7.1] - 2022-12-12
 
 ### Fixed
 
@@ -14,7 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2361](https://github.com/plotly/dash/pull/2361) Dependencies upgrade.
   - Update Plotly.js to v2.16.4 (from v2.16.1): fix several bugs, particularly related to updating mapbox graphs.
-    - Path release [2.16.4](https://github.com/plotly/plotly.js/releases/tag/v2.16.4)
+    - Patch release [2.16.4](https://github.com/plotly/plotly.js/releases/tag/v2.16.4)
     - Patch release [2.16.3](https://github.com/plotly/plotly.js/releases/tag/v2.16.3)
     - Patch release [2.16.2](https://github.com/plotly/plotly.js/releases/tag/v2.16.2)
 - [#2363](https://github.com/plotly/dash/pull/2363) Update html attributes for ol
