@@ -16608,6 +16608,13 @@
         "required": false,
         "description": "Defines the first number if other than 1."
       },
+      "type": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the type of the element."
+      },
       "accessKey": {
         "type": {
           "name": "string"
