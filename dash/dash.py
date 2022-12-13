@@ -119,7 +119,7 @@ _ID_DUMMY = "_pages_dummy"
 try:
     page_container = html.Div(
         [
-            dcc.Location(id=_ID_LOCATION),
+            dcc.Location(id=_ID_LOCATION, refresh="callback-nav"),
             html.Div(id=_ID_CONTENT),
             dcc.Store(id=_ID_STORE),
             html.Div(id=_ID_DUMMY),
