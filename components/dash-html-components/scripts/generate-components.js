@@ -32,7 +32,7 @@ const BOOLEAN_PROPERTIES = [
     'noModule',
     'noValidate',
     'open',
-    'playsinline',
+    'playsInline',
     'readonly',
     'required',
     'reversed',
