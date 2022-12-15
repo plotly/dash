@@ -526,7 +526,7 @@
             ],
             "description": "Provides a hint to the user of what can be entered in the field."
         },
-        "playsinline": {
+        "playsInline": {
             "elements": [
                 "video"
             ],
