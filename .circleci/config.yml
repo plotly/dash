@@ -152,7 +152,7 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc
+          PYLINTRC: .pylintrc39
           PYVERSION: python311
           PERCY_ENABLE: 0
 
@@ -299,7 +299,7 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python36
+          PYVERSION: python311
           PERCY_ENABLE: 0
 
   dcc-test-39: &dcc-test
