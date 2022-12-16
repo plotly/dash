@@ -88,6 +88,18 @@ jobs:
           PYVERSION: python36
           PERCY_ENABLE: 0
 
+  install-dependencies-311:
+    <<: *install-dependencies
+    docker:
+      - image: cimg/python:3.11.1-node
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYLINTRC: .pylintrc
+          PYVERSION: python311
+          PERCY_ENABLE: 0
+
   lint-unit-39: &lint-unit
     working_directory: ~/dash
     docker:
@@ -138,6 +150,18 @@ jobs:
         environment:
           PYLINTRC: .pylintrc
           PYVERSION: python36
+          PERCY_ENABLE: 0
+
+  lint-unit-311:
+    <<: *lint-unit
+    docker:
+      - image: cimg/python:3.11.1-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYLINTRC: .pylintrc
+          PYVERSION: python311
           PERCY_ENABLE: 0
 
   build-windows-39:
@@ -221,6 +245,23 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
 
+  test-311:
+    <<: *test
+    docker:
+      - image: cimg/python:3.11.1-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PERCY_ENABLE: 0
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
+          PYVERSION: python311
+          REDIS_URL: redis://localhost:6379
+      - image: cimg/redis:6.2.6
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+
   dcc-lint-unit-39: &dcc-lint-unit
     working_directory: ~/dash
     docker:
@@ -251,6 +292,17 @@ jobs:
     <<: *dcc-lint-unit
     docker:
       - image: cimg/python:3.6.15-node
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYVERSION: python36
+          PERCY_ENABLE: 0
+
+  dcc-lint-unit-311:
+    <<: *dcc-lint-unit
+    docker:
+      - image: cimg/python:3.11.1-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -311,6 +363,17 @@ jobs:
           password: $DASH_PAT_DOCKERHUB
         environment:
           PYVERSION: python36
+          PERCY_ENABLE: 0
+
+  dcc-test-311:
+    <<: *dcc-test
+    docker:
+      - image: cimg/python:3.11.1-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYVERSION: python311
           PERCY_ENABLE: 0
 
   html-python-39: &html-test
@@ -374,6 +437,17 @@ jobs:
           password: $DASH_PAT_DOCKERHUB
         environment:
           PYVERSION: python36
+          PERCY_ENABLE: 0
+
+  html-python-311:
+    <<: *html-test
+    docker:
+      - image: cimg/python:3.11.1-browsers
+        auth:
+          username: dashautomation
+          password: $DASH_PAT_DOCKERHUB
+        environment:
+          PYVERSION: python311
           PERCY_ENABLE: 0
 
   table-server-test:
@@ -537,6 +611,7 @@ workflows:
   version: 2
   tests:
     jobs:
+      - install-dependencies-311
       - install-dependencies-39
       - install-dependencies-36
 
@@ -548,6 +623,9 @@ workflows:
       - lint-unit-36:
           requires:
             - install-dependencies-36
+      - lint-unit-311:
+          requires:
+            - install-dependencies-311
 
       - test-39:
           requires:
@@ -555,6 +633,9 @@ workflows:
       - test-36:
           requires:
             - install-dependencies-36
+      - test-311:
+          requires:
+            - install-dependencies-311
 
       - dcc-lint-unit-39:
           requires:
@@ -562,6 +643,9 @@ workflows:
       - dcc-lint-unit-36:
           requires:
             - install-dependencies-36
+      - dcc-lint-unit-311:
+          requires:
+            - install-dependencies-311
 
       - dcc-test-39:
           requires:
@@ -569,6 +653,9 @@ workflows:
       - dcc-test-36:
           requires:
             - install-dependencies-36
+      - dcc-test-311:
+          requires:
+            - install-dependencies-311
 
       - html-python-39:
           requires:
@@ -576,6 +663,9 @@ workflows:
       - html-python-36:
           requires:
             - install-dependencies-36
+      - html-python-311:
+          requires:
+            - install-dependencies-311
 
       - table-node:
           requires:
