@@ -59,14 +59,6 @@ jobs:
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
             ls -la dash-package
           no_output_timeout: 30m
-      - run:
-          name: Display npm errors and exit on failed builds
-          command: |
-            if [ -d "/home/circleci/.npm/_logs" ]
-            then
-              cat /home/circleci/.npm/_logs/*
-              exit 1
-            fi
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
           paths:
