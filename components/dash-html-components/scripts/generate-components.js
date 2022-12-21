@@ -139,6 +139,12 @@ function generatePropTypes(element, attributes) {
     'n_clicks_timestamp': PropTypes.number,
 
     /**
+     * When True, this will disable the n_clicks prop.  Use this to remove
+     * event listeners that may interfere with screen readers.
+     */
+    'static': PropTypes.bool,
+
+    /**
      * A unique identifier for the component, used to improve
      * performance by React.js while rendering components
      * See https://reactjs.org/docs/lists-and-keys.html for more info
@@ -256,21 +262,26 @@ import {omit} from 'ramda';
 /**
  * ${Component} is a wrapper for the <${element}> HTML5 element.${customDoc}
  * For detailed attribute info see:
- * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}cd
  */
 const ${Component} = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {
         dataAttributes['data-dash-is-loading'] = true;
     }
+    /* remove onClick event listener if static is true. */
+    let isStatic = props.id !== undefined ? false : true
+    isStatic = props.static !== undefined ? props.static : isStatic
 
     return (
         <${element}
-            onClick={() => props.setProps({
+            {...(!isStatic && {onClick:
+            () => props.setProps({
                 n_clicks: props.n_clicks + 1,
                 n_clicks_timestamp: Date.now()
+            })
             })}
-            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps'], props)}
+            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps', 'static'], props)}
             {...dataAttributes}
         >
             {props.children}
