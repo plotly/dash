@@ -795,13 +795,14 @@ class Dash:
 
         mode = "dev" if self._dev_tools["props_check"] is True else "prod"
 
-        deps = [
-            {
-                key: value[mode] if isinstance(value, dict) else value
-                for key, value in js_dist_dependency.items()
-            }
-            for js_dist_dependency in _dash_renderer._js_dist_dependencies
-        ]
+        deps = []
+        for js_dist_dependency in _dash_renderer._js_dist_dependencies:
+            dep = {}
+            for key, value in js_dist_dependency.items():
+                dep[key] = value[mode] if isinstance(value, dict) else value
+
+            deps.append(dep)
+
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
