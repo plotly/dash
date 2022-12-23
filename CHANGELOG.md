@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Added
+
+- [#2370](https://github.com/plotly/dash/pull/2370) Added `static` prop to all html components to make it possible to remove onclick event listeners.
+
 ## [2.7.1] - 2022-12-12
 
 ### Fixed
