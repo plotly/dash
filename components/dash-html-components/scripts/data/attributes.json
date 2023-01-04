@@ -736,6 +736,7 @@
                 "command",
                 "embed",
                 "object",
+                "ol",
                 "script",
                 "source",
                 "style",
@@ -1125,7 +1126,8 @@
         ],
         "ol": [
             "reversed",
-            "start"
+            "start",
+            "type"
         ],
         "col": [
             "span"
