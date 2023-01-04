@@ -526,12 +526,6 @@
             ],
             "description": "Provides a hint to the user of what can be entered in the field."
         },
-        "playsInline": {
-            "elements": [
-                "video"
-            ],
-            "description": "Sets the video to be played inline / within the element's playback area."
-        },
         "poster": {
             "elements": [
                 "video"
