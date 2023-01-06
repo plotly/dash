@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 
 import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
@@ -10,6 +10,39 @@ const Tooltip = props => {
     const {bbox, border_color, background_color, id, loading_state} = props;
     const is_loading = loading_state?.is_loading;
     const show = props.show && bbox;
+    const tooltipElement = useRef();
+
+    const [realDirection, setRealDirection] = useState(props.direction);
+
+    useEffect(() => {
+        if (!tooltipElement.current || props.direction !== 'auto') {
+            return;
+        }
+        const tooltipRect = tooltipElement.current?.getBoundingClientRect();
+        const parentRect = tooltipElement.current?.parentElement.getBoundingClientRect();
+
+        const reverseDirections = {
+            left: 'right',
+            right: 'left',
+            top: 'bottom',
+            bottom: 'top',
+        };
+
+        let hiddenDirections = [
+            {direction: 'left', value: parentRect.left - tooltipRect.left},
+            {direction: 'right', value: tooltipRect.right - parentRect.right},
+            {direction: 'top', value: parentRect.top - tooltipRect.top},
+            {direction: 'bottom', value: tooltipRect.bottom - parentRect.bottom},
+        ];
+
+        hiddenDirections = hiddenDirections.sort((a, b) => a.value - b.value);
+
+        console.log({hiddenDirections});
+
+        setRealDirection(reverseDirections[hiddenDirections[0].direction]);
+
+
+    }, [show, props.direction, bbox])
 
     return (
         <>
@@ -21,6 +54,7 @@ const Tooltip = props => {
                     <span
                         id={id}
                         className={`hover-content ${props.className}`}
+                        ref={tooltipElement}
                         style={props.style}
                     >
                         {is_loading ? (
@@ -220,7 +254,7 @@ Tooltip.propTypes = {
     /**
      * The side of the `bbox` on which the tooltip should open.
      */
-    direction: PropTypes.oneOf(['top', 'right', 'bottom', 'left']),
+    direction: PropTypes.oneOf(['top', 'right', 'bottom', 'left', 'auto']),
 
     /**
      * Color of the tooltip border, as a CSS color string.
