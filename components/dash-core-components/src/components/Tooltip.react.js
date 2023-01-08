@@ -7,49 +7,162 @@ import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
  * A tooltip with an absolute position.
  */
 const Tooltip = props => {
-    const {bbox, border_color, background_color, id, loading_state} = props;
+    const {
+        bbox,
+        border_color,
+        background_color,
+        id,
+        loading_state,
+        auto_direction_container: autoDirectionContainer,
+    } = props;
     const is_loading = loading_state?.is_loading;
     const show = props.show && bbox;
     const tooltipElement = useRef();
 
-    const [realDirection, setRealDirection] = useState(props.direction);
+    const initialDirection =
+        props.direction === 'auto' ? 'right' : props.direction;
+    const [realDirection, setRealDirection] = useState(initialDirection);
 
-    useEffect(() => {
-        if (!tooltipElement.current || props.direction !== 'auto') {
-            return;
-        }
-        const tooltipRect = tooltipElement.current?.getBoundingClientRect();
-        const parentRect = tooltipElement.current?.parentElement.getBoundingClientRect();
+    const getRealHiddenPart = value => {
+        return value > 0 ? value : 0;
+    };
 
-        const reverseDirections = {
-            left: 'right',
-            right: 'left',
-            top: 'bottom',
-            bottom: 'top',
-        };
-
-        let hiddenDirections = [
-            {direction: 'left', value: parentRect.left - tooltipRect.left},
-            {direction: 'right', value: tooltipRect.right - parentRect.right},
-            {direction: 'top', value: parentRect.top - tooltipRect.top},
-            {direction: 'bottom', value: tooltipRect.bottom - parentRect.bottom},
+    const calculateHiddenPart = (parentRect, tooltipRect) => {
+        const hiddenDirections = [
+            {
+                direction: 'left',
+                value: getRealHiddenPart(parentRect.left - tooltipRect.left),
+            },
+            {
+                direction: 'right',
+                value: getRealHiddenPart(tooltipRect.right - parentRect.right),
+            },
+            {
+                direction: 'top',
+                value: getRealHiddenPart(parentRect.top - tooltipRect.top),
+            },
+            {
+                direction: 'bottom',
+                value: getRealHiddenPart(
+                    tooltipRect.bottom - parentRect.bottom
+                ),
+            },
         ];
 
-        hiddenDirections = hiddenDirections.sort((a, b) => a.value - b.value);
+        return hiddenDirections.reduce((sum, hidden) => sum + hidden.value, 0);
+    };
 
-        console.log({hiddenDirections});
+    const setAutoDirection = () => {
+        if (!tooltipElement.current || props.direction !== 'auto' || !show) {
+            return;
+        }
 
-        setRealDirection(reverseDirections[hiddenDirections[0].direction]);
+        let tooltipRect = tooltipElement.current?.getBoundingClientRect();
+        const parent = autoDirectionContainer
+            ? document.querySelector(autoDirectionContainer)
+            : tooltipElement.current?.parentElement.parentElement.parentElement;
 
+        if (!parent) {
+            return;
+        }
 
-    }, [show, props.direction, bbox])
+        const parentRect = parent?.getBoundingClientRect();
+
+        const bboxCenter = {
+            x: (bbox.x0 + bbox.x1) / 2,
+            y: (bbox.y0 + bbox.y1) / 2,
+        };
+
+        const tooltipCenter = {
+            x: (tooltipRect.left + tooltipRect.right) / 2,
+            y: (tooltipRect.top + tooltipRect.bottom) / 2,
+        };
+
+        const xDelta = tooltipCenter.x - bboxCenter.x;
+        const yDelta = tooltipCenter.y - bboxCenter.y;
+
+        tooltipRect = {
+            left: tooltipRect.left - xDelta,
+            right: tooltipRect.right - xDelta,
+            top: tooltipRect.top - yDelta,
+            bottom: tooltipRect.bottom - yDelta,
+            width: tooltipRect.width,
+            height: tooltipRect.height,
+        };
+
+        const rightDirectionTooltipRect = {
+            ...tooltipRect,
+            left: tooltipRect.left + tooltipRect.width / 2,
+            right: tooltipRect.right + tooltipRect.width / 2,
+        };
+
+        const leftDirectionTooltipRect = {
+            ...tooltipRect,
+            left: tooltipRect.left - tooltipRect.width / 2,
+            right: tooltipRect.right - tooltipRect.width / 2,
+        };
+
+        const topDirectionTooltipRect = {
+            ...tooltipRect,
+            top: tooltipRect.top - tooltipRect.height / 2,
+            bottom: tooltipRect.bottom - tooltipRect.height / 2,
+        };
+
+        const bottomDirectionTooltipRect = {
+            ...tooltipRect,
+            top: tooltipRect.top + tooltipRect.height / 2,
+            bottom: tooltipRect.bottom + tooltipRect.height / 2,
+        };
+
+        let directionsHiddenParts = [
+            {
+                direction: 'right',
+                value: calculateHiddenPart(
+                    parentRect,
+                    rightDirectionTooltipRect
+                ),
+            },
+            {
+                direction: 'left',
+                value: calculateHiddenPart(
+                    parentRect,
+                    leftDirectionTooltipRect
+                ),
+            },
+            {
+                direction: 'top',
+                value: calculateHiddenPart(parentRect, topDirectionTooltipRect),
+            },
+            {
+                direction: 'bottom',
+                value: calculateHiddenPart(
+                    parentRect,
+                    bottomDirectionTooltipRect
+                ),
+            },
+        ];
+
+        directionsHiddenParts = directionsHiddenParts.sort(
+            (a, b) => a.value - b.value
+        );
+
+        setRealDirection(directionsHiddenParts[0].direction);
+    };
+
+    useEffect(setAutoDirection, [
+        show,
+        props.direction,
+        bbox,
+        props.children,
+        autoDirectionContainer,
+    ]);
 
     return (
         <>
             <div className="dcc-tooltip-bounding-box">
                 <span
                     data-dash-is-loading={is_loading || undefined}
-                    className={`hover hover-${props.direction}`}
+                    className={`hover hover-${realDirection}`}
                 >
                     <span
                         id={id}
@@ -255,6 +368,12 @@ Tooltip.propTypes = {
      * The side of the `bbox` on which the tooltip should open.
      */
     direction: PropTypes.oneOf(['top', 'right', 'bottom', 'left', 'auto']),
+
+    /**
+     * Query selector for container in which tooltip should be visible.
+     * If not set the tooltip`s parent element will be used.
+     */
+    auto_direction_container: PropTypes.string,
 
     /**
      * Color of the tooltip border, as a CSS color string.
