@@ -270,7 +270,7 @@ const ${Component} = (props) => {
         dataAttributes['data-dash-is-loading'] = true;
     }
     /* remove unnecessary onClick event listeners  */
-    let isStatic = typeof props.id === "undefined" ? true : false
+    let isStatic = props.disable_n_clicks || typeof props.id === "undefined";
     isStatic = typeof props.disable_n_clicks === "undefined" ? isStatic : props.disable_n_clicks
 
     return (
