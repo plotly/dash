@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- [#2370](https://github.com/plotly/dash/pull/2370) Added `disable_n_clicks` prop to all html components to make it possible to remove onclick event listeners.
+- [#2370](https://github.com/plotly/dash/pull/2370) Added `disable_n_clicks` prop to all html components to make it possible to remove onclick event listeners
 
 ### Updated
 
