@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2370](https://github.com/plotly/dash/pull/2370) Added `disable_n_clicks` prop to all html components to make it possible to remove onclick event listeners.
 
+### Updated
+
+- [#2367](https://github.com/plotly/dash/pull/2367) Updated the default `favicon.ico` to the current Plotly logo
+
 ## [2.7.1] - 2022-12-12
 
 ### Fixed
