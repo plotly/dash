@@ -487,3 +487,8 @@ def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
 def test_missing_flask_compress_raises():
     with pytest.raises(ImportError):
         Dash(compress=True)
+
+
+def test_pages_custom_path_config():
+    app = Dash(__name__, pages_folder="custom_pages")
+    assert app.use_pages

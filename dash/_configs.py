@@ -123,11 +123,9 @@ def pathname_configs(
 
 
 def pages_folder_config(name, pages_folder, use_pages):
-    if not use_pages:
-        return None
-
     pages_folder = pages_folder.lstrip("\\").lstrip("/")
     pages_folder = None if pages_folder == "" else pages_folder
+    is_custom_folder = pages_folder is not None and pages_folder != "pages"
     pages_folder_path = None
     error_msg = f"""
     A folder called {pages_folder} does not exist.
@@ -139,6 +137,6 @@ def pages_folder_config(name, pages_folder, use_pages):
         pages_folder_path = os.path.join(
             flask.helpers.get_root_path(name), pages_folder
         )
-    if pages_folder and not os.path.isdir(pages_folder_path):
-        raise Exception(error_msg)
+    if use_pages or is_custom_folder and not os.path.isdir(pages_folder_path):
+        raise exceptions.InvalidConfig(error_msg)
     return pages_folder_path
