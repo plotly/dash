@@ -1,5 +1,6 @@
 import os
 import logging
+from pathlib import Path
 
 import pytest
 from flask import Flask
@@ -12,6 +13,7 @@ from dash._configs import (
     DASH_ENV_VARS,
     get_combined_config,
     load_dash_env_vars,
+    pages_folder_config,
 )
 
 from dash._utils import AttributeDict
@@ -487,6 +489,28 @@ def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
 def test_missing_flask_compress_raises():
     with pytest.raises(ImportError):
         Dash(compress=True)
+
+
+def test_pages_folder_path_config():
+    path = pages_folder_config(__name__, "custom_pages", True)
+    target_path = Path(__file__).parent / "custom_pages"
+    assert Path(path) == target_path 
+
+
+# consider switching to parameterised raising tests here:
+# https://docs.pytest.org/en/6.2.x/example/parametrize.html#parametrizing-conditional-raising
+def test_pages_missing_path_config():
+    # no _exc.InvalidConfig should be thrown here
+    _pages_folder_path = pages_folder_config(__name__, "pages", False)
+
+    with pytest.raises(_exc.InvalidConfig):
+        _pages_folder_path = pages_folder_config(__name__, "pages", True)
+
+    with pytest.raises(_exc.InvalidConfig):
+        _pages_folder_path = pages_folder_config(__name__, "does_not_exist", True)
+
+    with pytest.raises(_exc.InvalidConfig):
+        _pages_folder_path = pages_folder_config(__name__, "does_not_exist", False)
 
 
 def test_pages_custom_path_config():
