@@ -123,7 +123,6 @@ def pathname_configs(
 
 
 def pages_folder_config(name, pages_folder, use_pages):
-    pages_folder = pages_folder.lstrip("\\").lstrip("/")
     pages_folder = None if pages_folder == "" else pages_folder
     is_custom_folder = pages_folder is not None and pages_folder != "pages"
     pages_folder_path = None

@@ -504,6 +504,16 @@ def test_missing_flask_compress_raises():
         ("pages", False, Path(__file__).parent / "pages"),
         ("custom_pages", True, Path(__file__).parent / "custom_pages"),
         ("custom_pages", False, Path(__file__).parent / "custom_pages"),
+        (
+            str(Path(__file__).parent / "custom_pages"),
+            True,
+            Path(__file__).parent / "custom_pages",
+        ),
+        (
+            str(Path(__file__).parent / "custom_pages"),
+            False,
+            Path(__file__).parent / "custom_pages",
+        ),
     ],
 )
 def test_pages_folder_path_config(
@@ -522,7 +532,7 @@ def test_pages_folder_path_config(
         ("pages", True, pytest.raises(_exc.InvalidConfig)),
         ("does_not_exist", True, pytest.raises(_exc.InvalidConfig)),
         ("does_not_exist", False, pytest.raises(_exc.InvalidConfig)),
-    ]
+    ],
 )
 def test_pages_missing_path_config(empty_environ, pages_folder, use_pages, expectation):
     with expectation:
