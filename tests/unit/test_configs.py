@@ -504,6 +504,7 @@ def test_missing_flask_compress_raises():
         ("", False, None),
         (None, False, None),
         ("pages", False, str(Path(__file__).parent / "pages")),
+        (Path("pages"), False, str(Path(__file__).parent / "pages")),
         ("custom_pages", True, str(Path(__file__).parent / "custom_pages")),
         ("custom_pages", False, str(Path(__file__).parent / "custom_pages")),
         (
@@ -513,6 +514,11 @@ def test_missing_flask_compress_raises():
         ),
         (
             str(Path(__file__).parent / "custom_pages"),
+            False,
+            str(Path(__file__).parent / "custom_pages"),
+        ),
+        (
+            Path(__file__).parent / "custom_pages",
             False,
             str(Path(__file__).parent / "custom_pages"),
         ),
