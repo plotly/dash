@@ -1,5 +1,6 @@
 import os
 import logging
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -25,6 +26,12 @@ from dash._get_paths import (
     get_relative_path,
     strip_relative_path,
 )
+
+
+@contextmanager
+def does_not_raise():
+    """Context manager for testing no exception is raised"""
+    yield
 
 
 @pytest.fixture
@@ -491,28 +498,37 @@ def test_missing_flask_compress_raises():
         Dash(compress=True)
 
 
-def test_pages_folder_path_config():
-    path = pages_folder_config(__name__, "custom_pages", True)
-    target_path = Path(__file__).parent / "custom_pages"
-    assert Path(path) == target_path 
+@pytest.mark.parametrize(
+    "pages_folder, use_pages, expected_pages_folder_path",
+    [
+        ("pages", False, Path(__file__).parent / "pages"),
+        ("custom_pages", True, Path(__file__).parent / "custom_pages"),
+        ("custom_pages", False, Path(__file__).parent / "custom_pages"),
+    ],
+)
+def test_pages_folder_path_config(
+    empty_environ, pages_folder, use_pages, expected_pages_folder_path
+):
+    pages_folder_path = pages_folder_config(__name__, pages_folder, use_pages)
+    assert Path(pages_folder_path) == expected_pages_folder_path
 
 
 # consider switching to parameterised raising tests here:
 # https://docs.pytest.org/en/6.2.x/example/parametrize.html#parametrizing-conditional-raising
-def test_pages_missing_path_config():
-    # no _exc.InvalidConfig should be thrown here
-    _pages_folder_path = pages_folder_config(__name__, "pages", False)
+@pytest.mark.parametrize(
+    "pages_folder, use_pages, expectation",
+    [
+        ("pages", False, does_not_raise()),
+        ("pages", True, pytest.raises(_exc.InvalidConfig)),
+        ("does_not_exist", True, pytest.raises(_exc.InvalidConfig)),
+        ("does_not_exist", False, pytest.raises(_exc.InvalidConfig)),
+    ]
+)
+def test_pages_missing_path_config(empty_environ, pages_folder, use_pages, expectation):
+    with expectation:
+        _ = pages_folder_config(__name__, pages_folder, use_pages)
 
-    with pytest.raises(_exc.InvalidConfig):
-        _pages_folder_path = pages_folder_config(__name__, "pages", True)
 
-    with pytest.raises(_exc.InvalidConfig):
-        _pages_folder_path = pages_folder_config(__name__, "does_not_exist", True)
-
-    with pytest.raises(_exc.InvalidConfig):
-        _pages_folder_path = pages_folder_config(__name__, "does_not_exist", False)
-
-
-def test_pages_custom_path_config():
+def test_pages_custom_path_config(empty_environ):
     app = Dash(__name__, pages_folder="custom_pages")
     assert app.use_pages
