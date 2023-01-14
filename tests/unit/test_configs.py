@@ -501,18 +501,20 @@ def test_missing_flask_compress_raises():
 @pytest.mark.parametrize(
     "pages_folder, use_pages, expected_pages_folder_path",
     [
-        ("pages", False, Path(__file__).parent / "pages"),
-        ("custom_pages", True, Path(__file__).parent / "custom_pages"),
-        ("custom_pages", False, Path(__file__).parent / "custom_pages"),
+        ("", False, None),
+        (None, False, None),
+        ("pages", False, str(Path(__file__).parent / "pages")),
+        ("custom_pages", True, str(Path(__file__).parent / "custom_pages")),
+        ("custom_pages", False, str(Path(__file__).parent / "custom_pages")),
         (
             str(Path(__file__).parent / "custom_pages"),
             True,
-            Path(__file__).parent / "custom_pages",
+            str(Path(__file__).parent / "custom_pages"),
         ),
         (
             str(Path(__file__).parent / "custom_pages"),
             False,
-            Path(__file__).parent / "custom_pages",
+            str(Path(__file__).parent / "custom_pages"),
         ),
     ],
 )
@@ -520,11 +522,9 @@ def test_pages_folder_path_config(
     empty_environ, pages_folder, use_pages, expected_pages_folder_path
 ):
     pages_folder_path = pages_folder_config(__name__, pages_folder, use_pages)
-    assert Path(pages_folder_path) == expected_pages_folder_path
+    assert pages_folder_path == expected_pages_folder_path
 
 
-# consider switching to parameterised raising tests here:
-# https://docs.pytest.org/en/6.2.x/example/parametrize.html#parametrizing-conditional-raising
 @pytest.mark.parametrize(
     "pages_folder, use_pages, expectation",
     [
