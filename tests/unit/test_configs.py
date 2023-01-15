@@ -28,6 +28,9 @@ from dash._get_paths import (
 )
 
 
+THIS_DIR = Path(__file__).parent
+
+
 @contextmanager
 def does_not_raise():
     """Context manager for testing no exception is raised"""
@@ -503,24 +506,24 @@ def test_missing_flask_compress_raises():
     [
         ("", False, None),
         (None, False, None),
-        ("pages", False, str(Path(__file__).parent / "pages")),
-        (Path("pages"), False, str(Path(__file__).parent / "pages")),
-        ("custom_pages", True, str(Path(__file__).parent / "custom_pages")),
-        ("custom_pages", False, str(Path(__file__).parent / "custom_pages")),
+        ("pages", False, str(THIS_DIR / "pages")),
+        (Path("pages"), False, str(THIS_DIR / "pages")),
+        ("custom_pages", True, str(THIS_DIR / "custom_pages")),
+        ("custom_pages", False, str(THIS_DIR / "custom_pages")),
         (
-            str(Path(__file__).parent / "custom_pages"),
+            str(THIS_DIR / "custom_pages"),
             True,
-            str(Path(__file__).parent / "custom_pages"),
+            str(THIS_DIR / "custom_pages"),
         ),
         (
-            str(Path(__file__).parent / "custom_pages"),
+            str(THIS_DIR / "custom_pages"),
             False,
-            str(Path(__file__).parent / "custom_pages"),
+            str(THIS_DIR / "custom_pages"),
         ),
         (
-            Path(__file__).parent / "custom_pages",
+            THIS_DIR / "custom_pages",
             False,
-            str(Path(__file__).parent / "custom_pages"),
+            str(THIS_DIR / "custom_pages"),
         ),
     ],
 )
@@ -553,3 +556,11 @@ def test_pages_custom_path_config(empty_environ):
 def test_pages_pathlib_config(empty_environ):
     app = Dash(__name__, pages_folder=Path("custom_pages"))
     assert app.use_pages
+    assert app.pages_folder == "custom_pages"
+
+
+def test_pages_absolute_path_config(empty_environ):
+    pages_path = str(THIS_DIR / "custom_pages")
+    app = Dash(__name__, pages_folder=pages_path)
+    assert app.use_pages
+    assert app.pages_folder == pages_path
