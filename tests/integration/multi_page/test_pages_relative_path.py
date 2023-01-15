@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import dash
 from dash import Dash, dcc, html
 
@@ -66,3 +68,16 @@ def test_pare002_relative_path_with_url_base_pathname(dash_br, dash_thread_serve
         assert dash_br.driver.title == page["title"], "check that page title updates"
 
     assert dash_br.get_logs() == [], "browser console should contain no error"
+
+
+def test_pare003_absolute_path(dash_duo):
+    pages_folder = Path(__file__).parent / "pages"
+    dash_duo.start_server(
+        get_app(Dash(__name__, use_pages=True, pages_folder=pages_folder))
+    )
+    for page in dash.page_registry.values():
+        dash_duo.find_element("#" + page["id"]).click()
+        dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
+        assert dash_duo.driver.title == page["title"], "check that page title updates"
+
+    assert dash_duo.get_logs() == [], "browser console should contain no error"
