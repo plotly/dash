@@ -436,7 +436,7 @@ class Dash:
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
 
-        self.pages_folder = pages_folder
+        self.pages_folder = str(pages_folder)
         self.use_pages = True if pages_folder != "pages" else use_pages
 
         # keep title as a class property for backwards compatibility

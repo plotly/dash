@@ -548,3 +548,8 @@ def test_pages_missing_path_config(empty_environ, pages_folder, use_pages, expec
 def test_pages_custom_path_config(empty_environ):
     app = Dash(__name__, pages_folder="custom_pages")
     assert app.use_pages
+
+
+def test_pages_pathlib_config(empty_environ):
+    app = Dash(__name__, pages_folder=Path("custom_pages"))
+    assert app.use_pages
