@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## Fixed
+
+- [#2388](https://github.com/plotly/dash/pull/2388) Fix [#2368](https://github.com/plotly/dash/issues/2368) ordering or Pattern Matching ALL after update to the subtree.
+
 ### Updated
 
 - [#2367](https://github.com/plotly/dash/pull/2367) Updated the default `favicon.ico` to the current Plotly logo
