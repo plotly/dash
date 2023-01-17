@@ -5,6 +5,8 @@ import collections
 from urllib.parse import parse_qs
 from fnmatch import fnmatch
 import re
+from pathlib import Path
+
 import flask
 
 from . import _validate
@@ -64,17 +66,18 @@ def _module_name_to_page_name(filename):
 def _infer_path(filename, template):
     if template is None:
         if CONFIG.pages_folder:
-            pages_folder = CONFIG.pages_folder.replace("\\", "/").split("/")[-1]
+            pages_folder = str(Path(CONFIG.pages_folder).name)
             path = (
-                filename.replace("_", "-")
+                filename.split(pages_folder)[-1]
+                .replace("_", "-")
                 .replace(".", "/")
                 .lower()
-                .split(pages_folder)[-1]
             )
         else:
             path = filename.replace("_", "-").replace(".", "/").lower()
     else:
-        # replace the variables in the template with "none" to create a default path if no path is supplied
+        # replace the variables in the template with "none" to create a default path if
+        # no path is supplied
         path = re.sub("<.*?>", "none", template)
     path = "/" + path if not path.startswith("/") else path
     return path
