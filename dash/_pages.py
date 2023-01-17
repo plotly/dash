@@ -59,22 +59,22 @@ def _infer_image(module):
     return logo_file
 
 
-def _module_name_to_page_name(filename):
-    return filename.split(".")[-1].replace("_", " ").capitalize()
+def _module_name_to_page_name(module_name):
+    return module_name.split(".")[-1].replace("_", " ").capitalize()
 
 
-def _infer_path(filename, template):
+def _infer_path(module_name, template):
     if template is None:
         if CONFIG.pages_folder:
             pages_folder = str(Path(CONFIG.pages_folder).name)
             path = (
-                filename.split(pages_folder)[-1]
+                module_name.split(pages_folder)[-1]
                 .replace("_", "-")
                 .replace(".", "/")
                 .lower()
             )
         else:
-            path = filename.replace("_", "-").replace(".", "/").lower()
+            path = module_name.replace("_", "-").replace(".", "/").lower()
     else:
         # replace the variables in the template with "none" to create a default path if
         # no path is supplied
