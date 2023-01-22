@@ -9,6 +9,7 @@ from dash import Dash, exceptions as _exc
 # noinspection PyProtectedMember
 from dash._configs import (
     pathname_configs,
+    DASH_ENV_VARS,
     get_combined_config,
     load_dash_env_vars,
 )

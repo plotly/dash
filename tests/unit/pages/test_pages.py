@@ -38,7 +38,7 @@ def test_infer_path(mocker, filename, template, pages_folder, expected):
     ],
 )
 def test_import_layouts_from_pages(
-    clear_page_registry, pages_folder, expected_module_name
+    clear_pages_state, pages_folder, expected_module_name
 ):
     _ = Dash(__name__, use_pages=True, pages_folder=pages_folder)
     assert len(dash.page_registry) == 1

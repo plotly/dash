@@ -13,7 +13,14 @@ def empty_environ():
 
 
 @pytest.fixture
-def clear_page_registry():
-    dash.page_registry.clear()
+def clear_pages_state():
+    init_pages_state()
     yield
-    dash.page_registry.clear()
+    init_pages_state()
+
+
+def init_pages_state():
+    """Clear all global state that is used by pages feature."""
+    dash._pages.PAGE_REGISTRY.clear()
+    dash._pages.CONFIG.clear()
+    dash._pages.CONFIG.__dict__.clear()

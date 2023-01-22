@@ -48,7 +48,7 @@ def get_app(path1="/", path2="/layout2"):
     return app
 
 
-def test_pala001_layout(dash_duo, clear_page_registry):
+def test_pala001_layout(dash_duo, clear_pages_state):
     app = get_app()
     dash_duo.start_server(app)
 
@@ -113,7 +113,7 @@ def check_metas(dash_duo, metas):
         assert meta[i].get_attribute("content") == metas[i]["content"]
 
 
-def test_pala002_meta_tags_default(dash_duo, clear_page_registry):
+def test_pala002_meta_tags_default(dash_duo, clear_pages_state):
     dash_duo.start_server(get_app(path1="/layout1", path2="/"))
     # These are the inferred defaults if description, title, image are not supplied
     metas_layout2 = [
@@ -141,7 +141,7 @@ def test_pala002_meta_tags_default(dash_duo, clear_page_registry):
     check_metas(dash_duo, metas_layout2)
 
 
-def test_pala003_meta_tags_custom(dash_duo, clear_page_registry):
+def test_pala003_meta_tags_custom(dash_duo, clear_pages_state):
     dash_duo.start_server(get_app())
     # In the "multi_layout1" module, the description, title, image are supplied
     metas_layout1 = [
@@ -172,7 +172,7 @@ def test_pala003_meta_tags_custom(dash_duo, clear_page_registry):
     check_metas(dash_duo, metas_layout1)
 
 
-def test_pala004_no_layout_exception(clear_page_registry):
+def test_pala004_no_layout_exception(clear_pages_state):
     error_msg = 'No layout found in module pages_error.no_layout_page\nA variable or a function named "layout" is required.'
 
     with pytest.raises(NoLayoutException) as err:
