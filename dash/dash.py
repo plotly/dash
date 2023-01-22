@@ -2010,12 +2010,7 @@ class Dash:
                     walk_dir.replace("\\", "/") + "/"
                 )
                 page_filename = page_filename.replace(".py", "").replace("/", ".")
-
-                pages_folder = (
-                    self.pages_folder.replace("\\", "/").lstrip("/").replace("/", ".")
-                )
-
-                module_name = ".".join([pages_folder, page_filename])
+                module_name = ".".join([root.split("/")[-1], page_filename])
 
                 spec = importlib.util.spec_from_file_location(
                     module_name, os.path.join(root, file)

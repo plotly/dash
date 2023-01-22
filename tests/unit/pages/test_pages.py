@@ -1,7 +1,8 @@
 from pathlib import Path
 
 import pytest
-from dash._pages import _infer_path, CONFIG
+from dash import Dash, _pages, _get_app
+from dash._utils import AttributeDict
 from mock import patch
 
 
@@ -23,6 +24,22 @@ THIS_DIR = Path(__file__).parent
     ],
 )
 def test_infer_path(mocker, filename, template, pages_folder, expected):
-    with patch.dict(CONFIG, {"pages_folder": pages_folder}, clear=True):
-        result = _infer_path(filename, template)
+    with patch.dict(_pages.CONFIG, {"pages_folder": pages_folder}, clear=True):
+        result = _pages._infer_path(filename, template)
         assert result == expected
+
+
+@pytest.mark.parametrize(
+    "pages_folder, expected_module_name",
+    [
+        ("custom_pages", "custom_pages.page"),
+        (str(THIS_DIR / "custom_pages"), "custom_pages.page"),
+    ],
+)
+def test_import_layouts_from_pages(pages_folder, expected_module_name):
+    app = Dash(__name__, use_pages=True, pages_folder=pages_folder)
+    assert len(_pages.PAGE_REGISTRY) == 1
+
+    page_entry = list(_pages.PAGE_REGISTRY.values())[0]
+    assert page_entry["module"] == expected_module_name
+    _pages.PAGE_REGISTRY.clear()
