@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from dash import Dash, exceptions as _exc
-from dash._configs import DASH_ENV_VARS, pages_folder_config
+from dash._configs import pages_folder_config
 
 
 THIS_DIR = Path(__file__).parent
@@ -15,13 +15,6 @@ THIS_DIR = Path(__file__).parent
 def does_not_raise():
     """Context manager for testing no exception is raised"""
     yield
-
-
-@pytest.fixture
-def empty_environ():
-    for k in DASH_ENV_VARS.keys():
-        if k in os.environ:
-            os.environ.pop(k)
 
 
 @pytest.mark.parametrize(
@@ -71,18 +64,18 @@ def test_pages_missing_path_config(empty_environ, pages_folder, use_pages, expec
         _ = pages_folder_config(__name__, pages_folder, use_pages)
 
 
-def test_pages_custom_path_config(empty_environ):
+def test_pages_custom_path_config(empty_environ, clear_page_registry):
     app = Dash(__name__, pages_folder="custom_pages")
     assert app.use_pages
 
 
-def test_pages_pathlib_config(empty_environ):
+def test_pages_pathlib_config(empty_environ, clear_page_registry):
     app = Dash(__name__, pages_folder=Path("custom_pages"))
     assert app.use_pages
     assert app.pages_folder == "custom_pages"
 
 
-def test_pages_absolute_path_config(empty_environ):
+def test_pages_absolute_path_config(empty_environ, clear_page_registry):
     pages_path = str(THIS_DIR / "custom_pages")
     app = Dash(__name__, pages_folder=pages_path)
     assert app.use_pages

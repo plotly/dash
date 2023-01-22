@@ -2010,7 +2010,13 @@ class Dash:
                     walk_dir.replace("\\", "/") + "/"
                 )
                 page_filename = page_filename.replace(".py", "").replace("/", ".")
-                module_name = ".".join([root.split("/")[-1], page_filename])
+
+                proj_root = flask.helpers.get_root_path(self.config.name)
+                parent_module = self.config.pages_folder
+                if self.config.pages_folder.startswith(proj_root):
+                    parent_module = parent_module[len(proj_root) :]
+                parent_module = parent_module.lstrip("/").replace("/", ".")
+                module_name = f"{parent_module}.{page_filename}"
 
                 spec = importlib.util.spec_from_file_location(
                     module_name, os.path.join(root, file)

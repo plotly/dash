@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import pytest
-from dash import Dash, _pages, _get_app
-from dash._utils import AttributeDict
+import dash
+from dash import Dash, _pages
 from mock import patch
 
 
@@ -33,13 +33,15 @@ def test_infer_path(mocker, filename, template, pages_folder, expected):
     "pages_folder, expected_module_name",
     [
         ("custom_pages", "custom_pages.page"),
+        ("sub_dir/custom_pages", "sub_dir.custom_pages.page"),
         (str(THIS_DIR / "custom_pages"), "custom_pages.page"),
     ],
 )
-def test_import_layouts_from_pages(pages_folder, expected_module_name):
-    app = Dash(__name__, use_pages=True, pages_folder=pages_folder)
-    assert len(_pages.PAGE_REGISTRY) == 1
+def test_import_layouts_from_pages(
+    clear_page_registry, pages_folder, expected_module_name
+):
+    _ = Dash(__name__, use_pages=True, pages_folder=pages_folder)
+    assert len(dash.page_registry) == 1
 
-    page_entry = list(_pages.PAGE_REGISTRY.values())[0]
+    page_entry = list(dash.page_registry.values())[0]
     assert page_entry["module"] == expected_module_name
-    _pages.PAGE_REGISTRY.clear()

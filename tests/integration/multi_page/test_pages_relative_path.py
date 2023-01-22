@@ -2,7 +2,6 @@ from pathlib import Path
 
 import dash
 from dash import Dash, dcc, html
-from dash._pages import PAGE_REGISTRY
 
 
 def get_app(app):
@@ -46,7 +45,7 @@ def get_app(app):
     return app
 
 
-def test_pare001_relative_path(dash_duo):
+def test_pare001_relative_path(dash_duo, clear_page_registry):
     dash_duo.start_server(get_app(Dash(__name__, use_pages=True)))
     for page in dash.page_registry.values():
         dash_duo.find_element("#" + page["id"]).click()
@@ -54,10 +53,11 @@ def test_pare001_relative_path(dash_duo):
         assert dash_duo.driver.title == page["title"], "check that page title updates"
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
-    PAGE_REGISTRY.clear()
 
 
-def test_pare002_relative_path_with_url_base_pathname(dash_br, dash_thread_server):
+def test_pare002_relative_path_with_url_base_pathname(
+    dash_br, dash_thread_server, clear_page_registry
+):
     dash_thread_server(
         get_app(Dash(__name__, use_pages=True, url_base_pathname="/app1/"))
     )
@@ -69,10 +69,9 @@ def test_pare002_relative_path_with_url_base_pathname(dash_br, dash_thread_serve
         assert dash_br.driver.title == page["title"], "check that page title updates"
 
     assert dash_br.get_logs() == [], "browser console should contain no error"
-    PAGE_REGISTRY.clear()
 
 
-def test_pare003_absolute_path(dash_duo):
+def test_pare003_absolute_path(dash_duo, clear_page_registry):
     pages_folder = Path(__file__).parent / "pages"
     dash_duo.start_server(
         get_app(Dash(__name__, use_pages=True, pages_folder=pages_folder))
@@ -83,4 +82,3 @@ def test_pare003_absolute_path(dash_duo):
         assert dash_duo.driver.title == page["title"], "check that page title updates"
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
-    PAGE_REGISTRY.clear()
