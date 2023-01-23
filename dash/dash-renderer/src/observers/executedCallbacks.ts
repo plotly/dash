@@ -130,7 +130,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     if (!basePath) {
                         return;
                     }
-                    const oldObj = path(getPath(oldPaths, parsedId), oldLayout);
+                    const oldObj = path(basePath, oldLayout);
 
                     const childrenProps = pathOr(
                         'defaultValue',
