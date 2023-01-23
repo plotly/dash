@@ -23,7 +23,7 @@ THIS_DIR = Path(__file__).parent
         ("pages.page1", "/items/<item_id>", str(THIS_DIR / "pages"), "/items/none"),
     ],
 )
-def test_infer_path(mocker, filename, template, pages_folder, expected):
+def test_infer_path(clear_pages_state, filename, template, pages_folder, expected):
     with patch.dict(_pages.CONFIG, {"pages_folder": pages_folder}, clear=True):
         result = _pages._infer_path(filename, template)
         assert result == expected
