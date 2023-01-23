@@ -1,4 +1,4 @@
-[# Change Log for Dash
+# Change Log for Dash
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
@@ -15,6 +15,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Updated
 
 - [#2367](https://github.com/plotly/dash/pull/2367) Updated the default `favicon.ico` to the current Plotly logo
+- [#2394](https://github.com/plotly/dash/pull/2394) Update Plotly.js to v2.18.0 from v2.16.4.
+  - Feature release [2.18.0](https://github.com/plotly/plotly.js/releases/tag/v2.18.0)
+  - Patch release [2.17.1](https://github.com/plotly/plotly.js/releases/tag/v2.17.1)
+  - Feature release [2.17.0](https://github.com/plotly/plotly.js/releases/tag/v2.17.0)
+  - Patch release [2.16.5](https://github.com/plotly/plotly.js/releases/tag/v2.16.5)
 
 ## [2.7.1] - 2022-12-12
 
