@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Added
+
+- [#2389](https://github.com/plotly/dash/pull/2389) Added `disable_n_clicks` prop to all html components to make it possible to remove onclick event listeners
+
 ## Fixed
 
 - [#2388](https://github.com/plotly/dash/pull/2388) Fix [#2368](https://github.com/plotly/dash/issues/2368) ordering or Pattern Matching ALL after update to the subtree.
