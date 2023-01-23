@@ -40,9 +40,10 @@ def does_not_raise():
             False,
             str(THIS_DIR / "custom_pages"),
         ),
+        ("sub_dir/custom_pages", True, str(THIS_DIR / "sub_dir" / "custom_pages")),
     ],
 )
-def test_pages_folder_path_config(
+def test_pages_folder_config(
     empty_environ, pages_folder, use_pages, expected_pages_folder_path
 ):
     pages_folder_path = pages_folder_config(__name__, pages_folder, use_pages)
@@ -63,19 +64,18 @@ def test_pages_missing_path_config(empty_environ, pages_folder, use_pages, expec
         _ = pages_folder_config(__name__, pages_folder, use_pages)
 
 
-def test_pages_custom_path_config(empty_environ, clear_pages_state):
-    app = Dash(__name__, pages_folder="custom_pages")
+@pytest.mark.parametrize(
+    "pages_folder",
+    [
+        "custom_pages",
+        Path("custom_pages"),
+        str(THIS_DIR / "custom_pages"),
+        THIS_DIR / "custom_pages",
+        str(THIS_DIR / "sub_dir" / "custom_pages"),
+        THIS_DIR / "sub_dir" / "custom_pages",
+    ],
+)
+def test_pages_folder_app_config(empty_environ, clear_pages_state, pages_folder):
+    app = Dash(__name__, pages_folder=pages_folder)
     assert app.use_pages
-
-
-def test_pages_pathlib_config(empty_environ, clear_pages_state):
-    app = Dash(__name__, pages_folder=Path("custom_pages"))
-    assert app.use_pages
-    assert app.pages_folder == "custom_pages"
-
-
-def test_pages_absolute_path_config(empty_environ, clear_pages_state):
-    pages_path = str(THIS_DIR / "custom_pages")
-    app = Dash(__name__, pages_folder=pages_path)
-    assert app.use_pages
-    assert app.pages_folder == pages_path
+    assert app.pages_folder == str(pages_folder)
