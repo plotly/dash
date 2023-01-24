@@ -10,22 +10,28 @@ THIS_DIR = Path(__file__).parent
 
 
 @pytest.mark.parametrize(
-    "filename, template, pages_folder, expected",
+    "module_name, template, pages_folder, expected",
     [
         ("pages.page1", None, str(THIS_DIR / "pages"), "/page1"),
         ("Pages.page1", None, str(THIS_DIR / "Pages"), "/page1"),
         ("custom_pages.page1", None, str(THIS_DIR / "custom_pages"), "/page1"),
         ("custom.pages.page1", None, str(THIS_DIR / "custom.pages"), "/page1"),
         ("custom.pages.page1", None, str(THIS_DIR / "custom" / "pages"), "/page1"),
+        (
+            "custom_pages.chapter_1.page_1",
+            None,
+            str(THIS_DIR / "custom_pages"),
+            "/chapter-1/page-1",
+        ),
         # can this even be called with  CONFIG.pages_folder set to None?
         ("dir.my_page", None, None, "/dir/my-page"),
         # is this behaviour right? why is filename ignored when template has a value?
         ("pages.page1", "/items/<item_id>", str(THIS_DIR / "pages"), "/items/none"),
     ],
 )
-def test_infer_path(clear_pages_state, filename, template, pages_folder, expected):
+def test_infer_path(clear_pages_state, module_name, template, pages_folder, expected):
     with patch.dict(_pages.CONFIG, {"pages_folder": pages_folder}, clear=True):
-        result = _pages._infer_path(filename, template)
+        result = _pages._infer_path(module_name, template)
         assert result == expected
 
 
