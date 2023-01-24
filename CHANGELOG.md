@@ -1,8 +1,26 @@
-[# Change Log for Dash
+# Change Log for Dash
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.7.0] - 2022-12-12
+## [2.8.0] - 2023-01-24
+
+### Added
+
+- [#2389](https://github.com/plotly/dash/pull/2389) Added `disable_n_clicks` prop to all html components to make it possible to remove onclick event listeners
+
+## Fixed
+
+- [#2388](https://github.com/plotly/dash/pull/2388) Fix [#2368](https://github.com/plotly/dash/issues/2368) ordering or Pattern Matching ALL after update to the subtree.
+
+### Updated
+
+- [#2367](https://github.com/plotly/dash/pull/2367) Updated the default `favicon.ico` to the current Plotly logo
+- [#2394](https://github.com/plotly/dash/pull/2394) Update Plotly.js to v2.18.0 from v2.16.4.
+  - Feature release [2.18.0](https://github.com/plotly/plotly.js/releases/tag/v2.18.0) adds `sync` tickmode, so several axes can share ticks and gridlines
+  - Feature release [2.17.0](https://github.com/plotly/plotly.js/releases/tag/v2.17.0) adds automargin for multiple Y axes, a grouped mode for `scatter` traces, and rounded corners on `treemap` traces
+  - Patch releases [2.17.1](https://github.com/plotly/plotly.js/releases/tag/v2.17.1) and [2.16.5](https://github.com/plotly/plotly.js/releases/tag/v2.16.5) fix various bugs
+
+## [2.7.1] - 2022-12-12
 
 ### Fixed
 
@@ -14,7 +32,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2361](https://github.com/plotly/dash/pull/2361) Dependencies upgrade.
   - Update Plotly.js to v2.16.4 (from v2.16.1): fix several bugs, particularly related to updating mapbox graphs.
-    - Path release [2.16.4](https://github.com/plotly/plotly.js/releases/tag/v2.16.4)
+    - Patch release [2.16.4](https://github.com/plotly/plotly.js/releases/tag/v2.16.4)
     - Patch release [2.16.3](https://github.com/plotly/plotly.js/releases/tag/v2.16.3)
     - Patch release [2.16.2](https://github.com/plotly/plotly.js/releases/tag/v2.16.2)
 - [#2363](https://github.com/plotly/dash/pull/2363) Update html attributes for ol

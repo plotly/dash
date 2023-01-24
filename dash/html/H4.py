@@ -42,6 +42,10 @@ class H4(Component):
         Defines the text direction. Allowed values are ltr (Left-To-Right)
         or rtl (Right-To-Left).
 
+    - disable_n_clicks (boolean; optional):
+        When True, this will disable the n_clicks prop.  Use this to
+        remove event listeners that may interfere with screen readers.
+
     - draggable (string; optional):
         Defines whether the element can be dragged.
 
@@ -110,6 +114,7 @@ class H4(Component):
         id=Component.UNDEFINED,
         n_clicks=Component.UNDEFINED,
         n_clicks_timestamp=Component.UNDEFINED,
+        disable_n_clicks=Component.UNDEFINED,
         key=Component.UNDEFINED,
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
@@ -137,6 +142,7 @@ class H4(Component):
             "contextMenu",
             "data-*",
             "dir",
+            "disable_n_clicks",
             "draggable",
             "hidden",
             "key",
@@ -161,6 +167,7 @@ class H4(Component):
             "contextMenu",
             "data-*",
             "dir",
+            "disable_n_clicks",
             "draggable",
             "hidden",
             "key",

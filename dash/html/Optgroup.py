@@ -42,6 +42,10 @@ class Optgroup(Component):
         Defines the text direction. Allowed values are ltr (Left-To-Right)
         or rtl (Right-To-Left).
 
+    - disable_n_clicks (boolean; optional):
+        When True, this will disable the n_clicks prop.  Use this to
+        remove event listeners that may interfere with screen readers.
+
     - disabled (a value equal to: 'disabled', 'DISABLED' | boolean; optional):
         Indicates whether the user can interact with the element.
 
@@ -116,6 +120,7 @@ class Optgroup(Component):
         id=Component.UNDEFINED,
         n_clicks=Component.UNDEFINED,
         n_clicks_timestamp=Component.UNDEFINED,
+        disable_n_clicks=Component.UNDEFINED,
         key=Component.UNDEFINED,
         disabled=Component.UNDEFINED,
         label=Component.UNDEFINED,
@@ -145,6 +150,7 @@ class Optgroup(Component):
             "contextMenu",
             "data-*",
             "dir",
+            "disable_n_clicks",
             "disabled",
             "draggable",
             "hidden",
@@ -171,6 +177,7 @@ class Optgroup(Component):
             "contextMenu",
             "data-*",
             "dir",
+            "disable_n_clicks",
             "disabled",
             "draggable",
             "hidden",

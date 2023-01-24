@@ -93,7 +93,6 @@
         },
         "checked": {
             "elements": [
-                "command",
                 "input"
             ],
             "description": "Indicates whether the element should be checked on page load."
@@ -202,7 +201,6 @@
         "disabled": {
             "elements": [
                 "button",
-                "command",
                 "fieldset",
                 "input",
                 "keygen",
@@ -343,12 +341,6 @@
                 "meta"
             ],
             "description": "Defines a pragma directive."
-        },
-        "icon": {
-            "elements": [
-                "command"
-            ],
-            "description": "Specifies a picture which represents the command."
         },
         "id": {
             "elements": [
@@ -539,12 +531,6 @@
             ],
             "description": "Indicates whether the whole resource, parts of it or nothing should be preloaded."
         },
-        "radioGroup": {
-            "elements": [
-                "command"
-            ],
-            "description": ""
-        },
         "readOnly": {
             "elements": [
                 "input",
@@ -733,7 +719,6 @@
             "elements": [
                 "button",
                 "input",
-                "command",
                 "embed",
                 "object",
                 "ol",
@@ -966,13 +951,6 @@
             "content",
             "httpEquiv",
             "name"
-        ],
-        "command": [
-            "checked",
-            "disabled",
-            "icon",
-            "radioGroup",
-            "type"
         ],
         "blockquote": [
             "cite"

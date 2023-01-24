@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "2.7.1",
+  "version": "2.8.0",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -49,7 +49,7 @@
     "mathjax": "^3.2.2",
     "moment": "^2.29.4",
     "node-polyfill-webpack-plugin": "^2.0.1",
-    "plotly.js-dist-min": "2.16.4",
+    "plotly.js-dist-min": "2.18.0",
     "prop-types": "^15.8.1",
     "ramda": "^0.28.0",
     "rc-slider": "^9.7.5",

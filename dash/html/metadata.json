@@ -40,6 +40,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -300,6 +307,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -503,6 +517,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -708,6 +729,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -911,6 +939,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -1186,6 +1221,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -1390,6 +1432,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -1593,6 +1642,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -1923,6 +1979,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -2126,6 +2189,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -2345,6 +2415,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -2548,6 +2625,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -2753,6 +2837,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -2956,6 +3047,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -3161,6 +3259,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -3364,6 +3469,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -3576,6 +3688,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -3779,6 +3898,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -4123,6 +4249,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -4357,6 +4490,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -4560,6 +4700,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -4765,6 +4912,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -4969,6 +5123,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -5172,6 +5333,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -5384,6 +5552,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -5595,6 +5770,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -5798,6 +5980,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -6010,6 +6199,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -6214,6 +6410,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -6417,6 +6620,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -6635,6 +6845,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -6865,6 +7082,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -7068,6 +7292,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -7298,6 +7529,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -7501,6 +7739,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -7706,6 +7951,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -7910,6 +8162,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -8113,6 +8372,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -8362,6 +8628,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -8605,6 +8878,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -8808,6 +9088,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -9013,6 +9300,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -9217,6 +9511,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -9420,6 +9721,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -9710,6 +10018,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -9913,6 +10228,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -10118,6 +10440,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -10321,6 +10650,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -10526,6 +10862,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -10729,6 +11072,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -10934,6 +11284,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -11137,6 +11494,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -11342,6 +11706,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -11545,6 +11916,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -11750,6 +12128,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -11954,6 +12339,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -12157,6 +12549,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -12433,6 +12832,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -12717,6 +13123,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -12935,6 +13348,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -13138,6 +13558,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -13425,6 +13852,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -13643,6 +14077,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -13846,6 +14287,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -14057,6 +14505,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -14325,6 +14780,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -14528,6 +14990,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -14740,6 +15209,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -14943,6 +15419,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -15172,6 +15655,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -15404,6 +15894,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -15674,6 +16171,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -15877,6 +16381,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -16082,6 +16593,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -16285,6 +16803,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -16555,6 +17080,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -16798,6 +17330,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -17033,6 +17572,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -17302,6 +17848,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -17527,6 +18080,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -17730,6 +18290,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -17949,6 +18516,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -18152,6 +18726,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -18357,6 +18938,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -18560,6 +19148,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -18794,6 +19389,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -19005,6 +19607,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -19208,6 +19817,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -19413,6 +20029,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -19616,6 +20239,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -19821,6 +20451,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -20024,6 +20661,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -20229,6 +20873,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -20432,6 +21083,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -20729,6 +21387,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -20932,6 +21597,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -21277,6 +21949,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -21480,6 +22159,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -21685,6 +22371,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -21888,6 +22581,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -22128,6 +22828,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -22331,6 +23038,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -22536,6 +23250,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -22739,6 +23460,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -22944,6 +23672,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -23147,6 +23882,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -23352,6 +24094,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -23555,6 +24304,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -23760,6 +24516,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -23963,6 +24726,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -24205,6 +24975,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -24408,6 +25185,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -24801,6 +25585,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -25004,6 +25795,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -25253,6 +26051,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -25456,6 +26261,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -25668,6 +26480,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -25872,6 +26691,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -26075,6 +26901,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -26333,6 +27166,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -26536,6 +27376,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -26741,6 +27588,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -26944,6 +27798,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
@@ -27311,6 +28172,13 @@
           "computed": false
         }
       },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
+      },
       "key": {
         "type": {
           "name": "string"
@@ -27514,6 +28382,13 @@
           "value": "-1",
           "computed": false
         }
+      },
+      "disable_n_clicks": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When True, this will disable the n_clicks prop.  Use this to remove\nevent listeners that may interfere with screen readers."
       },
       "key": {
         "type": {
