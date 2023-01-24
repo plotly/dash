@@ -47,6 +47,10 @@ class Output(Component):
         Defines the text direction. Allowed values are ltr (Left-To-Right)
         or rtl (Right-To-Left).
 
+    - disable_n_clicks (boolean; optional):
+        When True, this will disable the n_clicks prop.  Use this to
+        remove event listeners that may interfere with screen readers.
+
     - draggable (string; optional):
         Defines whether the element can be dragged.
 
@@ -125,6 +129,7 @@ class Output(Component):
         id=Component.UNDEFINED,
         n_clicks=Component.UNDEFINED,
         n_clicks_timestamp=Component.UNDEFINED,
+        disable_n_clicks=Component.UNDEFINED,
         key=Component.UNDEFINED,
         htmlFor=Component.UNDEFINED,
         form=Component.UNDEFINED,
@@ -155,6 +160,7 @@ class Output(Component):
             "contextMenu",
             "data-*",
             "dir",
+            "disable_n_clicks",
             "draggable",
             "form",
             "hidden",
@@ -182,6 +188,7 @@ class Output(Component):
             "contextMenu",
             "data-*",
             "dir",
+            "disable_n_clicks",
             "draggable",
             "form",
             "hidden",

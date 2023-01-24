@@ -46,6 +46,10 @@ class Td(Component):
         Defines the text direction. Allowed values are ltr (Left-To-Right)
         or rtl (Right-To-Left).
 
+    - disable_n_clicks (boolean; optional):
+        When True, this will disable the n_clicks prop.  Use this to
+        remove event listeners that may interfere with screen readers.
+
     - draggable (string; optional):
         Defines whether the element can be dragged.
 
@@ -120,6 +124,7 @@ class Td(Component):
         id=Component.UNDEFINED,
         n_clicks=Component.UNDEFINED,
         n_clicks_timestamp=Component.UNDEFINED,
+        disable_n_clicks=Component.UNDEFINED,
         key=Component.UNDEFINED,
         colSpan=Component.UNDEFINED,
         headers=Component.UNDEFINED,
@@ -151,6 +156,7 @@ class Td(Component):
             "contextMenu",
             "data-*",
             "dir",
+            "disable_n_clicks",
             "draggable",
             "headers",
             "hidden",
@@ -178,6 +184,7 @@ class Td(Component):
             "contextMenu",
             "data-*",
             "dir",
+            "disable_n_clicks",
             "draggable",
             "headers",
             "hidden",
