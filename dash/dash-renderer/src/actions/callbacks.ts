@@ -10,7 +10,9 @@ import {
     pluck,
     values,
     toPairs,
-    zip
+    zip,
+    assocPath,
+    includes
 } from 'ramda';
 
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
@@ -39,6 +41,8 @@ import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
+import {handlePatch} from './patch';
+import {getPath} from './paths';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -683,7 +687,7 @@ export function executeCallback(
 
                 for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
                     try {
-                        const data = await handleServerside(
+                        let data = await handleServerside(
                             dispatch,
                             hooks,
                             newConfig,
@@ -698,6 +702,26 @@ export function executeCallback(
                         if (newHeaders) {
                             dispatch(addHttpHeaders(newHeaders));
                         }
+
+                        outputs.forEach((out: any) => {
+                            if (includes('@', out.property)) {
+                                const propName = out.property.split('@')[0];
+                                const outputPath = getPath(paths, out.id);
+                                const previousValue = path(
+                                    outputPath.concat(['props', propName]),
+                                    layout
+                                );
+                                const dataPath = [out.id, propName];
+                                data = assocPath(
+                                    dataPath,
+                                    handlePatch(
+                                        previousValue,
+                                        path(dataPath, data)
+                                    ),
+                                    data
+                                );
+                            }
+                        });
 
                         return {data, payload};
                     } catch (res: any) {

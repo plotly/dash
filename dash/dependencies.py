@@ -27,6 +27,8 @@ ALLSMALLER = _Wildcard("ALLSMALLER")
 
 
 class DashDependency:  # pylint: disable=too-few-public-methods
+    is_patch = False
+
     def __init__(self, component_id, component_property):
 
         if isinstance(component_id, Component):
@@ -122,6 +124,10 @@ class Output(DashDependency):  # pylint: disable=too-few-public-methods
     """Output of a callback."""
 
     allowed_wildcards = (MATCH, ALL)
+
+
+class PatchOutput(Output):
+    is_patch = True
 
 
 class Input(DashDependency):  # pylint: disable=too-few-public-methods

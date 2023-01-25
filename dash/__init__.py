@@ -4,7 +4,8 @@
 __plotly_dash = True
 from .dependencies import (  # noqa: F401,E402
     Input,  # noqa: F401,E402
-    Output,  # noqa: F401,E402
+    Output,  # noqa: F401,E402,
+    PatchOutput,  # noqa: F401,E402
     State,  # noqa: F401,E402
     ClientsideFunction,  # noqa: F401,E402
     MATCH,  # noqa: F401,E402
@@ -38,6 +39,6 @@ from .dash import (  # noqa: F401,E402
     no_update,
     page_container,
 )
-
+from ._patch import Patch  # noqa: F401,E402
 
 ctx = callback_context

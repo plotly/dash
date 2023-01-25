@@ -7,7 +7,13 @@ import flask
 from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
-from ._utils import patch_collections_abc, stringify_id, to_json, coerce_to_list
+from ._utils import (
+    patch_collections_abc,
+    stringify_id,
+    to_json,
+    coerce_to_list,
+    clean_property_name,
+)
 from .exceptions import PageError
 
 
@@ -123,7 +129,10 @@ def validate_output_spec(output, output_spec, Output):
     for outi, speci in zip(output, output_spec):
         speci_list = speci if isinstance(speci, (list, tuple)) else [speci]
         for specij in speci_list:
-            if not Output(specij["id"], specij["property"]) == outi:
+            if (
+                not Output(specij["id"], clean_property_name(specij["property"]))
+                == outi
+            ):
                 raise exceptions.CallbackException(
                     "Output does not match callback definition"
                 )

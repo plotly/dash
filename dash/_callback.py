@@ -27,6 +27,7 @@ from ._utils import (
     to_json,
     coerce_to_list,
     AttributeDict,
+    clean_property_name,
 )
 
 from . import _validate
@@ -469,7 +470,8 @@ def register_callback(  # pylint: disable=R0914
                     if not isinstance(vali, NoUpdate):
                         has_update = True
                         id_str = stringify_id(speci["id"])
-                        component_ids[id_str][speci["property"]] = vali
+                        prop = clean_property_name(speci["property"])
+                        component_ids[id_str][prop] = vali
 
             if not has_update:
                 raise PreventUpdate
