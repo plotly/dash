@@ -129,7 +129,7 @@ def create_callback_id(output):
     # with `\` so we don't mistake it for multi-outputs
     def _concat(x):
         _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
-        if x.is_patch:
+        if x.allow_duplicate:
             # Actually adds on the property part.
             _id += f"@{uuid.uuid4().hex}"
         return _id

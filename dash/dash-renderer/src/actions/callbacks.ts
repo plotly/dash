@@ -11,8 +11,7 @@ import {
     values,
     toPairs,
     zip,
-    assocPath,
-    includes
+    assocPath
 } from 'ramda';
 
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
@@ -704,23 +703,21 @@ export function executeCallback(
                         }
 
                         outputs.forEach((out: any) => {
-                            if (includes('@', out.property)) {
-                                const propName = out.property.split('@')[0];
-                                const outputPath = getPath(paths, out.id);
-                                const previousValue = path(
-                                    outputPath.concat(['props', propName]),
-                                    layout
-                                );
-                                const dataPath = [out.id, propName];
-                                data = assocPath(
-                                    dataPath,
-                                    handlePatch(
-                                        previousValue,
-                                        path(dataPath, data)
-                                    ),
-                                    data
-                                );
-                            }
+                            const propName = out.property.split('@')[0];
+                            const outputPath = getPath(paths, out.id);
+                            const previousValue = path(
+                                outputPath.concat(['props', propName]),
+                                layout
+                            );
+                            const dataPath = [out.id, propName];
+                            data = assocPath(
+                                dataPath,
+                                handlePatch(
+                                    previousValue,
+                                    path(dataPath, data)
+                                ),
+                                data
+                            );
                         });
 
                         return {data, payload};
