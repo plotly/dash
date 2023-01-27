@@ -90,15 +90,20 @@ def _module_name_is_package(module_name):
     )
 
 
+def _path_to_module(path):
+    return str(path).replace(".py", "").strip(os.sep).replace(os.sep, ".")
+
+
 def _infer_module_name(page_path):
-    page_path = page_path.replace("\\", "/")
-    _, _, filename = page_path.partition(CONFIG.pages_folder.replace("\\", "/") + "/")
-    module = filename.replace(".py", "").replace("/", ".")
+    relative_path = page_path.split(CONFIG.pages_folder)[-1]
+    module = _path_to_module(relative_path)
     proj_root = flask.helpers.get_root_path(CONFIG.name)
-    parent_module = CONFIG.pages_folder
     if CONFIG.pages_folder.startswith(proj_root):
-        parent_module = parent_module[len(proj_root) :]
-    parent_module = parent_module.lstrip("/").replace("/", ".")
+        parent_path = CONFIG.pages_folder[len(proj_root) :]
+    else:
+        parent_path = CONFIG.pages_folder
+    parent_module = _path_to_module(parent_path)
+
     module_name = f"{parent_module}.{module}"
     if _module_name_is_package(CONFIG.name):
         # Only prefix with CONFIG.name when its an imported package name

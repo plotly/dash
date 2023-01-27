@@ -1,10 +1,9 @@
-import sys
 from pathlib import Path
 
 import pytest
 import dash
 from dash import Dash, _pages
-from mock import patch, Mock
+from mock import patch
 
 
 THIS_DIR = Path(__file__).parent
