@@ -2,6 +2,13 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+
+## Unreleased
+
+## Fixed
+
+- [#2400](https://github.com/plotly/dash/pull/2400) Added `disable_n_clicks=True` to the `html.Div` components in `page_container`.
+
 ## [2.8.0] - 2023-01-24
 
 ### Added
