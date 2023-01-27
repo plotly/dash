@@ -15,9 +15,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
 from selenium.common.exceptions import (
-    WebDriverException,
-    TimeoutException,
     MoveTargetOutOfBoundsException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+    TimeoutException,
+    WebDriverException,
 )
 
 from dash.testing.wait import (
@@ -68,7 +70,15 @@ class Browser(DashPageMixin):
         self._driver = until(self.get_webdriver, timeout=1)
         self._driver.implicitly_wait(2)
 
-        self._wd_wait = WebDriverWait(self.driver, wait_timeout)
+        self._wd_wait_ignored_exceptions = (
+            NoSuchElementException,
+            StaleElementReferenceException,
+        )
+        self._wd_wait = WebDriverWait(
+            self.driver,
+            wait_timeout,
+            ignored_exceptions=self._wd_wait_ignored_exceptions,
+        )
         self._last_ts = 0
         self._url = None
 
@@ -265,7 +275,13 @@ class Browser(DashPageMixin):
     def _wait_for(self, method, args, timeout, msg):
         """Abstract generic pattern for explicit WebDriverWait."""
         _wait = (
-            self._wd_wait if timeout is None else WebDriverWait(self.driver, timeout)
+            self._wd_wait
+            if timeout is None
+            else WebDriverWait(
+                self.driver,
+                timeout,
+                ignored_exceptions=self._wd_wait_ignored_exceptions,
+            )
         )
         logger.debug(
             "method, timeout, poll => %s %s %s",

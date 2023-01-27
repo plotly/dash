@@ -692,6 +692,7 @@ to close the error messages box.
 - [#1442](https://github.com/plotly/dash/pull/1442) Update from React 16.13.0 to 16.14.0
 ### Fixed
 - [#1434](https://github.com/plotly/dash/pull/1434) Fix [#1432](https://github.com/plotly/dash/issues/1432) for Julia to import non-core component packages without possible errors.
+- [#1447](https://github.com/plotly/dash/pull/1447) Fix [#1164](https://github.com/plotly/dash/issues/1164). Commands like `dash_duo.wait_for_element(some_search_pattern, timeout=some_timeout)` now waits until a _non-stale_ reference exists, and (still) raises `TimeoutException` if not satisfied within the timeout. Previously, `wait_for_element` could occasionally fail with `StaleElementReferenceException`.
 
 ### Changed
 - [#1448](https://github.com/plotly/dash/pull/1448) Provide a hint in the callback error when the user forgot to make `app.callback(...)` a decorator.
