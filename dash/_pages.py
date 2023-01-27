@@ -1,11 +1,11 @@
-import os
-from os import listdir
-from os.path import isfile, join
 import collections
-from urllib.parse import parse_qs
-from fnmatch import fnmatch
+import os
 import re
+import sys
+from fnmatch import fnmatch
 from pathlib import Path
+from os.path import isfile, join
+from urllib.parse import parse_qs
 
 import flask
 
@@ -34,7 +34,7 @@ def _infer_image(module):
 
     if os.path.exists(assets_folder):
         files_in_assets = [
-            f for f in listdir(assets_folder) if isfile(join(assets_folder, f))
+            f for f in os.listdir(assets_folder) if isfile(join(assets_folder, f))
         ]
     app_file = None
     logo_file = None
@@ -66,9 +66,9 @@ def _module_name_to_page_name(module_name):
 def _infer_path(module_name, template):
     if template is None:
         if CONFIG.pages_folder:
-            pages_folder = str(Path(CONFIG.pages_folder).name)
+            pages_module = str(Path(CONFIG.pages_folder).name)
             path = (
-                module_name.split(pages_folder)[-1]
+                module_name.split(pages_module)[-1]
                 .replace("_", "-")
                 .replace(".", "/")
                 .lower()
@@ -81,6 +81,29 @@ def _infer_path(module_name, template):
         path = re.sub("<.*?>", "none", template)
     path = "/" + path if not path.startswith("/") else path
     return path
+
+
+def _module_name_is_package(module_name):
+    return (
+        module_name in sys.modules
+        and Path(sys.modules[module_name].__file__).name == "__init__.py"
+    )
+
+
+def _infer_module_name(page_path):
+    page_path = page_path.replace("\\", "/")
+    _, _, filename = page_path.partition(CONFIG.pages_folder.replace("\\", "/") + "/")
+    module = filename.replace(".py", "").replace("/", ".")
+    proj_root = flask.helpers.get_root_path(CONFIG.name)
+    parent_module = CONFIG.pages_folder
+    if CONFIG.pages_folder.startswith(proj_root):
+        parent_module = parent_module[len(proj_root) :]
+    parent_module = parent_module.lstrip("/").replace("/", ".")
+    module_name = f"{parent_module}.{module}"
+    if _module_name_is_package(CONFIG.name):
+        # Only prefix with CONFIG.name when its an imported package name
+        module_name = f"{CONFIG.name}.{module_name}"
+    return module_name
 
 
 def _parse_query_string(search):

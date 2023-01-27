@@ -1,9 +1,10 @@
+import sys
 from pathlib import Path
 
 import pytest
 import dash
 from dash import Dash, _pages
-from mock import patch
+from mock import patch, Mock
 
 
 THIS_DIR = Path(__file__).parent
@@ -36,17 +37,18 @@ def test_infer_path(clear_pages_state, module_name, template, pages_folder, expe
 
 
 @pytest.mark.parametrize(
-    "pages_folder, expected_module_name",
+    "name, pages_folder, expected_module_name",
     [
-        ("custom_pages", "custom_pages.page"),
-        ("sub_dir/custom_pages", "sub_dir.custom_pages.page"),
-        (str(THIS_DIR / "custom_pages"), "custom_pages.page"),
+        (__name__, "custom_pages", "custom_pages.page"),
+        (__name__, "sub_dir/custom_pages", "sub_dir.custom_pages.page"),
+        (__name__, str(THIS_DIR / "custom_pages"), "custom_pages.page"),
+        (__package__, "custom_pages", "pages.custom_pages.page"),
     ],
 )
 def test_import_layouts_from_pages(
-    clear_pages_state, pages_folder, expected_module_name
+    clear_pages_state, name, pages_folder, expected_module_name
 ):
-    _ = Dash(__name__, use_pages=True, pages_folder=pages_folder)
+    _ = Dash(name, use_pages=True, pages_folder=pages_folder)
     assert len(dash.page_registry) == 1
 
     page_entry = list(dash.page_registry.values())[0]

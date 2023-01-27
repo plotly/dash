@@ -64,6 +64,7 @@ from ._grouping import map_grouping, grouping_len, update_args_group
 
 from . import _pages
 from ._pages import (
+    _infer_module_name,
     _parse_path_variables,
     _parse_query_string,
 )
@@ -1987,9 +1988,7 @@ class Dash:
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
     def _import_layouts_from_pages(self):
-        walk_dir = self.config.pages_folder
-
-        for (root, dirs, files) in os.walk(walk_dir):
+        for root, dirs, files in os.walk(self.config.pages_folder):
             dirs[:] = [
                 d for d in dirs if not d.startswith(".") and not d.startswith("_")
             ]
@@ -2000,29 +1999,17 @@ class Dash:
                     or not file.endswith(".py")
                 ):
                     continue
-                with open(os.path.join(root, file), encoding="utf-8") as f:
+                page_path = os.path.join(root, file)
+                with open(page_path, encoding="utf-8") as f:
                     content = f.read()
                     if "register_page" not in content:
                         continue
 
-                page_filename = os.path.join(root, file).replace("\\", "/")
-                _, _, page_filename = page_filename.partition(
-                    walk_dir.replace("\\", "/") + "/"
-                )
-                page_filename = page_filename.replace(".py", "").replace("/", ".")
-
-                proj_root = flask.helpers.get_root_path(self.config.name)
-                parent_module = self.config.pages_folder
-                if self.config.pages_folder.startswith(proj_root):
-                    parent_module = parent_module[len(proj_root) :]
-                parent_module = parent_module.lstrip("/").replace("/", ".")
-                module_name = f"{parent_module}.{page_filename}"
-
-                spec = importlib.util.spec_from_file_location(
-                    module_name, os.path.join(root, file)
-                )
+                module_name = _infer_module_name(page_path)
+                spec = importlib.util.spec_from_file_location(module_name, page_path)
                 page_module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(page_module)
+                sys.modules[module_name] = page_module
 
                 if (
                     module_name in _pages.PAGE_REGISTRY
