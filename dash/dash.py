@@ -120,9 +120,9 @@ try:
     page_container = html.Div(
         [
             dcc.Location(id=_ID_LOCATION),
-            html.Div(id=_ID_CONTENT),
+            html.Div(id=_ID_CONTENT, disable_n_clicks=True),
             dcc.Store(id=_ID_STORE),
-            html.Div(id=_ID_DUMMY),
+            html.Div(id=_ID_DUMMY, disable_n_clicks=True),
         ]
     )
 except AttributeError:
