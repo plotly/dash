@@ -701,15 +701,14 @@ export function executeCallback(
                         if (newHeaders) {
                             dispatch(addHttpHeaders(newHeaders));
                         }
-
-                        outputs.forEach((out: any) => {
+                        flatten(outputs).forEach((out: any) => {
                             const propName = out.property.split('@')[0];
                             const outputPath = getPath(paths, out.id);
                             const previousValue = path(
                                 outputPath.concat(['props', propName]),
                                 layout
                             );
-                            const dataPath = [out.id, propName];
+                            const dataPath = [stringifyId(out.id), propName];
                             data = assocPath(
                                 dataPath,
                                 handlePatch(
