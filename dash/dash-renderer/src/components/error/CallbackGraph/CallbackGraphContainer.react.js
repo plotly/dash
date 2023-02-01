@@ -31,7 +31,8 @@ function generateElements(graphs, profile, extraLinks) {
     const elements = [];
     const structure = {};
 
-    function recordNode(id, property) {
+    function recordNode(id, rawProperty) {
+        const property = rawProperty.split('@')[0];
         const idStr = stringifyId(id);
         const idType = typeof id === 'object' ? 'wildcard' : 'component';
 
