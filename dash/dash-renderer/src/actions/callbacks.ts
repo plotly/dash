@@ -40,7 +40,7 @@ import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
-import {handlePatch} from './patch';
+import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
@@ -701,22 +701,27 @@ export function executeCallback(
                         if (newHeaders) {
                             dispatch(addHttpHeaders(newHeaders));
                         }
+                        // Layout may have changed.
+                        const currentLayout = getState().layout;
                         flatten(outputs).forEach((out: any) => {
                             const propName = out.property.split('@')[0];
                             const outputPath = getPath(paths, out.id);
                             const previousValue = path(
                                 outputPath.concat(['props', propName]),
-                                layout
+                                currentLayout
                             );
                             const dataPath = [stringifyId(out.id), propName];
-                            data = assocPath(
-                                dataPath,
-                                handlePatch(
-                                    previousValue,
-                                    path(dataPath, data)
-                                ),
-                                data
-                            );
+                            const outputValue = path(dataPath, data);
+                            if (
+                                previousValue !== undefined &&
+                                isPatch(outputValue)
+                            ) {
+                                data = assocPath(
+                                    dataPath,
+                                    handlePatch(previousValue, outputValue),
+                                    data
+                                );
+                            }
                         });
 
                         return {data, payload};

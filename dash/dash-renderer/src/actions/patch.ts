@@ -18,7 +18,7 @@ type PatchOperation = {
 type LocationIndex = string | number;
 type PatchHandler = (previous: any, patchUpdate: PatchOperation) => any;
 
-function isPatch(obj: any): boolean {
+export function isPatch(obj: any): boolean {
     return has('__dash_patch_update', obj);
 }
 
@@ -107,9 +107,6 @@ const patchHandlers: {[k: string]: PatchHandler} = {
 };
 
 export function handlePatch<T>(previousValue: T, patchValue: any): T {
-    if (!isPatch(patchValue)) {
-        return patchValue;
-    }
     let reducedValue = previousValue;
 
     for (let i = 0; i < patchValue.operations.length; i++) {
