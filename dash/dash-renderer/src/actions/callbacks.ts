@@ -712,10 +712,10 @@ export function executeCallback(
                             );
                             const dataPath = [stringifyId(out.id), propName];
                             const outputValue = path(dataPath, data);
-                            if (
-                                previousValue !== undefined &&
-                                isPatch(outputValue)
-                            ) {
+                            if (isPatch(outputValue)) {
+                                if (previousValue === undefined) {
+                                    throw new Error('Cannot patch undefined');
+                                }
                                 data = assocPath(
                                     dataPath,
                                     handlePatch(previousValue, outputValue),
