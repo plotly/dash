@@ -3,6 +3,12 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#2415](https://github.com/plotly/dash/pull/2415) Fix background callbacks progress not deleted after fetch.
+
 ## [2.8.1] - 2023-01-30
 
 ## Fixed
