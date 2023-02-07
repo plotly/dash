@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "2.6.2",
+  "version": "2.8.0",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -49,7 +49,7 @@
     "mathjax": "^3.2.2",
     "moment": "^2.29.4",
     "node-polyfill-webpack-plugin": "^2.0.1",
-    "plotly.js-dist-min": "2.16.1",
+    "plotly.js-dist-min": "2.18.0",
     "prop-types": "^15.8.1",
     "ramda": "^0.28.0",
     "rc-slider": "^9.7.5",
@@ -57,6 +57,7 @@
     "react-dates": "^21.8.0",
     "react-docgen": "^5.4.3",
     "react-dropzone": "^4.1.2",
+    "react-fast-compare": "^3.2.0",
     "react-markdown": "^4.3.1",
     "react-resize-detector": "^6.7.6",
     "react-select-fast-filter-options": "^0.2.3",
