@@ -11,7 +11,6 @@ export default class Geolocation extends Component {
         super(props);
         this.success = this.success.bind(this);
         this.error = this.error.bind(this);
-        this.updatePosition = this.updatePosition.bind(this);
     }
     updatePosition() {
         if (this.props.update_now) {
