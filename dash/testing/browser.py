@@ -636,3 +636,12 @@ class Browser(DashPageMixin):
     @property
     def download_path(self):
         return self._download_path
+
+    @property
+    def wait_timeout(self):
+        return self._wait_timeout
+
+    @wait_timeout.setter
+    def wait_timeout(self, value):
+        self._wait_timeout = value
+        self._wd_wait = WebDriverWait(self.driver, value)
