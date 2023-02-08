@@ -22,6 +22,7 @@ try:
     )
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
+
     _installed = True
 except ImportError:
     # Running pytest without dash[testing] installed.
