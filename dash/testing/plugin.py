@@ -22,6 +22,7 @@ try:
     )
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
+    _installed = True
 except ImportError:
     # Running pytest without dash[testing] installed.
     ThreadedRunner = MissingDashTesting
@@ -33,9 +34,13 @@ except ImportError:
     DashComposite = MissingDashTesting
     DashRComposite = MissingDashTesting
     DashJuliaComposite = MissingDashTesting
+    _installed = False
 
 
 def pytest_addoption(parser):
+    if not _installed:
+        return
+
     dash = parser.getgroup("Dash", "Dash Integration Tests")
 
     dash.addoption(
@@ -82,6 +87,8 @@ def pytest_addoption(parser):
 
 @pytest.mark.tryfirst
 def pytest_addhooks(pluginmanager):
+    if not _installed:
+        return
     # https://github.com/pytest-dev/pytest-xdist/blob/974bd566c599dc6a9ea291838c6f226197208b46/xdist/plugin.py#L67
     # avoid warnings with pytest-2.8
     from dash.testing import newhooks  # pylint: disable=import-outside-toplevel
@@ -94,6 +101,8 @@ def pytest_addhooks(pluginmanager):
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):  # pylint: disable=unused-argument
+    if not _installed:
+        return
     # execute all other hooks to obtain the report object
     outcome = yield
     rep = outcome.get_result()
