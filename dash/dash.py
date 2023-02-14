@@ -125,7 +125,8 @@ try:
             html.Div(id=_ID_DUMMY, disable_n_clicks=True),
         ]
     )
-except AttributeError:
+# pylint: disable-next=bare-except
+except:  # noqa: E722
     page_container = None
 
 
