@@ -8,11 +8,17 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2417](https://github.com/plotly/dash/pull/2417) Add wait_timeout property to customize the behavior of the default wait timeout used for by wait_for_page, fix [#1595](https://github.com/plotly/dash/issues/1595)
 - [#2417](https://github.com/plotly/dash/pull/2417) Add the element target text for wait_for_text* error message, fix [#945](https://github.com/plotly/dash/issues/945)
+- [#2425](https://github.com/plotly/dash/pull/2425) Add `add_log_handler=True` to Dash init, if you don't want a log stream handler at all.
 
 ## Fixed
 
 - [#2417](https://github.com/plotly/dash/pull/2417) Disable the pytest plugin if `dash[testing]` not installed, fix [#946](https://github.com/plotly/dash/issues/946).
 - [#2417](https://github.com/plotly/dash/pull/2417) Do not swallow the original error to get the webdriver, easier to know what is wrong after updating the browser but the driver.
+- [#2425](https://github.com/plotly/dash/pull/2425) Fix multiple log handler added unconditionally to the logger, resulting in duplicate log message.
+
+## Changed
+
+- [#2425](https://github.com/plotly/dash/pull/2425) Moved the logger namespace to `dash.dash`, as library logger it should be on that namespace instead of the user app.
 
 ## [UNRELEASED]
 
