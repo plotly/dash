@@ -14,6 +14,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2417](https://github.com/plotly/dash/pull/2417) Disable the pytest plugin if `dash[testing]` not installed, fix [#946](https://github.com/plotly/dash/issues/946).
 - [#2417](https://github.com/plotly/dash/pull/2417) Do not swallow the original error to get the webdriver, easier to know what is wrong after updating the browser but the driver.
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#2415](https://github.com/plotly/dash/pull/2415) Fix background callbacks progress not deleted after fetch.
+
 ## [2.8.1] - 2023-01-30
 
 ## Fixed
