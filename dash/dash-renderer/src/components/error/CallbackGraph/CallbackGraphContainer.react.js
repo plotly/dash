@@ -158,6 +158,20 @@ function flattenInputs(inArray, final) {
     return final;
 }
 
+function cleanOutputId(outputId) {
+    return outputId
+        .replace(/(^\.\.|\.\.$)/g, '')
+        .split('...')
+        .reduce(
+            (agg, next) =>
+                agg.concat(
+                    next.replace(/(.*\..*)(@.+)$/, (a, b) => b + ' (Duplicate)')
+                ),
+            []
+        )
+        .join('...');
+}
+
 // len('__dash_callback__.')
 const cbPrefixLen = 18;
 
@@ -327,7 +341,7 @@ function CallbackGraph() {
 
                 // Remove uid and set profile.
                 const callbackOutputId = data.id.slice(cbPrefixLen);
-                elementName = callbackOutputId.replace(/(^\.\.|\.\.$)/g, '');
+                elementName = cleanOutputId(callbackOutputId);
                 const cbProfile = profile.callbacks[callbackOutputId];
                 if (cbProfile) {
                     const {
