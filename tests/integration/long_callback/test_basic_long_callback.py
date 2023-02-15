@@ -13,6 +13,8 @@ from dash.testing.application_runners import import_app
 import psutil
 import redis
 
+from . import utils
+
 
 def kill(proc_pid):
     process = psutil.Process(proc_pid)
@@ -78,11 +80,16 @@ def setup_long_callback_app(manager_name, app_name):
         print(cache_directory)
         os.environ["DISKCACHE_DIR"] = cache_directory
         try:
-            yield import_app(f"tests.integration.long_callback.{app_name}")
+            app = import_app(f"tests.integration.long_callback.{app_name}")
+            yield app
         finally:
             # Interval may run one more time after settling on final app state
             # Sleep for a couple of intervals
             time.sleep(2.0)
+
+            for job in utils.manager.running_jobs:
+                utils.manager.terminate_job(job)
+
             shutil.rmtree(cache_directory, ignore_errors=True)
             os.environ.pop("LONG_CALLBACK_MANAGER")
             os.environ.pop("DISKCACHE_DIR")
