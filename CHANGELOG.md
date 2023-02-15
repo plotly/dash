@@ -16,7 +16,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2417](https://github.com/plotly/dash/pull/2417) Do not swallow the original error to get the webdriver, easier to know what is wrong after updating the browser but the driver.
 - [#2425](https://github.com/plotly/dash/pull/2425) Fix multiple log handler added unconditionally to the logger, resulting in duplicate log message.
 - [#2415](https://github.com/plotly/dash/pull/2415) Fix background callbacks progress not deleted after fetch.
-- [#2426](https://github.com/plotly/dash/pull/2426) Set default interval to 1 second for app.long_callback.
+- [#2426](https://github.com/plotly/dash/pull/2426) Set default interval to 1 second for app.long_callback, restoring the behavior it had before v2.6.0 when we introduced `backround=True` callbacks.
 
 ## Changed
 
