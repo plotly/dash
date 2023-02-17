@@ -6,11 +6,13 @@ import {
     filter,
     flatten,
     forEach,
+    includes,
     isEmpty,
     keys,
     map,
     mergeWith,
     partition,
+    path,
     pickBy,
     props,
     reduce,
@@ -302,6 +304,24 @@ export const getLayoutCallbacks = (
                 flatten(map(({getOutputs}) => getOutputs(paths), excluded))
             )
         );
+    }
+
+    if (options.filterRoot) {
+        let rootId = path(['props', 'id'], layout);
+        if (rootId) {
+            rootId = stringifyId(rootId);
+            // Filter inputs that are not present in the response
+            callbacks = callbacks.filter(cb =>
+                all(
+                    (inp: any) =>
+                        !(
+                            stringifyId(inp.id) === rootId &&
+                            !includes(inp.property, options.filterRoot)
+                        ),
+                    cb.callback.inputs
+                )
+            );
+        }
     }
 
     /*

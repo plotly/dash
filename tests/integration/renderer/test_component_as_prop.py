@@ -258,3 +258,38 @@ def test_rdcap002_component_as_props_dynamic_id(dash_duo):
         dash_duo.wait_for_text_to_equal(f"#options label:nth-child({i}) span", "")
         dash_duo.wait_for_element(f"#options label:nth-child({i}) button").click()
         dash_duo.wait_for_text_to_equal(f"#options label:nth-child({i}) span", "1")
+
+
+def test_rdcap003_side_effect_regression(dash_duo):
+    # Test for #2411, regression introduced by original rdcap002 fix
+    # callback on the same components that is output with same id but not property triggered
+    # on cap components of array type like Checklist.options[] and  Dropdown.options[].
+    app = Dash(__name__)
+
+    app.layout = Div([Button("3<->2", id="a"), Checklist(id="b"), Div(0, id="counter")])
+
+    app.clientside_callback(
+        "function(_, prev) {return parseInt(prev) + 1}",
+        Output("counter", "children"),
+        Input("b", "value"),
+        State("counter", "children"),
+        prevent_initial_call=True,
+    )
+
+    @app.callback(Output("b", "options"), Input("a", "n_clicks"))
+    def opts(n):
+        n_out = 3 - (n or 0) % 2
+        return [str(i) for i in range(n_out)]
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#counter", "0")
+    dash_duo.find_element("#a").click()
+    assert len(dash_duo.find_elements("#b label > input")) == 2
+    dash_duo.wait_for_text_to_equal("#counter", "0")
+    dash_duo.find_element("#a").click()
+    assert len(dash_duo.find_elements("#b label > input")) == 3
+    dash_duo.wait_for_text_to_equal("#counter", "0")
+
+    dash_duo.find_elements("#b label > input")[0].click()
+    dash_duo.wait_for_text_to_equal("#counter", "1")
