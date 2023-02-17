@@ -1,5 +1,6 @@
 import {
     all,
+    any,
     assoc,
     concat,
     difference,
@@ -312,7 +313,7 @@ export const getLayoutCallbacks = (
             rootId = stringifyId(rootId);
             // Filter inputs that are not present in the response
             callbacks = callbacks.filter(cb =>
-                all(
+                any(
                     (inp: any) =>
                         !(
                             stringifyId(inp.id) === rootId &&
