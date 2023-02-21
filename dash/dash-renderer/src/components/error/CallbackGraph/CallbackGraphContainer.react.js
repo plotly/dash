@@ -8,6 +8,8 @@ import fcose from 'cytoscape-fcose';
 import {JSONTree} from 'react-json-tree';
 import {keys, mergeRight, omit, path, values} from 'ramda';
 
+import {SearchBox} from './Search/SearchBox.react';
+
 import {getPath} from '../../../actions/paths';
 import {stringifyId} from '../../../actions/dependencies';
 import {onError} from '../../../actions';
@@ -17,8 +19,14 @@ import stylesheet from './CallbackGraphContainerStylesheet';
 import {
     updateSelectedNode,
     updateChangedProps,
-    updateCallback
+    updateCallback,
+    hideZeroCountNodes,
+    focusOnSearchItem
 } from './CallbackGraphEffects';
+
+import {layouts} from './CallbackGraphLayouts';
+
+import useMousetrap from 'react-hook-mousetrap';
 
 Cytoscape.use(dagre);
 Cytoscape.use(fcose);
@@ -160,21 +168,6 @@ function flattenInputs(inArray, final) {
 // len('__dash_callback__.')
 const cbPrefixLen = 18;
 
-const dagreLayout = {
-    name: 'dagre',
-    padding: 10,
-    ranker: 'tight-tree'
-};
-
-const forceLayout = {name: 'fcose', padding: 10, animate: false};
-
-const layouts = {
-    'top-down': {...dagreLayout, spacingFactor: 0.8},
-    'left-right': {...dagreLayout, nodeSep: 0, rankSep: 80, rankDir: 'LR'},
-    force: forceLayout,
-    'force-loose': forceLayout
-};
-
 function CallbackGraph() {
     // Grab items from the redux store.
     const paths = useSelector(state => state.paths);
@@ -188,6 +181,9 @@ function CallbackGraph() {
     const [selected, setSelected] = useState(null);
     const [cytoscape, setCytoscape] = useState(null);
 
+    const [hideZeroOnly, setHideZeroOnly] = useState(false);
+    const [searchItemId, setSearchItemId] = useState(null);
+
     const {graphLayout} = profile;
     const chosenType = graphLayout?._chosenType;
     const layoutSelector = useRef(null);
@@ -198,6 +194,41 @@ function CallbackGraph() {
         () => generateElements(graphs, profile, layoutType === 'force'),
         [graphs, layoutType]
     );
+
+    const searchbox = useRef(null);
+
+    const toggle_non_zero = () => setHideZeroOnly(!hideZeroOnly);
+
+    //  S  - Search (open up search bar)
+    //  F  - Fit
+    //  T  - Threshold toggle
+    //  Shift-T - set treshold
+    //  +  - Zoom in
+    //  ctrl-+ - Zoom in with centering search
+    //  -  - Zoom out
+    //  ctrl-- - Zoom in with centering search
+    //  Left - Right - up - down -> Panby
+    //  C  - Center
+    //  R  - Reset
+    //  T  - Toggle threshold
+    //  Ctrl-T - Focus on threshold field
+    // some hot-keys for changing views / Layouts
+
+    // Speed keys
+
+    useMousetrap('left', () => cytoscape.panBy({x: 100, y: 0}));
+    useMousetrap('right', () => cytoscape.panBy({x: -100, y: 0}));
+    useMousetrap('up', () => cytoscape.panBy({x: 0, y: 75}));
+    useMousetrap('down', () => cytoscape.panBy({x: 0, y: -75}));
+
+    useMousetrap('+', () => cytoscape.zoom(cytoscape.zoom() * 1.25));
+    useMousetrap('-', () => cytoscape.zoom(cytoscape.zoom() * 0.75));
+
+    useMousetrap('r', () => cytoscape.reset());
+
+    useMousetrap('0', () => toggle_non_zero());
+
+    useMousetrap('s', () => {});
 
     // Custom hook to make sure cytoscape is loaded.
     const useCytoscapeEffect = (effect, condition) => {
@@ -239,6 +270,8 @@ function CallbackGraph() {
         profile.graphLayout = {
             name: 'preset',
             fit: false,
+            //manual add
+            padding: 100,
             positions,
             zoom: cy.zoom(),
             pan: cy.pan(),
@@ -269,19 +302,38 @@ function CallbackGraph() {
     );
 
     // Flash classes when props change. Uses changed as a trigger. Also
-    // flash all input edges originating from this node and highlight
+    // flash all input edges originating from this node and
     // the subtree that contains the selected node.
     useCytoscapeEffect(
         cy => changed && updateChangedProps(cy, changed.id, changed.props),
         [changed]
     );
 
+    useCytoscapeEffect(
+        cy => hideZeroCountNodes(cy, hideZeroOnly),
+        [hideZeroOnly]
+    );
+
+    useCytoscapeEffect(
+        cy => focusOnSearchItem(cy, searchItemId),
+        [searchItemId]
+    );
+
+    const isProcessingCallbackUpdate = useRef(null);
     // Update callbacks from profiling information.
     useCytoscapeEffect(
-        cy =>
-            profile.updated.forEach(cb =>
-                updateCallback(cy, cb, profile.callbacks[cb])
-            ),
+        cy => {
+            profile.updated.forEach(cb => {
+                if (isProcessingCallbackUpdate.current !== null) {
+                    clearTimeout(isProcessingCallbackUpdate.current);
+                }
+                isProcessingCallbackUpdate.current = updateCallback(
+                    cy,
+                    cb,
+                    profile.callbacks[cb]
+                );
+            });
+        },
         [profile.updated]
     );
 
@@ -386,6 +438,43 @@ function CallbackGraph() {
                 layout={cyLayout}
                 stylesheet={stylesheet}
             />
+            <div className='menu-bar-container'>
+                <div className='menu-bar'>
+                    <div className='search-bar'>
+                        <SearchBox
+                            ref={searchbox}
+                            data={elements}
+                            onSelectionChanged={e =>
+                                setSearchItemId(e.currentTarget.dataset.id)
+                            }
+                        />
+                    </div>
+                    <div className='filter-bar'>
+                        <input
+                            type='checkbox'
+                            id='chkb_non_zero'
+                            checked={hideZeroOnly}
+                            onChange={e => toggle_non_zero(e)}
+                        />
+                        <label for='chkb_non_zero'>Hide zero values</label>
+                    </div>
+                    <div className='layout-bar'>
+                        <select
+                            /* className='dash-callback-dag--layoutSelector' */
+                            onChange={e => setLayoutType(e.target.value)}
+                            value={layoutType}
+                            ref={layoutSelector}
+                        >
+                            {keys(layouts).map(k => (
+                                <option value={k} key={k}>
+                                    {k}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             {selected ? (
                 <div className='dash-callback-dag--info'>
                     {hasPatterns ? (
@@ -407,18 +496,6 @@ function CallbackGraph() {
                     />
                 </div>
             ) : null}
-            <select
-                className='dash-callback-dag--layoutSelector'
-                onChange={e => setLayoutType(e.target.value)}
-                value={layoutType}
-                ref={layoutSelector}
-            >
-                {keys(layouts).map(k => (
-                    <option value={k} key={k}>
-                        {k}
-                    </option>
-                ))}
-            </select>
         </div>
     );
 }

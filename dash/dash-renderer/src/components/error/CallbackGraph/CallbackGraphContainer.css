@@ -45,3 +45,57 @@
     top: 10px;
     right: 10px;
 }
+
+
+.dash-callback-dag--filterSelector {
+    position: absolute;
+    top: 10px;
+    right: 200px;
+}
+.dash-callback-dag--CheckboxNonZero {
+    position: absolute;
+    top: 10px;
+    right: 200px;
+}
+
+.parent {
+    position:absolute;
+    top:10px;
+    left:10px;
+    z-index:1000;
+  }
+
+.menu-bar-container {
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    background-color:#40392F;
+    height:60px
+}
+
+.menu-bar-container > .menu-bar {
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    /* height:40px; */
+    margin: 3px 3px;
+    align-items: center;
+}
+
+.menu-bar > .search-bar {
+    flex-grow: 0;
+    height:50px;
+    padding: 0px 5px;
+}
+
+.menu-bar > .filter-bar {
+    flex-grow: 1;
+    height:50px;
+    align-self: center;
+}
+
+.menu-bar > .layout-bar {
+    flex-grow: 0;
+    height: 50px;
+}
