@@ -228,7 +228,7 @@ export function focusOnSearchItem(cy, nodeId) {
 
         cy.fit(subtree, 100);
 
-        node.flashClass('found', 1000);
+        node.flashClass('found', 300);
     }
     return undefined;
 }

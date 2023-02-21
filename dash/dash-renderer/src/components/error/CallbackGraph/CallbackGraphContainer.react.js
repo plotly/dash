@@ -183,6 +183,7 @@ function CallbackGraph() {
 
     const [hideZeroOnly, setHideZeroOnly] = useState(false);
     const [searchItemId, setSearchItemId] = useState(null);
+    const [searchBoxActive, setSearchBoxActive] = useState(false);
 
     const {graphLayout} = profile;
     const chosenType = graphLayout?._chosenType;
@@ -228,7 +229,12 @@ function CallbackGraph() {
 
     useMousetrap('0', () => toggle_non_zero());
 
-    useMousetrap('s', () => {});
+    useMousetrap('s', e => {
+        e.preventDefault();
+        setSearchBoxActive(!searchBoxActive);
+
+        //return false;
+    });
 
     // Custom hook to make sure cytoscape is loaded.
     const useCytoscapeEffect = (effect, condition) => {
@@ -295,6 +301,13 @@ function CallbackGraph() {
         [cytoscape]
     );
 
+    const searchBarOnBlur = () => {
+        setSearchBoxActive(false);
+    };
+
+    const searchBarClicked = () => {
+        setSearchBoxActive(!searchBoxActive);
+    };
     // Set node classes on selected.
     useCytoscapeEffect(
         cy => selected && updateSelectedNode(cy, selected.data().id),
@@ -444,6 +457,9 @@ function CallbackGraph() {
                         <SearchBox
                             ref={searchbox}
                             data={elements}
+                            active={searchBoxActive}
+                            onSearchBarClicked={searchBarClicked}
+                            onBlur={searchBarOnBlur}
                             onSelectionChanged={e =>
                                 setSearchItemId(e.currentTarget.dataset.id)
                             }

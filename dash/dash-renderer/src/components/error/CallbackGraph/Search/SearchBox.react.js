@@ -33,24 +33,25 @@ export function SearchBox(props) {
         }
     });
 
+    useEffect(() => {
+        if (props.active) {
+            optionsContainer.current.classList.add('active');
+            searchBoxRef.current.focus();
+            searchBoxRef.current.value = '';
+        } else {
+            optionsContainer.current.classList.remove('active');
+            searchBoxRef.current.blur();
+            searchBoxRef.current.value = '';
+            setSearchTerm('');
+        }
+    }, [props.active]);
+
     const searchBoxExit = () => {
         optionsContainer.current.classList.toggle('active');
 
         searchBoxRef.current.blur();
         searchBoxRef.current.value = '';
         setSearchTerm('');
-    };
-
-    const searchBoxClicked = () => {
-        optionsContainer.current.classList.toggle('active');
-
-        if (optionsContainer.current.classList.contains('active')) {
-            searchBoxRef.current.focus();
-        } else {
-            searchBoxRef.current.blur();
-            searchBoxRef.current.value = '';
-            setSearchTerm('');
-        }
     };
 
     const onChangeHandler = event => {
@@ -79,7 +80,7 @@ export function SearchBox(props) {
 
                 <div
                     className='selected'
-                    onClick={searchBoxClicked}
+                    onClick={props.onSearchBarClicked}
                     onBlur={searchBoxExit}
                 >
                     Search ID or property
