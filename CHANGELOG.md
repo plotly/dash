@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 
+- [#2429](https://github.com/plotly/dash/pull/2429) Fix side effect on updating possible array children triggering callbacks, fix [#2411](https://github.com/plotly/dash/issues/2411).
 - [#2417](https://github.com/plotly/dash/pull/2417) Disable the pytest plugin if `dash[testing]` not installed, fix [#946](https://github.com/plotly/dash/issues/946).
 - [#2417](https://github.com/plotly/dash/pull/2417) Do not swallow the original error to get the webdriver, easier to know what is wrong after updating the browser but the driver.
 - [#2425](https://github.com/plotly/dash/pull/2425) Fix multiple log handler added unconditionally to the logger, resulting in duplicate log message.
