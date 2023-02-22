@@ -56,6 +56,7 @@ export enum TableAction {
 
 export interface IFilterOptions {
     case?: FilterCase;
+    placeholder_text?: string;
 }
 
 export interface IDerivedData {

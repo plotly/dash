@@ -43,7 +43,6 @@ module.exports = (env, argv) => {
     return {
         mode,
         entry,
-        target: ['web', 'es5'],
         output: {
             path: path.resolve(__dirname, dashLibraryName),
             filename,

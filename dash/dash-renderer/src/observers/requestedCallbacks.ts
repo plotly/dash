@@ -62,7 +62,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         const {
             callbacks,
             callbacks: {prioritized, blocked, executing, watched, stored},
-            paths
+            paths,
+            graphs
         } = getState();
         let {
             callbacks: {requested}
@@ -234,7 +235,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         let readyCallbacks = getReadyCallbacks(
             paths,
             requested,
-            pendingCallbacks
+            pendingCallbacks,
+            graphs
         );
 
         let oldBlocked: ICallback[] = [];

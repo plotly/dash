@@ -434,7 +434,7 @@ def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
     app = Dash(__name__)
     app.layout = FragmentComponent(
         [
-            CollapseComponent([AsyncComponent(id="async", value="A")]),
+            CollapseComponent([AsyncComponent(id="async", value="A")], id="collapse"),
             html.Button("n", id="n"),
             DelayedEventComponent(id="d"),
             html.Div("Output init", id="output"),
@@ -443,12 +443,13 @@ def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
 
     @app.callback(
         Output("output", "children"),
+        Output("collapse", "display"),
         Input("n", "n_clicks"),
         Input("d", "n_clicks"),
         Input("async", "value"),
     )
     def content(n, d, v):
-        return json.dumps([n, d, v])
+        return json.dumps([n, d, v]), (n or 0) > 1
 
     dash_duo.start_server(app)
 
@@ -462,6 +463,14 @@ def test_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo):
 
     dash_duo.wait_for_element("#d").click()
     dash_duo.wait_for_text_to_equal("#output", '[1, 2, "A"]')
+
+    dash_duo.wait_for_no_elements("#async")
+
+    dash_duo.wait_for_element("#n").click()
+    dash_duo.wait_for_text_to_equal("#output", '[2, 2, "A"]')
+    dash_duo.wait_for_text_to_equal("#async", "A")
+
+    assert dash_duo.get_logs() == []
 
 
 def test_cbsc010_event_properties(dash_duo):
