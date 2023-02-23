@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
+-### Added
+
+- [#2068](https://github.com/plotly/dash/pull/2068) Added `refresh="callback-nav"` in `dcc.Location`. This allows for navigation without refreshing the page when url is updated in a callback.
 - [#2417](https://github.com/plotly/dash/pull/2417) Add wait_timeout property to customize the behavior of the default wait timeout used for by wait_for_page, fix [#1595](https://github.com/plotly/dash/issues/1595)
 - [#2417](https://github.com/plotly/dash/pull/2417) Add the element target text for wait_for_text* error message, fix [#945](https://github.com/plotly/dash/issues/945)
 - [#2425](https://github.com/plotly/dash/pull/2425) Add `add_log_handler=True` to Dash init, if you don't want a log stream handler at all.
