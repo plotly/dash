@@ -119,13 +119,14 @@ _ID_DUMMY = "_pages_dummy"
 try:
     page_container = html.Div(
         [
-            dcc.Location(id=_ID_LOCATION, refresh="callback-nav"),
-            html.Div(id=_ID_CONTENT),
+            dcc.Location(id=_ID_LOCATION),
+            html.Div(id=_ID_CONTENT, disable_n_clicks=True),
             dcc.Store(id=_ID_STORE),
-            html.Div(id=_ID_DUMMY),
+            html.Div(id=_ID_DUMMY, disable_n_clicks=True),
         ]
     )
-except AttributeError:
+# pylint: disable-next=bare-except
+except:  # noqa: E722
     page_container = None
 
 
@@ -328,6 +329,9 @@ class Dash:
     :param background_callback_manager: Background callback manager instance
         to support the ``@callback(..., background=True)`` decorator.
         One of ``DiskcacheManager`` or ``CeleryManager`` currently supported.
+
+    :param add_log_handler: Automatically add a StreamHandler to the app logger
+        if not added previously.
     """
 
     def __init__(  # pylint: disable=too-many-statements
@@ -360,6 +364,7 @@ class Dash:
         update_title="Updating...",
         long_callback_manager=None,
         background_callback_manager=None,
+        add_log_handler=True,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -480,8 +485,10 @@ class Dash:
         self._long_callback_count = 0
         self._background_manager = background_callback_manager or long_callback_manager
 
-        self.logger = logging.getLogger(name)
-        self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+        self.logger = logging.getLogger(__name__)
+
+        if not self.logger.handlers and add_log_handler:
+            self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
         if isinstance(plugins, patch_collections_abc("Iterable")):
             for plugin in plugins:
@@ -795,14 +802,13 @@ class Dash:
 
         mode = "dev" if self._dev_tools["props_check"] is True else "prod"
 
-        deps = []
-        for js_dist_dependency in _dash_renderer._js_dist_dependencies:
-            dep = {}
-            for key, value in js_dist_dependency.items():
-                dep[key] = value[mode] if isinstance(value, dict) else value
-
-            deps.append(dep)
-
+        deps = [
+            {
+                key: value[mode] if isinstance(value, dict) else value
+                for key, value in js_dist_dependency.items()
+            }
+            for js_dist_dependency in _dash_renderer._js_dist_dependencies
+        ]
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
@@ -1156,7 +1162,7 @@ class Dash:
         self,
         *_args,
         manager=None,
-        interval=None,
+        interval=1000,
         running=None,
         cancel=None,
         progress=None,

@@ -262,19 +262,28 @@ class Browser(DashPageMixin):
             return self.find_element(elem_or_selector)
         return elem_or_selector
 
-    def _wait_for(self, method, args, timeout, msg):
+    def _wait_for(self, method, timeout, msg):
         """Abstract generic pattern for explicit WebDriverWait."""
-        _wait = (
-            self._wd_wait if timeout is None else WebDriverWait(self.driver, timeout)
-        )
-        logger.debug(
-            "method, timeout, poll => %s %s %s",
-            method,
-            _wait._timeout,  # pylint: disable=protected-access
-            _wait._poll,  # pylint: disable=protected-access
-        )
+        try:
+            _wait = (
+                self._wd_wait
+                if timeout is None
+                else WebDriverWait(self.driver, timeout)
+            )
+            logger.debug(
+                "method, timeout, poll => %s %s %s",
+                method,
+                _wait._timeout,  # pylint: disable=protected-access
+                _wait._poll,  # pylint: disable=protected-access
+            )
 
-        return _wait.until(method(*args), msg)
+            return _wait.until(method)
+        except Exception as err:
+            if callable(msg):
+                message = msg(self.driver)
+            else:
+                message = msg
+            raise TimeoutException(message) from err
 
     def wait_for_element(self, selector, timeout=None):
         """wait_for_element is shortcut to `wait_for_element_by_css_selector`
@@ -286,8 +295,9 @@ class Browser(DashPageMixin):
         equals to the fixture's `wait_timeout` shortcut to `WebDriverWait` with
         `EC.presence_of_element_located`."""
         return self._wait_for(
-            EC.presence_of_element_located,
-            ((By.CSS_SELECTOR, selector),),
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, selector),
+            ),
             timeout,
             f"timeout {timeout or self._wait_timeout}s => waiting for selector {selector}",
         )
@@ -310,8 +320,9 @@ class Browser(DashPageMixin):
         equals to the fixture's `wait_timeout` shortcut to `WebDriverWait` with
         `EC.presence_of_element_located`."""
         return self._wait_for(
-            EC.presence_of_element_located,
-            ((By.ID, element_id),),
+            EC.presence_of_element_located(
+                (By.ID, element_id),
+            ),
             timeout,
             f"timeout {timeout or self._wait_timeout}s => waiting for element id {element_id}",
         )
@@ -321,8 +332,7 @@ class Browser(DashPageMixin):
         if not set, equals to the fixture's `wait_timeout` shortcut to
         `WebDriverWait` with customized `class_to_equal` condition."""
         return self._wait_for(
-            method=class_to_equal,
-            args=(selector, classname),
+            method=class_to_equal(selector, classname),
             timeout=timeout,
             msg=f"classname => {classname} not found within {timeout or self._wait_timeout}s",
         )
@@ -332,8 +342,7 @@ class Browser(DashPageMixin):
         if not set, equals to the fixture's `wait_timeout` shortcut to
         `WebDriverWait` with customized `style_to_equal` condition."""
         return self._wait_for(
-            method=style_to_equal,
-            args=(selector, style, val),
+            method=style_to_equal(selector, style, val),
             timeout=timeout,
             msg=f"style val => {style} {val} not found within {timeout or self._wait_timeout}s",
         )
@@ -345,11 +354,12 @@ class Browser(DashPageMixin):
         shortcut to `WebDriverWait` with customized `text_to_equal`
         condition.
         """
+        method = text_to_equal(selector, text, timeout or self.wait_timeout)
+
         return self._wait_for(
-            method=text_to_equal,
-            args=(selector, text),
+            method=method,
             timeout=timeout,
-            msg=f"text -> {text} not found within {timeout or self._wait_timeout}s",
+            msg=method.message,
         )
 
     def wait_for_contains_class(self, selector, classname, timeout=None):
@@ -360,8 +370,7 @@ class Browser(DashPageMixin):
         condition.
         """
         return self._wait_for(
-            method=contains_class,
-            args=(selector, classname),
+            method=contains_class(selector, classname),
             timeout=timeout,
             msg=f"classname -> {classname} not found inside element within {timeout or self._wait_timeout}s",
         )
@@ -373,11 +382,11 @@ class Browser(DashPageMixin):
         shortcut to `WebDriverWait` with customized `contains_text`
         condition.
         """
+        method = contains_text(selector, text, timeout or self.wait_timeout)
         return self._wait_for(
-            method=contains_text,
-            args=(selector, text),
+            method=method,
             timeout=timeout,
-            msg=f"text -> {text} not found inside element within {timeout or self._wait_timeout}s",
+            msg=method.message,
         )
 
     def wait_for_page(self, url=None, timeout=10):
@@ -449,11 +458,7 @@ class Browser(DashPageMixin):
         )
 
     def get_webdriver(self):
-        try:
-            return getattr(self, f"_get_{self._browser}")()
-        except WebDriverException:
-            logger.exception("<<<Webdriver not initialized correctly>>>")
-            return None
+        return getattr(self, f"_get_{self._browser}")()
 
     def _get_wd_options(self):
         options = (
@@ -640,3 +645,12 @@ class Browser(DashPageMixin):
     @property
     def download_path(self):
         return self._download_path
+
+    @property
+    def wait_timeout(self):
+        return self._wait_timeout
+
+    @wait_timeout.setter
+    def wait_timeout(self, value):
+        self._wait_timeout = value
+        self._wd_wait = WebDriverWait(self.driver, value)
