@@ -23,9 +23,6 @@ export default class Geolocation extends Component {
                 code: 999,
                 message: 'Your browser does not support Geolocation',
             });
-            if (this.props.show_alert) {
-                alert(`ERROR(${this.error.code}): ${this.error.message}`);
-            }
         } else {
             const positionOptions = {
                 enableHighAccuracy: this.props.high_accuracy,
