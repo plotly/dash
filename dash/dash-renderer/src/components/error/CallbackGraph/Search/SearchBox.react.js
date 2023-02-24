@@ -14,7 +14,7 @@ export function SearchBox(props) {
         searchBoxRef.current.value = '';
         setSearchTerm('');
 
-        optionsContainer.current.classList.toggle('active');
+        props.onSearchBarClicked()
 
         props.onSelectionChanged(event);
     };
@@ -88,7 +88,9 @@ export function SearchBox(props) {
 
                 <div className='search-box'>
                     <input
+                        id='searchBoxInput'
                         type='text'
+                        className='mousetrap'
                         ref={searchBoxRef}
                         onChange={onChangeHandler}
                         value={searchTerm}
