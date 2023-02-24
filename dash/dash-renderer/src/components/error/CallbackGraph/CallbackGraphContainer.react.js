@@ -229,25 +229,17 @@ function CallbackGraph() {
 
     useMousetrap('0', () => toggle_non_zero());
 
-
     // need to make this work whenever the input box has focus
     useMousetrap('esc', e => {
-        console.log('Escape')
         e.preventDefault();
         setSearchBoxActive(false);
     });
 
     useMousetrap('s', e => {
-        //sbi = document.getElementById('searchBoxInput')
-        console.log('s - search : '+e.target);
-        if (e.target === document.getElementById('searchBoxInput')) {
-            console.log('ok this is fine')
-        } else {
+        if (e.target !== document.getElementById('searchBoxInput')) {
             e.preventDefault();
             setSearchBoxActive(!searchBoxActive);
         }
-        
-        
     });
 
     // Custom hook to make sure cytoscape is loaded.
@@ -338,7 +330,7 @@ function CallbackGraph() {
 
     useCytoscapeEffect(
         cy => {
-            hideZeroCountNodes(cy, hideZeroOnly)
+            hideZeroCountNodes(cy, hideZeroOnly);
         },
         [hideZeroOnly]
     );
@@ -483,11 +475,13 @@ function CallbackGraph() {
                     </div>
                     <div className='filter-bar'>
                         <input
-                            
                             type='checkbox'
                             id='chkb_non_zero'
                             checked={hideZeroOnly}
-                            onChange={e => {toggle_non_zero(e); e.target.blur()}}
+                            onChange={e => {
+                                toggle_non_zero(e);
+                                e.target.blur();
+                            }}
                         />
                         <label for='chkb_non_zero'>Hide zero values</label>
                     </div>

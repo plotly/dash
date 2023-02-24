@@ -14,7 +14,7 @@ export function SearchBox(props) {
         searchBoxRef.current.value = '';
         setSearchTerm('');
 
-        props.onSearchBarClicked()
+        props.onSearchBarClicked();
 
         props.onSelectionChanged(event);
     };
