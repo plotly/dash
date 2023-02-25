@@ -9,7 +9,6 @@
     background: #f7f6ff;
   }
   
-  
   .select-box {
     position: relative;
     display: inline-flex;
@@ -32,28 +31,12 @@
   .selected {
     background: #2f3640;
     border-radius: 0px;
-    /* margin-bottom: -58px */;
     margin-bottom: 8px;
     color: #f5f6fa;
     position: relative;
-  
     order: 0;
   }
   
-  .selected::after {
-    content: "";
-    background: url("./img/arrow-down.svg");
-    background-size: contain;
-    background-repeat: no-repeat;
-  
-    position: absolute;
-    height: 100%;
-    width: 32px;
-    right: 10px;
-    top: 5px;
-  
-    transition: all 0.4s;
-  }
   
   .select-box .options-container.active {
     max-height: 50vh;
@@ -80,7 +63,7 @@
   
   .select-box .option,
   .selected {
-    padding: 12px 12px;
+    padding: 10px 10px;
     cursor: pointer;
   }
   
@@ -111,7 +94,6 @@
     border-radius: 0px 0px 0 0;
     z-index: 100;
     border: 8px solid #2f3640;
-  
     opacity: 0;
     pointer-events: none;
     transition: all 0.2s;
@@ -126,10 +108,10 @@
     pointer-events: auto;
   }
   
-  .tester {
+  .searchBoxItem {
     display: flex;
   }
   
-  .tester > .id {
+  .searchBoxItem > .id {
     flex-grow:2
   }

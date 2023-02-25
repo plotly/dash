@@ -3,6 +3,8 @@ import {STATUS, STATUSMAP} from '../../../constants/constants';
 import {ascend, descend} from './CallbackGraphTraversal';
 import {layouts} from './CallbackGraphLayouts';
 
+import {mergeRight} from 'ramda';
+
 /**
  * updateSelected
  *
@@ -82,7 +84,8 @@ export function updateCallback(
     id,
     profile,
     flashTime = 500,
-    hideZeroOnly = true
+    hideZeroOnly = false,
+    layoutType = 'top-down'
 ) {
     const node = cy.getElementById(`__dash_callback__.${id}`);
     const {count, total, status} = profile;
@@ -130,7 +133,7 @@ export function updateCallback(
 
     if (hideZeroOnly) {
         isProcessing = setTimeout(() => {
-            const non_zero_el = cy
+            const nonZeroNodes = cy
                 .nodes()
                 .filter(
                     element =>
@@ -138,25 +141,17 @@ export function updateCallback(
                         element.data('count') > 0
                 );
 
-            const subtree = cy.collection();
-            subtree.merge(non_zero_el);
-            non_zero_el.forEach(el => {
-                ascend(el, subtree, true, false);
-                descend(el, subtree, true, false);
+            const nonZeroSubtree = cy.collection();
+            nonZeroSubtree.merge(nonZeroNodes);
+            nonZeroNodes.forEach(nonZeroNode => {
+                ascend(nonZeroNode, nonZeroSubtree);
+                descend(nonZeroNode, nonZeroSubtree);
             });
 
-            const layout = subtree.layout({
-                name: 'dagre',
-                ranker: 'tight-tree',
-                spacingFactor: 0.8,
-                fit: true,
-                padding: 100,
-                animation: false,
-                nodeDimensionsIncludeLabels: true
-            });
-            layout.run();
+            const fitLayout = mergeRight(layouts[layoutType], {fit: true});
+            nonZeroSubtree.layout(fitLayout).run();
 
-            subtree.removeClass('hide').addClass('show');
+            nonZeroSubtree.removeClass('hide').addClass('show');
 
             isProcessing = null;
         }, 1000);
@@ -165,11 +160,9 @@ export function updateCallback(
     return isProcessing;
 }
 
-export function hideZeroCountNodes(cy, hideZeroOnly) {
-    const layoutType2 = 'top-down';
-
+export function hideZeroCountNodes(cy, hideZeroOnly, layoutType = 'top-down') {
     if (hideZeroOnly) {
-        const zero_el = cy
+        const zeroNodes = cy
             .nodes()
             .filter(
                 element =>
@@ -177,16 +170,16 @@ export function hideZeroCountNodes(cy, hideZeroOnly) {
                     element.data('count') == 0
             );
 
-        const subtree2 = cy.collection();
-        subtree2.merge(zero_el);
-        zero_el.forEach(nze => {
-            ascend(nze, subtree2, true, true);
-            descend(nze, subtree2, true, true);
+        const zeroEleSubtree = cy.collection();
+        zeroEleSubtree.merge(zeroNodes);
+        zeroNodes.forEach(zeroNode => {
+            ascend(zeroNode, zeroEleSubtree);
+            descend(zeroNode, zeroEleSubtree);
         });
 
-        subtree2.addClass('hide').removeClass('show');
+        zeroEleSubtree.addClass('hide').removeClass('show');
 
-        const non_zero_el = cy
+        const nonZeroNodes = cy
             .nodes()
             .filter(
                 element =>
@@ -194,17 +187,18 @@ export function hideZeroCountNodes(cy, hideZeroOnly) {
                     element.data('count') > 0
             );
 
-        const subtree = cy.collection();
-        subtree.merge(non_zero_el);
-        non_zero_el.forEach(nze => {
-            ascend(nze, subtree, true, true);
-            descend(nze, subtree, true, true);
+        const nonZeroEleSubtree = cy.collection();
+        nonZeroEleSubtree.merge(nonZeroNodes);
+        nonZeroNodes.forEach(nonZeroNode => {
+            ascend(nonZeroNode, nonZeroEleSubtree);
+            descend(nonZeroNode, nonZeroEleSubtree);
         });
 
-        subtree.removeClass('hide').addClass('show');
+        nonZeroEleSubtree.removeClass('hide').addClass('show');
 
         setTimeout(() => {
-            subtree.layout(layouts[layoutType2]).run();
+            const fitLayout = mergeRight(layouts[layoutType], {fit: true});
+            nonZeroEleSubtree.layout(fitLayout).run();
         }, 1000);
     } else {
         cy.elements()
@@ -212,7 +206,8 @@ export function hideZeroCountNodes(cy, hideZeroOnly) {
             .removeClass('hide');
 
         setTimeout(() => {
-            cy.layout(layouts[layoutType2]).run();
+            const fitLayout = mergeRight(layouts[layoutType], {fit: true});
+            cy.layout(fitLayout).run();
         }, 1000);
     }
 }
@@ -223,8 +218,8 @@ export function focusOnSearchItem(cy, nodeId) {
 
         const subtree = cy.collection();
         subtree.merge(node);
-        ascend(node, subtree, true, true);
-        descend(node, subtree, true, true);
+        ascend(node, subtree);
+        descend(node, subtree);
 
         cy.fit(subtree, 100);
 

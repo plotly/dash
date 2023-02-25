@@ -15,23 +15,8 @@ export function SearchBox(props) {
         setSearchTerm('');
 
         props.onSearchBarClicked();
-
         props.onSelectionChanged(event);
     };
-
-    useEffect(() => {
-        const arr = Array.from(optionsContainer.current.children);
-        const total = arr.reduce((subtotal, child) => {
-            if (!child.classList.contains('hidden')) {
-                subtotal += 1;
-            }
-            return subtotal;
-        }, 0);
-
-        if (total === 0) {
-            // no items found action
-        }
-    });
 
     useEffect(() => {
         if (props.active) {
@@ -45,14 +30,6 @@ export function SearchBox(props) {
             setSearchTerm('');
         }
     }, [props.active]);
-
-    const searchBoxExit = () => {
-        optionsContainer.current.classList.toggle('active');
-
-        searchBoxRef.current.blur();
-        searchBoxRef.current.value = '';
-        setSearchTerm('');
-    };
 
     const onChangeHandler = event => {
         setSearchTerm(event.target.value);
@@ -78,11 +55,7 @@ export function SearchBox(props) {
                         })}
                 </div>
 
-                <div
-                    className='selected'
-                    onClick={props.onSearchBarClicked}
-                    onBlur={searchBoxExit}
-                >
+                <div className='selected' onClick={props.onSearchBarClicked}>
                     Search ID or property
                 </div>
 

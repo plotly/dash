@@ -27,7 +27,7 @@
     box-sizing: border-box;
     background: rgba(255,255,255,0.9);
     border: 2px solid #ccc;
-    font-family: "Arial", sans-serif;
+    font-family: "Roboto", "Arial", sans-serif;
 }
 
 .dash-callback-dag--message {
@@ -38,24 +38,6 @@
     height: 100%;
     line-height: 2em;
     font-family: "Arial", sans-serif;
-}
-
-.dash-callback-dag--layoutSelector {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-
-.dash-callback-dag--filterSelector {
-    position: absolute;
-    top: 10px;
-    right: 200px;
-}
-.dash-callback-dag--CheckboxNonZero {
-    position: absolute;
-    top: 10px;
-    right: 200px;
 }
 
 .parent {
@@ -70,7 +52,7 @@
     top:0;
     left:0;
     right:0;
-    background-color:#40392F;
+    background-color:#282828;
     height:60px
 }
 
@@ -78,15 +60,16 @@
     display:flex;
     flex-direction: row;
     flex-wrap: wrap;
-    /* height:40px; */
-    margin: 3px 3px;
+    margin: 6px 6px;
     align-items: center;
 }
 
 .menu-bar > .search-bar {
     flex-grow: 0;
+    justify-items: center;
     height:50px;
     padding: 0px 5px;
+    align-self:center;
 }
 
 .menu-bar > .filter-bar {
@@ -98,4 +81,16 @@
 .menu-bar > .layout-bar {
     flex-grow: 0;
     height: 50px;
+    align-self:center;
+}
+
+.hideZeroOnlyLabel {
+    color: white;
+    margin-left:5px;
+}
+
+.layoutSelector {
+    width: 150px;
+    padding: .5rem .5rem;
+    background-position: right 5px center;
 }

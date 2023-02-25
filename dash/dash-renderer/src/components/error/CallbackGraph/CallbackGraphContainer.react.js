@@ -200,33 +200,6 @@ function CallbackGraph() {
 
     const toggle_non_zero = () => setHideZeroOnly(!hideZeroOnly);
 
-    //  S  - Search (open up search bar)
-    //  F  - Fit
-    //  T  - Threshold toggle
-    //  Shift-T - set treshold
-    //  +  - Zoom in
-    //  ctrl-+ - Zoom in with centering search
-    //  -  - Zoom out
-    //  ctrl-- - Zoom in with centering search
-    //  Left - Right - up - down -> Panby
-    //  C  - Center
-    //  R  - Reset
-    //  T  - Toggle threshold
-    //  Ctrl-T - Focus on threshold field
-    // some hot-keys for changing views / Layouts
-
-    // Speed keys
-
-    useMousetrap('left', () => cytoscape.panBy({x: 100, y: 0}));
-    useMousetrap('right', () => cytoscape.panBy({x: -100, y: 0}));
-    useMousetrap('up', () => cytoscape.panBy({x: 0, y: 75}));
-    useMousetrap('down', () => cytoscape.panBy({x: 0, y: -75}));
-
-    useMousetrap('+', () => cytoscape.zoom(cytoscape.zoom() * 1.25));
-    useMousetrap('-', () => cytoscape.zoom(cytoscape.zoom() * 0.75));
-
-    useMousetrap('r', () => cytoscape.reset());
-
     useMousetrap('0', () => toggle_non_zero());
 
     // need to make this work whenever the input box has focus
@@ -329,9 +302,7 @@ function CallbackGraph() {
     );
 
     useCytoscapeEffect(
-        cy => {
-            hideZeroCountNodes(cy, hideZeroOnly);
-        },
+        cy => hideZeroCountNodes(cy, hideZeroOnly, layoutType),
         [hideZeroOnly]
     );
 
@@ -351,7 +322,9 @@ function CallbackGraph() {
                 isProcessingCallbackUpdate.current = updateCallback(
                     cy,
                     cb,
-                    profile.callbacks[cb]
+                    profile.callbacks[cb],
+                    hideZeroOnly,
+                    layoutType
                 );
             });
         },
@@ -483,12 +456,20 @@ function CallbackGraph() {
                                 e.target.blur();
                             }}
                         />
-                        <label for='chkb_non_zero'>Hide zero values</label>
+                        <label
+                            className='hideZeroOnlyLabel'
+                            for='chkb_non_zero'
+                        >
+                            Hide zero values
+                        </label>
                     </div>
                     <div className='layout-bar'>
                         <select
-                            /* className='dash-callback-dag--layoutSelector' */
-                            onChange={e => setLayoutType(e.target.value)}
+                            className='layoutSelector'
+                            onChange={e => {
+                                e.target.blur();
+                                setLayoutType(e.target.value);
+                            }}
                             value={layoutType}
                             ref={layoutSelector}
                         >

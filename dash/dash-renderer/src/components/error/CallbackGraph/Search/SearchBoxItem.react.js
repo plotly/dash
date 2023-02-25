@@ -24,9 +24,9 @@ export function SearchBoxItem({
             data-id={id}
             onClick={event => onItemClickHandler(event)}
         >
-            <div className='tester'>
-                <span className='title animated fadeIn id'>{label}</span>
-                <span className='title animated fadeIn'>{property}</span>
+            <div className='searchBoxItem'>
+                <span className='id'>{label}</span>
+                <span>{property}</span>
             </div>
         </div>
     );

@@ -17,20 +17,11 @@ function getEdgeTypes(node) {
 
 export function ascend(
     node,
-    collection,
-    include_components = false,
-    include_edges = false
+    collection
+    //    include_components = false,
+    //    include_edges = false
 ) {
     // FIXME: Should we include State parents but non-recursively?
-
-    if (
-        node.data().type === 'component' &&
-        node.isParent() &&
-        include_components
-    ) {
-        collection.merge(node);
-    }
-
     const type = node.data().type === 'callback' ? 'input' : 'output';
     const edges = getEdgeTypes(node)[type];
     const parents = edges.sources();
@@ -47,18 +38,10 @@ export function ascend(
 
 export function descend(
     node,
-    collection,
-    include_components = false,
-    include_edges = false
+    collection
+    //    include_components = false,
+    //    include_edges = false
 ) {
-    if (
-        node.data().type === 'component' &&
-        node.isParent() &&
-        include_components
-    ) {
-        collection.merge(node);
-    }
-
     const type = node.data().type === 'callback' ? 'output' : 'input';
     const edges = getEdgeTypes(node)[type];
     const children = edges.targets();

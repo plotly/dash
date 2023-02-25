@@ -1,5 +1,3 @@
-// padding needed for menubar / search-bar
-
 const forceLayout = {
     name: 'fcose',
     padding: 100,
@@ -8,17 +6,9 @@ const forceLayout = {
 
 const dagreLayout = {
     name: 'dagre',
-    padding: 10,
-    ranker: 'tight-tree'
-
-    /*     name: 'dagre',
+    padding: 100,
     ranker: 'tight-tree',
-    spacingFactor: 0.8,
-    //fit should be only active when show only non 0?
-    fit: true,
-    padding:100,
-    animation:false,
-    nodeDimensionsIncludeLabels: true, */
+    nodeDimensionsIncludeLabels: true
 };
 
 export const layouts = {
