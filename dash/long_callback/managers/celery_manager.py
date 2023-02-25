@@ -98,6 +98,7 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         progress_key = self._make_progress_key(key)
         progress_data = self.handle.backend.get(progress_key)
         if progress_data:
+            self.handle.backend.delete(progress_key)
             return json.loads(progress_data)
 
         return None

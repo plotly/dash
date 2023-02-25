@@ -8,11 +8,21 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2417](https://github.com/plotly/dash/pull/2417) Add wait_timeout property to customize the behavior of the default wait timeout used for by wait_for_page, fix [#1595](https://github.com/plotly/dash/issues/1595)
 - [#2417](https://github.com/plotly/dash/pull/2417) Add the element target text for wait_for_text* error message, fix [#945](https://github.com/plotly/dash/issues/945)
+- [#2425](https://github.com/plotly/dash/pull/2425) Add `add_log_handler=True` to Dash init, if you don't want a log stream handler at all.
+- [#2260](https://github.com/plotly/dash/pull/2260) Experimental support for React 18. The default is still React v16.14.0, but to use React 18 you can either set the environment variable `REACT_VERSION=18.2.0` before running your app, or inside the app call `dash._dash_renderer._set_react_version("18.2.0")`. THIS FEATURE IS EXPERIMENTAL. It has not been tested with component suites outside the Dash core, and we may add or remove available React versions in any future release.
 
 ## Fixed
 
+- [#2429](https://github.com/plotly/dash/pull/2429) Fix side effect on updating possible array children triggering callbacks, fix [#2411](https://github.com/plotly/dash/issues/2411).
 - [#2417](https://github.com/plotly/dash/pull/2417) Disable the pytest plugin if `dash[testing]` not installed, fix [#946](https://github.com/plotly/dash/issues/946).
 - [#2417](https://github.com/plotly/dash/pull/2417) Do not swallow the original error to get the webdriver, easier to know what is wrong after updating the browser but the driver.
+- [#2425](https://github.com/plotly/dash/pull/2425) Fix multiple log handler added unconditionally to the logger, resulting in duplicate log message.
+- [#2415](https://github.com/plotly/dash/pull/2415) Fix background callbacks progress not deleted after fetch.
+- [#2426](https://github.com/plotly/dash/pull/2426) Set default interval to 1 second for app.long_callback, restoring the behavior it had before v2.6.0 when we introduced `backround=True` callbacks.
+
+## Changed
+
+- [#2425](https://github.com/plotly/dash/pull/2425) Moved the logger namespace to `dash.dash`, as library logger it should be on that namespace instead of the user app.
 
 ## [2.8.1] - 2023-01-30
 

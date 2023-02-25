@@ -329,6 +329,9 @@ class Dash:
     :param background_callback_manager: Background callback manager instance
         to support the ``@callback(..., background=True)`` decorator.
         One of ``DiskcacheManager`` or ``CeleryManager`` currently supported.
+
+    :param add_log_handler: Automatically add a StreamHandler to the app logger
+        if not added previously.
     """
 
     def __init__(  # pylint: disable=too-many-statements
@@ -361,6 +364,7 @@ class Dash:
         update_title="Updating...",
         long_callback_manager=None,
         background_callback_manager=None,
+        add_log_handler=True,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -481,8 +485,10 @@ class Dash:
         self._long_callback_count = 0
         self._background_manager = background_callback_manager or long_callback_manager
 
-        self.logger = logging.getLogger(name)
-        self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+        self.logger = logging.getLogger(__name__)
+
+        if not self.logger.handlers and add_log_handler:
+            self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
         if isinstance(plugins, patch_collections_abc("Iterable")):
             for plugin in plugins:
@@ -1156,7 +1162,7 @@ class Dash:
         self,
         *_args,
         manager=None,
-        interval=None,
+        interval=1000,
         running=None,
         cancel=None,
         progress=None,
