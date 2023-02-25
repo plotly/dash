@@ -138,7 +138,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     const handlePaths = (
                         children: any,
                         oldChildren: any,
-                        oldChildrenPath: any[]
+                        oldChildrenPath: any[],
+                        filterRoot: any = false
                     ) => {
                         const oPaths = getState().paths;
                         const paths = computePaths(
@@ -152,7 +153,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         requestedCallbacks = concat(
                             requestedCallbacks,
                             getLayoutCallbacks(graphs, paths, children, {
-                                chunkPath: oldChildrenPath
+                                chunkPath: oldChildrenPath,
+                                filterRoot
                             }).map(rcb => ({
                                 ...rcb,
                                 predecessors
@@ -166,7 +168,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             getLayoutCallbacks(graphs, oldPaths, oldChildren, {
                                 removedArrayInputsOnly: true,
                                 newPaths: paths,
-                                chunkPath: oldChildrenPath
+                                chunkPath: oldChildrenPath,
+                                filterRoot
                             }).map(rcb => ({
                                 ...rcb,
                                 predecessors
@@ -204,7 +207,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     }
                                 },
                                 oldObj,
-                                basePath
+                                basePath,
+                                keys(appliedProps)
                             );
                             // Only do it once for the component.
                             recomputed = true;
