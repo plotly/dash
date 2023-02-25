@@ -35,6 +35,7 @@
     "react": "16.14.0",
     "react-cytoscapejs": "^2.0.0",
     "react-dom": "16.14.0",
+    "react-hook-mousetrap": "^2.0.4",
     "react-json-tree": "^0.17.0",
     "react-redux": "^8.0.4",
     "redux": "^4.2.0",
