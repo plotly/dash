@@ -6,12 +6,12 @@ import './SearchBox.css';
 export function SearchBox(props) {
     const [searchTerm, setSearchTerm] = useState('');
 
-    const searchBoxRef = useRef(null);
+    const inputBoxRef = useRef(null);
     const optionsContainer = useRef(null);
 
     const onItemClickHandler = event => {
-        searchBoxRef.current.blur();
-        searchBoxRef.current.value = '';
+        inputBoxRef.current.blur();
+        inputBoxRef.current.value = '';
         setSearchTerm('');
 
         props.onSearchBarClicked();
@@ -21,12 +21,12 @@ export function SearchBox(props) {
     useEffect(() => {
         if (props.active) {
             optionsContainer.current.classList.add('active');
-            searchBoxRef.current.focus();
-            searchBoxRef.current.value = '';
+            inputBoxRef.current.focus();
+            inputBoxRef.current.value = '';
         } else {
             optionsContainer.current.classList.remove('active');
-            searchBoxRef.current.blur();
-            searchBoxRef.current.value = '';
+            inputBoxRef.current.blur();
+            inputBoxRef.current.value = '';
             setSearchTerm('');
         }
     }, [props.active]);
@@ -64,7 +64,7 @@ export function SearchBox(props) {
                         id='searchBoxInput'
                         type='text'
                         className='mousetrap'
-                        ref={searchBoxRef}
+                        ref={inputBoxRef}
                         onChange={onChangeHandler}
                         value={searchTerm}
                         placeholder='Enter filter...'

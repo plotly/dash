@@ -196,7 +196,7 @@ function CallbackGraph() {
         [graphs, layoutType]
     );
 
-    const searchbox = useRef(null);
+    //   const searchbox = useRef(null);
 
     const toggle_non_zero = () => setHideZeroOnly(!hideZeroOnly);
 
@@ -436,7 +436,7 @@ function CallbackGraph() {
                 <div className='menu-bar'>
                     <div className='search-bar'>
                         <SearchBox
-                            ref={searchbox}
+                            //   ref={searchbox}
                             data={elements}
                             active={searchBoxActive}
                             onSearchBarClicked={searchBarClicked}
@@ -458,7 +458,7 @@ function CallbackGraph() {
                         />
                         <label
                             className='hideZeroOnlyLabel'
-                            for='chkb_non_zero'
+                            htmlFor='chkb_non_zero'
                         >
                             Hide zero values
                         </label>
