@@ -148,9 +148,13 @@ Location.propTypes = {
     href: PropTypes.string,
 
     /**
-     * If True, refresh the page when the location is updated.
-     * If 'callback-nav' it will navigate to the new page when the location is updated in
-     * a callback without refreshing the page.
+     * Use `True` to navigate outside the Dash app or to manually refresh a page.
+     * Use `False` if the same callback that updates the Location component is also
+     * updating the page content - typically used in multi-page apps that do not use Pages.
+     * Use 'callback-nav' if you are updating the URL in a callback, or a different
+     * callback will respond to the new Location with updated content. This is
+     * typical with multi-page apps that use Pages. This will allow for
+     * navigating to a new page without refreshing the page.
      */
     refresh: PropTypes.oneOfType([
         PropTypes.oneOf(['callback-nav']),
