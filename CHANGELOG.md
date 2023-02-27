@@ -73,6 +73,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- [#2349](https://github.com/plotly/dash/pull/2349) Added new `dcc.Geolocation` component
 - [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
 
 ### Updated
