@@ -43,7 +43,7 @@ export default class Location extends Component {
                 propsToSet[fieldName] = window.location[fieldName];
             } else if (propVal !== window.location[fieldName]) {
                 // Prop has changed?
-                if (refresh) {
+                if (refresh === true) {
                     // Refresh the page?
                     window.location[fieldName] = propVal;
                 } else if (this.props[fieldName] !== propVal) {
@@ -71,6 +71,9 @@ export default class Location extends Component {
         // Special case -- overrides everything!
         if (hrefUpdated) {
             window.history.pushState({}, '', href);
+            if (refresh === 'callback-nav') {
+                window.dispatchEvent(new CustomEvent('_dashprivate_pushstate'));
+            }
         } else if (pathnameUpdated || hashUpdated || searchUpdated) {
             // Otherwise, we can mash everything together
             const searchVal = type(search) !== 'Undefined' ? search : '';
@@ -80,6 +83,9 @@ export default class Location extends Component {
                 '',
                 `${pathname}${searchVal}${hashVal}`
             );
+            if (refresh === 'callback-nav') {
+                window.dispatchEvent(new CustomEvent('_dashprivate_pushstate'));
+            }
         }
     }
 
@@ -141,8 +147,15 @@ Location.propTypes = {
     /** href in window.location - e.g., "/my/full/pathname?myargument=1#myhash" */
     href: PropTypes.string,
 
-    /** Refresh the page when the location is updated? */
-    refresh: PropTypes.bool,
+    /**
+     * If True, refresh the page when the location is updated.
+     * If 'callback-nav' it will navigate to the new page when the location is updated in
+     * a callback without refreshing the page.
+     */
+    refresh: PropTypes.oneOfType([
+        PropTypes.oneOf(['callback-nav']),
+        PropTypes.bool,
+    ]),
 
     /**
      * Dash-assigned callback that gets fired when the value changes.
