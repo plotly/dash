@@ -24,9 +24,11 @@ import {
     focusOnSearchItem
 } from './CallbackGraphEffects';
 
+import {NewWindow} from '../menu/NewWindow.react';
+
 import {layouts} from './CallbackGraphLayouts';
 
-import useMousetrap from 'react-hook-mousetrap';
+/* import useMousetrap from 'react-hook-mousetrap'; */
 
 Cytoscape.use(dagre);
 Cytoscape.use(fcose);
@@ -199,7 +201,7 @@ function CallbackGraph() {
     //   const searchbox = useRef(null);
 
     const toggle_non_zero = () => setHideZeroOnly(!hideZeroOnly);
-
+    /* 
     useMousetrap('0', () => toggle_non_zero());
 
     // need to make this work whenever the input box has focus
@@ -213,7 +215,7 @@ function CallbackGraph() {
             e.preventDefault();
             setSearchBoxActive(!searchBoxActive);
         }
-    });
+    }); */
 
     // Custom hook to make sure cytoscape is loaded.
     const useCytoscapeEffect = (effect, condition) => {
@@ -424,14 +426,16 @@ function CallbackGraph() {
             : mergeRight(layouts[layoutType], {ready: setPresetLayout});
 
     return (
-        <div className='dash-callback-dag--container'>
-            <CytoscapeComponent
-                style={{width: '100%', height: '100%'}}
-                cy={setCytoscape}
-                elements={elements}
-                layout={cyLayout}
-                stylesheet={stylesheet}
-            />
+        <div id='testtest' className='dash-callback-dag--container'>
+            <NewWindow name='cy'>
+                <CytoscapeComponent
+                    style={{width: '100%', height: '100%'}}
+                    cy={setCytoscape}
+                    elements={elements}
+                    layout={cyLayout}
+                    stylesheet={stylesheet}
+                />
+            </NewWindow>
             <div className='menu-bar-container'>
                 <div className='menu-bar'>
                     <div className='search-bar'>
@@ -462,6 +466,7 @@ function CallbackGraph() {
                         >
                             Hide zero values
                         </label>
+                        {/* <button id="enlarge" onClick={openWindow}>Window</button> */}
                     </div>
                     <div className='layout-bar'>
                         <select
@@ -482,28 +487,31 @@ function CallbackGraph() {
                     </div>
                 </div>
             </div>
-
-            {selected ? (
-                <div className='dash-callback-dag--info'>
-                    {hasPatterns ? (
-                        <div>
-                            Info isn't supported for pattern-matching IDs at
-                            this time
-                        </div>
-                    ) : null}
-                    <JSONTree
-                        data={elementInfo}
-                        theme='summerfruit'
-                        labelRenderer={_keys =>
-                            _keys.length === 1 ? elementName : _keys[0]
-                        }
-                        getItemString={(type, data, itemType) => (
-                            <span>{itemType}</span>
-                        )}
-                        shouldExpandNode={(keyName, data, level) => level < 1}
-                    />
-                </div>
-            ) : null}
+            <NewWindow name='info' /* css={findCSS()} */>
+                {selected ? (
+                    <div className='dash-callback-dag--info'>
+                        {hasPatterns ? (
+                            <div>
+                                Info isn't supported for pattern-matching IDs at
+                                this time
+                            </div>
+                        ) : null}
+                        <JSONTree
+                            data={elementInfo}
+                            theme='summerfruit'
+                            labelRenderer={_keys =>
+                                _keys.length === 1 ? elementName : _keys[0]
+                            }
+                            getItemString={(type, data, itemType) => (
+                                <span>{itemType}</span>
+                            )}
+                            shouldExpandNode={(keyName, data, level) =>
+                                level < 1
+                            }
+                        />
+                    </div>
+                ) : null}
+            </NewWindow>
         </div>
     );
 }

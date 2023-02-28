@@ -63,7 +63,7 @@ export function SearchBox(props) {
                     <input
                         id='searchBoxInput'
                         type='text'
-                        className='mousetrap'
+                        /* className='mousetrap' */
                         ref={inputBoxRef}
                         onChange={onChangeHandler}
                         value={searchTerm}

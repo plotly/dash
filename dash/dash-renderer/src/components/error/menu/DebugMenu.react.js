@@ -75,6 +75,7 @@ class DebugMenu extends Component {
 
         const menuContent = opened ? (
             <div className='dash-debug-menu__content'>
+                {/* {callbackGraphOpened ? <CallbackGraphContainer /> : null} */}
                 {callbackGraphOpened ? <CallbackGraphContainer /> : null}
                 {buttonFactory(
                     callbackGraphOpened,
