@@ -226,3 +226,6 @@ def test_pat016_patch_slice():
 
     with pytest.raises(TypeError):
         p[2:3]["nested"] = "nest-slice"
+
+    with pytest.raises(TypeError):
+        del p[1:]

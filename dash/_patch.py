@@ -67,6 +67,7 @@ class Patch:
         )
 
     def __delitem__(self, key):
+        validate_slice(key)
         self._operations.append(_operation("Delete", self._location + [key]))
 
     def __add__(self, other):
