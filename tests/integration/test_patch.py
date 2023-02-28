@@ -226,8 +226,8 @@ def test_pch001_patch_operations(dash_duo):
         "Inserted",
         "initial",
         "Append",
-        "Extend",
         "Inserted with negative index",
+        "Extend",
     ]
 
 

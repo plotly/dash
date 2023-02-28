@@ -23,15 +23,18 @@ export function isPatch(obj: any): boolean {
     return has('__dash_patch_update', obj);
 }
 
+function getLocationIndex(value: LocationIndex, previous: any) {
+    if (is(Number, value) && value < 0) {
+        return previous.length + value;
+    }
+    return value;
+}
+
 function getLocationPath(location: LocationIndex[], obj: any) {
     const current = [];
 
     for (let i = 0; i < location.length; i++) {
-        let value = location[i];
-        if (is(Number, value) && value < 0) {
-            const previous: any = path(current, obj);
-            value = previous.length - value;
-        }
+        const value = getLocationIndex(location[i], path(current, obj));
         current.push(value);
     }
 
@@ -70,7 +73,7 @@ const patchHandlers: {[k: string]: PatchHandler} = {
         return assocPath(
             patchOperation.location,
             insert(
-                patchOperation.params.index,
+                getLocationIndex(patchOperation.params.index, prev),
                 patchOperation.params.value,
                 prev
             ),
