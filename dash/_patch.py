@@ -73,8 +73,6 @@ class Patch:
     def __iadd__(self, other):
         if isinstance(other, (list, tuple)):
             self.extend(other)
-        elif isinstance(other, dict):
-            self.merge(other)
         else:
             self._operations.append(_operation("Add", self._location, value=other))
         return _noop
@@ -89,6 +87,10 @@ class Patch:
 
     def __itruediv__(self, other):
         self._operations.append(_operation("Div", self._location, value=other))
+        return _noop
+
+    def __ior__(self, other):
+        self.merge(other)
         return _noop
 
     def append(self, item):

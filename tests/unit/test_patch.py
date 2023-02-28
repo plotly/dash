@@ -121,12 +121,19 @@ def test_pat009_patch_extend():
 def test_pat010_patch_merge():
     p = Patch()
     p.merge({"merge": "merged"})
+
+    p["merge"] |= {"ior": "iored"}
     data = patch_to_dict(p)
 
     assert data["operations"][0] == {
         "operation": "Merge",
         "location": [],
         "params": {"value": {"merge": "merged"}},
+    }
+    assert data["operations"][1] == {
+        "operation": "Merge",
+        "location": ["merge"],
+        "params": {"value": {"ior": "iored"}},
     }
 
 
