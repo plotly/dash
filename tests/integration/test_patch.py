@@ -49,6 +49,7 @@ def test_pch001_patch_operations(dash_duo):
                 ]
             ),
             html.Button("Delete", id="delete-btn"),
+            html.Button("Delete index", id="delete-index"),
             dcc.Store(
                 data={
                     "value": "unset",
@@ -156,6 +157,18 @@ def test_pch001_patch_operations(dash_duo):
 
         return p
 
+    @app.callback(
+        Output("store", "data", allow_duplicate=True),
+        Input("delete-index", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_click(_):
+        p = Patch()
+        del p.array[1]
+        del p.array[-2]
+
+        return p
+
     dash_duo.start_server(app)
 
     assert dash_duo.get_logs() == []
@@ -227,6 +240,14 @@ def test_pch001_patch_operations(dash_duo):
         "initial",
         "Append",
         "Inserted with negative index",
+        "Extend",
+    ]
+
+    dash_duo.find_element("#delete-index").click()
+    assert get_output().get("array") == [
+        "Prepend",
+        "initial",
+        "Append",
         "Extend",
     ]
 
