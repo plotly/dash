@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from dash import Patch
 from dash._utils import to_json
 
@@ -214,3 +216,13 @@ def test_pat015_patch_insert():
         "location": [],
         "params": {"index": 1, "value": "inserted"},
     }
+
+
+def test_pat016_patch_slice():
+    p = Patch()
+
+    with pytest.raises(TypeError):
+        p[2::1] = "sliced"
+
+    with pytest.raises(TypeError):
+        p[2:3]["nested"] = "nest-slice"

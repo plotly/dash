@@ -5,6 +5,11 @@ def _operation(name, location, **kwargs):
 _noop = object()
 
 
+def validate_slice(obj):
+    if isinstance(obj, slice):
+        raise TypeError("a slice is not a valid index for patch")
+
+
 class Patch:
     """
     Patch a callback output value
@@ -26,6 +31,7 @@ class Patch:
             self._operations = []
 
     def __getitem__(self, item):
+        validate_slice(item)
         return Patch(location=self._location + [item], parent=self)
 
     def __getattr__(self, item):
@@ -48,6 +54,7 @@ class Patch:
         self.__delitem__(item)
 
     def __setitem__(self, key, value):
+        validate_slice(key)
         if value is _noop:
             # The += set themselves.
             return
