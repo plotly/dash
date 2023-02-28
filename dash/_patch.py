@@ -106,7 +106,7 @@ class Patch:
         )
 
     def extend(self, item):
-        if not isinstance(item, list):
+        if not isinstance(item, (list, tuple)):
             raise TypeError(f"{item} should be a list or tuple")
         self._operations.append(_operation("Extend", self._location, value=item))
 
