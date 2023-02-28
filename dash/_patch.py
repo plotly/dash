@@ -70,32 +70,16 @@ class Patch:
         validate_slice(key)
         self._operations.append(_operation("Delete", self._location + [key]))
 
-    def __add__(self, other):
-        self._operations.append(_operation("Add", self._location, value=other))
-        return _noop
-
     def __iadd__(self, other):
         self._operations.append(_operation("Add", self._location, value=other))
-        return _noop
-
-    def __sub__(self, other):
-        self._operations.append(_operation("Sub", self._location, value=other))
         return _noop
 
     def __isub__(self, other):
         self._operations.append(_operation("Sub", self._location, value=other))
         return _noop
 
-    def __mul__(self, other):
-        self._operations.append(_operation("Mul", self._location, value=other))
-        return _noop
-
     def __imul__(self, other):
         self._operations.append(_operation("Mul", self._location, value=other))
-        return _noop
-
-    def __truediv__(self, other):
-        self._operations.append(_operation("Div", self._location, value=other))
         return _noop
 
     def __itruediv__(self, other):

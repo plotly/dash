@@ -132,17 +132,11 @@ def test_pat010_patch_merge():
 
 def test_pat011_patch_add():
     p = Patch()
-    p.added = p.added + 1
     p.plusplus += 1
 
     data = patch_to_dict(p)
 
     assert data["operations"][0] == {
-        "operation": "Add",
-        "location": ["added"],
-        "params": {"value": 1},
-    }
-    assert data["operations"][1] == {
         "operation": "Add",
         "location": ["plusplus"],
         "params": {"value": 1},
@@ -151,17 +145,11 @@ def test_pat011_patch_add():
 
 def test_pat012_patch_sub():
     p = Patch()
-    _ = p.sub - 1
     p.minusless -= 1
 
     data = patch_to_dict(p)
 
     assert data["operations"][0] == {
-        "operation": "Sub",
-        "location": ["sub"],
-        "params": {"value": 1},
-    }
-    assert data["operations"][1] == {
         "operation": "Sub",
         "location": ["minusless"],
         "params": {"value": 1},
@@ -170,17 +158,11 @@ def test_pat012_patch_sub():
 
 def test_pat013_patch_mul():
     p = Patch()
-    _ = p.mul * 2
     p.mulby *= 2
 
     data = patch_to_dict(p)
 
     assert data["operations"][0] == {
-        "operation": "Mul",
-        "location": ["mul"],
-        "params": {"value": 2},
-    }
-    assert data["operations"][1] == {
         "operation": "Mul",
         "location": ["mulby"],
         "params": {"value": 2},
@@ -189,17 +171,11 @@ def test_pat013_patch_mul():
 
 def test_pat014_patch_div():
     p = Patch()
-    _ = p.div / 2
     p.divby /= 2
 
     data = patch_to_dict(p)
 
     assert data["operations"][0] == {
-        "operation": "Div",
-        "location": ["div"],
-        "params": {"value": 2},
-    }
-    assert data["operations"][1] == {
         "operation": "Div",
         "location": ["divby"],
         "params": {"value": 2},
