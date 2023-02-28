@@ -202,3 +202,15 @@ def test_pat014_patch_div():
         "location": ["divby"],
         "params": {"value": 2},
     }
+
+
+def test_pat015_patch_insert():
+    p = Patch()
+    p.insert(1, "inserted")
+
+    data = patch_to_dict(p)
+    assert data["operations"][0] == {
+        "operation": "Insert",
+        "location": [],
+        "params": {"index": 1, "value": "inserted"},
+    }

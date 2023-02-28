@@ -29,6 +29,13 @@ def test_pch001_patch_operations(dash_duo):
             ),
             html.Div(
                 [
+                    dcc.Input(id="insert-value"),
+                    dcc.Input(id="insert-index", type="number", value=1),
+                    html.Button("insert", id="insert-btn"),
+                ]
+            ),
+            html.Div(
+                [
                     dcc.Input(id="extend-value"),
                     html.Button("extend", id="extend-btn"),
                 ]
@@ -134,7 +141,22 @@ def test_pch001_patch_operations(dash_duo):
         del p.delete
         return p
 
+    @app.callback(
+        Output("store", "data", allow_duplicate=True),
+        Input("insert-btn", "n_clicks"),
+        State("insert-value", "value"),
+        State("insert-index", "value"),
+        prevent_initial_call=True,
+    )
+    def on_insert(_, value, index):
+        p = Patch()
+        p.array.insert(index, value)
+
+        return p
+
     dash_duo.start_server(app)
+
+    assert dash_duo.get_logs() == []
 
     def get_output():
         e = dash_duo.find_element("#store-content")
@@ -178,6 +200,18 @@ def test_pch001_patch_operations(dash_duo):
     dash_duo.find_element("#delete-btn").click()
 
     assert get_output().get("delete", undef) is undef
+
+    _input = dash_duo.find_element("#insert-value")
+    _input.send_keys("Inserted")
+    dash_duo.find_element("#insert-btn").click()
+
+    assert get_output().get("array") == [
+        "Prepend",
+        "Inserted",
+        "initial",
+        "Append",
+        "Extend",
+    ]
 
 
 def test_pch002_patch_app_pmc_callbacks(dash_duo):

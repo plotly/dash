@@ -50,9 +50,14 @@ const patchHandlers: {[k: string]: PatchHandler} = {
         return dissocPath(patchOperation.location, previous);
     },
     Insert: (previous, patchOperation) => {
-        return insert(
-            patchOperation.params.index,
-            patchOperation.params.data,
+        const prev: any = path(patchOperation.location, previous);
+        return assocPath(
+            patchOperation.location,
+            insert(
+                patchOperation.params.index,
+                patchOperation.params.value,
+                prev
+            ),
             previous
         );
     },

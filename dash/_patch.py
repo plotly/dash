@@ -100,9 +100,14 @@ class Patch:
     def prepend(self, item):
         self._operations.append(_operation("Prepend", self._location, value=item))
 
+    def insert(self, index, item):
+        self._operations.append(
+            _operation("Insert", self._location, value=item, index=index)
+        )
+
     def extend(self, item):
         if not isinstance(item, list):
-            raise TypeError(f"{item} should be a list")
+            raise TypeError(f"{item} should be a list or tuple")
         self._operations.append(_operation("Extend", self._location, value=item))
 
     def merge(self, item):
