@@ -71,7 +71,12 @@ class Patch:
         self._operations.append(_operation("Delete", self._location + [key]))
 
     def __iadd__(self, other):
-        self._operations.append(_operation("Add", self._location, value=other))
+        if isinstance(other, (list, tuple)):
+            self.extend(other)
+        elif isinstance(other, dict):
+            self.merge(other)
+        else:
+            self._operations.append(_operation("Add", self._location, value=other))
         return _noop
 
     def __isub__(self, other):
