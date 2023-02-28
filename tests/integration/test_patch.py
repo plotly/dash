@@ -1,5 +1,7 @@
 import json
 
+from selenium.webdriver import Keys
+
 from dash import Dash, html, dcc, Input, Output, State, ALL, Patch
 
 
@@ -211,6 +213,21 @@ def test_pch001_patch_operations(dash_duo):
         "initial",
         "Append",
         "Extend",
+    ]
+
+    _input.send_keys(" with negative index")
+    _input = dash_duo.find_element("#insert-index")
+    _input.send_keys(Keys.BACKSPACE)
+    _input.send_keys("-1")
+    dash_duo.find_element("#insert-btn").click()
+
+    assert get_output().get("array") == [
+        "Prepend",
+        "Inserted",
+        "initial",
+        "Append",
+        "Extend",
+        "Inserted with negative index",
     ]
 
 

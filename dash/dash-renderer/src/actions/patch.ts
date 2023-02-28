@@ -5,6 +5,7 @@ import {
     dissocPath,
     has,
     insert,
+    is,
     path,
     prepend
 } from 'ramda';
@@ -20,6 +21,21 @@ type PatchHandler = (previous: any, patchUpdate: PatchOperation) => any;
 
 export function isPatch(obj: any): boolean {
     return has('__dash_patch_update', obj);
+}
+
+function getLocationPath(location: LocationIndex[], obj: any) {
+    const current = [];
+
+    for (let i = 0; i < location.length; i++) {
+        let value = location[i];
+        if (is(Number, value) && value < 0) {
+            const previous: any = path(current, obj);
+            value = previous.length - value;
+        }
+        current.push(value);
+    }
+
+    return current;
 }
 
 const patchHandlers: {[k: string]: PatchHandler} = {
@@ -116,6 +132,7 @@ export function handlePatch<T>(previousValue: T, patchValue: any): T {
 
     for (let i = 0; i < patchValue.operations.length; i++) {
         const patch = patchValue.operations[i];
+        patch.location = getLocationPath(patch.location, reducedValue);
         const handler = patchHandlers[patch.operation];
         if (!handler) {
             throw new Error(`Invalid Operation ${patch.operation}`);
