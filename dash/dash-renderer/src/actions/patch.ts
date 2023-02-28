@@ -3,6 +3,7 @@ import {
     assocPath,
     concat,
     dissocPath,
+    empty,
     has,
     insert,
     is,
@@ -127,6 +128,10 @@ const patchHandlers: {[k: string]: PatchHandler} = {
             prev / patchOperation.params.value,
             previous
         );
+    },
+    Clear: (previous, patchOperation) => {
+        const prev: any = path(patchOperation.location, previous);
+        return assocPath(patchOperation.location, empty(prev), previous);
     }
 };
 

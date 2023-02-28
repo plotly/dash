@@ -50,6 +50,7 @@ def test_pch001_patch_operations(dash_duo):
             ),
             html.Button("Delete", id="delete-btn"),
             html.Button("Delete index", id="delete-index"),
+            html.Button("Clear", id="clear-btn"),
             dcc.Store(
                 data={
                     "value": "unset",
@@ -169,6 +170,17 @@ def test_pch001_patch_operations(dash_duo):
 
         return p
 
+    @app.callback(
+        Output("store", "data", allow_duplicate=True),
+        Input("clear-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_clear(_):
+        p = Patch()
+        p.array.clear()
+
+        return p
+
     dash_duo.start_server(app)
 
     assert dash_duo.get_logs() == []
@@ -250,6 +262,9 @@ def test_pch001_patch_operations(dash_duo):
         "Append",
         "Extend",
     ]
+
+    dash_duo.find_element("#clear-btn").click()
+    assert get_output()["array"] == []
 
 
 def test_pch002_patch_app_pmc_callbacks(dash_duo):

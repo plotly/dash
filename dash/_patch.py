@@ -102,6 +102,9 @@ class Patch:
             _operation("Insert", self._location, value=item, index=index)
         )
 
+    def clear(self):
+        self._operations.append(_operation("Clear", self._location))
+
     def extend(self, item):
         if not isinstance(item, (list, tuple)):
             raise TypeError(f"{item} should be a list or tuple")

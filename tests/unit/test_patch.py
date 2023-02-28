@@ -205,3 +205,11 @@ def test_pat016_patch_slice():
 
     with pytest.raises(TypeError):
         del p[1:]
+
+
+def test_pat017_patch_clear():
+    p = Patch()
+
+    p.clear()
+    data = patch_to_dict(p)
+    assert data["operations"][0] == {"operation": "Clear", "location": [], "params": {}}
