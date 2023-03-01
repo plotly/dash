@@ -127,10 +127,8 @@ class Patch:
 
     def update(self, E=None, **F):
         """Merge a dict or keyword arguments with another dictionary"""
-        if E is not None:
-            value = E
-        else:
-            value = dict(F)
+        value = E or {}
+        value.update(F)
         self._operations.append(_operation("Merge", self._location, value=value))
 
     def to_plotly_json(self):
