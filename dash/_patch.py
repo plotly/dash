@@ -94,23 +94,29 @@ class Patch:
         return _noop
 
     def append(self, item):
+        """Add the item to the end of a list"""
         self._operations.append(_operation("Append", self._location, value=item))
 
     def prepend(self, item):
+        """Add the item to the start of a list"""
         self._operations.append(_operation("Prepend", self._location, value=item))
 
     def insert(self, index, item):
+        """Add the item at the index of a list"""
         self._operations.append(
             _operation("Insert", self._location, value=item, index=index)
         )
 
     def clear(self):
+        """Remove all items in a list"""
         self._operations.append(_operation("Clear", self._location))
 
     def reverse(self):
+        """Reversal of the order of items in a list"""
         self._operations.append(_operation("Reverse", self._location))
 
     def extend(self, item):
+        """Add all the items to the end of a list"""
         if not isinstance(item, (list, tuple)):
             raise TypeError(f"{item} should be a list or tuple")
         self._operations.append(_operation("Extend", self._location, value=item))
@@ -120,6 +126,7 @@ class Patch:
         self._operations.append(_operation("Remove", self._location, value=item))
 
     def update(self, E=None, **F):
+        """Merge a dict or keyword arguments with another dictionary"""
         if E is not None:
             value = E
         else:
