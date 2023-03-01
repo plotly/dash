@@ -1,6 +1,6 @@
 import json
 
-from selenium.webdriver import Keys
+from selenium.webdriver.common.keys import Keys
 
 from dash import Dash, html, dcc, Input, Output, State, ALL, Patch
 
