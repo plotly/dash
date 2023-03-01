@@ -51,6 +51,7 @@ def test_pch001_patch_operations(dash_duo):
             html.Button("Delete", id="delete-btn"),
             html.Button("Delete index", id="delete-index"),
             html.Button("Clear", id="clear-btn"),
+            html.Button("Reverse", id="reverse-btn"),
             dcc.Store(
                 data={
                     "value": "unset",
@@ -181,6 +182,17 @@ def test_pch001_patch_operations(dash_duo):
 
         return p
 
+    @app.callback(
+        Output("store", "data", allow_duplicate=True),
+        Input("reverse-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_reverse(_):
+        p = Patch()
+        p.array.reverse()
+
+        return p
+
     dash_duo.start_server(app)
 
     assert dash_duo.get_logs() == []
@@ -261,6 +273,14 @@ def test_pch001_patch_operations(dash_duo):
         "initial",
         "Append",
         "Extend",
+    ]
+
+    dash_duo.find_element("#reverse-btn").click()
+    assert get_output().get("array") == [
+        "Extend",
+        "Append",
+        "initial",
+        "Prepend",
     ]
 
     dash_duo.find_element("#clear-btn").click()

@@ -8,7 +8,8 @@ import {
     insert,
     is,
     path,
-    prepend
+    prepend,
+    reverse
 } from 'ramda';
 
 type PatchOperation = {
@@ -132,6 +133,10 @@ const patchHandlers: {[k: string]: PatchHandler} = {
     Clear: (previous, patchOperation) => {
         const prev: any = path(patchOperation.location, previous);
         return assocPath(patchOperation.location, empty(prev), previous);
+    },
+    Reverse: (previous, patchOperation) => {
+        const prev: any = path(patchOperation.location, previous);
+        return assocPath(patchOperation.location, reverse(prev), previous);
     }
 };
 

@@ -220,3 +220,15 @@ def test_pat017_patch_clear():
     p.clear()
     data = patch_to_dict(p)
     assert data["operations"][0] == {"operation": "Clear", "location": [], "params": {}}
+
+
+def test_pat018_patch_reverse():
+    p = Patch()
+
+    p.reverse()
+    data = patch_to_dict(p)
+    assert data["operations"][0] == {
+        "operation": "Reverse",
+        "location": [],
+        "params": {},
+    }

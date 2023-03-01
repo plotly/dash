@@ -107,6 +107,9 @@ class Patch:
     def clear(self):
         self._operations.append(_operation("Clear", self._location))
 
+    def reverse(self):
+        self._operations.append(_operation("Reverse", self._location))
+
     def extend(self, item):
         if not isinstance(item, (list, tuple)):
             raise TypeError(f"{item} should be a list or tuple")
