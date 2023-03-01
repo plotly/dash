@@ -12,27 +12,27 @@ def patch_to_dict(p):
 
 def test_pat001_patch_assign_item():
     p = Patch()
-    p["item"] = "item"
+    p["item"] = "assigned"
 
     data = patch_to_dict(p)
 
     assert data["operations"][0] == {
         "operation": "Assign",
         "location": ["item"],
-        "params": {"value": "item"},
+        "params": {"value": "assigned"},
     }
 
 
 def test_pat002_patch_assign_attr():
     p = Patch()
-    p.item = "item"
+    p.item = "assigned"
 
     data = patch_to_dict(p)
 
     assert data["operations"][0] == {
         "operation": "Assign",
         "location": ["item"],
-        "params": {"value": "item"},
+        "params": {"value": "assigned"},
     }
 
 
