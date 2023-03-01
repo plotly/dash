@@ -131,7 +131,7 @@ def test_pch001_patch_operations(dash_duo):
     )
     def on_click(_, value):
         p = Patch()
-        p.merge({"merged": value})
+        p.update({"merged": value})
         p.n_clicks += 1
 
         return p

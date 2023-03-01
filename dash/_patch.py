@@ -90,7 +90,7 @@ class Patch:
         return _noop
 
     def __ior__(self, other):
-        self.merge(other)
+        self.update(E=other)
         return _noop
 
     def append(self, item):
@@ -115,10 +115,12 @@ class Patch:
             raise TypeError(f"{item} should be a list or tuple")
         self._operations.append(_operation("Extend", self._location, value=item))
 
-    def merge(self, item):
-        if not isinstance(item, dict):
-            raise TypeError(f"{item} should be a dictionary")
-        self._operations.append(_operation("Merge", self._location, value=item))
+    def update(self, E=None, **F):
+        if E is not None:
+            value = E
+        else:
+            value = dict(F)
+        self._operations.append(_operation("Merge", self._location, value=value))
 
     def to_plotly_json(self):
         return {

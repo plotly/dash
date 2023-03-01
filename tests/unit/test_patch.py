@@ -120,7 +120,7 @@ def test_pat009_patch_extend():
 
 def test_pat010_patch_merge():
     p = Patch()
-    p.merge({"merge": "merged"})
+    p.update({"merge": "merged"})
 
     p["merge"] |= {"ior": "iored"}
     data = patch_to_dict(p)
