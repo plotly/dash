@@ -115,6 +115,10 @@ class Patch:
             raise TypeError(f"{item} should be a list or tuple")
         self._operations.append(_operation("Extend", self._location, value=item))
 
+    def remove(self, item):
+        """filter the item out of a list on the frontend"""
+        self._operations.append(_operation("Remove", self._location, value=item))
+
     def update(self, E=None, **F):
         if E is not None:
             value = E

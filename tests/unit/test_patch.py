@@ -232,3 +232,15 @@ def test_pat018_patch_reverse():
         "location": [],
         "params": {},
     }
+
+
+def test_pat019_patch_remove():
+    p = Patch()
+
+    p.remove("item")
+    data = patch_to_dict(p)
+    assert data["operations"][0] == {
+        "operation": "Remove",
+        "location": [],
+        "params": {"value": "item"},
+    }

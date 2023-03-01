@@ -4,6 +4,7 @@ import {
     concat,
     dissocPath,
     empty,
+    equals,
     has,
     insert,
     is,
@@ -137,6 +138,16 @@ const patchHandlers: {[k: string]: PatchHandler} = {
     Reverse: (previous, patchOperation) => {
         const prev: any = path(patchOperation.location, previous);
         return assocPath(patchOperation.location, reverse(prev), previous);
+    },
+    Remove: (previous, patchOperation) => {
+        const prev: any = path(patchOperation.location, previous);
+        return assocPath(
+            patchOperation.location,
+            prev.filter(
+                (item: any) => !equals(item, patchOperation.params.value)
+            ),
+            previous
+        );
     }
 };
 
