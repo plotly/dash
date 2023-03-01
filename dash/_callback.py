@@ -27,6 +27,7 @@ from ._utils import (
     to_json,
     coerce_to_list,
     AttributeDict,
+    clean_property_name,
 )
 
 from . import _validate
@@ -240,13 +241,19 @@ def insert_callback(
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
 
+    _validate.validate_duplicate_output(
+        output, prevent_initial_call, config_prevent_initial_callbacks
+    )
+
     callback_id = create_callback_id(output)
     callback_spec = {
         "output": callback_id,
         "inputs": [c.to_dict() for c in inputs],
         "state": [c.to_dict() for c in state],
         "clientside_function": None,
-        "prevent_initial_call": prevent_initial_call,
+        # prevent_initial_call can be a string "initial_duplicates"
+        # which should not prevent the initial call.
+        "prevent_initial_call": prevent_initial_call is True,
         "long": long
         and {
             "interval": long["interval"],
@@ -469,7 +476,8 @@ def register_callback(  # pylint: disable=R0914
                     if not isinstance(vali, NoUpdate):
                         has_update = True
                         id_str = stringify_id(speci["id"])
-                        component_ids[id_str][speci["property"]] = vali
+                        prop = clean_property_name(speci["property"])
+                        component_ids[id_str][prop] = vali
 
             if not has_update:
                 raise PreventUpdate

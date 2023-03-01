@@ -10,7 +10,8 @@ import {
     pluck,
     values,
     toPairs,
-    zip
+    zip,
+    assocPath
 } from 'ramda';
 
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
@@ -39,6 +40,8 @@ import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
+import {handlePatch, isPatch} from './patch';
+import {getPath} from './paths';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -683,7 +686,7 @@ export function executeCallback(
 
                 for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
                     try {
-                        const data = await handleServerside(
+                        let data = await handleServerside(
                             dispatch,
                             hooks,
                             newConfig,
@@ -698,6 +701,28 @@ export function executeCallback(
                         if (newHeaders) {
                             dispatch(addHttpHeaders(newHeaders));
                         }
+                        // Layout may have changed.
+                        const currentLayout = getState().layout;
+                        flatten(outputs).forEach((out: any) => {
+                            const propName = out.property.split('@')[0];
+                            const outputPath = getPath(paths, out.id);
+                            const previousValue = path(
+                                outputPath.concat(['props', propName]),
+                                currentLayout
+                            );
+                            const dataPath = [stringifyId(out.id), propName];
+                            const outputValue = path(dataPath, data);
+                            if (isPatch(outputValue)) {
+                                if (previousValue === undefined) {
+                                    throw new Error('Cannot patch undefined');
+                                }
+                                data = assocPath(
+                                    dataPath,
+                                    handlePatch(previousValue, outputValue),
+                                    data
+                                );
+                            }
+                        });
 
                         return {data, payload};
                     } catch (res: any) {
