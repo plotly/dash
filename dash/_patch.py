@@ -131,6 +131,10 @@ class Patch:
         value.update(F)
         self._operations.append(_operation("Merge", self._location, value=value))
 
+    # pylint: disable=no-self-use
+    def sort(self):
+        raise KeyError("sort is reserved for future use, use brackets to access this key on your object")
+
     def to_plotly_json(self):
         return {
             "__dash_patch_update": "__dash_patch_update",
