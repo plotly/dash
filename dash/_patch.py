@@ -133,7 +133,9 @@ class Patch:
 
     # pylint: disable=no-self-use
     def sort(self):
-        raise KeyError("sort is reserved for future use, use brackets to access this key on your object")
+        raise KeyError(
+            "sort is reserved for future use, use brackets to access this key on your object"
+        )
 
     def to_plotly_json(self):
         return {
