@@ -192,6 +192,8 @@ function CallbackGraph() {
     const layoutSelector = useRef(null);
     const [layoutType, setLayoutType] = useState(chosenType || 'top-down');
 
+    const [portalMode, setPortalMode] = useState(false);
+
     // Generate and memoize the elements.
     const elements = useMemo(
         () => generateElements(graphs, profile, layoutType === 'force'),
@@ -269,7 +271,9 @@ function CallbackGraph() {
     // Adds callbacks once cyctoscape is initialized.
     useCytoscapeEffect(
         cy => {
-            cytoscape.on('tap', 'node', e => setSelected(e.target));
+            cytoscape.on('tap', 'node', e => {
+                setSelected(e.target);
+            });
             cytoscape.on('tap', e => {
                 if (e.target === cy) {
                     setSelected(null);
@@ -278,6 +282,7 @@ function CallbackGraph() {
             cytoscape.on('zoom', setPresetLayout);
             cytoscape.on('pan', setPresetLayout);
             cytoscape.nodes().on('position', setPresetLayout);
+            cytoscape.removeAllListeners();
         },
         [cytoscape]
     );
@@ -289,6 +294,30 @@ function CallbackGraph() {
     const searchBarClicked = () => {
         setSearchBoxActive(!searchBoxActive);
     };
+
+    const rebindCyEvents = () => {
+        //^^^ does not work
+        //console.log('PORTAL MODE - listeners - Before clear');
+        //console.log(cytoscape);
+        // the actual window stops working ---  confirmed
+        //cytoscape.nodes().removeAllListeners();
+        // ** whatever i do here just adds them back to the main window
+        //cytoscape.on('tap', 'node', e => { setSelected(e.target) });
+        //cytoscape.on('tap', e => {
+        //    if (e.target === cy) {
+        //        setSelected(null);
+        //    }
+        //console.log('PORTAL MODE - listeners - After clear');
+        //console.log(cytoscape);
+        //cytoscape.on('zoom', setPresetLayout(cytoscape));
+        // cytoscape.on('pan', setPresetLayout(cytoscape));
+        //cytoscape.nodes().on('position', setPresetLayout(cytoscape));
+    };
+
+    const togglePortalMode = () => {
+        setPortalMode(!portalMode);
+    };
+
     // Set node classes on selected.
     useCytoscapeEffect(
         cy => selected && updateSelectedNode(cy, selected.data().id),
@@ -426,93 +455,104 @@ function CallbackGraph() {
             : mergeRight(layouts[layoutType], {ready: setPresetLayout});
 
     return (
-        <div id='testtest' className='dash-callback-dag--container'>
-            <NewWindow name='cy'>
-                <CytoscapeComponent
-                    style={{width: '100%', height: '100%'}}
-                    cy={setCytoscape}
-                    elements={elements}
-                    layout={cyLayout}
-                    stylesheet={stylesheet}
-                />
-            </NewWindow>
-            <div className='menu-bar-container'>
-                <div className='menu-bar'>
-                    <div className='search-bar'>
-                        <SearchBox
-                            //   ref={searchbox}
-                            data={elements}
-                            active={searchBoxActive}
-                            onSearchBarClicked={searchBarClicked}
-                            onBlur={searchBarOnBlur}
-                            onSelectionChanged={e =>
-                                setSearchItemId(e.currentTarget.dataset.id)
-                            }
-                        />
-                    </div>
-                    <div className='filter-bar'>
-                        <input
-                            type='checkbox'
-                            id='chkb_non_zero'
-                            checked={hideZeroOnly}
-                            onChange={e => {
-                                toggle_non_zero(e);
-                                e.target.blur();
-                            }}
-                        />
-                        <label
-                            className='hideZeroOnlyLabel'
-                            htmlFor='chkb_non_zero'
-                        >
-                            Hide zero values
-                        </label>
-                        {/* <button id="enlarge" onClick={openWindow}>Window</button> */}
-                    </div>
-                    <div className='layout-bar'>
-                        <select
-                            className='layoutSelector'
-                            onChange={e => {
-                                e.target.blur();
-                                setLayoutType(e.target.value);
-                            }}
-                            value={layoutType}
-                            ref={layoutSelector}
-                        >
-                            {keys(layouts).map(k => (
-                                <option value={k} key={k}>
-                                    {k}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <NewWindow name='info' /* css={findCSS()} */>
-                {selected ? (
-                    <div className='dash-callback-dag--info'>
-                        {hasPatterns ? (
-                            <div>
-                                Info isn't supported for pattern-matching IDs at
-                                this time
+        <>
+            <NewWindow
+                open={portalMode}
+                rebindEvents={rebindCyEvents}
+                name='dash' /* css={findCSS()} */
+            >
+                <div id='testtest' className='dash-callback-dag--container'>
+                    <CytoscapeComponent
+                        style={{width: '100%', height: '100%'}}
+                        cy={setCytoscape}
+                        elements={elements}
+                        layout={cyLayout}
+                        stylesheet={stylesheet}
+                    />
+
+                    <div className='menu-bar-container'>
+                        <div className='menu-bar'>
+                            <div className='search-bar'>
+                                <SearchBox
+                                    //   ref={searchbox}
+                                    data={elements}
+                                    active={searchBoxActive}
+                                    onSearchBarClicked={searchBarClicked}
+                                    onBlur={searchBarOnBlur}
+                                    onSelectionChanged={e =>
+                                        setSearchItemId(
+                                            e.currentTarget.dataset.id
+                                        )
+                                    }
+                                />
                             </div>
-                        ) : null}
-                        <JSONTree
-                            data={elementInfo}
-                            theme='summerfruit'
-                            labelRenderer={_keys =>
-                                _keys.length === 1 ? elementName : _keys[0]
-                            }
-                            getItemString={(type, data, itemType) => (
-                                <span>{itemType}</span>
-                            )}
-                            shouldExpandNode={(keyName, data, level) =>
-                                level < 1
-                            }
-                        />
+                            <div className='filter-bar'>
+                                <input
+                                    type='checkbox'
+                                    id='chkb_non_zero'
+                                    checked={hideZeroOnly}
+                                    onChange={e => {
+                                        toggle_non_zero(e);
+                                        e.target.blur();
+                                    }}
+                                />
+                                <button onClick={togglePortalMode}>
+                                    Portal
+                                </button>
+                                <label
+                                    className='hideZeroOnlyLabel'
+                                    htmlFor='chkb_non_zero'
+                                >
+                                    Hide zero values
+                                </label>
+                                {/* <button id="enlarge" onClick={openWindow}>Window</button> */}
+                            </div>
+                            <div className='layout-bar'>
+                                <select
+                                    className='layoutSelector'
+                                    onChange={e => {
+                                        e.target.blur();
+                                        setLayoutType(e.target.value);
+                                    }}
+                                    value={layoutType}
+                                    ref={layoutSelector}
+                                >
+                                    {keys(layouts).map(k => (
+                                        <option value={k} key={k}>
+                                            {k}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                ) : null}
+
+                    {selected ? (
+                        <div className='dash-callback-dag--info'>
+                            {hasPatterns ? (
+                                <div>
+                                    Info isn't supported for pattern-matching
+                                    IDs at this time
+                                </div>
+                            ) : null}
+                            <JSONTree
+                                data={elementInfo}
+                                theme='summerfruit'
+                                labelRenderer={_keys =>
+                                    _keys.length === 1 ? elementName : _keys[0]
+                                }
+                                getItemString={(type, data, itemType) => (
+                                    <span>{itemType}</span>
+                                )}
+                                shouldExpandNode={(keyName, data, level) =>
+                                    level < 1
+                                }
+                            />
+                        </div>
+                    ) : null}
+                </div>
             </NewWindow>
-        </div>
+        </>
     );
 }
 
