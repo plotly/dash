@@ -29,7 +29,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Updated
 
-- [#2241](https://github.com/plotly/dash/pull/2441) Update Plotly.js to v2.18.0 from v2.18.2.
+- [#2241](https://github.com/plotly/dash/pull/2441) Update Plotly.js to v2.18.2 from v2.18.0.
   - Patch releases [2.18.2](https://github.com/plotly/plotly.js/releases/tag/v2.18.2) and [2.18.1](https://github.com/plotly/plotly.js/releases/tag/v2.18.1)
 
 ## [2.8.1] - 2023-01-30
