@@ -323,14 +323,15 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
             if (newOutputStrs[idProp]) {
                 dispatchError('Duplicate callback Outputs', [
                     head,
-                    `Output ${i} (${idProp}) is already used by this callback.`
+                    `Output ${i} (${idProp}) is already used by this callback.`,
+                    'To resolve this, set `allow_duplicate=True` on this output.'
                 ]);
             } else if (outStrs[idProp]) {
                 dispatchError('Duplicate callback outputs', [
                     head,
                     `Output ${i} (${idProp}) is already in use.`,
-                    'Any given output can only have one callback that sets it.',
-                    'To resolve this situation, try combining these into',
+                    'To resolve this, set `allow_duplicate=True` on',
+                    'duplicate outputs, or combine the outputs into',
                     'one callback function, distinguishing the trigger',
                     'by using `dash.callback_context` if necessary.'
                 ]);
