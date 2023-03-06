@@ -323,8 +323,7 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
             if (newOutputStrs[idProp]) {
                 dispatchError('Duplicate callback Outputs', [
                     head,
-                    `Output ${i} (${idProp}) is already used by this callback.`,
-                    'To resolve this, set `allow_duplicate=True` on this output.'
+                    `Output ${i} (${idProp}) is already used by this callback.`
                 ]);
             } else if (outStrs[idProp]) {
                 dispatchError('Duplicate callback outputs', [
