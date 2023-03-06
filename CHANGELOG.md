@@ -6,10 +6,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
+- [#2068](https://github.com/plotly/dash/pull/2068) Added `refresh="callback-nav"` in `dcc.Location`. This allows for navigation without refreshing the page when url is updated in a callback.
 - [#2417](https://github.com/plotly/dash/pull/2417) Add wait_timeout property to customize the behavior of the default wait timeout used for by wait_for_page, fix [#1595](https://github.com/plotly/dash/issues/1595)
 - [#2417](https://github.com/plotly/dash/pull/2417) Add the element target text for wait_for_text* error message, fix [#945](https://github.com/plotly/dash/issues/945)
 - [#2425](https://github.com/plotly/dash/pull/2425) Add `add_log_handler=True` to Dash init, if you don't want a log stream handler at all.
 - [#2260](https://github.com/plotly/dash/pull/2260) Experimental support for React 18. The default is still React v16.14.0, but to use React 18 you can either set the environment variable `REACT_VERSION=18.2.0` before running your app, or inside the app call `dash._dash_renderer._set_react_version("18.2.0")`. THIS FEATURE IS EXPERIMENTAL. It has not been tested with component suites outside the Dash core, and we may add or remove available React versions in any future release.
+- [#2414](https://github.com/plotly/dash/pull/2414) Add `dash.Patch`for partial update Output props without transferring the previous value in a State.
+- [#2414](https://github.com/plotly/dash/pull/2414) Add `allow_duplicate` to `Output` arguments allowing duplicate callbacks to target the same prop.
 
 ## Fixed
 
@@ -23,6 +26,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Changed
 
 - [#2425](https://github.com/plotly/dash/pull/2425) Moved the logger namespace to `dash.dash`, as library logger it should be on that namespace instead of the user app.
+
+## Updated
+
+- [#2241](https://github.com/plotly/dash/pull/2441) Update Plotly.js to v2.18.2 from v2.18.0.
+  - Patch releases [2.18.2](https://github.com/plotly/plotly.js/releases/tag/v2.18.2) and [2.18.1](https://github.com/plotly/plotly.js/releases/tag/v2.18.1)
 
 ## [2.8.1] - 2023-01-30
 
@@ -73,6 +81,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- [#2349](https://github.com/plotly/dash/pull/2349) Added new `dcc.Geolocation` component
 - [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
 
 ### Updated

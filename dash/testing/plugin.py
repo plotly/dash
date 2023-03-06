@@ -22,6 +22,7 @@ try:
     )
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
+
     # pylint: disable=unused-import
     import dash_testing_stub  # noqa: F401
 

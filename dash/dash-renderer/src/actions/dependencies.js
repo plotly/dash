@@ -485,7 +485,8 @@ export function validateCallbacksToLayout(state_, dispatchError) {
         ]);
     }
 
-    function validateProp(id, idPath, prop, cls, callbacks) {
+    function validateProp(id, idPath, rawProp, cls, callbacks) {
+        const prop = rawProp.split('@')[0];
         const component = path(idPath, layout);
         const element = Registry.resolve(component);
 
