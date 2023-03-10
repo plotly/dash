@@ -42,11 +42,10 @@ export default class RadioItems extends Component {
             >
                 {sanitizeOptions(options).map(option => (
                     <label
-                        style={Object.assign(
-                            {},
-                            labelStyle,
-                            inline ? {display: 'inline-block'} : {}
-                        )}
+                        style={{
+                            display: inline ? 'inline-block' : 'block',
+                            ...labelStyle,
+                        }}
                         className={labelClassName}
                         key={option.value}
                     >
@@ -137,9 +136,8 @@ RadioItems.propTypes = {
     ]),
 
     /**
-     * Indicates whether labelStyle should be inline or not
-     * True: Automatically set { 'display': 'inline-block' } to labelStyle
-     * False: No additional styles are passed into labelStyle.
+     * Indicates whether labelStyle display should be inline (true=horizontal)
+     * or in block (false=vertical).
      */
     inline: PropTypes.bool,
 
