@@ -205,9 +205,10 @@ class Dash:
         for pages of a multi-page app. Default ``'pages'``.
     :type pages_folder: string
 
-    :param use_pages:  Default False, or True if you set a non-default ``pages_folder``.
-        When True, the ``pages`` feature for multi-page apps is enabled.
-    :type pages: boolean
+    :param use_pages: When True, the ``pages`` feature for multi-page apps is
+        enabled. If you set a non-default ``pages_folder`` this will be inferred
+        to be True. Default `None`.
+    :type use_pages: boolean
 
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
@@ -341,7 +342,7 @@ class Dash:
         server=True,
         assets_folder="assets",
         pages_folder="pages",
-        use_pages=False,
+        use_pages=None,
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
@@ -439,7 +440,7 @@ class Dash:
         _pages.CONFIG = self.config
 
         self.pages_folder = str(pages_folder)
-        self.use_pages = True if pages_folder != "pages" else use_pages
+        self.use_pages = (pages_folder != "pages") if use_pages is None else use_pages
 
         # keep title as a class property for backwards compatibility
         self.title = title
