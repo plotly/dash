@@ -14,7 +14,6 @@ from ._utils import (
     coerce_to_list,
     clean_property_name,
 )
-from .exceptions import PageError
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -528,7 +527,6 @@ def validate_long_callbacks(callback_map):
 def validate_duplicate_output(
     output, prevent_initial_call, config_prevent_initial_call
 ):
-
     if "initial_duplicate" in (prevent_initial_call, config_prevent_initial_call):
         return
 
