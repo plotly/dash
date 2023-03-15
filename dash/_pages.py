@@ -3,7 +3,6 @@ from os import listdir
 from os.path import isfile, join
 import collections
 from urllib.parse import parse_qs
-from fnmatch import fnmatch
 import re
 import flask
 
@@ -101,23 +100,18 @@ def _parse_path_variables(pathname, path_template):
          returns **{"asset_id": "a100"}
     """
 
-    # parse variable definitions e.g. <var_name> from template
-    # and create pattern to match
-    wildcard_pattern = re.sub("<.*?>", "*", path_template)
-    var_pattern = re.sub("<.*?>", "(.*)", path_template)
+    # Copy of re._special_chars_map from Python >= 3.7 for backwards compatibility with 3.6
+    _special_chars_map = {i: '\\' + chr(i) for i in b'()[]{}?*+-|^$\\.&~# \t\n\r\v\f'}
+    escaped_template = path_template.translate(_special_chars_map)
 
-    # check that static sections of the pathname match the template
-    if not fnmatch(pathname, wildcard_pattern):
-        return None
-
-    # parse variable names e.g. var_name from template
-    var_names = re.findall("<(.*?)>", path_template)
-
-    # parse variables from path
-    variables = re.findall(var_pattern, pathname)
-    variables = variables[0] if isinstance(variables[0], tuple) else variables
-
-    return dict(zip(var_names, variables))
+    pattern = re.compile(
+        re.sub(
+            "<(?P<var>.*?)>", r"(?P<\g<var>>.*)",
+            escaped_template
+        )
+    )
+    match = pattern.match(pathname)
+    return match.groupdict() if match else None
 
 
 def _create_redirect_function(redirect_to):
