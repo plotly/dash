@@ -38,11 +38,10 @@ export default class Checklist extends Component {
                     return (
                         <label
                             key={option.value}
-                            style={Object.assign(
-                                {},
-                                labelStyle,
-                                inline ? {display: 'inline-block'} : {}
-                            )}
+                            style={{
+                                display: inline ? 'inline-block' : 'block',
+                                ...labelStyle,
+                            }}
                             className={labelClassName}
                         >
                             <input
@@ -144,9 +143,8 @@ Checklist.propTypes = {
     ),
 
     /**
-     * Indicates whether labelStyle should be inline or not
-     * True: Automatically set { 'display': 'inline-block' } to labelStyle
-     * False: No additional styles are passed into labelStyle.
+     * Indicates whether the options labels should be displayed inline (true=horizontal)
+     * or in a block (false=vertical).
      */
     inline: PropTypes.bool,
 
