@@ -14,7 +14,6 @@ from ._utils import (
     coerce_to_list,
     clean_property_name,
 )
-from .exceptions import PageError
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -472,10 +471,12 @@ def validate_pages_layout(module, page):
 
 def validate_use_pages(config):
     if not config.get("assets_folder", None):
-        raise PageError("`dash.register_page()` must be called after app instantiation")
+        raise exceptions.PageError(
+            "`dash.register_page()` must be called after app instantiation"
+        )
 
     if flask.has_request_context():
-        raise PageError(
+        raise exceptions.PageError(
             """
             dash.register_page() can’t be called within a callback as it updates dash.page_registry, which is a global variable.
              For more details, see https://dash.plotly.com/sharing-data-between-callbacks#why-global-variables-will-break-your-app
@@ -485,7 +486,7 @@ def validate_use_pages(config):
 
 def validate_module_name(module):
     if not isinstance(module, str):
-        raise Exception(
+        raise exceptions.PageError(
             "The first attribute of dash.register_page() must be a string or '__name__'"
         )
     return module
@@ -526,7 +527,6 @@ def validate_long_callbacks(callback_map):
 def validate_duplicate_output(
     output, prevent_initial_call, config_prevent_initial_call
 ):
-
     if "initial_duplicate" in (prevent_initial_call, config_prevent_initial_call):
         return
 

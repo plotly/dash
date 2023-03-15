@@ -64,6 +64,7 @@ from ._grouping import map_grouping, grouping_len, update_args_group
 
 from . import _pages
 from ._pages import (
+    _infer_module_name,
     _parse_path_variables,
     _parse_query_string,
 )
@@ -204,9 +205,10 @@ class Dash:
         for pages of a multi-page app. Default ``'pages'``.
     :type pages_folder: string
 
-    :param use_pages:  Default False, or True if you set a non-default ``pages_folder``.
-        When True, the ``pages`` feature for multi-page apps is enabled.
-    :type pages: boolean
+    :param use_pages: When True, the ``pages`` feature for multi-page apps is
+        enabled. If you set a non-default ``pages_folder`` this will be inferred
+        to be True. Default `None`.
+    :type use_pages: boolean
 
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
@@ -340,7 +342,7 @@ class Dash:
         server=True,
         assets_folder="assets",
         pages_folder="pages",
-        use_pages=False,
+        use_pages=None,
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
@@ -425,6 +427,7 @@ class Dash:
                 "eager_loading",
                 "serve_locally",
                 "compress",
+                "pages_folder",
             ],
             "Read-only: can only be set in the Dash constructor",
         )
@@ -436,8 +439,8 @@ class Dash:
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
 
-        self.pages_folder = pages_folder
-        self.use_pages = True if pages_folder != "pages" else use_pages
+        self.pages_folder = str(pages_folder)
+        self.use_pages = (pages_folder != "pages") if use_pages is None else use_pages
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -1986,9 +1989,7 @@ class Dash:
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
     def _import_layouts_from_pages(self):
-        walk_dir = self.config.pages_folder
-
-        for (root, dirs, files) in os.walk(walk_dir):
+        for root, dirs, files in os.walk(self.config.pages_folder):
             dirs[:] = [
                 d for d in dirs if not d.startswith(".") and not d.startswith("_")
             ]
@@ -1999,28 +2000,17 @@ class Dash:
                     or not file.endswith(".py")
                 ):
                     continue
-                with open(os.path.join(root, file), encoding="utf-8") as f:
+                page_path = os.path.join(root, file)
+                with open(page_path, encoding="utf-8") as f:
                     content = f.read()
                     if "register_page" not in content:
                         continue
 
-                page_filename = os.path.join(root, file).replace("\\", "/")
-                _, _, page_filename = page_filename.partition(
-                    walk_dir.replace("\\", "/") + "/"
-                )
-                page_filename = page_filename.replace(".py", "").replace("/", ".")
-
-                pages_folder = (
-                    self.pages_folder.replace("\\", "/").lstrip("/").replace("/", ".")
-                )
-
-                module_name = ".".join([pages_folder, page_filename])
-
-                spec = importlib.util.spec_from_file_location(
-                    module_name, os.path.join(root, file)
-                )
+                module_name = _infer_module_name(page_path)
+                spec = importlib.util.spec_from_file_location(module_name, page_path)
                 page_module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(page_module)
+                sys.modules[module_name] = page_module
 
                 if (
                     module_name in _pages.PAGE_REGISTRY
