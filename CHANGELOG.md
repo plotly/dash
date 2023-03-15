@@ -30,10 +30,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Updated
 
 - [#2241](https://github.com/plotly/dash/pull/2441) Update Plotly.js to v2.19.0 from v2.18.0.
-  - Minor release [2.19.0](https://github.com/plotly/plotly.js/releases/tag/v2.19.0)
-  - Patch releases [2.18.2](https://github.com/plotly/plotly.js/releases/tag/v2.18.2),
-    [2.18.1](https://github.com/plotly/plotly.js/releases/tag/v2.18.1),
-    [2.19.1](https://github.com/plotly/plotly.js/releases/tag/v2.19.1)
+  - Feature release [2.20.0](https://github.com/plotly/plotly.js/releases/tag/v2.20.0) adds `automargin` to the main plot title.
+  - Feature release [2.19.0](https://github.com/plotly/plotly.js/releases/tag/v2.19.0) adds text labels to `layout.shapes`, and adds a `labelalias` property to replace specific axis tick labels.
+  - Patch releases [2.18.1](https://github.com/plotly/plotly.js/releases/tag/v2.18.1),
+    [2.18.2](https://github.com/plotly/plotly.js/releases/tag/v2.18.2),
+    [2.19.1](https://github.com/plotly/plotly.js/releases/tag/v2.19.1) fix various bugs.
 
 ## [2.8.1] - 2023-01-30
 
