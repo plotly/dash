@@ -9,6 +9,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
+- [#2392](https://github.com/plotly/dash/pull/2392) Improved pages feature:
+  - Accept an absolute path or a `pathlib.path` for `pages_folder`, to match `assets_folder`
+  - Fix inferring `use_pages=True` when you supply a custom `pages_folder`
+  - Fix for `pages_folder` that includes special characters
+  - New test fixture `clear_pages_state`
+  - Make imported pages act more like regular Python modules
 - [#2068](https://github.com/plotly/dash/pull/2068) Added `refresh="callback-nav"` in `dcc.Location`. This allows for navigation without refreshing the page when url is updated in a callback.
 - [#2417](https://github.com/plotly/dash/pull/2417) Add wait_timeout property to customize the behavior of the default wait timeout used for by wait_for_page, fix [#1595](https://github.com/plotly/dash/issues/1595)
 - [#2417](https://github.com/plotly/dash/pull/2417) Add the element target text for wait_for_text* error message, fix [#945](https://github.com/plotly/dash/issues/945)
@@ -32,7 +38,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Updated
 
-- [#2241](https://github.com/plotly/dash/pull/2441) Update Plotly.js to v2.19.0 from v2.18.0.
+- [#2241](https://github.com/plotly/dash/pull/2441) Update Plotly.js to v2.20.0 from v2.18.0.
   - Feature release [2.20.0](https://github.com/plotly/plotly.js/releases/tag/v2.20.0) adds `automargin` to the main plot title.
   - Feature release [2.19.0](https://github.com/plotly/plotly.js/releases/tag/v2.19.0) adds text labels to `layout.shapes`, and adds a `labelalias` property to replace specific axis tick labels.
   - Patch releases [2.18.1](https://github.com/plotly/plotly.js/releases/tag/v2.18.1),
