@@ -136,8 +136,8 @@ RadioItems.propTypes = {
     ]),
 
     /**
-     * Indicates whether labelStyle display should be inline (true=horizontal)
-     * or in block (false=vertical).
+     * Indicates whether the options labels should be displayed inline (true=horizontal)
+     * or in a block (false=vertical).
      */
     inline: PropTypes.bool,
 
