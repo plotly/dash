@@ -22,7 +22,7 @@
     "@babel/preset-react": "^7.18.6",
     "babel-loader": "^8.2.5",
     "react": "^16.8.6",
-    "webpack": "^5.74.0",
+    "webpack": "^5.76.1",
     "webpack-cli": "^4.10.0"
   },
   "files": [
