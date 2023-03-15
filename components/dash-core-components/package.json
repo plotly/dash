@@ -49,7 +49,7 @@
     "mathjax": "^3.2.2",
     "moment": "^2.29.4",
     "node-polyfill-webpack-plugin": "^2.0.1",
-    "plotly.js-dist-min": "2.18.2",
+    "plotly.js-dist-min": "2.20.0",
     "prop-types": "^15.8.1",
     "ramda": "^0.28.0",
     "rc-slider": "^9.7.5",
@@ -90,7 +90,7 @@
     "react-jsx-parser": "1.21.0",
     "style-loader": "^3.3.1",
     "styled-jsx": "^3.4.4",
-    "webpack": "^5.74.0",
+    "webpack": "^5.76.2",
     "webpack-cli": "^4.10.0"
   },
   "files": [

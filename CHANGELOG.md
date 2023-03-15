@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## Breaking
+- [#2450](https://github.com/plotly/dash/pull/2450) Set label style `display: block` if `inline` is false in RadioItems & Checklist components. To keep previous behavior, set `inline=True`. This is already how it was described and worked in our documentation and other places with CSS stylesheets that set the default orientation of RadioItems and Checklist options to vertical (including Dash Design Kit), but for unstyled pages it is a breaking change.
+
 ## Added
 
 - [#2068](https://github.com/plotly/dash/pull/2068) Added `refresh="callback-nav"` in `dcc.Location`. This allows for navigation without refreshing the page when url is updated in a callback.
@@ -29,8 +32,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Updated
 
-- [#2241](https://github.com/plotly/dash/pull/2441) Update Plotly.js to v2.18.2 from v2.18.0.
-  - Patch releases [2.18.2](https://github.com/plotly/plotly.js/releases/tag/v2.18.2) and [2.18.1](https://github.com/plotly/plotly.js/releases/tag/v2.18.1)
+- [#2241](https://github.com/plotly/dash/pull/2441) Update Plotly.js to v2.19.0 from v2.18.0.
+  - Feature release [2.20.0](https://github.com/plotly/plotly.js/releases/tag/v2.20.0) adds `automargin` to the main plot title.
+  - Feature release [2.19.0](https://github.com/plotly/plotly.js/releases/tag/v2.19.0) adds text labels to `layout.shapes`, and adds a `labelalias` property to replace specific axis tick labels.
+  - Patch releases [2.18.1](https://github.com/plotly/plotly.js/releases/tag/v2.18.1),
+    [2.18.2](https://github.com/plotly/plotly.js/releases/tag/v2.18.2),
+    [2.19.1](https://github.com/plotly/plotly.js/releases/tag/v2.19.1) fix various bugs.
 
 ## [2.8.1] - 2023-01-30
 
