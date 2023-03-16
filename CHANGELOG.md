@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [2.9.0] - 2023-03-16
 
 ## Breaking
 - [#2450](https://github.com/plotly/dash/pull/2450) Set label style `display: block` if `inline` is false in RadioItems & Checklist components. To keep previous behavior, set `inline=True`. This is already how it was described and worked in our documentation and other places with CSS stylesheets that set the default orientation of RadioItems and Checklist options to vertical (including Dash Design Kit), but for unstyled pages it is a breaking change.
