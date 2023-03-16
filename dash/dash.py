@@ -64,6 +64,7 @@ from ._grouping import map_grouping, grouping_len, update_args_group
 
 from . import _pages
 from ._pages import (
+    _infer_module_name,
     _parse_path_variables,
     _parse_query_string,
 )
@@ -119,13 +120,14 @@ _ID_DUMMY = "_pages_dummy"
 try:
     page_container = html.Div(
         [
-            dcc.Location(id=_ID_LOCATION),
+            dcc.Location(id=_ID_LOCATION, refresh="callback-nav"),
             html.Div(id=_ID_CONTENT, disable_n_clicks=True),
             dcc.Store(id=_ID_STORE),
             html.Div(id=_ID_DUMMY, disable_n_clicks=True),
         ]
     )
-except AttributeError:
+# pylint: disable-next=bare-except
+except:  # noqa: E722
     page_container = None
 
 
@@ -203,9 +205,10 @@ class Dash:
         for pages of a multi-page app. Default ``'pages'``.
     :type pages_folder: string
 
-    :param use_pages:  Default False, or True if you set a non-default ``pages_folder``.
-        When True, the ``pages`` feature for multi-page apps is enabled.
-    :type pages: boolean
+    :param use_pages: When True, the ``pages`` feature for multi-page apps is
+        enabled. If you set a non-default ``pages_folder`` this will be inferred
+        to be True. Default `None`.
+    :type use_pages: boolean
 
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
@@ -328,6 +331,9 @@ class Dash:
     :param background_callback_manager: Background callback manager instance
         to support the ``@callback(..., background=True)`` decorator.
         One of ``DiskcacheManager`` or ``CeleryManager`` currently supported.
+
+    :param add_log_handler: Automatically add a StreamHandler to the app logger
+        if not added previously.
     """
 
     def __init__(  # pylint: disable=too-many-statements
@@ -336,7 +342,7 @@ class Dash:
         server=True,
         assets_folder="assets",
         pages_folder="pages",
-        use_pages=False,
+        use_pages=None,
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
@@ -360,6 +366,7 @@ class Dash:
         update_title="Updating...",
         long_callback_manager=None,
         background_callback_manager=None,
+        add_log_handler=True,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -420,6 +427,7 @@ class Dash:
                 "eager_loading",
                 "serve_locally",
                 "compress",
+                "pages_folder",
             ],
             "Read-only: can only be set in the Dash constructor",
         )
@@ -431,8 +439,8 @@ class Dash:
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
 
-        self.pages_folder = pages_folder
-        self.use_pages = True if pages_folder != "pages" else use_pages
+        self.pages_folder = str(pages_folder)
+        self.use_pages = (pages_folder != "pages") if use_pages is None else use_pages
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -480,8 +488,10 @@ class Dash:
         self._long_callback_count = 0
         self._background_manager = background_callback_manager or long_callback_manager
 
-        self.logger = logging.getLogger(name)
-        self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+        self.logger = logging.getLogger(__name__)
+
+        if not self.logger.handlers and add_log_handler:
+            self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
         if isinstance(plugins, patch_collections_abc("Iterable")):
             for plugin in plugins:
@@ -1155,7 +1165,7 @@ class Dash:
         self,
         *_args,
         manager=None,
-        interval=None,
+        interval=1000,
         running=None,
         cancel=None,
         progress=None,
@@ -1979,9 +1989,7 @@ class Dash:
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
     def _import_layouts_from_pages(self):
-        walk_dir = self.config.pages_folder
-
-        for (root, dirs, files) in os.walk(walk_dir):
+        for root, dirs, files in os.walk(self.config.pages_folder):
             dirs[:] = [
                 d for d in dirs if not d.startswith(".") and not d.startswith("_")
             ]
@@ -1992,28 +2000,17 @@ class Dash:
                     or not file.endswith(".py")
                 ):
                     continue
-                with open(os.path.join(root, file), encoding="utf-8") as f:
+                page_path = os.path.join(root, file)
+                with open(page_path, encoding="utf-8") as f:
                     content = f.read()
                     if "register_page" not in content:
                         continue
 
-                page_filename = os.path.join(root, file).replace("\\", "/")
-                _, _, page_filename = page_filename.partition(
-                    walk_dir.replace("\\", "/") + "/"
-                )
-                page_filename = page_filename.replace(".py", "").replace("/", ".")
-
-                pages_folder = (
-                    self.pages_folder.replace("\\", "/").lstrip("/").replace("/", ".")
-                )
-
-                module_name = ".".join([pages_folder, page_filename])
-
-                spec = importlib.util.spec_from_file_location(
-                    module_name, os.path.join(root, file)
-                )
+                module_name = _infer_module_name(page_path)
+                spec = importlib.util.spec_from_file_location(module_name, page_path)
                 page_module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(page_module)
+                sys.modules[module_name] = page_module
 
                 if (
                     module_name in _pages.PAGE_REGISTRY

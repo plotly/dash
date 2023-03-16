@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 import json
@@ -7,6 +6,7 @@ import shutil
 import logging
 import coloredlogs
 import fire
+import requests
 
 from .._utils import run_command_with_process, compute_md5, job
 
@@ -107,7 +107,7 @@ class BuildProcess:
         )
 
     @job("copy and generate the bundles")
-    def bundles(self, build=None):
+    def bundles(self, build=None):  # pylint:disable=too-many-locals
         if not os.path.exists(self.deps_folder):
             try:
                 os.makedirs(self.deps_folder)
@@ -124,18 +124,31 @@ class BuildProcess:
             "package": self.name.replace(" ", "_").replace("-", "_"),
         }
 
-        for scope, name, subfolder, filename, target in self.deps_info:
+        for scope, name, subfolder, filename, extras in self.deps_info:
             version = self.deps["/".join(filter(None, [scope, name]))]["version"]
-            versions[name.replace("-", "").replace(".", "")] = version
+            name_squashed = name.replace("-", "").replace(".", "")
+            versions[name_squashed] = version
 
             logger.info("copy npm dependency => %s", filename)
             ext = "min.js" if "min" in filename.split(".") else "js"
-            target = target.format(version) if target else f"{name}@{version}.{ext}"
+            target = f"{name}@{version}.{ext}"
 
             shutil.copyfile(
                 self._concat(self.npm_modules, scope, name, subfolder, filename),
                 self._concat(self.deps_folder, target),
             )
+
+            if extras:
+                extras_str = '", "'.join(extras)
+                versions[f"extra_{name_squashed}_versions"] = f'"{extras_str}"'
+
+                for extra_version in extras:
+                    url = f"https://unpkg.com/{name}@{extra_version}/umd/{filename}"
+                    res = requests.get(url)
+                    extra_target = f"{name}@{extra_version}.{ext}"
+                    extra_path = self._concat(self.deps_folder, extra_target)
+                    with open(extra_path, "wb") as fp:
+                        fp.write(res.content)
 
         _script = "build:dev" if build == "local" else "build:js"
         logger.info("run `npm run %s`", _script)
@@ -146,25 +159,23 @@ class BuildProcess:
         with open(self._concat(self.main, "init.template"), encoding="utf-8") as fp:
             t = string.Template(fp.read())
 
-        with open(
-            self._concat(self.deps_folder, os.pardir, "_dash_renderer.py"),
-            "w",
-            encoding="utf-8",
-        ) as fp:
+        renderer_init = self._concat(self.deps_folder, os.pardir, "_dash_renderer.py")
+        with open(renderer_init, "w", encoding="utf-8") as fp:
             fp.write(t.safe_substitute(versions))
 
 
 class Renderer(BuildProcess):
     def __init__(self):
         """dash-renderer's path is binding with the dash folder hierarchy."""
+        extras = ["18.2.0"]  # versions to include beyond what's in package.json
         super().__init__(
             self._concat(os.path.dirname(__file__), os.pardir, "dash-renderer"),
             (
                 ("@babel", "polyfill", "dist", "polyfill.min.js", None),
-                (None, "react", "umd", "react.production.min.js", None),
-                (None, "react", "umd", "react.development.js", None),
-                (None, "react-dom", "umd", "react-dom.production.min.js", None),
-                (None, "react-dom", "umd", "react-dom.development.js", None),
+                (None, "react", "umd", "react.production.min.js", extras),
+                (None, "react", "umd", "react.development.js", extras),
+                (None, "react-dom", "umd", "react-dom.production.min.js", extras),
+                (None, "react-dom", "umd", "react-dom.development.js", extras),
                 (None, "prop-types", None, "prop-types.min.js", None),
                 (None, "prop-types", None, "prop-types.js", None),
             ),
