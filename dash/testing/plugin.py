@@ -105,10 +105,10 @@ def pytest_addhooks(pluginmanager):
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):  # pylint: disable=unused-argument
-    if not _installed:
-        return
     # execute all other hooks to obtain the report object
     outcome = yield
+    if not _installed:
+        return
     rep = outcome.get_result()
 
     # we only look at actual failing test calls, not setup/teardown
