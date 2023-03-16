@@ -25,8 +25,15 @@ class Location(Component):
     - pathname (string; optional):
         pathname in window.location - e.g., \"/my/full/pathname\".
 
-    - refresh (boolean; default True):
-        Refresh the page when the location is updated?.
+    - refresh (a value equal to: 'callback-nav' | boolean; default True):
+        Use `True` to navigate outside the Dash app or to manually refresh
+        a page. Use `False` if the same callback that updates the Location
+        component is also updating the page content - typically used in
+        multi-page apps that do not use Pages. Use 'callback-nav' if you
+        are updating the URL in a callback, or a different callback will
+        respond to the new Location with updated content. This is typical
+        with multi-page apps that use Pages. This will allow for
+        navigating to a new page without refreshing the page.
 
     - search (string; optional):
         search in window.location - e.g., \"?myargument=1\"."""
