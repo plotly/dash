@@ -128,7 +128,11 @@ def create_callback_id(output):
     # but in case of multiple dots together escape each dot
     # with `\` so we don't mistake it for multi-outputs
     def _concat(x):
-        return x.component_id_str().replace(".", "\\.") + "." + x.component_property
+        _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
+        if x.allow_duplicate:
+            # Actually adds on the property part.
+            _id += f"@{uuid.uuid4().hex}"
+        return _id
 
     if isinstance(output, (list, tuple)):
         return ".." + "...".join(_concat(x) for x in output) + ".."
@@ -247,3 +251,7 @@ def coerce_to_list(obj):
     if not isinstance(obj, (list, tuple)):
         return [obj]
     return obj
+
+
+def clean_property_name(name: str):
+    return name.split("@")[0]

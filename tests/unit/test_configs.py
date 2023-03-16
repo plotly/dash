@@ -25,13 +25,6 @@ from dash._get_paths import (
 )
 
 
-@pytest.fixture
-def empty_environ():
-    for k in DASH_ENV_VARS.keys():
-        if k in os.environ:
-            os.environ.pop(k)
-
-
 def test_dash_env_vars(empty_environ):
     assert {None} == {
         val for _, val in DASH_ENV_VARS.items()

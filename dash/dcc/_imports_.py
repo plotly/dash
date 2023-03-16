@@ -6,6 +6,7 @@ from .DatePickerRange import DatePickerRange
 from .DatePickerSingle import DatePickerSingle
 from .Download import Download
 from .Dropdown import Dropdown
+from .Geolocation import Geolocation
 from .Graph import Graph
 from .Input import Input
 from .Interval import Interval
@@ -33,6 +34,7 @@ __all__ = [
     "DatePickerSingle",
     "Download",
     "Dropdown",
+    "Geolocation",
     "Graph",
     "Input",
     "Interval",

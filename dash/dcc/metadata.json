@@ -109,7 +109,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "Indicates whether labelStyle should be inline or not\nTrue: Automatically set { 'display': 'inline-block' } to labelStyle\nFalse: No additional styles are passed into labelStyle.",
+        "description": "Indicates whether the options labels should be displayed inline (true=horizontal)\nor in a block (false=vertical).",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -1792,6 +1792,186 @@
       }
     }
   },
+  "src/components/Geolocation.react.js": {
+    "description": "The CurrentLocation component gets geolocation of the device from the web browser.  See more info here:\nhttps://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API",
+    "displayName": "Geolocation",
+    "methods": [
+      {
+        "name": "updatePosition",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "success",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "pos",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "error",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "err",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "local_date": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The local date and time when the device position was updated.\nFormat:  MM/DD/YYYY, hh:mm:ss p   where p is AM or PM"
+      },
+      "timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The Unix timestamp from when the position was updated"
+      },
+      "position": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "lat": {
+              "name": "number",
+              "required": false
+            },
+            "lon": {
+              "name": "number",
+              "required": false
+            },
+            "accuracy": {
+              "name": "number",
+              "required": false
+            },
+            "alt": {
+              "name": "number",
+              "required": false
+            },
+            "alt_accuracy": {
+              "name": "number",
+              "required": false
+            },
+            "heading": {
+              "name": "number",
+              "required": false
+            },
+            "speed": {
+              "name": "number",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "The position of the device.  `lat`, `lon`, and `accuracy` will always be returned.  The other data will be included\nwhen available, otherwise it will be NaN.\n\n      `lat` is latitude in degrees.\n      `lon` is longitude in degrees.\n      `accuracy` is the accuracy of the lat/lon in meters.    *\n\n      `alt` is altitude above mean sea level in meters.\n      `alt_accuracy` is the accuracy of the altitude  in meters.\n      `heading` is the compass heading in degrees.\n      `speed` is the  speed in meters per second."
+      },
+      "position_error": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "code": {
+              "name": "number",
+              "required": false
+            },
+            "message": {
+              "name": "string",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Position error",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "show_alert": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, error messages will be displayed as an alert",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "update_now": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Forces a one-time update of the position data.   If set to True in a callback, the browser\n  will update the position data and reset update_now back to False.  This can, for example, be used to update the\n position with a button or an interval timer.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "high_accuracy": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true and if the device is able to provide a more accurate position,\n it will do so. Note that this can result in slower response times or increased power consumption (with a GPS\n chip on a mobile device for example). If false (the default value), the device can save resources by\n responding more quickly and/or using less power.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "maximum_age": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The maximum age in milliseconds of a possible cached position that is acceptable to return. If set to 0,\nit means that the device cannot use a cached position and must attempt to retrieve the real current position.\nIf set to Infinity the device must return a cached position regardless of its age. Default: 0.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "timeout": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The maximum length of time (in milliseconds) the device is allowed to take in order to return a position.\nThe default value is Infinity, meaning that data will not be return until the position is available.",
+        "defaultValue": {
+          "value": "Infinity",
+          "computed": true
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called to report property changes\nto Dash, to make them available for callbacks."
+      }
+    }
+  },
   "src/components/Graph.react.js": {
     "description": "Graph can be used to render any plotly.js-powered data visualization.\n\nYou can define callbacks based on user interaction with Graphs such as\nhovering, clicking or selecting",
     "displayName": "PlotlyGraph",
@@ -3430,10 +3610,24 @@
       },
       "refresh": {
         "type": {
-          "name": "bool"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'callback-nav'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
-        "description": "Refresh the page when the location is updated?",
+        "description": "Use `True` to navigate outside the Dash app or to manually refresh a page.\nUse `False` if the same callback that updates the Location component is also\nupdating the page content - typically used in multi-page apps that do not use Pages.\nUse 'callback-nav' if you are updating the URL in a callback, or a different\ncallback will respond to the new Location with updated content. This is\ntypical with multi-page apps that use Pages. This will allow for\nnavigating to a new page without refreshing the page.",
         "defaultValue": {
           "value": "true",
           "computed": false
@@ -3777,7 +3971,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "Indicates whether labelStyle should be inline or not\nTrue: Automatically set { 'display': 'inline-block' } to labelStyle\nFalse: No additional styles are passed into labelStyle.",
+        "description": "Indicates whether the options labels should be displayed inline (true=horizontal)\nor in a block (false=vertical).",
         "defaultValue": {
           "value": "false",
           "computed": false

@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "5.2.2",
+  "version": "5.2.3",
   "description": "Dash table",
   "repository": {
     "type": "git",
@@ -104,7 +104,7 @@
     "style-loader": "^3.3.1",
     "ts-loader": "^9.4.1",
     "typescript": "^4.8.4",
-    "webpack": "^5.74.0",
+    "webpack": "^5.76.2",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.1",
     "webpack-preprocessor": "^0.1.12",

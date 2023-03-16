@@ -123,22 +123,15 @@ def pathname_configs(
 
 
 def pages_folder_config(name, pages_folder, use_pages):
-    if not use_pages:
+    if not pages_folder:
         return None
-
-    pages_folder = pages_folder.lstrip("\\").lstrip("/")
-    pages_folder = None if pages_folder == "" else pages_folder
-    pages_folder_path = None
-    error_msg = f"""
-    A folder called {pages_folder} does not exist.
-    If a folder for pages is not required in your application, set `pages_folder=""`
-    For example, `app = Dash(__name__,  pages_folder="")`
-    """
-
-    if pages_folder:
-        pages_folder_path = os.path.join(
-            flask.helpers.get_root_path(name), pages_folder
-        )
-    if pages_folder and not os.path.isdir(pages_folder_path):
-        raise Exception(error_msg)
+    is_custom_folder = str(pages_folder) != "pages"
+    pages_folder_path = os.path.join(flask.helpers.get_root_path(name), pages_folder)
+    if (use_pages or is_custom_folder) and not os.path.isdir(pages_folder_path):
+        error_msg = f"""
+        A folder called `{pages_folder}` does not exist. If a folder for pages is not
+        required in your application, set `pages_folder=""`. For example:
+        `app = Dash(__name__,  pages_folder="")`
+        """
+        raise exceptions.InvalidConfig(error_msg)
     return pages_folder_path

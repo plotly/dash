@@ -38,9 +38,8 @@ class Checklist(Component):
         The currently selected value.
 
     - inline (boolean; default False):
-        Indicates whether labelStyle should be inline or not True:
-        Automatically set { 'display': 'inline-block' } to labelStyle
-        False: No additional styles are passed into labelStyle.
+        Indicates whether the options labels should be displayed inline
+        (True=horizontal) or in a block (False=vertical).
 
     - className (string; optional):
         The class of the container (div).
