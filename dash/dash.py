@@ -201,9 +201,9 @@ class Dash:
         requested.
     :type assets_folder: string
 
-    :param pages_folder: a path, relative to the current working directory,
-        for pages of a multi-page app. Default ``'pages'``.
-    :type pages_folder: string
+    :param pages_folder: a relative or absolute path for pages of a multi-page app.
+        Default ``'pages'``.
+    :type pages_folder: string or pathlib.Path
 
     :param use_pages: When True, the ``pages`` feature for multi-page apps is
         enabled. If you set a non-default ``pages_folder`` this will be inferred
