@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.9.1] - 2023-03-17
+
+## Fixed
+
+- [#2461](https://github.com/plotly/dash/pull/2461) Fix pytest plugin make report when testing not installed, fix [#2420](https://github.com/plotly/dash/issues/2420)
+
 ## [2.9.0] - 2023-03-16
 
 ## Breaking
