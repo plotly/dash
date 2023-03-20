@@ -1,4 +1,5 @@
 import collections
+import uuid
 from functools import wraps
 
 import flask
@@ -530,18 +531,14 @@ def register_clientside_callback(
     # If JS source is explicitly given, create a namespace and function
     # name, then inject the code.
     if isinstance(clientside_function, str):
-
-        out0 = output
-        if isinstance(output, (list, tuple)):
-            out0 = output[0]
-
-        namespace = f"_dashprivate_{out0.component_id}"
-        function_name = out0.component_property
+        namespace = "_dashprivate_clientside_funcs"
+        # Just make sure every function has a different name if not provided.
+        function_name = uuid.uuid4().hex
 
         inline_scripts.append(
             _inline_clientside_template.format(
-                namespace=namespace.replace('"', '\\"'),
-                function_name=function_name.replace('"', '\\"'),
+                namespace=namespace,
+                function_name=function_name,
                 clientside_function=clientside_function,
             )
         )

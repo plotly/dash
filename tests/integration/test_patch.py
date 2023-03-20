@@ -372,3 +372,35 @@ def test_pch003_patch_children(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#new-child", "new-child")
     dash_duo.wait_for_text_to_equal("#initial", "init")
+
+
+def test_pch004_clientside_duplicate(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("Click 1", id="click1"),
+            html.Button("Click 2", id="click2"),
+            html.Div("initial", id="output"),
+        ]
+    )
+
+    app.clientside_callback(
+        "function onClickOne() { return 'click1';}",
+        Output("output", "children", allow_duplicate=True),
+        Input("click1", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    app.clientside_callback(
+        "function onClickTwo(){ return 'click2';}",
+        Output("output", "children", allow_duplicate=True),
+        Input("click2", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#click1").click()
+    dash_duo.wait_for_text_to_equal("#output", "click1")
+
+    dash_duo.find_element("#click2").click()
+    dash_duo.wait_for_text_to_equal("#output", "click2")
