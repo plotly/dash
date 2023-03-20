@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#2471](https://github.com/plotly/dash/pull/2471) Fix allow_duplicate output with clientside callback, fix [#2467](https://github.com/plotly/dash/issues/2467)
+
 ## [2.9.1] - 2023-03-17
 
 ## Fixed
