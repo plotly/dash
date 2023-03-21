@@ -17,8 +17,10 @@ module.exports = {
         path: path.resolve(__dirname, dashLibraryName),
         chunkFilename: '[name].js',
         filename: `${dashLibraryName}.js`,
-        library: dashLibraryName,
-        libraryTarget: 'window',
+        library: {
+            name: dashLibraryName,
+            type: 'window',
+        }
     },
     module: {
         rules: [
