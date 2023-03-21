@@ -79,8 +79,8 @@ class BaseLongCallbackManager(ABC):
         self.func_registry[key] = self.make_job_fn(fn, progress)
 
     @staticmethod
-    def register_func(fn, progress):
-        key = BaseLongCallbackManager.hash_function(fn)
+    def register_func(fn, progress, callback_id):
+        key = BaseLongCallbackManager.hash_function(fn, callback_id)
         BaseLongCallbackManager.functions.append(
             (
                 key,
@@ -99,7 +99,7 @@ class BaseLongCallbackManager(ABC):
         return key + "-progress"
 
     @staticmethod
-    def hash_function(fn):
+    def hash_function(fn, callback_id=''):
         fn_source = inspect.getsource(fn)
         fn_str = fn_source
-        return hashlib.sha1(fn_str.encode("utf-8")).hexdigest()
+        return hashlib.sha1(callback_id.encode("utf-8") + fn_str.encode("utf-8")).hexdigest()
