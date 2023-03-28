@@ -127,13 +127,16 @@ def create_callback_id(output, inputs):
     # A single dot within a dict id key or value is OK
     # but in case of multiple dots together escape each dot
     # with `\` so we don't mistake it for multi-outputs
-    hashed_inputs = hashlib.md5(
-        ".".join(str(x) for x in inputs).encode("utf-8")
-    ).hexdigest()
+    hashed_inputs = None
 
     def _concat(x):
+        nonlocal hashed_inputs
         _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
         if x.allow_duplicate:
+            if not hashed_inputs:
+                hashed_inputs = hashlib.md5(
+                    ".".join(str(x) for x in inputs).encode("utf-8")
+                ).hexdigest()
             # Actually adds on the property part.
             _id += f"@{hashed_inputs}"
         return _id
