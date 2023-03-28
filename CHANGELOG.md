@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED
+
+## Fixed
+
+- [#2479](https://github.com/plotly/dash/pull/2479) Fix KeyError when duplicate outputs id being different on restarts.
+
 ## [2.9.1] - 2023-03-17
 
 ## Fixed
