@@ -245,7 +245,7 @@ def insert_callback(
         output, prevent_initial_call, config_prevent_initial_callbacks
     )
 
-    callback_id = create_callback_id(output)
+    callback_id = create_callback_id(output, inputs)
     callback_spec = {
         "output": callback_id,
         "inputs": [c.to_dict() for c in inputs],
