@@ -123,15 +123,19 @@ class AttributeDict(dict):
             return next(iter(self), {})
 
 
-def create_callback_id(output):
+def create_callback_id(output, inputs):
     # A single dot within a dict id key or value is OK
     # but in case of multiple dots together escape each dot
     # with `\` so we don't mistake it for multi-outputs
+    hashed_inputs = hashlib.md5(
+        ".".join(str(x) for x in inputs).encode("utf-8")
+    ).hexdigest()
+
     def _concat(x):
         _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
         if x.allow_duplicate:
             # Actually adds on the property part.
-            _id += f"@{uuid.uuid4().hex}"
+            _id += f"@{hashed_inputs}"
         return _id
 
     if isinstance(output, (list, tuple)):
