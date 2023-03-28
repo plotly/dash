@@ -434,13 +434,13 @@ def test_pch005_clientside_duplicate(dash_duo):
     )
 
     app.clientside_callback(
-        "function onClickOne() { return 'click1';}",
+        "function() { return 'click1';}",
         Output("output", "children", allow_duplicate=True),
         Input("click1", "n_clicks"),
         prevent_initial_call=True,
     )
     app.clientside_callback(
-        "function onClickTwo(){ return 'click2';}",
+        "function() { return 'click2';}",
         Output("output", "children", allow_duplicate=True),
         Input("click2", "n_clicks"),
         prevent_initial_call=True,
