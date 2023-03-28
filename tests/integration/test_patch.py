@@ -372,3 +372,51 @@ def test_pch003_patch_children(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#new-child", "new-child")
     dash_duo.wait_for_text_to_equal("#initial", "init")
+
+
+def test_pch004_duplicate_output_restart(dash_duo_mp):
+    # Duplicate output ids should be the same between restarts for the same ids
+    def create_app():
+        app = Dash(__name__)
+        app.layout = html.Div(
+            [
+                html.Button("Click 1", id="click1"),
+                html.Button("Click 2", id="click2"),
+                html.Div(id="output"),
+            ]
+        )
+
+        @app.callback(
+            Output("output", "children", allow_duplicate=True),
+            Input("click1", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_click(_):
+            return "click 1"
+
+        @app.callback(
+            Output("output", "children", allow_duplicate=True),
+            Input("click2", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def on_click(_):
+            return "click 2"
+
+        return app
+
+    dash_duo_mp.start_server(create_app())
+
+    dash_duo_mp.wait_for_element("#click1").click()
+    dash_duo_mp.wait_for_text_to_equal("#output", "click 1")
+
+    dash_duo_mp.wait_for_element("#click2").click()
+    dash_duo_mp.wait_for_text_to_equal("#output", "click 2")
+
+    dash_duo_mp.server.stop()
+
+    dash_duo_mp.start_server(create_app(), navigate=False)
+    dash_duo_mp.wait_for_element("#click1").click()
+    dash_duo_mp.wait_for_text_to_equal("#output", "click 1")
+
+    dash_duo_mp.wait_for_element("#click2").click()
+    dash_duo_mp.wait_for_text_to_equal("#output", "click 2")
