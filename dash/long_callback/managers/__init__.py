@@ -36,7 +36,7 @@ class BaseLongCallbackManager(ABC):
     def job_running(self, job):
         raise NotImplementedError
 
-    def make_job_fn(self, fn, progress):
+    def make_job_fn(self, fn, progress, key=None):
         raise NotImplementedError
 
     def call_job_fn(self, key, job_fn, args, context):
@@ -76,7 +76,7 @@ class BaseLongCallbackManager(ABC):
         return hashlib.sha1(str(hash_dict).encode("utf-8")).hexdigest()
 
     def register(self, key, fn, progress):
-        self.func_registry[key] = self.make_job_fn(fn, progress)
+        self.func_registry[key] = self.make_job_fn(fn, progress, key)
 
     @staticmethod
     def register_func(fn, progress, callback_id):
