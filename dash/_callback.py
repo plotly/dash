@@ -316,7 +316,9 @@ def register_callback(  # pylint: disable=R0914
 
         if long is not None:
             long_key = BaseLongCallbackManager.register_func(
-                func, long.get("progress") is not None
+                func,
+                long.get("progress") is not None,
+                callback_id,
             )
 
         @wraps(func)

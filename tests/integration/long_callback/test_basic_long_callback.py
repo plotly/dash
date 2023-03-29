@@ -547,3 +547,12 @@ def test_lcbc014_progress_delete(dash_duo, manager):
         dash_duo.wait_for_text_to_equal("#output", "done")
 
         assert dash_duo.find_element("#progress-counter").text == "2"
+
+
+def test_lcbc015_diff_outputs_same_func(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_diff_outputs") as app:
+        dash_duo.start_server(app)
+
+        for i in range(1, 3):
+            dash_duo.find_element(f"#button-{i}").click()
+            dash_duo.wait_for_text_to_equal(f"#output-{i}", f"Clicked on {i}")

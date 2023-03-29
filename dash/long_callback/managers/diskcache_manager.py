@@ -107,7 +107,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
             return proc.status() != psutil.STATUS_ZOMBIE
         return False
 
-    def make_job_fn(self, fn, progress):
+    def make_job_fn(self, fn, progress, key=None):
         return _make_job_fn(fn, self.handle, progress)
 
     def clear_cache_entry(self, key):
