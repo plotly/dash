@@ -299,9 +299,6 @@ def register_page(
 
     PAGE_REGISTRY[module] = page
 
-    if page["path_template"]:
-        _validate.validate_template(page["path_template"])
-
     if layout is not None:
         # Override the layout found in the file set during `plug`
         PAGE_REGISTRY[module]["layout"] = layout

@@ -25,6 +25,10 @@ from dash import dcc
 from dash import html
 from dash import dash_table
 
+from werkzeug.routing import Map, Rule
+from werkzeug.exceptions import NotFound
+
+
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
 from .dependencies import (
@@ -2031,18 +2035,21 @@ class Dash:
                         page_module, "layout"
                     )
 
-    @staticmethod
-    def _path_to_page(path_id):
-        path_variables = None
-        for page in _pages.PAGE_REGISTRY.values():
+    def _path_to_page(self, path_id):
+        path_map = Map()
+        for module, page in _pages.PAGE_REGISTRY.items():
+            path_map.add(Rule(page['path'], endpoint=module))
             if page["path_template"]:
-                template_id = page["path_template"].strip("/")
-                path_variables = _parse_path_variables(path_id, template_id)
-                if path_variables:
-                    return page, path_variables
-            if path_id == page["path"].strip("/"):
-                return page, path_variables
-        return {}, None
+                path_map.add(Rule(page['path_template'], endpoint=module))
+
+        routes = path_map.bind(flask.request.base_url)
+
+        try:
+          module, args = routes.match(path_id)
+          return _pages.PAGE_REGISTRY[module], args
+        except NotFound as e:
+            self.logger.exception('Invalid page route')
+            return {}, None
 
     def enable_pages(self):
         if not self.use_pages:

@@ -421,17 +421,6 @@ def validate_layout(layout, layout_value):
             )
         component_ids.add(component_id)
 
-
-def validate_template(template):
-    variable_names = re.findall("<(.*?)>", template)
-
-    for name in variable_names:
-        if not name.isidentifier() or iskeyword(name):
-            raise Exception(
-                f'`{name}` is not a valid Python variable name in `path_template`: "{template}".'
-            )
-
-
 def check_for_duplicate_pathnames(registry):
     path_to_module = {}
     for page in registry.values():
