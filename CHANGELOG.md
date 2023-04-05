@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 
+- [#2498](https://github.com/plotly/dash/pull/2498) Fix error when caching callbacks which return `Patch` objects by making `Patch` objects picklable
 - [#2491](https://github.com/plotly/dash/pull/2491) Fix clientside inline function name not found, fix [#2488](https://github.com/plotly/dash/issues/2488)
 
 ## [2.9.2] - 2023-03-29
