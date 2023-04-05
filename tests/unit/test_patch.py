@@ -244,3 +244,14 @@ def test_pat019_patch_remove():
         "location": [],
         "params": {"value": "item"},
     }
+
+
+def test_pat020_patch_pickle():
+    import pickle
+
+    p = Patch()
+    p["a"] = "a"
+    data = pickle.dumps(p)
+    q = pickle.loads(data)
+
+    assert patch_to_dict(p) == patch_to_dict(q)
