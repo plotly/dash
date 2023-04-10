@@ -1,4 +1,4 @@
-import {useRef, useEffect, useState} from 'react';
+import {useRef, useState, useLayoutEffect, useEffect} from 'react';
 import {createPortal} from 'react-dom';
 
 export const NewWindow = props => {
@@ -6,37 +6,74 @@ export const NewWindow = props => {
     const containerRoot = useRef(null);
     const [ready, setReady] = useState(false);
 
-    // run only once at setup
-    useEffect(() => {
+    const useEnhancedEffect =
+        typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+    useEnhancedEffect(() => {
+        //`width=${window.screen.availWidth},top=${window.screen.availHeight}`
+
+        let params = 'width=' + screen.width;
+        params += ', height=' + screen.height;
+        params += ', top=0, left=0';
+        params += ', fullscreen=no';
+        params += ', directories=no';
+        params += ', location=no';
+        params += ', menubar=no';
+        params += ', resizable=no';
+        params += ', scrollbars=no';
+        params += ', status=no';
+        params += ', toolbar=no';
+
         if (props.open) {
-            windowRef.current = window.open(
-                '',
-                String(props.name),
-                `width=${window.screen.availWidth},top=${window.screen.availHeight}`
-            );
+            windowRef.current = window.open('', String(props.name), params);
+
+            /*       if (windowRef.current === null) {
+                console.log('window value is null')
+                windowRef.current = window.open(
+                    '',
+                    String(props.name),
+                    params
+                )
+            } else {
+                console.log('>>>> window exists')
+            }
+ */
+            // We need to find a better way or find a way to resolved the issues when
+            // https://stackoverflow.com/questions/172748/how-to-show-fullscreen-popup-window-in-javascript
+            if (
+                windowRef.current.outerWidth < screen.availWidth ||
+                windowRef.current.outerHeight < screen.availHeight
+            ) {
+                // windowRef.current.moveTo(0, 0);
+                //   windowRef.current.resizeTo(screen.availWidth-10, screen.availHeight-10);
+            }
+
+            // Clone all CSS from the original page to the new window
+            props.css.forEach(htmlElement => {
+                windowRef.current.document.head.appendChild(
+                    htmlElement.cloneNode(true)
+                );
+            });
 
             containerRoot.current = document.createElement('div');
-            containerRoot.current.id = 'CyContainer';
+            containerRoot.current.id = 'CyContainerRoot';
             windowRef.current.document.body.appendChild(containerRoot.current);
-            setTimeout(() => {
-                props.rebindEvents();
-                //console.log('CHANGED');
-            }, 2000);
-
             setReady(true);
         } else {
-            //windowRef.current?.close();
+            windowRef.current?.close();
             setReady(false);
         }
 
-        //console.log(windowRef)
-        //console.log(containerRoot)
+        return () => {
+            windowRef.current?.close();
+            setReady(false);
+        };
     }, [props.open]);
 
     return open && ready
         ? createPortal(
               props.children,
-              windowRef.current.document.getElementById('CyContainer')
+              windowRef.current.document.getElementById('CyContainerRoot')
           )
         : props.children;
 };

@@ -8,7 +8,8 @@ import fcose from 'cytoscape-fcose';
 import {JSONTree} from 'react-json-tree';
 import {keys, mergeRight, omit, path, values} from 'ramda';
 
-import {SearchBox} from './Search/SearchBox.react';
+//import {MemoSearchBox, SearchBox} from './Search/SearchBox.react';
+import {MemoSearchBox} from './Search/SearchBox.react';
 
 import {getPath} from '../../../actions/paths';
 import {stringifyId} from '../../../actions/dependencies';
@@ -24,9 +25,15 @@ import {
     focusOnSearchItem
 } from './CallbackGraphEffects';
 
+//import {NewWindow} from '../menu/NewWindow.react';
+
 import {NewWindow} from '../menu/NewWindow.react';
 
+//import { CallbackTable } from '../CallbackTable/CallbackTable.react';
+
 import {layouts} from './CallbackGraphLayouts';
+
+//import { Counter } from './Counter/Counter.react';
 
 /* import useMousetrap from 'react-hook-mousetrap'; */
 
@@ -297,7 +304,7 @@ function CallbackGraph() {
             cytoscape.on('zoom', setPresetLayout);
             cytoscape.on('pan', setPresetLayout);
             cytoscape.nodes().on('position', setPresetLayout);
-            cytoscape.removeAllListeners();
+            //cytoscape.removeAllListeners();
         },
         [cytoscape]
     );
@@ -310,26 +317,45 @@ function CallbackGraph() {
         setSearchBoxActive(!searchBoxActive);
     };
 
-    const rebindCyEvents = () => {
-        //^^^ does not work
-        //console.log('PORTAL MODE - listeners - Before clear');
-        //console.log(cytoscape);
-        // the actual window stops working ---  confirmed
-        //cytoscape.nodes().removeAllListeners();
-        // ** whatever i do here just adds them back to the main window
-        //cytoscape.on('tap', 'node', e => { setSelected(e.target) });
-        //cytoscape.on('tap', e => {
-        //    if (e.target === cy) {
-        //        setSelected(null);
-        //    }
-        //console.log('PORTAL MODE - listeners - After clear');
-        //console.log(cytoscape);
-        //cytoscape.on('zoom', setPresetLayout(cytoscape));
-        // cytoscape.on('pan', setPresetLayout(cytoscape));
-        //cytoscape.nodes().on('position', setPresetLayout(cytoscape));
-    };
+    //    const rebindCyEvents = () => {
+    //^^^ does not work
+    //console.log('PORTAL MODE - listeners - Before clear');
+    //console.log(cytoscape);
+    // the actual window stops working ---  confirmed
+    //cytoscape.nodes().removeAllListeners();
+    // ** whatever i do here just adds them back to the main window
+    //cytoscape.on('tap', 'node', e => { setSelected(e.target) });
+    //cytoscape.on('tap', e => {
+    //    if (e.target === cy) {
+    //        setSelected(null);
+    //    }
+    //console.log('PORTAL MODE - listeners - After clear');
+    //console.log(cytoscape);
+    //cytoscape.on('zoom', setPresetLayout(cytoscape));
+    // cytoscape.on('pan', setPresetLayout(cytoscape));
+    //cytoscape.nodes().on('position', setPresetLayout(cytoscape));
+    //   };
 
     const togglePortalMode = () => {
+        /*         console.log('############# togglePortalMode')
+
+
+        console.log('Before -----')
+        console.log(cytoscape._private.emitter.listeners);
+        console.log(cytoscape._private.renderer.bindings);
+
+        cytoscape.off('tap');
+
+        console.log('After -----')
+        console.log(cytoscape._private.emitter.listeners);
+        console.log(cytoscape._private.renderer.bindings);
+ */
+
+        setTimeout(() => {
+            //         console.log('RESET LISTENERS');
+            cytoscape.resetListeners();
+        }, 2000);
+
         setPortalMode(!portalMode);
     };
 
@@ -469,26 +495,53 @@ function CallbackGraph() {
             ? graphLayout
             : mergeRight(layouts[layoutType], {ready: setPresetLayout});
 
+    const findCSS = () => {
+        return document.querySelectorAll('link, style');
+    };
+
+    /*     const [counter, setCounter] = useState(0);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCounter(prevCounter => prevCounter + 1);
+      }, 1000);
+  
+      return () => {
+        clearInterval(interval);
+      };
+    },[]);
+ */
     return (
-        <>
+        <React.StrictMode>
             <NewWindow
                 open={portalMode}
-                rebindEvents={rebindCyEvents}
+                css={findCSS()}
                 name='dash' /* css={findCSS()} */
             >
-                <div id='testtest' className='dash-callback-dag--container'>
+                {/* <Counter counter={counter}/> */}
+
+                <div
+                    id='cytoscapeContainer'
+                    className={
+                        portalMode
+                            ? 'dash-callback-dag--container-portal'
+                            : 'dash-callback-dag--container'
+                    }
+                >
                     <CytoscapeComponent
                         style={{width: '100%', height: '100%'}}
                         cy={setCytoscape}
                         elements={elements}
                         layout={cyLayout}
                         stylesheet={stylesheet}
+                        //key="Cytoscape"
+                        //hideZeroOnly={hideZeroOnly}
                     />
 
                     <div className='menu-bar-container'>
                         <div className='menu-bar'>
                             <div className='search-bar'>
-                                <SearchBox
+                                <MemoSearchBox
                                     //   ref={searchbox}
                                     data={elements}
                                     active={searchBoxActive}
@@ -499,6 +552,7 @@ function CallbackGraph() {
                                             e.currentTarget.dataset.id
                                         )
                                     }
+                                    /* key="searchBox" */
                                 />
                             </div>
                             <div className='filter-bar'>
@@ -511,15 +565,15 @@ function CallbackGraph() {
                                         e.target.blur();
                                     }}
                                 />
-                                <button onClick={togglePortalMode}>
-                                    Portal
-                                </button>
                                 <label
                                     className='hideZeroOnlyLabel'
                                     htmlFor='chkb_non_zero'
                                 >
                                     Hide zero values
                                 </label>
+                                <button onClick={togglePortalMode}>
+                                    Portal
+                                </button>
                                 {/* <button id="enlarge" onClick={openWindow}>Window</button> */}
                             </div>
                             <div className='layout-bar'>
@@ -565,9 +619,13 @@ function CallbackGraph() {
                             />
                         </div>
                     ) : null}
+                    {/* 
+                    <CallbackTable>
+F
+                    </CallbackTable> */}
                 </div>
             </NewWindow>
-        </>
+        </React.StrictMode>
     );
 }
 

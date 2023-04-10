@@ -1,9 +1,9 @@
-import {useEffect, useRef, useState} from 'react';
-import {SearchBoxItem} from './SearchBoxItem.react';
+import {useEffect, useRef, useState, memo} from 'react';
+import {MemoSearchBoxItem} from './SearchBoxItem.react';
 
 import './SearchBox.css';
 
-export function SearchBox(props) {
+function SearchBox(props) {
     const [searchTerm, setSearchTerm] = useState('');
 
     const inputBoxRef = useRef(null);
@@ -43,7 +43,7 @@ export function SearchBox(props) {
                         .filter(elem => elem.data.type === 'property')
                         .map((el, i) => {
                             return (
-                                <SearchBoxItem
+                                <MemoSearchBoxItem
                                     key={i}
                                     searchTerm={searchTerm}
                                     id={el.data.id}
@@ -74,3 +74,5 @@ export function SearchBox(props) {
         </>
     );
 }
+
+export const MemoSearchBox = memo(SearchBox);

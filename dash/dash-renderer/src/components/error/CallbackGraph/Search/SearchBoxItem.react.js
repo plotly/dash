@@ -1,10 +1,6 @@
-export function SearchBoxItem({
-    label,
-    property,
-    id,
-    searchTerm,
-    onItemClickHandler
-}) {
+import {memo} from 'react';
+
+function SearchBoxItem({label, property, id, searchTerm, onItemClickHandler}) {
     const matchSearchTerm = () => {
         if (
             label.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
@@ -31,3 +27,5 @@ export function SearchBoxItem({
         </div>
     );
 }
+
+export const MemoSearchBoxItem = memo(SearchBoxItem);

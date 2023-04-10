@@ -45,11 +45,12 @@
     "test": "pytest && cd dash/dash-renderer && npm run test"
   },
   "devDependencies": {
+    "@lerna/filter-options": "^6.0.1",
     "husky": "8.0.1",
-    "lerna": "^6.0.1",
-    "@lerna/filter-options": "^6.0.1"
+    "lerna": "^6.0.1"
   },
   "dependencies": {
+    "coloredlog": "^1.0.1",
     "npm-run-all": "4.1.5"
   },
   "name": "dash"
