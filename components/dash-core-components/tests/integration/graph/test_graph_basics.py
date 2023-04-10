@@ -326,16 +326,16 @@ def test_grbs006_graph_update_frames(dash_dcc):
 def test_grbs007_graph_scatter_lines_customdata(dash_dcc):
     app = Dash(__name__)
 
-    expected_value = 'obj-1'
+    expected_value = "obj-1"
 
     scatter_figures = go.Figure(
         data=[
             go.Scatter(
                 x=[0, 1, 1, 0, 0],
                 y=[1, 1, 2, 2, 1],
-                mode='lines',
-                fill='toself',
-                customdata=[expected_value]
+                mode="lines",
+                fill="toself",
+                customdata=[expected_value],
             )
         ]
     )
@@ -345,14 +345,16 @@ def test_grbs007_graph_scatter_lines_customdata(dash_dcc):
             dcc.Graph(
                 id="scatter-lines",
                 figure=scatter_figures,
-                style={"width": 600, "height": 300}
+                style={"width": 600, "height": 300},
             ),
             dcc.Textarea(id="test-text-area"),
         ],
-        style={"width": 1000, "height": 500}
+        style={"width": 1000, "height": 500},
     )
 
-    @app.callback(Output("test-text-area", "value"), Input("scatter-lines", "clickData"))
+    @app.callback(
+        Output("test-text-area", "value"), Input("scatter-lines", "clickData")
+    )
     def handleClick(clickData):
         return json.dumps(clickData)
 

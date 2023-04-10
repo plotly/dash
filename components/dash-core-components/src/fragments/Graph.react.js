@@ -88,18 +88,21 @@ const filterEventData = (gd, eventData, event) => {
             ) {
                 if (has('pointNumber', fullPoint)) {
                     if (fullPoint.pointNumber) {
-
                         pointData.customdata =
-                            data[pointData.curveNumber].customdata[fullPoint.pointNumber];
+                            data[pointData.curveNumber].customdata[
+                                fullPoint.pointNumber
+                            ];
                     } else if (
-                        !fullPoint.pointNumber
-                        &&
-                        fullPoint. data.mode. includes('lines')
+                        !fullPoint.pointNumber &&
+                        fullPoint.data.mode.includes('lines')
                     ) {
-                        pointData.customdata = data[pointData.curveNumber].customdata
+                        pointData.customdata =
+                            data[pointData.curveNumber].customdata;
                     }
                 } else if (has('pointNumbers', fullPoint)) {
-                    pointData.customdata = fullPoint.pointNumbers.map(point => {
+                    pointData.customdata = fullPoint.pointNumbers.map(function (
+                        point
+                    ) {
                         return data[pointData.curveNumber].customdata[point];
                     });
                 }

@@ -12,17 +12,19 @@ def test_clrs001_clientside_inline_restarts(dash_duo_mp):
 
         app = Dash(__name__)
 
-        app.layout = html.Div([
-            html.Button("Click", id="click"),
-            html.Div(id="output"),
-            html.Div(reloads, id="reload")
-        ])
+        app.layout = html.Div(
+            [
+                html.Button("Click", id="click"),
+                html.Div(id="output"),
+                html.Div(reloads, id="reload"),
+            ]
+        )
 
         app.clientside_callback(
             "(n_clicks) => `clicked ${n_clicks}`",
             Output("output", "children"),
             Input("click", "n_clicks"),
-            prevent_initial_call=True
+            prevent_initial_call=True,
         )
         reloads += 1
         return app
@@ -35,20 +37,13 @@ def test_clrs001_clientside_inline_restarts(dash_duo_mp):
         dev_tools_hot_reload_max_retry=100,
     )
 
-    dash_duo_mp.start_server(
-        create_app(),
-        **hot_reload_settings
-    )
+    dash_duo_mp.start_server(create_app(), **hot_reload_settings)
     dash_duo_mp.find_element("#click").click()
     dash_duo_mp.wait_for_text_to_equal("#output", "clicked 1")
 
     dash_duo_mp.server.stop()
 
-    dash_duo_mp.start_server(
-        create_app(),
-        navigate=False,
-        **hot_reload_settings
-    )
+    dash_duo_mp.start_server(create_app(), navigate=False, **hot_reload_settings)
     dash_duo_mp.wait_for_text_to_equal("#reload", "1")
     dash_duo_mp.find_element("#click").click()
     # reloaded so 1 again.
