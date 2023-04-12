@@ -87,7 +87,7 @@ const filterEventData = (gd, eventData, event) => {
                 has('customdata', data[pointData.curveNumber])
             ) {
                 if (has('pointNumber', fullPoint)) {
-                    if (fullPoint.pointNumber) {
+                    if (typeof fullPoint.pointNumber === 'number') {
                         pointData.customdata =
                             data[pointData.curveNumber].customdata[
                                 fullPoint.pointNumber
