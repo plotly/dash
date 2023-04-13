@@ -996,13 +996,6 @@
         "required": false,
         "description": "The URL of a linked resource."
       },
-      "hrefLang": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Specifies the language of the linked resource."
-      },
       "media": {
         "type": {
           "name": "string"

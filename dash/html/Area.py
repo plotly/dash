@@ -66,9 +66,6 @@ class Area(Component):
     - href (string; optional):
         The URL of a linked resource.
 
-    - hrefLang (string; optional):
-        Specifies the language of the linked resource.
-
     - key (string; optional):
         A unique identifier for the component, used to improve performance
         by React.js while rendering components See
@@ -154,7 +151,6 @@ class Area(Component):
         coords=Component.UNDEFINED,
         download=Component.UNDEFINED,
         href=Component.UNDEFINED,
-        hrefLang=Component.UNDEFINED,
         media=Component.UNDEFINED,
         referrerPolicy=Component.UNDEFINED,
         rel=Component.UNDEFINED,
@@ -193,7 +189,6 @@ class Area(Component):
             "draggable",
             "hidden",
             "href",
-            "hrefLang",
             "key",
             "lang",
             "loading_state",
@@ -228,7 +223,6 @@ class Area(Component):
             "draggable",
             "hidden",
             "href",
-            "hrefLang",
             "key",
             "lang",
             "loading_state",
