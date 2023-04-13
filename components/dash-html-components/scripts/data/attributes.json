@@ -331,7 +331,6 @@
         "hrefLang": {
             "elements": [
                 "a",
-                "area",
                 "link"
             ],
             "description": "Specifies the language of the linked resource."
@@ -850,7 +849,6 @@
             "coords",
             "download",
             "href",
-            "hrefLang",
             "media",
             "referrerPolicy",
             "rel",

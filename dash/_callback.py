@@ -1,5 +1,5 @@
 import collections
-import uuid
+import hashlib
 from functools import wraps
 
 import flask
@@ -534,8 +534,8 @@ def register_clientside_callback(
     # name, then inject the code.
     if isinstance(clientside_function, str):
         namespace = "_dashprivate_clientside_funcs"
-        # Just make sure every function has a different name if not provided.
-        function_name = uuid.uuid4().hex
+        # Create a hash from the function, it will be the same always
+        function_name = hashlib.md5(clientside_function.encode("utf-8")).hexdigest()
 
         inline_scripts.append(
             _inline_clientside_template.format(
