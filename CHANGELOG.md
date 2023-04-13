@@ -2,6 +2,22 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.9.3] - 2023-04-13
+
+## Fixed
+
+- [#2489](https://github.com/plotly/dash/pull/2489) Fix location change event handling when `Location` objects are removed from the layout. Event handlers would not be removed and eventually change props of a random DOM element, fix [#1346](https://github.com/plotly/dash/issues/1346)
+- [#2498](https://github.com/plotly/dash/pull/2498) Fix error when caching callbacks which return `Patch` objects by making `Patch` objects picklable
+- [#2491](https://github.com/plotly/dash/pull/2491) Fix clientside inline function name not found, fix [#2488](https://github.com/plotly/dash/issues/2488)
+
+## [2.9.2] - 2023-03-29
+
+## Fixed
+
+- [#2479](https://github.com/plotly/dash/pull/2479) Fix `KeyError` "Callback function not found for output [...], , perhaps you forgot to prepend the '@'?" issue when using duplicate callbacks targeting the same output. This issue would occur when the app is restarted or when running with multiple `gunicorn` workers.
+- [#2471](https://github.com/plotly/dash/pull/2471) Fix `allow_duplicate` output with clientside callback, fix [#2467](https://github.com/plotly/dash/issues/2467)
+- [#2473](https://github.com/plotly/dash/pull/2473) Fix background callbacks with different outputs but same function, fix [#2221](https://github.com/plotly/dash/issues/2221)
+
 ## [2.9.1] - 2023-03-17
 
 ## Fixed
