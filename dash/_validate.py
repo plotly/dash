@@ -201,7 +201,7 @@ def validate_multi_return(outputs_list, output_value, callback_id):
                     dedent(
                         f"""
                         Invalid number of output values for {callback_id} item {i}.
-                        Expected {len(vi)}, got {len(outi)}
+                        Expected {len(outi)}, got {len(vi)}
                         output spec: {outi!r}
                         output value: {vi!r}
                         """
