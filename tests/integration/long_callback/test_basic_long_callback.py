@@ -13,6 +13,8 @@ from dash.testing.application_runners import import_app
 import psutil
 import redis
 
+from . import utils
+
 
 def kill(proc_pid):
     process = psutil.Process(proc_pid)
@@ -78,11 +80,16 @@ def setup_long_callback_app(manager_name, app_name):
         print(cache_directory)
         os.environ["DISKCACHE_DIR"] = cache_directory
         try:
-            yield import_app(f"tests.integration.long_callback.{app_name}")
+            app = import_app(f"tests.integration.long_callback.{app_name}")
+            yield app
         finally:
             # Interval may run one more time after settling on final app state
             # Sleep for a couple of intervals
             time.sleep(2.0)
+
+            for job in utils.manager.running_jobs:
+                utils.manager.terminate_job(job)
+
             shutil.rmtree(cache_directory, ignore_errors=True)
             os.environ.pop("LONG_CALLBACK_MANAGER")
             os.environ.pop("DISKCACHE_DIR")
@@ -531,3 +538,21 @@ def test_lcbc013_unordered_state_input(dash_duo, manager):
         dash_duo.find_element("#click").click()
 
         dash_duo.wait_for_text_to_equal("#output", "stored")
+
+
+def test_lcbc014_progress_delete(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_progress_delete") as app:
+        dash_duo.start_server(app)
+        dash_duo.find_element("#start").click()
+        dash_duo.wait_for_text_to_equal("#output", "done")
+
+        assert dash_duo.find_element("#progress-counter").text == "2"
+
+
+def test_lcbc015_diff_outputs_same_func(dash_duo, manager):
+    with setup_long_callback_app(manager, "app_diff_outputs") as app:
+        dash_duo.start_server(app)
+
+        for i in range(1, 3):
+            dash_duo.find_element(f"#button-{i}").click()
+            dash_duo.wait_for_text_to_equal(f"#output-{i}", f"Clicked on {i}")

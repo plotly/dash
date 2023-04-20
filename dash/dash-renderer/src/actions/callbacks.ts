@@ -10,7 +10,8 @@ import {
     pluck,
     values,
     toPairs,
-    zip
+    zip,
+    assocPath
 } from 'ramda';
 
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
@@ -39,6 +40,8 @@ import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
+import {handlePatch, isPatch} from './patch';
+import {getPath} from './paths';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -212,6 +215,10 @@ const getVals = (input: any) =>
 const zipIfArray = (a: any, b: any) =>
     Array.isArray(a) ? zip(a, b) : [[a, b]];
 
+function cleanOutputProp(property: string) {
+    return property.split('@')[0];
+}
+
 async function handleClientside(
     dispatch: any,
     clientside_function: any,
@@ -272,7 +279,7 @@ async function handleClientside(
                 const idStr = stringifyId(id);
                 const dataForId = (result[idStr] = result[idStr] || {});
                 if (retij !== dc.no_update) {
-                    dataForId[property] = retij;
+                    dataForId[cleanOutputProp(property)] = retij;
                 }
             });
         });
@@ -683,7 +690,7 @@ export function executeCallback(
 
                 for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
                     try {
-                        const data = await handleServerside(
+                        let data = await handleServerside(
                             dispatch,
                             hooks,
                             newConfig,
@@ -698,6 +705,28 @@ export function executeCallback(
                         if (newHeaders) {
                             dispatch(addHttpHeaders(newHeaders));
                         }
+                        // Layout may have changed.
+                        const currentLayout = getState().layout;
+                        flatten(outputs).forEach((out: any) => {
+                            const propName = cleanOutputProp(out.property);
+                            const outputPath = getPath(paths, out.id);
+                            const previousValue = path(
+                                outputPath.concat(['props', propName]),
+                                currentLayout
+                            );
+                            const dataPath = [stringifyId(out.id), propName];
+                            const outputValue = path(dataPath, data);
+                            if (isPatch(outputValue)) {
+                                if (previousValue === undefined) {
+                                    throw new Error('Cannot patch undefined');
+                                }
+                                data = assocPath(
+                                    dataPath,
+                                    handlePatch(previousValue, outputValue),
+                                    data
+                                );
+                            }
+                        });
 
                         return {data, payload};
                     } catch (res: any) {

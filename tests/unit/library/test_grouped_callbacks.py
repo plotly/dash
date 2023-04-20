@@ -41,9 +41,9 @@ def check_output_for_grouping(grouping):
     mock_fn = mock.Mock()
     mock_fn.return_value = grouping
     if multi:
-        callback_id = create_callback_id(flatten_grouping(outputs))
+        callback_id = create_callback_id(flatten_grouping(outputs), [])
     else:
-        callback_id = create_callback_id(outputs)
+        callback_id = create_callback_id(outputs, [])
 
     app.callback(
         outputs,

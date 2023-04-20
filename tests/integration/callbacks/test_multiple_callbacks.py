@@ -1,10 +1,12 @@
 import time
-from multiprocessing import Value
+from multiprocessing import Value, Lock
 
 import pytest
 
 from dash import Dash, Input, Output, State, callback_context, html, dcc, dash_table
 from dash.exceptions import PreventUpdate
+
+import dash.testing.wait as wait
 
 
 def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
@@ -17,7 +19,7 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
 
     @app.callback(Output("output", "children"), [Input("input", "n_clicks")])
     def update_output(n_clicks):
-        call_count.value = call_count.value + 1
+        call_count.value += 1
         if n_clicks == 1:
             time.sleep(1)
         return n_clicks
@@ -578,3 +580,91 @@ def test_cbmt012_initialization_with_overlapping_outputs(generate, dash_duo):
         assert call_counts[outputid].value == 1
 
     assert call_counts["container"].value == (1 if generate else 0)
+
+
+def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
+    all_options = {
+        "America": ["New York City", "San Francisco", "Cincinnati"],
+        "Canada": ["Montreal", "Toronto", "Ottawa"],
+    }
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.RadioItems(
+                id="countries-radio",
+                options=[{"label": k, "value": k} for k in all_options.keys()],
+                value="America",
+            ),
+            html.Hr(),
+            dcc.RadioItems(id="cities-radio"),
+            html.Hr(),
+            html.Div(id="display-selected-values"),
+        ]
+    )
+
+    opts_call_count = Value("i", 0)
+    city_call_count = Value("i", 0)
+    out_call_count = Value("i", 0)
+    out_lock = Lock()
+
+    @app.callback(Output("cities-radio", "options"), Input("countries-radio", "value"))
+    def set_cities_options(selected_country):
+        opts_call_count.value += 1
+        return [{"label": i, "value": i} for i in all_options[selected_country]]
+
+    @app.callback(Output("cities-radio", "value"), Input("cities-radio", "options"))
+    def set_cities_value(available_options):
+        city_call_count.value += 1
+        return available_options[0]["value"]
+
+    @app.callback(
+        Output("display-selected-values", "children"),
+        Input("countries-radio", "value"),
+        Input("cities-radio", "value"),
+    )
+    def set_display_children(selected_country, selected_city):
+        # this may actually be the key to this whole test:
+        # these inputs should never be out of sync.
+        assert selected_city in all_options[selected_country]
+
+        out_call_count.value += 1
+        with out_lock:
+            return "{} is a city in {}".format(
+                selected_city,
+                selected_country,
+            )
+
+    dash_duo.start_server(app)
+
+    new_york_text = "New York City is a city in America"
+    canada_text = "Montreal is a city in Canada"
+
+    # If we get to the correct initial state with only one call of each callback,
+    # then there mustn't have been any intermediate changes to the output text
+    dash_duo.wait_for_text_to_equal("#display-selected-values", new_york_text)
+    assert opts_call_count.value == 1
+    assert city_call_count.value == 1
+    assert out_call_count.value == 1
+
+    all_labels = dash_duo.find_elements("label")
+    canada_opt = next(
+        i for i in all_labels if i.text == "Canada"
+    ).find_element_by_tag_name("input")
+
+    with out_lock:
+        canada_opt.click()
+
+        # all three callbacks have fired once more, but since we haven't allowed the
+        # last one to execute, the output hasn't been changed
+        wait.until(lambda: out_call_count.value == 2, timeout=3)
+        assert opts_call_count.value == 2
+        assert city_call_count.value == 2
+        assert dash_duo.find_element("#display-selected-values").text == new_york_text
+
+    dash_duo.wait_for_text_to_equal("#display-selected-values", canada_text)
+    assert opts_call_count.value == 2
+    assert city_call_count.value == 2
+    assert out_call_count.value == 2
+
+    assert dash_duo.get_logs() == []

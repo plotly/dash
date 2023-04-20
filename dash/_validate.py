@@ -7,8 +7,13 @@ import flask
 from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
-from ._utils import patch_collections_abc, stringify_id, to_json, coerce_to_list
-from .exceptions import PageError
+from ._utils import (
+    patch_collections_abc,
+    stringify_id,
+    to_json,
+    coerce_to_list,
+    clean_property_name,
+)
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -123,7 +128,10 @@ def validate_output_spec(output, output_spec, Output):
     for outi, speci in zip(output, output_spec):
         speci_list = speci if isinstance(speci, (list, tuple)) else [speci]
         for specij in speci_list:
-            if not Output(specij["id"], specij["property"]) == outi:
+            if (
+                not Output(specij["id"], clean_property_name(specij["property"]))
+                == outi
+            ):
                 raise exceptions.CallbackException(
                     "Output does not match callback definition"
                 )
@@ -463,10 +471,12 @@ def validate_pages_layout(module, page):
 
 def validate_use_pages(config):
     if not config.get("assets_folder", None):
-        raise PageError("`dash.register_page()` must be called after app instantiation")
+        raise exceptions.PageError(
+            "`dash.register_page()` must be called after app instantiation"
+        )
 
     if flask.has_request_context():
-        raise PageError(
+        raise exceptions.PageError(
             """
             dash.register_page() can’t be called within a callback as it updates dash.page_registry, which is a global variable.
              For more details, see https://dash.plotly.com/sharing-data-between-callbacks#why-global-variables-will-break-your-app
@@ -476,7 +486,7 @@ def validate_use_pages(config):
 
 def validate_module_name(module):
     if not isinstance(module, str):
-        raise Exception(
+        raise exceptions.PageError(
             "The first attribute of dash.register_page() must be a string or '__name__'"
         )
     return module
@@ -512,3 +522,31 @@ def validate_long_callbacks(callback_map):
                 f"Long callback circular error!\n{circular} is used as input for a long callback"
                 f" but also used as output from an input that is updated with progress or running argument."
             )
+
+
+def validate_duplicate_output(
+    output, prevent_initial_call, config_prevent_initial_call
+):
+    if "initial_duplicate" in (prevent_initial_call, config_prevent_initial_call):
+        return
+
+    def _valid(out):
+        if (
+            out.allow_duplicate
+            and not prevent_initial_call
+            and not config_prevent_initial_call
+        ):
+            raise exceptions.DuplicateCallback(
+                "allow_duplicate requires prevent_initial_call to be True. The order of the call is not"
+                " guaranteed to be the same on every page load. "
+                "To enable duplicate callback with initial call, set prevent_initial_call='initial_duplicate' "
+                " or globally in the config prevent_initial_callbacks='initial_duplicate'"
+            )
+
+    if isinstance(output, (list, tuple)):
+        for o in output:
+            _valid(o)
+
+        return
+
+    _valid(output)

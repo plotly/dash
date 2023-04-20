@@ -1,6 +1,4 @@
 import json
-import inspect
-import hashlib
 import traceback
 from contextvars import copy_context
 
@@ -78,8 +76,8 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
             "PROGRESS",
         )
 
-    def make_job_fn(self, fn, progress):
-        return _make_job_fn(fn, self.handle, progress)
+    def make_job_fn(self, fn, progress, key=None):
+        return _make_job_fn(fn, self.handle, progress, key)
 
     def get_task(self, job):
         if job:
@@ -98,6 +96,7 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         progress_key = self._make_progress_key(key)
         progress_data = self.handle.backend.get(progress_key)
         if progress_data:
+            self.handle.backend.delete(progress_key)
             return json.loads(progress_data)
 
         return None
@@ -126,15 +125,10 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         return result
 
 
-def _make_job_fn(fn, celery_app, progress):
+def _make_job_fn(fn, celery_app, progress, key):
     cache = celery_app.backend
 
-    # Hash function source and module to create a unique (but stable) celery task name
-    fn_source = inspect.getsource(fn)
-    fn_str = fn_source
-    fn_hash = hashlib.sha1(fn_str.encode("utf-8")).hexdigest()
-
-    @celery_app.task(name=f"long_callback_{fn_hash}")
+    @celery_app.task(name=f"long_callback_{key}")
     def job_fn(result_key, progress_key, user_callback_args, context=None):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
