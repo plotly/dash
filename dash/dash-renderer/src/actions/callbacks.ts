@@ -215,6 +215,10 @@ const getVals = (input: any) =>
 const zipIfArray = (a: any, b: any) =>
     Array.isArray(a) ? zip(a, b) : [[a, b]];
 
+function cleanOutputProp(property: string) {
+    return property.split('@')[0];
+}
+
 async function handleClientside(
     dispatch: any,
     clientside_function: any,
@@ -275,7 +279,7 @@ async function handleClientside(
                 const idStr = stringifyId(id);
                 const dataForId = (result[idStr] = result[idStr] || {});
                 if (retij !== dc.no_update) {
-                    dataForId[property] = retij;
+                    dataForId[cleanOutputProp(property)] = retij;
                 }
             });
         });
@@ -704,7 +708,7 @@ export function executeCallback(
                         // Layout may have changed.
                         const currentLayout = getState().layout;
                         flatten(outputs).forEach((out: any) => {
-                            const propName = out.property.split('@')[0];
+                            const propName = cleanOutputProp(out.property);
                             const outputPath = getPath(paths, out.id);
                             const previousValue = path(
                                 outputPath.concat(['props', propName]),
