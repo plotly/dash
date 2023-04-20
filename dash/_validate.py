@@ -161,49 +161,49 @@ def validate_and_group_input_args(flat_args, arg_index_grouping):
     return func_args, func_kwargs
 
 
-def validate_multi_return(outputs_list, output_value, callback_id):
-    if not isinstance(output_value, (list, tuple)):
+def validate_multi_return(output_lists, output_values, callback_id):
+    if not isinstance(output_values, (list, tuple)):
         raise exceptions.InvalidCallbackReturnValue(
             dedent(
                 f"""
                 The callback {callback_id} is a multi-output.
                 Expected the output type to be a list or tuple but got:
-                {output_value!r}.
+                {output_values!r}.
                 """
             )
         )
 
-    if len(output_value) != len(outputs_list):
+    if len(output_values) != len(output_lists):
         raise exceptions.InvalidCallbackReturnValue(
             f"""
             Invalid number of output values for {callback_id}.
-            Expected {len(outputs_list)}, got {len(output_value)}
+            Expected {len(output_lists)}, got {len(output_values)}
             """
         )
 
-    for i, outi in enumerate(outputs_list):
-        if isinstance(outi, list):
-            vi = output_value[i]
-            if not isinstance(vi, (list, tuple)):
+    for i, output_spec in enumerate(output_lists):
+        if isinstance(output_spec, list):
+            output_value = output_values[i]
+            if not isinstance(output_value, (list, tuple)):
                 raise exceptions.InvalidCallbackReturnValue(
                     dedent(
                         f"""
                         The callback {callback_id} output {i} is a wildcard multi-output.
                         Expected the output type to be a list or tuple but got:
-                        {vi!r}.
-                        output spec: {outi!r}
+                        {output_value!r}.
+                        output spec: {output_spec!r}
                         """
                     )
                 )
 
-            if len(vi) != len(outi):
+            if len(output_value) != len(output_spec):
                 raise exceptions.InvalidCallbackReturnValue(
                     dedent(
                         f"""
                         Invalid number of output values for {callback_id} item {i}.
-                        Expected {len(outi)}, got {len(vi)}
-                        output spec: {outi!r}
-                        output value: {vi!r}
+                        Expected {len(output_spec)}, got {len(output_value)}
+                        output spec: {output_spec!r}
+                        output value: {output_value!r}
                         """
                     )
                 )
