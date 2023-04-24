@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 
 - [#2508](https://github.com/plotly/dash/pull/2508) Fix error message, when callback output has different length than spec
+- [#2513](https://github.com/plotly/dash/pull/2513) Raise error when iterating over patch objects, fix [#2512](https://github.com/plotly/dash/issues/2512)
 
 ## [2.9.3] - 2023-04-13
 
