@@ -25,13 +25,6 @@ from dash._get_paths import (
 )
 
 
-@pytest.fixture
-def empty_environ():
-    for k in DASH_ENV_VARS.keys():
-        if k in os.environ:
-            os.environ.pop(k)
-
-
 def test_dash_env_vars(empty_environ):
     assert {None} == {
         val for _, val in DASH_ENV_VARS.items()
@@ -482,3 +475,8 @@ def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
     app = Dash()
     app.enable_dev_tools(debug=debug)
     assert app._dev_tools.ui == expected
+
+
+def test_missing_flask_compress_raises():
+    with pytest.raises(ImportError):
+        Dash(compress=True)

@@ -329,8 +329,8 @@ function findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs) {
                 dispatchError('Duplicate callback outputs', [
                     head,
                     `Output ${i} (${idProp}) is already in use.`,
-                    'Any given output can only have one callback that sets it.',
-                    'To resolve this situation, try combining these into',
+                    'To resolve this, set `allow_duplicate=True` on',
+                    'duplicate outputs, or combine the outputs into',
                     'one callback function, distinguishing the trigger',
                     'by using `dash.callback_context` if necessary.'
                 ]);
@@ -485,7 +485,8 @@ export function validateCallbacksToLayout(state_, dispatchError) {
         ]);
     }
 
-    function validateProp(id, idPath, prop, cls, callbacks) {
+    function validateProp(id, idPath, rawProp, cls, callbacks) {
+        const prop = rawProp.split('@')[0];
         const component = path(idPath, layout);
         const element = Registry.resolve(component);
 

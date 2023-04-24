@@ -12,7 +12,7 @@ import time
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
-def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
+def test_tagr001_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
     app.layout = html.Div(
         [
@@ -123,7 +123,7 @@ def test_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
     strict=False,
 )
 @pytest.mark.parametrize("is_eager", [True, False])
-def test_tabs_render_without_selected(dash_dcc, is_eager):
+def test_tagr002_tabs_render_without_selected(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
 
     menu = html.Div([html.Div("one", id="one"), html.Div("two", id="two")])

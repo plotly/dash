@@ -139,6 +139,12 @@ function generatePropTypes(element, attributes) {
     'n_clicks_timestamp': PropTypes.number,
 
     /**
+     * When True, this will disable the n_clicks prop.  Use this to remove
+     * event listeners that may interfere with screen readers.
+     */
+    'disable_n_clicks': PropTypes.bool,
+
+    /**
      * A unique identifier for the component, used to improve
      * performance by React.js while rendering components
      * See https://reactjs.org/docs/lists-and-keys.html for more info
@@ -264,13 +270,17 @@ const ${Component} = (props) => {
         dataAttributes['data-dash-is-loading'] = true;
     }
 
+     /* remove unnecessary onClick event listeners  */
+    const isStatic = props.disable_n_clicks || !props.id;
     return (
         <${element}
-            onClick={() => props.setProps({
+            {...(!isStatic && {onClick:
+            () => props.setProps({
                 n_clicks: props.n_clicks + 1,
                 n_clicks_timestamp: Date.now()
+            })
             })}
-            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps'], props)}
+            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps', 'disable_n_clicks'], props)}
             {...dataAttributes}
         >
             {props.children}

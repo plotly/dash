@@ -7,7 +7,13 @@ import flask
 from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
-from ._utils import patch_collections_abc, stringify_id, to_json, coerce_to_list
+from ._utils import (
+    patch_collections_abc,
+    stringify_id,
+    to_json,
+    coerce_to_list,
+    clean_property_name,
+)
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -122,7 +128,10 @@ def validate_output_spec(output, output_spec, Output):
     for outi, speci in zip(output, output_spec):
         speci_list = speci if isinstance(speci, (list, tuple)) else [speci]
         for specij in speci_list:
-            if not Output(specij["id"], specij["property"]) == outi:
+            if (
+                not Output(specij["id"], clean_property_name(specij["property"]))
+                == outi
+            ):
                 raise exceptions.CallbackException(
                     "Output does not match callback definition"
                 )
@@ -152,49 +161,49 @@ def validate_and_group_input_args(flat_args, arg_index_grouping):
     return func_args, func_kwargs
 
 
-def validate_multi_return(outputs_list, output_value, callback_id):
-    if not isinstance(output_value, (list, tuple)):
+def validate_multi_return(output_lists, output_values, callback_id):
+    if not isinstance(output_values, (list, tuple)):
         raise exceptions.InvalidCallbackReturnValue(
             dedent(
                 f"""
                 The callback {callback_id} is a multi-output.
                 Expected the output type to be a list or tuple but got:
-                {output_value!r}.
+                {output_values!r}.
                 """
             )
         )
 
-    if len(output_value) != len(outputs_list):
+    if len(output_values) != len(output_lists):
         raise exceptions.InvalidCallbackReturnValue(
             f"""
             Invalid number of output values for {callback_id}.
-            Expected {len(outputs_list)}, got {len(output_value)}
+            Expected {len(output_lists)}, got {len(output_values)}
             """
         )
 
-    for i, outi in enumerate(outputs_list):
-        if isinstance(outi, list):
-            vi = output_value[i]
-            if not isinstance(vi, (list, tuple)):
+    for i, output_spec in enumerate(output_lists):
+        if isinstance(output_spec, list):
+            output_value = output_values[i]
+            if not isinstance(output_value, (list, tuple)):
                 raise exceptions.InvalidCallbackReturnValue(
                     dedent(
                         f"""
                         The callback {callback_id} output {i} is a wildcard multi-output.
                         Expected the output type to be a list or tuple but got:
-                        {vi!r}.
-                        output spec: {outi!r}
+                        {output_value!r}.
+                        output spec: {output_spec!r}
                         """
                     )
                 )
 
-            if len(vi) != len(outi):
+            if len(output_value) != len(output_spec):
                 raise exceptions.InvalidCallbackReturnValue(
                     dedent(
                         f"""
                         Invalid number of output values for {callback_id} item {i}.
-                        Expected {len(vi)}, got {len(outi)}
-                        output spec: {outi!r}
-                        output value: {vi!r}
+                        Expected {len(output_spec)}, got {len(output_value)}
+                        output spec: {output_spec!r}
+                        output value: {output_value!r}
                         """
                     )
                 )
@@ -462,10 +471,12 @@ def validate_pages_layout(module, page):
 
 def validate_use_pages(config):
     if not config.get("assets_folder", None):
-        raise Exception("`dash.register_page()` must be called after app instantiation")
+        raise exceptions.PageError(
+            "`dash.register_page()` must be called after app instantiation"
+        )
 
     if flask.has_request_context():
-        raise Exception(
+        raise exceptions.PageError(
             """
             dash.register_page() can’t be called within a callback as it updates dash.page_registry, which is a global variable.
              For more details, see https://dash.plotly.com/sharing-data-between-callbacks#why-global-variables-will-break-your-app
@@ -475,7 +486,7 @@ def validate_use_pages(config):
 
 def validate_module_name(module):
     if not isinstance(module, str):
-        raise Exception(
+        raise exceptions.PageError(
             "The first attribute of dash.register_page() must be a string or '__name__'"
         )
     return module
@@ -511,3 +522,31 @@ def validate_long_callbacks(callback_map):
                 f"Long callback circular error!\n{circular} is used as input for a long callback"
                 f" but also used as output from an input that is updated with progress or running argument."
             )
+
+
+def validate_duplicate_output(
+    output, prevent_initial_call, config_prevent_initial_call
+):
+    if "initial_duplicate" in (prevent_initial_call, config_prevent_initial_call):
+        return
+
+    def _valid(out):
+        if (
+            out.allow_duplicate
+            and not prevent_initial_call
+            and not config_prevent_initial_call
+        ):
+            raise exceptions.DuplicateCallback(
+                "allow_duplicate requires prevent_initial_call to be True. The order of the call is not"
+                " guaranteed to be the same on every page load. "
+                "To enable duplicate callback with initial call, set prevent_initial_call='initial_duplicate' "
+                " or globally in the config prevent_initial_callbacks='initial_duplicate'"
+            )
+
+    if isinstance(output, (list, tuple)):
+        for o in output:
+            _valid(o)
+
+        return
+
+    _valid(output)

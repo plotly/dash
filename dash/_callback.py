@@ -1,4 +1,5 @@
 import collections
+import hashlib
 from functools import wraps
 
 import flask
@@ -27,6 +28,7 @@ from ._utils import (
     to_json,
     coerce_to_list,
     AttributeDict,
+    clean_property_name,
 )
 
 from . import _validate
@@ -240,13 +242,19 @@ def insert_callback(
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
 
-    callback_id = create_callback_id(output)
+    _validate.validate_duplicate_output(
+        output, prevent_initial_call, config_prevent_initial_callbacks
+    )
+
+    callback_id = create_callback_id(output, inputs)
     callback_spec = {
         "output": callback_id,
         "inputs": [c.to_dict() for c in inputs],
         "state": [c.to_dict() for c in state],
         "clientside_function": None,
-        "prevent_initial_call": prevent_initial_call,
+        # prevent_initial_call can be a string "initial_duplicates"
+        # which should not prevent the initial call.
+        "prevent_initial_call": prevent_initial_call is True,
         "long": long
         and {
             "interval": long["interval"],
@@ -308,7 +316,9 @@ def register_callback(  # pylint: disable=R0914
 
         if long is not None:
             long_key = BaseLongCallbackManager.register_func(
-                func, long.get("progress") is not None
+                func,
+                long.get("progress") is not None,
+                callback_id,
             )
 
         @wraps(func)
@@ -374,6 +384,7 @@ def register_callback(  # pylint: disable=R0914
                             input_values=callback_ctx.input_values,
                             state_values=callback_ctx.state_values,
                             triggered_inputs=callback_ctx.triggered_inputs,
+                            ignore_register_page=True,
                         ),
                     )
 
@@ -468,7 +479,8 @@ def register_callback(  # pylint: disable=R0914
                     if not isinstance(vali, NoUpdate):
                         has_update = True
                         id_str = stringify_id(speci["id"])
-                        component_ids[id_str][speci["property"]] = vali
+                        prop = clean_property_name(speci["property"])
+                        component_ids[id_str][prop] = vali
 
             if not has_update:
                 raise PreventUpdate
@@ -521,18 +533,14 @@ def register_clientside_callback(
     # If JS source is explicitly given, create a namespace and function
     # name, then inject the code.
     if isinstance(clientside_function, str):
-
-        out0 = output
-        if isinstance(output, (list, tuple)):
-            out0 = output[0]
-
-        namespace = f"_dashprivate_{out0.component_id}"
-        function_name = out0.component_property
+        namespace = "_dashprivate_clientside_funcs"
+        # Create a hash from the function, it will be the same always
+        function_name = hashlib.md5(clientside_function.encode("utf-8")).hexdigest()
 
         inline_scripts.append(
             _inline_clientside_template.format(
-                namespace=namespace.replace('"', '\\"'),
-                function_name=function_name.replace('"', '\\"'),
+                namespace=namespace,
+                function_name=function_name,
                 clientside_function=clientside_function,
             )
         )

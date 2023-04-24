@@ -43,7 +43,7 @@ export default class Location extends Component {
                 propsToSet[fieldName] = window.location[fieldName];
             } else if (propVal !== window.location[fieldName]) {
                 // Prop has changed?
-                if (refresh) {
+                if (refresh === true) {
                     // Refresh the page?
                     window.location[fieldName] = propVal;
                 } else if (this.props[fieldName] !== propVal) {
@@ -71,6 +71,9 @@ export default class Location extends Component {
         // Special case -- overrides everything!
         if (hrefUpdated) {
             window.history.pushState({}, '', href);
+            if (refresh === 'callback-nav') {
+                window.dispatchEvent(new CustomEvent('_dashprivate_pushstate'));
+            }
         } else if (pathnameUpdated || hashUpdated || searchUpdated) {
             // Otherwise, we can mash everything together
             const searchVal = type(search) !== 'Undefined' ? search : '';
@@ -80,6 +83,9 @@ export default class Location extends Component {
                 '',
                 `${pathname}${searchVal}${hashVal}`
             );
+            if (refresh === 'callback-nav') {
+                window.dispatchEvent(new CustomEvent('_dashprivate_pushstate'));
+            }
         }
     }
 
@@ -115,6 +121,14 @@ export default class Location extends Component {
         this.updateLocation(this.props);
     }
 
+    componentWillUnmount() {
+        window.onpopstate = () => {};
+        window.removeEventListener(
+            '_dashprivate_pushstate',
+            this.onLocationChange
+        );
+    }
+
     UNSAFE_componentWillReceiveProps(nextProps) {
         this.updateLocation(nextProps);
     }
@@ -141,8 +155,19 @@ Location.propTypes = {
     /** href in window.location - e.g., "/my/full/pathname?myargument=1#myhash" */
     href: PropTypes.string,
 
-    /** Refresh the page when the location is updated? */
-    refresh: PropTypes.bool,
+    /**
+     * Use `True` to navigate outside the Dash app or to manually refresh a page.
+     * Use `False` if the same callback that updates the Location component is also
+     * updating the page content - typically used in multi-page apps that do not use Pages.
+     * Use 'callback-nav' if you are updating the URL in a callback, or a different
+     * callback will respond to the new Location with updated content. This is
+     * typical with multi-page apps that use Pages. This will allow for
+     * navigating to a new page without refreshing the page.
+     */
+    refresh: PropTypes.oneOfType([
+        PropTypes.oneOf(['callback-nav']),
+        PropTypes.bool,
+    ]),
 
     /**
      * Dash-assigned callback that gets fired when the value changes.

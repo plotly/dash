@@ -1,14 +1,19 @@
-import os
-from os import listdir
-from os.path import isfile, join
 import collections
-from urllib.parse import parse_qs
-from fnmatch import fnmatch
+import os
 import re
+import sys
+from fnmatch import fnmatch
+from pathlib import Path
+from os.path import isfile, join
+from urllib.parse import parse_qs
+
+import flask
 
 from . import _validate
 from ._utils import AttributeDict
 from ._get_paths import get_relative_path
+from ._callback_context import context_value
+from ._get_app import get_app
 
 
 CONFIG = AttributeDict()
@@ -29,7 +34,7 @@ def _infer_image(module):
 
     if os.path.exists(assets_folder):
         files_in_assets = [
-            f for f in listdir(assets_folder) if isfile(join(assets_folder, f))
+            f for f in os.listdir(assets_folder) if isfile(join(assets_folder, f))
         ]
     app_file = None
     logo_file = None
@@ -54,27 +59,56 @@ def _infer_image(module):
     return logo_file
 
 
-def _module_name_to_page_name(filename):
-    return filename.split(".")[-1].replace("_", " ").capitalize()
+def _module_name_to_page_name(module_name):
+    return module_name.split(".")[-1].replace("_", " ").capitalize()
 
 
-def _infer_path(filename, template):
+def _infer_path(module_name, template):
     if template is None:
         if CONFIG.pages_folder:
-            pages_folder = CONFIG.pages_folder.replace("\\", "/").split("/")[-1]
+            pages_module = str(Path(CONFIG.pages_folder).name)
             path = (
-                filename.replace("_", "-")
+                module_name.split(pages_module)[-1]
+                .replace("_", "-")
                 .replace(".", "/")
                 .lower()
-                .split(pages_folder)[-1]
             )
         else:
-            path = filename.replace("_", "-").replace(".", "/").lower()
+            path = module_name.replace("_", "-").replace(".", "/").lower()
     else:
-        # replace the variables in the template with "none" to create a default path if no path is supplied
+        # replace the variables in the template with "none" to create a default path if
+        # no path is supplied
         path = re.sub("<.*?>", "none", template)
     path = "/" + path if not path.startswith("/") else path
     return path
+
+
+def _module_name_is_package(module_name):
+    return (
+        module_name in sys.modules
+        and Path(sys.modules[module_name].__file__).name == "__init__.py"
+    )
+
+
+def _path_to_module_name(path):
+    return str(path).replace(".py", "").strip(os.sep).replace(os.sep, ".")
+
+
+def _infer_module_name(page_path):
+    relative_path = page_path.split(CONFIG.pages_folder)[-1]
+    module = _path_to_module_name(relative_path)
+    proj_root = flask.helpers.get_root_path(CONFIG.name)
+    if CONFIG.pages_folder.startswith(proj_root):
+        parent_path = CONFIG.pages_folder[len(proj_root) :]
+    else:
+        parent_path = CONFIG.pages_folder
+    parent_module = _path_to_module_name(parent_path)
+
+    module_name = f"{parent_module}.{module}"
+    if _module_name_is_package(CONFIG.name):
+        # Only prefix with CONFIG.name when it's an imported package name
+        module_name = f"{CONFIG.name}.{module_name}"
+    return module_name
 
 
 def _parse_query_string(search):
@@ -115,6 +149,25 @@ def _parse_path_variables(pathname, path_template):
     variables = variables[0] if isinstance(variables[0], tuple) else variables
 
     return dict(zip(var_names, variables))
+
+
+def _create_redirect_function(redirect_to):
+    def redirect():
+        return flask.redirect(redirect_to, code=301)
+
+    return redirect
+
+
+def _set_redirect(redirect_from, path):
+    app = get_app()
+    if redirect_from and len(redirect_from):
+        for redirect in redirect_from:
+            fullname = app.get_relative_path(redirect)
+            app.server.add_url_rule(
+                fullname,
+                fullname,
+                _create_redirect_function(app.get_relative_path(path)),
+            )
 
 
 def register_page(
@@ -250,6 +303,9 @@ def register_page(
     ])
     ```
     """
+    if context_value.get().get("ignore_register_page"):
+        return
+
     _validate.validate_use_pages(CONFIG)
 
     page = dict(
@@ -276,7 +332,7 @@ def register_page(
         image=(image if image is not None else _infer_image(module)),
         image_url=image_url,
     )
-    page.update(redirect_from=redirect_from)
+    page.update(redirect_from=_set_redirect(redirect_from, page["path"]))
 
     PAGE_REGISTRY[module] = page
 

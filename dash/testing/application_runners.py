@@ -13,6 +13,7 @@ import ctypes
 import runpy
 import requests
 import psutil
+
 # pylint: disable=no-member
 import multiprocess
 
@@ -216,7 +217,7 @@ class MultiProcessRunner(BaseDashRunner):
 
     # pylint: disable=arguments-differ
     def start(self, app, start_timeout=3, **kwargs):
-        self.port = kwargs.get('port', 8050)
+        self.port = kwargs.get("port", 8050)
 
         def target():
             app.scripts.config.serve_locally = True
@@ -233,7 +234,7 @@ class MultiProcessRunner(BaseDashRunner):
                 logger.exception(error)
                 raise error
 
-        self.proc = multiprocess.Process(target=target)
+        self.proc = multiprocess.Process(target=target)  # pylint: disable=not-callable
         self.proc.start()
 
         wait.until(lambda: self.accessible(self.url), timeout=start_timeout)

@@ -1,4 +1,4 @@
-import React, {Component, memo} from 'react';
+import React, {Component, memo, useContext} from 'react';
 import PropTypes from 'prop-types';
 import Registry from './registry';
 import {propTypeErrorHandler} from './exceptions';
@@ -82,17 +82,18 @@ function isDryComponent(obj) {
     );
 }
 
-const TreeContainer = memo(props => (
-    <DashContext.Consumer>
-        {context => (
-            <BaseTreeContainer
-                {...context.fn()}
-                {...props}
-                _dashprivate_path={JSON.parse(props._dashprivate_path)}
-            />
-        )}
-    </DashContext.Consumer>
-));
+const DashWrapper = props => {
+    const context = useContext(DashContext);
+    return (
+        <BaseTreeContainer
+            {...context.fn()}
+            {...props}
+            _dashprivate_path={JSON.parse(props._dashprivate_path)}
+        />
+    );
+};
+
+const TreeContainer = memo(DashWrapper);
 
 class BaseTreeContainer extends Component {
     constructor(props) {
@@ -101,15 +102,16 @@ class BaseTreeContainer extends Component {
         this.setProps = this.setProps.bind(this);
     }
 
-    createContainer(props, component, path) {
+    createContainer(props, component, path, key = undefined) {
         return isSimpleComponent(component) ? (
             component
         ) : (
             <TreeContainer
                 key={
-                    component &&
-                    component.props &&
-                    stringifyId(component.props.id)
+                    (component &&
+                        component.props &&
+                        stringifyId(component.props.id)) ||
+                    key
                 }
                 _dashprivate_error={props._dashprivate_error}
                 _dashprivate_layout={component}
@@ -206,7 +208,8 @@ class BaseTreeContainer extends Component {
                               'props',
                               ...childrenProp,
                               i
-                          ])
+                          ]),
+                          i
                       )
                     : n
             );

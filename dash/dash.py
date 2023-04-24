@@ -18,7 +18,6 @@ from urllib.parse import urlparse
 from textwrap import dedent
 
 import flask
-from flask_compress import Compress
 
 from pkg_resources import get_distribution, parse_version
 
@@ -65,12 +64,10 @@ from ._grouping import map_grouping, grouping_len, update_args_group
 
 from . import _pages
 from ._pages import (
+    _infer_module_name,
     _parse_path_variables,
     _parse_query_string,
 )
-
-
-_flask_compress_version = parse_version(get_distribution("flask-compress").version)
 
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
@@ -84,6 +81,9 @@ _default_index = """<!DOCTYPE html>
         {%css%}
     </head>
     <body>
+        <!--[if IE]><script>
+        alert("Dash v2.7+ does not support Internet Explorer. Please use a newer browser.");
+        </script><![endif]-->
         {%app_entry%}
         <footer>
             {%config%}
@@ -120,13 +120,14 @@ _ID_DUMMY = "_pages_dummy"
 try:
     page_container = html.Div(
         [
-            dcc.Location(id=_ID_LOCATION),
-            html.Div(id=_ID_CONTENT),
+            dcc.Location(id=_ID_LOCATION, refresh="callback-nav"),
+            html.Div(id=_ID_CONTENT, disable_n_clicks=True),
             dcc.Store(id=_ID_STORE),
-            html.Div(id=_ID_DUMMY),
+            html.Div(id=_ID_DUMMY, disable_n_clicks=True),
         ]
     )
-except AttributeError:
+# pylint: disable-next=bare-except
+except:  # noqa: E722
     page_container = None
 
 
@@ -200,13 +201,14 @@ class Dash:
         requested.
     :type assets_folder: string
 
-    :param pages_folder: a path, relative to the current working directory,
-        for pages of a multi-page app. Default ``'pages'``.
-    :type pages_folder: string
+    :param pages_folder: a relative or absolute path for pages of a multi-page app.
+        Default ``'pages'``.
+    :type pages_folder: string or pathlib.Path
 
-    :param use_pages:  Default False, or True if you set a non-default ``pages_folder``.
-        When True, the ``pages`` feature for multi-page apps is enabled.
-    :type pages: boolean
+    :param use_pages: When True, the ``pages`` feature for multi-page apps is
+        enabled. If you set a non-default ``pages_folder`` this will be inferred
+        to be True. Default `None`.
+    :type use_pages: boolean
 
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
@@ -258,6 +260,7 @@ class Dash:
     :type serve_locally: boolean
 
     :param compress: Use gzip to compress files and data served by Flask.
+        To use this option, you need to install dash[compress]
         Default ``False``
     :type compress: boolean
 
@@ -328,6 +331,9 @@ class Dash:
     :param background_callback_manager: Background callback manager instance
         to support the ``@callback(..., background=True)`` decorator.
         One of ``DiskcacheManager`` or ``CeleryManager`` currently supported.
+
+    :param add_log_handler: Automatically add a StreamHandler to the app logger
+        if not added previously.
     """
 
     def __init__(  # pylint: disable=too-many-statements
@@ -336,7 +342,7 @@ class Dash:
         server=True,
         assets_folder="assets",
         pages_folder="pages",
-        use_pages=False,
+        use_pages=None,
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
@@ -360,6 +366,7 @@ class Dash:
         update_title="Updating...",
         long_callback_manager=None,
         background_callback_manager=None,
+        add_log_handler=True,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -375,16 +382,6 @@ class Dash:
             self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
-
-        if (
-            self.server is not None
-            and not hasattr(self.server.config, "COMPRESS_ALGORITHM")
-            and _flask_compress_version >= parse_version("1.6.0")
-        ):
-            # flask-compress==1.6.0 changed default to ['br', 'gzip']
-            # and non-overridable default compression with Brotli is
-            # causing performance issues
-            self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
@@ -430,6 +427,7 @@ class Dash:
                 "eager_loading",
                 "serve_locally",
                 "compress",
+                "pages_folder",
             ],
             "Read-only: can only be set in the Dash constructor",
         )
@@ -441,8 +439,8 @@ class Dash:
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
 
-        self.pages_folder = pages_folder
-        self.use_pages = True if pages_folder != "pages" else use_pages
+        self.pages_folder = str(pages_folder)
+        self.use_pages = (pages_folder != "pages") if use_pages is None else use_pages
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -490,12 +488,17 @@ class Dash:
         self._long_callback_count = 0
         self._background_manager = background_callback_manager or long_callback_manager
 
-        self.logger = logging.getLogger(name)
-        self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+        self.logger = logging.getLogger(__name__)
+
+        if not self.logger.handlers and add_log_handler:
+            self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
         if isinstance(plugins, patch_collections_abc("Iterable")):
             for plugin in plugins:
                 plugin.plug(self)
+
+        # tracks internally if a function already handled at least one request.
+        self._got_first_request = {"pages": False, "setup_server": False}
 
         if self.server is not None:
             self.init_app()
@@ -534,15 +537,35 @@ class Dash:
         )
 
         if config.compress:
-            # gzip
-            Compress(self.server)
+            try:
+                # pylint: disable=import-outside-toplevel
+                from flask_compress import Compress
+
+                # gzip
+                Compress(self.server)
+
+                _flask_compress_version = parse_version(
+                    get_distribution("flask-compress").version
+                )
+
+                if not hasattr(
+                    self.server.config, "COMPRESS_ALGORITHM"
+                ) and _flask_compress_version >= parse_version("1.6.0"):
+                    # flask-compress==1.6.0 changed default to ['br', 'gzip']
+                    # and non-overridable default compression with Brotli is
+                    # causing performance issues
+                    self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
+            except ImportError as error:
+                raise ImportError(
+                    "To use the compress option, you need to install dash[compress]"
+                ) from error
 
         @self.server.errorhandler(PreventUpdate)
         def _handle_error(_):
             """Handle a halted callback and return an empty 204 response."""
             return "", 204
 
-        self.server.before_first_request(self._setup_server)
+        self.server.before_request(self._setup_server)
 
         # add a handler for components suites errors to return 404
         self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
@@ -782,14 +805,13 @@ class Dash:
 
         mode = "dev" if self._dev_tools["props_check"] is True else "prod"
 
-        deps = []
-        for js_dist_dependency in _dash_renderer._js_dist_dependencies:
-            dep = {}
-            for key, value in js_dist_dependency.items():
-                dep[key] = value[mode] if isinstance(value, dict) else value
-
-            deps.append(dep)
-
+        deps = [
+            {
+                key: value[mode] if isinstance(value, dict) else value
+                for key, value in js_dist_dependency.items()
+            }
+            for js_dist_dependency in _dash_renderer._js_dist_dependencies
+        ]
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
@@ -1143,7 +1165,7 @@ class Dash:
         self,
         *_args,
         manager=None,
-        interval=None,
+        interval=1000,
         running=None,
         cancel=None,
         progress=None,
@@ -1208,6 +1230,8 @@ class Dash:
             cb = self.callback_map[output]
             func = cb["callback"]
 
+            g.ignore_register_page = cb.get("long", False)
+
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = inputs + state
@@ -1269,6 +1293,10 @@ class Dash:
         return response
 
     def _setup_server(self):
+        if self._got_first_request["setup_server"]:
+            return
+        self._got_first_request["setup_server"] = True
+
         # Apply _force_eager_loading overrides from modules
         eager_loading = self.config.eager_loading
         for module_name in ComponentRegistry.registry:
@@ -1961,9 +1989,10 @@ class Dash:
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
     def _import_layouts_from_pages(self):
-        walk_dir = self.config.pages_folder
-
-        for (root, _, files) in os.walk(walk_dir):
+        for root, dirs, files in os.walk(self.config.pages_folder):
+            dirs[:] = [
+                d for d in dirs if not d.startswith(".") and not d.startswith("_")
+            ]
             for file in files:
                 if (
                     file.startswith("_")
@@ -1971,28 +2000,17 @@ class Dash:
                     or not file.endswith(".py")
                 ):
                     continue
-                with open(os.path.join(root, file), encoding="utf-8") as f:
+                page_path = os.path.join(root, file)
+                with open(page_path, encoding="utf-8") as f:
                     content = f.read()
                     if "register_page" not in content:
                         continue
 
-                page_filename = os.path.join(root, file).replace("\\", "/")
-                _, _, page_filename = page_filename.partition(
-                    walk_dir.replace("\\", "/") + "/"
-                )
-                page_filename = page_filename.replace(".py", "").replace("/", ".")
-
-                pages_folder = (
-                    self.pages_folder.replace("\\", "/").lstrip("/").replace("/", ".")
-                )
-
-                module_name = ".".join([pages_folder, page_filename])
-
-                spec = importlib.util.spec_from_file_location(
-                    module_name, os.path.join(root, file)
-                )
+                module_name = _infer_module_name(page_path)
+                spec = importlib.util.spec_from_file_location(module_name, page_path)
                 page_module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(page_module)
+                sys.modules[module_name] = page_module
 
                 if (
                     module_name in _pages.PAGE_REGISTRY
@@ -2022,8 +2040,12 @@ class Dash:
         if self.pages_folder:
             self._import_layouts_from_pages()
 
-        @self.server.before_first_request
+        @self.server.before_request
         def router():
+            if self._got_first_request["pages"]:
+                return
+            self._got_first_request["pages"] = True
+
             @self.callback(
                 Output(_ID_CONTENT, "children"),
                 Output(_ID_STORE, "data"),
@@ -2044,15 +2066,11 @@ class Dash:
 
                 # get layout
                 if page == {}:
-                    module_404 = (
-                        ".".join([self.pages_folder, "not_found_404"])
-                        if self.pages_folder
-                        else "not_found_404"
-                    )
-                    not_found_404 = _pages.PAGE_REGISTRY.get(module_404)
-                    if not_found_404:
-                        layout = not_found_404["layout"]
-                        title = not_found_404["title"]
+                    for module, page in _pages.PAGE_REGISTRY.items():
+                        if module.split(".")[-1] == "not_found_404":
+                            layout = page["layout"]
+                            title = page["title"]
+                            break
                     else:
                         layout = html.H1("404 - Page not found")
                         title = self.title
@@ -2075,20 +2093,21 @@ class Dash:
             _validate.validate_registry(_pages.PAGE_REGISTRY)
 
             # Set validation_layout
-            self.validation_layout = html.Div(
-                [
-                    page["layout"]() if callable(page["layout"]) else page["layout"]
-                    for page in _pages.PAGE_REGISTRY.values()
-                ]
-                + [
-                    # pylint: disable=not-callable
-                    self.layout()
-                    if callable(self.layout)
-                    else self.layout
-                ]
-            )
-            if _ID_CONTENT not in self.validation_layout:
-                raise Exception("`dash.page_container` not found in the layout")
+            if not self.config.suppress_callback_exceptions:
+                self.validation_layout = html.Div(
+                    [
+                        page["layout"]() if callable(page["layout"]) else page["layout"]
+                        for page in _pages.PAGE_REGISTRY.values()
+                    ]
+                    + [
+                        # pylint: disable=not-callable
+                        self.layout()
+                        if callable(self.layout)
+                        else self.layout
+                    ]
+                )
+                if _ID_CONTENT not in self.validation_layout:
+                    raise Exception("`dash.page_container` not found in the layout")
 
             # Update the page title on page navigation
             self.clientside_callback(
@@ -2100,24 +2119,6 @@ class Dash:
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
             )
-
-            def create_redirect_function(redirect_to):
-                def redirect():
-                    return flask.redirect(redirect_to, code=301)
-
-                return redirect
-
-            # Set redirects
-            for module in _pages.PAGE_REGISTRY:
-                page = _pages.PAGE_REGISTRY[module]
-                if page["redirect_from"] and len(page["redirect_from"]):
-                    for redirect in page["redirect_from"]:
-                        fullname = self.get_relative_path(redirect)
-                        self.server.add_url_rule(
-                            fullname,
-                            fullname,
-                            create_redirect_function(page["relative_path"]),
-                        )
 
     def run_server(self, *args, **kwargs):
         """`run_server` is a deprecated alias of `run` and may be removed in a

@@ -1,7 +1,23 @@
-from dash import Dash, Input, Output, callback_context
+import uuid
+
+from dash import Dash, Input, Output, callback_context, State, MATCH
 
 from dash_test_components import ComponentAsProp
+
+from dash.dcc import Checklist
 from dash.html import Button, Div, Span
+
+
+def opt(u):
+    return {
+        "label": [
+            Button(
+                "click me", id={"type": "button", "index": u}, className="label-button"
+            ),
+            Span(id={"type": "text", "index": u}, className="label-result"),
+        ],
+        "value": u,
+    }
 
 
 def test_rdcap001_component_as_prop(dash_duo):
@@ -238,3 +254,74 @@ def test_rdcap001_component_as_prop(dash_duo):
     dash_duo.wait_for_text_to_equal("#output-dynamic", "Clicked 1")
 
     assert dash_duo.get_logs() == []
+
+
+def test_rdcap002_component_as_props_dynamic_id(dash_duo):
+    # Test for issue 2296
+    app = Dash(__name__)
+    n = 3
+    app.layout = Div(
+        [
+            Button("add options", id="add-option", style={"marginBottom": "25px"}),
+            Checklist([opt(str(uuid.uuid4())) for i in range(n)], id="options"),
+        ]
+    )
+
+    @app.callback(
+        Output("options", "options"),
+        Input("add-option", "n_clicks"),
+        State("options", "options"),
+        prevent_initial_call=True,
+    )
+    def add_option(_, options):
+        return [*options, opt(str(uuid.uuid4()))]
+
+    @app.callback(
+        Output({"type": "text", "index": MATCH}, "children"),
+        Input({"type": "button", "index": MATCH}, "n_clicks"),
+    )
+    def demo(n_clicks):
+        return n_clicks
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_element("#add-option").click()
+    for i in range(1, n + 2):
+        dash_duo.wait_for_text_to_equal(f"#options label:nth-child({i}) span", "")
+        dash_duo.wait_for_element(f"#options label:nth-child({i}) button").click()
+        dash_duo.wait_for_text_to_equal(f"#options label:nth-child({i}) span", "1")
+
+
+def test_rdcap003_side_effect_regression(dash_duo):
+    # Test for #2411, regression introduced by original rdcap002 fix
+    # callback on the same components that is output with same id but not property triggered
+    # on cap components of array type like Checklist.options[] and  Dropdown.options[].
+    app = Dash(__name__)
+
+    app.layout = Div([Button("3<->2", id="a"), Checklist(id="b"), Div(0, id="counter")])
+
+    app.clientside_callback(
+        "function(_, prev) {return parseInt(prev) + 1}",
+        Output("counter", "children"),
+        Input("b", "value"),
+        State("counter", "children"),
+        prevent_initial_call=True,
+    )
+
+    @app.callback(Output("b", "options"), Input("a", "n_clicks"))
+    def opts(n):
+        n_out = 3 - (n or 0) % 2
+        return [str(i) for i in range(n_out)]
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#counter", "0")
+    dash_duo.find_element("#a").click()
+    assert len(dash_duo.find_elements("#b label > input")) == 2
+    dash_duo.wait_for_text_to_equal("#counter", "0")
+    dash_duo.find_element("#a").click()
+    assert len(dash_duo.find_elements("#b label > input")) == 3
+    dash_duo.wait_for_text_to_equal("#counter", "0")
+
+    dash_duo.find_elements("#b label > input")[0].click()
+    dash_duo.wait_for_text_to_equal("#counter", "1")

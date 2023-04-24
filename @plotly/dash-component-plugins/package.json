@@ -17,15 +17,16 @@
   "author": "Marc-André Rivet",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.17.9",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-react": "^7.16.7",
-    "babel-loader": "^8.2.4",
+    "@babel/core": "^7.19.6",
+    "@babel/preset-env": "^7.19.4",
+    "@babel/preset-react": "^7.18.6",
+    "babel-loader": "^8.2.5",
     "react": "^16.8.6",
-    "webpack": "^4.44.2",
-    "webpack-cli": "^4.9.2"
+    "webpack": "^5.76.1",
+    "webpack-cli": "^4.10.0"
   },
   "files": [
-    "dist/index.js"
+    "dist/index.js",
+    "dist/index.js.LICENSE.txt"
   ]
 }

@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import copy
 import os
-from textwrap import fill
+from textwrap import fill, dedent
 
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
@@ -65,11 +65,8 @@ def generate_class_string(
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs and excess named props
-        args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
-        for k in {required_props}:
-            if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+        args = {args}
+        {required_validation}
         super({typename}, self).__init__({argtext})
 '''
 
@@ -87,18 +84,40 @@ def generate_class_string(
         description=description,
         prop_reorder_exceptions=prop_reorder_exceptions,
     ).replace("\r\n", "\n")
+    required_args = required_props(filtered_props)
+    is_children_required = "children" in required_args
+    required_args = [arg for arg in required_args if arg != "children"]
 
     prohibit_events(props)
 
     # pylint: disable=unused-variable
     prop_keys = list(props.keys())
-    if "children" in props:
+    if "children" in props and "children" in list_of_valid_keys:
         prop_keys.remove("children")
         default_argtext = "children=None, "
+        args = "{k: _locals[k] for k in _explicit_args if k != 'children'}"
         argtext = "children=children, **args"
     else:
         default_argtext = ""
+        args = "{k: _locals[k] for k in _explicit_args}"
         argtext = "**args"
+
+    if len(required_args) == 0:
+        required_validation = ""
+    else:
+        required_validation = f"""
+        for k in {required_args}:
+            if k not in args:
+                raise TypeError(
+                    'Required argument `' + k + '` was not specified.')
+        """
+
+    if is_children_required:
+        required_validation += """
+        if 'children' not in _explicit_args:
+            raise TypeError('Required argument children was not specified.')
+        """
+
     default_arglist = [
         (
             f"{p:s}=Component.REQUIRED"
@@ -121,20 +140,23 @@ def generate_class_string(
             )
 
     default_argtext += ", ".join(default_arglist + ["**kwargs"])
-    required_args = required_props(filtered_props)
     nodes = collect_nodes({k: v for k, v in props.items() if k != "children"})
-    return c.format(
-        typename=typename,
-        namespace=namespace,
-        filtered_props=filtered_props,
-        list_of_valid_wildcard_attr_prefixes=wildcard_prefixes,
-        list_of_valid_keys=list_of_valid_keys,
-        docstring=docstring,
-        default_argtext=default_argtext,
-        argtext=argtext,
-        required_props=required_args,
-        children_props=nodes,
-        base_nodes=filter_base_nodes(nodes) + ["children"],
+
+    return dedent(
+        c.format(
+            typename=typename,
+            namespace=namespace,
+            filtered_props=filtered_props,
+            list_of_valid_wildcard_attr_prefixes=wildcard_prefixes,
+            list_of_valid_keys=list_of_valid_keys,
+            docstring=docstring,
+            default_argtext=default_argtext,
+            args=args,
+            argtext=argtext,
+            required_validation=required_validation,
+            children_props=nodes,
+            base_nodes=filter_base_nodes(nodes) + ["children"],
+        )
     )
 
 
@@ -548,6 +570,10 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
             )
         return "list"
 
+    def tuple_of():
+        elements = [js_to_py_type(element) for element in type_object["elements"]]
+        return f"list of {len(elements)} elements: [{', '.join(elements)}]"
+
     return dict(
         array=lambda: "list",
         bool=lambda: "boolean",
@@ -579,6 +605,7 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
         shape=shape_or_exact,
         # React's PropTypes.exact
         exact=shape_or_exact,
+        tuple=tuple_of,
     )
 
 

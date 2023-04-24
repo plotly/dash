@@ -123,12 +123,23 @@ class AttributeDict(dict):
             return next(iter(self), {})
 
 
-def create_callback_id(output):
+def create_callback_id(output, inputs):
     # A single dot within a dict id key or value is OK
     # but in case of multiple dots together escape each dot
     # with `\` so we don't mistake it for multi-outputs
+    hashed_inputs = None
+
     def _concat(x):
-        return x.component_id_str().replace(".", "\\.") + "." + x.component_property
+        nonlocal hashed_inputs
+        _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
+        if x.allow_duplicate:
+            if not hashed_inputs:
+                hashed_inputs = hashlib.md5(
+                    ".".join(str(x) for x in inputs).encode("utf-8")
+                ).hexdigest()
+            # Actually adds on the property part.
+            _id += f"@{hashed_inputs}"
+        return _id
 
     if isinstance(output, (list, tuple)):
         return ".." + "...".join(_concat(x) for x in output) + ".."
@@ -219,7 +230,35 @@ def gen_salt(chars):
     )
 
 
+class OrderedSet(collections.abc.MutableSet):
+    def __init__(self, *args):
+        self._data = []
+        for i in args:
+            self.add(i)
+
+    def add(self, value):
+        if value not in self._data:
+            self._data.append(value)
+
+    def discard(self, value):
+        self._data.remove(value)
+
+    def __contains__(self, x):
+        return x in self._data
+
+    def __len__(self):
+        return len(self._data)
+
+    def __iter__(self):
+        for i in self._data:
+            yield i
+
+
 def coerce_to_list(obj):
     if not isinstance(obj, (list, tuple)):
         return [obj]
     return obj
+
+
+def clean_property_name(name: str):
+    return name.split("@")[0]
