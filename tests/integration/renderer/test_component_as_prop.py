@@ -121,19 +121,21 @@ def test_rdcap001_component_as_prop(dash_duo):
                     },
                 ],
             ),
-            ComponentAsProp(id="dynamic", dynamic={"inside-dynamic": Div("dynamic")}),
-            ComponentAsProp(
-                id="dynamic-dict", dynamic_dict={"node": {"dict-dyn": Div("dict-dyn")}}
-            ),
             ComponentAsProp(
                 dynamic={
+                    "inside-dynamic": Div("dynamic", "inside-dynamic"),
                     "output-dynamic": Div(id="output-dynamic"),
-                    "dyn-clicker": Button("click", id="click-dynamic"),
+                    "clicker": Button("click-dynamic", id="click-dynamic"),
+                    "clicker-dict": Button("click-dict", id="click-dict"),
+                    "clicker-list": Button("click-list", id="click-list"),
+                    "clicker-nested": Button("click-nested", id="click-nested"),
                 },
-            ),
-            ComponentAsProp(
+                dynamic_dict={"node": {"dict-dyn": Div("dict-dyn", id="inside-dict")}},
                 dynamic_list=[
-                    {"dyn-list": Div("dynamic-list")},
+                    {"list": Div("dynamic-list", id="inside-list")},
+                ],
+                dynamic_nested_list=[
+                    {"obj": {"nested": Div("nested", id="nested-dyn")}}
                 ],
             ),
         ]
@@ -194,6 +196,30 @@ def test_rdcap001_component_as_prop(dash_duo):
     def on_click(n_clicks):
         return f"Clicked {n_clicks}"
 
+    @app.callback(
+        Output("inside-dict", "children"),
+        Input("click-dict", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_click(n_clicks):
+        return f"Clicked {n_clicks}"
+
+    @app.callback(
+        Output("inside-list", "children"),
+        Input("click-list", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_click(n_clicks):
+        return f"Clicked {n_clicks}"
+
+    @app.callback(
+        Output("nested-dyn", "children"),
+        Input("click-nested", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_click(n_clicks):
+        return f"Clicked {n_clicks}"
+
     dash_duo.start_server(app)
 
     assert dash_duo.get_logs() == []
@@ -247,11 +273,19 @@ def test_rdcap001_component_as_prop(dash_duo):
     dash_duo.wait_for_text_to_equal("#inside-dynamic", "dynamic")
     dash_duo.wait_for_text_to_equal("#dict-dyn", "dict-dyn")
 
-    dash_duo.wait_for_text_to_equal("#dyn-list", "dynamic-list")
+    dash_duo.wait_for_text_to_equal("#inside-list", "dynamic-list")
 
     dash_duo.find_element("#click-dynamic").click()
-
     dash_duo.wait_for_text_to_equal("#output-dynamic", "Clicked 1")
+
+    dash_duo.find_element("#click-dict").click()
+    dash_duo.wait_for_text_to_equal("#inside-dict", "Clicked 1")
+
+    dash_duo.find_element("#click-list").click()
+    dash_duo.wait_for_text_to_equal("#inside-list", "Clicked 1")
+
+    dash_duo.find_element("#click-nested").click()
+    dash_duo.wait_for_text_to_equal("#nested-dyn", "Clicked 1")
 
     assert dash_duo.get_logs() == []
 

@@ -1,4 +1,15 @@
-import {append, concat, has, path, pathOr, type, path as rpath} from 'ramda';
+import {
+    append,
+    concat,
+    has,
+    path,
+    pathOr,
+    type,
+    path as rpath,
+    findIndex,
+    includes,
+    slice
+} from 'ramda';
 
 /*
  * requests_pathname_prefix is the new config parameter introduced in
@@ -37,11 +48,44 @@ export const crawlLayout = (
         // children array
         object.forEach((child, i) => {
             if (extraPath) {
-                crawlLayout(
-                    rpath(extraPath, child),
-                    func,
-                    concat(currentPath, concat([i], extraPath))
-                );
+                const objOf = findIndex(p => includes('{}', p), extraPath);
+                if (objOf !== -1) {
+                    const front = slice(0, objOf, extraPath);
+                    const back = slice(objOf, extraPath.length, extraPath);
+                    if (front.length) {
+                        crawlLayout(
+                            rpath(front, child),
+                            func,
+                            concat(currentPath, concat([i], front)),
+                            back
+                        );
+                    } else {
+                        const backPath = back
+                            .map(p => p.replace('{}', ''))
+                            .filter(e => e);
+                        let childObj,
+                            childPath = concat([i], backPath);
+                        if (backPath.length) {
+                            childObj = rpath(backPath, child);
+                        } else {
+                            childObj = child;
+                        }
+                        Object.keys(childObj).forEach(key => {
+                            const value = childObj[key];
+                            crawlLayout(
+                                value,
+                                func,
+                                concat(currentPath, childPath.concat([key]))
+                            );
+                        });
+                    }
+                } else {
+                    crawlLayout(
+                        rpath(extraPath, child),
+                        func,
+                        concat(currentPath, concat([i], extraPath))
+                    );
+                }
             } else {
                 crawlLayout(child, func, append(i, currentPath));
             }
@@ -65,13 +109,10 @@ export const crawlLayout = (
                 let [frontPath, backPath] = childrenProp
                     .split('[]')
                     .map(p => p.split('.').filter(e => e));
-                if (childrenProp.includes('{}')) {
-                    // TODO
-                } else {
-                    const front = concat(['props'], frontPath);
-                    const basePath = concat(currentPath, front);
-                    crawlLayout(path(front, object), func, basePath, backPath);
-                }
+
+                const front = concat(['props'], frontPath);
+                const basePath = concat(currentPath, front);
+                crawlLayout(path(front, object), func, basePath, backPath);
             } else {
                 if (childrenProp.includes('{}')) {
                     const opath = childrenProp.split('.');

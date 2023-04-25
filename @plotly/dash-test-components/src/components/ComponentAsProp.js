@@ -12,6 +12,7 @@ const ComponentAsProp = (props) => {
         dynamic,
         dynamic_list,
         dynamic_dict,
+        dynamic_nested_list,
     } = props;
     return (
         <div id={id}>
@@ -28,6 +29,9 @@ const ComponentAsProp = (props) => {
             }
             {
                 dynamic_list && <div>{dynamic_list.map((obj, i) => Object.keys(obj).map(key => <div id={key} key={key}>{obj[key]}</div>))}</div>
+            }
+            {
+                dynamic_nested_list && <div>{dynamic_nested_list.map((e => <>{Object.values(e.obj)}</>))}</div>
             }
         </div>
     )
@@ -63,7 +67,10 @@ ComponentAsProp.propTypes = {
 
     dynamic_dict: PropTypes.shape({
         node: PropTypes.objectOf(PropTypes.node),
-    })
+    }),
+    dynamic_nested_list: PropTypes.arrayOf(
+        PropTypes.shape({ obj: PropTypes.objectOf(PropTypes.node)})
+    ),
 }
 
 export default ComponentAsProp;

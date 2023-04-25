@@ -317,7 +317,14 @@ class BaseTreeContainer extends Component {
                         );
                         let listValue;
                         if (hasObject) {
-                            listValue = handleObject(element, elementPath);
+                            if (backPath.length) {
+                                listValue = handleObject(
+                                    rpath(backPath, element),
+                                    elementPath
+                                );
+                            } else {
+                                listValue = handleObject(element, elementPath);
+                            }
                         } else {
                             listValue = this.wrapChildrenProp(
                                 rpath(backPath, element),
