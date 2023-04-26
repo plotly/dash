@@ -5,7 +5,6 @@ import {
     path,
     pathOr,
     type,
-    path as rpath,
     findIndex,
     includes,
     slice
@@ -54,7 +53,7 @@ export const crawlLayout = (
                     const back = slice(objOf, extraPath.length, extraPath);
                     if (front.length) {
                         crawlLayout(
-                            rpath(front, child),
+                            path(front, child),
                             func,
                             concat(currentPath, concat([i], front)),
                             back
@@ -66,7 +65,7 @@ export const crawlLayout = (
                         let childObj,
                             childPath = concat([i], backPath);
                         if (backPath.length) {
-                            childObj = rpath(backPath, child);
+                            childObj = path(backPath, child);
                         } else {
                             childObj = child;
                         }
@@ -81,7 +80,7 @@ export const crawlLayout = (
                     }
                 } else {
                     crawlLayout(
-                        rpath(extraPath, child),
+                        path(extraPath, child),
                         func,
                         concat(currentPath, concat([i], extraPath))
                     );
