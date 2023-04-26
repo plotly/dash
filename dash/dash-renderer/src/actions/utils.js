@@ -69,14 +69,14 @@ export const crawlLayout = (
                         } else {
                             childObj = child;
                         }
-                        Object.keys(childObj).forEach(key => {
+                        for (const key in childObj) {
                             const value = childObj[key];
                             crawlLayout(
                                 value,
                                 func,
                                 concat(currentPath, childPath.concat([key]))
                             );
-                        });
+                        }
                     }
                 } else {
                     crawlLayout(
@@ -139,7 +139,7 @@ export const crawlLayout = (
 
                     const oValue = path(['props', ...frontPath], object);
                     if (oValue !== undefined) {
-                        Object.keys(oValue).forEach(key => {
+                        for (const key in oValue) {
                             const value = oValue[key];
                             if (backPath.length) {
                                 crawlLayout(
@@ -150,7 +150,7 @@ export const crawlLayout = (
                             } else {
                                 crawlLayout(value, func, [...newPath, key]);
                             }
-                        });
+                        }
                     }
                 } else {
                     const newPath = concat(currentPath, [
