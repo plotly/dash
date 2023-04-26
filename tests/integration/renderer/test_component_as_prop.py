@@ -130,12 +130,27 @@ def test_rdcap001_component_as_prop(dash_duo):
                     "clicker-list": Button("click-list", id="click-list"),
                     "clicker-nested": Button("click-nested", id="click-nested"),
                 },
-                dynamic_dict={"node": {"dict-dyn": Div("dict-dyn", id="inside-dict")}},
+                dynamic_dict={
+                    "node": {
+                        "dict-dyn": Div("dict-dyn", id="inside-dict"),
+                        "dict-2": Div("dict-2", id="inside-dict-2"),
+                    }
+                },
                 dynamic_list=[
-                    {"list": Div("dynamic-list", id="inside-list")},
+                    {
+                        "list": Div("dynamic-list", id="inside-list"),
+                        "list-2": Div("list-2", id="inside-list-2"),
+                    },
+                    {"list-3": Div("list-3", id="inside-list-3")},
                 ],
                 dynamic_nested_list=[
-                    {"obj": {"nested": Div("nested", id="nested-dyn")}}
+                    {"obj": {"nested": Div("nested", id="nested-dyn")}},
+                    {
+                        "obj": {
+                            "nested": Div("nested-2", id="nested-2"),
+                            "nested-again": Div("nested-again", id="nested-again"),
+                        },
+                    },
                 ],
             ),
         ]
@@ -272,8 +287,13 @@ def test_rdcap001_component_as_prop(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#inside-dynamic", "dynamic")
     dash_duo.wait_for_text_to_equal("#dict-dyn", "dict-dyn")
+    dash_duo.wait_for_text_to_equal("#inside-dict-2", "dict-2")
+    dash_duo.wait_for_text_to_equal("#nested-2", "nested-2")
+    dash_duo.wait_for_text_to_equal("#nested-again", "nested-again")
 
     dash_duo.wait_for_text_to_equal("#inside-list", "dynamic-list")
+    dash_duo.wait_for_text_to_equal("#inside-list-2", "list-2")
+    dash_duo.wait_for_text_to_equal("#inside-list-3", "list-3")
 
     dash_duo.find_element("#click-dynamic").click()
     dash_duo.wait_for_text_to_equal("#output-dynamic", "Clicked 1")
