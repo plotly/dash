@@ -21,8 +21,7 @@ import {
     propOr,
     path as rpath,
     pathOr,
-    type,
-    toPairs
+    type
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
@@ -360,10 +359,9 @@ class BaseTreeContainer extends Component {
 
                         const dynValue = rpath(dynamic, props);
                         if (dynValue !== undefined) {
-                            nodeValue = toPairs(dynValue).reduce(
-                                (acc, [k, d]) => ({
-                                    ...acc,
-                                    [k]: this.wrapChildrenProp(
+                            nodeValue = mapObjIndexed(
+                                (d, k) =>
+                                    this.wrapChildrenProp(
                                         hasBack ? rpath(backPath, d) : d,
                                         hasBack
                                             ? concat(
@@ -371,9 +369,8 @@ class BaseTreeContainer extends Component {
                                                   concat([k], backPath)
                                               )
                                             : concat(dynamic, [k])
-                                    )
-                                }),
-                                {}
+                                    ),
+                                dynValue
                             );
                             path = dynamic;
                         }
