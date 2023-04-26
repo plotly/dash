@@ -14,6 +14,7 @@ import {
     has,
     keys,
     map,
+    mapObjIndexed,
     mergeRight,
     pick,
     pickBy,
@@ -255,13 +256,10 @@ class BaseTreeContainer extends Component {
             const childrenProp = childrenProps[i];
 
             const handleObject = (obj, opath) => {
-                return keys(obj).reduce((acc, k) => {
-                    const node = acc[k];
-                    return {
-                        ...acc,
-                        [k]: this.wrapChildrenProp(node, [...opath, k])
-                    };
-                }, obj);
+                return mapObjIndexed(
+                    (node, k) => this.wrapChildrenProp(node, [...opath, k]),
+                    obj
+                );
             };
 
             if (childrenProp.includes('.')) {
