@@ -61,7 +61,8 @@ function extractElements($) {
 
 request(refUrl, (error, response, html) => {
     if (error) {
-        throw error;
+        console.error(error);
+        process.exit(-1);
     }
     const $ = cheerio.load(html);
     const elements = extractElements($);
@@ -79,11 +80,12 @@ request(refUrl, (error, response, html) => {
         catch(e) {
             console.log('no previous elements found');
         }
-        throw new Error(
+        console.error(
             'Unexpected number of elements extracted from ' + refUrl +
             ' - Found ' + elements.length + ' but expected ' + expectedElCount +
             ' Check the output and edit expectedElCount if this is intended.'
         );
+        process.exit(-1);
     }
     const out = elements.join('\n');
 
