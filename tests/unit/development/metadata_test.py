@@ -133,7 +133,7 @@ Keyword arguments:
     def __init__(
         self,
         children: typing.Union[str, int, float, Component, typing.List[typing.Union[str, int, float, Component]]] = None,
-        optionalArray: typing.List = Component.UNDEFINED,
+        optionalArray: typing.Union[typing.List, typing.Tuple] = Component.UNDEFINED,
         optionalBool: bool = Component.UNDEFINED,
         optionalFunc: typing.Any = Component.UNDEFINED,
         optionalNumber: typing.Union[int, float, numbers.Number] = Component.UNDEFINED,

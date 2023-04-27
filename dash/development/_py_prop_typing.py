@@ -147,7 +147,7 @@ def get_prop_typing(type_name: str, component_name: str, prop_name: str, type_in
 
 
 PROP_TYPING = {
-    "array": generate_type("typing.List"),
+    "array": generate_type("typing.Union[typing.List, typing.Tuple]"),
     "arrayOf": generate_array_of,
     "object": generate_type("dict"),
     "shape": generate_shape,
