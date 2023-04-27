@@ -100,7 +100,7 @@ class Patch:
         return _noop
 
     def __iter__(self):
-        raise TypeError("Iterating over patch objects is prohibited.")
+        raise TypeError("Patch objects are write-only, you cannot iterate them.")
 
     def append(self, item):
         """Add the item to the end of a list"""
