@@ -143,7 +143,7 @@ Keyword arguments:
         optionalNode: typing.Union[str, int, float, Component, typing.List[typing.Union[str, int, float, Component]]] = Component.UNDEFINED,
         optionalElement: Component = Component.UNDEFINED,
         optionalMessage: typing.Any = Component.UNDEFINED,
-        optionalEnum: typing.Union[str, str, OptionalEnumEnum] = Component.UNDEFINED,
+        optionalEnum: typing.Union[str, OptionalEnumEnum] = Component.UNDEFINED,
         optionalUnion: typing.Union[str, typing.Union[int, float, numbers.Number], typing.Any] = Component.UNDEFINED,
         optionalArrayOf: typing.List[typing.Union[int, float, numbers.Number]] = Component.UNDEFINED,
         optionalObjectOf: typing.Dict[typing.Union[str, float, int], typing.Union[int, float, numbers.Number]] = Component.UNDEFINED,

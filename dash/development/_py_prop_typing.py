@@ -4,6 +4,7 @@ import string
 import stringcase
 
 from ._all_keywords import python_keywords
+from .._utils import OrderedSet
 
 enums = {}
 enum_template = """class {name}(enum.Enum):
@@ -114,7 +115,7 @@ def generate_enum(type_info, component_name: str, prop_name: str):
     name = stringcase.pascalcase(prop_name) + "Enum"
 
     values = [json.loads(v["value"].replace("'", '"')) for v in type_info["value"] if v]
-    types = [type(v).__name__ for v in values]
+    types = OrderedSet(*[type(v).__name__ for v in values])
     value_type = ", ".join(v for v in types if v != "NoneType")
 
     if not value_type:
