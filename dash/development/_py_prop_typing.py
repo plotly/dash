@@ -94,7 +94,7 @@ def generate_array_of(
     typed = get_prop_typing(
         type_info["value"]["name"], component_name, prop_name, type_info["value"]
     )
-    return f"typing.List[{typed}]"
+    return f"typing.Union[typing.List[{typed}], typing.Tuple]"
 
 
 def generate_object_of(type_info, component_name: str, prop_name: str):

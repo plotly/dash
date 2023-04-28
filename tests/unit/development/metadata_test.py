@@ -16,7 +16,7 @@ class OptionalEnumEnum(enum.Enum):
 
 
 class OptionalObjectWithExactAndNestedDescriptionFigure(TypedDict):
-    data: NotRequired[typing.List[dict]]
+    data: NotRequired[typing.Union[typing.List[dict], typing.Tuple]]
     layout: NotRequired[dict]
 
 
@@ -27,7 +27,7 @@ class OptionalObjectWithExactAndNestedDescription(TypedDict):
 
 
 class OptionalObjectWithShapeAndNestedDescriptionFigure(TypedDict):
-    data: NotRequired[typing.List[dict]]
+    data: NotRequired[typing.Union[typing.List[dict], typing.Tuple]]
     layout: NotRequired[dict]
 
 
@@ -145,13 +145,13 @@ Keyword arguments:
         optionalMessage: typing.Any = Component.UNDEFINED,
         optionalEnum: typing.Union[str, OptionalEnumEnum] = Component.UNDEFINED,
         optionalUnion: typing.Union[str, typing.Union[int, float, numbers.Number], typing.Any] = Component.UNDEFINED,
-        optionalArrayOf: typing.List[typing.Union[int, float, numbers.Number]] = Component.UNDEFINED,
+        optionalArrayOf: typing.Union[typing.List[typing.Union[int, float, numbers.Number]], typing.Tuple] = Component.UNDEFINED,
         optionalObjectOf: typing.Dict[typing.Union[str, float, int], typing.Union[int, float, numbers.Number]] = Component.UNDEFINED,
         optionalObjectWithExactAndNestedDescription: OptionalObjectWithExactAndNestedDescription = Component.UNDEFINED,
         optionalObjectWithShapeAndNestedDescription: OptionalObjectWithShapeAndNestedDescription = Component.UNDEFINED,
         optionalAny: typing.Any = Component.UNDEFINED,
         customProp: typing.Any = Component.UNDEFINED,
-        customArrayProp: typing.List[typing.Any] = Component.UNDEFINED,
+        customArrayProp: typing.Union[typing.List[typing.Any], typing.Tuple] = Component.UNDEFINED,
         id: str = Component.UNDEFINED,
         **kwargs
     ):
