@@ -1,4 +1,7 @@
-Flask>=1.0.4
+Flask==2.2.2;python_version>="3.7"
+Werkzeug==2.2.2;python_version>="3.7"
+Flask==2.0.3;python_version<"3.7"
+Werkzeug==2.0.3;python_version<"3.7"
 plotly>=5.0.0
 dash_html_components==2.0.0
 dash_core_components==2.0.0
