@@ -9,6 +9,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2508](https://github.com/plotly/dash/pull/2508) Fix error message, when callback output has different length than spec
 - [#2207](https://github.com/plotly/dash/pull/2207) Fix object of components support.
 
+## Changed
+
+- [#2516](https://github.com/plotly/dash/pull/2516) Lock Flask/Werkzeug version to 2.2.2 for Python>=3.7 and 2.0.3 for Python < 3.7.
+
 ## [2.9.3] - 2023-04-13
 
 ## Fixed
