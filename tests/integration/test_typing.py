@@ -104,7 +104,7 @@ def assert_pyright_output(
                 "expected_status": 1,
                 "expected_outputs": [
                     'Argument of type "dict[Any, Any]" cannot be assigned to parameter "array_string" '
-                    'of type "List[str]"'
+                    'of type "List[str] | Tuple[Unknown, ...]"'
                 ],
             },
         ),
@@ -218,32 +218,28 @@ def assert_pyright_output(
             "obj=set()",
             {
                 "expected_status": 1,
-            }
+            },
         ),
         (
             "obj={}",
             {
                 "expected_status": 1,
-                "expected_outputs": [
-                    '"value" is required in "Obj"'
-                ]
-            }
+                "expected_outputs": ['"value" is required in "Obj"'],
+            },
         ),
         (
             "obj={'value': 'a', 'label': 1}",
             {
                 "expected_status": 1,
-                "expected_outputs": [
-                    '"Literal[1]" is incompatible with "str"'
-                ]
-            }
+                "expected_outputs": ['"Literal[1]" is incompatible with "str"'],
+            },
         ),
         (
             "obj={'value': 'a', 'label': 'lab'}",
             {
                 "expected_status": 0,
-            }
-        )
+            },
+        ),
     ],
 )
 def test_component_typing(arguments, assertions, tmp_path):

@@ -128,13 +128,15 @@ def test_attrs_match_forbidden_props(component_class):
     # props are not added as attrs unless explicitly provided
     # except for children, which is always set if it's a prop at all.
     expected_attrs = set(reserved_words + ["children"]) - {"_.*"}
-    expected_attrs.update({
-        "OptionalEnumEnum",
-        "OptionalObjectWithExactAndNestedDescription",
-        "OptionalObjectWithExactAndNestedDescriptionFigure",
-        "OptionalObjectWithShapeAndNestedDescription",
-        "OptionalObjectWithShapeAndNestedDescriptionFigure",
-    })
+    expected_attrs.update(
+        {
+            "OptionalEnumEnum",
+            "OptionalObjectWithExactAndNestedDescription",
+            "OptionalObjectWithExactAndNestedDescriptionFigure",
+            "OptionalObjectWithShapeAndNestedDescription",
+            "OptionalObjectWithShapeAndNestedDescriptionFigure",
+        }
+    )
     c = component_class()
     base_attrs = set(dir(c))
     extra_attrs = set(a for a in base_attrs if a[0] != "_")
