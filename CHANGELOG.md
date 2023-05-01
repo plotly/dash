@@ -2,6 +2,13 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#2508](https://github.com/plotly/dash/pull/2508) Fix error message, when callback output has different length than spec
+- [#2207](https://github.com/plotly/dash/pull/2207) Fix object of components support.
+
 ## [2.9.3] - 2023-04-13
 
 ## Fixed

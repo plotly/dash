@@ -15,7 +15,7 @@
     "private::format.black": "black dash_core_components_base/ tests/ setup.py",
     "private::format.eslint": "eslint src --fix",
     "private::format.prettier": "prettier --config .prettierrc --write src/**/*.js",
-    "private::lint.black": "if [[ ${PYVERSION:-python39} != python36 ]]; then black --check dash_core_components_base/ tests/ setup.py; fi",
+    "private::lint.black": "node -e \"if ((process.env.PYVERSION || 'python39') !== 'python36'){process.exit(1)} \" || black --check dash_core_components_base/ tests/ setup.py",
     "private::lint.eslint": "eslint src",
     "private::lint.flake8": "flake8 --exclude=dash_core_components,node_modules,venv",
     "private::lint.prettier": "prettier --config .prettierrc src/**/*.js --list-different",
