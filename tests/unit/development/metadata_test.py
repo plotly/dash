@@ -6,28 +6,6 @@ from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
 
 
-class OptionalObjectWithExactAndNestedDescriptionFigure(TypedDict):
-    data: NotRequired[typing.Union[typing.List[dict], typing.Tuple]]
-    layout: NotRequired[dict]
-
-
-class OptionalObjectWithExactAndNestedDescription(TypedDict):
-    color: NotRequired[str]
-    fontSize: NotRequired[typing.Union[int, float, numbers.Number]]
-    figure: NotRequired[OptionalObjectWithExactAndNestedDescriptionFigure]
-
-
-class OptionalObjectWithShapeAndNestedDescriptionFigure(TypedDict):
-    data: NotRequired[typing.Union[typing.List[dict], typing.Tuple]]
-    layout: NotRequired[dict]
-
-
-class OptionalObjectWithShapeAndNestedDescription(TypedDict):
-    color: NotRequired[str]
-    fontSize: NotRequired[typing.Union[int, float, numbers.Number]]
-    figure: NotRequired[OptionalObjectWithShapeAndNestedDescriptionFigure]
-
-
 class Table(Component):
     """A Table component.
 This is a description of the component.
@@ -115,10 +93,40 @@ Keyword arguments:
     _base_nodes = ['optionalNode', 'optionalElement', 'children']
     _namespace = 'TableComponents'
     _type = 'Table'
-    OptionalObjectWithExactAndNestedDescriptionFigure = OptionalObjectWithExactAndNestedDescriptionFigure
-    OptionalObjectWithExactAndNestedDescription = OptionalObjectWithExactAndNestedDescription
-    OptionalObjectWithShapeAndNestedDescriptionFigure = OptionalObjectWithShapeAndNestedDescriptionFigure
-    OptionalObjectWithShapeAndNestedDescription = OptionalObjectWithShapeAndNestedDescription
+    OptionalObjectWithExactAndNestedDescriptionFigure = TypedDict(
+        "OptionalObjectWithExactAndNestedDescriptionFigure",
+            {
+            "data": NotRequired[typing.Union[typing.List[dict], typing.Tuple]],
+            "layout": NotRequired[dict]
+        }
+    )
+
+    OptionalObjectWithExactAndNestedDescription = TypedDict(
+        "OptionalObjectWithExactAndNestedDescription",
+            {
+            "color": NotRequired[str],
+            "fontSize": NotRequired[typing.Union[int, float, numbers.Number]],
+            "figure": NotRequired["OptionalObjectWithExactAndNestedDescriptionFigure"]
+        }
+    )
+
+    OptionalObjectWithShapeAndNestedDescriptionFigure = TypedDict(
+        "OptionalObjectWithShapeAndNestedDescriptionFigure",
+            {
+            "data": NotRequired[typing.Union[typing.List[dict], typing.Tuple]],
+            "layout": NotRequired[dict]
+        }
+    )
+
+    OptionalObjectWithShapeAndNestedDescription = TypedDict(
+        "OptionalObjectWithShapeAndNestedDescription",
+            {
+            "color": NotRequired[str],
+            "fontSize": NotRequired[typing.Union[int, float, numbers.Number]],
+            "figure": NotRequired["OptionalObjectWithShapeAndNestedDescriptionFigure"]
+        }
+    )
+
     @_explicitize_args
     def __init__(
         self,
@@ -137,8 +145,8 @@ Keyword arguments:
         optionalUnion: typing.Union[str, typing.Union[int, float, numbers.Number], typing.Any] = Component.UNDEFINED,
         optionalArrayOf: typing.Union[typing.List[typing.Union[int, float, numbers.Number]], typing.Tuple] = Component.UNDEFINED,
         optionalObjectOf: typing.Dict[typing.Union[str, float, int], typing.Union[int, float, numbers.Number]] = Component.UNDEFINED,
-        optionalObjectWithExactAndNestedDescription: OptionalObjectWithExactAndNestedDescription = Component.UNDEFINED,
-        optionalObjectWithShapeAndNestedDescription: OptionalObjectWithShapeAndNestedDescription = Component.UNDEFINED,
+        optionalObjectWithExactAndNestedDescription: "OptionalObjectWithExactAndNestedDescription" = Component.UNDEFINED,
+        optionalObjectWithShapeAndNestedDescription: "OptionalObjectWithShapeAndNestedDescription" = Component.UNDEFINED,
         optionalAny: typing.Any = Component.UNDEFINED,
         customProp: typing.Any = Component.UNDEFINED,
         customArrayProp: typing.Union[typing.List[typing.Any], typing.Tuple] = Component.UNDEFINED,

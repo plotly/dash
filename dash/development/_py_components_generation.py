@@ -52,7 +52,7 @@ def generate_class_string(
     # it to be `null` or whether that was just the default value.
     # The solution might be to deal with default values better although
     # not all component authors will supply those.
-    c = '''{extra_types}class {typename}(Component):
+    c = '''class {typename}(Component):
     """{docstring}"""
     _children_props = {children_props}
     _base_nodes = {base_nodes}
@@ -184,8 +184,7 @@ def generate_class_string(
             required_validation=required_validation,
             children_props=nodes,
             base_nodes=filter_base_nodes(nodes) + ["children"],
-            extra_types="".join(shapes.get(typename, {}).values()),
-            shapes="\n".join(f"    {k} = {k}" for k in shapes.get(typename, {}).keys()),
+            shapes="\n".join(shapes.get(typename, {}).values()),
         )
     )
 

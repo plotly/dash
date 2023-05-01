@@ -1,16 +1,14 @@
 import json
 import string
-
+import textwrap
 import stringcase
-
-from ._all_keywords import python_keywords
 
 
 shapes = {}
-shape_template = """class {name}(TypedDict):
-{values}
-
-
+shape_template = """{name} = TypedDict(
+    "{name}",
+    {values}
+)
 """
 
 
@@ -33,24 +31,23 @@ def generate_shape(type_info, component_name: str, prop_name: str):
     name = stringcase.pascalcase(prop_name)
 
     for prop_key, prop_type in type_info["value"].items():
-        if prop_key in python_keywords or prop_key != _clean_key(prop_key):
-            # Got invalid keys
-            return "dict"
-
         typed = get_prop_typing(
             prop_type["name"], component_name, f"{prop_name}_{prop_key}", prop_type
         )
         if not prop_type.get("required"):
-            props.append(f"    {prop_key}: NotRequired[{typed}]")
+            props.append(f'        "{prop_key}": NotRequired[{typed}]')
         else:
-            props.append(f"    {prop_key}: {typed}")
+            props.append(f'        "{prop_key}": {typed}')
 
     shapes.setdefault(component_name, {})
-    shapes[component_name][name] = shape_template.format(
-        name=name, values="\n".join(props)
+    shapes[component_name][name] = textwrap.indent(
+        shape_template.format(
+            name=name, values="    {\n" + ",\n".join(props) + "\n    }"
+        ),
+        "    ",
     )
 
-    return name
+    return f'"{name}"'
 
 
 def generate_union(type_info, component_name: str, prop_name: str):

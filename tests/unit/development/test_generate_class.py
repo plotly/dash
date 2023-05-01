@@ -130,7 +130,6 @@ def test_attrs_match_forbidden_props(component_class):
     expected_attrs = set(reserved_words + ["children"]) - {"_.*"}
     expected_attrs.update(
         {
-            "OptionalEnumEnum",
             "OptionalObjectWithExactAndNestedDescription",
             "OptionalObjectWithExactAndNestedDescriptionFigure",
             "OptionalObjectWithShapeAndNestedDescription",
