@@ -4,18 +4,6 @@ import string
 import stringcase
 
 from ._all_keywords import python_keywords
-from .._utils import OrderedSet
-
-enums = {}
-enum_template = """class {name}(enum.Enum):
-{values}
-
-    def to_plotly_json(self):
-        return self.value
-
-
-"""
-enum_value_template = "    {name} = {value}"
 
 
 shapes = {}
@@ -111,33 +99,23 @@ def generate_type(typename):
     return type_handler
 
 
-def generate_enum(type_info, component_name: str, prop_name: str):
-    name = stringcase.pascalcase(prop_name) + "Enum"
+def _get_literal_value(value):
+    if value is None:
+        return "None"
 
-    values = [json.loads(v["value"].replace("'", '"')) for v in type_info["value"] if v]
-    types = OrderedSet(*[type(v).__name__ for v in values])
-    value_type = ", ".join(v for v in types if v != "NoneType")
+    if isinstance(value, bool):
+        return str(value)
 
-    if not value_type:
-        # FIXME tooltip_header type in dash table only got null.
-        return "typing.Any"
+    return json.dumps(value)
 
-    enums.setdefault(component_name, {})
-    enums[component_name][name] = enum_template.format(
-        name=name,
-        values="\n".join(
-            enum_value_template.format(
-                name=f"_{x}"
-                if not isinstance(x, str) or x in python_keywords
-                else _clean_key(x),
-                value=json.dumps(x) if not isinstance(x, bool) else str(x),
-            )
-            for x in values
-            if x is not None
-        ),
-    )
 
-    return f"typing.Union[{value_type}, {name}]"
+def generate_enum(type_info, *_):
+    values = [
+        _get_literal_value(json.loads(v["value"].replace("'", '"')))
+        for v in type_info["value"]
+        if v
+    ]
+    return f"Literal[{', '.join(values)}]"
 
 
 def get_prop_typing(type_name: str, component_name: str, prop_name: str, type_info):

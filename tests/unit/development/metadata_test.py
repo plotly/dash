@@ -2,17 +2,8 @@
 
 import typing  # noqa: F401
 import numbers # noqa: F401
-import enum # noqa: F401
-from typing_extensions import TypedDict, NotRequired # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
-
-
-class OptionalEnumEnum(enum.Enum):
-    News = "News"
-    Photos = "Photos"
-
-    def to_plotly_json(self):
-        return self.value
 
 
 class OptionalObjectWithExactAndNestedDescriptionFigure(TypedDict):
@@ -124,7 +115,6 @@ Keyword arguments:
     _base_nodes = ['optionalNode', 'optionalElement', 'children']
     _namespace = 'TableComponents'
     _type = 'Table'
-    OptionalEnumEnum = OptionalEnumEnum
     OptionalObjectWithExactAndNestedDescriptionFigure = OptionalObjectWithExactAndNestedDescriptionFigure
     OptionalObjectWithExactAndNestedDescription = OptionalObjectWithExactAndNestedDescription
     OptionalObjectWithShapeAndNestedDescriptionFigure = OptionalObjectWithShapeAndNestedDescriptionFigure
@@ -143,7 +133,7 @@ Keyword arguments:
         optionalNode: typing.Union[str, int, float, Component, typing.List[typing.Union[str, int, float, Component]]] = Component.UNDEFINED,
         optionalElement: Component = Component.UNDEFINED,
         optionalMessage: typing.Any = Component.UNDEFINED,
-        optionalEnum: typing.Union[str, OptionalEnumEnum] = Component.UNDEFINED,
+        optionalEnum: Literal["News", "Photos"] = Component.UNDEFINED,
         optionalUnion: typing.Union[str, typing.Union[int, float, numbers.Number], typing.Any] = Component.UNDEFINED,
         optionalArrayOf: typing.Union[typing.List[typing.Union[int, float, numbers.Number]], typing.Tuple] = Component.UNDEFINED,
         optionalObjectOf: typing.Dict[typing.Union[str, float, int], typing.Union[int, float, numbers.Number]] = Component.UNDEFINED,

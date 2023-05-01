@@ -1,17 +1,16 @@
 from collections import OrderedDict
 import copy
-import enum
 import numbers
 import os
 import typing
 from textwrap import fill, dedent
 
-from typing_extensions import TypedDict, NotRequired
+from typing_extensions import TypedDict, NotRequired, Literal
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from ._collect_nodes import collect_nodes, filter_base_nodes
-from ._py_prop_typing import get_prop_typing, enums, shapes
+from ._py_prop_typing import get_prop_typing, shapes
 from .base_component import Component
 
 
@@ -59,7 +58,6 @@ def generate_class_string(
     _base_nodes = {base_nodes}
     _namespace = '{namespace}'
     _type = '{typename}'
-{enums}
 {shapes}
     @_explicitize_args
     def __init__(
@@ -186,9 +184,7 @@ def generate_class_string(
             required_validation=required_validation,
             children_props=nodes,
             base_nodes=filter_base_nodes(nodes) + ["children"],
-            extra_types="".join(enums.get(typename, {}).values())
-            + "".join(shapes.get(typename, {}).values()),
-            enums="\n".join(f"    {k} = {k}" for k in enums.get(typename, {}).keys()),
+            extra_types="".join(shapes.get(typename, {}).values()),
             shapes="\n".join(f"    {k} = {k}" for k in shapes.get(typename, {}).keys()),
         )
     )
@@ -217,8 +213,7 @@ def generate_class_file(
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
         "import typing  # noqa: F401\n"
         "import numbers # noqa: F401\n"
-        "import enum # noqa: F401\n"
-        "from typing_extensions import TypedDict, NotRequired # noqa: F401\n"
+        "from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401\n"
         "from dash.development.base_component import "
         "Component, _explicitize_args\n\n\n"
     )
@@ -285,9 +280,9 @@ def generate_class(
         "_explicitize_args": _explicitize_args,
         "typing": typing,
         "numbers": numbers,
-        "enum": enum,
         "TypedDict": TypedDict,
         "NotRequired": NotRequired,
+        "Literal": Literal,
     }
     # pylint: disable=exec-used
     exec(string, scope)
