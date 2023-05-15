@@ -253,10 +253,7 @@ def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
             try:
                 if flask.request.method == "OPTIONS":
                     return func(*args, **kwargs)
-                token = (
-                    flask.request.authorization
-                    or flask.request.headers.environ.get("HTTP_AUTHORIZATION")
-                )
+                token = flask.request.headers.environ.get("HTTP_AUTHORIZATION")
                 if required_jwt_len and (
                     not token or len(token) != required_jwt_len + len("Bearer ")
                 ):
