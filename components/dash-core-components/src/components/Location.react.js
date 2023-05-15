@@ -121,6 +121,14 @@ export default class Location extends Component {
         this.updateLocation(this.props);
     }
 
+    componentWillUnmount() {
+        window.onpopstate = () => {};
+        window.removeEventListener(
+            '_dashprivate_pushstate',
+            this.onLocationChange
+        );
+    }
+
     UNSAFE_componentWillReceiveProps(nextProps) {
         this.updateLocation(nextProps);
     }

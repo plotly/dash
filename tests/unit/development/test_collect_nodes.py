@@ -61,6 +61,34 @@ metadata = {
             },
         }
     },
+    "dynamic": {
+        "type": {"name": "objectOf", "value": {"name": "node"}},
+    },
+    "dynamic_list": {
+        "type": {
+            "name": "arrayOf",
+            "value": {"name": "objectOf", "value": {"name": "node"}},
+        }
+    },
+    "dynamic_node_in_dict": {
+        "type": {
+            "name": "shape",
+            "value": {"a": {"name": "objectOf", "value": {"name": "node"}}},
+        }
+    },
+    "dynamic_in_object": {
+        "type": {
+            "name": "objectOf",
+            "value": {
+                "name": "shape",
+                "value": {
+                    "a": {
+                        "name": "node",
+                    }
+                },
+            },
+        }
+    },
 }
 
 
@@ -76,6 +104,10 @@ def test_dcn001_collect_nodes():
         "mixed",
         "direct",
         "nested_list.list[].component",
+        "dynamic{}",
+        "dynamic_list[]{}",
+        "dynamic_node_in_dict.a{}",
+        "dynamic_in_object{}.a",
     ]
 
 
