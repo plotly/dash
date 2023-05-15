@@ -81,9 +81,8 @@ def _custom_formatargvalues(
 
     if len(result) < 40:
         return result
-    else:
-        # Put each arg on a separate line
-        return "(\n    " + ",\n    ".join(specs) + "\n)"
+    # Put each arg on a separate line
+    return "(\n    " + ",\n    ".join(specs) + "\n)"
 
 
 _jupyter_config = {}
@@ -200,9 +199,8 @@ class JupyterDash:
         if not self.in_ipython or self.in_colab:
             # No op when not running in a Jupyter context or when in Colab
             return
-        else:
-            # Assume classic notebook or JupyterLab
-            _request_jupyter_config()
+        # Assume classic notebook or JupyterLab
+        _request_jupyter_config()
 
     def __init__(self):
         self.in_ipython = get_ipython and get_ipython() is not None
@@ -224,7 +222,7 @@ class JupyterDash:
                 if msg_type == "base_url_response":
                     _jupyter_config.update(msg_data)
 
-    # pylint: disable=too-many-locals, too-many-branches
+    # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     def run_app(
         self,
         app,
