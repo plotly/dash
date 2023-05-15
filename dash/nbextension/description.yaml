@@ -1,0 +1,9 @@
+Type: Jupyter Notebook Extension
+Compatibility: 3.x, 4.x, 5.x, 6.x
+Name: Jupyter Dash
+Main: main.js
+Link: README.md
+Description: |
+  Jupyer Dash support
+Parameters:
+- none
