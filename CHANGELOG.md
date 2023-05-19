@@ -8,7 +8,16 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2508](https://github.com/plotly/dash/pull/2508) Fix error message, when callback output has different length than spec
 - [#2207](https://github.com/plotly/dash/pull/2207) Fix object of components support.
+- [#2500](https://github.com/plotly/dash/pull/2500) Passing customdata by click for scattermapbox, fix [#2493](https://github.com/plotly/dash/issues/2493)
 - [#2513](https://github.com/plotly/dash/pull/2513) Raise error when iterating over patch objects, fix [#2512](https://github.com/plotly/dash/issues/2512)
+
+## Updated
+
+- [#2533](https://github.com/plotly/dash/pull/2533) Update Plotly.js to v2.23.1 from v2.20.0.
+  - Feature release [2.23.0](https://github.com/plotly/plotly.js/releases/tag/v2.23.0) adds legend/colorbar xref/yref.
+  - Feature release [2.22.0](https://github.com/plotly/plotly.js/releases/tag/v2.22.0) adds `legend` references to traces.
+  - Feature release [2.21.0](https://github.com/plotly/plotly.js/releases/tag/v2.21.0) adds label.texttemplate to parametric shapes.
+  - Patch release [2.23.1](https://github.com/plotly/plotly.js/releases/tag/v2.23.1) fix heatmap rendering on iOS and Safari when zsmooth is set to false.
 
 ## [2.9.3] - 2023-04-13
 

@@ -34,11 +34,11 @@ def get_relative_path(path):
     When working locally, `requests_pathname_prefix` might be unset and
     so a relative URL like `/page-2` can just be `/page-2`.
     However, when the app is deployed to a URL like `/my-dash-app`, then
-    `app.get_relative_path('/page-2')` will return `/my-dash-app/page-2`.
+    `dash.get_relative_path('/page-2')` will return `/my-dash-app/page-2`.
     This can be used as an alternative to `get_asset_url` as well with
-    `app.get_relative_path('/assets/logo.png')`
+    `dash.get_relative_path('/assets/logo.png')`
 
-    Use this function with `app.strip_relative_path` in callbacks that
+    Use this function with `dash.strip_relative_path` in callbacks that
     deal with `dcc.Location` `pathname` routing.
     That is, your usage may look like:
     ```
@@ -46,13 +46,13 @@ def get_relative_path(path):
         dcc.Location(id='url'),
         html.Div(id='content')
     ])
-    @app.callback(Output('content', 'children'), [Input('url', 'pathname')])
+    @dash.callback(Output('content', 'children'), [Input('url', 'pathname')])
     def display_content(path):
-        page_name = app.strip_relative_path(path)
+        page_name = dash.strip_relative_path(path)
         if not page_name:  # None or ''
             return html.Div([
-                dcc.Link(href=app.get_relative_path('/page-1')),
-                dcc.Link(href=app.get_relative_path('/page-2')),
+                dcc.Link(href=dash.get_relative_path('/page-1')),
+                dcc.Link(href=dash.get_relative_path('/page-2')),
             ])
         elif page_name == 'page-1':
             return chapters.page_1
@@ -90,13 +90,13 @@ def strip_relative_path(path):
         dcc.Location(id='url'),
         html.Div(id='content')
     ])
-    @app.callback(Output('content', 'children'), [Input('url', 'pathname')])
+    @dash.callback(Output('content', 'children'), [Input('url', 'pathname')])
     def display_content(path):
-        page_name = app.strip_relative_path(path)
+        page_name = dash.strip_relative_path(path)
         if not page_name:  # None or ''
             return html.Div([
-                dcc.Link(href=app.get_relative_path('/page-1')),
-                dcc.Link(href=app.get_relative_path('/page-2')),
+                dcc.Link(href=dash.get_relative_path('/page-1')),
+                dcc.Link(href=dash.get_relative_path('/page-2')),
             ])
         elif page_name == 'page-1':
             return chapters.page_1
@@ -113,15 +113,15 @@ def strip_relative_path(path):
     When working locally, `requests_pathname_prefix` might be unset and
     so a relative URL like `/page-2` can just be `/page-2`.
     However, when the app is deployed to a URL like `/my-dash-app`, then
-    `app.get_relative_path('/page-2')` will return `/my-dash-app/page-2`
+    `dash.get_relative_path('/page-2')` will return `/my-dash-app/page-2`
 
     The `pathname` property of `dcc.Location` will return '`/my-dash-app/page-2`'
     to the callback.
-    In this case, `app.strip_relative_path('/my-dash-app/page-2')`
+    In this case, `dash.strip_relative_path('/my-dash-app/page-2')`
     will return `'page-2'`
 
     For nested URLs, slashes are still included:
-    `app.strip_relative_path('/page-1/sub-page-1/')` will return
+    `dash.strip_relative_path('/page-1/sub-page-1/')` will return
     `page-1/sub-page-1`
     ```
     """

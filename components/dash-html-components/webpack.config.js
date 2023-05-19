@@ -46,8 +46,10 @@ module.exports = (env, argv) => {
         output: {
             path: path.resolve(__dirname, dashLibraryName),
             filename,
-            library: dashLibraryName,
-            libraryTarget: 'window',
+            library: {
+                name: dashLibraryName,
+                type: 'window',
+            }
         },
         externals,
         module: {

@@ -113,8 +113,12 @@ def test_click_prev(dash_duo):
             [
                 html.Div("no event listener", className="div-1"),
                 html.Div("event listener", id="div-2", n_clicks=0),
-                html.Div("no event listener", id="div-3", n_clicks=0, disable_n_clicks=True),
-                html.Div("event listener", id="div-4", n_clicks=0, disable_n_clicks=False),
+                html.Div(
+                    "no event listener", id="div-3", n_clicks=0, disable_n_clicks=True
+                ),
+                html.Div(
+                    "event listener", id="div-4", n_clicks=0, disable_n_clicks=False
+                ),
                 html.Div(id="div-output"),
             ]
         )
