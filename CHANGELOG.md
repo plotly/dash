@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2508](https://github.com/plotly/dash/pull/2508) Fix error message, when callback output has different length than spec
 - [#2207](https://github.com/plotly/dash/pull/2207) Fix object of components support.
 - [#2500](https://github.com/plotly/dash/pull/2500) Passing customdata by click for scattermapbox, fix [#2493](https://github.com/plotly/dash/issues/2493)
+- [#2513](https://github.com/plotly/dash/pull/2513) Raise error when iterating over patch objects, fix [#2512](https://github.com/plotly/dash/issues/2512)
 
 ## Updated
 
