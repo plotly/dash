@@ -155,6 +155,38 @@ const stylesheet = [
         style: {
             opacity: 0.5
         }
+    },
+
+    {
+        selector: '.highlight',
+        css: {
+            'background-color': '#ff0000'
+        }
+    },
+
+    {
+        selector: '.hide',
+        css: {
+            display: 'none'
+        }
+    },
+
+    {
+        selector: '.show',
+        css: {
+            display: 'block'
+        }
+    },
+
+    {
+        selector: '.found',
+        css: {
+            'background-color': '#ff0000',
+            'border-width': 20,
+            'border-opacity': 0,
+            'border-color': '#ff0000',
+            'border-style': 'solid'
+        }
     }
 ];
 

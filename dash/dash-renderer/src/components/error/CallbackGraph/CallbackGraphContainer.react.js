@@ -8,6 +8,9 @@ import fcose from 'cytoscape-fcose';
 import {JSONTree} from 'react-json-tree';
 import {keys, mergeRight, omit, path, values} from 'ramda';
 
+//import {MemoSearchBox, SearchBox} from './Search/SearchBox.react';
+import {MemoSearchBox} from './Search/SearchBox.react';
+
 import {getPath} from '../../../actions/paths';
 import {stringifyId} from '../../../actions/dependencies';
 import {onError} from '../../../actions';
@@ -17,8 +20,22 @@ import stylesheet from './CallbackGraphContainerStylesheet';
 import {
     updateSelectedNode,
     updateChangedProps,
-    updateCallback
+    updateCallback,
+    hideZeroCountNodes,
+    focusOnSearchItem
 } from './CallbackGraphEffects';
+
+//import {NewWindow} from '../menu/NewWindow.react';
+
+import {NewWindow} from '../menu/NewWindow.react';
+
+//import { CallbackTable } from '../CallbackTable/CallbackTable.react';
+
+import {layouts} from './CallbackGraphLayouts';
+
+//import { Counter } from './Counter/Counter.react';
+
+/* import useMousetrap from 'react-hook-mousetrap'; */
 
 Cytoscape.use(dagre);
 Cytoscape.use(fcose);
@@ -175,21 +192,6 @@ function cleanOutputId(outputId) {
 // len('__dash_callback__.')
 const cbPrefixLen = 18;
 
-const dagreLayout = {
-    name: 'dagre',
-    padding: 10,
-    ranker: 'tight-tree'
-};
-
-const forceLayout = {name: 'fcose', padding: 10, animate: false};
-
-const layouts = {
-    'top-down': {...dagreLayout, spacingFactor: 0.8},
-    'left-right': {...dagreLayout, nodeSep: 0, rankSep: 80, rankDir: 'LR'},
-    force: forceLayout,
-    'force-loose': forceLayout
-};
-
 function CallbackGraph() {
     // Grab items from the redux store.
     const paths = useSelector(state => state.paths);
@@ -203,16 +205,41 @@ function CallbackGraph() {
     const [selected, setSelected] = useState(null);
     const [cytoscape, setCytoscape] = useState(null);
 
+    const [hideZeroOnly, setHideZeroOnly] = useState(false);
+    const [searchItemId, setSearchItemId] = useState(null);
+    const [searchBoxActive, setSearchBoxActive] = useState(false);
+
     const {graphLayout} = profile;
     const chosenType = graphLayout?._chosenType;
     const layoutSelector = useRef(null);
     const [layoutType, setLayoutType] = useState(chosenType || 'top-down');
+
+    const [portalMode, setPortalMode] = useState(false);
 
     // Generate and memoize the elements.
     const elements = useMemo(
         () => generateElements(graphs, profile, layoutType === 'force'),
         [graphs, layoutType]
     );
+
+    //   const searchbox = useRef(null);
+
+    const toggle_non_zero = () => setHideZeroOnly(!hideZeroOnly);
+    /* 
+    useMousetrap('0', () => toggle_non_zero());
+
+    // need to make this work whenever the input box has focus
+    useMousetrap('esc', e => {
+        e.preventDefault();
+        setSearchBoxActive(false);
+    });
+
+    useMousetrap('s', e => {
+        if (e.target !== document.getElementById('searchBoxInput')) {
+            e.preventDefault();
+            setSearchBoxActive(!searchBoxActive);
+        }
+    }); */
 
     // Custom hook to make sure cytoscape is loaded.
     const useCytoscapeEffect = (effect, condition) => {
@@ -254,6 +281,8 @@ function CallbackGraph() {
         profile.graphLayout = {
             name: 'preset',
             fit: false,
+            //manual add
+            padding: 100,
             positions,
             zoom: cy.zoom(),
             pan: cy.pan(),
@@ -264,7 +293,9 @@ function CallbackGraph() {
     // Adds callbacks once cyctoscape is initialized.
     useCytoscapeEffect(
         cy => {
-            cytoscape.on('tap', 'node', e => setSelected(e.target));
+            cytoscape.on('tap', 'node', e => {
+                setSelected(e.target);
+            });
             cytoscape.on('tap', e => {
                 if (e.target === cy) {
                     setSelected(null);
@@ -273,9 +304,60 @@ function CallbackGraph() {
             cytoscape.on('zoom', setPresetLayout);
             cytoscape.on('pan', setPresetLayout);
             cytoscape.nodes().on('position', setPresetLayout);
+            //cytoscape.removeAllListeners();
         },
         [cytoscape]
     );
+
+    const searchBarOnBlur = () => {
+        setSearchBoxActive(false);
+    };
+
+    const searchBarClicked = () => {
+        setSearchBoxActive(!searchBoxActive);
+    };
+
+    //    const rebindCyEvents = () => {
+    //^^^ does not work
+    //console.log('PORTAL MODE - listeners - Before clear');
+    //console.log(cytoscape);
+    // the actual window stops working ---  confirmed
+    //cytoscape.nodes().removeAllListeners();
+    // ** whatever i do here just adds them back to the main window
+    //cytoscape.on('tap', 'node', e => { setSelected(e.target) });
+    //cytoscape.on('tap', e => {
+    //    if (e.target === cy) {
+    //        setSelected(null);
+    //    }
+    //console.log('PORTAL MODE - listeners - After clear');
+    //console.log(cytoscape);
+    //cytoscape.on('zoom', setPresetLayout(cytoscape));
+    // cytoscape.on('pan', setPresetLayout(cytoscape));
+    //cytoscape.nodes().on('position', setPresetLayout(cytoscape));
+    //   };
+
+    const togglePortalMode = () => {
+        /*         console.log('############# togglePortalMode')
+
+
+        console.log('Before -----')
+        console.log(cytoscape._private.emitter.listeners);
+        console.log(cytoscape._private.renderer.bindings);
+
+        cytoscape.off('tap');
+
+        console.log('After -----')
+        console.log(cytoscape._private.emitter.listeners);
+        console.log(cytoscape._private.renderer.bindings);
+ */
+
+        setTimeout(() => {
+            //         console.log('RESET LISTENERS');
+            cytoscape.resetListeners();
+        }, 2000);
+
+        setPortalMode(!portalMode);
+    };
 
     // Set node classes on selected.
     useCytoscapeEffect(
@@ -284,19 +366,40 @@ function CallbackGraph() {
     );
 
     // Flash classes when props change. Uses changed as a trigger. Also
-    // flash all input edges originating from this node and highlight
+    // flash all input edges originating from this node and
     // the subtree that contains the selected node.
     useCytoscapeEffect(
         cy => changed && updateChangedProps(cy, changed.id, changed.props),
         [changed]
     );
 
+    useCytoscapeEffect(
+        cy => hideZeroCountNodes(cy, hideZeroOnly, layoutType),
+        [hideZeroOnly]
+    );
+
+    useCytoscapeEffect(
+        cy => focusOnSearchItem(cy, searchItemId),
+        [searchItemId]
+    );
+
+    const isProcessingCallbackUpdate = useRef(null);
     // Update callbacks from profiling information.
     useCytoscapeEffect(
-        cy =>
-            profile.updated.forEach(cb =>
-                updateCallback(cy, cb, profile.callbacks[cb])
-            ),
+        cy => {
+            profile.updated.forEach(cb => {
+                if (isProcessingCallbackUpdate.current !== null) {
+                    clearTimeout(isProcessingCallbackUpdate.current);
+                }
+                isProcessingCallbackUpdate.current = updateCallback(
+                    cy,
+                    cb,
+                    profile.callbacks[cb],
+                    hideZeroOnly,
+                    layoutType
+                );
+            });
+        },
         [profile.updated]
     );
 
@@ -392,49 +495,137 @@ function CallbackGraph() {
             ? graphLayout
             : mergeRight(layouts[layoutType], {ready: setPresetLayout});
 
+    const findCSS = () => {
+        return document.querySelectorAll('link, style');
+    };
+
+    /*     const [counter, setCounter] = useState(0);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCounter(prevCounter => prevCounter + 1);
+      }, 1000);
+  
+      return () => {
+        clearInterval(interval);
+      };
+    },[]);
+ */
     return (
-        <div className='dash-callback-dag--container'>
-            <CytoscapeComponent
-                style={{width: '100%', height: '100%'}}
-                cy={setCytoscape}
-                elements={elements}
-                layout={cyLayout}
-                stylesheet={stylesheet}
-            />
-            {selected ? (
-                <div className='dash-callback-dag--info'>
-                    {hasPatterns ? (
-                        <div>
-                            Info isn't supported for pattern-matching IDs at
-                            this time
+        <React.StrictMode>
+            <NewWindow
+                open={portalMode}
+                css={findCSS()}
+                name='dash' /* css={findCSS()} */
+            >
+                {/* <Counter counter={counter}/> */}
+
+                <div
+                    id='cytoscapeContainer'
+                    className={
+                        portalMode
+                            ? 'dash-callback-dag--container-portal'
+                            : 'dash-callback-dag--container'
+                    }
+                >
+                    <CytoscapeComponent
+                        style={{width: '100%', height: '100%'}}
+                        cy={setCytoscape}
+                        elements={elements}
+                        layout={cyLayout}
+                        stylesheet={stylesheet}
+                        //key="Cytoscape"
+                        //hideZeroOnly={hideZeroOnly}
+                    />
+
+                    <div className='menu-bar-container'>
+                        <div className='menu-bar'>
+                            <div className='search-bar'>
+                                <MemoSearchBox
+                                    //   ref={searchbox}
+                                    data={elements}
+                                    active={searchBoxActive}
+                                    onSearchBarClicked={searchBarClicked}
+                                    onBlur={searchBarOnBlur}
+                                    onSelectionChanged={e =>
+                                        setSearchItemId(
+                                            e.currentTarget.dataset.id
+                                        )
+                                    }
+                                    /* key="searchBox" */
+                                />
+                            </div>
+                            <div className='filter-bar'>
+                                <input
+                                    type='checkbox'
+                                    id='chkb_non_zero'
+                                    checked={hideZeroOnly}
+                                    onChange={e => {
+                                        toggle_non_zero(e);
+                                        e.target.blur();
+                                    }}
+                                />
+                                <label
+                                    className='hideZeroOnlyLabel'
+                                    htmlFor='chkb_non_zero'
+                                >
+                                    Hide zero values
+                                </label>
+                                <button onClick={togglePortalMode}>
+                                    Portal
+                                </button>
+                                {/* <button id="enlarge" onClick={openWindow}>Window</button> */}
+                            </div>
+                            <div className='layout-bar'>
+                                <select
+                                    className='layoutSelector'
+                                    onChange={e => {
+                                        e.target.blur();
+                                        setLayoutType(e.target.value);
+                                    }}
+                                    value={layoutType}
+                                    ref={layoutSelector}
+                                >
+                                    {keys(layouts).map(k => (
+                                        <option value={k} key={k}>
+                                            {k}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {selected ? (
+                        <div className='dash-callback-dag--info'>
+                            {hasPatterns ? (
+                                <div>
+                                    Info isn't supported for pattern-matching
+                                    IDs at this time
+                                </div>
+                            ) : null}
+                            <JSONTree
+                                data={elementInfo}
+                                theme='summerfruit'
+                                labelRenderer={_keys =>
+                                    _keys.length === 1 ? elementName : _keys[0]
+                                }
+                                getItemString={(type, data, itemType) => (
+                                    <span>{itemType}</span>
+                                )}
+                                shouldExpandNode={(keyName, data, level) =>
+                                    level < 1
+                                }
+                            />
                         </div>
                     ) : null}
-                    <JSONTree
-                        data={elementInfo}
-                        theme='summerfruit'
-                        labelRenderer={_keys =>
-                            _keys.length === 1 ? elementName : _keys[0]
-                        }
-                        getItemString={(type, data, itemType) => (
-                            <span>{itemType}</span>
-                        )}
-                        shouldExpandNode={(keyName, data, level) => level < 1}
-                    />
+                    {/* 
+                    <CallbackTable>
+F
+                    </CallbackTable> */}
                 </div>
-            ) : null}
-            <select
-                className='dash-callback-dag--layoutSelector'
-                onChange={e => setLayoutType(e.target.value)}
-                value={layoutType}
-                ref={layoutSelector}
-            >
-                {keys(layouts).map(k => (
-                    <option value={k} key={k}>
-                        {k}
-                    </option>
-                ))}
-            </select>
-        </div>
+            </NewWindow>
+        </React.StrictMode>
     );
 }
 

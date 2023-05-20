@@ -1,21 +1,9 @@
 import {STATUS, STATUSMAP} from '../../../constants/constants';
 
-/**
- * getEdgeTypes
- *
- * Finds all edges connected to a node and splits them by type.
- *
- * @param {Object} node - Cytoscape node.
- * @returns {Object} - Object containing the edges, sorted by type.
- */
-function getEdgeTypes(node) {
-    const elements = node.connectedEdges();
-    return {
-        input: elements.filter('[type = "input"]'),
-        state: elements.filter('[type = "state"]'),
-        output: elements.filter('[type = "output"]')
-    };
-}
+import {ascend, descend} from './CallbackGraphTraversal';
+import {layouts} from './CallbackGraphLayouts';
+
+import {mergeRight} from 'ramda';
 
 /**
  * updateSelected
@@ -27,31 +15,6 @@ function getEdgeTypes(node) {
  * @returns {function} - cleanup function, for useEffect hook
  */
 export function updateSelectedNode(cy, id) {
-    function ascend(node, collection) {
-        // FIXME: Should we include State parents but non-recursively?
-        const type = node.data().type === 'callback' ? 'input' : 'output';
-        const edges = getEdgeTypes(node)[type];
-        const parents = edges.sources();
-        collection.merge(edges);
-        collection.merge(parents);
-        if (node.data().type === 'property') {
-            collection.merge(node.ancestors());
-        }
-        parents.forEach(node => ascend(node, collection));
-    }
-
-    function descend(node, collection) {
-        const type = node.data().type === 'callback' ? 'output' : 'input';
-        const edges = getEdgeTypes(node)[type];
-        const children = edges.targets();
-        collection.merge(edges);
-        collection.merge(children);
-        if (node.data().type === 'property') {
-            collection.merge(node.ancestors());
-        }
-        children.forEach(node => descend(node, collection));
-    }
-
     if (id) {
         const node = cy.getElementById(id);
 
@@ -116,7 +79,14 @@ export function updateChangedProps(cy, id, props, flashTime = 500) {
  * @param {Number} flashTime - The time to flash classes for in ms.
  * @returns {undefined}
  */
-export function updateCallback(cy, id, profile, flashTime = 500) {
+export function updateCallback(
+    cy,
+    id,
+    profile,
+    flashTime = 500,
+    hideZeroOnly = false,
+    layoutType = 'top-down'
+) {
     const node = cy.getElementById(`__dash_callback__.${id}`);
     const {count, total, status} = profile;
     const {latest} = status;
@@ -125,6 +95,8 @@ export function updateCallback(cy, id, profile, flashTime = 500) {
     const avgTime = count > 0 ? total / count : 0;
     node.data('count', count);
     node.data('time', Math.round(avgTime));
+
+    let isProcessing = null;
 
     // Either flash the classes OR maintain it for long callbacks.
     if (latest === 'loading') {
@@ -158,4 +130,100 @@ export function updateCallback(cy, id, profile, flashTime = 500) {
     if (latest === STATUSMAP[STATUS.OK]) {
         node.edgesTo('*').flashClass('triggered', flashTime);
     }
+
+    if (hideZeroOnly) {
+        isProcessing = setTimeout(() => {
+            const nonZeroNodes = cy
+                .nodes()
+                .filter(
+                    element =>
+                        element.data('count') !== undefined &&
+                        element.data('count') > 0
+                );
+
+            const nonZeroSubtree = cy.collection();
+            nonZeroSubtree.merge(nonZeroNodes);
+            nonZeroNodes.forEach(nonZeroNode => {
+                ascend(nonZeroNode, nonZeroSubtree);
+                descend(nonZeroNode, nonZeroSubtree);
+            });
+
+            const fitLayout = mergeRight(layouts[layoutType], {fit: true});
+            nonZeroSubtree.layout(fitLayout).run();
+
+            nonZeroSubtree.removeClass('hide').addClass('show');
+
+            isProcessing = null;
+        }, 1000);
+    }
+
+    return isProcessing;
+}
+
+export function hideZeroCountNodes(cy, hideZeroOnly, layoutType = 'top-down') {
+    if (hideZeroOnly) {
+        const zeroNodes = cy
+            .nodes()
+            .filter(
+                element =>
+                    element.data('count') === undefined ||
+                    element.data('count') == 0
+            );
+
+        const zeroEleSubtree = cy.collection();
+        zeroEleSubtree.merge(zeroNodes);
+        zeroNodes.forEach(zeroNode => {
+            ascend(zeroNode, zeroEleSubtree);
+            descend(zeroNode, zeroEleSubtree);
+        });
+
+        zeroEleSubtree.addClass('hide').removeClass('show');
+
+        const nonZeroNodes = cy
+            .nodes()
+            .filter(
+                element =>
+                    element.data('count') !== undefined &&
+                    element.data('count') > 0
+            );
+
+        const nonZeroEleSubtree = cy.collection();
+        nonZeroEleSubtree.merge(nonZeroNodes);
+        nonZeroNodes.forEach(nonZeroNode => {
+            ascend(nonZeroNode, nonZeroEleSubtree);
+            descend(nonZeroNode, nonZeroEleSubtree);
+        });
+
+        nonZeroEleSubtree.removeClass('hide').addClass('show');
+
+        setTimeout(() => {
+            const fitLayout = mergeRight(layouts[layoutType], {fit: true});
+            nonZeroEleSubtree.layout(fitLayout).run();
+        }, 1000);
+    } else {
+        cy.elements()
+            .filter(() => true)
+            .removeClass('hide');
+
+        setTimeout(() => {
+            const fitLayout = mergeRight(layouts[layoutType], {fit: true});
+            cy.layout(fitLayout).run();
+        }, 1000);
+    }
+}
+
+export function focusOnSearchItem(cy, nodeId) {
+    if (nodeId) {
+        const node = cy.getElementById(nodeId);
+
+        const subtree = cy.collection();
+        subtree.merge(node);
+        ascend(node, subtree);
+        descend(node, subtree);
+
+        cy.fit(subtree, 100);
+
+        node.flashClass('found', 1000);
+    }
+    return undefined;
 }
