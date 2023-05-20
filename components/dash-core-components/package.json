@@ -58,7 +58,7 @@
     "react-docgen": "^5.4.3",
     "react-dropzone": "^4.1.2",
     "react-fast-compare": "^3.2.0",
-    "react-markdown": "^4.3.1",
+    "react-markdown": "^8.0.5",
     "react-resize-detector": "^6.7.6",
     "react-select-fast-filter-options": "^0.2.3",
     "react-virtualized-select": "^3.1.3",
