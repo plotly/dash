@@ -30,9 +30,9 @@ try:
     import requests
 
     _dash_comm = Comm(target_name="dash")
-    _has_ipython = True
+    _dep_installed = True
 except ImportError:
-    _has_ipython = False
+    _dep_installed = False
     _dash_comm = None
     get_ipython = None
 
@@ -206,7 +206,7 @@ class JupyterDash:
         self.in_ipython = get_ipython and get_ipython() is not None
         self.in_colab = "google.colab" in sys.modules
 
-        if self.in_ipython and _dash_comm:
+        if _dep_installed and self.in_ipython and _dash_comm:
 
             @_dash_comm.on_msg
             def _receive_message(msg):
@@ -490,7 +490,7 @@ class JupyterDash:
 
     @property
     def active(self):
-        return self.in_ipython or self.in_colab
+        return _dep_installed and (self.in_ipython or self.in_colab)
 
 
 jupyter_dash = JupyterDash()
