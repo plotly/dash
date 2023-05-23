@@ -1,4 +1,4 @@
-import {any, filter, forEach, map, path} from 'ramda';
+import {any, filter, map, path} from 'ramda';
 
 import {Store, Unsubscribe} from 'redux';
 
@@ -58,7 +58,9 @@ export default class StoreObserver<TStore> {
             this._unsubscribe = store.subscribe(this.notify);
         }
 
-        forEach(o => (o.lastState = null), this._observers);
+        this._observers.forEach(o => {
+            o.lastState = null;
+        });
     };
 
     private add = (observer: Observer<Store<TStore>>, inputs: string[]) =>
@@ -84,13 +86,15 @@ export default class StoreObserver<TStore> {
             this._observers
         );
 
-        forEach(o => (o.triggered = true), triggered);
+        triggered.forEach(o => {
+            o.triggered = true;
+        });
 
-        forEach(o => {
+        triggered.forEach(o => {
             o.lastState = store.getState();
             o.observer(store);
             o.triggered = false;
-        }, triggered);
+        });
     };
 
     private remove = (observer: Observer<Store<TStore>>) =>
