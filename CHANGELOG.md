@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Changed
 
-- [#2538](https://github.com/plotly/dash/pull/2538) Add an upper bound to Flask and Werkzeug versions at `<2.2.3`, to reflect the fact that we expect the Dash ecosystem to be incompatible with the next minor release of Flask. This excludes the current latest Flask release 2.3.x, we will raise that to `<2.4` after we fix incompatibilities elsewhere in the Dash ecosystem.
+- [#2538](https://github.com/plotly/dash/pull/2538) Add an upper bound to Flask and Werkzeug versions at `<2.2.3` because we expect the Dash ecosystem to be incompatible with the next minor release of Flask (this excludes the current latest Flask release 2.3.x). We will raise the upper bound to `<2.4` after we fix incompatibilities elsewhere in the Dash ecosystem.
 
 ## Fixed
 
