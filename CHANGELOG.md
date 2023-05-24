@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2538](https://github.com/plotly/dash/pull/2538) Add an upper bound to Flask and Werkzeug versions at `<2.2.3` because we expect the Dash ecosystem to be incompatible with the next minor release of Flask (this excludes the current latest Flask release 2.3.x). We will raise the upper bound to `<2.4` after we fix incompatibilities elsewhere in the Dash ecosystem.
 
+## Added
+
+- [#2540](https://github.com/plotly/dash/pull/2540) Add `include_pages_meta=True` to `Dash._init__`, fix [#2536](https://github.com/plotly/dash/issues/2536).
+
 ## Fixed
 
 - [#2508](https://github.com/plotly/dash/pull/2508) Fix error message, when callback output has different length than spec
