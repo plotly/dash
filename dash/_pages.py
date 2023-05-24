@@ -5,7 +5,6 @@ import sys
 from fnmatch import fnmatch
 from pathlib import Path
 from os.path import isfile, join
-from textwrap import dedent
 from urllib.parse import parse_qs
 
 import flask
@@ -397,19 +396,14 @@ def _page_meta_tags(app):
     if callable(description):
         description = description(**path_variables) if path_variables else description()
 
-    return dedent(
-        f"""
-        <meta name="description" content="{description}" />
-        <!-- Twitter Card data -->
-        <meta property="twitter:card" content="summary_large_image">
-        <meta property="twitter:url" content="{flask.request.url}">
-        <meta property="twitter:title" content="{title}">
-        <meta property="twitter:description" content="{description}">
-        <meta property="twitter:image" content="{image_url}">
-        <!-- Open Graph data -->
-        <meta property="og:title" content="{title}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:description" content="{description}" />
-        <meta property="og:image" content="{image_url}">
-        """
-    )
+    return [
+        {"name": "description", "content": description},
+        {"property": "twitter:card", "content": "summary_large_image"},
+        {"property": "twitter:url", "content": flask.request.url},
+        {"property": "twitter:title", "content": title},
+        {"property": "twitter:description", "content": description},
+        {"property": "twitter:image", "content": image_url},
+        {"property": "og:title", "content": title},
+        {"property": "og:description", "content": description},
+        {"property": "og:image_url", "content": image_url},
+    ]

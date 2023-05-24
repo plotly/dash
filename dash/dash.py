@@ -859,27 +859,24 @@ class Dash:
     def _generate_renderer(self):
         return f'<script id="_dash-renderer" type="application/javascript">{self.renderer}</script>'
 
-    def _generate_meta_html(self):
-        meta_tags = self.config.meta_tags
+    def _generate_meta(self):
+        meta_tags = self.config.meta_tags.copy()
         has_ie_compat = any(
             x.get("http-equiv", "") == "X-UA-Compatible" for x in meta_tags
         )
         has_charset = any("charset" in x for x in meta_tags)
         has_viewport = any(x.get("name") == "viewport" for x in meta_tags)
 
-        tags = []
         if not has_ie_compat:
-            tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
+            meta_tags.append({"http-equiv": "X-UA-Compatible", "content": "IE=edge"})
         if not has_charset:
-            tags.append('<meta charset="UTF-8">')
+            meta_tags.append({"charset": "UTF-8"})
         if not has_viewport:
-            tags.append(
-                '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            meta_tags.append(
+                {"name": "viewport", "content": "width=device-width, initial-scale=1"}
             )
 
-        tags += [format_tag("meta", x, opened=True) for x in meta_tags]
-
-        return "\n      ".join(tags)
+        return meta_tags
 
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, fingerprinted_path):
@@ -924,14 +921,14 @@ class Dash:
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
-        metas = self._generate_meta_html()
+        metas = self._generate_meta()
         renderer = self._generate_renderer()
 
         # use self.title instead of app.config.title for backwards compatibility
         title = self.title
-        pages_metas = ""
+
         if self.use_pages and self.config.include_pages_meta:
-            pages_metas = _page_meta_tags(self)
+            metas += _page_meta_tags(self)
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
@@ -948,8 +945,12 @@ class Dash:
             opened=True,
         )
 
+        tags = "\n      ".join(
+            format_tag("meta", x, opened=True, sanitize=True) for x in metas
+        )
+
         index = self.interpolate_index(
-            metas=pages_metas + metas,
+            metas=tags,
             title=title,
             css=css,
             config=config,

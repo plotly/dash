@@ -10,6 +10,7 @@ import io
 import json
 import secrets
 import string
+from html import escape
 from functools import wraps
 
 logger = logging.getLogger()
@@ -30,8 +31,12 @@ def interpolate_str(template, **data):
     return s
 
 
-def format_tag(tag_name, attributes, inner="", closed=False, opened=False):
-    attributes = " ".join([f'{k}="{v}"' for k, v in attributes.items()])
+def format_tag(
+    tag_name, attributes, inner="", closed=False, opened=False, sanitize=False
+):
+    attributes = " ".join(
+        [f'{k}="{escape(v) if sanitize else v}"' for k, v in attributes.items()]
+    )
     tag = f"<{tag_name} {attributes}"
     if closed:
         tag += "/>"
