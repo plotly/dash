@@ -862,10 +862,10 @@ class Dash:
     def _generate_meta(self):
         meta_tags = []
         has_ie_compat = any(
-            x.get("http-equiv", "") == "X-UA-Compatible" for x in meta_tags
+            x.get("http-equiv", "") == "X-UA-Compatible" for x in self.config.meta_tags
         )
-        has_charset = any("charset" in x for x in meta_tags)
-        has_viewport = any(x.get("name") == "viewport" for x in meta_tags)
+        has_charset = any("charset" in x for x in self.config.meta_tags)
+        has_viewport = any(x.get("name") == "viewport" for x in self.config.meta_tags)
 
         if not has_ie_compat:
             meta_tags.append({"http-equiv": "X-UA-Compatible", "content": "IE=edge"})
