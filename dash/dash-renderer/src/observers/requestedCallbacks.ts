@@ -4,7 +4,6 @@ import {
     difference,
     filter,
     flatten,
-    forEach,
     groupBy,
     includes,
     intersection,
@@ -96,43 +95,53 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         let rDuplicates: ICallback[] = [];
         const rMergedDuplicates: ICallback[] = [];
 
-        forEach(group => {
-            if (group.length === 1) {
-                // keep callback if its the only one of its kind
-                rMergedDuplicates.push(group[0]);
-            } else {
-                const initial = group.find(cb => cb.initialCall);
-                if (initial) {
-                    // drop the initial callback if it's not alone
-                    rDuplicates.push(initial);
-                }
-
-                const groupWithoutInitial = group.filter(cb => cb !== initial);
-                if (groupWithoutInitial.length === 1) {
-                    // if there's only one callback beside the initial one, keep that callback
-                    rMergedDuplicates.push(groupWithoutInitial[0]);
+        values(groupBy<ICallback>(getUniqueIdentifier, requested)).forEach(
+            group => {
+                if (group.length === 1) {
+                    // keep callback if its the only one of its kind
+                    rMergedDuplicates.push(group[0]);
                 } else {
-                    // otherwise merge all remaining callbacks together
-                    rDuplicates = concat(rDuplicates, groupWithoutInitial);
-                    rMergedDuplicates.push(
-                        mergeLeft(
-                            {
-                                changedPropIds: reduce(
-                                    mergeWith(Math.max),
-                                    {},
-                                    pluck('changedPropIds', groupWithoutInitial)
-                                ),
-                                executionGroup: filter(
-                                    exg => Boolean(exg),
-                                    pluck('executionGroup', groupWithoutInitial)
-                                ).slice(-1)[0]
-                            } as any,
-                            groupWithoutInitial.slice(-1)[0]
-                        ) as ICallback
+                    const initial = group.find(cb => cb.initialCall);
+                    if (initial) {
+                        // drop the initial callback if it's not alone
+                        rDuplicates.push(initial);
+                    }
+
+                    const groupWithoutInitial = group.filter(
+                        cb => cb !== initial
                     );
+                    if (groupWithoutInitial.length === 1) {
+                        // if there's only one callback beside the initial one, keep that callback
+                        rMergedDuplicates.push(groupWithoutInitial[0]);
+                    } else {
+                        // otherwise merge all remaining callbacks together
+                        rDuplicates = concat(rDuplicates, groupWithoutInitial);
+                        rMergedDuplicates.push(
+                            mergeLeft(
+                                {
+                                    changedPropIds: reduce(
+                                        mergeWith(Math.max),
+                                        {},
+                                        pluck(
+                                            'changedPropIds',
+                                            groupWithoutInitial
+                                        )
+                                    ),
+                                    executionGroup: filter(
+                                        exg => Boolean(exg),
+                                        pluck(
+                                            'executionGroup',
+                                            groupWithoutInitial
+                                        )
+                                    ).slice(-1)[0]
+                                } as any,
+                                groupWithoutInitial.slice(-1)[0]
+                            ) as ICallback
+                        );
+                    }
                 }
             }
-        }, values(groupBy<ICallback>(getUniqueIdentifier, requested)));
+        );
 
         /*
             TODO?
