@@ -63,10 +63,10 @@ from ._grouping import map_grouping, grouping_len, update_args_group
 
 from . import _pages
 from ._pages import (
-    _infer_module_name,
     _parse_query_string,
     _page_meta_tags,
     _path_to_page,
+    _import_layouts_from_pages,
 )
 
 # Add explicit mapping for map files
@@ -860,7 +860,7 @@ class Dash:
         return f'<script id="_dash-renderer" type="application/javascript">{self.renderer}</script>'
 
     def _generate_meta(self):
-        meta_tags = self.config.meta_tags.copy()
+        meta_tags = []
         has_ie_compat = any(
             x.get("http-equiv", "") == "X-UA-Compatible" for x in meta_tags
         )
@@ -876,7 +876,7 @@ class Dash:
                 {"name": "viewport", "content": "width=device-width, initial-scale=1"}
             )
 
-        return meta_tags
+        return meta_tags + self.config.meta_tags
 
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, fingerprinted_path):
@@ -1954,44 +1954,11 @@ class Dash:
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
-    def _import_layouts_from_pages(self):
-        for root, dirs, files in os.walk(self.config.pages_folder):
-            dirs[:] = [
-                d for d in dirs if not d.startswith(".") and not d.startswith("_")
-            ]
-            for file in files:
-                if (
-                    file.startswith("_")
-                    or file.startswith(".")
-                    or not file.endswith(".py")
-                ):
-                    continue
-                page_path = os.path.join(root, file)
-                with open(page_path, encoding="utf-8") as f:
-                    content = f.read()
-                    if "register_page" not in content:
-                        continue
-
-                module_name = _infer_module_name(page_path)
-                spec = importlib.util.spec_from_file_location(module_name, page_path)
-                page_module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(page_module)
-                sys.modules[module_name] = page_module
-
-                if (
-                    module_name in _pages.PAGE_REGISTRY
-                    and not _pages.PAGE_REGISTRY[module_name]["supplied_layout"]
-                ):
-                    _validate.validate_pages_layout(module_name, page_module)
-                    _pages.PAGE_REGISTRY[module_name]["layout"] = getattr(
-                        page_module, "layout"
-                    )
-
     def enable_pages(self):
         if not self.use_pages:
             return
         if self.pages_folder:
-            self._import_layouts_from_pages()
+            _import_layouts_from_pages(self.config.pages_folder)
 
         @self.server.before_request
         def router():

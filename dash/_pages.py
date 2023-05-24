@@ -1,4 +1,5 @@
 import collections
+import importlib
 import os
 import re
 import sys
@@ -402,8 +403,34 @@ def _page_meta_tags(app):
         {"property": "twitter:url", "content": flask.request.url},
         {"property": "twitter:title", "content": title},
         {"property": "twitter:description", "content": description},
-        {"property": "twitter:image", "content": image_url},
+        {"property": "twitter:image", "content": image_url or ""},
         {"property": "og:title", "content": title},
         {"property": "og:description", "content": description},
-        {"property": "og:image_url", "content": image_url},
+        {"property": "og:image_url", "content": image_url or ""},
     ]
+
+
+def _import_layouts_from_pages(pages_folder):
+    for root, dirs, files in os.walk(pages_folder):
+        dirs[:] = [d for d in dirs if not d.startswith(".") and not d.startswith("_")]
+        for file in files:
+            if file.startswith("_") or file.startswith(".") or not file.endswith(".py"):
+                continue
+            page_path = os.path.join(root, file)
+            with open(page_path, encoding="utf-8") as f:
+                content = f.read()
+                if "register_page" not in content:
+                    continue
+
+            module_name = _infer_module_name(page_path)
+            spec = importlib.util.spec_from_file_location(module_name, page_path)
+            page_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(page_module)
+            sys.modules[module_name] = page_module
+
+            if (
+                module_name in PAGE_REGISTRY
+                and not PAGE_REGISTRY[module_name]["supplied_layout"]
+            ):
+                _validate.validate_pages_layout(module_name, page_module)
+                PAGE_REGISTRY[module_name]["layout"] = getattr(page_module, "layout")
