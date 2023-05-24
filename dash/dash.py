@@ -15,7 +15,6 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from textwrap import dedent
 
 import flask
 
@@ -65,8 +64,9 @@ from ._grouping import map_grouping, grouping_len, update_args_group
 from . import _pages
 from ._pages import (
     _infer_module_name,
-    _parse_path_variables,
     _parse_query_string,
+    _page_meta_tags,
+    _path_to_page,
 )
 
 # Add explicit mapping for map files
@@ -210,6 +210,9 @@ class Dash:
         to be True. Default `None`.
     :type use_pages: boolean
 
+    :param include_pages_meta: Include the page meta tags for twitter cards.
+    :type include_pages_meta: bool
+
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
         where ``asset_path`` is the path to a file inside ``assets_folder``.
@@ -348,6 +351,7 @@ class Dash:
         assets_external_path=None,
         eager_loading=False,
         include_assets_files=True,
+        include_pages_meta=True,
         url_base_pathname=None,
         requests_pathname_prefix=None,
         routes_pathname_prefix=None,
@@ -418,6 +422,7 @@ class Dash:
             extra_hot_reload_paths=extra_hot_reload_paths or [],
             title=title,
             update_title=update_title,
+            include_pages_meta=include_pages_meta,
         )
         self.config.set_read_only(
             [
@@ -876,46 +881,6 @@ class Dash:
 
         return "\n      ".join(tags)
 
-    def _pages_meta_tags(self):
-        start_page, path_variables = self._path_to_page(flask.request.path.strip("/"))
-
-        # use the supplied image_url or create url based on image in the assets folder
-        image = start_page.get("image", "")
-        if image:
-            image = self.get_asset_url(image)
-        assets_image_url = (
-            "".join([flask.request.url_root, image.lstrip("/")]) if image else None
-        )
-        supplied_image_url = start_page.get("image_url")
-        image_url = supplied_image_url if supplied_image_url else assets_image_url
-
-        title = start_page.get("title", self.title)
-        if callable(title):
-            title = title(**path_variables) if path_variables else title()
-
-        description = start_page.get("description", "")
-        if callable(description):
-            description = (
-                description(**path_variables) if path_variables else description()
-            )
-
-        return dedent(
-            f"""
-            <meta name="description" content="{description}" />
-            <!-- Twitter Card data -->
-            <meta property="twitter:card" content="summary_large_image">
-            <meta property="twitter:url" content="{flask.request.url}">
-            <meta property="twitter:title" content="{title}">
-            <meta property="twitter:description" content="{description}">
-            <meta property="twitter:image" content="{image_url}">
-            <!-- Open Graph data -->
-            <meta property="og:title" content="{title}" />
-            <meta property="og:type" content="website" />
-            <meta property="og:description" content="{description}" />
-            <meta property="og:image" content="{image_url}">
-            """
-        )
-
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, fingerprinted_path):
         path_in_pkg, has_fingerprint = check_fingerprint(fingerprinted_path)
@@ -965,8 +930,8 @@ class Dash:
         # use self.title instead of app.config.title for backwards compatibility
         title = self.title
         pages_metas = ""
-        if self.use_pages:
-            pages_metas = self._pages_meta_tags()
+        if self.use_pages and self.config.include_pages_meta:
+            pages_metas = _page_meta_tags(self)
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
@@ -2021,19 +1986,6 @@ class Dash:
                         page_module, "layout"
                     )
 
-    @staticmethod
-    def _path_to_page(path_id):
-        path_variables = None
-        for page in _pages.PAGE_REGISTRY.values():
-            if page["path_template"]:
-                template_id = page["path_template"].strip("/")
-                path_variables = _parse_path_variables(path_id, template_id)
-                if path_variables:
-                    return page, path_variables
-            if path_id == page["path"].strip("/"):
-                return page, path_variables
-        return {}, None
-
     def enable_pages(self):
         if not self.use_pages:
             return
@@ -2060,9 +2012,7 @@ class Dash:
                 """
 
                 query_parameters = _parse_query_string(search)
-                page, path_variables = self._path_to_page(
-                    self.strip_relative_path(pathname)
-                )
+                page, path_variables = _path_to_page(self.strip_relative_path(pathname))
 
                 # get layout
                 if page == {}:

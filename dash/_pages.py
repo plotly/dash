@@ -5,6 +5,7 @@ import sys
 from fnmatch import fnmatch
 from pathlib import Path
 from os.path import isfile, join
+from textwrap import dedent
 from urllib.parse import parse_qs
 
 import flask
@@ -360,3 +361,55 @@ def register_page(
         key=lambda i: (str(i.get("order", i["module"])), i["module"]),
     ):
         PAGE_REGISTRY.move_to_end(page["module"])
+
+
+def _path_to_page(path_id):
+    path_variables = None
+    for page in PAGE_REGISTRY.values():
+        if page["path_template"]:
+            template_id = page["path_template"].strip("/")
+            path_variables = _parse_path_variables(path_id, template_id)
+            if path_variables:
+                return page, path_variables
+        if path_id == page["path"].strip("/"):
+            return page, path_variables
+    return {}, None
+
+
+def _page_meta_tags(app):
+    start_page, path_variables = _path_to_page(flask.request.path.strip("/"))
+
+    # use the supplied image_url or create url based on image in the assets folder
+    image = start_page.get("image", "")
+    if image:
+        image = app.get_asset_url(image)
+    assets_image_url = (
+        "".join([flask.request.url_root, image.lstrip("/")]) if image else None
+    )
+    supplied_image_url = start_page.get("image_url")
+    image_url = supplied_image_url if supplied_image_url else assets_image_url
+
+    title = start_page.get("title", app.title)
+    if callable(title):
+        title = title(**path_variables) if path_variables else title()
+
+    description = start_page.get("description", "")
+    if callable(description):
+        description = description(**path_variables) if path_variables else description()
+
+    return dedent(
+        f"""
+        <meta name="description" content="{description}" />
+        <!-- Twitter Card data -->
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="{flask.request.url}">
+        <meta property="twitter:title" content="{title}">
+        <meta property="twitter:description" content="{description}">
+        <meta property="twitter:image" content="{image_url}">
+        <!-- Open Graph data -->
+        <meta property="og:title" content="{title}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:description" content="{description}" />
+        <meta property="og:image" content="{image_url}">
+        """
+    )
