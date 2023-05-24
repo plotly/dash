@@ -405,6 +405,7 @@ def _page_meta_tags(app):
         {"property": "twitter:description", "content": description},
         {"property": "twitter:image", "content": image_url or ""},
         {"property": "og:title", "content": title},
+        {"property": "og:type", "content": "website"},
         {"property": "og:description", "content": description},
         {"property": "og:image_url", "content": image_url or ""},
     ]
