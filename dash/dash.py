@@ -928,7 +928,7 @@ class Dash:
         title = self.title
 
         if self.use_pages and self.config.include_pages_meta:
-            metas += _page_meta_tags(self)
+            metas = _page_meta_tags(self) + metas
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(

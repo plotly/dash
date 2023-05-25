@@ -407,7 +407,7 @@ def _page_meta_tags(app):
         {"property": "og:title", "content": title},
         {"property": "og:type", "content": "website"},
         {"property": "og:description", "content": description},
-        {"property": "og:image_url", "content": image_url or ""},
+        {"property": "og:image", "content": image_url or ""},
     ]
 
 
