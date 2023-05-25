@@ -37,7 +37,7 @@ export const getSingleColumnMap = (
         return map;
     }
 
-    R.forEach(s => {
+    statements.forEach(s => {
         if (s.lexeme.type === LexemeType.UnaryOperator && s.left) {
             const sanitizedColumnId = s.left.lexeme.present
                 ? s.left.lexeme.present(s.left)
@@ -90,7 +90,7 @@ export const getSingleColumnMap = (
                 );
             }
         }
-    }, statements);
+    });
 
     return map;
 };

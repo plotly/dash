@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import React, {MouseEvent} from 'react';
 
 import {memoizeOne} from 'core/memoizer';
@@ -9,7 +8,6 @@ import {
     Columns,
     ICellCoordinates,
     SelectedCells,
-    Datum,
     ColumnId,
     IViewportOffset,
     Presentation,
@@ -32,20 +30,18 @@ class Wrappers {
 
     partialGet = memoizeOne(
         (columns: Columns, data: Data, offset: IViewportOffset) =>
-            R.addIndex<Datum, JSX.Element[]>(R.map)(
-                (_, rowIndex) =>
-                    R.addIndex<IColumn, JSX.Element>(R.map)(
-                        (column, columnIndex) =>
-                            this.getWrapper(
-                                false,
-                                false,
-                                rowIndex + offset.rows,
-                                columnIndex,
-                                column
-                            ),
-                        columns
-                    ),
-                data
+            data.map((_, rowIndex) =>
+                columns.map(
+                    (column, columnIndex) =>
+                        this.getWrapper(
+                            false,
+                            false,
+                            rowIndex + offset.rows,
+                            columnIndex,
+                            column
+                        ),
+                    columns
+                )
             )
     );
 
@@ -67,7 +63,7 @@ class Wrappers {
                 ? [activeCell]
                 : [];
 
-            R.forEach(({row: i, column: j}) => {
+            cells.forEach(({row: i, column: j}) => {
                 i -= offset.rows;
                 j -= offset.columns;
 
@@ -93,7 +89,7 @@ class Wrappers {
                         ' cell--selected' +
                         (active ? ' focused' : '')
                 });
-            }, cells);
+            });
 
             return wrappers;
         }

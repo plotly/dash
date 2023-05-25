@@ -6,7 +6,6 @@ import {
     difference,
     filter,
     flatten,
-    forEach,
     includes,
     isEmpty,
     keys,
@@ -212,7 +211,7 @@ export const getReadyCallbacks = (
 
     // Make `outputs` hash table for faster access
     let outputsMap: {[key: string]: boolean} = {};
-    forEach(output => (outputsMap[output] = true), outputs);
+    outputs.forEach(output => (outputsMap[output] = true));
 
     // find all the outputs touched by activeCallbacks
     // remove this check if graph is accessible all the time

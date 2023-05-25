@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -28,28 +28,28 @@
   "maintainer": "Alex Johnson <alex@plotly.com>",
   "dependencies": {
     "prop-types": "^15.8.1",
-    "ramda": "^0.28.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "ramda": "^0.29.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.21.0",
-    "@babel/core": "^7.21.3",
-    "@babel/preset-env": "^7.20.2",
+    "@babel/cli": "^7.21.5",
+    "@babel/core": "^7.21.8",
+    "@babel/preset-env": "^7.21.5",
     "@babel/preset-react": "^7.18.6",
     "babel-loader": "^9.1.2",
     "cheerio": "^0.22.0",
     "cross-env": "^7.0.3",
-    "es-check": "^7.0.1",
-    "eslint": "^8.26.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-react": "^7.31.10",
+    "es-check": "^7.1.1",
+    "eslint": "^8.41.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-react": "^7.32.2",
     "npm-run-all": "^4.1.5",
     "react-docgen": "^5.4.3",
     "request": "^2.88.2",
     "string": "^3.3.3",
-    "webpack": "^5.76.3",
-    "webpack-cli": "^4.10.0"
+    "webpack": "^5.83.1",
+    "webpack-cli": "^5.1.1"
   },
   "files": [
     "/dash_html_components/*{.js,.map}"

@@ -30,12 +30,6 @@ class Keygen(Component):
     - aria-* (string; optional):
         A wildcard aria attribute.
 
-    - autoFocus (a value equal to: 'autoFocus', 'autofocus', 'AUTOFOCUS' | boolean; optional):
-        The element should be automatically focused after the page loaded.
-
-    - challenge (string; optional):
-        A challenge string that is submitted along with the public key.
-
     - className (string; optional):
         Often used with CSS to style elements with common properties.
 
@@ -57,14 +51,8 @@ class Keygen(Component):
         When True, this will disable the n_clicks prop.  Use this to
         remove event listeners that may interfere with screen readers.
 
-    - disabled (a value equal to: 'disabled', 'DISABLED' | boolean; optional):
-        Indicates whether the user can interact with the element.
-
     - draggable (string; optional):
         Defines whether the element can be dragged.
-
-    - form (string; optional):
-        Indicates the form that is the owner of the element.
 
     - hidden (a value equal to: 'hidden', 'HIDDEN' | boolean; optional):
         Prevents rendering of given element, while keeping child elements,
@@ -74,9 +62,6 @@ class Keygen(Component):
         A unique identifier for the component, used to improve performance
         by React.js while rendering components See
         https://reactjs.org/docs/lists-and-keys.html for more info.
-
-    - keyType (string; optional):
-        Specifies the type of key generated.
 
     - lang (string; optional):
         Defines the language used in the element.
@@ -104,10 +89,6 @@ class Keygen(Component):
         An integer that represents the time (in ms since 1970) at which
         n_clicks changed. This can be used to tell which button was
         changed most recently.
-
-    - name (string; optional):
-        Name of the element. For example used by the server to identify
-        the fields in form submits.
 
     - role (string; optional):
         Defines an explicit role for an element for use by assistive
@@ -140,12 +121,6 @@ class Keygen(Component):
         n_clicks_timestamp=Component.UNDEFINED,
         disable_n_clicks=Component.UNDEFINED,
         key=Component.UNDEFINED,
-        autoFocus=Component.UNDEFINED,
-        challenge=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        form=Component.UNDEFINED,
-        keyType=Component.UNDEFINED,
-        name=Component.UNDEFINED,
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
@@ -167,25 +142,19 @@ class Keygen(Component):
             "id",
             "accessKey",
             "aria-*",
-            "autoFocus",
-            "challenge",
             "className",
             "contentEditable",
             "contextMenu",
             "data-*",
             "dir",
             "disable_n_clicks",
-            "disabled",
             "draggable",
-            "form",
             "hidden",
             "key",
-            "keyType",
             "lang",
             "loading_state",
             "n_clicks",
             "n_clicks_timestamp",
-            "name",
             "role",
             "spellCheck",
             "style",
@@ -198,25 +167,19 @@ class Keygen(Component):
             "id",
             "accessKey",
             "aria-*",
-            "autoFocus",
-            "challenge",
             "className",
             "contentEditable",
             "contextMenu",
             "data-*",
             "dir",
             "disable_n_clicks",
-            "disabled",
             "draggable",
-            "form",
             "hidden",
             "key",
-            "keyType",
             "lang",
             "loading_state",
             "n_clicks",
             "n_clicks_timestamp",
-            "name",
             "role",
             "spellCheck",
             "style",

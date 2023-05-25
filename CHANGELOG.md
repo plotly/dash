@@ -2,6 +2,33 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.10.0] - 2023-05-25
+
+## Changed
+
+- [#2538](https://github.com/plotly/dash/pull/2538) Add an upper bound to Flask and Werkzeug versions at `<2.2.3` because we expect the Dash ecosystem to be incompatible with the next minor release of Flask (this excludes the current latest Flask release 2.3.x). We will raise the upper bound to `<2.4` after we fix incompatibilities elsewhere in the Dash ecosystem.
+
+## Added
+
+- [#2540](https://github.com/plotly/dash/pull/2540) Add `include_pages_meta=True` to `Dash` constructor, and fix a security issue in pages meta tags [#2536](https://github.com/plotly/dash/issues/2536).
+
+## Fixed
+
+- [#2508](https://github.com/plotly/dash/pull/2508) Fix error message, when callback output has different length than spec
+- [#2207](https://github.com/plotly/dash/pull/2207) Fix object of components support.
+- [#2500](https://github.com/plotly/dash/pull/2500) Passing customdata by click for scattermapbox, fix [#2493](https://github.com/plotly/dash/issues/2493)
+- [#2513](https://github.com/plotly/dash/pull/2513) Raise error when iterating over patch objects, fix [#2512](https://github.com/plotly/dash/issues/2512)
+
+## Updated
+
+- [#2533](https://github.com/plotly/dash/pull/2533) and [#2538](https://github.com/plotly/dash/pull/2538) Update Plotly.js to v2.23.2 from v2.20.0.
+  - Feature release [2.23.0](https://github.com/plotly/plotly.js/releases/tag/v2.23.0) adds legend/colorbar xref/yref.
+  - Feature release [2.22.0](https://github.com/plotly/plotly.js/releases/tag/v2.22.0) adds `legend` references to traces.
+  - Feature release [2.21.0](https://github.com/plotly/plotly.js/releases/tag/v2.21.0) adds `label.texttemplate` to parametric shapes.
+  - Patch releases [2.23.1](https://github.com/plotly/plotly.js/releases/tag/v2.23.1) and [2.23.2](https://github.com/plotly/plotly.js/releases/tag/v2.23.2) fix heatmap rendering on iOS and Safari when zsmooth is set to false and shape text when drawing a new shape.
+
+- [#2538](https://github.com/plotly/dash/pull/2538) Update JS dependencies in dcc, html, dash-table, dash-renderer, and dash
+
 ## [2.9.3] - 2023-04-13
 
 ## Fixed

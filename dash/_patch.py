@@ -99,6 +99,12 @@ class Patch:
         self.update(E=other)
         return _noop
 
+    def __iter__(self):
+        raise TypeError("Patch objects are write-only, you cannot iterate them.")
+
+    def __repr__(self):
+        return f"<write-only dash.Patch object at {self._location}>"
+
     def append(self, item):
         """Add the item to the end of a list"""
         self._operations.append(_operation("Append", self._location, value=item))
