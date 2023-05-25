@@ -1,4 +1,5 @@
 import collections
+import importlib
 import os
 import re
 import sys
@@ -360,3 +361,77 @@ def register_page(
         key=lambda i: (str(i.get("order", i["module"])), i["module"]),
     ):
         PAGE_REGISTRY.move_to_end(page["module"])
+
+
+def _path_to_page(path_id):
+    path_variables = None
+    for page in PAGE_REGISTRY.values():
+        if page["path_template"]:
+            template_id = page["path_template"].strip("/")
+            path_variables = _parse_path_variables(path_id, template_id)
+            if path_variables:
+                return page, path_variables
+        if path_id == page["path"].strip("/"):
+            return page, path_variables
+    return {}, None
+
+
+def _page_meta_tags(app):
+    start_page, path_variables = _path_to_page(flask.request.path.strip("/"))
+
+    # use the supplied image_url or create url based on image in the assets folder
+    image = start_page.get("image", "")
+    if image:
+        image = app.get_asset_url(image)
+    assets_image_url = (
+        "".join([flask.request.url_root, image.lstrip("/")]) if image else None
+    )
+    supplied_image_url = start_page.get("image_url")
+    image_url = supplied_image_url if supplied_image_url else assets_image_url
+
+    title = start_page.get("title", app.title)
+    if callable(title):
+        title = title(**path_variables) if path_variables else title()
+
+    description = start_page.get("description", "")
+    if callable(description):
+        description = description(**path_variables) if path_variables else description()
+
+    return [
+        {"name": "description", "content": description},
+        {"property": "twitter:card", "content": "summary_large_image"},
+        {"property": "twitter:url", "content": flask.request.url},
+        {"property": "twitter:title", "content": title},
+        {"property": "twitter:description", "content": description},
+        {"property": "twitter:image", "content": image_url or ""},
+        {"property": "og:title", "content": title},
+        {"property": "og:type", "content": "website"},
+        {"property": "og:description", "content": description},
+        {"property": "og:image", "content": image_url or ""},
+    ]
+
+
+def _import_layouts_from_pages(pages_folder):
+    for root, dirs, files in os.walk(pages_folder):
+        dirs[:] = [d for d in dirs if not d.startswith(".") and not d.startswith("_")]
+        for file in files:
+            if file.startswith("_") or file.startswith(".") or not file.endswith(".py"):
+                continue
+            page_path = os.path.join(root, file)
+            with open(page_path, encoding="utf-8") as f:
+                content = f.read()
+                if "register_page" not in content:
+                    continue
+
+            module_name = _infer_module_name(page_path)
+            spec = importlib.util.spec_from_file_location(module_name, page_path)
+            page_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(page_module)
+            sys.modules[module_name] = page_module
+
+            if (
+                module_name in PAGE_REGISTRY
+                and not PAGE_REGISTRY[module_name]["supplied_layout"]
+            ):
+                _validate.validate_pages_layout(module_name, page_module)
+                PAGE_REGISTRY[module_name]["layout"] = getattr(page_module, "layout")

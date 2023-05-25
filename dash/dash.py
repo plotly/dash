@@ -15,7 +15,6 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from textwrap import dedent
 
 import flask
 
@@ -64,9 +63,10 @@ from ._grouping import map_grouping, grouping_len, update_args_group
 
 from . import _pages
 from ._pages import (
-    _infer_module_name,
-    _parse_path_variables,
     _parse_query_string,
+    _page_meta_tags,
+    _path_to_page,
+    _import_layouts_from_pages,
 )
 
 # Add explicit mapping for map files
@@ -210,6 +210,9 @@ class Dash:
         to be True. Default `None`.
     :type use_pages: boolean
 
+    :param include_pages_meta: Include the page meta tags for twitter cards.
+    :type include_pages_meta: bool
+
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
         where ``asset_path`` is the path to a file inside ``assets_folder``.
@@ -348,6 +351,7 @@ class Dash:
         assets_external_path=None,
         eager_loading=False,
         include_assets_files=True,
+        include_pages_meta=True,
         url_base_pathname=None,
         requests_pathname_prefix=None,
         routes_pathname_prefix=None,
@@ -418,6 +422,7 @@ class Dash:
             extra_hot_reload_paths=extra_hot_reload_paths or [],
             title=title,
             update_title=update_title,
+            include_pages_meta=include_pages_meta,
         )
         self.config.set_read_only(
             [
@@ -854,67 +859,24 @@ class Dash:
     def _generate_renderer(self):
         return f'<script id="_dash-renderer" type="application/javascript">{self.renderer}</script>'
 
-    def _generate_meta_html(self):
-        meta_tags = self.config.meta_tags
+    def _generate_meta(self):
+        meta_tags = []
         has_ie_compat = any(
-            x.get("http-equiv", "") == "X-UA-Compatible" for x in meta_tags
+            x.get("http-equiv", "") == "X-UA-Compatible" for x in self.config.meta_tags
         )
-        has_charset = any("charset" in x for x in meta_tags)
-        has_viewport = any(x.get("name") == "viewport" for x in meta_tags)
+        has_charset = any("charset" in x for x in self.config.meta_tags)
+        has_viewport = any(x.get("name") == "viewport" for x in self.config.meta_tags)
 
-        tags = []
         if not has_ie_compat:
-            tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
+            meta_tags.append({"http-equiv": "X-UA-Compatible", "content": "IE=edge"})
         if not has_charset:
-            tags.append('<meta charset="UTF-8">')
+            meta_tags.append({"charset": "UTF-8"})
         if not has_viewport:
-            tags.append(
-                '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            meta_tags.append(
+                {"name": "viewport", "content": "width=device-width, initial-scale=1"}
             )
 
-        tags += [format_tag("meta", x, opened=True) for x in meta_tags]
-
-        return "\n      ".join(tags)
-
-    def _pages_meta_tags(self):
-        start_page, path_variables = self._path_to_page(flask.request.path.strip("/"))
-
-        # use the supplied image_url or create url based on image in the assets folder
-        image = start_page.get("image", "")
-        if image:
-            image = self.get_asset_url(image)
-        assets_image_url = (
-            "".join([flask.request.url_root, image.lstrip("/")]) if image else None
-        )
-        supplied_image_url = start_page.get("image_url")
-        image_url = supplied_image_url if supplied_image_url else assets_image_url
-
-        title = start_page.get("title", self.title)
-        if callable(title):
-            title = title(**path_variables) if path_variables else title()
-
-        description = start_page.get("description", "")
-        if callable(description):
-            description = (
-                description(**path_variables) if path_variables else description()
-            )
-
-        return dedent(
-            f"""
-            <meta name="description" content="{description}" />
-            <!-- Twitter Card data -->
-            <meta property="twitter:card" content="summary_large_image">
-            <meta property="twitter:url" content="{flask.request.url}">
-            <meta property="twitter:title" content="{title}">
-            <meta property="twitter:description" content="{description}">
-            <meta property="twitter:image" content="{image_url}">
-            <!-- Open Graph data -->
-            <meta property="og:title" content="{title}" />
-            <meta property="og:type" content="website" />
-            <meta property="og:description" content="{description}" />
-            <meta property="og:image" content="{image_url}">
-            """
-        )
+        return meta_tags + self.config.meta_tags
 
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, fingerprinted_path):
@@ -959,14 +921,14 @@ class Dash:
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
-        metas = self._generate_meta_html()
+        metas = self._generate_meta()
         renderer = self._generate_renderer()
 
         # use self.title instead of app.config.title for backwards compatibility
         title = self.title
-        pages_metas = ""
-        if self.use_pages:
-            pages_metas = self._pages_meta_tags()
+
+        if self.use_pages and self.config.include_pages_meta:
+            metas = _page_meta_tags(self) + metas
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
@@ -983,8 +945,12 @@ class Dash:
             opened=True,
         )
 
+        tags = "\n      ".join(
+            format_tag("meta", x, opened=True, sanitize=True) for x in metas
+        )
+
         index = self.interpolate_index(
-            metas=pages_metas + metas,
+            metas=tags,
             title=title,
             css=css,
             config=config,
@@ -1988,57 +1954,11 @@ class Dash:
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
-    def _import_layouts_from_pages(self):
-        for root, dirs, files in os.walk(self.config.pages_folder):
-            dirs[:] = [
-                d for d in dirs if not d.startswith(".") and not d.startswith("_")
-            ]
-            for file in files:
-                if (
-                    file.startswith("_")
-                    or file.startswith(".")
-                    or not file.endswith(".py")
-                ):
-                    continue
-                page_path = os.path.join(root, file)
-                with open(page_path, encoding="utf-8") as f:
-                    content = f.read()
-                    if "register_page" not in content:
-                        continue
-
-                module_name = _infer_module_name(page_path)
-                spec = importlib.util.spec_from_file_location(module_name, page_path)
-                page_module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(page_module)
-                sys.modules[module_name] = page_module
-
-                if (
-                    module_name in _pages.PAGE_REGISTRY
-                    and not _pages.PAGE_REGISTRY[module_name]["supplied_layout"]
-                ):
-                    _validate.validate_pages_layout(module_name, page_module)
-                    _pages.PAGE_REGISTRY[module_name]["layout"] = getattr(
-                        page_module, "layout"
-                    )
-
-    @staticmethod
-    def _path_to_page(path_id):
-        path_variables = None
-        for page in _pages.PAGE_REGISTRY.values():
-            if page["path_template"]:
-                template_id = page["path_template"].strip("/")
-                path_variables = _parse_path_variables(path_id, template_id)
-                if path_variables:
-                    return page, path_variables
-            if path_id == page["path"].strip("/"):
-                return page, path_variables
-        return {}, None
-
     def enable_pages(self):
         if not self.use_pages:
             return
         if self.pages_folder:
-            self._import_layouts_from_pages()
+            _import_layouts_from_pages(self.config.pages_folder)
 
         @self.server.before_request
         def router():
@@ -2060,9 +1980,7 @@ class Dash:
                 """
 
                 query_parameters = _parse_query_string(search)
-                page, path_variables = self._path_to_page(
-                    self.strip_relative_path(pathname)
-                )
+                page, path_variables = _path_to_page(self.strip_relative_path(pathname))
 
                 # get layout
                 if page == {}:
