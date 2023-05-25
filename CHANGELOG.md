@@ -10,7 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
-- [#2540](https://github.com/plotly/dash/pull/2540) Add `include_pages_meta=True` to `Dash._init__`, fix [#2536](https://github.com/plotly/dash/issues/2536).
+- [#2540](https://github.com/plotly/dash/pull/2540) Add `include_pages_meta=True` to `Dash` constructor, and fix a security issue in pages meta tags [#2536](https://github.com/plotly/dash/issues/2536).
 
 ## Fixed
 
