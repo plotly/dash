@@ -1,4 +1,4 @@
-import {find, flatten, forEach, map, partition, pluck, sort, uniq} from 'ramda';
+import {find, flatten, map, partition, pluck, sort, uniq} from 'ramda';
 
 import {IStoreState} from '../store';
 
@@ -137,7 +137,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 ])
             );
 
-            forEach(async cb => {
+            deferred.forEach(async cb => {
                 await cb.isReady;
 
                 const {
@@ -173,7 +173,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         addExecutingCallbacks([executingCallback])
                     ])
                 );
-            }, deferred);
+            });
         }
     },
     inputs: ['callbacks.prioritized', 'callbacks.completed']

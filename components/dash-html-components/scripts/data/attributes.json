@@ -33,7 +33,6 @@
         },
         "alt": {
             "elements": [
-                "applet",
                 "area",
                 "img",
                 "input"
@@ -59,7 +58,6 @@
             "elements": [
                 "button",
                 "input",
-                "keygen",
                 "select",
                 "textarea"
             ],
@@ -77,12 +75,6 @@
                 "input"
             ],
             "description": "From the Media Capture specification, specifies a new file can be captured."
-        },
-        "challenge": {
-            "elements": [
-                "keygen"
-            ],
-            "description": "A challenge string that is submitted along with the public key."
         },
         "charSet": {
             "elements": [
@@ -203,7 +195,6 @@
                 "button",
                 "fieldset",
                 "input",
-                "keygen",
                 "optgroup",
                 "option",
                 "select",
@@ -242,7 +233,6 @@
                 "button",
                 "fieldset",
                 "input",
-                "keygen",
                 "label",
                 "meter",
                 "object",
@@ -361,12 +351,6 @@
             ],
             "description": "Provides a hint as to the type of data that might be entered by the user while editing the element or its contents. The attribute can be used with form controls (such as the value of textarea elements), or in elements in an editing host (e.g., using contenteditable attribute)."
         },
-        "keyType": {
-            "elements": [
-                "keygen"
-            ],
-            "description": "Specifies the type of key generated."
-        },
         "kind": {
             "elements": [
                 "track"
@@ -396,7 +380,6 @@
         "loop": {
             "elements": [
                 "audio",
-                "bgsound",
                 "marquee",
                 "video"
             ],
@@ -474,7 +457,6 @@
                 "fieldset",
                 "iframe",
                 "input",
-                "keygen",
                 "object",
                 "output",
                 "select",
@@ -841,9 +823,6 @@
             "srcDoc",
             "width"
         ],
-        "applet": [
-            "alt"
-        ],
         "area": [
             "alt",
             "coords",
@@ -914,14 +893,6 @@
             "name",
             "type",
             "value"
-        ],
-        "keygen": [
-            "autoFocus",
-            "challenge",
-            "disabled",
-            "form",
-            "keyType",
-            "name"
         ],
         "audio": [
             "autoPlay",
@@ -1069,9 +1040,6 @@
         ],
         "contenteditable": [
             "inputMode"
-        ],
-        "bgsound": [
-            "loop"
         ],
         "marquee": [
             "loop"

@@ -1,4 +1,4 @@
-import {assoc, find, forEach, partition} from 'ramda';
+import {assoc, find, partition} from 'ramda';
 
 import {
     addExecutedCallbacks,
@@ -41,7 +41,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             ])
         );
 
-        forEach(async cb => {
+        deferred.forEach(async cb => {
             const result = await cb.executionPromise;
 
             const {
@@ -81,7 +81,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     ])
                 ])
             );
-        }, deferred);
+        });
     },
     inputs: ['callbacks.executing']
 };

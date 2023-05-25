@@ -28,7 +28,8 @@ function extractElements($) {
     const addElements = [
         'base',
         'basefont',
-        'section',
+        'blink',
+        'keygen',
         'h1',
         'h2',
         'h3',
@@ -37,6 +38,8 @@ function extractElements($) {
         'h6',
         'hgroup',
         'iframe',
+        'section',
+        'spacer',
     ];
 
     return $('td:first-child')
@@ -61,7 +64,8 @@ function extractElements($) {
 
 request(refUrl, (error, response, html) => {
     if (error) {
-        throw error;
+        console.error(error);
+        process.exit(-1);
     }
     const $ = cheerio.load(html);
     const elements = extractElements($);
@@ -71,19 +75,21 @@ request(refUrl, (error, response, html) => {
             const added = elements.filter(n => prevEls.indexOf(n) === -1);
             const removed = prevEls.filter(n => elements.indexOf(n) === -1);
 
-            throw new Error(
+            console.error(
                 'Found new elements not seen before: [' + added.join(',') +
                 '] and did not find expected elements: [' + removed.join(',') + ']'
             );
         }
         catch(e) {
             console.log('no previous elements found');
+            console.log(e);
         }
-        throw new Error(
+        console.error(
             'Unexpected number of elements extracted from ' + refUrl +
             ' - Found ' + elements.length + ' but expected ' + expectedElCount +
             ' Check the output and edit expectedElCount if this is intended.'
         );
+        process.exit(-1);
     }
     const out = elements.join('\n');
 

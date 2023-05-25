@@ -6,8 +6,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, `./dist`),
         filename: 'index.js',
-        library: `dash-component-plugins`,
-        libraryTarget: 'umd'
+        library: {name: `dash-component-plugins`, type: 'umd' },
     },
     externals: {
         react: {

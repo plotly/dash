@@ -1215,7 +1215,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         );
 
         const hidden_columns = base ? base.slice(0) : [];
-        R.forEach(id => {
+        ids.forEach(id => {
             const cIndex = hidden_columns.indexOf(id);
 
             if (cIndex >= 0) {
@@ -1223,7 +1223,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             } else {
                 hidden_columns.push(id);
             }
-        }, ids);
+        });
 
         setProps({hidden_columns});
     };

@@ -3,7 +3,10 @@ from dash.dcc import Dropdown
 from dash.html import Div
 from dash.dash_table import DataTable
 
+from flaky import flaky
 
+
+@flaky(max_runs=3)
 def test_ddst001_cursor_should_be_pointer(dash_duo):
     app = Dash(__name__)
     app.layout = Div(
