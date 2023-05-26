@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#2545](https://github.com/plotly/dash/pull/2545) Fix typescript objectOf generation.
+
 ## [2.10.0] - 2023-05-25
 
 ## Changed
