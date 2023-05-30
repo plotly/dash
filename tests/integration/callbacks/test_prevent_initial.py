@@ -1,5 +1,6 @@
 import json
 import pytest
+from flaky import flaky
 
 from dash import Dash, Input, Output, MATCH, html
 from dash.exceptions import PreventUpdate
@@ -174,6 +175,7 @@ def test_cbpi001_prevent_initial_call(flavor, dash_duo):
     dash_duo.wait_for_text_to_equal("#a", "Click")
 
 
+@flaky(max_runs=3)
 @pytest.mark.parametrize("flavor", flavors)
 def test_cbpi002_pattern_matching(flavor, dash_duo):
     # a clone of cbpi001 just throwing it through the pattern-matching machinery

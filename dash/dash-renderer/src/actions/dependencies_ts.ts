@@ -1,12 +1,10 @@
 import {
     all,
-    any,
     assoc,
     concat,
     difference,
     filter,
     flatten,
-    includes,
     isEmpty,
     keys,
     map,
@@ -312,13 +310,12 @@ export const getLayoutCallbacks = (
             rootId = stringifyId(rootId);
             // Filter inputs that are not present in the response
             callbacks = callbacks.filter(cb =>
-                any(
-                    (inp: any) =>
-                        !(
-                            stringifyId(inp.id) === rootId &&
-                            !includes(inp.property, options.filterRoot)
-                        ),
-                    cb.callback.inputs
+                cb.callback.inputs.reduce(
+                    (previous: any, input: any) =>
+                        previous ||
+                        (stringifyId(input.id) == rootId &&
+                            options.filterRoot.includes(input.property)),
+                    false
                 )
             );
         }
