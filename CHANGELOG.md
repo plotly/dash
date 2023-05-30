@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#2545](https://github.com/plotly/dash/pull/2545) Fix typescript objectOf generation.
+
 ## [2.10.0] - 2023-05-25
 
 ## Changed
@@ -71,6 +77,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2260](https://github.com/plotly/dash/pull/2260) Experimental support for React 18. The default is still React v16.14.0, but to use React 18 you can either set the environment variable `REACT_VERSION=18.2.0` before running your app, or inside the app call `dash._dash_renderer._set_react_version("18.2.0")`. THIS FEATURE IS EXPERIMENTAL. It has not been tested with component suites outside the Dash core, and we may add or remove available React versions in any future release.
 - [#2414](https://github.com/plotly/dash/pull/2414) Add `dash.Patch`for partial update Output props without transferring the previous value in a State.
 - [#2414](https://github.com/plotly/dash/pull/2414) Add `allow_duplicate` to `Output` arguments allowing duplicate callbacks to target the same prop.
+- [#2349](https://github.com/plotly/dash/pull/2349) Added new `dcc.Geolocation` component
 
 ## Fixed
 
@@ -143,7 +150,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- [#2349](https://github.com/plotly/dash/pull/2349) Added new `dcc.Geolocation` component
 - [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
 
 ### Updated
