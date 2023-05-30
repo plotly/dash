@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 
 - [#2545](https://github.com/plotly/dash/pull/2545) Fix typescript objectOf generation.
+- [#2548](https://github.com/plotly/dash/pull/2548) Fix component as props callback triggering other callbacks not in response, fix [#2487](https://github.com/plotly/dash/issues/2487).
 
 ## [2.10.0] - 2023-05-25
 
