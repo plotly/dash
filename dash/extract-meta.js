@@ -361,16 +361,20 @@ function gatherComponents(sources, components = {}) {
                         ...getUnion(propType, propObj, newParentType),
                         raw
                     };
+                } else if (propType.indexInfos && propType.indexInfos.length) {
+                    const {type} = propType.indexInfos[0];
+                    name = 'objectOf';
+                    value = getPropType(type, propObj, newParentType);
+                } else {
+                    value = getProps(
+                        checker.getPropertiesOfType(propType),
+                        propObj,
+                        [],
+                        {},
+                        true,
+                        newParentType,
+                    );
                 }
-
-                value = getProps(
-                    checker.getPropertiesOfType(propType),
-                    propObj,
-                    [],
-                    {},
-                    true,
-                    newParentType,
-                );
             }
         }
 

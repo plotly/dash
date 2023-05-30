@@ -4,7 +4,7 @@ from dash import Dash, Input, Output, callback_context, State, MATCH
 
 from dash_test_components import ComponentAsProp
 
-from dash.dcc import Checklist
+from dash.dcc import Checklist, Dropdown
 from dash.html import Button, Div, Span
 
 
@@ -378,4 +378,66 @@ def test_rdcap003_side_effect_regression(dash_duo):
     dash_duo.wait_for_text_to_equal("#counter", "0")
 
     dash_duo.find_elements("#b label > input")[0].click()
+    dash_duo.wait_for_text_to_equal("#counter", "1")
+
+
+def test_rdcap004_side_effect_same_component(dash_duo):
+    options = [
+        {"label": "aa1", "value": "aa1"},
+        {"label": "aa2", "value": "aa2"},
+        {"label": "aa3", "value": "aa3"},
+        {"label": "best value", "value": "bb1"},
+        {"label": "better value", "value": "bb2"},
+        {"label": "bye", "value": "bb3"},
+    ]
+
+    app = Dash(__name__)
+
+    app.layout = Div(
+        [
+            Div(
+                ["Single dynamic Dropdown", Dropdown(id="my-dynamic-dropdown")],
+                style={"width": 200, "marginLeft": 20, "marginTop": 20},
+            ),
+            Button(
+                "Reset",
+                id="button",
+                n_clicks=0,
+            ),
+            Div(0, id="counter"),
+        ]
+    )
+    app.clientside_callback(
+        "function(_, prev) {return parseInt(prev) + 1}",
+        Output("counter", "children"),
+        Input("my-dynamic-dropdown", "value"),
+        State("counter", "children"),
+        prevent_initial_call=True,
+    )
+
+    @app.callback(
+        Output("my-dynamic-dropdown", "options"),
+        Input("my-dynamic-dropdown", "search_value"),
+    )
+    def update_options(search_value):
+        if search_value is None:
+            return options
+        return [o for o in options if search_value in o["label"]]
+
+    @app.callback(
+        Output("my-dynamic-dropdown", "value"),
+        Input("button", "n_clicks"),
+    )
+    def on_button(n_clicks):
+        return None
+
+    dash_duo.start_server(app)
+
+    # Initial callback
+    dash_duo.wait_for_text_to_equal("#counter", "1")
+
+    search = dash_duo.wait_for_element("#my-dynamic-dropdown input")
+
+    search.send_keys("a")
+
     dash_duo.wait_for_text_to_equal("#counter", "1")
