@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.10.2] - 2023-05-31
+
+## Changed
+
+- Set Flask and Werkzeug version upper bound to `<2.3`.
+
 ## [2.10.1] - 2023-05-30
 
 ## Fixed
