@@ -73,6 +73,7 @@ from ._pages import (
     _page_meta_tags,
     _path_to_page,
     _import_layouts_from_pages,
+    _import_layouts_from_package,
 )
 from ._jupyter import jupyter_dash, JupyterDisplayMode
 from .types import RendererHooks
@@ -384,6 +385,7 @@ class Dash:
         server=True,
         assets_folder="assets",
         pages_folder="pages",
+        pages_package=None,
         use_pages=None,
         assets_url_path="assets",
         assets_ignore="",
@@ -490,6 +492,7 @@ class Dash:
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
 
+        self.pages_package = pages_package
         self.pages_folder = str(pages_folder)
         self.use_pages = (pages_folder != "pages") if use_pages is None else use_pages
         self.routing_callback_inputs = routing_callback_inputs or {}
@@ -2164,6 +2167,8 @@ class Dash:
             return
         if self.pages_folder:
             _import_layouts_from_pages(self.config.pages_folder)
+        if self.pages_package:
+            _import_layouts_from_package(self.pages_package)
 
         @self.server.before_request
         def router():
