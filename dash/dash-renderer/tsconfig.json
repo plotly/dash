@@ -11,6 +11,7 @@
         "noImplicitAny": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
+        "outDir": "./tsbuild",
         "sourceMap": false,
         "strict": true,
         "strictBindCallApply": true,

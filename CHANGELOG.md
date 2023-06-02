@@ -2,12 +2,45 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [2.10.2] - 2023-05-31
+
+## Changed
+
+- Set Flask and Werkzeug version upper bound to `<2.3`.
+
+## [2.10.1] - 2023-05-30
+
+## Fixed
+
+- [#2545](https://github.com/plotly/dash/pull/2545) Fix typescript objectOf generation.
+- [#2548](https://github.com/plotly/dash/pull/2548) Fix component as props callback triggering other callbacks not in response, fix [#2487](https://github.com/plotly/dash/issues/2487).
+
+## [2.10.0] - 2023-05-25
+
+## Changed
+
+- [#2538](https://github.com/plotly/dash/pull/2538) Add an upper bound to Flask and Werkzeug versions at `<2.2.3` because we expect the Dash ecosystem to be incompatible with the next minor release of Flask (this excludes the current latest Flask release 2.3.x). We will raise the upper bound to `<2.4` after we fix incompatibilities elsewhere in the Dash ecosystem.
+
+## Added
+
+- [#2540](https://github.com/plotly/dash/pull/2540) Add `include_pages_meta=True` to `Dash` constructor, and fix a security issue in pages meta tags [#2536](https://github.com/plotly/dash/issues/2536).
 
 ## Fixed
 
 - [#2508](https://github.com/plotly/dash/pull/2508) Fix error message, when callback output has different length than spec
 - [#2207](https://github.com/plotly/dash/pull/2207) Fix object of components support.
+- [#2500](https://github.com/plotly/dash/pull/2500) Passing customdata by click for scattermapbox, fix [#2493](https://github.com/plotly/dash/issues/2493)
+- [#2513](https://github.com/plotly/dash/pull/2513) Raise error when iterating over patch objects, fix [#2512](https://github.com/plotly/dash/issues/2512)
+
+## Updated
+
+- [#2533](https://github.com/plotly/dash/pull/2533) and [#2538](https://github.com/plotly/dash/pull/2538) Update Plotly.js to v2.23.2 from v2.20.0.
+  - Feature release [2.23.0](https://github.com/plotly/plotly.js/releases/tag/v2.23.0) adds legend/colorbar xref/yref.
+  - Feature release [2.22.0](https://github.com/plotly/plotly.js/releases/tag/v2.22.0) adds `legend` references to traces.
+  - Feature release [2.21.0](https://github.com/plotly/plotly.js/releases/tag/v2.21.0) adds `label.texttemplate` to parametric shapes.
+  - Patch releases [2.23.1](https://github.com/plotly/plotly.js/releases/tag/v2.23.1) and [2.23.2](https://github.com/plotly/plotly.js/releases/tag/v2.23.2) fix heatmap rendering on iOS and Safari when zsmooth is set to false and shape text when drawing a new shape.
+
+- [#2538](https://github.com/plotly/dash/pull/2538) Update JS dependencies in dcc, html, dash-table, dash-renderer, and dash
 
 ## [2.9.3] - 2023-04-13
 
@@ -51,6 +84,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2260](https://github.com/plotly/dash/pull/2260) Experimental support for React 18. The default is still React v16.14.0, but to use React 18 you can either set the environment variable `REACT_VERSION=18.2.0` before running your app, or inside the app call `dash._dash_renderer._set_react_version("18.2.0")`. THIS FEATURE IS EXPERIMENTAL. It has not been tested with component suites outside the Dash core, and we may add or remove available React versions in any future release.
 - [#2414](https://github.com/plotly/dash/pull/2414) Add `dash.Patch`for partial update Output props without transferring the previous value in a State.
 - [#2414](https://github.com/plotly/dash/pull/2414) Add `allow_duplicate` to `Output` arguments allowing duplicate callbacks to target the same prop.
+- [#2349](https://github.com/plotly/dash/pull/2349) Added new `dcc.Geolocation` component
 
 ## Fixed
 
@@ -123,7 +157,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- [#2349](https://github.com/plotly/dash/pull/2349) Added new `dcc.Geolocation` component
 - [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
 
 ### Updated

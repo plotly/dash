@@ -51,7 +51,7 @@ export default memoizeOneFactory(
             R.concat(Array.from(map.keys()), Array.from(reversedMap.keys()))
         );
 
-        R.forEach(key => {
+        keys.forEach(key => {
             const ast = map.get(key);
             const reversedAst = reversedMap.get(key);
 
@@ -65,7 +65,7 @@ export default memoizeOneFactory(
                 newMap = cloneIf(newMap, map);
                 newMap.set(key, reversedAst);
             }
-        }, keys);
+        });
 
         return newMap;
     }
@@ -121,9 +121,9 @@ export const clearColumnsFilter = (
     operator: FilterLogicalOperator,
     setFilter: SetFilter
 ) => {
-    R.forEach(column => {
+    columns.forEach(column => {
         map = updateMap(map, column, '');
-    }, columns);
+    });
 
     updateState(map, operator, setFilter);
 };

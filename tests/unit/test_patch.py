@@ -255,3 +255,11 @@ def test_pat020_patch_pickle():
     q = pickle.loads(data)
 
     assert patch_to_dict(p) == patch_to_dict(q)
+
+
+def test_pat021_patch_iter():
+    p = Patch()
+
+    with pytest.raises(TypeError):
+        for _ in p["invalid"]:
+            print("invalid iteration")

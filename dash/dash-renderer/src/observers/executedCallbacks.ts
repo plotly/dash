@@ -5,7 +5,6 @@ import {
     isNil,
     map,
     path,
-    forEach,
     keys,
     pickBy,
     toPairs,
@@ -79,7 +78,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         let requestedCallbacks: ICallback[] = [];
         const storedCallbacks: IStoredCallback[] = [];
 
-        forEach(cb => {
+        executed.forEach(cb => {
             const predecessors = concat(cb.predecessors ?? [], [cb.callback]);
 
             const {
@@ -94,174 +93,188 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             const {data, error, payload} = executionResult;
 
             if (data !== undefined) {
-                forEach(([id, props]: [any, {[key: string]: any}]) => {
-                    const parsedId = parseIfWildcard(id);
-                    const {
-                        graphs,
-                        layout: oldLayout,
-                        paths: oldPaths
-                    } = getState();
+                Object.entries(data).forEach(
+                    ([id, props]: [any, {[key: string]: any}]) => {
+                        const parsedId = parseIfWildcard(id);
+                        const {
+                            graphs,
+                            layout: oldLayout,
+                            paths: oldPaths
+                        } = getState();
 
-                    // Components will trigger callbacks on their own as required (eg. derived)
-                    const appliedProps = applyProps(parsedId, props);
+                        // Components will trigger callbacks on their own as required (eg. derived)
+                        const appliedProps = applyProps(parsedId, props);
 
-                    // Add callbacks for modified inputs
-                    requestedCallbacks = concat(
-                        requestedCallbacks,
-                        flatten(
-                            map(
-                                prop =>
-                                    getCallbacksByInput(
-                                        graphs,
-                                        oldPaths,
-                                        parsedId,
-                                        prop,
-                                        true
-                                    ),
-                                keys(props)
-                            )
-                        ).map(rcb => ({
-                            ...rcb,
-                            predecessors
-                        }))
-                    );
-
-                    const basePath = getPath(oldPaths, parsedId);
-                    if (!basePath) {
-                        return;
-                    }
-                    const oldObj = path(basePath, oldLayout);
-
-                    const childrenProps = pathOr(
-                        'defaultValue',
-                        [oldObj.namespace, oldObj.type],
-                        (window as any).__dashprivate_childrenProps
-                    );
-
-                    const handlePaths = (
-                        children: any,
-                        oldChildren: any,
-                        oldChildrenPath: any[],
-                        filterRoot: any = false
-                    ) => {
-                        const oPaths = getState().paths;
-                        const paths = computePaths(
-                            children,
-                            oldChildrenPath,
-                            oPaths
-                        );
-                        dispatch(setPaths(paths));
-
-                        // Get callbacks for new layout (w/ execution group)
+                        // Add callbacks for modified inputs
                         requestedCallbacks = concat(
                             requestedCallbacks,
-                            getLayoutCallbacks(graphs, paths, children, {
-                                chunkPath: oldChildrenPath,
-                                filterRoot
-                            }).map(rcb => ({
-                                ...rcb,
-                                predecessors
-                            }))
-                        );
-
-                        // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
-                        // even due to the deletion of components
-                        requestedCallbacks = concat(
-                            requestedCallbacks,
-                            getLayoutCallbacks(graphs, oldPaths, oldChildren, {
-                                removedArrayInputsOnly: true,
-                                newPaths: paths,
-                                chunkPath: oldChildrenPath,
-                                filterRoot
-                            }).map(rcb => ({
-                                ...rcb,
-                                predecessors
-                            }))
-                        );
-                    };
-
-                    let recomputed = false;
-
-                    forEach(childrenProp => {
-                        if (recomputed) {
-                            return;
-                        }
-                        if (childrenProp.includes('[]')) {
-                            const [frontPath] = childrenProp
-                                .split('[]')
-                                .map(p => p.split('.').filter(e => e));
-
-                            const frontObj: any[] | undefined = path(
-                                frontPath,
-                                appliedProps
-                            );
-
-                            if (!frontObj) {
-                                return;
-                            }
-
-                            // Crawl layout needs the ns/type
-                            handlePaths(
-                                {
-                                    ...oldObj,
-                                    props: {
-                                        ...oldObj.props,
-                                        ...appliedProps
-                                    }
-                                },
-                                oldObj,
-                                basePath,
-                                keys(appliedProps)
-                            );
-                            // Only do it once for the component.
-                            recomputed = true;
-                        } else {
-                            const childrenPropPath = childrenProp.split('.');
-                            const children = path(
-                                childrenPropPath,
-                                appliedProps
-                            );
-                            if (!children) {
-                                return;
-                            }
-
-                            const oldChildrenPath = concat(
-                                getPath(oldPaths, parsedId) as string[],
-                                ['props'].concat(childrenPropPath)
-                            );
-                            const oldChildren = path(
-                                oldChildrenPath,
-                                oldLayout
-                            );
-
-                            handlePaths(children, oldChildren, oldChildrenPath);
-                        }
-                    }, ['children'].concat(childrenProps));
-
-                    // persistence edge case: if you explicitly update the
-                    // persistence key, other props may change that require us
-                    // to fire additional callbacks
-                    const addedProps = pickBy(
-                        (_, k) => !(k in props),
-                        appliedProps
-                    );
-                    if (!isEmpty(addedProps)) {
-                        const {graphs: currentGraphs, paths} = getState();
-
-                        requestedCallbacks = concat(
-                            requestedCallbacks,
-                            includeObservers(
-                                id,
-                                addedProps,
-                                currentGraphs,
-                                paths
+                            flatten(
+                                map(
+                                    prop =>
+                                        getCallbacksByInput(
+                                            graphs,
+                                            oldPaths,
+                                            parsedId,
+                                            prop,
+                                            true
+                                        ),
+                                    keys(props)
+                                )
                             ).map(rcb => ({
                                 ...rcb,
                                 predecessors
                             }))
                         );
+
+                        const basePath = getPath(oldPaths, parsedId);
+                        if (!basePath) {
+                            return;
+                        }
+                        const oldObj = path(basePath, oldLayout);
+
+                        const childrenProps = pathOr(
+                            'defaultValue',
+                            [oldObj.namespace, oldObj.type],
+                            (window as any).__dashprivate_childrenProps
+                        );
+
+                        const handlePaths = (
+                            children: any,
+                            oldChildren: any,
+                            oldChildrenPath: any[],
+                            filterRoot: any = false
+                        ) => {
+                            const oPaths = getState().paths;
+                            const paths = computePaths(
+                                children,
+                                oldChildrenPath,
+                                oPaths
+                            );
+                            dispatch(setPaths(paths));
+
+                            // Get callbacks for new layout (w/ execution group)
+                            requestedCallbacks = concat(
+                                requestedCallbacks,
+                                getLayoutCallbacks(graphs, paths, children, {
+                                    chunkPath: oldChildrenPath,
+                                    filterRoot
+                                }).map(rcb => ({
+                                    ...rcb,
+                                    predecessors
+                                }))
+                            );
+
+                            // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
+                            // even due to the deletion of components
+                            requestedCallbacks = concat(
+                                requestedCallbacks,
+                                getLayoutCallbacks(
+                                    graphs,
+                                    oldPaths,
+                                    oldChildren,
+                                    {
+                                        removedArrayInputsOnly: true,
+                                        newPaths: paths,
+                                        chunkPath: oldChildrenPath,
+                                        filterRoot
+                                    }
+                                ).map(rcb => ({
+                                    ...rcb,
+                                    predecessors
+                                }))
+                            );
+                        };
+
+                        let recomputed = false;
+
+                        ['children']
+                            .concat(childrenProps)
+                            .forEach(childrenProp => {
+                                if (recomputed) {
+                                    return;
+                                }
+                                if (childrenProp.includes('[]')) {
+                                    const [frontPath] = childrenProp
+                                        .split('[]')
+                                        .map(p => p.split('.').filter(e => e));
+
+                                    const frontObj: any[] | undefined = path(
+                                        frontPath,
+                                        appliedProps
+                                    );
+
+                                    if (!frontObj) {
+                                        return;
+                                    }
+
+                                    // Crawl layout needs the ns/type
+                                    handlePaths(
+                                        {
+                                            ...oldObj,
+                                            props: {
+                                                ...oldObj.props,
+                                                ...appliedProps
+                                            }
+                                        },
+                                        oldObj,
+                                        basePath,
+                                        keys(appliedProps)
+                                    );
+                                    // Only do it once for the component.
+                                    recomputed = true;
+                                } else {
+                                    const childrenPropPath =
+                                        childrenProp.split('.');
+                                    const children = path(
+                                        childrenPropPath,
+                                        appliedProps
+                                    );
+                                    if (!children) {
+                                        return;
+                                    }
+
+                                    const oldChildrenPath = concat(
+                                        getPath(oldPaths, parsedId) as string[],
+                                        ['props'].concat(childrenPropPath)
+                                    );
+                                    const oldChildren = path(
+                                        oldChildrenPath,
+                                        oldLayout
+                                    );
+
+                                    handlePaths(
+                                        children,
+                                        oldChildren,
+                                        oldChildrenPath
+                                    );
+                                }
+                            });
+
+                        // persistence edge case: if you explicitly update the
+                        // persistence key, other props may change that require us
+                        // to fire additional callbacks
+                        const addedProps = pickBy(
+                            (_, k) => !(k in props),
+                            appliedProps
+                        );
+                        if (!isEmpty(addedProps)) {
+                            const {graphs: currentGraphs, paths} = getState();
+
+                            requestedCallbacks = concat(
+                                requestedCallbacks,
+                                includeObservers(
+                                    id,
+                                    addedProps,
+                                    currentGraphs,
+                                    paths
+                                ).map(rcb => ({
+                                    ...rcb,
+                                    predecessors
+                                }))
+                            );
+                        }
                     }
-                }, Object.entries(data));
+                );
 
                 // Add information about potentially updated outputs vs. updated outputs,
                 // this will be used to drop callbacks from execution groups when no output
@@ -314,7 +327,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     }
                 });
             }
-        }, executed);
+        });
 
         dispatch(
             aggregateCallbacks([
