@@ -2,6 +2,13 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.10.3] - 2032-06-XX
+
+## Fixed
+
+- [#2555](https://github.com/plotly/dash/pull/2555) Fix browser back button when removing one of multiple location components from layout, fix [#1312](https://github.com/plotly/dash/issues/1312)
+
+
 ## [2.10.2] - 2023-05-31
 
 ## Changed
