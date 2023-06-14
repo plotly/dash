@@ -257,7 +257,7 @@ class JupyterDash:
             valid_display_values = ["jupyterlab", "inline", "external", "tab"]
 
         if mode is None:
-            mode = JupyterDash.default_mode
+            mode = self.default_mode
         elif not isinstance(mode, str):
             raise ValueError(
                 f"The mode argument must be a string\n"
