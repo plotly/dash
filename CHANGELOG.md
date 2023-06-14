@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.10.3] - 2023-xx-yy
+
+## Fixed
+
+- [#2565](https://github.com/plotly/dash/pull/2565) Fix sorting for > 10 pages, fix [#2564](https://github.com/plotly/dash/issues/2564)
+
 ## [2.10.2] - 2023-05-31
 
 ## Changed
