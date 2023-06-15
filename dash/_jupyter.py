@@ -23,7 +23,6 @@ try:
     from IPython.core.ultratb import FormattedTB
     from retrying import retry
     from ansi2html import Ansi2HTMLConverter
-    import IPython
     from ipykernel.comm import Comm
     import nest_asyncio
 
@@ -34,7 +33,7 @@ try:
 except ImportError:
     _dep_installed = False
     _dash_comm = None
-    get_ipython = None
+    get_ipython = lambda: None
 
 JupyterDisplayMode = Literal["inline", "external", "jupyterlab", "tab"]
 
@@ -93,7 +92,7 @@ _caller = {}
 def _send_jupyter_config_comm_request():
     # If running in an ipython kernel,
     # request that the front end extension send us the notebook server base URL
-    if IPython.get_ipython() is not None:
+    if get_ipython() is not None:
         if _dash_comm.kernel is not None:
             _caller["parent"] = _dash_comm.kernel.get_parent()
             _dash_comm.send({"type": "base_url_request"})
@@ -112,7 +111,7 @@ def _request_jupyter_config(timeout=2):
     _send_jupyter_config_comm_request()
 
     # Get shell and kernel
-    shell = IPython.get_ipython()
+    shell = get_ipython()
     kernel = shell.kernel
 
     # Start capturing shell events to replay later
@@ -203,7 +202,7 @@ class JupyterDash:
         _request_jupyter_config()
 
     def __init__(self):
-        self.in_ipython = get_ipython and get_ipython() is not None
+        self.in_ipython = get_ipython() is not None
         self.in_colab = "google.colab" in sys.modules
 
         if _dep_installed and self.in_ipython and _dash_comm:
