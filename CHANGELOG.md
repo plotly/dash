@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## Added
+
+- [#2530](https://github.com/plotly/dash/pull/2530) Merge JupyterDash repository with Dash.
+  - Add `jupyter_mode` argument to `app.run`, defaults to `inline` and configurable via `jupyter_dash.default_mode`.
+  - Add prefixed arguments from `JupyterDash` to `app.run`: `jupyter_width`, `jupyter_height`, `jupyter_server_url`.
+
 ## Fixed
 
 - [#2565](https://github.com/plotly/dash/pull/2565) Fix sorting for > 10 pages, fix [#2564](https://github.com/plotly/dash/issues/2564)
