@@ -35,7 +35,7 @@ except ImportError:
     _dash_comm = None
     get_ipython = lambda: None
 
-JupyterDisplayMode = Literal["inline", "external", "jupyterlab", "tab"]
+JupyterDisplayMode = Literal["inline", "external", "jupyterlab", "tab", "_none"]
 
 
 def _get_skip(error: Exception):
@@ -253,7 +253,7 @@ class JupyterDash:
         if self.in_colab:
             valid_display_values = ["inline", "external"]
         else:
-            valid_display_values = ["jupyterlab", "inline", "external", "tab"]
+            valid_display_values = ["jupyterlab", "inline", "external", "tab", "_none"]
 
         if mode is None:
             mode = self.default_mode
