@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 
 - [#2565](https://github.com/plotly/dash/pull/2565) Fix sorting for > 10 pages, fix [#2564](https://github.com/plotly/dash/issues/2564)
+- [#2568](https://github.com/plotly/dash/pull/2568) Fix reloader endless loop, fix [#2567](https://github.com/plotly/dash/issues/2567)
 
 ## [2.10.2] - 2023-05-31
 
