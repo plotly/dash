@@ -2,6 +2,7 @@ import abc
 import collections
 import inspect
 import sys
+import typing
 import uuid
 import random
 
@@ -70,6 +71,9 @@ def _check_if_has_indexable_children(item):
 class Component(metaclass=ComponentMeta):
     _children_props = []
     _base_nodes = ["children"]
+
+    _valid_wildcard_attributes: typing.List[str]
+    available_wildcard_properties: typing.List[str]
 
     class _UNDEFINED:
         def __repr__(self):
