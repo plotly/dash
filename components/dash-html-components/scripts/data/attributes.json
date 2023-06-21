@@ -78,8 +78,7 @@
         },
         "charSet": {
             "elements": [
-                "meta",
-                "script"
+                "meta"
             ],
             "description": "Declares the character encoding of the page or script."
         },
@@ -128,12 +127,6 @@
                 "Globalattribute"
             ],
             "description": "Indicates whether the element's content is editable."
-        },
-        "contextMenu": {
-            "elements": [
-                "Globalattribute"
-            ],
-            "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
         },
         "controls": {
             "elements": [
@@ -801,7 +794,6 @@
             "accessKey",
             "className",
             "contentEditable",
-            "contextMenu",
             "dir",
             "draggable",
             "hidden",
@@ -847,7 +839,6 @@
         ],
         "script": [
             "async",
-            "charSet",
             "crossOrigin",
             "defer",
             "integrity",
