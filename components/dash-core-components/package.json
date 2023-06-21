@@ -90,8 +90,8 @@
     "react-jsx-parser": "1.21.0",
     "style-loader": "^3.3.3",
     "styled-jsx": "^3.4.4",
-    "webpack": "^5.83.1",
-    "webpack-cli": "^5.1.1"
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.4"
   },
   "files": [
     "/dash_core_components/*{.js,.map}",
