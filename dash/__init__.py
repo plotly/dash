@@ -39,5 +39,17 @@ from .dash import (  # noqa: F401,E402
     page_container,
 )
 from ._patch import Patch  # noqa: F401,E402
+from ._jupyter import jupyter_dash  # noqa: F401,E402
 
 ctx = callback_context
+
+
+def _jupyter_nbextension_paths():
+    return [
+        {
+            "section": "notebook",
+            "src": "nbextension",
+            "dest": "dash",
+            "require": "dash/main",
+        }
+    ]

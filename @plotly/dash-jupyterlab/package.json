@@ -1,0 +1,48 @@
+{
+  "name": "@plotly/dash-jupyterlab",
+  "version": "0.4.3",
+  "description": "A JupyterLab extension for rendering Plotly Dash apps",
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "homepage": "https://github.com/plotly/dash",
+  "bugs": {
+    "url": "https://github.com/plotly/dash/issues"
+  },
+  "license": "MIT",
+  "author": "Plotly",
+  "files": [
+    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plotly/dash.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:pack": "jlpm run prepare && jlpm pack --filename ../../dash/labextension/dist/dash-jupyterlab.tgz && jlpm run build:copy",
+    "build:copy": "cp package.json ../../dash/labextension/dist/package.json",
+    "clean": "rimraf lib",
+    "prepare": "mkdir -p ../../dash/labextension/dist && jlpm run clean && jlpm run build",
+    "prettier": "prettier --write '{!(package),src/**,!(lib)/**}{.js,.jsx,.ts,.tsx,.css,.json,.md}'",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@jupyterlab/application": "^2.0.0 || ^3.0.0",
+    "@jupyterlab/notebook": "^2.0.0 || ^3.0.0",
+    "@jupyterlab/console": "^2.0.0 || ^3.0.0"
+  },
+  "devDependencies": {
+    "prettier": "2.0.5",
+    "rimraf": "3.0.2",
+    "typescript": "3.9.3"
+  },
+  "jupyterlab": {
+    "extension": true
+  }
+}

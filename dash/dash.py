@@ -68,6 +68,7 @@ from ._pages import (
     _path_to_page,
     _import_layouts_from_pages,
 )
+from ._jupyter import jupyter_dash, JupyterDisplayMode
 
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
@@ -575,19 +576,7 @@ class Dash:
         # add a handler for components suites errors to return 404
         self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
 
-        self._add_url(
-            "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
-            self.serve_component_suites,
-        )
-        self._add_url("_dash-layout", self.serve_layout)
-        self._add_url("_dash-dependencies", self.dependencies)
-        self._add_url("_dash-update-component", self.dispatch, ["POST"])
-        self._add_url("_reload-hash", self.serve_reload_hash)
-        self._add_url("_favicon.ico", self._serve_default_favicon)
-        self._add_url("", self.index)
-
-        # catch-all for front-end routes, used by dcc.Location
-        self._add_url("<path:path>", self.index)
+        self._setup_routes()
 
         _get_app.APP = self
         self.enable_pages()
@@ -602,6 +591,26 @@ class Dash:
         # record the url in Dash.routes so that it can be accessed later
         # e.g. for adding authentication with flask_login
         self.routes.append(full_name)
+
+    def _setup_routes(self):
+        self._add_url(
+            "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
+            self.serve_component_suites,
+        )
+        self._add_url("_dash-layout", self.serve_layout)
+        self._add_url("_dash-dependencies", self.dependencies)
+        self._add_url("_dash-update-component", self.dispatch, ["POST"])
+        self._add_url("_reload-hash", self.serve_reload_hash)
+        self._add_url("_favicon.ico", self._serve_default_favicon)
+        self._add_url("", self.index)
+
+        if jupyter_dash.active:
+            self._add_url(
+                "_alive_" + jupyter_dash.alive_token, jupyter_dash.serve_alive
+            )
+
+        # catch-all for front-end routes, used by dcc.Location
+        self._add_url("<path:path>", self.index)
 
     @property
     def layout(self):
@@ -1674,18 +1683,23 @@ class Dash:
             _reload.watch_thread.daemon = True
             _reload.watch_thread.start()
 
-        if debug and dev_tools.prune_errors:
+        if debug:
 
-            secret = gen_salt(20)
+            if jupyter_dash.active:
+                jupyter_dash.configure_callback_exception_handling(
+                    self, dev_tools.prune_errors
+                )
+            elif dev_tools.prune_errors:
+                secret = gen_salt(20)
 
-            @self.server.errorhandler(Exception)
-            def _wrap_errors(error):
-                # find the callback invocation, if the error is from a callback
-                # and skip the traceback up to that point
-                # if the error didn't come from inside a callback, we won't
-                # skip anything.
-                tb = _get_traceback(secret, error)
-                return tb, 500
+                @self.server.errorhandler(Exception)
+                def _wrap_errors(error):
+                    # find the callback invocation, if the error is from a callback
+                    # and skip the traceback up to that point
+                    # if the error didn't come from inside a callback, we won't
+                    # skip anything.
+                    tb = _get_traceback(secret, error)
+                    return tb, 500
 
         if debug and dev_tools.ui:
 
@@ -1792,6 +1806,10 @@ class Dash:
         port=os.getenv("PORT", "8050"),
         proxy=os.getenv("DASH_PROXY", None),
         debug=None,
+        jupyter_mode: JupyterDisplayMode = None,
+        jupyter_width="100%",
+        jupyter_height=650,
+        jupyter_server_url=None,
         dev_tools_ui=None,
         dev_tools_props_check=None,
         dev_tools_serve_dev_bundles=None,
@@ -1878,6 +1896,20 @@ class Dash:
             env: ``DASH_PRUNE_ERRORS``
         :type dev_tools_prune_errors: bool
 
+        :param jupyter_mode: How to display the application when running
+            inside a jupyter notebook.
+
+        :param jupyter_width: Determine the width of the output cell
+            when displaying inline in jupyter notebooks.
+        :type jupyter_width: str
+
+        :param jupyter_height: Height of app when displayed using
+            jupyter_mode="inline"
+        :type jupyter_height: int
+
+        :param jupyter_server_url: Custom server url to display
+            the app in jupyter notebook.
+
         :param flask_run_options: Given to `Flask.run`
 
         :return:
@@ -1940,7 +1972,8 @@ class Dash:
             else:
                 display_url = (protocol, host, f":{port}", path)
 
-            self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
+            if not jupyter_dash or not jupyter_dash.in_ipython:
+                self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
 
         if self.config.extra_hot_reload_paths:
             extra_files = flask_run_options["extra_files"] = []
@@ -1952,7 +1985,18 @@ class Dash:
                 elif os.path.isfile(path):
                     extra_files.append(path)
 
-        self.server.run(host=host, port=port, debug=debug, **flask_run_options)
+        if jupyter_dash.active:
+            jupyter_dash.run_app(
+                self,
+                mode=jupyter_mode,
+                width=jupyter_width,
+                height=jupyter_height,
+                host=host,
+                port=port,
+                server_url=jupyter_server_url,
+            )
+        else:
+            self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
     def enable_pages(self):
         if not self.use_pages:
