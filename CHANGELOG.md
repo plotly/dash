@@ -15,6 +15,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2555](https://github.com/plotly/dash/pull/2555) Fix browser back button when removing one of multiple location components from layout, fix [#1312](https://github.com/plotly/dash/issues/1312)
 - [#2565](https://github.com/plotly/dash/pull/2565) Fix sorting for > 10 pages, fix [#2564](https://github.com/plotly/dash/issues/2564)
 
+## Updated
+
+- [#2474](https://github.com/plotly/dash/pull/2574) Update plotly js to 2.24.2 from 2.23.2
+  - Feature release [2.24.0](https://github.com/plotly/plotly.js/releases/tag/v2.24.0) add pattern to pie, funnelarea, sunburst, icicle and treemap traces
+  - Patch release [2.24.1](https://github.com/plotly/plotly.js/releases/tag/v2.24.1) and [2.24.2](https://github.com/plotly/plotly.js/releases/tag/v2.24.2)
+
 ## [2.10.2] - 2023-05-31
 
 ## Changed
