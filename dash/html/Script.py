@@ -33,18 +33,11 @@ class Script(Component):
     - async (a value equal to: 'async', 'ASYNC' | boolean; optional):
         Executes the script asynchronously.
 
-    - charSet (string; optional):
-        Declares the character encoding of the page or script.
-
     - className (string; optional):
         Often used with CSS to style elements with common properties.
 
     - contentEditable (string; optional):
         Indicates whether the element's content is editable.
-
-    - contextMenu (string; optional):
-        Defines the ID of a <menu> element which will serve as the
-        element's context menu.
 
     - crossOrigin (string; optional):
         How the element handles cross-origin requests.
@@ -147,7 +140,6 @@ class Script(Component):
         n_clicks_timestamp=Component.UNDEFINED,
         disable_n_clicks=Component.UNDEFINED,
         key=Component.UNDEFINED,
-        charSet=Component.UNDEFINED,
         crossOrigin=Component.UNDEFINED,
         defer=Component.UNDEFINED,
         integrity=Component.UNDEFINED,
@@ -157,7 +149,6 @@ class Script(Component):
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
-        contextMenu=Component.UNDEFINED,
         dir=Component.UNDEFINED,
         draggable=Component.UNDEFINED,
         hidden=Component.UNDEFINED,
@@ -176,10 +167,8 @@ class Script(Component):
             "accessKey",
             "aria-*",
             "async",
-            "charSet",
             "className",
             "contentEditable",
-            "contextMenu",
             "crossOrigin",
             "data-*",
             "defer",
@@ -209,10 +198,8 @@ class Script(Component):
             "accessKey",
             "aria-*",
             "async",
-            "charSet",
             "className",
             "contentEditable",
-            "contextMenu",
             "crossOrigin",
             "data-*",
             "defer",

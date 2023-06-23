@@ -34,10 +34,6 @@ class Audio(Component):
     - contentEditable (string; optional):
         Indicates whether the element's content is editable.
 
-    - contextMenu (string; optional):
-        Defines the ID of a <menu> element which will serve as the
-        element's context menu.
-
     - controls (a value equal to: 'controls', 'CONTROLS' | boolean; optional):
         Indicates whether the browser should show playback controls to the
         user.
@@ -151,7 +147,6 @@ class Audio(Component):
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
-        contextMenu=Component.UNDEFINED,
         dir=Component.UNDEFINED,
         draggable=Component.UNDEFINED,
         hidden=Component.UNDEFINED,
@@ -172,7 +167,6 @@ class Audio(Component):
             "autoPlay",
             "className",
             "contentEditable",
-            "contextMenu",
             "controls",
             "crossOrigin",
             "data-*",
@@ -204,7 +198,6 @@ class Audio(Component):
             "autoPlay",
             "className",
             "contentEditable",
-            "contextMenu",
             "controls",
             "crossOrigin",
             "data-*",

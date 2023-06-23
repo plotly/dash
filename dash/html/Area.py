@@ -34,10 +34,6 @@ class Area(Component):
     - contentEditable (string; optional):
         Indicates whether the element's content is editable.
 
-    - contextMenu (string; optional):
-        Defines the ID of a <menu> element which will serve as the
-        element's context menu.
-
     - coords (string; optional):
         A set of values specifying the coordinates of the hot-spot region.
 
@@ -159,7 +155,6 @@ class Area(Component):
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
-        contextMenu=Component.UNDEFINED,
         dir=Component.UNDEFINED,
         draggable=Component.UNDEFINED,
         hidden=Component.UNDEFINED,
@@ -180,7 +175,6 @@ class Area(Component):
             "aria-*",
             "className",
             "contentEditable",
-            "contextMenu",
             "coords",
             "data-*",
             "dir",
@@ -214,7 +208,6 @@ class Area(Component):
             "aria-*",
             "className",
             "contentEditable",
-            "contextMenu",
             "coords",
             "data-*",
             "dir",
