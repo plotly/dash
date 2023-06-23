@@ -33,7 +33,7 @@ setup(
         "testing": read_req_file("testing"),
         "celery": read_req_file("celery"),
         "diskcache": read_req_file("diskcache"),
-        "compress": read_req_file("compress"),
+        "compress": read_req_file("compress")
     },
     entry_points={
         "console_scripts": [
@@ -73,5 +73,19 @@ setup(
         "Topic :: Scientific/Engineering :: Visualization",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
         "Topic :: Software Development :: Widget Sets",
+    ],
+    data_files=[
+        # like `jupyter nbextension install --sys-prefix`
+        ("share/jupyter/nbextensions/dash", [
+            "dash/nbextension/main.js",
+        ]),
+        # like `jupyter nbextension enable --sys-prefix`
+        ("etc/jupyter/nbconfig/notebook.d", [
+            "dash/nbextension/dash.json"
+        ]),
+        # Place jupyterlab extension in extension directory
+        ("share/jupyter/lab/extensions", [
+            "dash/labextension/dist/dash-jupyterlab.tgz"
+        ]),
     ],
 )

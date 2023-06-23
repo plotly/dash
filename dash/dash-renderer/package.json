@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "1.15.3",
+  "version": "1.15.4",
   "description": "render dash components in react",
   "main": "build/dash_renderer.min.js",
   "scripts": {
@@ -77,8 +77,8 @@
     "style-loader": "^3.3.3",
     "ts-loader": "^9.4.3",
     "typescript": "^5.0.4",
-    "webpack": "^5.83.1",
-    "webpack-cli": "^5.1.1",
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.4",
     "whatwg-fetch": "^3.6.2"
   },
   "files": [
