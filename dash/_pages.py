@@ -355,10 +355,16 @@ def register_page(
         )
         p["relative_path"] = get_relative_path(p["path"])
 
-    # Sort by order and module, then by module
+    # Sort numeric orders first, then string orders, then no order,
+    # finally by module name for matching orders
     for page in sorted(
         PAGE_REGISTRY.values(),
-        key=lambda i: (str(i.get("order", i["module"])), i["module"]),
+        key=lambda i: (
+            i["order"] is None,  # False (order given) sorts before True
+            i["order"] if isinstance(i["order"], (int, float)) else float("inf"),
+            str(i["order"]),
+            i["module"],
+        ),
     ):
         PAGE_REGISTRY.move_to_end(page["module"])
 

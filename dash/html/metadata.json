@@ -145,13 +145,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -355,13 +348,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -567,13 +553,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -777,13 +756,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -1052,13 +1024,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -1263,13 +1228,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -1473,13 +1431,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -1810,13 +1761,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -2020,13 +1964,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -2246,13 +2183,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -2456,13 +2386,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -2668,13 +2591,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -2878,13 +2794,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -3090,13 +2999,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -3300,13 +3202,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -3519,13 +3414,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -3729,13 +3617,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -4080,13 +3961,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -4321,13 +4195,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -4531,13 +4398,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -4743,13 +4603,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -4954,13 +4807,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -5164,13 +5010,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -5383,13 +5222,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -5601,13 +5433,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -5811,13 +5636,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -6030,13 +5848,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -6241,13 +6052,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -6451,13 +6255,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -6676,13 +6473,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -6913,13 +6703,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -7123,13 +6906,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -7360,13 +7136,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -7570,13 +7339,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -7782,13 +7544,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -7993,13 +7748,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -8203,13 +7951,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -8459,13 +8200,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -8709,13 +8443,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -8919,13 +8646,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -9131,13 +8851,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -9342,13 +9055,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -9552,13 +9258,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -9849,13 +9548,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -10059,13 +9751,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -10271,13 +9956,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -10481,13 +10159,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -10693,13 +10364,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -10903,13 +10567,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -11115,13 +10772,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -11325,13 +10975,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -11537,13 +11180,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -11747,13 +11383,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -11959,13 +11588,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -12170,13 +11792,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -12380,13 +11995,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -12663,13 +12271,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -12954,13 +12555,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -13179,13 +12773,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -13390,13 +12977,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -13600,13 +13180,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -13826,13 +13399,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -14036,13 +13602,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -14254,13 +13813,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -14529,13 +14081,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -14739,13 +14284,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -14958,13 +14496,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -15168,13 +14699,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -15404,13 +14928,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -15643,13 +15160,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -15920,13 +15430,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -16130,13 +15633,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -16342,13 +15838,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -16552,13 +16041,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -16829,13 +16311,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -17079,13 +16554,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -17321,13 +16789,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -17597,13 +17058,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -17829,13 +17283,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -18039,13 +17486,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -18265,13 +17705,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -18475,13 +17908,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -18687,13 +18113,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -18897,13 +18316,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -19138,13 +18550,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -19356,13 +18761,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -19566,13 +18964,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -19778,13 +19169,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -19988,13 +19372,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -20200,13 +19577,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -20410,13 +19780,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -20622,13 +19985,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -20832,13 +20188,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -21048,13 +20397,6 @@
         "required": false,
         "description": "Executes the script asynchronously."
       },
-      "charSet": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Declares the character encoding of the page or script."
-      },
       "crossOrigin": {
         "type": {
           "name": "string"
@@ -21135,13 +20477,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -21346,13 +20681,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -21698,13 +21026,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -21908,13 +21229,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -22120,13 +21434,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -22330,13 +21637,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -22577,13 +21877,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -22787,13 +22080,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -22999,13 +22285,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -23209,13 +22488,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -23421,13 +22693,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -23631,13 +22896,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -23843,13 +23101,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -24053,13 +23304,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -24265,13 +23509,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -24475,13 +23712,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -24724,13 +23954,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -24934,13 +24157,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -25334,13 +24550,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -25544,13 +24753,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -25800,13 +25002,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -26010,13 +25205,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -26229,13 +25417,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -26440,13 +25621,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -26650,13 +25824,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -26915,13 +26082,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -27125,13 +26285,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -27337,13 +26490,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -27547,13 +26693,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {
@@ -27921,13 +27060,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -28132,13 +27264,6 @@
         "required": false,
         "description": "Indicates whether the element's content is editable."
       },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
-      },
       "dir": {
         "type": {
           "name": "string"
@@ -28342,13 +27467,6 @@
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
-      },
-      "contextMenu": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
       },
       "dir": {
         "type": {

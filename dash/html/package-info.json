@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -48,8 +48,8 @@
     "react-docgen": "^5.4.3",
     "request": "^2.88.2",
     "string": "^3.3.3",
-    "webpack": "^5.83.1",
-    "webpack-cli": "^5.1.1"
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.4"
   },
   "files": [
     "/dash_html_components/*{.js,.map}"

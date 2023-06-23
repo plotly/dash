@@ -34,10 +34,6 @@ class Ins(Component):
     - contentEditable (string; optional):
         Indicates whether the element's content is editable.
 
-    - contextMenu (string; optional):
-        Defines the ID of a <menu> element which will serve as the
-        element's context menu.
-
     - data-* (string; optional):
         A wildcard data attribute.
 
@@ -127,7 +123,6 @@ class Ins(Component):
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
-        contextMenu=Component.UNDEFINED,
         dir=Component.UNDEFINED,
         draggable=Component.UNDEFINED,
         hidden=Component.UNDEFINED,
@@ -148,7 +143,6 @@ class Ins(Component):
             "cite",
             "className",
             "contentEditable",
-            "contextMenu",
             "data-*",
             "dateTime",
             "dir",
@@ -175,7 +169,6 @@ class Ins(Component):
             "cite",
             "className",
             "contentEditable",
-            "contextMenu",
             "data-*",
             "dateTime",
             "dir",

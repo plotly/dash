@@ -2,6 +2,25 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.11.0] - 2023-06-23
+
+## Added
+
+- [#2530](https://github.com/plotly/dash/pull/2530) Merge JupyterDash repository with Dash.
+  - Add `jupyter_mode` argument to `app.run`, defaults to `inline` and configurable via `jupyter_dash.default_mode`.
+  - Add prefixed arguments from `JupyterDash` to `app.run`: `jupyter_width`, `jupyter_height`, `jupyter_server_url`.
+
+## Fixed
+
+- [#2555](https://github.com/plotly/dash/pull/2555) Fix browser back button when removing one of multiple location components from layout, fix [#1312](https://github.com/plotly/dash/issues/1312)
+- [#2565](https://github.com/plotly/dash/pull/2565) Fix sorting for > 10 pages, fix [#2564](https://github.com/plotly/dash/issues/2564)
+
+## Updated
+
+- [#2474](https://github.com/plotly/dash/pull/2574) Update plotly js to 2.24.2 from 2.23.2
+  - Feature release [2.24.0](https://github.com/plotly/plotly.js/releases/tag/v2.24.0) add pattern to pie, funnelarea, sunburst, icicle and treemap traces
+  - Patch release [2.24.1](https://github.com/plotly/plotly.js/releases/tag/v2.24.1) and [2.24.2](https://github.com/plotly/plotly.js/releases/tag/v2.24.2)
+
 ## [2.10.2] - 2023-05-31
 
 ## Changed

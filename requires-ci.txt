@@ -24,3 +24,4 @@ pytest-sugar==0.9.6
 xlrd>=2.0.1;python_version>="3.8"
 xlrd<2;python_version<"3.8"
 pytest-rerunfailures
+jupyterlab<4.0.0

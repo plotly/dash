@@ -34,10 +34,6 @@ class Img(Component):
     - contentEditable (string; optional):
         Indicates whether the element's content is editable.
 
-    - contextMenu (string; optional):
-        Defines the ID of a <menu> element which will serve as the
-        element's context menu.
-
     - crossOrigin (string; optional):
         How the element handles cross-origin requests.
 
@@ -159,7 +155,6 @@ class Img(Component):
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
-        contextMenu=Component.UNDEFINED,
         dir=Component.UNDEFINED,
         draggable=Component.UNDEFINED,
         hidden=Component.UNDEFINED,
@@ -180,7 +175,6 @@ class Img(Component):
             "aria-*",
             "className",
             "contentEditable",
-            "contextMenu",
             "crossOrigin",
             "data-*",
             "dir",
@@ -214,7 +208,6 @@ class Img(Component):
             "aria-*",
             "className",
             "contentEditable",
-            "contextMenu",
             "crossOrigin",
             "data-*",
             "dir",

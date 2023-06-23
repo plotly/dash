@@ -31,10 +31,6 @@ class Canvas(Component):
     - contentEditable (string; optional):
         Indicates whether the element's content is editable.
 
-    - contextMenu (string; optional):
-        Defines the ID of a <menu> element which will serve as the
-        element's context menu.
-
     - data-* (string; optional):
         A wildcard data attribute.
 
@@ -133,7 +129,6 @@ class Canvas(Component):
         accessKey=Component.UNDEFINED,
         className=Component.UNDEFINED,
         contentEditable=Component.UNDEFINED,
-        contextMenu=Component.UNDEFINED,
         dir=Component.UNDEFINED,
         draggable=Component.UNDEFINED,
         hidden=Component.UNDEFINED,
@@ -153,7 +148,6 @@ class Canvas(Component):
             "aria-*",
             "className",
             "contentEditable",
-            "contextMenu",
             "data-*",
             "dir",
             "disable_n_clicks",
@@ -180,7 +174,6 @@ class Canvas(Component):
             "aria-*",
             "className",
             "contentEditable",
-            "contextMenu",
             "data-*",
             "dir",
             "disable_n_clicks",
