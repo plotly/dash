@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## Fixed
+
+- [#2573](https://github.com/plotly/dash/pull/2578) Disable jupyter dash in databricks.
+
 ## Changed
 
 - [#2573](https://github.com/plotly/dash/pull/2573) Use `julia --project` command inside `JuliaRunner`.
