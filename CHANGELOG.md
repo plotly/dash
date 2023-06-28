@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Changed
 
 - [#2573](https://github.com/plotly/dash/pull/2573) Use `julia --project` command inside `JuliaRunner`.
+- [#2579](https://github.com/plotly/dash/pull/2579) Add warning if using `JupyterDash`
 
 ## [2.11.0] - 2023-06-23
 
