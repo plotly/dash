@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 
-- [#2573](https://github.com/plotly/dash/pull/2578) Disable jupyter dash in databricks.
+- [#2573](https://github.com/plotly/dash/pull/2578) Disable jupyter dash in Databricks, as the implementation here does not work in a Databricks notebook. Dash Enterprise customers can use the separate databricks-dash package for this purpose.
 
 ## Changed
 
