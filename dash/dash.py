@@ -513,7 +513,10 @@ class Dash:
         self.logger.setLevel(logging.INFO)
 
         if self.__class__.__name__ == "JupyterDash":
-            warnings.warn("JupyterDash is deprecated, use Dash instead.")
+            warnings.warn(
+                "JupyterDash is deprecated, use Dash instead.\n"
+                "See https://dash.plotly.com/dash-in-jupyter for more details."
+            )
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
