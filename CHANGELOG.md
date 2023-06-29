@@ -2,6 +2,17 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.11.1] - 2023-06-29
+
+## Fixed
+
+- [#2573](https://github.com/plotly/dash/pull/2578) Disable jupyter dash in Databricks, as the implementation here does not work in a Databricks notebook. Dash Enterprise customers can use the separate databricks-dash package for this purpose.
+
+## Changed
+
+- [#2573](https://github.com/plotly/dash/pull/2573) Use `julia --project` command inside `JuliaRunner`.
+- [#2579](https://github.com/plotly/dash/pull/2579) Add warning if using `JupyterDash`
+
 ## [2.11.0] - 2023-06-23
 
 ## Added

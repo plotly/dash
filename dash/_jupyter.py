@@ -489,7 +489,8 @@ class JupyterDash:
 
     @property
     def active(self):
-        return _dep_installed and (self.in_ipython or self.in_colab)
+        _inside_dbx = "DATABRICKS_RUNTIME_VERSION" in os.environ
+        return _dep_installed and not _inside_dbx and (self.in_ipython or self.in_colab)
 
 
 jupyter_dash = JupyterDash()
