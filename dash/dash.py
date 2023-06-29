@@ -3,6 +3,7 @@ import os
 import sys
 import collections
 import importlib
+import warnings
 from contextvars import copy_context
 from importlib.machinery import ModuleSpec
 import pkgutil
@@ -510,6 +511,12 @@ class Dash:
             self.init_app()
 
         self.logger.setLevel(logging.INFO)
+
+        if self.__class__.__name__ == "JupyterDash":
+            warnings.warn(
+                "JupyterDash is deprecated, use Dash instead.\n"
+                "See https://dash.plotly.com/dash-in-jupyter for more details."
+            )
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
