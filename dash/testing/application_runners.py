@@ -505,7 +505,9 @@ class JuliaRunner(ProcessRunner):
 
         logger.info("Run Dash.jl app with julia => %s", app)
 
-        args = shlex.split(f"julia {os.path.realpath(app)}", posix=not self.is_windows)
+        args = shlex.split(
+            f"julia --project {os.path.realpath(app)}", posix=not self.is_windows
+        )
         logger.debug("start Dash.jl process with %s", args)
 
         try:
