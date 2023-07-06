@@ -1,5 +1,6 @@
 import pytest
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.by import By
 from dash import Dash, Input, Output, dcc, html
 
 
@@ -72,3 +73,34 @@ def test_inbs002_user_class(dash_dcc):
     dash_dcc.wait_for_style_to_equal(".test-input-css input", "width", "420px")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_inbs003_styles_are_scoped(dash_dcc):
+    app = Dash(__name__)
+
+    app.index_string = """
+    <html>
+        <body>
+            <input id="ExternalInput" required />
+            {%app_entry%}
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </body>
+    </html>
+    """
+
+    app.layout = html.Div(
+        className="test-input-css",
+        children=[dcc.Input(id="DashInput", required=True, className="unittest")],
+    )
+
+    dash_dcc.start_server(app)
+
+    external_input = dash_dcc.driver.find_element(By.ID, "ExternalInput")
+    dash_input = dash_dcc.driver.find_element(By.CLASS_NAME, "unittest")
+
+    external_outline_css = external_input.value_of_css_property("outline")
+    dash_outline_css = dash_input.value_of_css_property("outline")
+
+    assert external_outline_css != dash_outline_css

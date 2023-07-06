@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## UNRELEASED
+
+## Fixed
+
+- [dash-embedded-component #83](https://github.com/plotly/dash-embedded-component/issues/83) CSS for input elements not scoped to Dash application
+
 ## [2.11.1] - 2023-06-29
 
 ## Fixed
