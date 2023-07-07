@@ -1,6 +1,5 @@
 import pytest
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.by import By
 from dash import Dash, Input, Output, dcc, html
 
 
@@ -97,8 +96,8 @@ def test_inbs003_styles_are_scoped(dash_dcc):
 
     dash_dcc.start_server(app)
 
-    external_input = dash_dcc.driver.find_element(By.ID, "ExternalInput")
-    dash_input = dash_dcc.driver.find_element(By.CLASS_NAME, "unittest")
+    external_input = dash_dcc.find_element("#ExternalInput")
+    dash_input = dash_dcc.find_element(".unittest")
 
     external_outline_css = external_input.value_of_css_property("outline")
     dash_outline_css = dash_input.value_of_css_property("outline")

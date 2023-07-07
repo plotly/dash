@@ -66,7 +66,7 @@ export default class Input extends PureComponent {
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
-                className={`dash-input ${this.props.className || ''}`}
+                className={['dash-input', this.props.className].join(' ')}
                 ref={this.input}
                 onBlur={this.onBlur}
                 onChange={this.onChange}
