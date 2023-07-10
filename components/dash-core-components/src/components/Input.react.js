@@ -33,7 +33,7 @@ export default class Input extends PureComponent {
 
     UNSAFE_componentWillReceiveProps(nextProps) {
         const {value} = this.input.current;
-        if (this.state?.pendingEvent && nextProps.value !== value) {
+        if (this.state?.pendingEvent) {
             // avoid updating the input while awaiting a debounced event
             return;
         }
@@ -126,6 +126,7 @@ export default class Input extends PureComponent {
         } else {
             this.props.setProps({value});
         }
+        this.setState({pendingEvent: undefined});
     }
 
     debounceEvent(time = 0.5) {
