@@ -33,6 +33,10 @@ export default class Input extends PureComponent {
 
     UNSAFE_componentWillReceiveProps(nextProps) {
         const {value} = this.input.current;
+        if (this.state?.pendingEvent && nextProps.value !== value) {
+            // avoid updating the input while awaiting a debounced event
+            return;
+        }
         const valueAsNumber = convert(value);
         this.setInputValue(
             isNil(valueAsNumber) ? value : valueAsNumber,
@@ -124,18 +128,17 @@ export default class Input extends PureComponent {
         }
     }
 
-    debounceEvent() {
+    debounceEvent(time = 0.5) {
         const {value} = this.input.current;
-        let {debounce} = this.props;
-        debounce = Number.isFinite(debounce) ? debounce * 1000 : 500;
+        const MILLISECONDS = 1000;
+        time = time * MILLISECONDS;
 
         window.clearTimeout(this.state?.pendingEvent);
         const pendingEvent = window.setTimeout(() => {
             this.onEvent();
-        }, debounce);
+        }, time);
 
         this.setState({
-            ...this.state,
             value,
             pendingEvent,
         });
@@ -158,29 +161,23 @@ export default class Input extends PureComponent {
             });
             this.input.current.checkValidity();
         }
-        return this.props.debounce === true && e.key === 'Enter' && this.onEvent();
+        return (
+            this.props.debounce === true && e.key === 'Enter' && this.onEvent()
+        );
     }
 
     onChange() {
-        if (this.props.debounce) {
-            if (this.props.type !== 'number') {
-                // this.setState({value: this.input.current.value});
+        const {debounce} = this.props;
+        if (debounce) {
+            if (Number.isFinite(debounce)) {
+                this.debounceEvent(debounce);
             }
-            if (typeof this.props.debounce === 'number') {
-                this.debounceEvent();
+            if (this.props.type !== 'number') {
+                this.setState({value: this.input.current.value});
             }
         } else {
             this.onEvent();
         }
-
-
-        // if (!this.props.debounce) {
-        //     this.onEvent();
-        // } else if (this.props.type !== 'number') {
-        //     this.setState({value: this.input.current.value});
-        // } else if (typeof this.props.debounce === 'number') {
-        //     this.debounceEvent();
-        // }
     }
 }
 
@@ -221,8 +218,8 @@ Input.propTypes = {
     /**
      * If true, changes to input will be sent back to the Dash server only on enter or when losing focus.
      * If it's false, it will send the value back on every change.
-     * If a number, it will wait for the user to stop changing the input for that number of seconds before
-     * sending the value back
+     * If a number, it will not send anything back to the Dash server until the user has stopped
+     * typing for that number of seconds.
      */
     debounce: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
 

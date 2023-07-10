@@ -58,6 +58,7 @@ def input_range_app():
 
     yield app
 
+
 @pytest.fixture(scope="module")
 def debounce_text_app():
     app = Dash(__name__)
@@ -69,7 +70,6 @@ def debounce_text_app():
                 placeholder="long wait",
             ),
             html.Div(id="div-slow"),
-
             dcc.Input(
                 id="input-fast",
                 debounce=0.25,
@@ -88,6 +88,7 @@ def debounce_text_app():
 
     yield app
 
+
 @pytest.fixture(scope="module")
 def debounce_number_app():
     app = Dash(__name__)
@@ -100,7 +101,6 @@ def debounce_number_app():
                 placeholder="long wait",
             ),
             html.Div(id="div-slow"),
-
             dcc.Input(
                 id="input-fast",
                 debounce=0.25,

@@ -3,12 +3,13 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 import pytest
 
+
 def test_debounce_text_by_time(dash_dcc, debounce_text_app):
     dash_dcc.start_server(debounce_text_app)
 
     # expect that a long debounce does not call back in a short amount of time
     elem = dash_dcc.find_element("#input-slow")
-    elem.send_keys('unit test slow')
+    elem.send_keys("unit test slow")
     with pytest.raises(TimeoutException):
         WebDriverWait(dash_dcc.driver, timeout=1).until(
             lambda d: d.find_element(By.XPATH, "//*[text()='unit test slow']")
@@ -19,10 +20,9 @@ def test_debounce_text_by_time(dash_dcc, debounce_text_app):
         "#div-slow", "unit test slow"
     ), "long debounce is eventually called back"
 
-
     # expect that a short debounce calls back within a short amount of time
     elem = dash_dcc.find_element("#input-fast")
-    elem.send_keys('unit test fast')
+    elem.send_keys("unit test fast")
     WebDriverWait(dash_dcc.driver, timeout=1).until(
         lambda d: d.find_element(By.XPATH, "//*[text()='unit test fast']")
     )
@@ -35,7 +35,7 @@ def test_debounce_number_by_time(dash_dcc, debounce_number_app):
 
     # expect that a long debounce does not call back in a short amount of time
     elem = dash_dcc.find_element("#input-slow")
-    elem.send_keys('12345')
+    elem.send_keys("12345")
     with pytest.raises(TimeoutException):
         WebDriverWait(dash_dcc.driver, timeout=1).until(
             lambda d: d.find_element(By.XPATH, "//*[text()='12345']")
@@ -46,10 +46,9 @@ def test_debounce_number_by_time(dash_dcc, debounce_number_app):
         "#div-slow", "12345"
     ), "long debounce is eventually called back"
 
-
     # expect that a short debounce calls back within a short amount of time
     elem = dash_dcc.find_element("#input-fast")
-    elem.send_keys('67890')
+    elem.send_keys("67890")
     WebDriverWait(dash_dcc.driver, timeout=1).until(
         lambda d: d.find_element(By.XPATH, "//*[text()='67890']")
     )
