@@ -20,6 +20,11 @@ export default class Input extends PureComponent {
     constructor(props) {
         super(props);
 
+        this.state = {
+            pendingEvent: undefined,
+            value: '',
+        };
+
         this.input = React.createRef();
 
         this.onBlur = this.onBlur.bind(this);
@@ -33,7 +38,7 @@ export default class Input extends PureComponent {
 
     UNSAFE_componentWillReceiveProps(nextProps) {
         const {value} = this.input.current;
-        if (this.state?.pendingEvent) {
+        if (this.state.pendingEvent) {
             // avoid updating the input while awaiting a debounced event
             return;
         }
