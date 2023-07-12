@@ -20,18 +20,28 @@ export default class Input extends PureComponent {
     constructor(props) {
         super(props);
 
+        this.state = {
+            pendingEvent: undefined,
+            value: '',
+        };
+
         this.input = React.createRef();
 
         this.onBlur = this.onBlur.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onEvent = this.onEvent.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
+        this.debounceEvent = this.debounceEvent.bind(this);
         this.setInputValue = this.setInputValue.bind(this);
         this.setPropValue = this.setPropValue.bind(this);
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
         const {value} = this.input.current;
+        if (this.state.pendingEvent) {
+            // avoid updating the input while awaiting a debounced event
+            return;
+        }
         const valueAsNumber = convert(value);
         this.setInputValue(
             isNil(valueAsNumber) ? value : valueAsNumber,
@@ -125,6 +135,21 @@ export default class Input extends PureComponent {
         } else {
             this.props.setProps({value});
         }
+        this.setState({pendingEvent: undefined});
+    }
+
+    debounceEvent(seconds = 0.5) {
+        const {value} = this.input.current;
+
+        window.clearTimeout(this.state?.pendingEvent);
+        const pendingEvent = window.setTimeout(() => {
+            this.onEvent();
+        }, seconds * 1000);
+
+        this.setState({
+            value,
+            pendingEvent,
+        });
     }
 
     onBlur() {
@@ -133,7 +158,7 @@ export default class Input extends PureComponent {
             n_blur_timestamp: Date.now(),
         });
         this.input.current.checkValidity();
-        return this.props.debounce && this.onEvent();
+        return this.props.debounce === true && this.onEvent();
     }
 
     onKeyPress(e) {
@@ -144,14 +169,22 @@ export default class Input extends PureComponent {
             });
             this.input.current.checkValidity();
         }
-        return this.props.debounce && e.key === 'Enter' && this.onEvent();
+        return (
+            this.props.debounce === true && e.key === 'Enter' && this.onEvent()
+        );
     }
 
     onChange() {
-        if (!this.props.debounce) {
+        const {debounce} = this.props;
+        if (debounce) {
+            if (Number.isFinite(debounce)) {
+                this.debounceEvent(debounce);
+            }
+            if (this.props.type !== 'number') {
+                this.setState({value: this.input.current.value});
+            }
+        } else {
             this.onEvent();
-        } else if (this.props.type !== 'number') {
-            this.setState({value: this.input.current.value});
         }
     }
 }
@@ -192,9 +225,11 @@ Input.propTypes = {
 
     /**
      * If true, changes to input will be sent back to the Dash server only on enter or when losing focus.
-     * If it's false, it will sent the value back on every change.
+     * If it's false, it will send the value back on every change.
+     * If a number, it will not send anything back to the Dash server until the user has stopped
+     * typing for that number of seconds.
      */
-    debounce: PropTypes.bool,
+    debounce: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
 
     /**
      * A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it.
