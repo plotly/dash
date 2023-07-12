@@ -13,7 +13,7 @@ const expectedElCount = 125;
  */
 function extractElements($) {
     const excludeElements = [
-        'html', 'head', 'body', 'style', 'h1–h6', 'input',
+        'html', 'head', 'body', 'style', 'h1–h6', 'input', 'search',
         // out of scope, different namespaces - but Mozilla added these to the
         // above reference page Jan 2021 so we need to exclude them now.
         // see https://github.com/mdn/content/pull/410
