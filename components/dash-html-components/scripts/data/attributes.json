@@ -54,6 +54,15 @@
             ],
             "description": "Indicates whether controls in this form can by default have their values automatically completed by the browser."
         },
+        "autoFocus": {
+            "elements": [
+                "button",
+                "input",
+                "select",
+                "textarea"
+            ],
+            "description": "The element should be automatically focused after the page loaded."
+        },
         "autoPlay": {
             "elements": [
                 "audio",
@@ -751,6 +760,7 @@
             "accept",
             "alt",
             "autoComplete",
+            "autoFocus",
             "capture",
             "checked",
             "disabled",
@@ -838,6 +848,7 @@
         ],
         "select": [
             "autoComplete",
+            "autoFocus",
             "disabled",
             "form",
             "multiple",
@@ -847,6 +858,7 @@
         ],
         "textarea": [
             "autoComplete",
+            "autoFocus",
             "cols",
             "disabled",
             "form",
@@ -859,6 +871,19 @@
             "required",
             "rows",
             "wrap"
+        ],
+        "button": [
+            "autoFocus",
+            "disabled",
+            "form",
+            "formAction",
+            "formEncType",
+            "formMethod",
+            "formNoValidate",
+            "formTarget",
+            "name",
+            "type",
+            "value"
         ],
         "audio": [
             "autoPlay",
@@ -941,18 +966,6 @@
             "label",
             "src",
             "srcLang"
-        ],
-        "button": [
-            "disabled",
-            "form",
-            "formAction",
-            "formEncType",
-            "formMethod",
-            "formNoValidate",
-            "formTarget",
-            "name",
-            "type",
-            "value"
         ],
         "fieldset": [
             "disabled",
