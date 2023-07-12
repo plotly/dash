@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## UNRELEASED
+
+## Fixed
+
+- [#2593](https://github.com/plotly/dash/pull/2593) dcc.Input accepts a number for its debounce argument
+
 ## [2.11.1] - 2023-06-29
 
 ## Fixed

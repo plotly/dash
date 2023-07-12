@@ -16,7 +16,7 @@ def test_debounce_text_by_time(dash_dcc, debounce_text_app):
         )
 
     # but do expect that it is eventually called
-    assert dash_dcc.wait_for_text_to_equal(
+    dash_dcc.wait_for_text_to_equal(
         "#div-slow", "unit test slow"
     ), "long debounce is eventually called back"
 
@@ -42,7 +42,7 @@ def test_debounce_number_by_time(dash_dcc, debounce_number_app):
         )
 
     # but do expect that it is eventually called
-    assert dash_dcc.wait_for_text_to_equal(
+    dash_dcc.wait_for_text_to_equal(
         "#div-slow", "12345"
     ), "long debounce is eventually called back"
 

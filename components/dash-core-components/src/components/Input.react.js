@@ -134,15 +134,13 @@ export default class Input extends PureComponent {
         this.setState({pendingEvent: undefined});
     }
 
-    debounceEvent(time = 0.5) {
+    debounceEvent(seconds = 0.5) {
         const {value} = this.input.current;
-        const MILLISECONDS = 1000;
-        time = time * MILLISECONDS;
 
         window.clearTimeout(this.state?.pendingEvent);
         const pendingEvent = window.setTimeout(() => {
             this.onEvent();
-        }, time);
+        }, seconds * 1000);
 
         this.setState({
             value,
