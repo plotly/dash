@@ -183,6 +183,7 @@ def callback(
         *_args,
         **_kwargs,
         long=long_spec,
+        manager=manager,
     )
 
 
@@ -220,6 +221,7 @@ def insert_callback(
     inputs_state_indices,
     prevent_initial_call,
     long=None,
+    manager=None,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -251,6 +253,7 @@ def insert_callback(
         "long": long,
         "output": output,
         "raw_inputs": inputs,
+        "manager": manager,
     }
     callback_list.append(callback_spec)
 
@@ -278,6 +281,7 @@ def register_callback(  # pylint: disable=R0914
         multi = True
 
     long = _kwargs.get("long")
+    manager = _kwargs.get("manager")
 
     output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
     callback_id = insert_callback(
@@ -291,6 +295,7 @@ def register_callback(  # pylint: disable=R0914
         inputs_state_indices,
         prevent_initial_call,
         long=long,
+        manager=manager,
     )
 
     # pylint: disable=too-many-locals
