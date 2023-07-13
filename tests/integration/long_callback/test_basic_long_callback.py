@@ -63,6 +63,9 @@ def setup_long_callback_app(manager_name, app_name):
             ],
             preexec_fn=os.setpgrp,
         )
+        # Wait for the worker to be ready, if you cancel before it is ready, the job
+        # will still be queued.
+        time.sleep(1)
         try:
             yield import_app(f"tests.integration.long_callback.{app_name}")
         finally:
