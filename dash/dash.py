@@ -1316,6 +1316,30 @@ class Dash:
 
         _validate.validate_long_callbacks(self.callback_map)
 
+        cancels = set()
+
+        for callback in self.callback_map.values():
+            cancel = callback.get("long", {}).pop("cancel_inputs")
+            if cancel:
+                cancels.update(cancel)
+
+        if cancels:
+            for cancel_input in cancels:
+
+                # pylint: disable=cell-var-from-loop
+                @self.callback(
+                    Output(cancel_input.component_id, "id"),
+                    cancel_input,
+                    prevent_initial_call=True,
+                )
+                def cancel_call(*_):
+                    job_ids = flask.request.args.getlist("cancelJob")
+                    executor = _callback.context_value.get().background_callback_manager
+                    if job_ids:
+                        for job_id in job_ids:
+                            executor.terminate_job(job_id)
+                    return no_update
+
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
         if self.config.assets_external_path:

@@ -12,7 +12,6 @@ from .dependencies import (
 from .exceptions import (
     PreventUpdate,
     WildcardInLongCallback,
-    DuplicateCallback,
     MissingLongCallbackManagerError,
     LongCallbackError,
 )
@@ -171,25 +170,8 @@ def callback(
             cancel_inputs = coerce_to_list(cancel)
             validate_long_inputs(cancel_inputs)
 
-            cancels_output = [Output(c.component_id, "id") for c in cancel_inputs]
-
-            try:
-
-                @callback(cancels_output, cancel_inputs, prevent_initial_call=True)
-                def cancel_call(*_):
-                    job_ids = flask.request.args.getlist("cancelJob")
-                    executor = (
-                        manager or context_value.get().background_callback_manager
-                    )
-                    if job_ids:
-                        for job_id in job_ids:
-                            executor.terminate_job(job_id)
-                    return NoUpdate()
-
-            except DuplicateCallback:
-                pass  # Already a callback to cancel, will get the proper jobs from the store.
-
             long_spec["cancel"] = [c.to_dict() for c in cancel_inputs]
+            long_spec["cancel_inputs"] = cancel_inputs
 
         if cache_args_to_ignore:
             long_spec["cache_args_to_ignore"] = cache_args_to_ignore
