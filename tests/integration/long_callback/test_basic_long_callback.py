@@ -62,10 +62,14 @@ def setup_long_callback_app(manager_name, app_name):
                 "--loglevel=info",
             ],
             preexec_fn=os.setpgrp,
+            stderr=subprocess.PIPE,
         )
         # Wait for the worker to be ready, if you cancel before it is ready, the job
         # will still be queued.
-        time.sleep(1)
+        for line in iter(worker.stderr.readline, ""):
+            if "ready" in line.decode():
+                break
+
         try:
             yield import_app(f"tests.integration.long_callback.{app_name}")
         finally:
