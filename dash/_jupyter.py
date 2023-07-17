@@ -313,7 +313,10 @@ class JupyterDash:
 
         # server_url = "http://{host}:{port}".format(host=host, port=port)
 
-        dashboard_url = f"{server_url}{requests_pathname_prefix}"
+        if requests_pathname_prefix not in server_url:
+            dashboard_url = f"{server_url}{requests_pathname_prefix}"
+        else:
+            dashboard_url = server_url
 
         # prevent partial import of orjson when it's installed and mode=jupyterlab
         # TODO: why do we need this? Why only in this mode? Importing here in
