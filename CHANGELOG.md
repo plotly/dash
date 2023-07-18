@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 
 - [#2589](https://github.com/plotly/dash/pull/2589) CSS for input elements not scoped to Dash application
+- [#2599](https://github.com/plotly/dash/pull/2599) Fix background callback cancel inputs used in multiple callbacks and mixed cancel inputs across pages.
 
 ## Changed
 
