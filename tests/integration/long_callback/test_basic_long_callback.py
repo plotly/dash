@@ -570,7 +570,7 @@ def test_lcbc016_multi_page_cancel(dash_duo, manager):
         dash_duo.start_server(app)
         dash_duo.find_element("#start1").click()
         dash_duo.wait_for_text_to_equal("#progress1", "running")
-        dash_duo.find_element("#cancel").click()
+        dash_duo.find_element("#shared_cancel").click()
         dash_duo.wait_for_text_to_equal("#progress1", "idle")
         time.sleep(2.1)
         dash_duo.wait_for_text_to_equal("#output1", "initial")
@@ -586,7 +586,7 @@ def test_lcbc016_multi_page_cancel(dash_duo, manager):
 
         dash_duo.find_element("#start2").click()
         dash_duo.wait_for_text_to_equal("#progress2", "running")
-        dash_duo.find_element("#cancel").click()
+        dash_duo.find_element("#shared_cancel").click()
         dash_duo.wait_for_text_to_equal("#progress2", "idle")
         time.sleep(2.1)
         dash_duo.wait_for_text_to_equal("#output2", "initial")

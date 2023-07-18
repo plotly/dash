@@ -19,7 +19,7 @@ app.layout = html.Div(
     [
         dcc.Link("page1", "/"),
         dcc.Link("page2", "/2"),
-        html.Button("Cancel", id="cancel"),
+        html.Button("Cancel", id="shared_cancel"),
         page_container,
     ]
 )
@@ -59,7 +59,7 @@ register_page(
     ],
     cancel=[
         Input("cancel1", "n_clicks"),
-        Input("cancel", "n_clicks"),
+        Input("shared_cancel", "n_clicks"),
     ],
     background=True,
     prevent_initial_call=True,
@@ -78,7 +78,7 @@ def on_click1(n_clicks):
     ],
     cancel=[
         Input("cancel2", "n_clicks"),
-        Input("cancel", "n_clicks"),
+        Input("shared_cancel", "n_clicks"),
     ],
     background=True,
     prevent_initial_call=True,
