@@ -2,10 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## UNRELEASED
+
+## [UNRELEASED]
 
 ## Fixed
 
+- [#2596](https://github.com/plotly/dash/pull/2596) Fix react-dom throwing unique key prop error for markdown table, fix [#1433](https://github.com/plotly/dash/issues/1433)
 - [#2589](https://github.com/plotly/dash/pull/2589) CSS for input elements not scoped to Dash application
 - [#2599](https://github.com/plotly/dash/pull/2599) Fix background callback cancel inputs used in multiple callbacks and mixed cancel inputs across pages.
 
