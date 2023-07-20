@@ -12,7 +12,6 @@ from .dependencies import (
 from .exceptions import (
     PreventUpdate,
     WildcardInLongCallback,
-    DuplicateCallback,
     MissingLongCallbackManagerError,
     LongCallbackError,
 )
@@ -171,25 +170,8 @@ def callback(
             cancel_inputs = coerce_to_list(cancel)
             validate_long_inputs(cancel_inputs)
 
-            cancels_output = [Output(c.component_id, "id") for c in cancel_inputs]
-
-            try:
-
-                @callback(cancels_output, cancel_inputs, prevent_initial_call=True)
-                def cancel_call(*_):
-                    job_ids = flask.request.args.getlist("cancelJob")
-                    executor = (
-                        manager or context_value.get().background_callback_manager
-                    )
-                    if job_ids:
-                        for job_id in job_ids:
-                            executor.terminate_job(job_id)
-                    return NoUpdate()
-
-            except DuplicateCallback:
-                pass  # Already a callback to cancel, will get the proper jobs from the store.
-
             long_spec["cancel"] = [c.to_dict() for c in cancel_inputs]
+            long_spec["cancel_inputs"] = cancel_inputs
 
         if cache_args_to_ignore:
             long_spec["cache_args_to_ignore"] = cache_args_to_ignore
@@ -201,6 +183,7 @@ def callback(
         *_args,
         **_kwargs,
         long=long_spec,
+        manager=manager,
     )
 
 
@@ -238,6 +221,7 @@ def insert_callback(
     inputs_state_indices,
     prevent_initial_call,
     long=None,
+    manager=None,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -269,6 +253,7 @@ def insert_callback(
         "long": long,
         "output": output,
         "raw_inputs": inputs,
+        "manager": manager,
     }
     callback_list.append(callback_spec)
 
@@ -296,6 +281,7 @@ def register_callback(  # pylint: disable=R0914
         multi = True
 
     long = _kwargs.get("long")
+    manager = _kwargs.get("manager")
 
     output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
     callback_id = insert_callback(
@@ -309,6 +295,7 @@ def register_callback(  # pylint: disable=R0914
         inputs_state_indices,
         prevent_initial_call,
         long=long,
+        manager=manager,
     )
 
     # pylint: disable=too-many-locals
