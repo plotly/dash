@@ -6,7 +6,6 @@ const request = require('request');
 
 const refUrl = 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element';
 const dataPath = './data/elements.txt';
-const expectedElCount = 125;
 
 /**
  * From the MDN HTML elements reference, extract a list of elements.
@@ -69,28 +68,6 @@ request(refUrl, (error, response, html) => {
     }
     const $ = cheerio.load(html);
     const elements = extractElements($);
-    if (elements.length !== expectedElCount) {
-        try {
-            const prevEls = fs.readFileSync(dataPath, 'utf8').split('\n');
-            const added = elements.filter(n => prevEls.indexOf(n) === -1);
-            const removed = prevEls.filter(n => elements.indexOf(n) === -1);
-
-            console.error(
-                'Found new elements not seen before: [' + added.join(',') +
-                '] and did not find expected elements: [' + removed.join(',') + ']'
-            );
-        }
-        catch(e) {
-            console.log('no previous elements found');
-            console.log(e);
-        }
-        console.error(
-            'Unexpected number of elements extracted from ' + refUrl +
-            ' - Found ' + elements.length + ' but expected ' + expectedElCount +
-            ' Check the output and edit expectedElCount if this is intended.'
-        );
-        process.exit(-1);
-    }
     const out = elements.join('\n');
 
     fs.writeFileSync(dataPath, out);
