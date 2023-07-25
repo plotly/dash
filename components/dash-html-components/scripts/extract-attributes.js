@@ -31,6 +31,19 @@ const supportedAttributes = ['accept', 'accessKey', 'action', 'allow',
 'srcDoc', 'srcLang', 'srcSet', 'start', 'step', 'style', 'summary', 'tabIndex',
 'target', 'title', 'type', 'useMap', 'value', 'width', 'wmode', 'wrap'];
 
+
+const hardcodedAttributes = {
+    autoFocus: {
+        elements: [
+            "button",
+            "input",
+            "select",
+            "textarea"
+        ],
+        description: "The element should be automatically focused after the page loaded."
+    }
+}
+
 // Create a map of HTML attribute to React prop
 // e.g. {"datetime": "dateTime"}
 const attributeMap = supportedAttributes.reduce((map, reactAttribute) => {
@@ -58,7 +71,7 @@ function extractAttributes($) {
     if($table.length !== 1) {
         throw new Error('page structure changed at ' + htmlURL);
     }
-    const attributes = {};
+    const attributes = hardcodedAttributes;
 
     $table.find('tbody tr').each((i, row) => {
         const $children = cheerio(row).find('td');
