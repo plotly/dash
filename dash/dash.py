@@ -708,7 +708,7 @@ class Dash:
         if not self.config.serve_locally:
             config[
                 "plotlyjs_url"
-            ] = f"https://unpkg.com/plotly.js-dist@{get_plotlyjs_version()}/plotly.js"
+            ] = f"https://cdn.plot.ly/plotly-{get_plotlyjs_version()}.min.js"
         if self._dev_tools.hot_reload:
             config["hot_reload"] = {
                 # convert from seconds to msec as used by js `setInterval`
