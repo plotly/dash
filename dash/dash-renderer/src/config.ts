@@ -1,3 +1,5 @@
+import React from 'react';
+
 type Config = {
     url_base_pathname: string;
     requests_pathname_prefix: string;
@@ -19,6 +21,8 @@ type Config = {
             'Content-Type': string;
         };
     };
+    serve_locally?: boolean;
+    plotlyjs_url?: string;
 };
 
 export default function getConfigFromDOM(): Config {
@@ -27,3 +31,15 @@ export default function getConfigFromDOM(): Config {
         configElement?.textContent ? configElement?.textContent : '{}'
     );
 }
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export const ConfigContext = React.createContext<Config>({});
+
+export function useConfig() {
+    return React.useContext<Config>(ConfigContext);
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+window._dashUseConfig = useConfig;

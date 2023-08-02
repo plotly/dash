@@ -122,12 +122,12 @@ _js_dist.extend(
             "dynamic": True,
         },
         {
-            "relative_package_path": "dcc/plotly.min.js",
+            "relative_package_path": "package_data/plotly.min.js",
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/plotly.min.js"
             ).format(__version__),
-            "namespace": "dash",
+            "namespace": "plotly",
             "async": "eager",
         },
         {

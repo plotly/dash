@@ -21,6 +21,7 @@ import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
 import wait from './utils/wait';
+import {ConfigContext} from './config';
 
 export const DashContext = createContext({});
 
@@ -89,20 +90,22 @@ const UnconnectedContainer = props => {
 
         content = (
             <DashContext.Provider value={provider.current}>
-                <TreeContainer
-                    _dashprivate_error={error}
-                    _dashprivate_layout={layout}
-                    _dashprivate_loadingState={getLoadingState(
-                        layout,
-                        [],
-                        loadingMap
-                    )}
-                    _dashprivate_loadingStateHash={getLoadingHash(
-                        [],
-                        loadingMap
-                    )}
-                    _dashprivate_path={JSON.stringify([])}
-                />
+                <ConfigContext.Provider value={config}>
+                    <TreeContainer
+                        _dashprivate_error={error}
+                        _dashprivate_layout={layout}
+                        _dashprivate_loadingState={getLoadingState(
+                            layout,
+                            [],
+                            loadingMap
+                        )}
+                        _dashprivate_loadingStateHash={getLoadingHash(
+                            [],
+                            loadingMap
+                        )}
+                        _dashprivate_path={JSON.stringify([])}
+                    />
+                </ConfigContext.Provider>
             </DashContext.Provider>
         );
     } else {

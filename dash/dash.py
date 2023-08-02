@@ -20,6 +20,7 @@ from urllib.parse import urlparse
 import flask
 
 from pkg_resources import get_distribution, parse_version
+from plotly.offline import get_plotlyjs_version
 
 from dash import dcc
 from dash import html
@@ -702,7 +703,12 @@ class Dash:
             "suppress_callback_exceptions": self.config.suppress_callback_exceptions,
             "update_title": self.config.update_title,
             "children_props": ComponentRegistry.children_props,
+            "serve_locally": self.config.serve_locally,
         }
+        if not self.config.serve_locally:
+            config[
+                "plotlyjs_url"
+            ] = f"https://unpkg.com/plotly.js-dist@{get_plotlyjs_version()}/plotly.js"
         if self._dev_tools.hot_reload:
             config["hot_reload"] = {
                 # convert from seconds to msec as used by js `setInterval`
