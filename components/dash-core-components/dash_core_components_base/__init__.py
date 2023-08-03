@@ -1,6 +1,9 @@
 import json
 import os as _os
 import sys as _sys
+
+from plotly.offline import get_plotlyjs_version
+
 import dash as _dash
 
 from ._imports_ import *  # noqa: F401, F403, E402
@@ -123,10 +126,7 @@ _js_dist.extend(
         },
         {
             "relative_package_path": "package_data/plotly.min.js",
-            "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
-                "/dash_core_components/plotly.min.js"
-            ).format(__version__),
+            "external_url": f"https://cdn.plot.ly/plotly-{get_plotlyjs_version()}.min.js",
             "namespace": "plotly",
             "async": "eager",
         },
