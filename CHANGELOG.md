@@ -37,6 +37,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Changed
 
 - [#2593](https://github.com/plotly/dash/pull/2593) dcc.Input accepts a number for its debounce argument
+- [#2614](https://github.com/plotly/dash/pull/2614) Bump Flask & Werkzeug in requires-install.txt, closes [#2592](https://github.com/plotly/dash/issues/2592)
 
 ## Updated
 
