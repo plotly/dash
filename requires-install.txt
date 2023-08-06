@@ -1,5 +1,5 @@
-Flask>=1.0.4,<2.3.0
-Werkzeug<2.3.0
+Flask>=1.0.4,<2.4.0
+Werkzeug<2.4.0
 plotly>=5.0.0
 dash_html_components==2.0.0
 dash_core_components==2.0.0
