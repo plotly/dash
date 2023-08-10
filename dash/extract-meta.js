@@ -49,7 +49,7 @@ if (fs.existsSync('tsconfig.json')) {
         case 'nodenext':
             tsconfig.moduleResolution = ts.ModuleResolutionKind.NodeNext;
             break;
-                case 'classic':
+        case 'classic':
             tsconfig.moduleResolution = ts.ModuleResolutionKind.Classic;
             break;
         default:
