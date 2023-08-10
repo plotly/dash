@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 
+- [#2616](https://github.com/plotly/dash/pull/2616) Add mapping of tsconfig compiler option `moduleResolution`, fixes [#2618](https://github.com/plotly/dash/issues/2618) 
 - [#2596](https://github.com/plotly/dash/pull/2596) Fix react-dom throwing unique key prop error for markdown table, fix [#1433](https://github.com/plotly/dash/issues/1433)
 - [#2589](https://github.com/plotly/dash/pull/2589) CSS for input elements not scoped to Dash application
 - [#2599](https://github.com/plotly/dash/pull/2599) Fix background callback cancel inputs used in multiple callbacks and mixed cancel inputs across pages.
