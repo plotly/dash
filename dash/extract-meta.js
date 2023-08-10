@@ -38,6 +38,23 @@ if (!src.length) {
 
 if (fs.existsSync('tsconfig.json')) {
     tsconfig = JSON.parse(fs.readFileSync('tsconfig.json')).compilerOptions;
+    // Map moduleResolution to the appropriate enum.
+    switch (tsconfig.moduleResolution) {
+        case 'node':
+            tsconfig.moduleResolution = ts.ModuleResolutionKind.NodeJs;
+            break;
+        case 'node16':
+            tsconfig.moduleResolution = ts.ModuleResolutionKind.Node16;
+            break;
+        case 'nodenext':
+            tsconfig.moduleResolution = ts.ModuleResolutionKind.NodeNext;
+            break;
+                case 'classic':
+            tsconfig.moduleResolution = ts.ModuleResolutionKind.Classic;
+            break;
+        default:
+            break;
+    }
 }
 
 let failedBuild = false;
