@@ -47,3 +47,4 @@ requests[security]>=2.21.0
 selenium>=3.141.0
 waitress>=1.4.4
 webdriver-manager>=3.5.1
+setuptools
