@@ -177,7 +177,11 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                     active.row !== active_cell?.row)
             ) {
                 const target = this.$el.querySelector(
-                    `td[data-dash-row="${active_cell.row}"][data-dash-column="${active_cell.column_id}"]:not(.phantom-cell)`
+                    `td[data-dash-row="${
+                        active_cell.row
+                    }"][data-dash-column="${CSS.escape(
+                        active_cell.column_id
+                    )}"]:not(.phantom-cell)`
                 ) as HTMLElement;
                 if (target) {
                     target.focus();
@@ -1170,10 +1174,14 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 ? table.querySelector(
                       `tr:nth-of-type(${
                           row + 1
-                      }) th[data-dash-column="${id}"]:not(.phantom-cell)`
+                      }) th[data-dash-column="${CSS.escape(
+                          id
+                      )}"]:not(.phantom-cell)`
                   )
                 : table.querySelector(
-                      `td[data-dash-column="${id}"][data-dash-row="${row}"]:not(.phantom-cell)`
+                      `td[data-dash-column="${CSS.escape(
+                          id
+                      )}"][data-dash-row="${row}"]:not(.phantom-cell)`
                   );
 
             (this.refs.tooltip as TableTooltip).updateBounds(cell);

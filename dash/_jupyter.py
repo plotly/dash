@@ -403,7 +403,7 @@ class JupyterDash:
     @staticmethod
     def _display_in_colab(dashboard_url, port, mode, width, height):
         # noinspection PyUnresolvedReferences
-        from google.colab import output  # pylint: disable=E0401,C0415
+        from google.colab import output  # pylint: disable=E0401,E0611,C0415
 
         if mode == "inline":
             output.serve_kernel_port_as_iframe(port, width=width, height=height)
