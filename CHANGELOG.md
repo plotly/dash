@@ -3,7 +3,7 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 
-## [UNRELEASED]
+## [2.12.0] - 2023-08-14
 
 ## Fixed
 
@@ -16,6 +16,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Changed
 
 - [#2593](https://github.com/plotly/dash/pull/2593) dcc.Input accepts a number for its debounce argument
+
+## Updated
+
+- [#2621](https://github.com/plotly/dash/pull/2621) Update plotly.js to 2.25.2 from 2.24.2
+  - Feature release [2.25.0](https://github.com/plotly/plotly.js/releases/tag/v2.25.0), Add "Equal Earth" project, options to include legends for shapes, Plotly.deleteActivateShape.
+  - Patch release [2.24.3](https://github.com/plotly/plotly.js/releases/tag/v2.24.3) Fix for doubles clicks and legend group.
+  - Patch release [2.25.1](https://github.com/plotly/plotly.js/releases/tag/v2.25.1) Fix clearing legend using react.
+  - Patch release [2.25.2](https://github.com/plotly/plotly.js/releases/tag/v2.25.2) Fix potential prototype pollution in plot API calls.
 
 ## [2.11.1] - 2023-06-29
 
