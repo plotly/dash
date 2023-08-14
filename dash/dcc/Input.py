@@ -19,10 +19,12 @@ class Input(Component):
     - type (a value equal to: 'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden'; default 'text'):
         The type of control to render.
 
-    - debounce (boolean; default False):
+    - debounce (boolean | number; default False):
         If True, changes to input will be sent back to the Dash server
-        only on enter or when losing focus. If it's False, it will sent
-        the value back on every change.
+        only on enter or when losing focus. If it's False, it will send
+        the value back on every change. If a number, it will not send
+        anything back to the Dash server until the user has stopped typing
+        for that number of seconds.
 
     - placeholder (string | number; optional):
         A hint to the user of what can be entered in the control . The
