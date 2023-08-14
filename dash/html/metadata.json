@@ -20865,13 +20865,6 @@
         "required": false,
         "description": "A wildcard aria attribute"
       },
-      "autoComplete": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Indicates whether controls in this form can by default have their values automatically completed by the browser."
-      },
       "autoFocus": {
         "type": {
           "name": "union",
@@ -20900,6 +20893,13 @@
         },
         "required": false,
         "description": "The element should be automatically focused after the page loaded."
+      },
+      "autoComplete": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether controls in this form can by default have their values automatically completed by the browser."
       },
       "disabled": {
         "type": {
@@ -24341,13 +24341,6 @@
         "required": false,
         "description": "A wildcard aria attribute"
       },
-      "autoComplete": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Indicates whether controls in this form can by default have their values automatically completed by the browser."
-      },
       "autoFocus": {
         "type": {
           "name": "union",
@@ -24376,6 +24369,13 @@
         },
         "required": false,
         "description": "The element should be automatically focused after the page loaded."
+      },
+      "autoComplete": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether controls in this form can by default have their values automatically completed by the browser."
       },
       "cols": {
         "type": {

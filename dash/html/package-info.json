@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -15,6 +15,7 @@
   "scripts": {
     "clean": "rm -rf src/* && mkdir -p src/components",
     "prebuild": "cd scripts && sh generate-all.sh && cd -",
+    "extract": "cd scripts && sh extract-all.sh",
     "lint": "eslint src scripts",
     "build:js": "webpack --mode production",
     "build:backends": "dash-generate-components ./src/components dash_html_components -p package-info.json && cp dash_html_components_base/** dash_html_components && dash-generate-components ./src/components dash_html_components -p package-info.json --r-prefix 'html' --r-suggests 'dash,dashCoreComponents' --jl-prefix 'html' && black dash_html_components",
@@ -33,11 +34,11 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.21.5",
-    "@babel/core": "^7.21.8",
-    "@babel/preset-env": "^7.21.5",
-    "@babel/preset-react": "^7.18.6",
-    "babel-loader": "^9.1.2",
+    "@babel/cli": "^7.22.10",
+    "@babel/core": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "@babel/preset-react": "^7.22.5",
+    "babel-loader": "^9.1.3",
     "cheerio": "^0.22.0",
     "cross-env": "^7.0.3",
     "es-check": "^7.1.1",
@@ -48,7 +49,7 @@
     "react-docgen": "^5.4.3",
     "request": "^2.88.2",
     "string": "^3.3.3",
-    "webpack": "^5.88.0",
+    "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4"
   },
   "files": [

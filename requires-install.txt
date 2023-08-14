@@ -11,3 +11,4 @@ requests
 retrying
 ansi2html
 nest-asyncio
+setuptools

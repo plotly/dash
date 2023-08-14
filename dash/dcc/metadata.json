@@ -2596,6 +2596,18 @@
         "returns": null
       },
       {
+        "name": "debounceEvent",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "seconds",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
         "name": "onBlur",
         "docblock": null,
         "modifiers": [],
@@ -2689,10 +2701,18 @@
       },
       "debounce": {
         "type": {
-          "name": "bool"
+          "name": "union",
+          "value": [
+            {
+              "name": "bool"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
-        "description": "If true, changes to input will be sent back to the Dash server only on enter or when losing focus.\nIf it's false, it will sent the value back on every change.",
+        "description": "If true, changes to input will be sent back to the Dash server only on enter or when losing focus.\nIf it's false, it will send the value back on every change.\nIf a number, it will not send anything back to the Dash server until the user has stopped\ntyping for that number of seconds.",
         "defaultValue": {
           "value": "false",
           "computed": false
