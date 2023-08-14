@@ -7,7 +7,7 @@ test_cases = {
         "fail": True,
         "name": 'simple "not a boolean" check',
         "component": dcc.Input,
-        "props": {"debounce": 0},
+        "props": {"multiple": 0},
     },
     "missing-required-nested-prop": {
         "fail": True,

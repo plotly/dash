@@ -1,5 +1,14 @@
 {
     "attributes": {
+        "autoFocus": {
+            "elements": [
+                "button",
+                "input",
+                "select",
+                "textarea"
+            ],
+            "description": "The element should be automatically focused after the page loaded."
+        },
         "accept": {
             "elements": [
                 "form",
@@ -53,15 +62,6 @@
                 "textarea"
             ],
             "description": "Indicates whether controls in this form can by default have their values automatically completed by the browser."
-        },
-        "autoFocus": {
-            "elements": [
-                "button",
-                "input",
-                "select",
-                "textarea"
-            ],
-            "description": "The element should be automatically focused after the page loaded."
         },
         "autoPlay": {
             "elements": [
@@ -745,22 +745,24 @@
         }
     },
     "elements": {
-        "form": [
-            "accept",
-            "acceptCharset",
-            "action",
-            "autoComplete",
-            "encType",
-            "method",
+        "button": [
+            "autoFocus",
+            "disabled",
+            "form",
+            "formAction",
+            "formEncType",
+            "formMethod",
+            "formNoValidate",
+            "formTarget",
             "name",
-            "noValidate",
-            "target"
+            "type",
+            "value"
         ],
         "input": [
+            "autoFocus",
             "accept",
             "alt",
             "autoComplete",
-            "autoFocus",
             "capture",
             "checked",
             "disabled",
@@ -789,6 +791,43 @@
             "useMap",
             "value",
             "width"
+        ],
+        "select": [
+            "autoFocus",
+            "autoComplete",
+            "disabled",
+            "form",
+            "multiple",
+            "name",
+            "required",
+            "size"
+        ],
+        "textarea": [
+            "autoFocus",
+            "autoComplete",
+            "cols",
+            "disabled",
+            "form",
+            "inputMode",
+            "maxLength",
+            "minLength",
+            "name",
+            "placeholder",
+            "readOnly",
+            "required",
+            "rows",
+            "wrap"
+        ],
+        "form": [
+            "accept",
+            "acceptCharset",
+            "action",
+            "autoComplete",
+            "encType",
+            "method",
+            "name",
+            "noValidate",
+            "target"
         ],
         "Globalattribute": [
             "accessKey",
@@ -845,45 +884,6 @@
             "referrerPolicy",
             "src",
             "type"
-        ],
-        "select": [
-            "autoComplete",
-            "autoFocus",
-            "disabled",
-            "form",
-            "multiple",
-            "name",
-            "required",
-            "size"
-        ],
-        "textarea": [
-            "autoComplete",
-            "autoFocus",
-            "cols",
-            "disabled",
-            "form",
-            "inputMode",
-            "maxLength",
-            "minLength",
-            "name",
-            "placeholder",
-            "readOnly",
-            "required",
-            "rows",
-            "wrap"
-        ],
-        "button": [
-            "autoFocus",
-            "disabled",
-            "form",
-            "formAction",
-            "formEncType",
-            "formMethod",
-            "formNoValidate",
-            "formTarget",
-            "name",
-            "type",
-            "value"
         ],
         "audio": [
             "autoPlay",

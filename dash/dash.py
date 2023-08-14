@@ -1194,9 +1194,6 @@ class Dash:
             input_values
         ) = inputs_to_dict(inputs)
         g.state_values = inputs_to_dict(state)  # pylint: disable=assigning-non-slot
-        g.background_callback_manager = (
-            self._background_manager
-        )  # pylint: disable=E0237
         changed_props = body.get("changedPropIds", [])
         g.triggered_inputs = [  # pylint: disable=assigning-non-slot
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
@@ -1211,7 +1208,9 @@ class Dash:
         try:
             cb = self.callback_map[output]
             func = cb["callback"]
-
+            g.background_callback_manager = (
+                cb.get("manager") or self._background_manager
+            )
             g.ignore_register_page = cb.get("long", False)
 
             # Add args_grouping
@@ -1315,6 +1314,35 @@ class Dash:
         _callback.GLOBAL_CALLBACK_LIST.clear()
 
         _validate.validate_long_callbacks(self.callback_map)
+
+        cancels = {}
+
+        for callback in self.callback_map.values():
+            long = callback.get("long")
+            if not long:
+                continue
+            cancel = long.pop("cancel_inputs")
+            if cancel:
+                for c in cancel:
+                    cancels[c] = long.get("manager")
+
+        if cancels:
+            for cancel_input, manager in cancels.items():
+
+                # pylint: disable=cell-var-from-loop
+                @self.callback(
+                    Output(cancel_input.component_id, "id"),
+                    cancel_input,
+                    prevent_initial_call=True,
+                    manager=manager,
+                )
+                def cancel_call(*_):
+                    job_ids = flask.request.args.getlist("cancelJob")
+                    executor = _callback.context_value.get().background_callback_manager
+                    if job_ids:
+                        for job_id in job_ids:
+                            executor.terminate_job(job_id)
+                    return no_update
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
