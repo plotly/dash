@@ -3,6 +3,12 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 
+## [2.12.1] - 2023-08-16
+
+## Fixed
+
+- [#2625](https://github.com/plotly/dash/pull/2625) Fix background callbacks without cancel arguments failing setup, fix [#2624](https://github.com/plotly/dash/issues/2624)
+
 ## [2.12.0] - 2023-08-14
 
 ## Fixed
