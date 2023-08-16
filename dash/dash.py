@@ -1321,8 +1321,8 @@ class Dash:
             long = callback.get("long")
             if not long:
                 continue
-            cancel = long.pop("cancel_inputs")
-            if cancel:
+            if "cancel_inputs" in long:
+                cancel = long.pop("cancel_inputs")
                 for c in cancel:
                     cancels[c] = long.get("manager")
 
