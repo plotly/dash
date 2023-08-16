@@ -34,6 +34,8 @@ register_page(
             html.Button("cancel1", id="cancel1"),
             html.Div("idle", id="progress1"),
             html.Div("initial", id="output1"),
+            html.Div("no-cancel-btn", id="no-cancel-btn"),
+            html.Div("no-cancel", id="no-cancel-output"),
         ]
     ),
 )
@@ -49,6 +51,16 @@ register_page(
         ]
     ),
 )
+
+
+@app.callback(
+    Output("no-cancel-output", "children"),
+    Input("no-cancel-btn", "n_clicks"),
+    background=True,
+    prevent_initial_call=True,
+)
+def on_click_no_cancel(_):
+    return "Not Canceled"
 
 
 @app.callback(
