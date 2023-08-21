@@ -21,7 +21,6 @@ import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
 import wait from './utils/wait';
-import {ConfigContext} from './config';
 
 export const DashContext = createContext({});
 
@@ -73,6 +72,14 @@ const UnconnectedContainer = props => {
         }
     });
 
+    useEffect(() => {
+        if (config.serve_locally) {
+            window._dashPlotlyJSURL = `${config.requests_pathname_prefix}_dash-component-suites/plotly/package_data/plotly.min.js`;
+        } else {
+            window._dashPlotlyJSURL = config.plotlyjs_url;
+        }
+    }, []);
+
     let content;
     if (
         layoutRequest.status &&
@@ -90,22 +97,20 @@ const UnconnectedContainer = props => {
 
         content = (
             <DashContext.Provider value={provider.current}>
-                <ConfigContext.Provider value={config}>
-                    <TreeContainer
-                        _dashprivate_error={error}
-                        _dashprivate_layout={layout}
-                        _dashprivate_loadingState={getLoadingState(
-                            layout,
-                            [],
-                            loadingMap
-                        )}
-                        _dashprivate_loadingStateHash={getLoadingHash(
-                            [],
-                            loadingMap
-                        )}
-                        _dashprivate_path={JSON.stringify([])}
-                    />
-                </ConfigContext.Provider>
+                <TreeContainer
+                    _dashprivate_error={error}
+                    _dashprivate_layout={layout}
+                    _dashprivate_loadingState={getLoadingState(
+                        layout,
+                        [],
+                        loadingMap
+                    )}
+                    _dashprivate_loadingStateHash={getLoadingHash(
+                        [],
+                        loadingMap
+                    )}
+                    _dashprivate_path={JSON.stringify([])}
+                />
             </DashContext.Provider>
         );
     } else {

@@ -124,34 +124,13 @@ class PlotlyGraph extends Component {
     }
 }
 
-let loadingProm = null;
-let loadedGraph = null;
-
-const getPlotlyGraph = config => {
-    if (loadedGraph) {
-        if (loadedGraph.default) {
-            // Hot reload get a default
-            return loadedGraph.default;
-        }
-        return loadedGraph;
-    }
-    if (loadingProm) {
-        return loadingProm;
-    }
-
-    loadingProm = asyncDecorator(PlotlyGraph, () =>
-        Promise.all([
-            graph(),
-            plotly(config),
-            PlotlyGraph._loadMathjax ? lazyLoadMathJax() : undefined,
-        ]).then(([graph]) => {
-            loadedGraph = graph;
-            loadingProm = null;
-            return graph;
-        })
-    );
-    return loadingProm;
-};
+const RealPlotlyGraph = asyncDecorator(PlotlyGraph, () =>
+    Promise.all([
+        graph(),
+        plotly(),
+        PlotlyGraph._loadMathjax ? lazyLoadMathJax() : undefined,
+    ]).then(([graph]) => graph)
+);
 
 const ControlledPlotlyGraph = memo(props => {
     const {className, id} = props;
@@ -159,9 +138,6 @@ const ControlledPlotlyGraph = memo(props => {
     const extendedClassName = className
         ? 'dash-graph ' + className
         : 'dash-graph';
-    const config = window._dashUseConfig();
-
-    const RealPlotlyGraph = getPlotlyGraph(config);
 
     return (
         <Suspense

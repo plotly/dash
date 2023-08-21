@@ -1,16 +1,10 @@
-export default (config) => {
-    let url;
-    if (config.serve_locally) {
-        url = `${config.requests_pathname_prefix}_dash-component-suites/plotly/package_data/plotly.min.js`;
-    } else {
-        url = config.plotlyjs_url;
-    }
+export default () => {
     return Promise.resolve(window.Plotly || new Promise((resolve, reject) => {
         /* eslint-disable prefer-const */
         let timeoutId;
 
         const element = document.createElement('script');
-        element.src = url;
+        element.src = window._dashPlotlyJSURL;
         element.async = true;
         element.onload = () => {
             clearTimeout(timeoutId);
@@ -23,7 +17,7 @@ export default (config) => {
 
         timeoutId = setTimeout(() => {
             element.src = '';
-            reject(new Error(`${url} did not load after 30 seconds`));
+            reject(new Error(`plotly.js did not load after 30 seconds`));
         }, 3 * 10 * 1000);
 
         document.querySelector('body').appendChild(element);
