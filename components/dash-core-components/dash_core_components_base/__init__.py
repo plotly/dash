@@ -122,24 +122,6 @@ _js_dist.extend(
             "namespace": "dash",
             "dynamic": True,
         },
-        {
-            "relative_package_path": "dcc/async-plotlyjs.js",
-            "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
-                "/dash_core_components/async-plotlyjs.js"
-            ).format(__version__),
-            "namespace": "dash",
-            "async": "lazy",
-        },
-        {
-            "relative_package_path": "dcc/async-plotlyjs.js.map",
-            "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
-                "/dash_core_components/async-plotlyjs.js.map"
-            ).format(__version__),
-            "namespace": "dash",
-            "dynamic": True,
-        },
     ]
 )
 
