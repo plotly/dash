@@ -20,7 +20,6 @@ from urllib.parse import urlparse
 import flask
 
 from pkg_resources import get_distribution, parse_version
-from plotly.offline import get_plotlyjs_version
 
 from dash import dcc
 from dash import html
@@ -342,6 +341,8 @@ class Dash:
         if not added previously.
     """
 
+    _plotlyjs_url: str
+
     def __init__(  # pylint: disable=too-many-statements
         self,
         name=None,
@@ -589,6 +590,8 @@ class Dash:
         _get_app.APP = self
         self.enable_pages()
 
+        self._setup_plotlyjs()
+
     def _add_url(self, name, view_func, methods=("GET",)):
         full_name = self.config.routes_pathname_prefix + name
 
@@ -619,6 +622,25 @@ class Dash:
 
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
+
+    def _setup_plotlyjs(self):
+        # pylint: disable=import-outside-toplevel
+        from plotly.offline import get_plotlyjs_version
+
+        url = f"https://cdn.plot.ly/plotly-{get_plotlyjs_version()}.min.js"
+
+        # pylint: disable=protected-access
+        dcc._js_dist.extend(
+            [
+                {
+                    "relative_package_path": "package_data/plotly.min.js",
+                    "external_url": url,
+                    "namespace": "plotly",
+                    "async": "eager",
+                }
+            ]
+        )
+        self._plotlyjs_url = url
 
     @property
     def layout(self):
@@ -706,9 +728,7 @@ class Dash:
             "serve_locally": self.config.serve_locally,
         }
         if not self.config.serve_locally:
-            config[
-                "plotlyjs_url"
-            ] = f"https://cdn.plot.ly/plotly-{get_plotlyjs_version()}.min.js"
+            config["plotlyjs_url"] = self._plotlyjs_url
         if self._dev_tools.hot_reload:
             config["hot_reload"] = {
                 # convert from seconds to msec as used by js `setInterval`
