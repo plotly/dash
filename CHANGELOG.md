@@ -3,6 +3,13 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 
+## UNRELEASED
+
+## Added
+
+- [#2630](https://github.com/plotly/dash/pull/2630) New layout hooks in the renderer
+
+
 ## [2.12.1] - 2023-08-16
 
 ## Fixed
