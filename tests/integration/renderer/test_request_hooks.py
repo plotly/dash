@@ -295,3 +295,46 @@ def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
     dash_duo.wait_for_text_to_equal("#output-token", "..")
 
     assert len(dash_duo.get_logs()) == 2
+
+
+def test_rdrh004_layout_hooks(dash_duo):
+    app = Dash(__name__)
+
+    app.index_string = """<!DOCTYPE html>
+    <html>
+        <head>
+            {%metas%}
+            <title>{%title%}</title>
+            {%favicon%}
+            {%css%}
+        </head>
+        <body>
+            {%app_entry%}
+            <footer>
+                {%config%}
+                {%scripts%}
+                <script id="_dash-renderer" type"application/json">
+                    const renderer = new DashRenderer({
+                        layout_pre: () => {
+                            var layoutPre = document.createElement('div');
+                            layoutPre.setAttribute('id', 'layout-pre');
+                            layoutPre.innerHTML = 'layout_pre generated this text';
+                            document.body.appendChild(layoutPre);
+                        },
+                        layout_post: (response) => {
+                            response.props.children = "layout_post generated this text";
+                        }
+                    })
+                </script>
+            </footer>
+        </body>
+    </html>"""
+
+    app.layout = html.Div(id="layout")
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#layout-pre", "layout_pre generated this text")
+    dash_duo.wait_for_text_to_equal("#layout", "layout_post generated this text")
+
+    assert dash_duo.get_logs() == []
