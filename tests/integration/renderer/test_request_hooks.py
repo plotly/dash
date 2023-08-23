@@ -4,6 +4,7 @@ import flask
 import pytest
 
 from dash import Dash, Output, Input, html, dcc
+from dash.types import RendererHooks
 from werkzeug.exceptions import HTTPException
 
 
@@ -296,22 +297,23 @@ def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
 
 
 def test_rdrh004_layout_hooks(dash_duo):
-    app = Dash(__name__)
-
-    app.renderer = """
-        new DashRenderer({
-            layout_pre: () => {
+    hooks: RendererHooks = {
+        "layout_pre": """
+            () => {
                 var layoutPre = document.createElement('div');
                 layoutPre.setAttribute('id', 'layout-pre');
                 layoutPre.innerHTML = 'layout_pre generated this text';
                 document.body.appendChild(layoutPre);
-            },
-            layout_post: (response) => {
+            }
+        """,
+        "layout_post": """
+            (response) => {
                 response.props.children = "layout_post generated this text";
             }
-        })
-    """
+        """,
+    }
 
+    app = Dash(__name__, hooks=hooks)
     app.layout = html.Div(id="layout")
 
     dash_duo.start_server(app)

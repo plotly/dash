@@ -16,6 +16,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
+from typing import Union
 
 import flask
 
@@ -52,6 +53,7 @@ from ._utils import (
     to_json,
     convert_to_AttributeDict,
     gen_salt,
+    hooks_to_js_object,
 )
 from . import _callback
 from . import _get_paths
@@ -70,6 +72,7 @@ from ._pages import (
     _import_layouts_from_pages,
 )
 from ._jupyter import jupyter_dash, JupyterDisplayMode
+from .types import RendererHooks
 
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
@@ -134,7 +137,6 @@ except:  # noqa: E722
 
 
 def _get_traceback(secret, error: Exception):
-
     try:
         # pylint: disable=import-outside-toplevel
         from werkzeug.debug import tbtools
@@ -373,6 +375,7 @@ class Dash:
         long_callback_manager=None,
         background_callback_manager=None,
         add_log_handler=True,
+        hooks: Union[RendererHooks, None] = None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -466,7 +469,7 @@ class Dash:
         self._favicon = None
 
         # default renderer string
-        self.renderer = "var renderer = new DashRenderer();"
+        self.renderer = f"var renderer = new DashRenderer({hooks_to_js_object(hooks)});"
 
         # static files from the packages
         self.css = Css(serve_locally)
@@ -1301,7 +1304,6 @@ class Dash:
 
         # Copy over global callback data structures assigned with `dash.callback`
         for k in list(_callback.GLOBAL_CALLBACK_MAP):
-
             if k in self.callback_map:
                 raise DuplicateCallback(
                     f"The callback `{k}` provided with `dash.callback` was already "
@@ -1328,7 +1330,6 @@ class Dash:
 
         if cancels:
             for cancel_input, manager in cancels.items():
-
                 # pylint: disable=cell-var-from-loop
                 @self.callback(
                     Output(cancel_input.component_id, "id"),
@@ -1719,7 +1720,6 @@ class Dash:
             _reload.watch_thread.start()
 
         if debug:
-
             if jupyter_dash.active:
                 jupyter_dash.configure_callback_exception_handling(
                     self, dev_tools.prune_errors
@@ -1753,7 +1753,6 @@ class Dash:
                     dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
 
                 for name, info in timing_information.items():
-
                     value = name
                     if info.get("desc") is not None:
                         value += f';desc="{info["desc"]}"'

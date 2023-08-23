@@ -11,7 +11,9 @@ import json
 import secrets
 import string
 from html import escape
-from functools import wraps
+from functools import wraps, reduce
+from typing import Union
+from dash.types import RendererHooks
 
 logger = logging.getLogger()
 
@@ -267,3 +269,15 @@ def coerce_to_list(obj):
 
 def clean_property_name(name: str):
     return name.split("@")[0]
+
+
+def hooks_to_js_object(hooks: Union[RendererHooks, None]) -> str:
+    if hooks is None:
+        return ""
+    hook_str = reduce(
+        lambda reduced, hook: f"{reduced}{hook[0]}: {hook[1]},",
+        hooks.items(),
+        "",
+    )
+
+    return f"{{{hook_str}}}"
