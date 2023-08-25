@@ -341,6 +341,10 @@ class Dash:
 
     :param add_log_handler: Automatically add a StreamHandler to the app logger
         if not added previously.
+
+    :param hooks: Extend Dash renderer functionality by passing a dictionary of
+    javascript functions. To hook into the layout, use dict keys "layout_pre" and
+    "layout_post". To hook into the callbacks, use keys "request_pre" and "request_post"
     """
 
     def __init__(  # pylint: disable=too-many-statements
