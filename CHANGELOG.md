@@ -7,6 +7,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2610](https://github.com/plotly/dash/pull/2610) Load plotly.js bundle/version from plotly.py
 
+## Added
+
+- [#2630](https://github.com/plotly/dash/pull/2630) New layout hooks in the renderer
+
+
 ## [2.12.1] - 2023-08-16
 
 ## Fixed

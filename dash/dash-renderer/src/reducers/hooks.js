@@ -1,5 +1,7 @@
 const customHooks = (
     state = {
+        layout_pre: null,
+        layout_post: null,
         request_pre: null,
         request_post: null,
         callback_resolved: null,
