@@ -72,6 +72,14 @@ const UnconnectedContainer = props => {
         }
     });
 
+    useEffect(() => {
+        if (config.serve_locally) {
+            window._dashPlotlyJSURL = `${config.requests_pathname_prefix}_dash-component-suites/plotly/package_data/plotly.min.js`;
+        } else {
+            window._dashPlotlyJSURL = config.plotlyjs_url;
+        }
+    }, []);
+
     let content;
     if (
         layoutRequest.status &&
