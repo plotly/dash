@@ -72,6 +72,14 @@ const UnconnectedContainer = props => {
         }
     });
 
+    useEffect(() => {
+        if (config.serve_locally) {
+            window._dashPlotlyJSURL = `${config.requests_pathname_prefix}_dash-component-suites/plotly/package_data/plotly.min.js`;
+        } else {
+            window._dashPlotlyJSURL = config.plotlyjs_url;
+        }
+    }, []);
+
     let content;
     if (
         layoutRequest.status &&
@@ -123,14 +131,21 @@ function storeEffect(props, events, setErrorLoading) {
         dispatch,
         error,
         graphs,
+        hooks,
         layout,
         layoutRequest
     } = props;
 
     if (isEmpty(layoutRequest)) {
+        if (typeof hooks.layout_pre === 'function') {
+            hooks.layout_pre();
+        }
         dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
     } else if (layoutRequest.status === STATUS.OK) {
         if (isEmpty(layout)) {
+            if (typeof hooks.layout_post === 'function') {
+                hooks.layout_post(layoutRequest.content);
+            }
             const finalLayout = applyPersistence(
                 layoutRequest.content,
                 dispatch
@@ -190,6 +205,7 @@ UnconnectedContainer.propTypes = {
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
     graphs: PropTypes.object,
+    hooks: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     loadingMap: PropTypes.any,
@@ -203,6 +219,7 @@ const Container = connect(
     state => ({
         appLifecycle: state.appLifecycle,
         dependenciesRequest: state.dependenciesRequest,
+        hooks: state.hooks,
         layoutRequest: state.layoutRequest,
         layout: state.layout,
         loadingMap: state.loadingMap,
