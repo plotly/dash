@@ -2,6 +2,15 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.13.0] 2023-08-28
+## Changed
+
+- [#2610](https://github.com/plotly/dash/pull/2610) Load plotly.js bundle/version from plotly.py
+
+## Added
+
+- [#2630](https://github.com/plotly/dash/pull/2630) New layout hooks in the renderer
+
 
 ## [2.12.1] - 2023-08-16
 

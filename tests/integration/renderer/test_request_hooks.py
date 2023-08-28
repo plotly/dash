@@ -4,6 +4,7 @@ import flask
 import pytest
 
 from dash import Dash, Output, Input, html, dcc
+from dash.types import RendererHooks
 from werkzeug.exceptions import HTTPException
 
 
@@ -115,7 +116,6 @@ def test_rdrh001_request_hooks(dash_duo):
 
 
 def test_rdrh002_with_custom_renderer_interpolated(dash_duo):
-
     renderer = """
         <script id="_dash-renderer" type="application/javascript">
             console.log('firing up a custom renderer!')
@@ -198,7 +198,6 @@ def test_rdrh002_with_custom_renderer_interpolated(dash_duo):
 
 @pytest.mark.parametrize("expiry_code", [401, 400])
 def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
-
     app = Dash(__name__)
 
     app.index_string = """<!DOCTYPE html>
@@ -295,3 +294,31 @@ def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
     dash_duo.wait_for_text_to_equal("#output-token", "..")
 
     assert len(dash_duo.get_logs()) == 2
+
+
+def test_rdrh004_layout_hooks(dash_duo):
+    hooks: RendererHooks = {
+        "layout_pre": """
+            () => {
+                var layoutPre = document.createElement('div');
+                layoutPre.setAttribute('id', 'layout-pre');
+                layoutPre.innerHTML = 'layout_pre generated this text';
+                document.body.appendChild(layoutPre);
+            }
+        """,
+        "layout_post": """
+            (response) => {
+                response.props.children = "layout_post generated this text";
+            }
+        """,
+    }
+
+    app = Dash(__name__, hooks=hooks)
+    app.layout = html.Div(id="layout")
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#layout-pre", "layout_pre generated this text")
+    dash_duo.wait_for_text_to_equal("#layout", "layout_post generated this text")
+
+    assert dash_duo.get_logs() == []
