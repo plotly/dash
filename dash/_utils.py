@@ -277,3 +277,7 @@ def hooks_to_js_object(hooks: Union[RendererHooks, None]) -> str:
     hook_str = ",".join(f"{key}: {val}" for key, val in hooks.items())
 
     return f"{{{hook_str}}}"
+
+
+def parse_version(version):
+    return tuple(int(s) for s in version.split("."))
