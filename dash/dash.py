@@ -20,7 +20,7 @@ from typing import Union
 
 import flask
 
-from pkg_resources import get_distribution, parse_version
+from importlib_metadata import version as _get_distribution_version
 
 from dash import dcc
 from dash import html
@@ -54,6 +54,7 @@ from ._utils import (
     convert_to_AttributeDict,
     gen_salt,
     hooks_to_js_object,
+    parse_version,
 )
 from . import _callback
 from . import _get_paths
@@ -567,7 +568,7 @@ class Dash:
                 Compress(self.server)
 
                 _flask_compress_version = parse_version(
-                    get_distribution("flask-compress").version
+                    _get_distribution_version("flask_compress")
                 )
 
                 if not hasattr(
