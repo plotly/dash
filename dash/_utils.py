@@ -10,6 +10,7 @@ import io
 import json
 import secrets
 import string
+import inspect
 from html import escape
 from functools import wraps
 from typing import Union
@@ -281,3 +282,12 @@ def hooks_to_js_object(hooks: Union[RendererHooks, None]) -> str:
 
 def parse_version(version):
     return tuple(int(s) for s in version.split("."))
+
+
+def get_caller_name(name: str):
+    stack = inspect.stack()
+    for s in stack:
+        for code in s.code_context:
+            if f"{name}(" in code:
+                return s.frame.f_locals.get("__name__", "__main__")
+    return "__main__"
