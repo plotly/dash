@@ -306,7 +306,7 @@ const getProps = layout => {
     };
 };
 
-export function recordUiEdit(layout, newProps, dispatch) {
+export function recordEdit(layout, newProps, dispatch) {
     const {
         canPersist,
         id,
@@ -316,7 +316,18 @@ export function recordUiEdit(layout, newProps, dispatch) {
         persisted_props,
         persistence_type
     } = getProps(layout);
-    if (!canPersist || !persistence) {
+
+    const getFinal = (propName, prevVal) =>
+        propName in newProps ? newProps[propName] : prevVal;
+    const finalPersistence = getFinal('persistence', persistence);
+    const finalPersistenceType = getFinal('persistence_type', persistence_type);
+
+    if (
+        !canPersist ||
+        !finalPersistence ||
+        finalPersistence !== persistence ||
+        finalPersistenceType !== persistence_type
+    ) {
         return;
     }
 
@@ -336,6 +347,10 @@ export function recordUiEdit(layout, newProps, dispatch) {
             if (originalVal !== newVal) {
                 if (storage.hasItem(valsKey)) {
                     originalVal = storage.getItem(valsKey)[1];
+                    if (newVal === originalVal) {
+                        storage.removeItem(valsKey);
+                        return;
+                    }
                 }
                 const vals =
                     originalVal === undefined
@@ -516,28 +531,6 @@ export function prunePersistence(layout, newProps, dispatch) {
                     ),
                 filter(notInNewProps, finalPersistedProps)
             );
-        }
-
-        // now the main point - clear any edit of a prop that changed
-        // note that this is independent of the new prop value.
-        const transforms = element.persistenceTransforms || {};
-        for (const propName in newProps) {
-            const propTransforms = transforms[propName];
-            if (propTransforms) {
-                for (const propPart in propTransforms) {
-                    finalStorage.removeItem(
-                        getValsKey(
-                            id,
-                            `${propName}.${propPart}`,
-                            finalPersistence
-                        )
-                    );
-                }
-            } else {
-                finalStorage.removeItem(
-                    getValsKey(id, propName, finalPersistence)
-                );
-            }
         }
     }
     return persistenceChanged ? mergeRight(newProps, update) : newProps;

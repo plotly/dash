@@ -25,7 +25,7 @@ import {
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
-import {recordUiEdit} from './persistence';
+import {recordEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
 import checkPropTypes from './checkPropTypes';
 import {getWatchedKeys, stringifyId} from './actions/dependencies';
@@ -153,7 +153,7 @@ class BaseTreeContainer extends Component {
 
             // setProps here is triggered by the UI - record these changes
             // for persistence
-            recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
+            recordEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
 
             // Only dispatch changes to Dash if a watched prop changed
             if (watchedKeys.length) {
