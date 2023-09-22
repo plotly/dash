@@ -2106,7 +2106,9 @@ class Dash:
                 """
 
                 query_parameters = _parse_query_string(search_)
-                page, path_variables = _path_to_page(self.strip_relative_path(pathname_))
+                page, path_variables = _path_to_page(
+                    self.strip_relative_path(pathname_)
+                )
 
                 # get layout
                 if page == {}:
