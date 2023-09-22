@@ -16,7 +16,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Union
+from typing import Dict, Optional, Union
 
 import flask
 
@@ -29,8 +29,9 @@ from dash import dash_table
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
 from .dependencies import (
-    Output,
     Input,
+    Output,
+    State,
 )
 from .development.base_component import ComponentRegistry
 from .exceptions import (
@@ -346,6 +347,17 @@ class Dash:
     :param hooks: Extend Dash renderer functionality by passing a dictionary of
     javascript functions. To hook into the layout, use dict keys "layout_pre" and
     "layout_post". To hook into the callbacks, use keys "request_pre" and "request_post"
+
+    :param routing_callback_states: When using Dash pages (use_pages=True), allows to
+    add new States to the routing callback, to pass additional data to the layout
+    functions. The syntax for this parameter is a dict of State objects:
+    `routing_callback_states={"language": State("language", "value")}`
+    This allows things like (non-exhaustive list):
+    * A language dropdown that will be passed to every layout function,
+      for internationalisation
+    * Serialising the state in URL hashes without reloading the page on every
+      input update, and using the hash on first load / refresh
+    * Passing a global app data store on page load
     """
 
     _plotlyjs_url: str
@@ -383,6 +395,7 @@ class Dash:
         background_callback_manager=None,
         add_log_handler=True,
         hooks: Union[RendererHooks, None] = None,
+        routing_callback_states: Optional[Dict[str, State]] = None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -458,6 +471,7 @@ class Dash:
 
         self.pages_folder = str(pages_folder)
         self.use_pages = (pages_folder != "pages") if use_pages is None else use_pages
+        self.routing_callback_states = routing_callback_states or {}
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -2078,18 +2092,21 @@ class Dash:
             @self.callback(
                 Output(_ID_CONTENT, "children"),
                 Output(_ID_STORE, "data"),
-                Input(_ID_LOCATION, "pathname"),
-                Input(_ID_LOCATION, "search"),
+                inputs={
+                    "pathname_": Input(_ID_LOCATION, "pathname"),
+                    "search_": Input(_ID_LOCATION, "search"),
+                    **self.routing_callback_states,
+                },
                 prevent_initial_call=True,
             )
-            def update(pathname, search):
+            def update(pathname_, search_, **states):
                 """
                 Updates dash.page_container layout on page navigation.
                 Updates the stored page title which will trigger the clientside callback to update the app title
                 """
 
-                query_parameters = _parse_query_string(search)
-                page, path_variables = _path_to_page(self.strip_relative_path(pathname))
+                query_parameters = _parse_query_string(search_)
+                page, path_variables = _path_to_page(self.strip_relative_path(pathname_))
 
                 # get layout
                 if page == {}:
@@ -2107,9 +2124,9 @@ class Dash:
 
                 if callable(layout):
                     layout = (
-                        layout(**path_variables, **query_parameters)
+                        layout(**path_variables, **query_parameters, **states)
                         if path_variables
-                        else layout(**query_parameters)
+                        else layout(**query_parameters, **states)
                     )
                 if callable(title):
                     title = title(**path_variables) if path_variables else title()
