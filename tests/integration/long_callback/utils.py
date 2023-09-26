@@ -113,6 +113,9 @@ def setup_long_callback_app(manager_name, app_name):
             os.environ.pop("CELERY_BROKER")
             os.environ.pop("CELERY_BACKEND")
             kill(worker.pid)
+            from dash import page_registry
+
+            page_registry.clear()
 
     elif manager_name == "diskcache":
         os.environ["LONG_CALLBACK_MANAGER"] = "diskcache"
@@ -133,3 +136,6 @@ def setup_long_callback_app(manager_name, app_name):
             shutil.rmtree(cache_directory, ignore_errors=True)
             os.environ.pop("LONG_CALLBACK_MANAGER")
             os.environ.pop("DISKCACHE_DIR")
+            from dash import page_registry
+
+            page_registry.clear()
