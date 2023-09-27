@@ -1,10 +1,15 @@
+import sys
 from multiprocessing import Lock
 
+import pytest
 from flaky import flaky
 
 from .utils import setup_long_callback_app
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 7), reason="Python 3.6 long callbacks tests hangs up"
+)
 @flaky(max_runs=3)
 def test_lcbc001_fast_input(dash_duo, manager):
     """

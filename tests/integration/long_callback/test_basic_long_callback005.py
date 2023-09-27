@@ -1,3 +1,4 @@
+import sys
 from multiprocessing import Lock
 
 import pytest
@@ -5,6 +6,9 @@ import pytest
 from tests.integration.long_callback.utils import setup_long_callback_app
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 7), reason="Python 3.6 long callbacks tests hangs up"
+)
 @pytest.mark.skip(reason="Timeout often")
 def test_lcbc005_long_callback_caching(dash_duo, manager):
     lock = Lock()
