@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {assoc, omit, isNil} from 'ramda';
+import {assoc, pick, isNil} from 'ramda';
 import {Range, createSliderWithTooltip} from 'rc-slider';
 import computeSliderStyle from '../utils/computeSliderStyle';
 
@@ -11,6 +11,20 @@ import {
     setUndefined,
 } from '../utils/computeSliderMarkers';
 import {propTypes, defaultProps} from '../components/RangeSlider.react';
+
+const sliderProps = [
+    'min',
+    'max',
+    'allowCross',
+    'pushable',
+    'disabled',
+    'count',
+    'dots',
+    'included',
+    'tooltip',
+    'vertical',
+    'id',
+];
 
 export default class RangeSlider extends Component {
     constructor(props) {
@@ -112,19 +126,7 @@ export default class RangeSlider extends Component {
                             ? null
                             : calcStep(min, max, step)
                     }
-                    {...omit(
-                        [
-                            'className',
-                            'value',
-                            'drag_value',
-                            'setProps',
-                            'marks',
-                            'updatemode',
-                            'verticalHeight',
-                            'step',
-                        ],
-                        this.props
-                    )}
+                    {...pick(sliderProps, this.props)}
                 />
             </div>
         );

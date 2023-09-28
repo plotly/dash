@@ -55,6 +55,7 @@ from ._utils import (
     gen_salt,
     hooks_to_js_object,
     parse_version,
+    get_caller_name,
 )
 from . import _callback
 from . import _get_paths
@@ -387,14 +388,16 @@ class Dash:
     ):
         _validate.check_obsolete(obsolete)
 
+        caller_name = get_caller_name(self.__class__.__name__)
+
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
         if isinstance(server, flask.Flask):
             self.server = server
             if name is None:
-                name = getattr(server, "name", "__main__")
+                name = getattr(server, "name", caller_name)
         elif isinstance(server, bool):
-            name = name if name else "__main__"
+            name = name if name else caller_name
             self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")

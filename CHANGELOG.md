@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2634](https://github.com/plotly/dash/pull/2634) Fix deprecation warning on pkg_resources, fix [#2631](https://github.com/plotly/dash/issues/2631)
 
+## Changed
+
+- [#2635](https://github.com/plotly/dash/pull/2635) Get proper app module name, remove need to give `__name__` to Dash constructor.
+
 ## [2.13.0] 2023-08-28
 ## Changed
 
