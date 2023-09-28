@@ -348,10 +348,10 @@ class Dash:
     javascript functions. To hook into the layout, use dict keys "layout_pre" and
     "layout_post". To hook into the callbacks, use keys "request_pre" and "request_post"
 
-    :param routing_callback_states: When using Dash pages (use_pages=True), allows to
+    :param routing_callback_inputs: When using Dash pages (use_pages=True), allows to
     add new States to the routing callback, to pass additional data to the layout
     functions. The syntax for this parameter is a dict of State objects:
-    `routing_callback_states={"language": State("language", "value")}`
+    `routing_callback_inputs={"language": Input("language", "value")}`
     This allows things like (non-exhaustive list):
     * A language dropdown that will be passed to every layout function,
       for internationalisation
@@ -395,7 +395,7 @@ class Dash:
         background_callback_manager=None,
         add_log_handler=True,
         hooks: Union[RendererHooks, None] = None,
-        routing_callback_states: Optional[Dict[str, State]] = None,
+        routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -471,7 +471,7 @@ class Dash:
 
         self.pages_folder = str(pages_folder)
         self.use_pages = (pages_folder != "pages") if use_pages is None else use_pages
-        self.routing_callback_states = routing_callback_states or {}
+        self.routing_callback_inputs = routing_callback_inputs or {}
 
         # keep title as a class property for backwards compatibility
         self.title = title
@@ -2095,7 +2095,7 @@ class Dash:
                 inputs={
                     "pathname_": Input(_ID_LOCATION, "pathname"),
                     "search_": Input(_ID_LOCATION, "search"),
-                    **self.routing_callback_states,
+                    **self.routing_callback_inputs,
                 },
                 prevent_initial_call=True,
             )
