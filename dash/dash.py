@@ -352,12 +352,6 @@ class Dash:
     add new States to the routing callback, to pass additional data to the layout
     functions. The syntax for this parameter is a dict of State objects:
     `routing_callback_inputs={"language": Input("language", "value")}`
-    This allows things like (non-exhaustive list):
-    * A language dropdown that will be passed to every layout function,
-      for internationalisation
-    * Serialising the state in URL hashes without reloading the page on every
-      input update, and using the hash on first load / refresh
-    * Passing a global app data store on page load
     """
 
     _plotlyjs_url: str

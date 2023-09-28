@@ -9,6 +9,7 @@ flake8==3.9.2
 flaky==3.7.0
 flask-talisman==0.8.1
 isort==4.3.21;python_version<"3.7"
+importlib-metadata
 mimesis
 mock==4.0.3
 numpy

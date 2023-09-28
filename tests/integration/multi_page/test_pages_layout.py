@@ -1,6 +1,7 @@
 import pytest
 import dash
-from dash import Dash, dcc, html
+from dash import Dash, Input, State, dcc, html
+from dash.dash import _ID_LOCATION
 from dash.exceptions import NoLayoutException
 
 
@@ -179,3 +180,65 @@ def test_pala004_no_layout_exception(clear_pages_state):
         Dash(__name__, use_pages=True, pages_folder="pages_error")
 
     assert error_msg in err.value.args[0]
+
+
+def get_routing_inputs_app():
+    app = Dash(
+        __name__,
+        use_pages=True,
+        routing_callback_inputs={
+            "hash": State(_ID_LOCATION, "hash"),
+            "language": Input("language", "value"),
+        },
+    )
+    # Page with layout from a variable: should render and not be impacted
+    # by routing callback inputs
+    dash.register_page(
+        "home",
+        layout=html.Div("Home", id="contents"),
+        path="/",
+    )
+
+    # Page with a layout function, should see the routing callback inputs
+    # as keyword arguments
+    def layout1(hash: str = None, language: str = "en", **kwargs):
+        if language == "fr":
+            return html.Div(f"Le hash dit: {hash}", id="contents")
+        return html.Div(f"Hash says: {hash}", id="contents")
+
+    dash.register_page(
+        "function_layout",
+        path="/function-layout",
+        layout=layout1,
+    )
+    app.layout = html.Div(
+        [
+            dcc.Dropdown(id="language", options=["en", "fr"], value="en"),
+            dash.page_container,
+        ]
+    )
+    return app
+
+
+def test_pala005_routing_inputs(dash_duo, clear_pages_state):
+    dash_duo.start_server(get_routing_inputs_app())
+    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}#123")
+    dash_duo.wait_for_text_to_equal("#contents", "Home")
+    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/")
+    dash_duo.wait_for_text_to_equal("#contents", "Home")
+    dash_duo.wait_for_page(
+        url=f"http://localhost:{dash_duo.server.port}/function-layout"
+    )
+    dash_duo.wait_for_text_to_equal("#contents", "Hash says:")
+    # hash is a State therefore navigating to the same page with hash will not
+    # re-render the layout function
+    dash_duo.wait_for_page(
+        url=f"http://localhost:{dash_duo.server.port}/function-layout#123"
+    )
+    dash_duo.wait_for_text_to_equal("#contents", "Hash says:")
+    # Refreshing the page re-runs the layout function
+    dash_duo.driver.refresh()
+    dash_duo.wait_for_text_to_equal("#contents", "Hash says: #123")
+    # Changing the language Input re-runs the layout function
+    dash_duo.select_dcc_dropdown("#language", "fr")
+    dash_duo.wait_for_text_to_equal("#contents", "Le hash dit: #123")
