@@ -210,6 +210,7 @@ def clientside_callback(clientside_function, *args, **kwargs):
     )
 
 
+# pylint: disable=too-many-arguments
 def insert_callback(
     callback_list,
     callback_map,
@@ -222,6 +223,7 @@ def insert_callback(
     prevent_initial_call,
     long=None,
     manager=None,
+    dynamic_creator=False,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -243,6 +245,7 @@ def insert_callback(
         and {
             "interval": long["interval"],
         },
+        "dynamic_creator": dynamic_creator,
     }
 
     callback_map[callback_id] = {
@@ -282,6 +285,7 @@ def register_callback(  # pylint: disable=R0914
 
     long = _kwargs.get("long")
     manager = _kwargs.get("manager")
+    allow_dynamic_callbacks = _kwargs.get("_allow_dynamic_callbacks")
 
     output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
     callback_id = insert_callback(
@@ -296,6 +300,7 @@ def register_callback(  # pylint: disable=R0914
         prevent_initial_call,
         long=long,
         manager=manager,
+        dynamic_creator=allow_dynamic_callbacks,
     )
 
     # pylint: disable=too-many-locals

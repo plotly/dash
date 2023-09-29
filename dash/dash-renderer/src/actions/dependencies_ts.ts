@@ -32,6 +32,9 @@ import {
     idMatch
 } from './dependencies';
 import {getPath} from './paths';
+import apiThunk from './api';
+import {setGraphs} from './index';
+import {batch} from 'react-redux';
 
 export const DIRECT = 2;
 export const INDIRECT = 1;
@@ -444,4 +447,15 @@ export function resolveDeps(
             });
             return result;
         };
+}
+
+export function requestDependencies() {
+    return (dispatch: any) => {
+        batch(() => {
+            dispatch(setGraphs({}));
+            dispatch(
+                apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
+            );
+        });
+    };
 }
