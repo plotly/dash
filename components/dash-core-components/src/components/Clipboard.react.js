@@ -26,6 +26,15 @@ export default class Clipboard extends React.Component {
         };
     }
 
+    componentDidUpdate(prevProps) {
+        // If the data hasn't changed, do nothing.
+        if (!this.props.content || this.props.content === prevProps.content) {
+            return;
+        }
+        // If the data has changed, copy to clipboard
+        this.copyToClipboard();
+    }
+
     // stringifies object ids used in pattern matching callbacks
     stringifyId(id) {
         if (typeof id !== 'object') {
