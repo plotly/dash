@@ -202,9 +202,11 @@ def get_routing_inputs_app():
     # Page with a layout function, should see the routing callback inputs
     # as keyword arguments
     def layout1(hash: str = None, language: str = "en", **kwargs):
-        if language == "fr":
-            return html.Div(f"Le hash dit: {hash}", id="contents")
-        return html.Div(f"Hash says: {hash}", id="contents")
+        translations = {
+            "en": "Hash says: {}",
+            "fr": "Le hash dit: {}",
+        }
+        return html.Div(translations[language].format(hash), id="contents")
 
     dash.register_page(
         "function_layout",
