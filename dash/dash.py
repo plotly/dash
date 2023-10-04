@@ -352,6 +352,7 @@ class Dash:
     add new States to the routing callback, to pass additional data to the layout
     functions. The syntax for this parameter is a dict of State objects:
     `routing_callback_inputs={"language": Input("language", "value")}`
+    NOTE: the keys "pathname_" and "search_" are reserved for internal use.
     """
 
     _plotlyjs_url: str
@@ -2083,14 +2084,16 @@ class Dash:
                 return
             self._got_first_request["pages"] = True
 
+            inputs = {
+                "pathname_": Input(_ID_LOCATION, "pathname"),
+                "search_": Input(_ID_LOCATION, "search"),
+            }
+            inputs.update(self.routing_callback_inputs)
+
             @self.callback(
                 Output(_ID_CONTENT, "children"),
                 Output(_ID_STORE, "data"),
-                inputs={
-                    "pathname_": Input(_ID_LOCATION, "pathname"),
-                    "search_": Input(_ID_LOCATION, "search"),
-                    **self.routing_callback_inputs,
-                },
+                inputs=inputs,
                 prevent_initial_call=True,
             )
             def update(pathname_, search_, **states):

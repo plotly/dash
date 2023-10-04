@@ -16,7 +16,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Added
 
 - [#2630](https://github.com/plotly/dash/pull/2630) New layout hooks in the renderer
-- [#2647](https://github.com/plotly/dash/pull/2647) `routing_callback_inputs` allowing to pass more State arguments to the pages routing callback
+- [#2647](https://github.com/plotly/dash/pull/2647) `routing_callback_inputs` allowing to pass more Input and/or State arguments to the pages routing callback
 
 
 ## [2.12.1] - 2023-08-16
