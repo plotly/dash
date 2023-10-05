@@ -42,7 +42,8 @@ import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
 import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
-import {requestDependencies} from './dependencies_ts';
+
+import {requestDependencies} from './requestDependencies';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked

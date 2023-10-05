@@ -18,23 +18,20 @@ import {
 } from 'ramda';
 import {
     ICallback,
-    ICallbackProperty,
     ICallbackDefinition,
-    ILayoutCallbackProperty,
-    ICallbackTemplate
+    ICallbackProperty,
+    ICallbackTemplate,
+    ILayoutCallbackProperty
 } from '../types/callbacks';
 import {
     addAllResolvedFromOutputs,
-    splitIdAndProp,
-    stringifyId,
     getUnfilteredLayoutCallbacks,
+    idMatch,
     isMultiValued,
-    idMatch
+    splitIdAndProp,
+    stringifyId
 } from './dependencies';
 import {getPath} from './paths';
-import apiThunk from './api';
-import {setGraphs} from './index';
-import {batch} from 'react-redux';
 
 export const DIRECT = 2;
 export const INDIRECT = 1;
@@ -447,15 +444,4 @@ export function resolveDeps(
             });
             return result;
         };
-}
-
-export function requestDependencies() {
-    return (dispatch: any) => {
-        batch(() => {
-            dispatch(setGraphs({}));
-            dispatch(
-                apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
-            );
-        });
-    };
 }
