@@ -1,6 +1,7 @@
 import pytest
 import dash
-from dash import Dash, dcc, html
+from dash import Dash, Input, State, dcc, html
+from dash.dash import _ID_LOCATION
 from dash.exceptions import NoLayoutException
 
 
@@ -59,38 +60,33 @@ def test_pala001_layout(dash_duo, clear_pages_state):
         assert dash_duo.driver.title == page["title"], "check that page title updates"
 
     # test redirects
-    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/v2")
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/v2")
     dash_duo.wait_for_text_to_equal("#text_redirect", "text for redirect")
-    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/old-home-page")
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/old-home-page")
     dash_duo.wait_for_text_to_equal("#text_redirect", "text for redirect")
-    assert (
-        dash_duo.driver.current_url
-        == f"http://localhost:{dash_duo.server.port}/redirect"
-    )
+    assert dash_duo.driver.current_url == f"{dash_duo.server_url}/redirect"
 
     # test redirect with button and user defined dcc.Location
     # note:  dcc.Location must be defined in app.py
-    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/page1")
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/page1")
     dash_duo.find_element("#btn1").click()
     dash_duo.wait_for_text_to_equal("#text_page2", "text for page2")
 
     # test query strings
-    dash_duo.wait_for_page(
-        url=f"http://localhost:{dash_duo.server.port}/query-string?velocity=10"
-    )
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/query-string?velocity=10")
     assert (
         dash_duo.find_element("#velocity").get_attribute("value") == "10"
     ), "query string passed to layout"
 
     # test path variables
-    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/a/none/b/none")
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/a/none/b/none")
     dash_duo.wait_for_text_to_equal("#path_vars", "variables from pathname:none none")
 
-    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/a/var1/b/var2")
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/a/var1/b/var2")
     dash_duo.wait_for_text_to_equal("#path_vars", "variables from pathname:var1 var2")
 
     # test page not found
-    dash_duo.wait_for_page(url=f"http://localhost:{dash_duo.server.port}/find_me")
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/find_me")
     dash_duo.wait_for_text_to_equal("#text_not_found_404", "text for not_found_404")
 
     # test `validation_layout` exists when suppress_callback_exceptions=False`
@@ -121,20 +117,20 @@ def test_pala002_meta_tags_default(dash_duo, clear_pages_state):
         {"property": "twitter:card", "content": "summary_large_image"},
         {
             "property": "twitter:url",
-            "content": f"http://localhost:{dash_duo.server.port}/",
+            "content": f"{dash_duo.server_url}/",
         },
         {"property": "twitter:title", "content": "Multi layout2"},
         {"property": "twitter:description", "content": ""},
         {
             "property": "twitter:image",
-            "content": f"http://localhost:{dash_duo.server.port}/assets/app.jpeg",
+            "content": f"{dash_duo.server_url}/assets/app.jpeg",
         },
         {"property": "og:title", "content": "Multi layout2"},
         {"property": "og:type", "content": "website"},
         {"property": "og:description", "content": ""},
         {
             "property": "og:image",
-            "content": f"http://localhost:{dash_duo.server.port}/assets/app.jpeg",
+            "content": f"{dash_duo.server_url}/assets/app.jpeg",
         },
     ]
 
@@ -149,7 +145,7 @@ def test_pala003_meta_tags_custom(dash_duo, clear_pages_state):
         {"property": "twitter:card", "content": "summary_large_image"},
         {
             "property": "twitter:url",
-            "content": f"http://localhost:{dash_duo.server.port}/",
+            "content": f"{dash_duo.server_url}/",
         },
         {"property": "twitter:title", "content": "Supplied Title"},
         {
@@ -158,14 +154,14 @@ def test_pala003_meta_tags_custom(dash_duo, clear_pages_state):
         },
         {
             "property": "twitter:image",
-            "content": f"http://localhost:{dash_duo.server.port}/assets/birds.jpeg",
+            "content": f"{dash_duo.server_url}/assets/birds.jpeg",
         },
         {"property": "og:title", "content": "Supplied Title"},
         {"property": "og:type", "content": "website"},
         {"property": "og:description", "content": "This is the supplied description"},
         {
             "property": "og:image",
-            "content": f"http://localhost:{dash_duo.server.port}/assets/birds.jpeg",
+            "content": f"{dash_duo.server_url}/assets/birds.jpeg",
         },
     ]
 
@@ -179,3 +175,63 @@ def test_pala004_no_layout_exception(clear_pages_state):
         Dash(__name__, use_pages=True, pages_folder="pages_error")
 
     assert error_msg in err.value.args[0]
+
+
+def get_routing_inputs_app():
+    app = Dash(
+        __name__,
+        use_pages=True,
+        routing_callback_inputs={
+            "hash": State(_ID_LOCATION, "hash"),
+            "language": Input("language", "value"),
+        },
+    )
+    # Page with layout from a variable: should render and not be impacted
+    # by routing callback inputs
+    dash.register_page(
+        "home",
+        layout=html.Div("Home", id="contents"),
+        path="/",
+    )
+
+    # Page with a layout function, should see the routing callback inputs
+    # as keyword arguments
+    def layout1(hash: str = None, language: str = "en", **kwargs):
+        translations = {
+            "en": "Hash says: {}",
+            "fr": "Le hash dit: {}",
+        }
+        return html.Div(translations[language].format(hash), id="contents")
+
+    dash.register_page(
+        "function_layout",
+        path="/function-layout",
+        layout=layout1,
+    )
+    app.layout = html.Div(
+        [
+            dcc.Dropdown(id="language", options=["en", "fr"], value="en"),
+            dash.page_container,
+        ]
+    )
+    return app
+
+
+def test_pala005_routing_inputs(dash_duo, clear_pages_state):
+    dash_duo.start_server(get_routing_inputs_app())
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}#123")
+    dash_duo.wait_for_text_to_equal("#contents", "Home")
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/")
+    dash_duo.wait_for_text_to_equal("#contents", "Home")
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/function-layout")
+    dash_duo.wait_for_text_to_equal("#contents", "Hash says:")
+    # hash is a State therefore navigating to the same page with hash will not
+    # re-render the layout function
+    dash_duo.wait_for_page(url=f"{dash_duo.server_url}/function-layout#123")
+    dash_duo.wait_for_text_to_equal("#contents", "Hash says:")
+    # Refreshing the page re-runs the layout function
+    dash_duo.driver.refresh()
+    dash_duo.wait_for_text_to_equal("#contents", "Hash says: #123")
+    # Changing the language Input re-runs the layout function
+    dash_duo.select_dcc_dropdown("#language", "fr")
+    dash_duo.wait_for_text_to_equal("#contents", "Le hash dit: #123")
