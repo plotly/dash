@@ -43,6 +43,8 @@ import {CallbackJobPayload} from '../reducers/callbackJobs';
 import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
 
+import {requestDependencies} from './requestDependencies';
+
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
 );
@@ -584,7 +586,8 @@ export function executeCallback(
     dispatch: any,
     getState: any
 ): IExecutingCallback {
-    const {output, inputs, state, clientside_function, long} = cb.callback;
+    const {output, inputs, state, clientside_function, long, dynamic_creator} =
+        cb.callback;
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
 
@@ -727,6 +730,13 @@ export function executeCallback(
                                 );
                             }
                         });
+
+                        if (dynamic_creator) {
+                            setTimeout(
+                                () => dispatch(requestDependencies()),
+                                0
+                            );
+                        }
 
                         return {data, payload};
                     } catch (res: any) {

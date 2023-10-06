@@ -12,6 +12,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2635](https://github.com/plotly/dash/pull/2635) Get proper app module name, remove need to give `__name__` to Dash constructor.
 
+## Added
+
+- [#2649](https://github.com/plotly/dash/pull/2649) Add `_allow_dynamic_callbacks`, register new callbacks inside other callbacks.
+  **WARNING: dynamic callback creation can be dangerous, use at you own risk. It is not intended for use in a production app, multi-user or multiprocess use as it only works for a single user.**
+
 ## [2.13.0] 2023-08-28
 ## Changed
 

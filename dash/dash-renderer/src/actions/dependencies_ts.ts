@@ -18,18 +18,18 @@ import {
 } from 'ramda';
 import {
     ICallback,
-    ICallbackProperty,
     ICallbackDefinition,
-    ILayoutCallbackProperty,
-    ICallbackTemplate
+    ICallbackProperty,
+    ICallbackTemplate,
+    ILayoutCallbackProperty
 } from '../types/callbacks';
 import {
     addAllResolvedFromOutputs,
-    splitIdAndProp,
-    stringifyId,
     getUnfilteredLayoutCallbacks,
+    idMatch,
     isMultiValued,
-    idMatch
+    splitIdAndProp,
+    stringifyId
 } from './dependencies';
 import {getPath} from './paths';
 
