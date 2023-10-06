@@ -1,6 +1,9 @@
 from dash import html, Dash, Input, Output
 
 
+# WARNING: dynamic callback creation can be dangerous, use at you own risk.
+# It is not intended for use in a production app, multi-user
+# or multiprocess use as it only works for a single user.
 def test_dync001_dynamic_callback(dash_duo):
     app = Dash()
 
