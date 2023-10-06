@@ -32,8 +32,10 @@ def test_dync001_dynamic_callback(dash_duo):
 
     dash_duo.start_server(app)
 
+    dash_duo.wait_for_element("#dynamic").click()
     dash_duo.wait_for_element("#create").click()
     dash_duo.wait_for_text_to_equal("#output", "creator 1")
+    dash_duo.wait_for_text_to_equal("#output-2", "initial")
 
     dash_duo.wait_for_element("#dynamic").click()
-    dash_duo.wait_for_text_to_equal("#output-2", "Dynamic clicks 1")
+    dash_duo.wait_for_text_to_equal("#output-2", "Dynamic clicks 2")
