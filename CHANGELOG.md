@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
+- [#2647](https://github.com/plotly/dash/pull/2647) `routing_callback_inputs` allowing to pass more Input and/or State arguments to the pages routing callback
 - [#2649](https://github.com/plotly/dash/pull/2649) Add `_allow_dynamic_callbacks`, register new callbacks inside other callbacks.
   **WARNING: dynamic callback creation can be dangerous, use at you own risk. It is not intended for use in a production app, multi-user or multiprocess use as it only works for a single user.**
 
@@ -25,8 +26,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Added
 
 - [#2630](https://github.com/plotly/dash/pull/2630) New layout hooks in the renderer
-- [#2647](https://github.com/plotly/dash/pull/2647) `routing_callback_inputs` allowing to pass more Input and/or State arguments to the pages routing callback
-
 
 ## [2.12.1] - 2023-08-16
 
