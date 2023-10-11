@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "render dash components in react",
   "main": "build/dash_renderer.min.js",
   "scripts": {
@@ -43,12 +43,12 @@
     "regenerator-runtime": "^0.13.11"
   },
   "devDependencies": {
-    "@babel/cli": "^7.22.10",
-    "@babel/core": "^7.22.10",
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.0",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/preset-env": "^7.22.10",
-    "@babel/preset-react": "^7.22.5",
-    "@babel/preset-typescript": "^7.22.5",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-react": "^7.22.15",
+    "@babel/preset-typescript": "^7.23.0",
     "@plotly/prettier-config-dash": "0.0.1",
     "@svgr/webpack": "^8.0.1",
     "@types/chai": "^4.3.5",

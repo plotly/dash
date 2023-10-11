@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactSlider, {createSliderWithTooltip} from 'rc-slider';
-import {assoc, isNil, omit} from 'ramda';
+import {assoc, isNil, pick} from 'ramda';
 import computeSliderStyle from '../utils/computeSliderStyle';
 
 import 'rc-slider/assets/index.css';
@@ -11,6 +11,17 @@ import {
     setUndefined,
 } from '../utils/computeSliderMarkers';
 import {propTypes, defaultProps} from '../components/Slider.react';
+
+const sliderProps = [
+    'min',
+    'max',
+    'disabled',
+    'dots',
+    'included',
+    'tooltip',
+    'vertical',
+    'id',
+];
 
 /**
  * A slider component with a single handle.
@@ -115,19 +126,7 @@ export default class Slider extends Component {
                             ? null
                             : calcStep(min, max, step)
                     }
-                    {...omit(
-                        [
-                            'className',
-                            'setProps',
-                            'updatemode',
-                            'value',
-                            'drag_value',
-                            'marks',
-                            'verticalHeight',
-                            'step',
-                        ],
-                        this.props
-                    )}
+                    {...pick(sliderProps, this.props)}
                 />
             </div>
         );

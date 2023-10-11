@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   win: circleci/windows@2.4.0
   percy: percy/agent@0.1.3
-  browser-tools: circleci/browser-tools@1.4.3
+  browser-tools: circleci/browser-tools@1.4.6
 
 jobs:
   artifacts:
@@ -102,11 +102,13 @@ jobs:
 
     steps:
       - checkout
+      - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          chrome-version: 116.0.5845.110
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
@@ -176,11 +178,13 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
+          chrome-version: 116.0.5845.110
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -291,11 +295,13 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
+          chrome-version: 116.0.5845.110
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -358,6 +364,7 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
@@ -365,6 +372,7 @@ jobs:
       - restore_cache:
           key: html-{{ checksum "components/dash-html-components/package.json" }}-{{ checksum "components/dash-html-components/package-lock.json" }}
       - browser-tools/install-browser-tools:
+          chrome-version: 116.0.5845.110
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -432,11 +440,13 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
+          chrome-version: 116.0.5845.110
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -484,6 +494,7 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requires-*.txt > requires-all.txt
       - restore_cache:
@@ -491,6 +502,7 @@ jobs:
       - restore_cache:
           key: table-{{ checksum "components/dash-table/package.json" }}-{{ checksum "components/dash-table/package-lock.json" }}
       - browser-tools/install-browser-tools:
+          chrome-version: 116.0.5845.110
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -524,9 +536,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
+      - run: sudo apt-get update
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
       - browser-tools/install-browser-tools:
+          chrome-version: 116.0.5845.110
           install-firefox: false
           install-geckodriver: false
       - run:

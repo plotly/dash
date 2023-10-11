@@ -35,6 +35,7 @@ import {
     validateComponent
 } from './utils/TreeContainer';
 import {DashContext} from './APIController.react';
+import {batch} from 'react-redux';
 
 const NOT_LOADING = {
     is_loading: false
@@ -130,12 +131,8 @@ class BaseTreeContainer extends Component {
     }
 
     setProps(newProps) {
-        const {
-            _dashprivate_graphs,
-            _dashprivate_dispatch,
-            _dashprivate_path,
-            _dashprivate_layout
-        } = this.props;
+        const {_dashprivate_dispatch, _dashprivate_path, _dashprivate_layout} =
+            this.props;
 
         const oldProps = this.getLayoutProps();
         const {id} = oldProps;
@@ -143,35 +140,41 @@ class BaseTreeContainer extends Component {
             (val, key) => !equals(val, oldProps[key]),
             newProps
         );
+
         if (!isEmpty(changedProps)) {
-            // Identify the modified props that are required for callbacks
-            const watchedKeys = getWatchedKeys(
-                id,
-                keys(changedProps),
-                _dashprivate_graphs
-            );
-
-            // setProps here is triggered by the UI - record these changes
-            // for persistence
-            recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
-
-            // Only dispatch changes to Dash if a watched prop changed
-            if (watchedKeys.length) {
-                _dashprivate_dispatch(
-                    notifyObservers({
-                        id,
-                        props: pick(watchedKeys, changedProps)
-                    })
+            _dashprivate_dispatch((dispatch, getState) => {
+                const {graphs} = getState();
+                // Identify the modified props that are required for callbacks
+                const watchedKeys = getWatchedKeys(
+                    id,
+                    keys(changedProps),
+                    graphs
                 );
-            }
 
-            // Always update this component's props
-            _dashprivate_dispatch(
-                updateProps({
-                    props: changedProps,
-                    itempath: _dashprivate_path
-                })
-            );
+                batch(() => {
+                    // setProps here is triggered by the UI - record these changes
+                    // for persistence
+                    recordUiEdit(_dashprivate_layout, newProps, dispatch);
+
+                    // Only dispatch changes to Dash if a watched prop changed
+                    if (watchedKeys.length) {
+                        dispatch(
+                            notifyObservers({
+                                id,
+                                props: pick(watchedKeys, changedProps)
+                            })
+                        );
+                    }
+
+                    // Always update this component's props
+                    dispatch(
+                        updateProps({
+                            props: changedProps,
+                            itempath: _dashprivate_path
+                        })
+                    );
+                });
+            });
         }
     }
 
