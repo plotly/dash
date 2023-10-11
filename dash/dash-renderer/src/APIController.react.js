@@ -1,4 +1,4 @@
-import {connect} from 'react-redux';
+import {batch, connect} from 'react-redux';
 import {includes, isEmpty} from 'ramda';
 import React, {useEffect, useRef, useState, createContext} from 'react';
 import PropTypes from 'prop-types';
@@ -136,64 +136,73 @@ function storeEffect(props, events, setErrorLoading) {
         layoutRequest
     } = props;
 
-    if (isEmpty(layoutRequest)) {
-        if (typeof hooks.layout_pre === 'function') {
-            hooks.layout_pre();
-        }
-        dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
-    } else if (layoutRequest.status === STATUS.OK) {
-        if (isEmpty(layout)) {
-            if (typeof hooks.layout_post === 'function') {
-                hooks.layout_post(layoutRequest.content);
+    batch(() => {
+        if (isEmpty(layoutRequest)) {
+            if (typeof hooks.layout_pre === 'function') {
+                hooks.layout_pre();
             }
-            const finalLayout = applyPersistence(
-                layoutRequest.content,
-                dispatch
-            );
+            dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
+        } else if (layoutRequest.status === STATUS.OK) {
+            if (isEmpty(layout)) {
+                if (typeof hooks.layout_post === 'function') {
+                    hooks.layout_post(layoutRequest.content);
+                }
+                const finalLayout = applyPersistence(
+                    layoutRequest.content,
+                    dispatch
+                );
+                dispatch(
+                    setPaths(
+                        computePaths(finalLayout, [], null, events.current)
+                    )
+                );
+                dispatch(setLayout(finalLayout));
+            }
+        }
+
+        if (isEmpty(dependenciesRequest)) {
             dispatch(
-                setPaths(computePaths(finalLayout, [], null, events.current))
+                apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
             );
-            dispatch(setLayout(finalLayout));
-        }
-    }
-
-    if (isEmpty(dependenciesRequest)) {
-        dispatch(apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest'));
-    } else if (dependenciesRequest.status === STATUS.OK && isEmpty(graphs)) {
-        dispatch(
-            setGraphs(
-                computeGraphs(
-                    dependenciesRequest.content,
-                    dispatchError(dispatch)
+        } else if (
+            dependenciesRequest.status === STATUS.OK &&
+            isEmpty(graphs)
+        ) {
+            dispatch(
+                setGraphs(
+                    computeGraphs(
+                        dependenciesRequest.content,
+                        dispatchError(dispatch)
+                    )
                 )
-            )
-        );
-    }
-
-    if (
-        // dependenciesRequest and its computed stores
-        dependenciesRequest.status === STATUS.OK &&
-        !isEmpty(graphs) &&
-        // LayoutRequest and its computed stores
-        layoutRequest.status === STATUS.OK &&
-        !isEmpty(layout) &&
-        // Hasn't already hydrated
-        appLifecycle === getAppState('STARTED')
-    ) {
-        let hasError = false;
-        try {
-            dispatch(hydrateInitialOutputs(dispatchError(dispatch)));
-        } catch (err) {
-            // Display this error in devtools, unless we have errors
-            // already, in which case we assume this new one is moot
-            if (!error.frontEnd.length && !error.backEnd.length) {
-                dispatch(onError({type: 'backEnd', error: err}));
-            }
-            hasError = true;
-        } finally {
-            setErrorLoading(hasError);
+            );
         }
-    }
+
+        if (
+            // dependenciesRequest and its computed stores
+            dependenciesRequest.status === STATUS.OK &&
+            !isEmpty(graphs) &&
+            // LayoutRequest and its computed stores
+            layoutRequest.status === STATUS.OK &&
+            !isEmpty(layout) &&
+            // Hasn't already hydrated
+            appLifecycle === getAppState('STARTED')
+        ) {
+            let hasError = false;
+            try {
+                dispatch(hydrateInitialOutputs(dispatchError(dispatch)));
+            } catch (err) {
+                // Display this error in devtools, unless we have errors
+                // already, in which case we assume this new one is moot
+                if (!error.frontEnd.length && !error.backEnd.length) {
+                    dispatch(onError({type: 'backEnd', error: err}));
+                }
+                hasError = true;
+            } finally {
+                setErrorLoading(hasError);
+            }
+        }
+    });
 }
 
 UnconnectedContainer.propTypes = {

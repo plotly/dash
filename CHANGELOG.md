@@ -2,6 +2,22 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.14.0] - 2023-10-11
+
+## Fixed
+
+- [#2634](https://github.com/plotly/dash/pull/2634) Fix deprecation warning on pkg_resources, fix [#2631](https://github.com/plotly/dash/issues/2631)
+
+## Changed
+
+- [#2635](https://github.com/plotly/dash/pull/2635) Get proper app module name, remove need to give `__name__` to Dash constructor.
+
+## Added
+
+- [#2647](https://github.com/plotly/dash/pull/2647) `routing_callback_inputs` allowing to pass more Input and/or State arguments to the pages routing callback
+- [#2649](https://github.com/plotly/dash/pull/2649) Add `_allow_dynamic_callbacks`, register new callbacks inside other callbacks.
+  **WARNING: dynamic callback creation can be dangerous, use at you own risk. It is not intended for use in a production app, multi-user or multiprocess use as it only works for a single user.**
+
 ## [2.13.0] 2023-08-28
 ## Changed
 
@@ -10,7 +26,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Added
 
 - [#2630](https://github.com/plotly/dash/pull/2630) New layout hooks in the renderer
-
 
 ## [2.12.1] - 2023-08-16
 

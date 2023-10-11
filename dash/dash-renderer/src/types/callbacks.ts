@@ -12,6 +12,7 @@ export interface ICallbackDefinition {
     prevent_initial_call: boolean;
     state: ICallbackProperty[];
     long?: LongCallbackInfo;
+    dynamic_creator?: boolean;
 }
 
 export interface ICallbackProperty {
