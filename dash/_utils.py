@@ -287,7 +287,7 @@ def parse_version(version):
 def get_caller_name(name: str):
     stack = inspect.stack()
     for s in stack:
-        for code in s.code_context:
+        for code in s.code_context or []:
             if f"{name}(" in code:
                 return s.frame.f_locals.get("__name__", "__main__")
     return "__main__"
