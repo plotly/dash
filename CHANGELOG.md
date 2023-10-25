@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#2672](https://github.com/plotly/dash/pull/2672) Fix `get_caller_name` in case the source is not available.
+
 ## [2.14.0] - 2023-10-11
 
 ## Fixed
