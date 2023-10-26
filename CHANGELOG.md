@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2672](https://github.com/plotly/dash/pull/2672) Fix `get_caller_name` in case the source is not available.
 
+## Changed
+
+- [#2674](https://github.com/plotly/dash/pull/2674) Raise flask & werkzeug limits to <3.1
+
 ## [2.14.0] - 2023-10-11
 
 ## Fixed
