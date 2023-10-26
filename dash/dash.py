@@ -396,7 +396,7 @@ class Dash:
     ):
         _validate.check_obsolete(obsolete)
 
-        caller_name = get_caller_name(self.__class__.__name__)
+        caller_name = None if name else get_caller_name()
 
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)

@@ -284,10 +284,10 @@ def parse_version(version):
     return tuple(int(s) for s in version.split("."))
 
 
-def get_caller_name(name: str):
+def get_caller_name():
     stack = inspect.stack()
     for s in stack:
-        for code in s.code_context:
-            if f"{name}(" in code:
-                return s.frame.f_locals.get("__name__", "__main__")
+        if s.function == "<module>":
+            return s.frame.f_locals.get("__name__", "__main__")
+
     return "__main__"
