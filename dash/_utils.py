@@ -150,6 +150,12 @@ def create_callback_id(output, inputs):
         return _id
 
     if isinstance(output, (list, tuple)):
+        if len(output) == 0:
+            if not hashed_inputs:
+                hashed_inputs = hashlib.md5(
+                    ".".join(str(x) for x in inputs).encode("utf-8")
+                ).hexdigest()
+            return ".."+hashed_inputs+".."
         return ".." + "...".join(_concat(x) for x in output) + ".."
 
     return _concat(output)

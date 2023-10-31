@@ -13,6 +13,7 @@ export interface ICallbackDefinition {
     state: ICallbackProperty[];
     long?: LongCallbackInfo;
     dynamic_creator?: boolean;
+    force_no_output: boolean;
 }
 
 export interface ICallbackProperty {
@@ -74,6 +75,7 @@ export interface ICallbackPayload {
     output: string;
     outputs: any[];
     state?: any[] | null;
+    force_no_output: boolean;
 }
 
 export type CallbackResult = {
