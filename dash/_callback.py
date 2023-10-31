@@ -460,7 +460,6 @@ def register_callback(  # pylint: disable=R0914
                     output_value = list(output_value)
 
                 # Flatten grouping and validate grouping structure
-                flat_output_values = flatten_grouping(output_value, output)
                 if len(output):
                     flat_output_values = flatten_grouping(output_value, output)
                 else:

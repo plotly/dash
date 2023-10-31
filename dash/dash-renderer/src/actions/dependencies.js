@@ -187,7 +187,7 @@ function validateDependencies(parsedDependencies, dispatchError) {
     const outObjs = [];
 
     parsedDependencies.forEach(dep => {
-        const {inputs, outputs, state} = dep;
+        const {inputs, outputs, state, force_no_output} = dep;
         let hasOutputs = true;
         if (outputs.length === 1 && !outputs[0].id && !outputs[0].property) {
             hasOutputs = false;
@@ -236,7 +236,7 @@ function validateDependencies(parsedDependencies, dispatchError) {
                 ]);
             }
             args.forEach((idProp, i) => {
-                validateArg(idProp, head, cls, i, dispatchError);
+                validateArg(idProp, head, cls, i, dispatchError, force_no_output);
             });
         });
 
@@ -247,7 +247,7 @@ function validateDependencies(parsedDependencies, dispatchError) {
     });
 }
 
-function validateArg({id, property}, head, cls, i, dispatchError) {
+function validateArg({id, property}, head, cls, i, dispatchError, force_no_output) {
     if (typeof property !== 'string' || !property) {
         dispatchError('Callback property error', [
             head,
@@ -257,7 +257,7 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
     }
 
     if (typeof id === 'object') {
-        if (isEmpty(id)) {
+        if (isEmpty(id) && !force_no_output) {
             dispatchError('Callback item missing ID', [
                 head,
                 `${cls}[${i}].id = {}`,
@@ -294,7 +294,7 @@ function validateArg({id, property}, head, cls, i, dispatchError) {
             }
         }, id);
     } else if (typeof id === 'string') {
-        if (!id) {
+        if (!id && !force_no_output) {
             dispatchError('Callback item missing ID', [
                 head,
                 `${cls}[${i}].id = "${id}"`,
