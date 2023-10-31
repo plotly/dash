@@ -62,6 +62,7 @@ def callback(
     cancel=None,
     manager=None,
     cache_args_to_ignore=None,
+    force_no_output=False,
     **_kwargs,
 ):
     """
@@ -183,6 +184,7 @@ def callback(
         *_args,
         **_kwargs,
         long=long_spec,
+        force_no_output=force_no_output,
         manager=manager,
     )
 
@@ -224,6 +226,7 @@ def insert_callback(
     long=None,
     manager=None,
     dynamic_creator=False,
+    force_no_output=False
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -246,6 +249,7 @@ def insert_callback(
             "interval": long["interval"],
         },
         "dynamic_creator": dynamic_creator,
+        "force_no_output":force_no_output,
     }
 
     callback_map[callback_id] = {
@@ -286,6 +290,7 @@ def register_callback(  # pylint: disable=R0914
     long = _kwargs.get("long")
     manager = _kwargs.get("manager")
     allow_dynamic_callbacks = _kwargs.get("_allow_dynamic_callbacks")
+    force_no_output = _kwargs.get("force_no_output")
 
     output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
     callback_id = insert_callback(
@@ -301,6 +306,7 @@ def register_callback(  # pylint: disable=R0914
         long=long,
         manager=manager,
         dynamic_creator=allow_dynamic_callbacks,
+        force_no_output=force_no_output
     )
 
     # pylint: disable=too-many-locals
@@ -455,7 +461,11 @@ def register_callback(  # pylint: disable=R0914
 
                 # Flatten grouping and validate grouping structure
                 flat_output_values = flatten_grouping(output_value, output)
-
+                if len(output):
+                    flat_output_values = flatten_grouping(output_value, output)
+                else:
+                    # for no output callback
+                    flat_output_values = []
             _validate.validate_multi_return(
                 output_spec, flat_output_values, callback_id
             )
