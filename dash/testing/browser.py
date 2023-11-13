@@ -41,6 +41,7 @@ class Browser(DashPageMixin):
     def __init__(
         self,
         browser,
+        driver=None,
         remote=False,
         remote_url=None,
         headless=False,
@@ -65,8 +66,11 @@ class Browser(DashPageMixin):
         self._percy_run = percy_run
         self._pause = pause
 
-        self._driver = until(self.get_webdriver, timeout=1)
-        self._driver.implicitly_wait(2)
+        if driver:
+            self._driver = driver
+        else:
+            self._driver = until(self.get_webdriver, timeout=1)
+            self._driver.implicitly_wait(2)
 
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
         self._last_ts = 0
