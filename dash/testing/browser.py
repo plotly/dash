@@ -41,7 +41,6 @@ class Browser(DashPageMixin):
     def __init__(
         self,
         browser,
-        driver=None,
         remote=False,
         remote_url=None,
         headless=False,
@@ -52,6 +51,7 @@ class Browser(DashPageMixin):
         percy_assets_root="",
         wait_timeout=10,
         pause=False,
+        driver=None,
     ):
         self._browser = browser.lower()
         self._remote_url = remote_url
