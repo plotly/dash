@@ -70,7 +70,7 @@ class Browser(DashPageMixin):
             self._driver = driver
         else:
             self._driver = until(self.get_webdriver, timeout=1)
-            self._driver.implicitly_wait(2)
+        self._driver.implicitly_wait(2)
 
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
         self._last_ts = 0
