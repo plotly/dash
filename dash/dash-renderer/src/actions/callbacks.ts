@@ -582,11 +582,13 @@ function inputsToDict(inputs_list: any) {
 function getTriggeredId(triggered: string[]): string | object {
     // for regular callbacks,  takes the first triggered prop_id, e.g.  "btn.n_clicks" and returns "btn"
     // for pattern matching callback, e.g. '{"index":0, "type":"btn"}' and returns {index:0, type: "btn"}'
-    let componentId = triggered[0].split('.')[0];
-    if (componentId.startsWith('{')) {
-        componentId = JSON.parse(componentId);
+    if (triggered && triggered.length) {
+        let componentId = triggered[0].split('.')[0];
+        if (componentId.startsWith('{')) {
+            componentId = JSON.parse(componentId);
+        }
+        return componentId;
     }
-    return componentId;
 }
 
 export function executeCallback(
