@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+
+## [UNRELEASED]
+### Added
+- [#2695](https://github.com/plotly/dash/pull/2695) Adds  `triggered_id` to `dash_clientside.callback_context`.  fixes [#2692](https://github.com/plotly/dash/issues/2692)
+
+
 ## [2.14.1] - 2023-10-26
 
 ## Fixed
