@@ -863,11 +863,8 @@ def test_clsd020_clientside_callback_context_triggered_id(dash_duo):
 
     dash_duo.find_element("button[id*='btn1\":0']").click()
 
-    dash_duo.wait_for_text_to_equal("#output-clientside", '0')
+    dash_duo.wait_for_text_to_equal("#output-clientside", "0")
 
     dash_duo.find_element("button[id*='btn1\":2']").click()
 
-    dash_duo.wait_for_text_to_equal(
-        "#output-clientside",
-        '2'
-    )
+    dash_duo.wait_for_text_to_equal("#output-clientside", "2")
