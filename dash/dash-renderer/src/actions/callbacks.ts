@@ -579,7 +579,7 @@ function inputsToDict(inputs_list: any) {
     return inputs;
 }
 
-function getTriggeredId(triggered: string[]): string | object {
+function getTriggeredId(triggered: string[]): string | object | undefined {
     // for regular callbacks,  takes the first triggered prop_id, e.g.  "btn.n_clicks" and returns "btn"
     // for pattern matching callback, e.g. '{"index":0, "type":"btn"}' and returns {index:0, type: "btn"}'
     if (triggered && triggered.length) {
