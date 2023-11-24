@@ -166,7 +166,7 @@ function storeEffect(props, events, setErrorLoading) {
             );
         } else if (
             dependenciesRequest.status === STATUS.OK &&
-            isEmpty(graphs)
+            (isEmpty(graphs) || graphs.reset)
         ) {
             dispatch(
                 setGraphs(
