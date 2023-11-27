@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.14.2] - 2023-11-27
+
+## Fixed
+
+- [#2700](https://github.com/plotly/dash/pull/2700) Fix `_allow_dynamic_callbacks` for newly-added components.
+
 ## [2.14.1] - 2023-10-26
 
 ## Fixed
