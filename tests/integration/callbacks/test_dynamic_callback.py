@@ -42,3 +42,34 @@ def test_dync001_dynamic_callback(dash_duo):
 
     dash_duo.wait_for_element("#dynamic").click()
     dash_duo.wait_for_text_to_equal("#output-2", "Dynamic clicks 2")
+
+
+def test_dync002_dynamic_callback_without_element(dash_duo):
+    app = Dash()
+
+    app.layout = html.Div(
+        [
+            html.Button("Add callbacks", id="add-callbacks"),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("add-callbacks", "n_clicks"),
+        _allow_dynamic_callbacks=True,
+        prevent_initial_call=True,
+    )
+    def on_add_callback(_):
+        @app.callback(Output("no-exist", "children"), Input("invalid", "n_clicks"))
+        def addition(_):
+            return "additional"
+
+        return html.Div("add callbacks")
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_element("#add-callbacks").click()
+    dash_duo.wait_for_text_to_equal("#output", "add callbacks")
+
+    assert dash_duo.get_logs() == []

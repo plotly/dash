@@ -3,9 +3,10 @@ import {setGraphs} from './index';
 import apiThunk from './api';
 
 export function requestDependencies() {
-    return (dispatch: any) => {
+    return (dispatch: any, getState: any) => {
         batch(() => {
-            dispatch(setGraphs({}));
+            const {graphs} = getState();
+            dispatch(setGraphs({...graphs, reset: true}));
             dispatch(
                 apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
             );
