@@ -17,6 +17,7 @@ export default class Clipboard extends React.Component {
     constructor(props) {
         super(props);
         this.copyToClipboard = this.copyToClipboard.bind(this);
+        this.onClickHandler = this.onClickHandler.bind(this);
         this.copySuccess = this.copySuccess.bind(this);
         this.getTargetText = this.getTargetText.bind(this);
         this.loading = this.loading.bind(this);
@@ -26,12 +27,19 @@ export default class Clipboard extends React.Component {
         };
     }
 
+    onClickHandler() {
+        this.props.setProps({n_clicks: this.props.n_clicks + 1});
+    }
+
     componentDidUpdate(prevProps) {
-        // If the data hasn't changed, do nothing.
-        if (!this.props.content || this.props.content === prevProps.content) {
+        // If the clicks has not changed, do nothing
+        if (
+            !this.props.n_clicks ||
+            this.props.n_clicks === prevProps.n_clicks
+        ) {
             return;
         }
-        // If the data has changed, copy to clipboard
+        // If the clicks has changed, copy to clipboard
         this.copyToClipboard();
     }
 
@@ -94,10 +102,6 @@ export default class Clipboard extends React.Component {
     }
 
     async copyToClipboard() {
-        this.props.setProps({
-            n_clicks: this.props.n_clicks + 1,
-        });
-
         let content;
         let htmlContent;
         if (this.props.target_id) {
@@ -131,7 +135,7 @@ export default class Clipboard extends React.Component {
                 title={title}
                 style={style}
                 className={className}
-                onClick={this.copyToClipboard}
+                onClick={this.onClickHandler}
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
