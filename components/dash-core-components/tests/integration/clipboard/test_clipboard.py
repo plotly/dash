@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, callback, Output, Input
+from dash import Dash, html, dcc, callback, Output, Input, State
 
 import dash.testing.wait as wait
 import time
@@ -55,20 +55,27 @@ def test_clp002_clipboard_text(dash_dcc_headed):
         timeout=3,
     )
 
+
 def test_clp003_clipboard_text(dash_dcc_headed):
     copy_text = "Copy this text to the clipboard using a separate button"
     app = Dash(__name__, prevent_initial_callbacks=True)
     app.layout = html.Div(
-        [dcc.Clipboard(id="copy_icon", content=copy_text), dcc.Textarea(id="paste"), html.Button("Copy", id="copy_button")]
+        [
+            dcc.Clipboard(id="copy_icon", content=copy_text),
+            dcc.Textarea(id="paste"),
+            html.Button("Copy", id="copy_button"),
+        ]
     )
+
     @callback(
-        Output("copy_icon", "content"),
+        Output("copy_icon", "n_clicks"),
+        State("copy_icon", "n_clicks"),
         Input("copy_button", "n_clicks"),
         prevent_initial_call=True,
     )
-    def selected(clicks):
-        return f"{clicks}"
-    
+    def selected(icon_clicks, button_clicks):
+        return icon_clicks + 1
+
     dash_dcc_headed.start_server(app)
 
     dash_dcc_headed.find_element("#copy_button").click()
