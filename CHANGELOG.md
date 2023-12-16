@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - [#2695](https://github.com/plotly/dash/pull/2695) Adds  `triggered_id` to `dash_clientside.callback_context`.  Fixes [#2692](https://github.com/plotly/dash/issues/2692)
 
+## Changed
+- [#2652](https://github.com/plotly/dash/pull/2652) dcc.Clipboard supports htm_content and triggers a copy to clipboard when n_clicks are changed
+
 ## [2.14.2] - 2023-11-27
 
 ## Fixed
