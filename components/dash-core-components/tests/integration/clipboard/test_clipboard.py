@@ -61,9 +61,9 @@ def test_clp003_clipboard_text(dash_dcc_headed):
     app = Dash(__name__, prevent_initial_callbacks=True)
     app.layout = html.Div(
         [
-            dcc.Clipboard(id="copy_icon", content=copy_text),
+            dcc.Clipboard(id="copy_icon", content=copy_text, n_clicks=0),
             dcc.Textarea(id="paste"),
-            html.Button("Copy", id="copy_button"),
+            html.Button("Copy", id="copy_button", n_clicks=0),
         ]
     )
 
