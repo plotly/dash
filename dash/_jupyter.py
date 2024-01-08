@@ -5,7 +5,6 @@ import logging
 import os
 import queue
 import uuid
-import re
 import sys
 import threading
 import time
@@ -22,7 +21,6 @@ try:
     from IPython.core.display import HTML
     from IPython.core.ultratb import FormattedTB
     from retrying import retry
-    from ansi2html import Ansi2HTMLConverter
     from ipykernel.comm import Comm
     import nest_asyncio
 
@@ -471,21 +469,7 @@ class JupyterDash:
             if self.inline_exceptions:
                 print(ansi_stacktrace)
 
-            # Use ansi2html to convert the colored ANSI string to HTML
-            conv = Ansi2HTMLConverter(scheme="ansi2html", dark_bg=False)
-            html_str = conv.convert(ansi_stacktrace)
-
-            # Set width to fit 75-character wide stack trace and font to a size the
-            # won't require a horizontal scroll bar
-            html_str = html_str.replace(
-                "<html>", '<html style="width: 75ch; font-size: 0.86em">'
-            )
-
-            # Remove explicit background color so Dash dev-tools can set background
-            # color
-            html_str = re.sub("background-color:[^;]+;", "", html_str)
-
-            return html_str, 500
+            return ansi_stacktrace, 500
 
     @property
     def active(self):
