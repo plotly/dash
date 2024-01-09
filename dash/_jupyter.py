@@ -448,13 +448,12 @@ class JupyterDash:
             original_formatargvalues = inspect.formatargvalues
             inspect.formatargvalues = _custom_formatargvalues
             try:
-                # Use IPython traceback formatting to build colored ANSI traceback
-                # string
+                # Use IPython traceback formatting to build the traceback string.
                 ostream = io.StringIO()
                 ipytb = FormattedTB(
                     tb_offset=skip,
                     mode="Verbose",
-                    color_scheme="Linux",
+                    color_scheme="NoColor",
                     include_vars=True,
                     ostream=ostream,
                 )
@@ -463,13 +462,12 @@ class JupyterDash:
                 # Restore formatargvalues
                 inspect.formatargvalues = original_formatargvalues
 
-            # Print colored ANSI representation if requested
-            ansi_stacktrace = ostream.getvalue()
+            stacktrace = ostream.getvalue()
 
             if self.inline_exceptions:
-                print(ansi_stacktrace)
+                print(stacktrace)
 
-            return ansi_stacktrace, 500
+            return stacktrace, 500
 
     @property
     def active(self):
