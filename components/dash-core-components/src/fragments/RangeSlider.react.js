@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {assoc, pick, isNil} from 'ramda';
+import {assoc, pick, isNil, pipe, dissoc} from 'ramda';
 import {Range, createSliderWithTooltip} from 'rc-slider';
 import computeSliderStyle from '../utils/computeSliderStyle';
 
@@ -11,6 +11,7 @@ import {
     setUndefined,
 } from '../utils/computeSliderMarkers';
 import {propTypes, defaultProps} from '../components/RangeSlider.react';
+import {formatSliderTooltip} from '../utils/formatSliderTooltip';
 
 const sliderProps = [
     'min',
@@ -72,17 +73,29 @@ export default class RangeSlider extends Component {
         } = this.props;
         const value = this.state.value;
 
-        let tipProps;
-        if (tooltip && tooltip.always_visible) {
+        let tipProps, tipFormatter;
+        if (tooltip) {
             /**
              * clone `tooltip` but with renamed key `always_visible` -> `visible`
-             * the rc-tooltip API uses `visible`, but `always_visible is more semantic
+             * the rc-tooltip API uses `visible`, but `always_visible` is more semantic
              * assigns the new (renamed) key to the old key and deletes the old key
              */
-            tipProps = assoc('visible', tooltip.always_visible, tooltip);
-            delete tipProps.always_visible;
-        } else {
-            tipProps = tooltip;
+            tipProps = pipe(
+                assoc('visible', tooltip.always_visible),
+                dissoc('always_visible'),
+                dissoc('format'),
+                dissoc('style')
+            )(tooltip);
+            if (tooltip.format || tooltip.style) {
+                tipFormatter = tipValue => (
+                    <div style={tooltip.style}>
+                        {formatSliderTooltip(
+                            tooltip.format || '{value}',
+                            tipValue
+                        )}
+                    </div>
+                );
+            }
         }
 
         return (
@@ -116,6 +129,7 @@ export default class RangeSlider extends Component {
                         ...tipProps,
                         getTooltipContainer: node => node,
                     }}
+                    tipFormatter={tipFormatter}
                     style={{position: 'relative'}}
                     value={value ? value : calcValue(min, max, value)}
                     marks={sanitizeMarks({min, max, marks, step})}

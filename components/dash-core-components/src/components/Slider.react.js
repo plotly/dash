@@ -2,6 +2,8 @@ import React, {Component, lazy, Suspense} from 'react';
 import PropTypes from 'prop-types';
 import slider from '../utils/LazyLoader/slider';
 
+import './css/sliders.css';
+
 const RealSlider = lazy(slider);
 
 /**
@@ -105,6 +107,15 @@ Slider.propTypes = {
             'bottomLeft',
             'bottomRight',
         ]),
+        /**
+         * Format to apply to the tooltip
+         * The string must contain `{value}`
+         */
+        format: PropTypes.string,
+        /**
+         * Custom style for the tooltip.
+         */
+        style: PropTypes.object,
     }),
 
     /**

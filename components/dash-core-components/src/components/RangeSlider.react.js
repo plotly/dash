@@ -125,6 +125,15 @@ RangeSlider.propTypes = {
             'bottomLeft',
             'bottomRight',
         ]),
+        /**
+         * Format to apply to the tooltip
+         * The string must contain `{value}`
+         */
+        format: PropTypes.string,
+        /**
+         * Custom style for the tooltip.
+         */
+        style: PropTypes.object,
     }),
 
     /**
