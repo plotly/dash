@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - [#2695](https://github.com/plotly/dash/pull/2695) Adds  `triggered_id` to `dash_clientside.callback_context`.  Fixes [#2692](https://github.com/plotly/dash/issues/2692)
+- [#2723](https://github.com/plotly/dash/pull/2723) Improve dcc Slider/RangeSlider tooltips. Fixes [#1846](https://github.com/plotly/dash/issues/1846)
+  - Add `tooltip.format` a string for the format template, {value} will be formatted with the actual value.
+  - Add `tooltip.style` a style object to give to the div of the tooltip.
 
 ## Changed
 - [#2652](https://github.com/plotly/dash/pull/2652) dcc.Clipboard supports htm_content and triggers a copy to clipboard when n_clicks are changed
