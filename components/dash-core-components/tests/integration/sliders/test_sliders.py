@@ -583,6 +583,12 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
                 id="range-slider",
                 tooltip={"format": "Custom tooltip: {value}", "always_visible": True},
             ),
+            dcc.Slider(
+                min=20,
+                max=100,
+                id="slider-transform",
+                tooltip={"always_visible": True, "transform": "transformTooltip"},
+            ),
         ],
         style={"padding": "12px", "marginTop": "48px"},
     )
@@ -602,6 +608,9 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
     )
     dash_dcc.wait_for_style_to_equal(
         "#slider .rc-slider-tooltip-inner > div", "padding", "8px"
+    )
+    dash_dcc.wait_for_text_to_equal(
+        "#slider-transform .rc-slider-tooltip-content", "Transformed 20"
     )
 
     dash_dcc.percy_snapshot("sliders-format-tooltips")

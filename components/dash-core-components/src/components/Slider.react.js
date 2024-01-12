@@ -116,6 +116,20 @@ Slider.propTypes = {
          * Custom style for the tooltip.
          */
         style: PropTypes.object,
+        /**
+         * Reference to a function in the `window.dccFunctions` namespace.
+         * This can be added in a scrip in the asset folder.
+         *
+         * For example, in `assets/tooltip.js`:
+         * ```
+         * window.dccFunctions = window.dccFunctions || {};
+         * window.dccFunctions.multByTen = function(value) {
+         *     return value * 10;
+         * }
+         * ```
+         * Then in the component `tooltip={'transform': 'multByTen'
+         */
+        transform: PropTypes.string,
     }),
 
     /**
