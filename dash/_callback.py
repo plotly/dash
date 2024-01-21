@@ -94,13 +94,13 @@ def callback(
             `DiskcacheManager` or `CeleryManager`.
             Defaults to the `background_callback_manager` instance provided to the
             `dash.Dash constructor`.
-            - A diskcache manager (`DiskcacheManager`) that runs callback
-              logic in a separate process and stores the results to disk using the
-              diskcache library. This is the easiest backend to use for local
-              development.
-            - A Celery manager (`CeleryManager`) that runs callback logic
-              in a celery worker and returns results to the Dash app through a Celery
-              broker like RabbitMQ or Redis.
+        - A diskcache manager (`DiskcacheManager`) that runs callback
+          logic in a separate process and stores the results to disk using the
+          diskcache library. This is the easiest backend to use for local
+          development.
+        - A Celery manager (`CeleryManager`) that runs callback logic
+          in a celery worker and returns results to the Dash app through a Celery
+          broker like RabbitMQ or Redis.
               
     param running:
             A list of 3-element tuples. The first element of each tuple should be
