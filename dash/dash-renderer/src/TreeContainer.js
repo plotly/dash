@@ -1,7 +1,5 @@
 import React, {Component, memo, useContext} from 'react';
 import PropTypes from 'prop-types';
-import Registry from './registry';
-import {propTypeErrorHandler} from './exceptions';
 import {
     addIndex,
     assoc,
@@ -9,25 +7,25 @@ import {
     concat,
     dissoc,
     equals,
+    has,
     isEmpty,
     isNil,
-    has,
     keys,
     map,
     mapObjIndexed,
-    mergeRight,
+    path as rpath,
+    pathOr,
     pick,
     pickBy,
     propOr,
-    path as rpath,
-    pathOr,
     type
 } from 'ramda';
+import {batch} from 'react-redux';
+
 import {notifyObservers, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
 import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
-import checkPropTypes from './checkPropTypes';
 import {getWatchedKeys, stringifyId} from './actions/dependencies';
 import {
     getLoadingHash,
@@ -35,44 +33,11 @@ import {
     validateComponent
 } from './utils/TreeContainer';
 import {DashContext} from './APIController.react';
-import {batch} from 'react-redux';
+import LibraryComponent from './libraries/LibraryComponent';
 
 const NOT_LOADING = {
     is_loading: false
 };
-
-function CheckedComponent(p) {
-    const {element, extraProps, props, children, type} = p;
-
-    const errorMessage = checkPropTypes(
-        element.propTypes,
-        props,
-        'component prop',
-        element
-    );
-    if (errorMessage) {
-        propTypeErrorHandler(errorMessage, props, type);
-    }
-
-    return createElement(element, props, extraProps, children);
-}
-
-CheckedComponent.propTypes = {
-    children: PropTypes.any,
-    element: PropTypes.any,
-    layout: PropTypes.any,
-    props: PropTypes.any,
-    extraProps: PropTypes.any,
-    id: PropTypes.string
-};
-
-function createElement(element, props, extraProps, children) {
-    const allProps = mergeRight(props, extraProps);
-    if (Array.isArray(children)) {
-        return React.createElement(element, allProps, ...children);
-    }
-    return React.createElement(element, allProps, children);
-}
 
 function isDryComponent(obj) {
     return (
@@ -240,7 +205,8 @@ class BaseTreeContainer extends Component {
         }
         validateComponent(_dashprivate_layout);
 
-        const element = Registry.resolve(_dashprivate_layout);
+        // console.log("Dash private config", _dashprivate_config);
+        // const element = Registry.resolve(_dashprivate_layout);
 
         // Hydrate components props
         const childrenProps = pathOr(
@@ -445,17 +411,14 @@ class BaseTreeContainer extends Component {
                 dispatch={_dashprivate_dispatch}
                 error={_dashprivate_error}
             >
-                {_dashprivate_config.props_check ? (
-                    <CheckedComponent
-                        children={children}
-                        element={element}
-                        props={props}
-                        extraProps={extraProps}
-                        type={_dashprivate_layout.type}
-                    />
-                ) : (
-                    createElement(element, props, extraProps, children)
-                )}
+                <LibraryComponent
+                    children={children}
+                    type={_dashprivate_layout.type}
+                    namespace={_dashprivate_layout.namespace}
+                    props={props}
+                    extraProps={extraProps}
+                    props_check={_dashprivate_config.props_check}
+                />
             </ComponentErrorBoundary>
         );
     }

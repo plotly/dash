@@ -20,10 +20,12 @@ class ComponentRegistry:
     children_props = collections.defaultdict(dict)
 
     @classmethod
-    def get_resources(cls, resource_name):
+    def get_resources(cls, resource_name, includes=None):
         resources = []
 
         for module_name in cls.registry:
+            if includes is not None and module_name not in includes:
+                continue
             module = sys.modules[module_name]
             resources.extend(getattr(module, resource_name, []))
 

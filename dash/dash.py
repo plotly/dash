@@ -392,6 +392,8 @@ class Dash:
         add_log_handler=True,
         hooks: Union[RendererHooks, None] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
+        dynamic_loading=True,
+        preloaded_libraries=None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -446,6 +448,8 @@ class Dash:
             title=title,
             update_title=update_title,
             include_pages_meta=include_pages_meta,
+            dynamic_loading=dynamic_loading,
+            preloaded_libraries=preloaded_libraries or [],
         )
         self.config.set_read_only(
             [
@@ -456,6 +460,8 @@ class Dash:
                 "serve_locally",
                 "compress",
                 "pages_folder",
+                "dynamic_loading",
+                "preloaded_libraries",
             ],
             "Read-only: can only be set in the Dash constructor",
         )
@@ -633,6 +639,7 @@ class Dash:
         self._add_url("_dash-update-component", self.dispatch, ["POST"])
         self._add_url("_reload-hash", self.serve_reload_hash)
         self._add_url("_favicon.ico", self._serve_default_favicon)
+        self._add_url("_dash-dist", self.serve_dist, methods=["POST"])
         self._add_url("", self.index)
 
         if jupyter_dash.active:
@@ -786,6 +793,20 @@ class Dash:
             }
         )
 
+    def serve_dist(self):
+        libraries = flask.request.get_json()
+        dists = []
+        for dist_type in ("_js_dist", "_css_dist"):
+            resources = [
+                resource
+                for resource in ComponentRegistry.get_resources(dist_type, libraries)
+                if not resource.get("async") and not resource.get("dynamic")
+            ]
+            srcs = self._collect_and_register_resources(resources)
+            for src in srcs:
+                dists.append(dict(type=dist_type, url=src))
+        return flask.jsonify(dists)
+
     def _collect_and_register_resources(self, resources):
         # now needs the app context.
         # template in the necessary component suite JS bundles
@@ -850,7 +871,13 @@ class Dash:
 
     def _generate_css_dist_html(self):
         external_links = self.config.external_stylesheets
-        links = self._collect_and_register_resources(self.css.get_all_css())
+
+        if self.config.dynamic_loading:
+            links = self._collect_and_register_resources(
+                self.css.get_library_css(self.config.preloaded_libraries)
+            )
+        else:
+            links = self._collect_and_register_resources(self.css.get_all_css())
 
         return "\n".join(
             [
@@ -885,20 +912,27 @@ class Dash:
                 self.scripts._resources._filter_resources(deps, dev_bundles=dev)
             )
             + self.config.external_scripts
-            + self._collect_and_register_resources(
+        )
+
+        if not self.config.dynamic_loading:
+            srcs += self._collect_and_register_resources(
                 self.scripts.get_all_scripts(dev_bundles=dev)
-                + self.scripts._resources._filter_resources(
-                    _dash_renderer._js_dist, dev_bundles=dev
+            )
+        else:
+            srcs += self._collect_and_register_resources(
+                self.scripts.get_library_scripts(
+                    self.config.preloaded_libraries, dev_bundles=dev
                 )
-                + self.scripts._resources._filter_resources(
-                    dcc._js_dist, dev_bundles=dev
-                )
-                + self.scripts._resources._filter_resources(
-                    html._js_dist, dev_bundles=dev
-                )
-                + self.scripts._resources._filter_resources(
-                    dash_table._js_dist, dev_bundles=dev
-                )
+            )
+
+        srcs += self._collect_and_register_resources(
+            self.scripts._resources._filter_resources(
+                _dash_renderer._js_dist, dev_bundles=dev
+            )
+            + self.scripts._resources._filter_resources(dcc._js_dist, dev_bundles=dev)
+            + self.scripts._resources._filter_resources(html._js_dist, dev_bundles=dev)
+            + self.scripts._resources._filter_resources(
+                dash_table._js_dist, dev_bundles=dev
             )
         )
 

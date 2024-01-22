@@ -21,6 +21,7 @@ import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
 import wait from './utils/wait';
+import LibraryManager from './libraries/LibraryManager';
 
 export const DashContext = createContext({});
 
@@ -97,20 +98,24 @@ const UnconnectedContainer = props => {
 
         content = (
             <DashContext.Provider value={provider.current}>
-                <TreeContainer
-                    _dashprivate_error={error}
-                    _dashprivate_layout={layout}
-                    _dashprivate_loadingState={getLoadingState(
-                        layout,
-                        [],
-                        loadingMap
-                    )}
-                    _dashprivate_loadingStateHash={getLoadingHash(
-                        [],
-                        loadingMap
-                    )}
-                    _dashprivate_path={JSON.stringify([])}
-                />
+                <LibraryManager
+                    requests_pathname_prefix={config.requests_pathname_prefix}
+                >
+                    <TreeContainer
+                        _dashprivate_error={error}
+                        _dashprivate_layout={layout}
+                        _dashprivate_loadingState={getLoadingState(
+                            layout,
+                            [],
+                            loadingMap
+                        )}
+                        _dashprivate_loadingStateHash={getLoadingHash(
+                            [],
+                            loadingMap
+                        )}
+                        _dashprivate_path={JSON.stringify([])}
+                    />
+                </LibraryManager>
             </DashContext.Provider>
         );
     } else {
