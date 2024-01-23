@@ -30,6 +30,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Changed
 - [#2652](https://github.com/plotly/dash/pull/2652) dcc.Clipboard supports htm_content and triggers a copy to clipboard when n_clicks are changed
 - [#2721](https://github.com/plotly/dash/pull/2721) Remove ansi2html, fixes [#2613](https://github.com/plotly/dash/issues/2713)
+- [#2730](https://github.com/plotly/dash/pull/2721) Load script files with `.mjs` ending as js modules
 
 ## [2.14.2] - 2023-11-27
 
