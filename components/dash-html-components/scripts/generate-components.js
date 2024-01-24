@@ -261,7 +261,7 @@ const customImportsForComponents = {
 
 function createXSSProtection(propName) {
     return `
-    const ${propName} = React.useMemo(() => props.${propName} ? sanitizeUrl(props.${propName}): undefined, [props.${propName}]);
+    const ${propName} = React.useMemo(() => props.${propName} && sanitizeUrl(props.${propName}), [props.${propName}]);
     
     if (${propName}) {
         extraProps.${propName} = ${propName};
