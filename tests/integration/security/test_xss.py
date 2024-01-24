@@ -27,8 +27,6 @@ def test_xss001_banned_protocols(dash_duo):
             html.Iframe(src='javascript:alert("iframe")', id="iframe-src"),
             html.ObjectEl(data='javascript:alert("data-object")', id="object-data"),
             html.Embed(src='javascript:alert("embed")', id="embed-src"),
-            # older browser
-            html.Img(src="javascript:alert('img-sr')", id="img-src"),
         ]
     )
 
@@ -41,7 +39,6 @@ def test_xss001_banned_protocols(dash_duo):
         ("#object-data", "data"),
         ("#embed-src", "src"),
         ("#button-form-action", "formAction"),
-        ("#img-src", "src"),
     ):
 
         element = dash_duo.find_element(element_id)

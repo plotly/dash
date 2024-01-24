@@ -256,7 +256,6 @@ const customImportsForComponents = {
     object: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
     embed: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
     button: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
-    img: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
 }
 
 function createXSSProtection(propName) {
@@ -282,8 +281,7 @@ const customCodesForComponents = {
     iframe: createXSSProtection('src'),
     object: createXSSProtection('data'),
     embed: createXSSProtection('src'),
-    button: createXSSProtection('formAction'),
-    img: createXSSProtection('src'),
+    button: createXSSProtection('formAction')
 }
 
 function generateComponent(Component, element, attributes) {
