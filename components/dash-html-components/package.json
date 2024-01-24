@@ -28,10 +28,11 @@
   "author": "Chris Parmer <chris@plotly.com>",
   "maintainer": "Alex Johnson <alex@plotly.com>",
   "dependencies": {
+    "@braintree/sanitize-url": "^7.0.0",
     "prop-types": "^15.8.1",
     "ramda": "^0.29.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": ">=17",
+    "react-dom": ">=17"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
