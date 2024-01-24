@@ -30,9 +30,7 @@
   "dependencies": {
     "@braintree/sanitize-url": "^7.0.0",
     "prop-types": "^15.8.1",
-    "ramda": "^0.29.0",
-    "react": ">=17",
-    "react-dom": ">=17"
+    "ramda": "^0.29.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
@@ -51,15 +49,13 @@
     "request": "^2.88.2",
     "string": "^3.3.3",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "files": [
     "/dash_html_components/*{.js,.map}"
   ],
-  "peerDependencies": {
-    "react": ">=17",
-    "react-dom": ">=17"
-  },
   "browserslist": [
     "last 8 years and not dead"
   ]
