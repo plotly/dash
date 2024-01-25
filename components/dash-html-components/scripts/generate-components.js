@@ -319,7 +319,7 @@ ${customCode}
                 n_clicks_timestamp: Date.now()
             })
             })}
-            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps', 'disable_n_clicks', 'href'], props)}
+            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps', 'disable_n_clicks'], props)}
             {...extraProps}
         >
             {props.children}
