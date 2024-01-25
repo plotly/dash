@@ -136,16 +136,17 @@ class BaseTreeContainer extends Component {
 
         const oldProps = this.getLayoutProps();
         const {id} = oldProps;
+        const {_dash_error, ...rest} = newProps;
         const changedProps = pickBy(
             (val, key) => !equals(val, oldProps[key]),
-            dissoc('_dash_error', newProps)
+            rest
         );
 
-        if (newProps._dash_error) {
+        if (_dash_error) {
             _dashprivate_dispatch(
                 onError({
                     type: 'frontEnd',
-                    error: newProps._dash_error
+                    error: _dash_error
                 })
             );
         }
