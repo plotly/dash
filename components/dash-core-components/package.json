@@ -92,6 +92,7 @@
     "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4"
   },
+  "optionalDependencies": { "fsevents": "*" },
   "files": [
     "/dash_core_components/*{.js,.map}",
     "/lib/"
