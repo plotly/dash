@@ -77,11 +77,6 @@ const Link = props => {
         }
     }, [href, sanitizedUrl]);
 
-    /*
-     * ideally, we would use cloneElement however
-     * that doesn't work with dash's recursive
-     * renderTree implementation for some reason
-     */
     return (
         <a
             data-dash-is-loading={
