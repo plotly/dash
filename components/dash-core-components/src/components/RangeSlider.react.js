@@ -147,7 +147,7 @@ RangeSlider.propTypes = {
          *     return value * 10;
          * }
          * ```
-         * Then in the component `tooltip={'transform': 'multByTen'
+         * Then in the component `tooltip={'transform': 'multByTen'}`
          */
         transform: PropTypes.string,
     }),
