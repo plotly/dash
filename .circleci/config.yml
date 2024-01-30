@@ -8,12 +8,12 @@ orbs:
 jobs:
   artifacts:
     docker:
-      - image: cimg/python:3.9.9
+      - image: cimg/python:3.10.13
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_ENABLE: 0
     steps:
       - checkout
@@ -27,16 +27,16 @@ jobs:
           path: ~/dash/dash-main
           destination: /tmp/dash-main
 
-  install-dependencies-39: &install-dependencies
+  install-dependencies-310: &install-dependencies
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-node
+      - image: cimg/python:3.10.13-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc39
-          PYVERSION: python39
+          PYLINTRC: .pylintrc310
+          PYVERSION: python310
           PERCY_ENABLE: 0
 
     steps:
@@ -88,16 +88,16 @@ jobs:
           PYVERSION: python36
           PERCY_ENABLE: 0
 
-  lint-unit-39: &lint-unit
+  lint-unit-310: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc39
-          PYVERSION: python39
+          PYLINTRC: .pylintrc310
+          PYVERSION: python310
           PERCY_ENABLE: 0
 
     steps:
@@ -142,7 +142,7 @@ jobs:
           PYVERSION: python36
           PERCY_ENABLE: 0
 
-  build-windows-39:
+  build-windows-310:
     working_directory: ~/dash
     executor:
       name: win/default
@@ -157,10 +157,10 @@ jobs:
             pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             cd dash/dash-renderer && renderer build && cd ../../
 
-  test-39: &test
+  test-310: &test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -168,7 +168,7 @@ jobs:
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python39
+          PYVERSION: python310
           REDIS_URL: redis://localhost:6379
       - image: cimg/redis:6.2.6
         auth:
@@ -208,17 +208,17 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  test-39-react-18:
+  test-310-react-18:
     <<: *test
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python39
+          PYVERSION: python310
           REDIS_URL: redis://localhost:6379
           REACT_VERSION: "18.2.0"
       - image: cimg/redis:6.2.6
@@ -243,15 +243,15 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
 
-  dcc-lint-unit-39: &dcc-lint-unit
+  dcc-lint-unit-310: &dcc-lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-node
+      - image: cimg/python:3.10.13-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_ENABLE: 0
     steps:
       - checkout:
@@ -280,15 +280,15 @@ jobs:
           PYVERSION: python36
           PERCY_ENABLE: 0
 
-  dcc-39: &dcc-test
+  dcc-310: &dcc-test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_PARALLEL_TOTAL: -1
           PERCY_ENABLE: 1
     parallelism: 3
@@ -326,15 +326,15 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  dcc-39-react-18:
+  dcc-310-react-18:
     <<: *dcc-test
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
@@ -349,15 +349,15 @@ jobs:
           PYVERSION: python36
           PERCY_ENABLE: 0
 
-  html-39: &html-test
+  html-310: &html-test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
@@ -403,15 +403,15 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  html-39-react-18:
+  html-310-react-18:
     <<: *html-test
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
@@ -429,9 +429,9 @@ jobs:
   table-server: &table-server
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
@@ -478,18 +478,18 @@ jobs:
   table-server-react-18:
     <<: *table-server
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
   table-unit-test:
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-browsers
+      - image: cimg/python:3.10.13-browsers
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_ENABLE: 0
     steps:
       - checkout:
@@ -562,9 +562,9 @@ jobs:
   table-node:
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.9.9-node
+      - image: cimg/python:3.10.13-node
         environment:
-          PYVERSION: python39
+          PYVERSION: python310
           PERCY_ENABLE: 0
     steps:
       - checkout:
@@ -602,74 +602,74 @@ workflows:
   version: 2
   tests:
     jobs:
-      - install-dependencies-39
+      - install-dependencies-310
       - install-dependencies-36
 
-      - build-windows-39
+      - build-windows-310
 
-      - lint-unit-39:
+      - lint-unit-310:
           requires:
-            - install-dependencies-39
+            - install-dependencies-310
       - lint-unit-36:
           requires:
             - install-dependencies-36
 
-      - test-39:
+      - test-310:
           requires:
-            - install-dependencies-39
-      - test-39-react-18:
+            - install-dependencies-310
+      - test-310-react-18:
           requires:
-            - install-dependencies-39
+            - install-dependencies-310
       - test-36:
           requires:
             - install-dependencies-36
 
-      - dcc-lint-unit-39:
+      - dcc-lint-unit-310:
           requires:
-            - install-dependencies-39
+            - install-dependencies-310
       - dcc-lint-unit-36:
           requires:
             - install-dependencies-36
 
-      - dcc-39:
+      - dcc-310:
           requires:
-            - install-dependencies-39
-      - dcc-39-react-18:
+            - install-dependencies-310
+      - dcc-310-react-18:
           requires:
-            - install-dependencies-39
+            - install-dependencies-310
       - dcc-36:
           requires:
             - install-dependencies-36
 
-      - html-39:
+      - html-310:
           requires:
-            - install-dependencies-39
-      - html-39-react-18:
+            - install-dependencies-310
+      - html-310-react-18:
           requires:
-            - install-dependencies-39
+            - install-dependencies-310
       - html-36:
           requires:
             - install-dependencies-36
 
       - table-node:
           requires:
-            - install-dependencies-39
+            - install-dependencies-310
       - table-unit-test:
           requires:
-            - install-dependencies-39
+            - install-dependencies-310
       - table-visual-test
       - table-server:
           requires:
-            - install-dependencies-39
+            - install-dependencies-310
       - table-server-react-18:
           requires:
-            - install-dependencies-39
+            - install-dependencies-310
 
       - percy/finalize_all:
           requires:
-            - test-39
-            - dcc-39
-            - html-39
+            - test-310
+            - dcc-310
+            - html-310
             - table-server
       - artifacts:
           requires:
