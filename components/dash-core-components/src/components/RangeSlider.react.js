@@ -136,7 +136,7 @@ RangeSlider.propTypes = {
         style: PropTypes.object,
         /**
          * Reference to a function in the `window.dccFunctions` namespace.
-         * This can be added in a scrip in the asset folder.
+         * This can be added in a script in the asset folder.
          *
          * For example, in `assets/tooltip.js`:
          * ```
