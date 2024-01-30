@@ -249,15 +249,54 @@ const customDocs = {
  * <body>.`
 };
 
+const customImportsForComponents = {
+    a: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
+    form: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
+    iframe: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
+    object: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
+    embed: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
+    button: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
+}
+
+function createXSSProtection(propName) {
+    return `
+    const ${propName} = React.useMemo(() => props.${propName} && sanitizeUrl(props.${propName}), [props.${propName}]);
+    
+    if (${propName}) {
+        extraProps.${propName} = ${propName};
+    }
+    
+    React.useEffect(() => {
+        if (${propName} && ${propName} !== props.${propName}) {
+            props.setProps({_dash_error: new Error(\`Dangerous link detected: \${props.${propName}}\`)})
+        }
+    }, [props.${propName}, ${propName}]);
+    `
+}
+
+
+const customCodesForComponents = {
+    a: createXSSProtection('href'),
+    form: createXSSProtection('action'),
+    iframe: createXSSProtection('src'),
+    object: createXSSProtection('data'),
+    embed: createXSSProtection('src'),
+    button: createXSSProtection('formAction')
+}
+
 function generateComponent(Component, element, attributes) {
     const propTypes = generatePropTypes(element, attributes);
 
+    const customImport = customImportsForComponents[element] || '';
     const customDoc = customDocs[element] ? ('\n *' + customDocs[element] + '\n *') : '';
+
+    const customCode = customCodesForComponents[element] || '';
 
     return `
 import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
+${customImport}
 
 /**
  * ${Component} is a wrapper for the <${element}> HTML5 element.${customDoc}
@@ -265,11 +304,11 @@ import {omit} from 'ramda';
  * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}
  */
 const ${Component} = (props) => {
-    const dataAttributes = {};
+    const extraProps = {};
     if(props.loading_state && props.loading_state.is_loading) {
-        dataAttributes['data-dash-is-loading'] = true;
+        extraProps['data-dash-is-loading'] = true;
     }
-
+${customCode}
      /* remove unnecessary onClick event listeners  */
     const isStatic = props.disable_n_clicks || !props.id;
     return (
@@ -281,7 +320,7 @@ const ${Component} = (props) => {
             })
             })}
             {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps', 'disable_n_clicks'], props)}
-            {...dataAttributes}
+            {...extraProps}
         >
             {props.children}
         </${element}>
