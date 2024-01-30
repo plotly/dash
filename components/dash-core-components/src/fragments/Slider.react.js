@@ -85,9 +85,9 @@ export default class Slider extends Component {
              */
             tipProps = pipe(
                 assoc('visible', tooltip.always_visible),
-                omit(['always_visible', 'format', 'style', 'transform'])
+                omit(['always_visible', 'template', 'style', 'transform'])
             )(tooltip);
-            if (tooltip.format || tooltip.style || tooltip.transform) {
+            if (tooltip.template || tooltip.style || tooltip.transform) {
                 tipFormatter = tipValue => {
                     let t = tipValue;
                     if (tooltip.transform) {
@@ -96,7 +96,7 @@ export default class Slider extends Component {
                     return (
                         <div style={tooltip.style}>
                             {formatSliderTooltip(
-                                tooltip.format || '{value}',
+                                tooltip.template || '{value}',
                                 t
                             )}
                         </div>

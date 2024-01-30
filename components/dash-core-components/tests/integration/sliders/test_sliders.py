@@ -571,7 +571,7 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
                 max=100,
                 id="slider",
                 tooltip={
-                    "format": "Custom tooltip: {value}",
+                    "template": "Custom tooltip: {value}",
                     "always_visible": True,
                     "style": {"padding": "8px"},
                 },
@@ -581,7 +581,7 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
                 min=20,
                 max=100,
                 id="range-slider",
-                tooltip={"format": "Custom tooltip: {value}", "always_visible": True},
+                tooltip={"template": "Custom tooltip: {value}", "always_visible": True},
             ),
             dcc.Slider(
                 min=20,

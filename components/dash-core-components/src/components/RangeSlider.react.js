@@ -126,10 +126,12 @@ RangeSlider.propTypes = {
             'bottomRight',
         ]),
         /**
-         * Format to apply to the tooltip
-         * The string must contain `{value}`
+         * Template string to display the tooltip in.
+         * Must contain `{value}`, which will be replaced with either
+         * the default string representation of the value or the result of the
+         * transform function if there is one.
          */
-        format: PropTypes.string,
+        template: PropTypes.string,
         /**
          * Custom style for the tooltip.
          */
