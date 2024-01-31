@@ -151,7 +151,7 @@ jobs:
       - run:
           name: ️️🏗️ build core
           command: |
-            py -3.12 -m install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
+            py -3.12 -m pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             cd dash/dash-renderer && renderer build && cd ../../
 
   test-312: &test
