@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2652](https://github.com/plotly/dash/pull/2652) dcc.Clipboard supports htm_content and triggers a copy to clipboard when n_clicks are changed
 - [#2721](https://github.com/plotly/dash/pull/2721) Remove ansi2html, fixes [#2613](https://github.com/plotly/dash/issues/2713)
 - [#2734](https://github.com/plotly/dash/pull/2734) Configure CI for Python 3.10 [#1863](https://github.com/plotly/dash/issues/1863)
+- [#2735](https://github.com/plotly/dash/pull/2735) Configure CI for Python 3.8 and 3.12, drop support for Python 3.6 and Python 3.7 [#2736](https://github.com/plotly/dash/issues/2736)
 
 ## [2.14.2] - 2023-11-27
 
