@@ -281,6 +281,13 @@
     "displayName": "Clipboard",
     "methods": [
       {
+        "name": "onClickHandler",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
         "name": "stringifyId",
         "docblock": null,
         "modifiers": [],
@@ -301,6 +308,10 @@
         "params": [
           {
             "name": "content",
+            "type": null
+          },
+          {
+            "name": "htmlContent",
             "type": null
           }
         ],
@@ -364,7 +375,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "The text to  be copied to the clipboard if the `target_id` is None.",
+        "description": "The text to be copied to the clipboard if the `target_id` is None.",
         "defaultValue": {
           "value": "null",
           "computed": false
@@ -378,6 +389,17 @@
         "description": "The number of times copy button was clicked",
         "defaultValue": {
           "value": "0",
+          "computed": false
+        }
+      },
+      "html_content": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The clipboard html text be copied to the clipboard if the `target_id` is None.",
+        "defaultValue": {
+          "value": "null",
           "computed": false
         }
       },
@@ -3325,20 +3347,7 @@
   "src/components/Link.react.js": {
     "description": "Link allows you to create a clickable link within a multi-page app.\n\nFor links with destinations outside the current app, `html.A` is a better\ncomponent to use.",
     "displayName": "Link",
-    "methods": [
-      {
-        "name": "updateLocation",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "e",
-            "type": null
-          }
-        ],
-        "returns": null
-      }
-    ],
+    "methods": [],
     "props": {
       "children": {
         "type": {
@@ -3423,6 +3432,13 @@
         },
         "required": false,
         "description": "Object that holds the loading state object coming from dash-renderer"
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": ""
       }
     }
   },
@@ -4329,6 +4345,21 @@
               ],
               "description": "Determines the placement of tooltips\nSee https://github.com/react-component/tooltip#api\ntop/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft`\nwill in reality appear to be on the top right of the handle",
               "required": false
+            },
+            "template": {
+              "name": "string",
+              "description": "Template string to display the tooltip in.\nMust contain `{value}`, which will be replaced with either\nthe default string representation of the value or the result of the\ntransform function if there is one.",
+              "required": false
+            },
+            "style": {
+              "name": "object",
+              "description": "Custom style for the tooltip.",
+              "required": false
+            },
+            "transform": {
+              "name": "string",
+              "description": "Reference to a function in the `window.dccFunctions` namespace.\nThis can be added in a script in the asset folder.\n\nFor example, in `assets/tooltip.js`:\n```\nwindow.dccFunctions = window.dccFunctions || {};\nwindow.dccFunctions.multByTen = function(value) {\n    return value * 10;\n}\n```\nThen in the component `tooltip={'transform': 'multByTen'}`",
+              "required": false
             }
           }
         },
@@ -4619,6 +4650,21 @@
                 }
               ],
               "description": "Determines the placement of tooltips\nSee https://github.com/react-component/tooltip#api\ntop/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft`\nwill in reality appear to be on the top right of the handle",
+              "required": false
+            },
+            "template": {
+              "name": "string",
+              "description": "Template string to display the tooltip in.\nMust contain `{value}`, which will be replaced with either\nthe default string representation of the value or the result of the\ntransform function if there is one.",
+              "required": false
+            },
+            "style": {
+              "name": "object",
+              "description": "Custom style for the tooltip.",
+              "required": false
+            },
+            "transform": {
+              "name": "string",
+              "description": "Reference to a function in the `window.dccFunctions` namespace.\nThis can be added in a script in the asset folder.\n\nFor example, in `assets/tooltip.js`:\n```\nwindow.dccFunctions = window.dccFunctions || {};\nwindow.dccFunctions.multByTen = function(value) {\n    return value * 10;\n}\n```\nThen in the component `tooltip={'transform': 'multByTen'}`",
               "required": false
             }
           }

@@ -16,8 +16,11 @@ class Clipboard(Component):
         The class  name of the icon element.
 
     - content (string; optional):
-        The text to  be copied to the clipboard if the `target_id` is
-        None.
+        The text to be copied to the clipboard if the `target_id` is None.
+
+    - html_content (string; optional):
+        The clipboard html text be copied to the clipboard if the
+        `target_id` is None.
 
     - loading_state (dict; optional):
         Object that holds the loading state object coming from
@@ -61,6 +64,7 @@ class Clipboard(Component):
         target_id=Component.UNDEFINED,
         content=Component.UNDEFINED,
         n_clicks=Component.UNDEFINED,
+        html_content=Component.UNDEFINED,
         title=Component.UNDEFINED,
         style=Component.UNDEFINED,
         className=Component.UNDEFINED,
@@ -71,6 +75,7 @@ class Clipboard(Component):
             "id",
             "className",
             "content",
+            "html_content",
             "loading_state",
             "n_clicks",
             "style",
@@ -82,6 +87,7 @@ class Clipboard(Component):
             "id",
             "className",
             "content",
+            "html_content",
             "loading_state",
             "n_clicks",
             "style",
