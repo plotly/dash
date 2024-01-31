@@ -23,7 +23,7 @@
     "private::format.black": "black dash_table_base tests",
     "private::lint.ts": "eslint ./src ./tests",
     "private::lint.flake": "flake8 dash_table_base tests",
-    "private::lint.black": "node -e \"if ((process.env.PYVERSION || 'python310') !== 'python36'){process.exit(1)} \" || black --check dash_table_base tests",
+    "private::lint.black": "node -e \"if ((process.env.PYVERSION || 'python312') !== 'python38'){process.exit(1)} \" || black --check dash_table_base tests",
     "private::lint.prettier": "prettier --config .prettierrc \"{src,tests,demo}/**/*.{js,ts,tsx}\" --list-different",
     "private::test.python": "python -m unittest tests/unit/format_test.py",
     "private::test.unit": "karma start karma.conf.js --single-run",

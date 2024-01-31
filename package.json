@@ -11,7 +11,7 @@
     "private::cibuild.renderer": "cd dash/dash-renderer && renderer build",
     "private::build.renderer": "cd dash/dash-renderer && renderer build",
     "private::build.jupyterlab": "cd \\@plotly/dash-jupyterlab && jlpm install && jlpm build:pack",
-    "private::lint.black": "node -e \"if ((process.env.PYVERSION || 'python310') !== 'python36'){process.exit(1)} \" || black dash tests --exclude metadata_test.py --check",
+    "private::lint.black": "node -e \"if ((process.env.PYVERSION || 'python312') !== 'python38'){process.exit(1)} \" || black dash tests --exclude metadata_test.py --check",
     "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
     "private::lint.pylint-dash": "PYLINTRC=${PYLINTRC:=.pylintrc39} && pylint dash setup.py --rcfile=$PYLINTRC",
     "private::lint.pylint-tests": "PYLINTRC=${PYLINTRC:=.pylintrc39} && pylint tests/unit tests/integration -d all --rcfile=$PYLINTRC",
