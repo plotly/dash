@@ -26,7 +26,7 @@ setup(
     long_description=io.open("README.md", encoding="utf-8").read(),  # pylint: disable=consider-using-with
     long_description_content_type="text/markdown",
     install_requires=read_req_file("install"),
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     extras_require={
         "ci": read_req_file("ci"),
         "dev": read_req_file("dev"),
@@ -64,11 +64,11 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Database :: Front-Ends",
         "Topic :: Office/Business :: Financial :: Spreadsheet",
         "Topic :: Scientific/Engineering :: Visualization",
