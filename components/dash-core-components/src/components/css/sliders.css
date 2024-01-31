@@ -1,0 +1,5 @@
+/* Fix the default tooltip style height conflicting with the actual size of the tooltip. */
+.rc-slider-tooltip-content > .rc-slider-tooltip-inner {
+    height: unset;
+    min-height: 20px;
+}
