@@ -11,7 +11,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-
 class PreconditionError(TypeError):
     pass
 
@@ -31,7 +30,7 @@ def preconditions(*precs):
 
     precinfo = []
     for p in precs:
-        spec = inspect.getargspec(p)
+        spec = inspect.getfullargspec(p)
         if spec.varargs or spec.keywords:
             raise PreconditionError(
                 (
@@ -47,7 +46,7 @@ def preconditions(*precs):
         precinfo.append((appargs, closureargs, p))
 
     def decorate(f):
-        fspec = inspect.getargspec(f)
+        fspec = inspect.getfullargspec(f)
 
         for (appargs, closureargs, p) in precinfo:
             for apparg in appargs:
