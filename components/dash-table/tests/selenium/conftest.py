@@ -31,7 +31,7 @@ def preconditions(*precs):
     precinfo = []
     for p in precs:
         spec = inspect.getfullargspec(p)
-        if spec.varargs or spec.keywords:
+        if spec.varargs or spec.varkw:
             raise PreconditionError(
                 (
                     "Invalid precondition must not accept * nor ** args:\n" + "  {!s}\n"
@@ -77,7 +77,7 @@ def preconditions(*precs):
                         "Precondition failed in call {!r}{}:\n  {!s}\n".format(
                             g,
                             inspect.formatargvalues(
-                                fspec.args, fspec.varargs, fspec.keywords, args
+                                fspec.args, fspec.varargs, fspec.varkw, args
                             ),
                             stripped_source(p),
                         )
