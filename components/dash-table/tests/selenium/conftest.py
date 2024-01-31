@@ -11,7 +11,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-
 class PreconditionError(TypeError):
     pass
 
@@ -31,8 +30,8 @@ def preconditions(*precs):
 
     precinfo = []
     for p in precs:
-        spec = inspect.getargspec(p)
-        if spec.varargs or spec.keywords:
+        spec = inspect.getfullargspec(p)
+        if spec.varargs or spec.varkw:
             raise PreconditionError(
                 (
                     "Invalid precondition must not accept * nor ** args:\n" + "  {!s}\n"
@@ -47,7 +46,7 @@ def preconditions(*precs):
         precinfo.append((appargs, closureargs, p))
 
     def decorate(f):
-        fspec = inspect.getargspec(f)
+        fspec = inspect.getfullargspec(f)
 
         for (appargs, closureargs, p) in precinfo:
             for apparg in appargs:
@@ -78,7 +77,7 @@ def preconditions(*precs):
                         "Precondition failed in call {!r}{}:\n  {!s}\n".format(
                             g,
                             inspect.formatargvalues(
-                                fspec.args, fspec.varargs, fspec.keywords, args
+                                fspec.args, fspec.varargs, fspec.varkw, args
                             ),
                             stripped_source(p),
                         )
