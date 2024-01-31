@@ -146,32 +146,44 @@ def _get_traceback(secret, error: Exception):
     except ImportError:
         tbtools = None
 
-    def _get_skip(text, divider=2):
-        skip = 0
-        for i, line in enumerate(text):
-            if "%% callback invoked %%" in line:
-                skip = int((i + 1) / divider)
-                break
+    def _get_skip(error):
+        from dash._callback import (  # pylint: disable=import-outside-toplevel
+            _invoke_callback,
+        )
+
+        tb = error.__traceback__
+        skip = 1
+        while tb.tb_next is not None:
+            skip += 1
+            tb = tb.tb_next
+            if tb.tb_frame.f_code is _invoke_callback.__code__:
+                return skip
+
         return skip
+
+    def _do_skip(error):
+        from dash._callback import (  # pylint: disable=import-outside-toplevel
+            _invoke_callback,
+        )
+
+        tb = error.__traceback__
+        while tb.tb_next is not None:
+            if tb.tb_frame.f_code is _invoke_callback.__code__:
+                return tb.tb_next
+            tb = tb.tb_next
+        return error.__traceback__
 
     # werkzeug<2.1.0
     if hasattr(tbtools, "get_current_traceback"):
-        tb = tbtools.get_current_traceback()
-        skip = _get_skip(tb.plaintext.splitlines())
-        return tbtools.get_current_traceback(skip=skip).render_full()
+        return tbtools.get_current_traceback(skip=_get_skip(error)).render_full()
 
     if hasattr(tbtools, "DebugTraceback"):
-        tb = tbtools.DebugTraceback(error)  # pylint: disable=no-member
-        skip = _get_skip(tb.render_traceback_text().splitlines())
-
         # pylint: disable=no-member
-        return tbtools.DebugTraceback(error, skip=skip).render_debugger_html(
-            True, secret, True
-        )
+        return tbtools.DebugTraceback(
+            error, skip=_get_skip(error)
+        ).render_debugger_html(True, secret, True)
 
-    tb = traceback.format_exception(type(error), error, error.__traceback__)
-    skip = _get_skip(tb, 1)
-    return tb[0] + "".join(tb[skip:])
+    return "".join(traceback.format_exception(type(error), error, _do_skip(error)))
 
 
 # Singleton signal to not update an output, alternative to PreventUpdate

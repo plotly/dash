@@ -35,6 +35,10 @@ from .long_callback.managers import BaseLongCallbackManager
 from ._callback_context import context_value
 
 
+def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the debugger
+    return func(*args, **kwargs)  # %% callback invoked %%
+
+
 class NoUpdate:
     def to_plotly_json(self):  # pylint: disable=no-self-use
         return {"_dash_no_update": "_dash_no_update"}
@@ -438,8 +442,7 @@ def register_callback(  # pylint: disable=R0914
                 if output_value is callback_manager.UNDEFINED:
                     return to_json(response)
             else:
-                # don't touch the comment on the next line - used by debugger
-                output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
+                output_value = _invoke_callback(func, *func_args, **func_kwargs)
 
             if NoUpdate.is_no_update(output_value):
                 raise PreventUpdate
