@@ -146,7 +146,7 @@ jobs:
 
       - run:
           name: "Install Python"
-          command: choco install python --version=3.12.1
+          command: choco install -y python --version=3.12.1
 
       - run:
           name: ️️🏗️ build core
