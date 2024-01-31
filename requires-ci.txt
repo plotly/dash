@@ -3,7 +3,7 @@ black==22.3.0;python_version>="3.7"
 black==21.6b0;python_version<"3.7"
 dash-flow-example==0.0.5
 dash-dangerously-set-inner-html
-flake8==3.9.2
+flake8==7.0.0
 flaky==3.7.0
 flask-talisman==1.0.0
 isort==4.3.21;python_version<"3.7"
