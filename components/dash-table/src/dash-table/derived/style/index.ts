@@ -103,6 +103,8 @@ function convertElement(style: GenericStyle): IConvertedStyle {
 }
 
 function convertStyle(style: Style): CSSProperties {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return R.reduce<[string, StyleProperty?], any>(
         (res, [key, value]) => {
             if (converter.has(key)) {

@@ -10,6 +10,5 @@ contextvars==2.4;python_version<"3.7"
 typing_extensions>=4.1.1
 requests
 retrying
-ansi2html
 nest-asyncio
 setuptools
