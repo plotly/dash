@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
-import React, {Component} from 'react';
-
+import React, {useEffect, useMemo} from 'react';
+import {sanitizeUrl} from '@braintree/sanitize-url';
 import {isNil} from 'ramda';
 
 /*
@@ -33,15 +33,23 @@ CustomEvent.prototype = window.Event.prototype;
  * For links with destinations outside the current app, `html.A` is a better
  * component to use.
  */
-export default class Link extends Component {
-    constructor(props) {
-        super(props);
-        this.updateLocation = this.updateLocation.bind(this);
-    }
+const Link = props => {
+    const {
+        className,
+        style,
+        id,
+        href,
+        loading_state,
+        children,
+        title,
+        target,
+        refresh,
+        setProps,
+    } = props;
+    const sanitizedUrl = useMemo(() => sanitizeUrl(href), [href]);
 
-    updateLocation(e) {
+    const updateLocation = e => {
         const hasModifiers = e.metaKey || e.shiftKey || e.altKey || e.ctrlKey;
-        const {href, refresh, target} = this.props;
 
         if (hasModifiers) {
             return;
@@ -52,49 +60,40 @@ export default class Link extends Component {
         // prevent anchor from updating location
         e.preventDefault();
         if (refresh) {
-            window.location = href;
+            window.location = sanitizedUrl;
         } else {
-            window.history.pushState({}, '', href);
+            window.history.pushState({}, '', sanitizedUrl);
             window.dispatchEvent(new CustomEvent('_dashprivate_pushstate'));
         }
         // scroll back to top
         window.scrollTo(0, 0);
-    }
+    };
 
-    render() {
-        const {
-            className,
-            style,
-            id,
-            href,
-            loading_state,
-            children,
-            title,
-            target,
-        } = this.props;
-        /*
-         * ideally, we would use cloneElement however
-         * that doesn't work with dash's recursive
-         * renderTree implementation for some reason
-         */
-        return (
-            <a
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-                id={id}
-                className={className}
-                style={style}
-                href={href}
-                onClick={e => this.updateLocation(e)}
-                title={title}
-                target={target}
-            >
-                {isNil(children) ? href : children}
-            </a>
-        );
-    }
-}
+    useEffect(() => {
+        if (sanitizedUrl !== href) {
+            setProps({
+                _dash_error: new Error(`Dangerous link detected:: ${href}`),
+            });
+        }
+    }, [href, sanitizedUrl]);
+
+    return (
+        <a
+            data-dash-is-loading={
+                (loading_state && loading_state.is_loading) || undefined
+            }
+            id={id}
+            className={className}
+            style={style}
+            href={sanitizedUrl}
+            onClick={updateLocation}
+            title={title}
+            target={target}
+        >
+            {isNil(children) ? sanitizedUrl : children}
+        </a>
+    );
+};
 
 Link.propTypes = {
     /**
@@ -151,8 +150,10 @@ Link.propTypes = {
          */
         component_name: PropTypes.string,
     }),
+    setProps: PropTypes.func,
 };
 
 Link.defaultProps = {
     refresh: false,
 };
+export default Link;

@@ -1207,12 +1207,12 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     ) => {
         const {columns, hidden_columns: base, setProps} = this.props;
 
-        const ids: string[] = actions.getColumnIds(
+        const ids = actions.getColumnIds(
             column,
             columns,
             headerRowIndex,
             mergeDuplicateHeaders
-        );
+        ) as string[];
 
         const hidden_columns = base ? base.slice(0) : [];
         ids.forEach(id => {

@@ -262,6 +262,9 @@ async function handleClientside(
             prop_id: prop_id,
             value: inputDict[prop_id]
         }));
+        dc.callback_context.triggered_id = getTriggeredId(
+            payload.changedPropIds
+        );
         dc.callback_context.inputs_list = inputs;
         dc.callback_context.inputs = inputDict;
         dc.callback_context.states_list = state;
@@ -574,6 +577,18 @@ function inputsToDict(inputs_list: any) {
         }
     }
     return inputs;
+}
+
+function getTriggeredId(triggered: string[]): string | object | undefined {
+    // for regular callbacks,  takes the first triggered prop_id, e.g.  "btn.n_clicks" and returns "btn"
+    // for pattern matching callback, e.g. '{"index":0, "type":"btn"}' and returns {index:0, type: "btn"}'
+    if (triggered && triggered.length) {
+        let componentId = triggered[0].split('.')[0];
+        if (componentId.startsWith('{')) {
+            componentId = JSON.parse(componentId);
+        }
+        return componentId;
+    }
 }
 
 export function executeCallback(

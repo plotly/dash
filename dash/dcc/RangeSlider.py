@@ -76,6 +76,23 @@ class RangeSlider(Component):
             sets the _origin_ of the tooltip, so e.g. `topLeft` will in
             reality appear to be on the top right of the handle.
 
+        - style (dict; optional):
+            Custom style for the tooltip.
+
+        - template (string; optional):
+            Template string to display the tooltip in. Must contain
+            `{value}`, which will be replaced with either the default
+            string representation of the value or the result of the
+            transform function if there is one.
+
+        - transform (string; optional):
+            Reference to a function in the `window.dccFunctions`
+            namespace. This can be added in a script in the asset folder.
+            For example, in `assets/tooltip.js`: ``` window.dccFunctions =
+            window.dccFunctions || {}; window.dccFunctions.multByTen =
+            function(value) {     return value * 10; } ``` Then in the
+            component `tooltip={'transform': 'multByTen'}`.
+
     - updatemode (a value equal to: 'mouseup', 'drag'; default 'mouseup'):
         Determines when the component should update its `value` property.
         If `mouseup` (the default) then the slider will only trigger its
