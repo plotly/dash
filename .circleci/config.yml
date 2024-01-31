@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@2.4.0
+  win: circleci/windows@5.0.0
   percy: percy/agent@0.1.3
   browser-tools: circleci/browser-tools@1.4.6
 
@@ -150,11 +150,16 @@ jobs:
       PERCY_ENABLE: 0
     steps:
       - checkout
+
+      - run:
+          name: "Install Python"
+          command: choco install -y python --version=3.12.1
+
       - run:
           name: ️️🏗️ build core
           command: |
-            pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
-            cd dash/dash-renderer && renderer build && cd ../../
+            py -3.12 -m pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
+            cd dash/dash-renderer && C:/Python312/Scripts/renderer.exe build && cd ../../
 
   test-312: &test
     working_directory: ~/dash
