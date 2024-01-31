@@ -23,7 +23,7 @@ import {
     pathOr,
     type
 } from 'ramda';
-import {notifyObservers, updateProps} from './actions';
+import {notifyObservers, updateProps, onError} from './actions';
 import isSimpleComponent from './isSimpleComponent';
 import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
@@ -136,10 +136,20 @@ class BaseTreeContainer extends Component {
 
         const oldProps = this.getLayoutProps();
         const {id} = oldProps;
+        const {_dash_error, ...rest} = newProps;
         const changedProps = pickBy(
             (val, key) => !equals(val, oldProps[key]),
-            newProps
+            rest
         );
+
+        if (_dash_error) {
+            _dashprivate_dispatch(
+                onError({
+                    type: 'frontEnd',
+                    error: _dash_error
+                })
+            );
+        }
 
         if (!isEmpty(changedProps)) {
             _dashprivate_dispatch((dispatch, getState) => {
