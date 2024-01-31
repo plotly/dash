@@ -152,7 +152,7 @@ jobs:
           name: ️️🏗️ build core
           command: |
             py -3.12 -m pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
-          cd dash/dash-renderer && C:/Python312/Scripts/renderer.exe build && cd ../../
+            cd dash/dash-renderer && C:/Python312/Scripts/renderer.exe build && cd ../../
 
   test-312: &test
     working_directory: ~/dash
