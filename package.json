@@ -14,7 +14,7 @@
     "private::lint.black": "node -e \"if ((process.env.PYVERSION || 'python312') !== 'python38'){process.exit(1)} \" || black dash tests --exclude metadata_test.py --check",
     "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
     "private::lint.pylint-dash": "PYLINTRC=${PYLINTRC:=.pylintrc312} && pylint dash setup.py --rcfile=$PYLINTRC",
-    "private::lint.pylint-tests": "PYLINTRC=${PYLINTRC:=.pylintrc312} && pylint tests/unit tests/integration -d all --rcfile=$PYLINTRC",
+    "private::lint.pylint-tests": "PYLINTRC=${PYLINTRC:=.pylintrc312} && pylint tests/unit tests/integration -d all -e C0410,C0413,W0109 --rcfile=$PYLINTRC",
     "private::lint.renderer": "cd dash/dash-renderer && npm run lint",
     "private::test.setup-components": "cd \\@plotly/dash-test-components && npm ci && npm run build",
     "private::test.setup-nested": "cd \\@plotly/dash-generator-test-component-nested && npm ci && npm run build",
