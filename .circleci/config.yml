@@ -68,16 +68,16 @@ jobs:
           paths:
             - dash-package
 
-  install-dependencies-36:
+  install-dependencies-38:
     <<: *install-dependencies
     docker:
-      - image: cimg/python:3.6.15-node
+      - image: cimg/python:3.8.18-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PYLINTRC: .pylintrc
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
   lint-unit-312: &lint-unit
@@ -122,16 +122,16 @@ jobs:
             . venv/bin/activate
             npm run citest.unit
 
-  lint-unit-36:
+  lint-unit-38:
     <<: *lint-unit
     docker:
-      - image: cimg/python:3.6.15-browsers
+      - image: cimg/python:3.8.18-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PYLINTRC: .pylintrc
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
   build-windows-312:
@@ -218,17 +218,17 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
 
-  test-36:
+  test-38:
     <<: *test
     docker:
-      - image: cimg/python:3.6.15-browsers
+      - image: cimg/python:3.8.18-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python36
+          PYVERSION: python38
           REDIS_URL: redis://localhost:6379
       - image: cimg/redis:6.2.6
         auth:
@@ -261,15 +261,15 @@ jobs:
             npm ci
             npm run lint
 
-  dcc-lint-unit-36:
+  dcc-lint-unit-38:
     <<: *dcc-lint-unit
     docker:
-      - image: cimg/python:3.6.15-node
+      - image: cimg/python:3.8.18-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
   dcc-312: &dcc-test
@@ -330,15 +330,15 @@ jobs:
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
-  dcc-36:
+  dcc-38:
     <<: *dcc-test
     docker:
-      - image: cimg/python:3.6.15-browsers
+      - image: cimg/python:3.8.18-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
   html-312: &html-test
@@ -407,15 +407,15 @@ jobs:
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
-  html-36:
+  html-38:
     <<: *html-test
     docker:
-      - image: cimg/python:3.6.15-browsers
+      - image: cimg/python:3.8.18-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
   table-server: &table-server
@@ -595,16 +595,16 @@ workflows:
   tests:
     jobs:
       - install-dependencies-312
-      - install-dependencies-36
+      - install-dependencies-38
 
       - build-windows-312
 
       - lint-unit-312:
           requires:
             - install-dependencies-312
-      - lint-unit-36:
+      - lint-unit-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
       - test-312:
           requires:
@@ -612,16 +612,16 @@ workflows:
       - test-312-react-18:
           requires:
             - install-dependencies-312
-      - test-36:
+      - test-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
       - dcc-lint-unit-312:
           requires:
             - install-dependencies-312
-      - dcc-lint-unit-36:
+      - dcc-lint-unit-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
       - dcc-312:
           requires:
@@ -629,9 +629,9 @@ workflows:
       - dcc-312-react-18:
           requires:
             - install-dependencies-312
-      - dcc-36:
+      - dcc-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
       - html-312:
           requires:
@@ -639,9 +639,9 @@ workflows:
       - html-312-react-18:
           requires:
             - install-dependencies-312
-      - html-36:
+      - html-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
       - table-node:
           requires:
