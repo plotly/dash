@@ -83,15 +83,20 @@ def setup_long_callback_app(manager_name, app_name):
         if cache_keys:
             redis_conn.delete(*cache_keys)
 
-        subprocess.run(
-            [
-                sys.executable,
-                "-c",
-                f"from tests.integration.long_callback.{app_name} import handle",
-            ],
-            check=True,
-            capture_output=True,
-        )
+        try:
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    f"from tests.integration.long_callback.{app_name} import handle",
+                ],
+                check=True,
+                capture_output=True,
+                encoding="utf8",
+            )
+        except subprocess.CalledProcessError as e:
+            print(e.stderr)
+            raise
 
         worker = subprocess.Popen(
             [
