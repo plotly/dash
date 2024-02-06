@@ -159,7 +159,10 @@ class Browser(DashPageMixin):
         """
         if widths is None:
             widths = [1280]
-        snapshot_name = f"{name} - py{sys.version_info.major}.{sys.version_info.minor}"
+
+        # py3.9 hardcoded here to keep snapshot names the same accorss
+        # future python upgrades
+        snapshot_name = f"{name} - py3.9"
         logger.info("taking snapshot name => %s", snapshot_name)
         try:
             if wait_for_callbacks:
