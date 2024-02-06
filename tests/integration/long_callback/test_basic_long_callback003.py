@@ -8,8 +8,7 @@ from tests.integration.long_callback.utils import setup_long_callback_app
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 11),
-    reason="Python 3.11 and 3.12 long callbacks tests hangs up",
+    sys.version_info < (3, 7), reason="Python 3.6 long callbacks tests hangs up"
 )
 @flaky(max_runs=3)
 def test_lcbc003_long_callback_running_cancel(dash_duo, manager):
