@@ -69,6 +69,7 @@ def kill(proc_pid):
 
 @contextmanager
 def setup_long_callback_app(manager_name, app_name):
+    import dash
     from dash.testing.application_runners import import_app
 
     if manager_name == "celery":
@@ -82,6 +83,9 @@ def setup_long_callback_app(manager_name, app_name):
         cache_keys = redis_conn.keys()
         if cache_keys:
             redis_conn.delete(*cache_keys)
+
+        print(f"dash file is {dash.__file__}")
+        dash.Dash(__name__)
 
         try:
             subprocess.run(
