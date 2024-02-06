@@ -160,10 +160,7 @@ class Browser(DashPageMixin):
         if widths is None:
             widths = [1280]
 
-        # py3.9 hardcoded here to keep snapshot names the same accorss
-        # future python upgrades
-        snapshot_name = f"{name} - py3.9"
-        logger.info("taking snapshot name => %s", snapshot_name)
+        logger.info("taking snapshot name => %s", name)
         try:
             if wait_for_callbacks:
                 # the extra one second sleep adds safe margin in the context
@@ -199,7 +196,7 @@ class Browser(DashPageMixin):
             )
 
         try:
-            self.percy_runner.snapshot(name=snapshot_name, widths=widths)
+            self.percy_runner.snapshot(name=name, widths=widths)
         except requests.HTTPError as err:
             # Ignore retries.
             if err.request.status_code != 400:
