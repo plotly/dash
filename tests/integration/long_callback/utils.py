@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 from contextlib import contextmanager
@@ -81,6 +82,16 @@ def setup_long_callback_app(manager_name, app_name):
         cache_keys = redis_conn.keys()
         if cache_keys:
             redis_conn.delete(*cache_keys)
+
+        subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                f"from tests.integration.long_callback.{app_name} import handle",
+            ],
+            check=True,
+            capture_output=True,
+        )
 
         worker = subprocess.Popen(
             [
