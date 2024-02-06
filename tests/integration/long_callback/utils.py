@@ -99,10 +99,12 @@ def setup_long_callback_app(manager_name, app_name):
         )
         # Wait for the worker to be ready, if you cancel before it is ready, the job
         # will still be queued.
-        for line in iter(worker.stderr.readline, ""):
+        for line in iter(worker.stderr.readline, b""):
             print(line)
             if "ready" in line.decode():
                 break
+        else:
+            raise Exception("celery failed to start")
 
         try:
             yield import_app(f"tests.integration.long_callback.{app_name}")
