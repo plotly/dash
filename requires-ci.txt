@@ -21,6 +21,7 @@ pyarrow;python_version>="3.7"
 pylint==3.0.3
 pytest-mock
 pytest-sugar==0.9.6
+pytest-timeout==2.2.0
 pyzmq==25.1.2
 xlrd>=2.0.1;python_version>="3.8"
 xlrd<2;python_version<"3.8"

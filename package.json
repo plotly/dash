@@ -30,7 +30,7 @@
     "private::test.unit-dash": "pytest tests/unit",
     "private::test.unit-renderer": "cd dash/dash-renderer && npm run test",
     "private::test.unit-generation": "cd \\@plotly/dash-generator-test-component-typescript && npm ci && npm test",
-    "private::test.integration-dash": "pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration/long_callback/test_basic_long_callback001.py",
+    "private::test.integration-dash": "pytest -s --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration/long_callback/test_basic_long_callback001.py",
     "private::test.integration-dash-import": "cd tests/integration/dash && python dash_import_test.py",
     "cibuild": "run-s private::cibuild.*",
     "build": "run-s private::build.*",
