@@ -106,7 +106,7 @@ def setup_long_callback_app(manager_name, app_name):
                 break
             lines.append(line)
         else:
-            raise RuntimeError(f"celery failed to start: {'\n'.join(lines)}")
+            raise RuntimeError("celery failed to start: " + {"\n".join(lines)})
 
         try:
             yield import_app(f"tests.integration.long_callback.{app_name}")
