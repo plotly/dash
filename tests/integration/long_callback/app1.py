@@ -1,18 +1,21 @@
-from dash import Dash, Input, Output, dcc, html
-import time
+try:
+    from dash import Dash, Input, Output, dcc, html
+    import time
 
-from tests.integration.long_callback.utils import get_long_callback_manager
+    from tests.integration.long_callback.utils import get_long_callback_manager
 
-long_callback_manager = get_long_callback_manager()
-handle = long_callback_manager.handle
+    long_callback_manager = get_long_callback_manager()
+    handle = long_callback_manager.handle
 
-app = Dash(__name__)
-app.layout = html.Div(
-    [
-        dcc.Input(id="input", value="initial value"),
-        html.Div(html.Div([1.5, None, "string", html.Div(id="output-1")])),
-    ]
-)
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value="initial value"),
+            html.Div(html.Div([1.5, None, "string", html.Div(id="output-1")])),
+        ]
+    )
+except (AttributeError, ImportError) as e:
+    raise RuntimeError("failed") from e
 
 
 @app.long_callback(
