@@ -100,7 +100,7 @@ See the [contributing guide](CONTRIBUTING.md) for guidelines on contributing to 
         ```
     2. Cleanup the dist folder (optional)
         ```
-        $ rm -rf dist
+        $ rimraf -rf dist
         ```
     3. Publish on NPM (Optional if chosen False in `publish_on_npm`)
         ```

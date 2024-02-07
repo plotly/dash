@@ -314,7 +314,7 @@ jobs:
       - run:
           name: 🧪 Run Integration Tests
           command: |
-            . venv/bin/activate && rm -rf components/dash-core-components/dash_core_components
+            . venv/bin/activate && rimraf -rf components/dash-core-components/dash_core_components
             cd components/dash-core-components
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" ${TESTFILES}
