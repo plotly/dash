@@ -68,7 +68,7 @@ import {
 } from 'ramda';
 import {createAction} from 'redux-actions';
 
-// import Registry from './registry';
+import Registry from './registry';
 import {stringifyId} from './actions/dependencies';
 
 export const storePrefix = '_dash_persistence.';
@@ -289,7 +289,8 @@ const getProps = layout => {
     }
     const {id, persistence} = props;
 
-    const getVal = prop => props[prop] || {}[prop];
+    const element = Registry.resolve(layout);
+    const getVal = prop => props[prop] || (element.defaultProps || {})[prop];
     const persisted_props = getVal('persisted_props');
     const persistence_type = getVal('persistence_type');
     const canPersist = id && persisted_props && persistence_type;
@@ -298,6 +299,7 @@ const getProps = layout => {
         canPersist,
         id,
         props,
+        element,
         persistence,
         persisted_props,
         persistence_type
@@ -309,6 +311,7 @@ export function recordUiEdit(layout, newProps, dispatch) {
         canPersist,
         id,
         props,
+        element,
         persistence,
         persisted_props,
         persistence_type
@@ -321,7 +324,7 @@ export function recordUiEdit(layout, newProps, dispatch) {
         const [propName, propPart] = persistedProp.split('.');
         if (newProps[propName] !== undefined) {
             const storage = getStore(persistence_type, dispatch);
-            const {extract} = getTransform({}, propName, propPart);
+            const {extract} = getTransform(element, propName, propPart);
 
             const valsKey = getValsKey(id, persistedProp, persistence);
             let originalVal = extract(props[propName]);

@@ -101,9 +101,24 @@ export function librariesReducer(
 }
 
 export function createLibrariesContext(
-    pathnamePrefix: string
+    pathnamePrefix: string,
+    initialLibraries: string[],
+    onReady: () => void,
+    ready: boolean
 ): LibrariesContextType {
-    const [state, dispatch] = useReducer(librariesReducer, {});
+    const [state, dispatch] = useReducer(librariesReducer, {}, () => {
+        const libState: LibrariesState = {};
+        initialLibraries.forEach(lib => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            if (window[lib]) {
+                libState[lib] = {toLoad: false, loaded: true, loading: false};
+            } else {
+                libState[lib] = {toLoad: true, loaded: false, loading: false};
+            }
+        });
+        return libState;
+    });
     const [callback, setCallback] = useState<number>(-1);
     const createAction = (type: LibrariesActions) => (payload: any) =>
         dispatch({type, payload});
@@ -191,6 +206,7 @@ export function createLibrariesContext(
             .then(() => {
                 setLoaded({libraries});
                 setCallback(-1);
+                onReady();
             });
     };
 
@@ -198,6 +214,9 @@ export function createLibrariesContext(
     useEffect(() => {
         const libraries = getLibrariesToLoad();
         if (!libraries.length) {
+            if (!ready && initialLibraries.length === 0) {
+                onReady();
+            }
             return;
         }
         if (callback > 0) {
