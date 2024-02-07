@@ -2,7 +2,9 @@ import io
 from setuptools import setup, find_packages
 
 main_ns = {}
-exec(open("dash/version.py", encoding="utf-8").read(), main_ns)  # pylint: disable=exec-used, consider-using-with
+exec(
+    open("dash/version.py", encoding="utf-8").read(), main_ns
+)  # pylint: disable=exec-used, consider-using-with
 
 
 def read_req_file(req_type):
@@ -20,10 +22,11 @@ setup(
     include_package_data=True,
     license="MIT",
     description=(
-        "A Python framework for building reactive web-apps. "
-        "Developed by Plotly."
+        "A Python framework for building reactive web-apps. " "Developed by Plotly."
     ),
-    long_description=io.open("README.md", encoding="utf-8").read(),  # pylint: disable=consider-using-with
+    long_description=io.open(
+        "README.md", encoding="utf-8"
+    ).read(),  # pylint: disable=consider-using-with
     long_description_content_type="text/markdown",
     install_requires=read_req_file("install"),
     python_requires=">=3.6",
@@ -33,14 +36,13 @@ setup(
         "testing": read_req_file("testing"),
         "celery": read_req_file("celery"),
         "diskcache": read_req_file("diskcache"),
-        "compress": read_req_file("compress")
+        "compress": read_req_file("compress"),
     },
     entry_points={
         "console_scripts": [
-            "dash-generate-components = "
-            "dash.development.component_generator:cli",
+            "dash-generate-components = " "dash.development.component_generator:cli",
             "renderer = dash.development.build_process:renderer",
-            "dash-update-components = dash.development.update_components:cli"
+            "dash-update-components = dash.development.update_components:cli",
         ],
         "pytest11": ["dash = dash.testing.plugin"],
     },
@@ -77,16 +79,18 @@ setup(
     ],
     data_files=[
         # like `jupyter nbextension install --sys-prefix`
-        ("share/jupyter/nbextensions/dash", [
-            "dash/nbextension/main.js",
-        ]),
+        (
+            "share/jupyter/nbextensions/dash",
+            [
+                "dash/nbextension/main.js",
+            ],
+        ),
         # like `jupyter nbextension enable --sys-prefix`
-        ("etc/jupyter/nbconfig/notebook.d", [
-            "dash/nbextension/dash.json"
-        ]),
+        ("etc/jupyter/nbconfig/notebook.d", ["dash/nbextension/dash.json"]),
         # Place jupyterlab extension in extension directory
-        ("share/jupyter/lab/extensions", [
-            "dash/labextension/dist/dash-jupyterlab.tgz"
-        ]),
+        (
+            "share/jupyter/lab/extensions",
+            ["dash/labextension/dist/dash-jupyterlab.tgz"],
+        ),
     ],
 )
