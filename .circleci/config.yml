@@ -49,13 +49,13 @@ jobs:
           name: 🏁 Build Component Packages & Update Dependencies/Artifacts
           command: |
             python -m venv venv && . venv/bin/activate
-            pip install --upgrade pip wheel setuptools
+            pip install --upgrade pip
             set -eo pipefail
             pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
             npm ci
             npm run build.sequential
-            python setup.py sdist
+            python -m build
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
             ls -la dash-package
           no_output_timeout: 30m

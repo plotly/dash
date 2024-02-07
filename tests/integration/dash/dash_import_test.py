@@ -9,7 +9,7 @@ import dash
 assert isinstance(dash, types.ModuleType), "dash can be imported"
 
 this_dir = os.path.dirname(__file__)
-with open(os.path.join(this_dir, "../../../dash/version.py")) as fp:
+with open(os.path.join(this_dir, "../../../src/dash/version.py")) as fp:
     assert dash.__version__ in fp.read(), "version is consistent"
 
 assert getattr(dash, "Dash").__name__ == "Dash", "access to main Dash class is valid"

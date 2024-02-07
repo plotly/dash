@@ -42,13 +42,13 @@ coverage.xml
 # Distribution / packaging
 .Python
 build/
-dash/deps/
-dash/html/*
-!dash/html/.gitkeep
-dash/dcc/*
-!dash/dcc/.gitkeep
-dash/dash_table/*
-!dash/dash_table/.gitkeep
+src/dash/deps/
+src/dash/html/*
+!src/dash/html/.gitkeep
+src/dash/dcc/*
+!src/dash/dcc/.gitkeep
+src/dash/dash_table/*
+!src/dash/dash_table/.gitkeep
 develop-eggs/
 dist/
 downloads/
