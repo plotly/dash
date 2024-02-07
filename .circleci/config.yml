@@ -159,13 +159,13 @@ jobs:
           name: npm prereqs
           command: |
             npm ci
-            cd dash/dash-renderer && npm i && cd ../../
+            cd src/dash/dash-renderer && npm i && cd ../../../
             cd components/dash-html-components && npm i && npm run extract && cd ../../
       - run:
           name: ️️🏗️ build dash
           command: |
             . venv/Scripts/activate
-            npm run private::build.jupyterlab && npm run private::build.renderer && python dash/development/update_components.py 'dash-html-components'
+            npm run private::build.jupyterlab && npm run private::build.renderer && python src/dash/development/update_components.py 'dash-html-components'
           no_output_timeout: 30m
 
   test-312: &test
