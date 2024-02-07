@@ -19,13 +19,18 @@ coloredlogs.install(
     fmt="%(asctime)s,%(msecs)03d %(levelname)s - %(message)s", datefmt="%H:%M:%S"
 )
 
-dest_dir_map = {'dash-core-components': 'dcc', 'dash-html-components': 'html', 'dash-table': 'dash_table'}
+dest_dir_map = {
+    "dash-core-components": "dcc",
+    "dash-html-components": "html",
+    "dash-table": "dash_table",
+}
+
 
 def status_print(msg, **kwargs):
     try:
         print(msg, **kwargs)
     except:
-        print(msg.encode('ascii', 'ignore'), **kwargs)
+        print(msg.encode("ascii", "ignore"), **kwargs)
 
 
 def bootstrap_components(components_source, concurrency, install_type):
@@ -94,8 +99,8 @@ def build_components(components_source, concurrency):
         )
         sys.exit(1)
 
-    if '{' in source_glob:
-        source_glob = source_glob.split('{')[1].split('}')[0]
+    if "{" in source_glob:
+        source_glob = source_glob.split("{")[1].split("}")[0]
 
     for package in source_glob.split(","):
         build_directory = os.path.join(
@@ -126,7 +131,9 @@ def build_components(components_source, concurrency):
             shutil.copytree(build_directory, dest_path)
             with open(os.path.join(dest_path, ".gitkeep"), "w", encoding="utf-8"):
                 pass
-            status_print(f"🟢 Finished moving build artifacts from {build_directory} to Dash 🟢")
+            status_print(
+                f"🟢 Finished moving build artifacts from {build_directory} to Dash 🟢"
+            )
 
 
 def cli():
@@ -157,8 +164,10 @@ def cli():
 
     args = parser.parse_args()
 
-    if (sys.platform == "win32"):
-        args.components_source = args.components_source.replace('"', '').replace("'", '')
+    if sys.platform == "win32":
+        args.components_source = args.components_source.replace('"', "").replace(
+            "'", ""
+        )
 
     bootstrap_components(
         args.components_source, args.concurrency, "ci" if args.ci == "True" else "i"
