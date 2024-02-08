@@ -155,7 +155,6 @@ jobs:
           command: |
             . venv/bin/activate
             npm ci
-            pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
             npm run first-build
 
   test-310: &test
