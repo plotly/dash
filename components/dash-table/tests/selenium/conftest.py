@@ -11,6 +11,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 
+# @preconditions decorator, copied from the preconditions PyPI package
+# https://pypi.org/project/preconditions/
+# https://github.com/nejucomo/preconditions
+# and modified to support Python 3.12
+
+
 class PreconditionError(TypeError):
     pass
 
