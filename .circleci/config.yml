@@ -155,7 +155,7 @@ jobs:
           command: |
             . venv/bin/activate
             npm ci
-            pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
+            pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
             npm run first-build
 
   test-310: &test
