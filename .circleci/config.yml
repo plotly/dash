@@ -160,7 +160,9 @@ jobs:
             pip install --upgrade pip
             pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             npm ci
-            npm run first-build
+            cd dash/dash-renderer && npm i && cd ../../
+            cd components/dash-html-components && npm run extract && cd ../../
+            npm run build
           no_output_timeout: 30m
 
   test-312: &test
