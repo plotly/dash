@@ -1,19 +1,19 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@2.4.0
+  win: circleci/windows@5.0.0
   percy: percy/agent@0.1.3
   browser-tools: circleci/browser-tools@1.4.6
 
 jobs:
   artifacts:
     docker:
-      - image: cimg/python:3.10.13
+      - image: cimg/python:3.12.1
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_ENABLE: 0
     steps:
       - checkout
@@ -27,16 +27,16 @@ jobs:
           path: ~/dash/dash-main
           destination: /tmp/dash-main
 
-  install-dependencies-310: &install-dependencies
+  install-dependencies-312: &install-dependencies
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.10.13-node
+      - image: cimg/python:3.12.1-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc310
-          PYVERSION: python310
+          PYLINTRC: .pylintrc312
+          PYVERSION: python312
           PERCY_ENABLE: 0
 
     steps:
@@ -49,7 +49,7 @@ jobs:
           name: 🏁 Build Component Packages & Update Dependencies/Artifacts
           command: |
             python -m venv venv && . venv/bin/activate
-            pip install --upgrade pip wheel
+            pip install --upgrade pip wheel setuptools
             set -eo pipefail
             pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
@@ -75,28 +75,28 @@ jobs:
           paths:
             - dash-package
 
-  install-dependencies-36:
+  install-dependencies-38:
     <<: *install-dependencies
     docker:
-      - image: cimg/python:3.6.15-node
+      - image: cimg/python:3.8.18-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PYLINTRC: .pylintrc
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
-  lint-unit-310: &lint-unit
+  lint-unit-312: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc310
-          PYVERSION: python310
+          PYLINTRC: .pylintrc312
+          PYVERSION: python312
           PERCY_ENABLE: 0
 
     steps:
@@ -129,19 +129,19 @@ jobs:
             . venv/bin/activate
             npm run citest.unit
 
-  lint-unit-36:
+  lint-unit-38:
     <<: *lint-unit
     docker:
-      - image: cimg/python:3.6.15-browsers
+      - image: cimg/python:3.8.18-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PYLINTRC: .pylintrc
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
-  build-windows-310:
+  build-windows-312:
     working_directory: ~/dash
     executor:
       name: win/default
@@ -150,16 +150,21 @@ jobs:
       PERCY_ENABLE: 0
     steps:
       - checkout
+
+      - run:
+          name: "Install Python"
+          command: choco install -y python --version=3.12.1
+
       - run:
           name: ️️🏗️ build core
           command: |
-            pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
-            cd dash/dash-renderer && renderer build && cd ../../
+            py -3.12 -m pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
+            cd dash/dash-renderer && C:/Python312/Scripts/renderer.exe build && cd ../../
 
-  test-310: &test
+  test-312: &test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -167,7 +172,7 @@ jobs:
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python310
+          PYVERSION: python312
           REDIS_URL: redis://localhost:6379
       - image: cimg/redis:6.2.6
         auth:
@@ -207,17 +212,17 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  test-310-react-18:
+  test-312-react-18:
     <<: *test
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python310
+          PYVERSION: python312
           REDIS_URL: redis://localhost:6379
           REACT_VERSION: "18.2.0"
       - image: cimg/redis:6.2.6
@@ -225,32 +230,32 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
 
-  test-36:
+  test-38:
     <<: *test
     docker:
-      - image: cimg/python:3.6.15-browsers
+      - image: cimg/python:3.8.18-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python36
+          PYVERSION: python38
           REDIS_URL: redis://localhost:6379
       - image: cimg/redis:6.2.6
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
 
-  dcc-lint-unit-310: &dcc-lint-unit
+  dcc-lint-unit-312: &dcc-lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.10.13-node
+      - image: cimg/python:3.12.1-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_ENABLE: 0
     steps:
       - checkout:
@@ -268,26 +273,26 @@ jobs:
             npm ci
             npm run lint
 
-  dcc-lint-unit-36:
+  dcc-lint-unit-38:
     <<: *dcc-lint-unit
     docker:
-      - image: cimg/python:3.6.15-node
+      - image: cimg/python:3.8.18-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
-  dcc-310: &dcc-test
+  dcc-312: &dcc-test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_PARALLEL_TOTAL: -1
           PERCY_ENABLE: 1
     parallelism: 3
@@ -325,38 +330,38 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  dcc-310-react-18:
+  dcc-312-react-18:
     <<: *dcc-test
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
-  dcc-36:
+  dcc-38:
     <<: *dcc-test
     docker:
-      - image: cimg/python:3.6.15-browsers
+      - image: cimg/python:3.8.18-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
-  html-310: &html-test
+  html-312: &html-test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
@@ -402,35 +407,35 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  html-310-react-18:
+  html-312-react-18:
     <<: *html-test
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
-  html-36:
+  html-38:
     <<: *html-test
     docker:
-      - image: cimg/python:3.6.15-browsers
+      - image: cimg/python:3.8.18-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python36
+          PYVERSION: python38
           PERCY_ENABLE: 0
 
   table-server: &table-server
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_ENABLE: 1
           PERCY_PARALLEL_TOTAL: -1
 
@@ -477,18 +482,18 @@ jobs:
   table-server-react-18:
     <<: *table-server
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_ENABLE: 0
           REACT_VERSION: "18.2.0"
 
   table-unit-test:
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.10.13-browsers
+      - image: cimg/python:3.12.1-browsers
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_ENABLE: 0
     steps:
       - checkout:
@@ -561,9 +566,9 @@ jobs:
   table-node:
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.10.13-node
+      - image: cimg/python:3.12.1-node
         environment:
-          PYVERSION: python310
+          PYVERSION: python312
           PERCY_ENABLE: 0
     steps:
       - checkout:
@@ -601,74 +606,74 @@ workflows:
   version: 2
   tests:
     jobs:
-      - install-dependencies-310
-      - install-dependencies-36
+      - install-dependencies-312
+      - install-dependencies-38
 
-      - build-windows-310
+      - build-windows-312
 
-      - lint-unit-310:
+      - lint-unit-312:
           requires:
-            - install-dependencies-310
-      - lint-unit-36:
+            - install-dependencies-312
+      - lint-unit-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
-      - test-310:
+      - test-312:
           requires:
-            - install-dependencies-310
-      - test-310-react-18:
+            - install-dependencies-312
+      - test-312-react-18:
           requires:
-            - install-dependencies-310
-      - test-36:
+            - install-dependencies-312
+      - test-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
-      - dcc-lint-unit-310:
+      - dcc-lint-unit-312:
           requires:
-            - install-dependencies-310
-      - dcc-lint-unit-36:
+            - install-dependencies-312
+      - dcc-lint-unit-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
-      - dcc-310:
+      - dcc-312:
           requires:
-            - install-dependencies-310
-      - dcc-310-react-18:
+            - install-dependencies-312
+      - dcc-312-react-18:
           requires:
-            - install-dependencies-310
-      - dcc-36:
+            - install-dependencies-312
+      - dcc-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
-      - html-310:
+      - html-312:
           requires:
-            - install-dependencies-310
-      - html-310-react-18:
+            - install-dependencies-312
+      - html-312-react-18:
           requires:
-            - install-dependencies-310
-      - html-36:
+            - install-dependencies-312
+      - html-38:
           requires:
-            - install-dependencies-36
+            - install-dependencies-38
 
       - table-node:
           requires:
-            - install-dependencies-310
+            - install-dependencies-312
       - table-unit-test:
           requires:
-            - install-dependencies-310
+            - install-dependencies-312
       - table-visual-test
       - table-server:
           requires:
-            - install-dependencies-310
+            - install-dependencies-312
       - table-server-react-18:
           requires:
-            - install-dependencies-310
+            - install-dependencies-312
 
       - percy/finalize_all:
           requires:
-            - test-310
-            - dcc-310
-            - html-310
+            - test-312
+            - dcc-312
+            - html-312
             - table-server
       - artifacts:
           requires:
