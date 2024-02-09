@@ -155,9 +155,7 @@ jobs:
           command: |
             python -m venv venv && . venv/Scripts/activate
             pip install --upgrade pip
-            set -eo pipefail
-            pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
-            pip list | grep dash
+            pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
             npm ci
             npm run first-build
           no_output_timeout: 30m
