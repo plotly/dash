@@ -153,9 +153,14 @@ jobs:
       - run:
           name: ️️🏗️ build core
           command: |
-            . venv/bin/activate
+            python -m venv venv && . venv/bin/activate
+            pip install --upgrade pip wheel
+            set -eo pipefail
+            pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
+            pip list | grep dash
             npm ci
-            npm run build
+            npm run build.sequential
+          no_output_timeout: 30m
 
   test-310: &test
     working_directory: ~/dash
