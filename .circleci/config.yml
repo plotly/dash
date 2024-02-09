@@ -158,7 +158,7 @@ jobs:
           command: |
             python -m venv venv && . venv/Scripts/activate
             pip install --upgrade pip
-            pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
+            pip install --no-cache-dir --upgrade -e .[ci,dev,testing] --progress-bar off
             npm ci
             cd dash/dash-renderer && npm i && cd ../../
             cd components/dash-html-components && npm run extract && cd ../../
