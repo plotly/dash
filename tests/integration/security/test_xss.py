@@ -45,3 +45,16 @@ def test_xss001_banned_protocols(dash_duo):
         assert (
             element.get_attribute(prop) == "about:blank"
         ), f"Failed prop: {element_id}.{prop}"
+
+
+def test_xss002_blank_href(dash_duo):
+    app = Dash()
+
+    app.layout = html.Div(dcc.Link("dcc-link", href="", id="dcc-link-no-href"))
+
+    dash_duo.start_server(app)
+
+    element = dash_duo.find_element("#dcc-link-no-href")
+    assert element.get_attribute("href") is None
+
+    assert dash_duo.get_logs() == []
