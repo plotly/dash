@@ -8,7 +8,6 @@ import uuid
 import sys
 import threading
 import time
-import traceback
 
 from typing_extensions import Literal
 
@@ -37,12 +36,18 @@ JupyterDisplayMode = Literal["inline", "external", "jupyterlab", "tab", "_none"]
 
 
 def _get_skip(error: Exception):
-    tb = traceback.format_exception(type(error), error, error.__traceback__)
-    skip = 0
-    for i, line in enumerate(tb):
-        if "%% callback invoked %%" in line:
-            skip = i + 1
-            break
+    from dash._callback import (  # pylint: disable=import-outside-toplevel
+        _invoke_callback,
+    )
+
+    tb = error.__traceback__
+    skip = 1
+    while tb.tb_next is not None:
+        skip += 1
+        tb = tb.tb_next
+        if tb.tb_frame.f_code is _invoke_callback.__code__:
+            return skip
+
     return skip
 
 

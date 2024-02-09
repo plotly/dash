@@ -3,7 +3,7 @@
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code.
-extension-pkg-whitelist=
+extension-pkg-allow-list=
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
@@ -159,7 +159,13 @@ disable=invalid-name,
         line-too-long,
         super-with-arguments,
         raise-missing-from,
-        bad-option-value
+        bad-option-value,
+        use-dict-literal,
+        missing-timeout,
+        unnecessary-dunder-call,
+        unnecessary-lambda-assignment,
+        broad-exception-raised,
+        consider-using-generator,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -331,13 +337,6 @@ indent-string='    '
 
 # Maximum number of lines in a module.
 max-module-lines=1000
-
-# List of optional constructs for which whitespace checking is disabled. `dict-
-# separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
-# `trailing-comma` allows a space between comma and closing bracket: (a, ).
-# `empty-line` allows space-only lines.
-no-space-check=trailing-comma,
-               dict-separator
 
 # Allow the body of a class to be on the same line as the declaration if body
 # contains single statement.
@@ -516,7 +515,7 @@ max-bool-expr=5
 max-branches=15
 
 # Maximum number of locals for function / method body.
-max-locals=15
+max-locals=18
 
 # Maximum number of parents for a class (see R0901).
 max-parents=7
@@ -574,4 +573,4 @@ known-third-party=enchant
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception".
-overgeneral-exceptions=Exception
+overgeneral-exceptions=builtins.Exception
