@@ -150,6 +150,16 @@ jobs:
       PERCY_ENABLE: 0
     steps:
       - checkout
+      - run: choco install wget -y
+       - run:
+       command: wget https://nodejs.org/dist/v16.17.0/node-v16.17.0-x86.msi -P C:\Users\circleci\Downloads\
+       shell: cmd.exe
+         - run: MsiExec.exe /i C:\Users\circleci\Downloads\node-v16.17.0-x86.msi /qn
+         - run:
+             command: |
+               Start-Process powershell -verb runAs -Args "-start GeneralProfile"
+               nvm install 16.17.0
+               nvm use 16.17.0
       - run:
           name: ️️🏗️ build core
           command: |
