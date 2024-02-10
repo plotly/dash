@@ -29,7 +29,7 @@ dest_dir_map = {
 def status_print(msg, **kwargs):
     try:
         print(msg, **kwargs)
-    except UnicodeDecodeError:
+    except UnicodeEncodeError:
         print(msg.encode("ascii", "ignore"), **kwargs)
 
 
