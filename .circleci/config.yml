@@ -146,6 +146,7 @@ jobs:
     executor:
       name: win/default
       shell: bash.exe
+      version: 2023.09.1
     environment:
       PERCY_ENABLE: 0
     steps:
