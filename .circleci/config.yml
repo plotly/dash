@@ -149,21 +149,19 @@ jobs:
       version: edge
     environment:
       PERCY_ENABLE: 0
-    parallelism: 3
     steps:
       - checkout
       - run:
-          name: install python
-          command: choco install -y python --version=3.12.1
-      - run:
-           command: |
-             nvm install npm
-      - run:
-          name: pip
+          name: install python and pip
           command: |
+            choco install -y python --version=3.12.1
             python3.12 -m venv venv && . venv/Scripts/activate
             pip install --upgrade pip
             pip install --no-cache-dir --upgrade -e .[ci,dev,testing] --progress-bar off
+          background: true
+      - run:
+           command: |
+             nvm install npm
       - run:
           name: npm prereqs
           command: |
