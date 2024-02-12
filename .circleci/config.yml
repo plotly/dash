@@ -144,15 +144,14 @@ jobs:
   build-windows-312:
     working_directory: ~/dash
     executor:
-      name: win/default
+      name: win/server-2019
       shell: bash.exe
-      version: edge
     environment:
       PERCY_ENABLE: 0
     steps:
       - checkout
       - run:
-          name: install python and pip
+          name: install python
           command: |
             choco install -y python --version=3.12.1
       - run:
@@ -160,7 +159,6 @@ jobs:
           command: |
             python3.12 -m venv venv && . venv/Scripts/activate
             pip install --no-cache-dir --upgrade -e .[ci,dev] --progress-bar off
-          background: true
       - run:
            command: |
              nvm install npm
@@ -174,10 +172,7 @@ jobs:
           name: ️️🏗️ build dash
           command: |
             . venv/Scripts/activate
-            npm run build.sequential
-          requires:
-            - install python and pip
-            - npm prereqs
+            npm run build
           no_output_timeout: 30m
 
   test-312: &test
