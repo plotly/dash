@@ -44,7 +44,7 @@
     "citest.integration": "run-s setup-tests.py private::test.integration-*",
     "citest.unit": "run-s private::test.unit-**",
     "test": "pytest && cd dash/dash-renderer && npm run test",
-    "first-build": "cd dash/dash-renderer && npm i && cd - && cd components/dash-html-components && npm i && npm run extract && cd - && npm run build"
+    "first-build": "cd dash/dash-renderer && npm i && cd ../../ && cd components/dash-html-components && npm i && npm run extract && cd ../../ && npm run build"
   },
   "devDependencies": {
     "@lerna/filter-options": "^6.4.1",
