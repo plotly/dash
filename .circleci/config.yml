@@ -151,12 +151,15 @@ jobs:
     steps:
       - checkout
       - run:
+          name: install python
+          command: choco install -y python -- version=3.12.1
+      - run:
            command: |
              nvm install npm
       - run:
           name: pip
           command: |
-            python -m venv venv && . venv/Scripts/activate
+            python3.12 -m venv venv && . venv/Scripts/activate
             pip install --upgrade pip
             pip install --no-cache-dir --upgrade -e .[ci,dev,testing] --progress-bar off
       - run:
@@ -168,7 +171,7 @@ jobs:
       - run:
           name: ️️🏗️ build dash
           command: |
-            python -m venv venv && . venv/Scripts/activate
+            . venv/Scripts/activate
             npm run build
           no_output_timeout: 30m
 
