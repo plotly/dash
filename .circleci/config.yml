@@ -146,9 +146,10 @@ jobs:
     executor:
       name: win/default
       shell: bash.exe
-      version: 2023.09.1
+      version: edge
     environment:
       PERCY_ENABLE: 0
+    parallelism: 3
     steps:
       - checkout
       - run:
