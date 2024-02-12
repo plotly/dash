@@ -144,7 +144,7 @@ jobs:
   build-windows-312:
     working_directory: ~/dash
     executor:
-      name: win/server-2019
+      name: win/default
       shell: bash.exe
     environment:
       PERCY_ENABLE: 0
@@ -161,7 +161,7 @@ jobs:
             pip install --no-cache-dir --upgrade -e .[ci,dev] --progress-bar off
       - run:
            command: |
-             nvm install npm
+             nvm install 18 && nvm use 18
       - run:
           name: npm prereqs
           command: |
