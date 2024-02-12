@@ -159,7 +159,6 @@ jobs:
           name: pip
           command: |
             python3.12 -m venv venv && . venv/Scripts/activate
-            pip install --upgrade pip
             pip install --no-cache-dir --upgrade -e .[ci,dev] --progress-bar off
           background: true
       - run:
