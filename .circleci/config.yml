@@ -173,6 +173,9 @@ jobs:
           command: |
             . venv/Scripts/activate
             npm run build.sequential
+          requires:
+            - install python and pip
+            - npm prereqs
           no_output_timeout: 30m
 
   test-312: &test
