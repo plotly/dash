@@ -152,7 +152,7 @@ jobs:
       - checkout
       - run:
           name: install python
-          command: choco install -y python -- version=3.12.1
+          command: choco install -y python --version=3.12.1
       - run:
            command: |
              nvm install npm
@@ -172,7 +172,7 @@ jobs:
           name: ️️🏗️ build dash
           command: |
             . venv/Scripts/activate
-            npm run build
+            npm run build.sequential
           no_output_timeout: 30m
 
   test-312: &test
