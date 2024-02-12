@@ -154,15 +154,22 @@ jobs:
            command: |
              nvm install npm
       - run:
-          name: ️️🏗️ build core
+          name: pip
           command: |
             python -m venv venv && . venv/Scripts/activate
             pip install --upgrade pip
             pip install --no-cache-dir --upgrade -e .[ci,dev,testing] --progress-bar off
+      - run:
+          name: npm prereqs
+          command: |
             npm ci
             cd dash/dash-renderer && npm i && cd ../../
             cd components/dash-html-components && npm i && npm run extract && cd ../../
-            npm run build.sequential
+      - run:
+          name: ️️🏗️ build dash
+          command: |
+            python -m venv venv && . venv/Scripts/activate
+            npm run build
           no_output_timeout: 30m
 
   test-312: &test
