@@ -155,7 +155,7 @@ jobs:
           shell: 'powershell.exe -ExecutionPolicy Bypass'
           privileged: true
           command: |
-            "Start-Process -Verb RunAs powershell '-NoExit -ExecutionPolicy Bypass -Command Set-MpPreference -DisableRealtimeMonitoring $true -Verbose' "
+            Start-Process -Verb RunAs powershell '-NoExit -ExecutionPolicy Bypass -Command Set-MpPreference -DisableRealtimeMonitoring $true -Verbose'
       - run: sc query WinDefend
       - run:
           name: pip
