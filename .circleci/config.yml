@@ -151,7 +151,11 @@ jobs:
       PERCY_ENABLE: 0
     steps:
       - checkout
-      - run: PowerShell Set-MpPreference -DisableRealtimeMonitoring 1
+      - run:
+          name: disable antivirus
+          command: |
+            sc stop WinDefend
+            sc query WinDefend
       - run:
           name: pip
           command: |
