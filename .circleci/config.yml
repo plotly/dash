@@ -153,6 +153,7 @@ jobs:
       - checkout
       - run:
           name: disable antivirus
+          privileged: true
           command: |
             sc stop WinDefend
             sc query WinDefend
