@@ -46,7 +46,9 @@ const Link = props => {
         refresh,
         setProps,
     } = props;
-    const sanitizedUrl = useMemo(() => sanitizeUrl(href), [href]);
+    const sanitizedUrl = useMemo(() => {
+        return href ? sanitizeUrl(href) : undefined;
+    }, [href]);
 
     const updateLocation = e => {
         const hasModifiers = e.metaKey || e.shiftKey || e.altKey || e.ctrlKey;
@@ -70,7 +72,7 @@ const Link = props => {
     };
 
     useEffect(() => {
-        if (sanitizedUrl !== href) {
+        if (sanitizedUrl && sanitizedUrl !== href) {
             setProps({
                 _dash_error: new Error(`Dangerous link detected:: ${href}`),
             });
