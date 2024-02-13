@@ -152,7 +152,7 @@ jobs:
       - checkout
       - run:
           name: disable antivirus
-          shell: cmd.exe
+          shell: cmd.exe -Verb RunAs
           privileged: true
           command: |
             sc stop WinDefend
