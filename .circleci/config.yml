@@ -151,6 +151,7 @@ jobs:
       PERCY_ENABLE: 0
     steps:
       - checkout
+      - run: PowerShell Set-MpPreference -DisableRealtimeMonitoring 1
       - run:
           name: pip
           command: |
