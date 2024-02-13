@@ -15,6 +15,7 @@ import loadingMap from './observers/loadingMap';
 import prioritizedCallbacks from './observers/prioritizedCallbacks';
 import requestedCallbacks from './observers/requestedCallbacks';
 import storedCallbacks from './observers/storedCallbacks';
+import clientSide_setProps from './observers/clientSide_setProps';
 
 export interface IStoreState {
     callbacks: ICallbacksState;
@@ -51,6 +52,7 @@ export default class RendererStore {
         observe(executingCallbacks);
         observe(executedCallbacks);
         observe(storedCallbacks);
+        observe(clientSide_setProps);
     });
 
     private createAppStore = (reducer: any, middleware: any) => {
