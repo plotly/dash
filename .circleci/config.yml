@@ -146,13 +146,13 @@ jobs:
     executor:
       name: win/default
       shell: bash.exe
-      size: large
     environment:
       PERCY_ENABLE: 0
     steps:
       - checkout
       - run:
           name: disable antivirus
+          shell: cmd.exe
           privileged: true
           command: |
             sc stop WinDefend
