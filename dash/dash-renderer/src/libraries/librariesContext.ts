@@ -1,57 +1,17 @@
+import {createContext, useContext, useEffect, useState} from 'react';
+import {pathOr, toPairs} from 'ramda';
+import loadLibrary from './loadLibrary';
+import {batch, useDispatch, useSelector} from 'react-redux';
+import {LibrariesState} from './libraryTypes';
 import {
-    createContext,
-    useContext,
-    useReducer,
-    useEffect,
-    useState
-} from 'react';
-import {assocPath, pathOr, pipe, toPairs} from 'ramda';
-
-type LibraryResource = {
-    type: '_js_dist' | '_css_dist';
-    url: string;
-    async?: string;
-    namespace: string;
-    relative_package_path?: string;
-};
-
-type LibrariesState = {
-    [libname: string]: {
-        toLoad: boolean;
-        loading: boolean;
-        loaded: boolean;
-        dist?: LibraryResource[];
-    };
-};
-
-enum LibrariesActions {
-    LOAD,
-    LOADED,
-    TO_LOAD
-}
-
-type LoadingPayload = {
-    libraries: string[];
-};
-
-type LoadedPayload = {
-    libraries: string[];
-};
-
-type ToLoadPayload = {
-    library: string;
-};
-
-type LibrariesAction = {
-    type: LibrariesActions;
-    payload: LoadingPayload | LoadedPayload | ToLoadPayload;
-};
+    setLibraryLoaded,
+    setLibraryLoading,
+    setLibraryToLoad
+} from '../actions/libraries';
+import fetchDist from './fetchDist';
 
 export type LibrariesContextType = {
     state: LibrariesState;
-    setLoading: (payload: LoadingPayload) => void;
-    setLoaded: (payload: LoadedPayload) => void;
-    setToLoad: (payload: ToLoadPayload) => void;
     isLoading: (libraryName: string) => boolean;
     isLoaded: (libraryName: string) => boolean;
     fetchLibraries: () => void;
@@ -59,45 +19,8 @@ export type LibrariesContextType = {
     addToLoad: (libName: string) => void;
 };
 
-function handleLoad(library: string, state: LibrariesState) {
-    return pipe(
-        assocPath([library, 'loading'], true),
-        assocPath([library, 'toLoad'], false)
-    )(state) as LibrariesState;
-}
-
-function handleLoaded(library: string, state: LibrariesState) {
-    return pipe(
-        assocPath([library, 'loaded'], true),
-        assocPath([library, 'loading'], false)
-    )(state) as LibrariesState;
-}
-
-export function librariesReducer(
-    state: LibrariesState,
-    action: LibrariesAction
-): LibrariesState {
-    switch (action.type) {
-        case LibrariesActions.LOAD:
-            return (action.payload as LoadingPayload).libraries.reduce(
-                (acc, lib) => handleLoad(lib, acc),
-                state
-            );
-        case LibrariesActions.LOADED:
-            return (action.payload as LoadedPayload).libraries.reduce(
-                (acc, lib) => handleLoaded(lib, acc),
-                state
-            );
-        case LibrariesActions.TO_LOAD:
-            return pipe(
-                assocPath(
-                    [(action.payload as ToLoadPayload).library, 'toLoad'],
-                    true
-                )
-            )(state) as LibrariesState;
-        default:
-            return state;
-    }
+function librarySelector(s: any) {
+    return s.libraries as LibrariesState;
 }
 
 export function createLibrariesContext(
@@ -106,26 +29,9 @@ export function createLibrariesContext(
     onReady: () => void,
     ready: boolean
 ): LibrariesContextType {
-    const [state, dispatch] = useReducer(librariesReducer, {}, () => {
-        const libState: LibrariesState = {};
-        initialLibraries.forEach(lib => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (window[lib]) {
-                libState[lib] = {toLoad: false, loaded: true, loading: false};
-            } else {
-                libState[lib] = {toLoad: true, loaded: false, loading: false};
-            }
-        });
-        return libState;
-    });
+    const dispatch = useDispatch();
+    const state = useSelector(librarySelector);
     const [callback, setCallback] = useState<number>(-1);
-    const createAction = (type: LibrariesActions) => (payload: any) =>
-        dispatch({type, payload});
-
-    const setLoading = createAction(LibrariesActions.LOAD);
-    const setLoaded = createAction(LibrariesActions.LOADED);
-    const setToLoad = createAction(LibrariesActions.TO_LOAD);
 
     const isLoaded = (libraryName: string) =>
         pathOr(false, [libraryName, 'loaded'], state);
@@ -139,9 +45,9 @@ export function createLibrariesContext(
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             if (window[libraryName]) {
-                setLoaded({libraries: [libraryName]});
+                dispatch(setLibraryLoaded({libraries: [libraryName]}));
             } else {
-                setToLoad({library: libraryName});
+                dispatch(setLibraryToLoad({library: libraryName}));
             }
         }
         // if lib is already in don't do anything.
@@ -161,57 +67,42 @@ export function createLibrariesContext(
             return;
         }
 
-        setLoading({libraries});
+        dispatch(setLibraryLoading({libraries}));
 
-        fetch(`${pathnamePrefix}_dash-dist`, {
-            body: JSON.stringify(libraries),
-            headers: {'Content-Type': 'application/json'},
-            method: 'POST'
-        })
-            .then(response => response.json())
+        fetchDist(pathnamePrefix, libraries)
             .then(data => {
-                const head = document.querySelector('head');
-                const loadPromises: Promise<void>[] = [];
-                data.forEach((resource: LibraryResource) => {
-                    if (resource.type === '_js_dist') {
-                        const element = document.createElement('script');
-                        element.src = resource.url;
-                        element.async = true;
-                        loadPromises.push(
-                            new Promise((resolve, reject) => {
-                                element.onload = () => {
-                                    resolve();
-                                };
-                                element.onerror = error => reject(error);
-                            })
-                        );
-                        head?.appendChild(element);
-                    } else if (resource.type === '_css_dist') {
-                        const element = document.createElement('link');
-                        element.href = resource.url;
-                        element.rel = 'stylesheet';
-                        loadPromises.push(
-                            new Promise((resolve, reject) => {
-                                element.onload = () => {
-                                    resolve();
-                                };
-                                element.onerror = error => reject(error);
-                            })
-                        );
-                        head?.appendChild(element);
-                    }
-                });
-                return Promise.all(loadPromises);
+                return Promise.all(data.map(loadLibrary));
             })
             .then(() => {
-                setLoaded({libraries});
+                dispatch(setLibraryLoaded({libraries}));
                 setCallback(-1);
                 onReady();
             });
     };
 
+    useEffect(() => {
+        batch(() => {
+            const loaded: string[] = [];
+            initialLibraries.forEach(lib => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                if (window[lib]) {
+                    loaded.push(lib);
+                } else {
+                    dispatch(setLibraryToLoad({library: lib}));
+                }
+            });
+            if (loaded.length) {
+                dispatch(setLibraryLoaded({libraries: loaded}));
+            }
+        });
+    }, [initialLibraries]);
+
     // Load libraries on a throttle to have time to gather all the components in one go.
     useEffect(() => {
+        if (ready) {
+            return;
+        }
         const libraries = getLibrariesToLoad();
         if (!libraries.length) {
             if (!ready && initialLibraries.length === 0) {
@@ -224,13 +115,10 @@ export function createLibrariesContext(
         }
         const timeout = window.setTimeout(fetchLibraries, 0);
         setCallback(timeout);
-    }, [state]);
+    }, [state, ready]);
 
     return {
         state,
-        setLoading,
-        setLoaded,
-        setToLoad,
         isLoaded,
         isLoading,
         fetchLibraries,
