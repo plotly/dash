@@ -151,13 +151,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: disable antivirus
-          shell: 'powershell.exe -ExecutionPolicy Bypass'
-          privileged: true
-          command: |
-            Start-Process -Verb RunAs cmd.exe -Args '/c', "sc stop WinDefend && sc query WinDefend"
-      - run: sc query WinDefend
-      - run:
           name: pip
           command: |
             python -m venv venv && . venv/Scripts/activate
@@ -175,7 +168,7 @@ jobs:
           name: ️️🏗️ build dash
           command: |
             . venv/Scripts/activate
-            npm run build.sequential
+            npm run private::build.jupyterlab && npm run private::build.renderer && python dash/development/update_components.py 'dash-html-components'
           no_output_timeout: 30m
 
   test-312: &test
