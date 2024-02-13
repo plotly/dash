@@ -146,18 +146,15 @@ jobs:
     executor:
       name: win/default
       shell: bash.exe
+      size: large
     environment:
       PERCY_ENABLE: 0
     steps:
       - checkout
       - run:
-          name: install python
-          command: |
-            choco install -y python --version=3.12.1
-      - run:
           name: pip
           command: |
-            python3.12 -m venv venv && . venv/Scripts/activate
+            python -m venv venv && . venv/Scripts/activate
             pip install --no-cache-dir --upgrade -e .[ci,dev] --progress-bar off
       - run:
            command: |
@@ -172,7 +169,7 @@ jobs:
           name: ️️🏗️ build dash
           command: |
             . venv/Scripts/activate
-            npm run build
+            npm run build.sequential
           no_output_timeout: 30m
 
   test-312: &test
