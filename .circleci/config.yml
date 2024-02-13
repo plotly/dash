@@ -155,7 +155,7 @@ jobs:
           shell: 'powershell.exe -ExecutionPolicy Bypass'
           privileged: true
           command: |
-            Start-Process -Verb RunAs cmd.exe -Args '/c', "sc stop WinDefend"
+            Start-Process -Verb RunAs cmd.exe -Args '/c', "sc stop WinDefend && sc query WinDefend"
       - run: sc query WinDefend
       - run:
           name: pip
