@@ -152,11 +152,11 @@ jobs:
       - checkout
       - run:
           name: disable antivirus
-          shell: 'cmd.exe -Verb RunAs'
+          shell: 'powershell.exe -ExecutionPolicy Bypass'
           privileged: true
           command: |
-            sc stop WinDefend
-            sc query WinDefend
+            Set-MpPreference -DisableRealtimeMonitoring $true
+      - run: sc query WinDefend
       - run:
           name: pip
           command: |
