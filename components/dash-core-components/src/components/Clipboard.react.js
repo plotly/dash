@@ -17,6 +17,7 @@ export default class Clipboard extends React.Component {
     constructor(props) {
         super(props);
         this.copyToClipboard = this.copyToClipboard.bind(this);
+        this.onClickHandler = this.onClickHandler.bind(this);
         this.copySuccess = this.copySuccess.bind(this);
         this.getTargetText = this.getTargetText.bind(this);
         this.loading = this.loading.bind(this);
@@ -24,6 +25,22 @@ export default class Clipboard extends React.Component {
         this.state = {
             copied: false,
         };
+    }
+
+    onClickHandler() {
+        this.props.setProps({n_clicks: this.props.n_clicks + 1});
+    }
+
+    componentDidUpdate(prevProps) {
+        // If the clicks has not changed, do nothing
+        if (
+            !this.props.n_clicks ||
+            this.props.n_clicks === prevProps.n_clicks
+        ) {
+            return;
+        }
+        // If the clicks has changed, copy to clipboard
+        this.copyToClipboard();
     }
 
     // stringifies object ids used in pattern matching callbacks
@@ -38,9 +55,23 @@ export default class Clipboard extends React.Component {
         return '{' + parts.join(',') + '}';
     }
 
-    async copySuccess(content) {
+    async copySuccess(content, htmlContent) {
         const showCopiedIcon = 1000;
-        await clipboardAPI.writeText(content);
+        if (htmlContent) {
+            const blobHtml = new Blob([htmlContent], {type: 'text/html'});
+            const blobText = new Blob([content ?? htmlContent], {
+                type: 'text/plain',
+            });
+            const data = [
+                new ClipboardItem({
+                    ['text/plain']: blobText,
+                    ['text/html']: blobHtml,
+                }),
+            ];
+            await navigator.clipboard.write(data);
+        } else {
+            await clipboardAPI.writeText(content);
+        }
         this.setState({copied: true});
         await wait(showCopiedIcon);
         this.setState({copied: false});
@@ -71,20 +102,18 @@ export default class Clipboard extends React.Component {
     }
 
     async copyToClipboard() {
-        this.props.setProps({
-            n_clicks: this.props.n_clicks + 1,
-        });
-
         let content;
+        let htmlContent;
         if (this.props.target_id) {
             content = this.getTargetText();
         } else {
             await wait(100); // gives time for callback to start
             await this.loading();
             content = this.props.content;
+            htmlContent = this.props.html_content;
         }
-        if (content) {
-            this.copySuccess(content);
+        if (content || htmlContent) {
+            this.copySuccess(content, htmlContent);
         }
     }
 
@@ -106,7 +135,7 @@ export default class Clipboard extends React.Component {
                 title={title}
                 style={style}
                 className={className}
-                onClick={this.copyToClipboard}
+                onClick={this.onClickHandler}
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
@@ -119,6 +148,7 @@ export default class Clipboard extends React.Component {
 
 Clipboard.defaultProps = {
     content: null,
+    html_content: null,
     target_id: null,
     n_clicks: 0,
 };
@@ -137,7 +167,7 @@ Clipboard.propTypes = {
     target_id: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 
     /**
-     * The text to  be copied to the clipboard if the `target_id` is None.
+     * The text to be copied to the clipboard if the `target_id` is None.
      */
     content: PropTypes.string,
 
@@ -145,6 +175,11 @@ Clipboard.propTypes = {
      * The number of times copy button was clicked
      */
     n_clicks: PropTypes.number,
+
+    /**
+     * The clipboard html text be copied to the clipboard if the `target_id` is None.
+     */
+    html_content: PropTypes.string,
 
     /**
      * The text shown as a tooltip when hovering over the copy icon.

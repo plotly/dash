@@ -5,11 +5,9 @@ import logging
 import os
 import queue
 import uuid
-import re
 import sys
 import threading
 import time
-import traceback
 
 from typing_extensions import Literal
 
@@ -22,7 +20,6 @@ try:
     from IPython.core.display import HTML
     from IPython.core.ultratb import FormattedTB
     from retrying import retry
-    from ansi2html import Ansi2HTMLConverter
     from ipykernel.comm import Comm
     import nest_asyncio
 
@@ -39,12 +36,18 @@ JupyterDisplayMode = Literal["inline", "external", "jupyterlab", "tab", "_none"]
 
 
 def _get_skip(error: Exception):
-    tb = traceback.format_exception(type(error), error, error.__traceback__)
-    skip = 0
-    for i, line in enumerate(tb):
-        if "%% callback invoked %%" in line:
-            skip = i + 1
-            break
+    from dash._callback import (  # pylint: disable=import-outside-toplevel
+        _invoke_callback,
+    )
+
+    tb = error.__traceback__
+    skip = 1
+    while tb.tb_next is not None:
+        skip += 1
+        tb = tb.tb_next
+        if tb.tb_frame.f_code is _invoke_callback.__code__:
+            return skip
+
     return skip
 
 
@@ -450,13 +453,12 @@ class JupyterDash:
             original_formatargvalues = inspect.formatargvalues
             inspect.formatargvalues = _custom_formatargvalues
             try:
-                # Use IPython traceback formatting to build colored ANSI traceback
-                # string
+                # Use IPython traceback formatting to build the traceback string.
                 ostream = io.StringIO()
                 ipytb = FormattedTB(
                     tb_offset=skip,
                     mode="Verbose",
-                    color_scheme="Linux",
+                    color_scheme="NoColor",
                     include_vars=True,
                     ostream=ostream,
                 )
@@ -465,27 +467,12 @@ class JupyterDash:
                 # Restore formatargvalues
                 inspect.formatargvalues = original_formatargvalues
 
-            # Print colored ANSI representation if requested
-            ansi_stacktrace = ostream.getvalue()
+            stacktrace = ostream.getvalue()
 
             if self.inline_exceptions:
-                print(ansi_stacktrace)
+                print(stacktrace)
 
-            # Use ansi2html to convert the colored ANSI string to HTML
-            conv = Ansi2HTMLConverter(scheme="ansi2html", dark_bg=False)
-            html_str = conv.convert(ansi_stacktrace)
-
-            # Set width to fit 75-character wide stack trace and font to a size the
-            # won't require a horizontal scroll bar
-            html_str = html_str.replace(
-                "<html>", '<html style="width: 75ch; font-size: 0.86em">'
-            )
-
-            # Remove explicit background color so Dash dev-tools can set background
-            # color
-            html_str = re.sub("background-color:[^;]+;", "", html_str)
-
-            return html_str, 500
+            return stacktrace, 500
 
     @property
     def active(self):

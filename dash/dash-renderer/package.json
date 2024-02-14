@@ -1,10 +1,10 @@
 {
   "name": "dash-renderer",
-  "version": "1.17.1",
+  "version": "1.18.0",
   "description": "render dash components in react",
   "main": "build/dash_renderer.min.js",
   "scripts": {
-    "prepublishOnly": "rm -rf lib && babel src --extensions=\".ts,.tsx,.js,.jsx\" --out-dir lib --copy-files",
+    "prepublishOnly": "rimraf lib && babel src --extensions=\".ts,.tsx,.js,.jsx\" --out-dir lib --copy-files",
     "private::format.eslint": "eslint --quiet --fix src tests",
     "private::format.prettier": "prettier --write \"{src,tests}/**/*.{js,jsx,ts,tsx}\"",
     "private::lint.eslint": "eslint src tests",
@@ -79,6 +79,7 @@
     "typescript": "^5.1.6",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
+    "rimraf": "^5.0.5",
     "whatwg-fetch": "^3.6.19"
   },
   "files": [
