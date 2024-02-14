@@ -21,6 +21,7 @@ const setProps = (updates: {}) => {
     }
 };
 
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const dc = (window.dash_clientside = window.dash_clientside || {});
 dc['setProps'] = setProps;
