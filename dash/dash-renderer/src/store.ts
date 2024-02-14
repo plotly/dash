@@ -15,7 +15,6 @@ import loadingMap from './observers/loadingMap';
 import prioritizedCallbacks from './observers/prioritizedCallbacks';
 import requestedCallbacks from './observers/requestedCallbacks';
 import storedCallbacks from './observers/storedCallbacks';
-import setProps from './observers/setProps';
 
 export interface IStoreState {
     callbacks: ICallbacksState;
@@ -52,12 +51,13 @@ export default class RendererStore {
         observe(executingCallbacks);
         observe(executedCallbacks);
         observe(storedCallbacks);
-        observe(setProps);
     });
 
     private createAppStore = (reducer: any, middleware: any) => {
         this.__store = createStore(reducer, middleware);
         this.storeObserver.setStore(this.__store);
+        const ds = (window.dash_stores = window.dash_stores || []);
+        ds.push(this.__store);
         this.setObservers();
     };
 

@@ -1,10 +1,13 @@
 import {updateProps, notifyObservers} from '../actions/index';
+import {getPath} from '../actions/paths';
 
-const makeSetProps = ({dispatch, getState}) => {
-    const setProps = (updates: {}) => {
+const setProps = (updates: {}) => {
+    const ds = (window.dash_stores = window.dash_stores || []);
+    for (let y = 0; y < ds.length; y++) {
+        const {dispatch, getState} = ds[y];
         const {paths} = getState();
         Object.entries(updates).forEach(([componentId, props]) => {
-            const componentPath = paths.strs[componentId];
+            const componentPath = getPath(paths, componentId);
             dispatch(
                 updateProps({
                     props,
@@ -13,10 +16,8 @@ const makeSetProps = ({dispatch, getState}) => {
             );
             dispatch(notifyObservers({id: componentId, props}));
         });
-    };
-
-    window.dash_clientside = window.dash_clientside || {};
-    window.dash_clientside['setProps'] = setProps;
+    }
 };
 
-export default makeSetProps;
+const dc = (window.dash_clientside = window.dash_clientside || {});
+dc['setProps'] = setProps;
