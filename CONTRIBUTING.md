@@ -23,6 +23,7 @@ $ npm ci
 #
 $ npm run build  # runs `renderer build` and `npm build` in dcc, html, table
 # build and install components used in tests
+# on windows, the developer will need to use `npm run first-build` this performs additional first steps
 #
 # Alternatively one could run part of the build process e.g.
 $ dash-update-components "dash-core-components"
