@@ -4,7 +4,7 @@ import {updateProps, notifyObservers} from '../actions/index'
 
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: ({dispatch, getState}) => {
-        const clientSide_setProps = (updates: {}) => {
+        const setProps = (updates: {}) => {
             const {paths} = getState()
             Object.entries(updates).forEach(([componentId, props]) => {
                 const componentPath = paths.strs[componentId];
@@ -22,7 +22,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
 
         window.dash_clientside = window.dash_clientside || {};
-        window.dash_clientside['clientSide_setProps'] = clientSide_setProps
+        window.dash_clientside['setProps'] = setProps
     },
     inputs: ['callbacks.executed']
 };
