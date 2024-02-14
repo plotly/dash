@@ -5,6 +5,7 @@ orbs:
   percy: percy/agent@0.1.3
   browser-tools: circleci/browser-tools@1.4.6
 
+
 jobs:
   artifacts:
     docker:
@@ -107,7 +108,7 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
@@ -198,7 +199,7 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -315,7 +316,7 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -386,7 +387,7 @@ jobs:
       - restore_cache:
           key: html-{{ checksum "components/dash-html-components/package.json" }}-{{ checksum "components/dash-html-components/package-lock.json" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -460,7 +461,7 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -516,7 +517,7 @@ jobs:
       - restore_cache:
           key: table-{{ checksum "components/dash-table/package.json" }}-{{ checksum "components/dash-table/package-lock.json" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -554,7 +555,7 @@ jobs:
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - run:
