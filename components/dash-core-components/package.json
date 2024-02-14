@@ -19,7 +19,7 @@
     "private::lint.eslint": "eslint src",
     "private::lint.flake8": "flake8 --exclude=dash_core_components,node_modules,venv",
     "private::lint.prettier": "prettier --config .prettierrc src/**/*.js --list-different",
-    "prepublishOnly": "rm -rf lib && babel src --out-dir lib --copy-files --config-file ./.lib.babelrc && rm -rf lib/jl/ lib/*.jl",
+    "prepublishOnly": "rimraf lib && babel src --out-dir lib --copy-files --config-file ./.lib.babelrc && rimraf --glob lib/jl/ lib/*.jl",
     "test": "run-s -c lint test:intg test:pyimport",
     "test:intg": "pytest --nopercyfinalize --headless tests/integration ",
     "test:pyimport": "python -m unittest tests/test_dash_import.py",
@@ -90,7 +90,8 @@
     "style-loader": "^3.3.3",
     "styled-jsx": "^3.4.4",
     "webpack": "^5.90.0",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "rimraf": "^5.0.5"
   },
   "optionalDependencies": { "fsevents": "*" },
   "files": [

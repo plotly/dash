@@ -5,6 +5,7 @@ orbs:
   percy: percy/agent@0.1.3
   browser-tools: circleci/browser-tools@1.4.6
 
+
 jobs:
   artifacts:
     docker:
@@ -107,7 +108,7 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
@@ -150,16 +151,26 @@ jobs:
       PERCY_ENABLE: 0
     steps:
       - checkout
-
       - run:
-          name: "Install Python"
-          command: choco install -y python --version=3.12.1
-
-      - run:
-          name: ️️🏗️ build core
+          name: pip
           command: |
-            py -3.12 -m pip install --no-cache-dir --upgrade -e .[dev,testing] --progress-bar off
-            cd dash/dash-renderer && C:/Python312/Scripts/renderer.exe build && cd ../../
+            python -m venv venv && . venv/Scripts/activate
+            pip install --no-cache-dir --upgrade -e .[ci,dev] --progress-bar off
+      - run:
+           command: |
+             nvm install 18 && nvm use 18
+      - run:
+          name: npm prereqs
+          command: |
+            npm ci
+            cd dash/dash-renderer && npm i && cd ../../
+            cd components/dash-html-components && npm i && npm run extract && cd ../../
+      - run:
+          name: ️️🏗️ build dash
+          command: |
+            . venv/Scripts/activate
+            npm run private::build.jupyterlab && npm run private::build.renderer && python dash/development/update_components.py 'dash-html-components'
+          no_output_timeout: 30m
 
   test-312: &test
     working_directory: ~/dash
@@ -188,7 +199,7 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -305,7 +316,7 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -376,7 +387,7 @@ jobs:
       - restore_cache:
           key: html-{{ checksum "components/dash-html-components/package.json" }}-{{ checksum "components/dash-html-components/package-lock.json" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -450,7 +461,7 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -506,7 +517,7 @@ jobs:
       - restore_cache:
           key: table-{{ checksum "components/dash-table/package.json" }}-{{ checksum "components/dash-table/package-lock.json" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - attach_workspace:
@@ -544,7 +555,7 @@ jobs:
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.110
+          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - run:

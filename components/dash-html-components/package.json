@@ -13,8 +13,8 @@
   },
   "homepage": "https://github.com/plotly/dash",
   "scripts": {
-    "clean": "rm -rf src/* && mkdir -p src/components",
-    "prebuild": "cd scripts && sh generate-all.sh && cd -",
+    "clean": "rimraf --glob ./src/* && mkdirp ./src/components",
+    "prebuild": "cd scripts && sh generate-all.sh && cd ../../",
     "extract": "cd scripts && sh extract-all.sh",
     "lint": "eslint src scripts",
     "build:js": "webpack --mode production",
@@ -51,7 +51,9 @@
     "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4",
     "react": "^16.14.0",
-    "react-dom": "^16.14.0"
+    "react-dom": "^16.14.0",
+    "rimraf": "^5.0.5",
+    "mkdirp": "^0.5.1"
   },
   "files": [
     "/dash_html_components/*{.js,.map}"

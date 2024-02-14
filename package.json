@@ -10,26 +10,26 @@
     "private::build.components": "python dash/development/update_components.py 'all'",
     "private::cibuild.renderer": "cd dash/dash-renderer && renderer build",
     "private::build.renderer": "cd dash/dash-renderer && renderer build",
-    "private::build.jupyterlab": "cd \\@plotly/dash-jupyterlab && jlpm install && jlpm build:pack",
+    "private::build.jupyterlab": "cd @plotly/dash-jupyterlab && jlpm install && jlpm build:pack",
     "private::lint.black": "node -e \"if ((process.env.PYVERSION || 'python312') !== 'python38'){process.exit(1)} \" || black dash tests --exclude metadata_test.py --check",
     "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
     "private::lint.pylint-dash": "PYLINTRC=${PYLINTRC:=.pylintrc312} && pylint dash setup.py --rcfile=$PYLINTRC",
     "private::lint.pylint-tests": "PYLINTRC=${PYLINTRC:=.pylintrc312} && pylint tests/unit tests/integration -d all -e C0410,C0413,W0109 --rcfile=$PYLINTRC",
     "private::lint.renderer": "cd dash/dash-renderer && npm run lint",
-    "private::test.setup-components": "cd \\@plotly/dash-test-components && npm ci && npm run build",
-    "private::test.setup-nested": "cd \\@plotly/dash-generator-test-component-nested && npm ci && npm run build",
-    "private::test.setup-standard": "cd \\@plotly/dash-generator-test-component-standard && npm ci && npm run build",
-    "private::test.setup-typescript": "cd \\@plotly/dash-generator-test-component-typescript && npm ci && npm run build",
-    "private::test.py.deploy-components": "npm run private::test.setup-components && cd \\@plotly/dash-test-components && pip install -e .",
-    "private::test.py.deploy-nested": "npm run private::test.setup-nested && cd \\@plotly/dash-generator-test-component-nested && pip install -e .",
-    "private::test.py.deploy-standard": "npm run private::test.setup-standard && cd \\@plotly/dash-generator-test-component-standard && pip install -e .",
-    "private::test.py.deploy-typescript": "npm run private::test.setup-typescript && cd \\@plotly/dash-generator-test-component-typescript && pip install -e .",
-    "private::test.R.deploy-components": "npm run private::test.setup-components && cd \\@plotly/dash-test-components && sudo R CMD INSTALL .",
-    "private::test.R.deploy-nested": "npm run private::test.setup-nested && cd \\@plotly/dash-generator-test-component-nested && sudo R CMD INSTALL .",
-    "private::test.R.deploy-standard": "npm run private::test.setup-standard && cd \\@plotly/dash-generator-test-component-standard && sudo R CMD INSTALL .",
+    "private::test.setup-components": "cd @plotly/dash-test-components && npm ci && npm run build",
+    "private::test.setup-nested": "cd @plotly/dash-generator-test-component-nested && npm ci && npm run build",
+    "private::test.setup-standard": "cd @plotly/dash-generator-test-component-standard && npm ci && npm run build",
+    "private::test.setup-typescript": "cd @plotly/dash-generator-test-component-typescript && npm ci && npm run build",
+    "private::test.py.deploy-components": "npm run private::test.setup-components && cd @plotly/dash-test-components && pip install -e .",
+    "private::test.py.deploy-nested": "npm run private::test.setup-nested && cd @plotly/dash-generator-test-component-nested && pip install -e .",
+    "private::test.py.deploy-standard": "npm run private::test.setup-standard && cd @plotly/dash-generator-test-component-standard && pip install -e .",
+    "private::test.py.deploy-typescript": "npm run private::test.setup-typescript && cd @plotly/dash-generator-test-component-typescript && pip install -e .",
+    "private::test.R.deploy-components": "npm run private::test.setup-components && cd @plotly/dash-test-components && sudo R CMD INSTALL .",
+    "private::test.R.deploy-nested": "npm run private::test.setup-nested && cd @plotly/dash-generator-test-component-nested && sudo R CMD INSTALL .",
+    "private::test.R.deploy-standard": "npm run private::test.setup-standard && cd @plotly/dash-generator-test-component-standard && sudo R CMD INSTALL .",
     "private::test.unit-dash": "pytest tests/unit",
     "private::test.unit-renderer": "cd dash/dash-renderer && npm run test",
-    "private::test.unit-generation": "cd \\@plotly/dash-generator-test-component-typescript && npm ci && npm test",
+    "private::test.unit-generation": "cd @plotly/dash-generator-test-component-typescript && npm ci && npm test",
     "private::test.integration-dash": "TESTFILES=$(circleci tests glob \"tests/integration/**/test_*.py\" | circleci tests split --split-by=timings) && pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}",
     "private::test.integration-dash-import": "cd tests/integration/dash && python dash_import_test.py",
     "cibuild": "run-s private::cibuild.*",
@@ -43,15 +43,17 @@
     "setup-tests.R": "run-s private::test.R.deploy-*",
     "citest.integration": "run-s setup-tests.py private::test.integration-*",
     "citest.unit": "run-s private::test.unit-**",
-    "test": "pytest && cd dash/dash-renderer && npm run test"
+    "test": "pytest && cd dash/dash-renderer && npm run test",
+    "first-build": "cd dash/dash-renderer && npm i && cd ../../ && cd components/dash-html-components && npm i && npm run extract && cd ../../ && npm run build"
   },
   "devDependencies": {
+    "@lerna/filter-options": "^6.4.1",
     "husky": "8.0.3",
-    "lerna": "^6.6.2",
-    "@lerna/filter-options": "^6.4.1"
+    "lerna": "^6.6.2"
   },
   "dependencies": {
-    "npm-run-all": "4.1.5"
+    "npm-run-all": "4.1.5",
+    "rimraf": "^5.0.5"
   },
   "name": "dash"
 }

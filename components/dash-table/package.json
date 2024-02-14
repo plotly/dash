@@ -108,7 +108,8 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
     "webpack-preprocessor": "^0.1.12",
-    "xlsx": "^0.17.5"
+    "xlsx": "^0.17.5",
+    "rimraf": "^5.0.5"
   },
   "files": [
     "/dash_table/async-*{.js,.map}",
