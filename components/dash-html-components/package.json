@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/plotly/dash",
   "scripts": {
-    "clean": "rimraf --glob -rf ./src/* && mkdirp ./src/components",
+    "clean": "rimraf --glob ./src/* && mkdirp ./src/components",
     "prebuild": "cd scripts && sh generate-all.sh && cd ../../",
     "extract": "cd scripts && sh extract-all.sh",
     "lint": "eslint src scripts",
