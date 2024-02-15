@@ -1,7 +1,6 @@
-from dash import *
+from dash import Dash, html, Input, Output, no_update
 import json
 from multiprocessing import Value
-import time
 
 
 def test_sp001_clientside_setprops(dash_duo):
@@ -58,7 +57,6 @@ def test_sp001_clientside_setprops(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#setup", "test setprops")
     dash_duo.find_element("#setup").click()
-    time.sleep(1)
     dash_duo.wait_for_text_to_equal("#two", "this is a test")
     dash_duo.wait_for_text_to_equal("#three", "i see trees of green")
     dash_duo.wait_for_text_to_equal("#four", "3")
