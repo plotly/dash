@@ -95,6 +95,9 @@ export function createLibrariesContext(
             if (loaded.length) {
                 dispatch(setLibraryLoaded({libraries: loaded}));
             }
+            if (loaded.length === initialLibraries.length) {
+                onReady();
+            }
         });
     }, [initialLibraries]);
 
@@ -105,9 +108,6 @@ export function createLibrariesContext(
         }
         const libraries = getLibrariesToLoad();
         if (!libraries.length) {
-            if (!ready && initialLibraries) {
-                onReady();
-            }
             return;
         }
         if (callback > 0) {
