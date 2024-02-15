@@ -37,7 +37,6 @@ def test_sp001_clientside_setprops(dash_duo):
         prevent_initial_call=True,
     )
 
-
     for x in ids:
 
         @app.callback(
