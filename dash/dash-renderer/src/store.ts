@@ -59,7 +59,9 @@ export default class RendererStore {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const ds = (window.dash_stores = window.dash_stores || []);
-        ds.push(this.__store);
+        if (!ds.includes(this.__store) {
+            ds.push(this.__store);
+        }
         this.setObservers();
     };
 
