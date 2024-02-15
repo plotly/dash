@@ -26,7 +26,7 @@ def test_sp001_clientside_setprops(dash_duo):
     app.clientside_callback(
         """
             () => {
-                window.dash_clientside.setProps("""
+                window.dash_clientside.set_props("""
         + json.dumps(ids)
         + """)
                 return window.dash_clientside.no_update
