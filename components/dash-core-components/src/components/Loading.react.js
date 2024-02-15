@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import GraphSpinner from '../fragments/Loading/spinners/GraphSpinner.jsx';
 import DefaultSpinner from '../fragments/Loading/spinners/DefaultSpinner.jsx';
@@ -7,66 +7,121 @@ import CircleSpinner from '../fragments/Loading/spinners/CircleSpinner.jsx';
 import DotSpinner from '../fragments/Loading/spinners/DotSpinner.jsx';
 import {mergeRight} from 'ramda';
 
-function getSpinner(spinnerType) {
-    switch (spinnerType) {
-        case 'graph':
-            return GraphSpinner;
-        case 'cube':
-            return CubeSpinner;
-        case 'circle':
-            return CircleSpinner;
-        case 'dot':
-            return DotSpinner;
-        default:
-            return DefaultSpinner;
-    }
-}
-
-const hiddenContainer = {visibility: 'hidden', position: 'relative'};
-
-const coveringSpinner = {
-    visibility: 'visible',
-    position: 'absolute',
-    top: '0',
-    height: '100%',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+const spinnerComponents = {
+    graph: GraphSpinner,
+    cube: CubeSpinner,
+    circle: CircleSpinner,
+    dot: DotSpinner,
 };
+
+const getSpinner = spinnerType =>
+    spinnerComponents[spinnerType] || DefaultSpinner;
+
+const hiddenContainer = {position: 'relative'};
 
 /**
  * A Loading component that wraps any other component and displays a spinner until the wrapped component has rendered.
  */
-export default class Loading extends Component {
-    render() {
-        const {
-            loading_state,
-            color,
-            className,
-            style,
-            parent_className,
-            parent_style,
-            fullscreen,
-            debug,
-            type: spinnerType,
-        } = this.props;
+const Loading = ({
+    children,
+    loading_state,
+    color,
+    className,
+    style,
+    parent_className,
+    parent_style,
+    fullscreen,
+    debug,
+    show_initially,
+    type: spinnerType,
+    delay_hide,
+    delay_show,
+    opacity,
+    backgroundColor,
+    target_components,
+    custom_spinner,
+}) => {
+    const coveringSpinner = {
+        visibility: 'visible',
+        position: 'absolute',
+        top: '0',
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: backgroundColor,
+        opacity: opacity,
+    };
 
-        const isLoading = loading_state && loading_state.is_loading;
-        const Spinner = isLoading && getSpinner(spinnerType);
+    const isTarget = () => {
+        if (!target_components) {
+            return true;
+        }
+        const isMatchingComponent = target_components.some(component => {
+            const [component_name, prop_name] = Object.entries(component)[0];
+            return (
+                loading_state.component_name === component_name &&
+                loading_state.prop_name === prop_name
+            );
+        });
+        return isMatchingComponent;
+    };
 
-        return (
-            <div
-                className={parent_className}
-                style={
-                    isLoading
-                        ? mergeRight(hiddenContainer, parent_style)
-                        : parent_style
+    const [showSpinner, setShowSpinner] = useState(show_initially);
+    const dismissTimer = useRef();
+    const showTimer = useRef();
+
+    // delay_hide and delay_show is from dash-bootstrap-components dbc.Spinner
+    useEffect(() => {
+        if (loading_state) {
+            if (loading_state.is_loading) {
+                // if component is currently loading and there's a dismiss timer active
+                // we need to clear it.
+                if (dismissTimer.current) {
+                    dismissTimer.current = clearTimeout(dismissTimer.current);
                 }
-            >
-                {this.props.children}
-                <div style={isLoading ? coveringSpinner : {}}>
-                    {isLoading && (
+                // if component is currently loading but the spinner is not showing and
+                // there is no timer set to show, then set a timeout to show
+                if (!showSpinner && !showTimer.current) {
+                    showTimer.current = setTimeout(() => {
+                        setShowSpinner(isTarget());
+                        showTimer.current = null;
+                    }, delay_show);
+                }
+            } else {
+                // if component is not currently loading and there's a show timer
+                // active we need to clear it
+                if (showTimer.current) {
+                    showTimer.current = clearTimeout(showTimer.current);
+                }
+                // if component is not currently loading and the spinner is showing and
+                // there's no timer set to dismiss it, then set a timeout to hide it
+                if (showSpinner && !dismissTimer.current) {
+                    dismissTimer.current = setTimeout(() => {
+                        setShowSpinner(false);
+                        dismissTimer.current = null;
+                    }, delay_hide);
+                }
+            }
+        }
+    }, [delay_hide, delay_show, loading_state]);
+
+    const Spinner = showSpinner && getSpinner(spinnerType);
+
+    return (
+        <div
+            className={parent_className}
+            style={
+                showSpinner
+                    ? mergeRight(hiddenContainer, parent_style)
+                    : parent_style
+            }
+        >
+            {children}
+            <div style={showSpinner ? coveringSpinner : {}}>
+                {showSpinner &&
+                    (custom_spinner || (
                         <Spinner
                             className={className}
                             style={style}
@@ -75,18 +130,22 @@ export default class Loading extends Component {
                             debug={debug}
                             fullscreen={fullscreen}
                         />
-                    )}
-                </div>
+                    ))}
             </div>
-        );
-    }
-}
+        </div>
+    );
+};
 
 Loading._dashprivate_isLoadingComponent = true;
 
 Loading.defaultProps = {
     type: 'default',
     color: '#119DFF',
+    delay_show: 0,
+    delay_hide: 0,
+    show_initially: true,
+    opacity: 0.5,
+    backgroundColor: 'white',
 };
 
 Loading.propTypes = {
@@ -143,9 +202,20 @@ Loading.propTypes = {
     parent_style: PropTypes.object,
 
     /**
-     * Primary colour used for the loading spinners
+     * Primary color used for the loading spinners
      */
     color: PropTypes.string,
+
+    /**
+     * Opacity  of loading Spinner div. Can take a value from 0.0 - 1.0. The lower
+     * the value, the more transparent:
+     */
+    opacity: PropTypes.number,
+
+    /**
+     * Background color of the loading Spinner div
+     */
+    backgroundColor: PropTypes.string,
 
     /**
      * Object that holds the loading state object coming from dash-renderer
@@ -164,4 +234,36 @@ Loading.propTypes = {
          */
         component_name: PropTypes.string,
     }),
+
+    /**
+     * Add a time delay (in ms) to the spinner being removed to prevent flickering.
+     */
+    delay_hide: PropTypes.number,
+
+    /**
+     * Add a time delay (in ms) to the spinner being shown after the loading_state
+     * is set to True.
+     */
+    delay_show: PropTypes.number,
+
+    /**
+     * Whether the Spinner should show on app start-up before the loading state
+     * has been determined. Default True.
+     */
+    show_initially: PropTypes.bool,
+
+    /**
+     * Specify component and prop to trigger showing the loading spinner
+     * example: `[{"output-container": "children"}]`
+     *
+     */
+    target_components: PropTypes.arrayOf(PropTypes.object),
+
+    /**
+     *  Component to use rather than the spinner specified in the `type` prop.
+     *
+     */
+    custom_spinner: PropTypes.node,
 };
+
+export default Loading;
