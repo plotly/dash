@@ -36,7 +36,6 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc312
           PYVERSION: python312
           PERCY_ENABLE: 0
 
@@ -84,7 +83,6 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc
           PYVERSION: python38
           PERCY_ENABLE: 0
 
@@ -96,7 +94,6 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc312
           PYVERSION: python312
           PERCY_ENABLE: 0
 
@@ -138,7 +135,6 @@ jobs:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYLINTRC: .pylintrc
           PYVERSION: python38
           PERCY_ENABLE: 0
 
