@@ -25,10 +25,10 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:pack": "jlpm run prepare && jlpm pack --filename ../../dash/labextension/dist/dash-jupyterlab.tgz && jlpm run build:copy",
-    "build:copy": "cp package.json ../../dash/labextension/dist/package.json",
+    "build:pack": "jlpm run prepare && jlpm pack --filename ../../src/dash/labextension/dist/dash-jupyterlab.tgz && jlpm run build:copy",
+    "build:copy": "cp package.json ../../src/dash/labextension/dist/package.json",
     "clean": "rimraf lib",
-    "prepare": "mkdirp ../../dash/labextension/dist && jlpm run clean && jlpm run build",
+    "prepare": "mkdirp ../../src/dash/labextension/dist && jlpm run clean && jlpm run build",
     "prettier": "prettier --write '{!(package),src/**,!(lib)/**}{.js,.jsx,.ts,.tsx,.css,.json,.md}'",
     "watch": "tsc -w"
   },

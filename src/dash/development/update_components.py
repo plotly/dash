@@ -109,7 +109,7 @@ def build_components(components_source, concurrency):
 
         dest_dir = dest_dir_map.get(package) or package
 
-        dest_path = os.path.join("dash", dest_dir)
+        dest_path = os.path.join("src", "dash", dest_dir)
 
         if not os.path.exists(dest_path):
             try:

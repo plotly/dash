@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dash"
+authors = [{name = "Chris Parmer", email = "chris@plotly.com"}]
+license = {text = "MIT"}
+description = "A Python framework for building reactive web-apps. Developed by Plotly."
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Dash",
+    "Framework :: Flask",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Database :: Front-Ends",
+    "Topic :: Office/Business :: Financial :: Spreadsheet",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Widget Sets",
+]
+requires-python = ">=3.8"
+dynamic = ["version", "dependencies", "optional-dependencies"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://plotly.com/dash"
+Documentation = "https://dash.plotly.com"
+Source = "https://github.com/plotly/dash"
+"Issue Tracker" = "https://github.com/plotly/dash/issues"
+
+[project.entry-points]
+pytest11 = {dash = "dash.testing.plugin"}
+
+[project.scripts]
+dash-generate-components = "dash.development.component_generator:cli"
+renderer = "dash.development.build_process:renderer"
+dash-update-components = "dash.development.update_components:cli"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "dash.version.__version__"}
+dependencies = { file = "requires-install.txt"}
+
+[tool.setuptools.dynamic.optional-dependencies]
+ci = { file = "requires-ci.txt" }
+dev = { file = "requires-dev.txt" }
+testing = { file = "requires-testing.txt" }
+celery = { file = "requires-celery.txt" }
+diskcache = { file = "requires-diskcache.txt" }
+compress = { file = "requires-compress.txt" }
+
+[tool.setuptools.packages.find]
+namespaces = false
+where = ["src"]
+
+[tool.setuptools.data-files]
+# like `jupyter nbextension install --sys-prefix`
+"share/jupyter/nbextensions/dash" = ["src/dash/nbextension/main.js"]
+# like `jupyter nbextension enable --sys-prefix`
+"etc/jupyter/nbconfig/notebook.d" = ["src/dash/nbextension/dash.json"]
+# Place jupyterlab extension in extension directory
+"share/jupyter/lab/extensions" = ["src/dash/labextension/dist/dash-jupyterlab.tgz"]

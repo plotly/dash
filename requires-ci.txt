@@ -19,3 +19,4 @@ pyzmq==25.1.2
 xlrd>=2.0.1
 pytest-rerunfailures
 jupyterlab<4.0.0
+build==1.0.3

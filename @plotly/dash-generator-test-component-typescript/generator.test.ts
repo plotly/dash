@@ -7,7 +7,7 @@ function getMetadata() {
         const cp = child_process.spawn(
             process.execPath,
             [
-                path.resolve(__dirname, '..', '..', 'dash', 'extract-meta.js'),
+                path.resolve(__dirname, '..', '..', 'src', 'dash', 'extract-meta.js'),
                 '""', // ignore pattern
                 '^_.*$', // reserved keywords
                 path.join(__dirname, 'src', 'components')
