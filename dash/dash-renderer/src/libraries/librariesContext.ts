@@ -105,7 +105,7 @@ export function createLibrariesContext(
         }
         const libraries = getLibrariesToLoad();
         if (!libraries.length) {
-            if (!ready && initialLibraries.length === 0) {
+            if (!ready && initialLibraries) {
                 onReady();
             }
             return;
@@ -115,7 +115,7 @@ export function createLibrariesContext(
         }
         const timeout = window.setTimeout(fetchLibraries, 0);
         setCallback(timeout);
-    }, [state, ready]);
+    }, [state, ready, initialLibraries]);
 
     return {
         state,
