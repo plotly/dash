@@ -1,4 +1,4 @@
-from dash import Dash, html, Input, Output, no_update
+from dash import Dash, html, Input, Output, no_update, State
 import json
 from multiprocessing import Value
 
@@ -36,6 +36,7 @@ def test_sp001_clientside_setprops(dash_duo):
         Input("setup", "n_clicks"),
         prevent_initial_call=True,
     )
+
 
     for x in ids:
 
