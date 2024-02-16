@@ -1,4 +1,4 @@
-import {createContext, useContext, useEffect, useState} from 'react';
+import {createContext, useEffect, useState} from 'react';
 import {pathOr, toPairs} from 'ramda';
 import loadLibrary from './loadLibrary';
 import {batch, useDispatch, useSelector} from 'react-redux';
@@ -130,7 +130,3 @@ export function createLibrariesContext(
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const LibrariesContext = createContext<LibrariesContextType>(null);
-
-export function useDashLibraries() {
-    return useContext(LibrariesContext);
-}

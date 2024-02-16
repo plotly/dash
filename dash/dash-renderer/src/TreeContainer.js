@@ -215,9 +215,6 @@ class BaseTreeContainer extends Component {
         }
         validateComponent(_dashprivate_layout);
 
-        // console.log("Dash private config", _dashprivate_config);
-        // const element = Registry.resolve(_dashprivate_layout);
-
         // Hydrate components props
         const childrenProps = pathOr(
             [],
