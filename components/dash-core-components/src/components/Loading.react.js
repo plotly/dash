@@ -7,7 +7,7 @@ import CircleSpinner from '../fragments/Loading/spinners/CircleSpinner.jsx';
 import DotSpinner from '../fragments/Loading/spinners/DotSpinner.jsx';
 import {mergeRight} from 'ramda';
 
-const spinnerComponents = {
+const spinnerComponentOptions = {
     graph: GraphSpinner,
     cube: CubeSpinner,
     circle: CircleSpinner,
@@ -15,9 +15,7 @@ const spinnerComponents = {
 };
 
 const getSpinner = spinnerType =>
-    spinnerComponents[spinnerType] || DefaultSpinner;
-
-const hiddenContainer = {position: 'relative'};
+    spinnerComponentOptions[spinnerType] || DefaultSpinner;
 
 /**
  * A Loading component that wraps any other component and displays a spinner until the wrapped component has rendered.
@@ -30,14 +28,13 @@ const Loading = ({
     style,
     parent_className,
     parent_style,
+    overlay_style,
     fullscreen,
     debug,
     show_initially,
     type: spinnerType,
     delay_hide,
     delay_show,
-    opacity,
-    backgroundColor,
     target_components,
     custom_spinner,
 }) => {
@@ -50,10 +47,16 @@ const Loading = ({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: backgroundColor,
-        opacity: opacity,
     };
+    const hiddenContainer = mergeRight(
+        {visibility: 'hidden', position: 'relative'},
+        overlay_style
+    );
 
+    /* Overrides default Loading behavior if target_components is set. By default,
+     *  Loading fires when any recursive child enters loading state. This makes loading
+     *  opt-in: Loading animation only enabled when one of target components enters loading state.
+     */
     const isTarget = () => {
         if (!target_components) {
             return true;
@@ -144,8 +147,6 @@ Loading.defaultProps = {
     delay_show: 0,
     delay_hide: 0,
     show_initially: true,
-    opacity: 0.5,
-    backgroundColor: 'white',
 };
 
 Loading.propTypes = {
@@ -200,22 +201,16 @@ Loading.propTypes = {
      * Additional CSS styling for the outermost dcc.Loading parent div DOM node
      */
     parent_style: PropTypes.object,
+    /**
+     * Additional CSS styling for the spinner overlay. This is applied to the
+     * dcc.Loading children while the spinner is active.  The default is {'visibility': 'hidden'}
+     */
+    overlay_style: PropTypes.object,
 
     /**
      * Primary color used for the loading spinners
      */
     color: PropTypes.string,
-
-    /**
-     * Opacity  of loading Spinner div. Can take a value from 0.0 - 1.0. The lower
-     * the value, the more transparent:
-     */
-    opacity: PropTypes.number,
-
-    /**
-     * Background color of the loading Spinner div
-     */
-    backgroundColor: PropTypes.string,
 
     /**
      * Object that holds the loading state object coming from dash-renderer
