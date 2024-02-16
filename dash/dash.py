@@ -809,17 +809,13 @@ class Dash:
         libraries = flask.request.get_json()
         dists = []
         for dist_type in ("_js_dist", "_css_dist"):
-            resources = [
-                resource
-                for resource in ComponentRegistry.get_resources(dist_type, libraries)
-                if not resource.get("async") and not resource.get("dynamic")
-            ]
-            srcs = self._collect_and_register_resources(resources)
+            resources = ComponentRegistry.get_resources(dist_type, libraries)
+            srcs = self._collect_and_register_resources(resources, False)
             for src in srcs:
                 dists.append(dict(type=dist_type, url=src))
         return flask.jsonify(dists)
 
-    def _collect_and_register_resources(self, resources):
+    def _collect_and_register_resources(self, resources, include_async=True):
         # now needs the app context.
         # template in the necessary component suite JS bundles
         # add the version number of the package as a query parameter
@@ -848,6 +844,8 @@ class Dash:
         srcs = []
         for resource in resources:
             is_dynamic_resource = resource.get("dynamic", False)
+            is_async = resource.get("async") is not None
+            excluded = not include_async and is_async
 
             if "relative_package_path" in resource:
                 paths = resource["relative_package_path"]
@@ -859,7 +857,7 @@ class Dash:
 
                     self.registered_paths[resource["namespace"]].add(rel_path)
 
-                    if not is_dynamic_resource:
+                    if not is_dynamic_resource and not excluded:
                         srcs.append(
                             _relative_url_path(
                                 relative_package_path=rel_path,
@@ -867,7 +865,7 @@ class Dash:
                             )
                         )
             elif "external_url" in resource:
-                if not is_dynamic_resource:
+                if not is_dynamic_resource and not excluded:
                     if isinstance(resource["external_url"], str):
                         srcs.append(resource["external_url"])
                     else:
