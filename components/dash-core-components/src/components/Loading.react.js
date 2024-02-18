@@ -166,24 +166,24 @@ Loading.propTypes = {
     ]),
 
     /**
-     * Property that determines which spinner to show
+     * Property that determines which built-in spinner to show
      * one of 'graph', 'cube', 'circle', 'dot', or 'default'.
      */
     type: PropTypes.oneOf(['graph', 'cube', 'circle', 'dot', 'default']),
 
     /**
-     * Boolean that makes the spinner display full-screen
+     * Boolean that makes the built-in spinner display full-screen
      */
     fullscreen: PropTypes.bool,
 
     /**
-     * If true, the spinner will display the component_name and prop_name
+     * If true, the built-in spinner will display the component_name and prop_name
      * while loading
      */
     debug: PropTypes.bool,
 
     /**
-     * Additional CSS class for the spinner root DOM node
+     * Additional CSS class for the built-in spinner root DOM node
      */
     className: PropTypes.string,
 
@@ -193,7 +193,7 @@ Loading.propTypes = {
     parent_className: PropTypes.string,
 
     /**
-     * Additional CSS styling for the spinner root DOM node
+     * Additional CSS styling for the built-in spinner root DOM node
      */
     style: PropTypes.object,
 
@@ -203,12 +203,12 @@ Loading.propTypes = {
     parent_style: PropTypes.object,
     /**
      * Additional CSS styling for the spinner overlay. This is applied to the
-     * dcc.Loading children while the spinner is active.  The default is {'visibility': 'hidden'}
+     * dcc.Loading children while the spinner is active.  The default is `{'visibility': 'hidden'}`
      */
     overlay_style: PropTypes.object,
 
     /**
-     * Primary color used for the loading spinners
+     * Primary color used for the built-in loading spinners
      */
     color: PropTypes.string,
 
@@ -243,7 +243,7 @@ Loading.propTypes = {
 
     /**
      * Whether the Spinner should show on app start-up before the loading state
-     * has been determined. Default True.
+     * has been determined. Default True.  Use when also setting `delay_show`.
      */
     show_initially: PropTypes.bool,
 
@@ -255,7 +255,7 @@ Loading.propTypes = {
     target_components: PropTypes.arrayOf(PropTypes.object),
 
     /**
-     *  Component to use rather than the spinner specified in the `type` prop.
+     *  Component to use rather than the built-in spinner specified in the `type` prop.
      *
      */
     custom_spinner: PropTypes.node,
