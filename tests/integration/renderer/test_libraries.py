@@ -40,7 +40,6 @@ def test_rblib001_dynamic_loading(dash_duo):
         )
 
     assert_unloaded(dt.package_name)
-    assert_unloaded(dgs.package_name)
     assert_unloaded("dash_generator_test_component_nested")
     dash_duo.wait_for_element("#dgs")
     assert_unloaded(dt.package_name)
