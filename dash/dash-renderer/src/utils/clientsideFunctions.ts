@@ -1,7 +1,7 @@
 import {updateProps, notifyObservers} from '../actions/index';
 import {getPath} from '../actions/paths';
 
-const set_props = (updates: []) => {
+const set_props = (id: string | object, props: {[k: string]: any}) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const ds = (window.dash_stores = window.dash_stores || []);
@@ -10,16 +10,14 @@ const set_props = (updates: []) => {
         const {paths} = getState();
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        updates.forEach(({id, ...props}) => {
-            const componentPath = getPath(paths, id);
-            dispatch(
-                updateProps({
-                    props,
-                    itempath: componentPath
-                })
-            );
-            dispatch(notifyObservers({id, props}));
-        });
+        const componentPath = getPath(paths, id);
+        dispatch(
+            updateProps({
+                props,
+                itempath: componentPath
+            })
+        );
+        dispatch(notifyObservers({id, props}));
     }
 };
 
