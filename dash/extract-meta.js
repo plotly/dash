@@ -166,7 +166,11 @@ function gatherComponents(sources, components = {}) {
     const filepaths = [];
 
     const gather = filepath => {
-        if (ignorePattern && ignorePattern.test(filepath)) {
+
+        // Ignore file names that match the ignore pattern.
+        const filename = filepath.substring(filepath.lastIndexOf('/') + 1);
+
+        if (ignorePattern && ignorePattern.test(filename)) {
             return;
         }
         const extension = path.extname(filepath);
