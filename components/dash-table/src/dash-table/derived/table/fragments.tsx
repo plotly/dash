@@ -7,13 +7,22 @@ interface IAccumulator {
     count: number;
 }
 
-function renderFragment(cells: any[][] | null, offset = 0) {
+function renderFragment(cells: any[][] | null, offset = 0, fixedRows = 0) {
     return cells ? (
         <table className='cell-table' tabIndex={-1}>
             <tbody>
-                {cells.map((row, idx) => (
-                    <tr key={`row-${idx + offset}`}>{row}</tr>
-                ))}
+                {cells.map((row, idx) => {
+                    const hidden = idx < fixedRows;
+
+                    return (
+                        <tr
+                            className={hidden ? 'invisible-cell' : ''}
+                            key={`row-${idx + offset}`}
+                        >
+                            {row}
+                        </tr>
+                    );
+                })}
             </tbody>
         </table>
     ) : null;
@@ -55,7 +64,8 @@ export default memoizeOneFactory(
         fixedColumns: number,
         fixedRows: number,
         cells: JSX.Element[][],
-        offset: number
+        offset: number,
+        placeholderHeaders: JSX.Element[][]
     ): {grid: (JSX.Element | null)[][]; empty: boolean[][]} => {
         const getPivot = (row: JSX.Element[]) =>
             R.reduceWhile<JSX.Element, IAccumulator>(
@@ -99,15 +109,18 @@ export default memoizeOneFactory(
         // slice out fixed rows
         const fixedRowCells = fixedRows ? cells.slice(0, fixedRows) : null;
 
-        cells = cells.slice(fixedRows);
+        // replace headers with placeholder headers
+        if (fixedRows) {
+            cells = cells.slice(placeholderHeaders.length);
+            cells = [...placeholderHeaders, ...cells];
+        }
 
         const fixedRowAndColumnCells =
             fixedRows && fixedColumnCells
                 ? fixedColumnCells.slice(0, fixedRows)
                 : null;
 
-        fixedColumnCells =
-            fixedColumnCells && fixedColumnCells.slice(fixedRows);
+        fixedColumnCells = fixedColumnCells || null;
 
         return {
             grid: [
@@ -116,8 +129,8 @@ export default memoizeOneFactory(
                     renderFragment(fixedRowCells)
                 ],
                 [
-                    renderFragment(fixedColumnCells),
-                    renderFragment(cells, offset)
+                    renderFragment(fixedColumnCells, 0, fixedRows),
+                    renderFragment(cells, offset, fixedRows)
                 ]
             ],
             empty: [
