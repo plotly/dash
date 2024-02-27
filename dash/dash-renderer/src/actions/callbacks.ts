@@ -349,7 +349,8 @@ function handleServerside(
     long: LongCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
-    output: string
+    output: string,
+    running: any
 ): Promise<CallbackResponse> {
     if (hooks.request_pre) {
         hooks.request_pre(payload);
@@ -362,6 +363,11 @@ function handleServerside(
     let runningOff: any;
     let progressDefault: any;
     let moreArgs = additionalArgs;
+
+    if (running) {
+        sideUpdate(running.running, dispatch, paths);
+        runningOff = running.runningOff;
+    }
 
     const fetchCallback = () => {
         const headers = getCSRFHeader() as any;
@@ -496,12 +502,6 @@ function handleServerside(
 
                     if (data.progress) {
                         sideUpdate(data.progress, dispatch, paths);
-                    }
-                    if (data.running) {
-                        sideUpdate(data.running, dispatch, paths);
-                    }
-                    if (!runningOff && data.runningOff) {
-                        runningOff = data.runningOff;
                     }
                     if (!progressDefault && data.progressDefault) {
                         progressDefault = data.progressDefault;
@@ -717,7 +717,8 @@ export function executeCallback(
                             long,
                             additionalArgs.length ? additionalArgs : undefined,
                             getState,
-                            cb.callback.output
+                            cb.callback.output,
+                            cb.callback.running
                         );
 
                         if (newHeaders) {
