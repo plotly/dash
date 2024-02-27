@@ -62,13 +62,25 @@ const Loading = ({
         if (!target_components) {
             return true;
         }
-        const isMatchingComponent = target_components.some(component => {
-            const [component_name, prop_name] = Object.entries(component)[0];
-            return (
-                loading_state.component_name === component_name &&
-                loading_state.prop_name === prop_name
+        const isMatchingComponent = () => {
+            return Object.entries(target_components).some(
+                ([component_name, prop_names]) => {
+                    // Convert prop_names to an array if it's not already
+                    const prop_names_array = Array.isArray(prop_names)
+                        ? prop_names
+                        : [prop_names];
+
+                    return (
+                        loading_state.component_name === component_name &&
+                        (prop_names_array.includes('*') ||
+                            prop_names_array.some(
+                                prop_name =>
+                                    loading_state.prop_name === prop_name
+                            ))
+                    );
+                }
             );
-        });
+        };
         return isMatchingComponent;
     };
 
@@ -261,10 +273,15 @@ Loading.propTypes = {
 
     /**
      * Specify component and prop to trigger showing the loading spinner
-     * example: `[{"output-container": "children"}]`
+     * example: `{"output-container": "children", "grid": ["rowData", "columnDefs]}`
      *
      */
-    target_components: PropTypes.arrayOf(PropTypes.object),
+    target_components: PropTypes.objectOf(
+        PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.arrayOf(PropTypes.string),
+        ])
+    ),
 
     /**
      *  Component to use rather than the built-in spinner specified in the `type` prop.
