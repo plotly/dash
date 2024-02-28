@@ -517,7 +517,11 @@ function handleServerside(
                             (newData: any) => {
                                 Object.values(newData).forEach(newProp => {
                                     crawlLayout(newProp, (c: any) => {
-                                        if (!libraries.includes(c.namespace)) {
+                                        if (
+                                            c.namespace &&
+                                            !libraries.includes(c.namespace) &&
+                                            !newLibs.includes(c.namespace)
+                                        ) {
                                             newLibs.push(c.namespace);
                                         }
                                     });
