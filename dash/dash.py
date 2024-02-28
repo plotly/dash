@@ -874,9 +874,20 @@ class Dash:
                 raise Exception("Serving files from absolute_path isn't supported yet")
             elif "asset_path" in resource:
                 static_url = self.get_asset_url(resource["asset_path"])
-                # Add a cache-busting query param
-                static_url += f"?m={resource['ts']}"
-                srcs.append(static_url)
+                # Import .mjs files with type=module script tag
+                if static_url.endswith(".mjs"):
+                    srcs.append(
+                        {
+                            "src": static_url
+                            + f"?m={resource['ts']}",  # Add a cache-busting query param
+                            "type": "module",
+                        }
+                    )
+                else:
+                    srcs.append(
+                        static_url + f"?m={resource['ts']}"
+                    )  # Add a cache-busting query param
+
         return srcs
 
     def _generate_css_dist_html(self):
@@ -1134,7 +1145,10 @@ class Dash:
         )
 
     def dependencies(self):
-        return flask.jsonify(self._callback_list)
+        return flask.Response(
+            to_json(self._callback_list),
+            content_type="application/json",
+        )
 
     def clientside_callback(self, clientside_function, *args, **kwargs):
         """Create a callback that updates the output by calling a clientside

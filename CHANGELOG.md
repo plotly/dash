@@ -7,11 +7,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 
 - [#2756](https://github.com/plotly/dash/pull/2756) Prevent false dangerous link warning. Fixes [#2743](https://github.com/plotly/dash/issues/2743)
+- [#2752](https://github.com/plotly/dash/pull/2752) Fixed issue with Windows build, for first time build on Windows, the dev needs to use `npm run first-build`
 
 ## Changed
 
 - [#2734](https://github.com/plotly/dash/pull/2734) Configure CI for Python 3.10 [#1863](https://github.com/plotly/dash/issues/1863)
 - [#2735](https://github.com/plotly/dash/pull/2735) Configure CI for Python 3.8 and 3.12, drop support for Python 3.6 and Python 3.7 [#2736](https://github.com/plotly/dash/issues/2736)
+
+## Added
+- [#2758](https://github.com/plotly/dash/pull/2758)
+  - exposing `setProps` to `dash_clientside.clientSide_setProps` to allow for JS code to interact directly with the dash eco-system
+- [#2730](https://github.com/plotly/dash/pull/2721) Load script files with `.mjs` ending as js modules
+- [#2770](https://github.com/plotly/dash/pull/2770) Add running to regular callbacks.
 
 ## [2.15.0] - 2024-01-31
 

@@ -166,10 +166,6 @@ def callback(
                     "Progress and progress default needs to be of same length"
                 )
 
-        if running:
-            long_spec["running"] = coerce_to_list(running)
-            validate_long_inputs(x[0] for x in long_spec["running"])
-
         if cancel:
             cancel_inputs = coerce_to_list(cancel)
             validate_long_inputs(cancel_inputs)
@@ -188,6 +184,7 @@ def callback(
         **_kwargs,
         long=long_spec,
         manager=manager,
+        running=running,
     )
 
 
@@ -227,6 +224,7 @@ def insert_callback(
     prevent_initial_call,
     long=None,
     manager=None,
+    running=None,
     dynamic_creator=False,
 ):
     if prevent_initial_call is None:
@@ -251,6 +249,8 @@ def insert_callback(
         },
         "dynamic_creator": dynamic_creator,
     }
+    if running:
+        callback_spec["running"] = running
 
     callback_map[callback_id] = {
         "inputs": callback_spec["inputs"],
@@ -289,6 +289,14 @@ def register_callback(  # pylint: disable=R0914
 
     long = _kwargs.get("long")
     manager = _kwargs.get("manager")
+    running = _kwargs.get("running")
+    if running is not None:
+        if not isinstance(running[0], (list, tuple)):
+            running = [running]
+        running = {
+            "running": {str(r[0]): r[1] for r in running},
+            "runningOff": {str(r[0]): r[2] for r in running},
+        }
     allow_dynamic_callbacks = _kwargs.get("_allow_dynamic_callbacks")
 
     output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
@@ -305,6 +313,7 @@ def register_callback(  # pylint: disable=R0914
         long=long,
         manager=manager,
         dynamic_creator=allow_dynamic_callbacks,
+        running=running,
     )
 
     # pylint: disable=too-many-locals
@@ -389,11 +398,6 @@ def register_callback(  # pylint: disable=R0914
                         "job": job,
                     }
 
-                    running = long.get("running")
-
-                    if running:
-                        data["running"] = {str(r[0]): r[1] for r in running}
-                        data["runningOff"] = {str(r[0]): r[2] for r in running}
                     cancel = long.get("cancel")
                     if cancel:
                         data["cancel"] = cancel
