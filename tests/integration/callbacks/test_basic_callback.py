@@ -794,6 +794,7 @@ def test_cbsc018_callback_ndarray_output(dash_duo):
 
 
 def test_cbsc019_callback_running(dash_duo):
+    lock = Lock()
     app = Dash(__name__)
 
     app.layout = html.Div(
@@ -811,11 +812,14 @@ def test_cbsc019_callback_running(dash_duo):
         prevent_initial_call=True,
     )
     def on_click(_):
-        time.sleep(1.0)
+        with lock:
+            pass
         return "done"
 
     dash_duo.start_server(app)
-    dash_duo.find_element("#start").click()
-    dash_duo.wait_for_text_to_equal("#running", "on")
+    with lock:
+        dash_duo.find_element("#start").click()
+        dash_duo.wait_for_text_to_equal("#running", "on")
+
     dash_duo.wait_for_text_to_equal("#output", "done")
     dash_duo.wait_for_text_to_equal("#running", "off")
