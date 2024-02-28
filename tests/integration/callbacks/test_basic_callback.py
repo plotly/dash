@@ -808,7 +808,7 @@ def test_cbsc019_callback_running(dash_duo):
     @app.callback(
         Output("output", "children"),
         Input("start", "n_clicks"),
-        running=[[Output("running", "children"), "on", "off"]],
+        running=[[Output("running", "children"), html.B("on", id="content"), "off"]],
         prevent_initial_call=True,
     )
     def on_click(_):
@@ -819,7 +819,7 @@ def test_cbsc019_callback_running(dash_duo):
     dash_duo.start_server(app)
     with lock:
         dash_duo.find_element("#start").click()
-        dash_duo.wait_for_text_to_equal("#running", "on")
+        dash_duo.wait_for_text_to_equal("#content", "on")
 
     dash_duo.wait_for_text_to_equal("#output", "done")
     dash_duo.wait_for_text_to_equal("#running", "off")
