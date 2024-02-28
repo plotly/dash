@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2758](https://github.com/plotly/dash/pull/2758)
   - exposing `setProps` to `dash_clientside.clientSide_setProps` to allow for JS code to interact directly with the dash eco-system
 - [#2730](https://github.com/plotly/dash/pull/2721) Load script files with `.mjs` ending as js modules
+- [#2770](https://github.com/plotly/dash/pull/2770) Add running to regular callbacks.
 
 ## [2.15.0] - 2024-01-31
 
