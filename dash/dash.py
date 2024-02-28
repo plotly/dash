@@ -1113,7 +1113,10 @@ class Dash:
         )
 
     def dependencies(self):
-        return flask.jsonify(self._callback_list)
+        return flask.Response(
+            to_json(self._callback_list),
+            content_type="application/json",
+        )
 
     def clientside_callback(self, clientside_function, *args, **kwargs):
         """Create a callback that updates the output by calling a clientside
