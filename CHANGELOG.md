@@ -15,7 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2735](https://github.com/plotly/dash/pull/2735) Configure CI for Python 3.8 and 3.12, drop support for Python 3.6 and Python 3.7 [#2736](https://github.com/plotly/dash/issues/2736)
 
 ## Added
-- []() Add dynamic loading of component libraries.
+- [#2762](https://github.com/plotly/dash/pull/2762) Add dynamic loading of component libraries.
   - Add `dynamic_loading=True` to dash init.
   - Add `preloaded_libraries=[]` to dash init, included libraries names will be loaded on the index like before. 
 - [#2758](https://github.com/plotly/dash/pull/2758)
