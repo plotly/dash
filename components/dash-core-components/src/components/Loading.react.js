@@ -23,7 +23,7 @@ const getSpinner = spinnerType =>
 const Loading = ({
     children,
     loading_state,
-    mode,
+    display,
     color,
     className,
     style,
@@ -90,8 +90,8 @@ const Loading = ({
 
     // delay_hide and delay_show is from dash-bootstrap-components dbc.Spinner
     useEffect(() => {
-        if (mode === 'on' || mode === 'off') {
-            setShowSpinner(mode === 'on');
+        if (display === 'show' || display === 'hide') {
+            setShowSpinner(display === 'show');
             return;
         }
 
@@ -126,7 +126,7 @@ const Loading = ({
                 }
             }
         }
-    }, [delay_hide, delay_show, loading_state, mode]);
+    }, [delay_hide, delay_show, loading_state, display]);
 
     const Spinner = showSpinner && getSpinner(spinnerType);
 
@@ -165,7 +165,7 @@ Loading.defaultProps = {
     delay_show: 0,
     delay_hide: 0,
     show_initially: true,
-    mode: 'auto',
+    display: 'auto',
 };
 
 Loading.propTypes = {
@@ -250,9 +250,9 @@ Loading.propTypes = {
     }),
 
     /**
-     * Setting mode to  "on" or "off"  will override the loading state coming from dash-renderer
+     * Setting display to  "show" or "hide"  will override the loading state coming from dash-renderer
      */
-    mode: PropTypes.oneOf(['auto', 'on', 'off']),
+    display: PropTypes.oneOf(['auto', 'show', 'hide']),
 
     /**
      * Add a time delay (in ms) to the spinner being removed to prevent flickering.
