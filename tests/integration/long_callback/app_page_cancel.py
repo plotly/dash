@@ -1,7 +1,5 @@
 from dash import Dash, Input, Output, dcc, html, page_container, register_page
 
-import time
-
 from tests.integration.long_callback.utils import get_long_callback_manager
 
 long_callback_manager = get_long_callback_manager()
@@ -23,7 +21,7 @@ app.layout = html.Div(
         page_container,
     ]
 )
-
+app.test_lock = lock = long_callback_manager.test_lock
 
 register_page(
     "one",
@@ -78,7 +76,8 @@ def on_click_no_cancel(_):
     interval=300,
 )
 def on_click1(n_clicks):
-    time.sleep(2)
+    with lock:
+        pass
     return f"Click {n_clicks}"
 
 
@@ -97,7 +96,8 @@ def on_click1(n_clicks):
     interval=300,
 )
 def on_click1(n_clicks):
-    time.sleep(2)
+    with lock:
+        pass
     return f"Click {n_clicks}"
 
 

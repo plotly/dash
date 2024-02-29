@@ -34,7 +34,7 @@ import {
     CallbackResponseData
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
-import {urlBase} from './utils';
+import {crawlLayout, urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
@@ -44,6 +44,9 @@ import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
+import loadLibrary from '../libraries/loadLibrary';
+import fetchDist from '../libraries/fetchDist';
+import {setLibraryLoaded} from './libraries';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -363,6 +366,7 @@ function handleServerside(
     let runningOff: any;
     let progressDefault: any;
     let moreArgs = additionalArgs;
+    const libraries = Object.keys(getState().libraries);
 
     if (running) {
         sideUpdate(running.running, dispatch, paths);
@@ -508,8 +512,41 @@ function handleServerside(
                     }
 
                     if (!long || data.response !== undefined) {
-                        completeJob();
-                        finishLine(data);
+                        const newLibs: string[] = [];
+                        Object.values(data.response as any).forEach(
+                            (newData: any) => {
+                                Object.values(newData).forEach(newProp => {
+                                    crawlLayout(newProp, (c: any) => {
+                                        if (
+                                            c.namespace &&
+                                            !libraries.includes(c.namespace) &&
+                                            !newLibs.includes(c.namespace)
+                                        ) {
+                                            newLibs.push(c.namespace);
+                                        }
+                                    });
+                                });
+                            }
+                        );
+                        if (newLibs.length) {
+                            fetchDist(
+                                getState().config.requests_pathname_prefix,
+                                newLibs
+                            )
+                                .then(data => {
+                                    return Promise.all(data.map(loadLibrary));
+                                })
+                                .then(() => {
+                                    completeJob();
+                                    finishLine(data);
+                                    dispatch(
+                                        setLibraryLoaded({libraries: newLibs})
+                                    );
+                                });
+                        } else {
+                            completeJob();
+                            finishLine(data);
+                        }
                     } else {
                         // Poll chain.
                         setTimeout(

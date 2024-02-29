@@ -56,7 +56,13 @@ def test_gene001_simple_callback(dash_duo):
 def test_gene002_arbitrary_resources(dash_duo):
     app = Dash(__name__)
 
-    app.layout = Div([Button("Click", id="btn"), Div(id="container")])
+    app.layout = Div(
+        [
+            Button("Click", id="btn"),
+            Div(id="container"),
+            MyStandardComponent(),
+        ]
+    )
 
     @app.callback(Output("container", "children"), [Input("btn", "n_clicks")])
     def update_container(n_clicks):
