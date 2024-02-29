@@ -13,6 +13,7 @@ export interface ICallbackDefinition {
     state: ICallbackProperty[];
     long?: LongCallbackInfo;
     dynamic_creator?: boolean;
+    running: any;
 }
 
 export interface ICallbackProperty {
