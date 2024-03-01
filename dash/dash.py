@@ -1285,6 +1285,9 @@ class Dash:
     def dispatch(self):
         body = flask.request.get_json()
 
+        app_studio = "app_studio" in ComponentRegistry.registry
+        nlibs = len(ComponentRegistry.registry)
+
         g = AttributeDict({})
 
         g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
@@ -1365,6 +1368,7 @@ class Dash:
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg) from missing_callback_function
+
         ctx = copy_context()
         # noinspection PyArgumentList
         response.set_data(
@@ -1378,6 +1382,12 @@ class Dash:
                 )
             )
         )
+
+        if not app_studio and nlibs != len(ComponentRegistry.registry):
+            print(
+                "Warning: component library imported during callback, move to top-level for full support.",
+                file=sys.stderr,
+            )
         return response
 
     def _setup_server(self):
