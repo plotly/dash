@@ -806,7 +806,10 @@ class Dash:
         )
 
     def serve_dist(self):
-        libraries = flask.request.get_json()
+        libraries = [
+            ComponentRegistry.namespace_to_package.get(lib, lib)
+            for lib in flask.request.get_json()
+        ]
         dists = []
         for dist_type in ("_js_dist", "_css_dist"):
             resources = ComponentRegistry.get_resources(dist_type, libraries)
