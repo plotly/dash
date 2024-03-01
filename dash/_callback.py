@@ -261,6 +261,7 @@ def insert_callback(
         "output": output,
         "raw_inputs": inputs,
         "manager": manager,
+        "allow_dynamic_callbacks": dynamic_creator,
     }
     callback_list.append(callback_spec)
 

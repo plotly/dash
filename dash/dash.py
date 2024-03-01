@@ -1285,7 +1285,6 @@ class Dash:
     def dispatch(self):
         body = flask.request.get_json()
 
-        app_studio = "app_studio" in ComponentRegistry.registry
         nlibs = len(ComponentRegistry.registry)
 
         g = AttributeDict({})
@@ -1317,6 +1316,7 @@ class Dash:
 
         try:
             cb = self.callback_map[output]
+            _allow_dynamic = cb.get("allow_dynamic_callbacks", False)
             func = cb["callback"]
             g.background_callback_manager = (
                 cb.get("manager") or self._background_manager
@@ -1383,7 +1383,7 @@ class Dash:
             )
         )
 
-        if not app_studio and nlibs != len(ComponentRegistry.registry):
+        if not _allow_dynamic and nlibs != len(ComponentRegistry.registry):
             print(
                 "Warning: component library imported during callback, move to top-level for full support.",
                 file=sys.stderr,
