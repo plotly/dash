@@ -868,3 +868,36 @@ def test_clsd020_clientside_callback_context_triggered_id(dash_duo):
     dash_duo.find_element("button[id*='btn1\":2']").click()
 
     dash_duo.wait_for_text_to_equal("#output-clientside", "2")
+
+
+def test_clsd021_simple_clientside_module_serverside_callback(dash_duo):
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input"),
+            html.Div(id="output-clientside"),
+            html.Div(id="output-serverside"),
+        ]
+    )
+
+    @app.callback(Output("output-serverside", "children"), [Input("input", "value")])
+    def update_output(value):
+        return 'Server says "{}"'.format(value)
+
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside_module", function_name="display"),
+        Output("output-clientside", "children"),
+        [Input("input", "value")],
+    )
+
+    dash_duo.start_server(app)
+
+    assert dash_duo.find_element("body > footer > script[type=module]")
+
+    dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "None"')
+    dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "undefined"')
+
+    dash_duo.find_element("#input").send_keys("hello world")
+    dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "hello world"')
+    dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "hello world"')

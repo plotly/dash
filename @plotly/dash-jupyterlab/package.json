@@ -28,7 +28,7 @@
     "build:pack": "jlpm run prepare && jlpm pack --filename ../../dash/labextension/dist/dash-jupyterlab.tgz && jlpm run build:copy",
     "build:copy": "cp package.json ../../dash/labextension/dist/package.json",
     "clean": "rimraf lib",
-    "prepare": "mkdir -p ../../dash/labextension/dist && jlpm run clean && jlpm run build",
+    "prepare": "mkdirp ../../dash/labextension/dist && jlpm run clean && jlpm run build",
     "prettier": "prettier --write '{!(package),src/**,!(lib)/**}{.js,.jsx,.ts,.tsx,.css,.json,.md}'",
     "watch": "tsc -w"
   },
@@ -40,7 +40,8 @@
   "devDependencies": {
     "prettier": "2.0.5",
     "rimraf": "3.0.2",
-    "typescript": "3.9.3"
+    "typescript": "3.9.3",
+    "mkdirp": "^0.5.1"
   },
   "jupyterlab": {
     "extension": true
