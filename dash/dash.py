@@ -806,7 +806,10 @@ class Dash:
         )
 
     def serve_dist(self):
-        libraries = flask.request.get_json()
+        libraries = [
+            ComponentRegistry.namespace_to_package.get(lib, lib)
+            for lib in flask.request.get_json()
+        ]
         dists = []
         for dist_type in ("_js_dist", "_css_dist"):
             resources = ComponentRegistry.get_resources(dist_type, libraries)
@@ -1282,6 +1285,8 @@ class Dash:
     def dispatch(self):
         body = flask.request.get_json()
 
+        nlibs = len(ComponentRegistry.registry)
+
         g = AttributeDict({})
 
         g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
@@ -1311,6 +1316,7 @@ class Dash:
 
         try:
             cb = self.callback_map[output]
+            _allow_dynamic = cb.get("allow_dynamic_callbacks", False)
             func = cb["callback"]
             g.background_callback_manager = (
                 cb.get("manager") or self._background_manager
@@ -1362,6 +1368,7 @@ class Dash:
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg) from missing_callback_function
+
         ctx = copy_context()
         # noinspection PyArgumentList
         response.set_data(
@@ -1375,6 +1382,12 @@ class Dash:
                 )
             )
         )
+
+        if not _allow_dynamic and nlibs != len(ComponentRegistry.registry):
+            print(
+                "Warning: component library imported during callback, move to top-level for full support.",
+                file=sys.stderr,
+            )
         return response
 
     def _setup_server(self):

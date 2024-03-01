@@ -18,6 +18,7 @@ class ComponentRegistry:
 
     registry = OrderedSet()
     children_props = collections.defaultdict(dict)
+    namespace_to_package = {}
 
     @classmethod
     def get_resources(cls, resource_name, includes=None):
@@ -44,10 +45,12 @@ class ComponentMeta(abc.ABCMeta):
             # as it doesn't have the namespace.
             return component
 
+        _namespace = attributes.get("_namespace", module)
+        ComponentRegistry.namespace_to_package[_namespace] = module
         ComponentRegistry.registry.add(module)
-        ComponentRegistry.children_props[attributes.get("_namespace", module)][
-            name
-        ] = attributes.get("_children_props")
+        ComponentRegistry.children_props[_namespace][name] = attributes.get(
+            "_children_props"
+        )
 
         return component
 
