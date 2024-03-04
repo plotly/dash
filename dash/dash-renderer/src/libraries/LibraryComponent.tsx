@@ -1,5 +1,4 @@
-import React, {useContext, useEffect} from 'react';
-import {LibrariesContext} from './librariesContext';
+import React from 'react';
 import Registry from '../registry';
 import {CheckedComponent} from '../CheckedComponent.react';
 import {createLibraryElement} from './createLibraryElement';
@@ -15,16 +14,6 @@ type LibraryComponentProps = {
 
 const LibraryComponent = (props: LibraryComponentProps) => {
     const {props_check, namespace, type, ...rest} = props;
-
-    const context = useContext(LibrariesContext);
-
-    useEffect(() => {
-        context.addToLoad(namespace);
-    }, []);
-
-    if (!context.isLoaded(namespace)) {
-        return <></>;
-    }
     const element = Registry.resolve({namespace, type});
     if (props_check) {
         return (
