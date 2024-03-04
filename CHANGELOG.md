@@ -2,6 +2,51 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.16.0] - 2024-03-01
+
+## Fixed
+
+- [#2756](https://github.com/plotly/dash/pull/2756) Prevent false dangerous link warning. Fixes [#2743](https://github.com/plotly/dash/issues/2743)
+- [#2752](https://github.com/plotly/dash/pull/2752) Fixed issue with Windows build, for first time build on Windows, the dev needs to use `npm run first-build`
+
+## Changed
+
+- [#2734](https://github.com/plotly/dash/pull/2734) Configure CI for Python 3.10 [#1863](https://github.com/plotly/dash/issues/1863)
+- [#2735](https://github.com/plotly/dash/pull/2735) Configure CI for Python 3.8 and 3.12, drop support for Python 3.6 and Python 3.7 [#2736](https://github.com/plotly/dash/issues/2736)
+
+## Added
+- [#2762](https://github.com/plotly/dash/pull/2762) Add dynamic loading of component libraries.
+  - Add `dynamic_loading=True` to dash init.
+  - Add `preloaded_libraries=[]` to dash init, included libraries names will be loaded on the index like before. 
+- [#2758](https://github.com/plotly/dash/pull/2758)
+  - exposing `setProps` to `dash_clientside.clientSide_setProps` to allow for JS code to interact directly with the dash eco-system
+- [#2730](https://github.com/plotly/dash/pull/2721) Load script files with `.mjs` ending as js modules
+- [#2770](https://github.com/plotly/dash/pull/2770) Add running to regular callbacks.
+
+## [2.15.0] - 2024-01-31
+
+## Added
+- [#2695](https://github.com/plotly/dash/pull/2695) Adds  `triggered_id` to `dash_clientside.callback_context`.  Fixes [#2692](https://github.com/plotly/dash/issues/2692)
+- [#2723](https://github.com/plotly/dash/pull/2723) Improve dcc Slider/RangeSlider tooltips. Fixes [#1846](https://github.com/plotly/dash/issues/1846)
+  - Add `tooltip.template` a string for the format template, {value} will be formatted with the actual value.
+  - Add `tooltip.style` a style object to give to the div of the tooltip.
+  - Add `tooltip.transform` a reference to a function in the `window.dccFunctions` namespace.
+- [#2732](https://github.com/plotly/dash/pull/2732) Add special key `_dash_error` to `setProps`, allowing component developers to send error without throwing in render. Usage `props.setProps({_dash_error: new Error("custom error")})`
+
+## Fixed
+
+- [#2732](https://github.com/plotly/dash/pull/2732) Sanitize html props that are vulnerable to xss vulnerability if user data is inserted. Fix Validate url to prevent XSS attacks [#2729](https://github.com/plotly/dash/issues/2729)
+
+## Changed
+- [#2652](https://github.com/plotly/dash/pull/2652) dcc.Clipboard supports htm_content and triggers a copy to clipboard when n_clicks are changed
+- [#2721](https://github.com/plotly/dash/pull/2721) Remove ansi2html, fixes [#2613](https://github.com/plotly/dash/issues/2713)
+
+## [2.14.2] - 2023-11-27
+
+## Fixed
+
+- [#2700](https://github.com/plotly/dash/pull/2700) Fix `_allow_dynamic_callbacks` for newly-added components.
+
 ## [2.14.1] - 2023-10-26
 
 ## Fixed

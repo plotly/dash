@@ -392,8 +392,11 @@ def validate_index(name, checks, index):
 def validate_layout_type(value):
     if not isinstance(value, (Component, patch_collections_abc("Callable"))):
         raise exceptions.NoLayoutException(
-            "Layout must be a dash component "
-            "or a function that returns a dash component."
+            """
+            Layout must be a single dash component
+            or a function that returns a dash component.
+            Cannot be a tuple (are there any trailing commas?)
+            """
         )
 
 

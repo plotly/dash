@@ -146,32 +146,44 @@ def _get_traceback(secret, error: Exception):
     except ImportError:
         tbtools = None
 
-    def _get_skip(text, divider=2):
-        skip = 0
-        for i, line in enumerate(text):
-            if "%% callback invoked %%" in line:
-                skip = int((i + 1) / divider)
-                break
+    def _get_skip(error):
+        from dash._callback import (  # pylint: disable=import-outside-toplevel
+            _invoke_callback,
+        )
+
+        tb = error.__traceback__
+        skip = 1
+        while tb.tb_next is not None:
+            skip += 1
+            tb = tb.tb_next
+            if tb.tb_frame.f_code is _invoke_callback.__code__:
+                return skip
+
         return skip
+
+    def _do_skip(error):
+        from dash._callback import (  # pylint: disable=import-outside-toplevel
+            _invoke_callback,
+        )
+
+        tb = error.__traceback__
+        while tb.tb_next is not None:
+            if tb.tb_frame.f_code is _invoke_callback.__code__:
+                return tb.tb_next
+            tb = tb.tb_next
+        return error.__traceback__
 
     # werkzeug<2.1.0
     if hasattr(tbtools, "get_current_traceback"):
-        tb = tbtools.get_current_traceback()
-        skip = _get_skip(tb.plaintext.splitlines())
-        return tbtools.get_current_traceback(skip=skip).render_full()
+        return tbtools.get_current_traceback(skip=_get_skip(error)).render_full()
 
     if hasattr(tbtools, "DebugTraceback"):
-        tb = tbtools.DebugTraceback(error)  # pylint: disable=no-member
-        skip = _get_skip(tb.render_traceback_text().splitlines())
-
         # pylint: disable=no-member
-        return tbtools.DebugTraceback(error, skip=skip).render_debugger_html(
-            True, secret, True
-        )
+        return tbtools.DebugTraceback(
+            error, skip=_get_skip(error)
+        ).render_debugger_html(True, secret, True)
 
-    tb = traceback.format_exception(type(error), error, error.__traceback__)
-    skip = _get_skip(tb, 1)
-    return tb[0] + "".join(tb[skip:])
+    return "".join(traceback.format_exception(type(error), error, _do_skip(error)))
 
 
 # Singleton signal to not update an output, alternative to PreventUpdate
@@ -392,6 +404,8 @@ class Dash:
         add_log_handler=True,
         hooks: Union[RendererHooks, None] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
+        dynamic_loading=True,
+        preloaded_libraries=None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -446,6 +460,8 @@ class Dash:
             title=title,
             update_title=update_title,
             include_pages_meta=include_pages_meta,
+            dynamic_loading=dynamic_loading,
+            preloaded_libraries=preloaded_libraries or [],
         )
         self.config.set_read_only(
             [
@@ -456,6 +472,8 @@ class Dash:
                 "serve_locally",
                 "compress",
                 "pages_folder",
+                "dynamic_loading",
+                "preloaded_libraries",
             ],
             "Read-only: can only be set in the Dash constructor",
         )
@@ -633,6 +651,7 @@ class Dash:
         self._add_url("_dash-update-component", self.dispatch, ["POST"])
         self._add_url("_reload-hash", self.serve_reload_hash)
         self._add_url("_favicon.ico", self._serve_default_favicon)
+        self._add_url("_dash-dist", self.serve_dist, methods=["POST"])
         self._add_url("", self.index)
 
         if jupyter_dash.active:
@@ -786,7 +805,20 @@ class Dash:
             }
         )
 
-    def _collect_and_register_resources(self, resources):
+    def serve_dist(self):
+        libraries = [
+            ComponentRegistry.namespace_to_package.get(lib, lib)
+            for lib in flask.request.get_json()
+        ]
+        dists = []
+        for dist_type in ("_js_dist", "_css_dist"):
+            resources = ComponentRegistry.get_resources(dist_type, libraries)
+            srcs = self._collect_and_register_resources(resources, False)
+            for src in srcs:
+                dists.append(dict(type=dist_type, url=src))
+        return flask.jsonify(dists)
+
+    def _collect_and_register_resources(self, resources, include_async=True):
         # now needs the app context.
         # template in the necessary component suite JS bundles
         # add the version number of the package as a query parameter
@@ -815,6 +847,8 @@ class Dash:
         srcs = []
         for resource in resources:
             is_dynamic_resource = resource.get("dynamic", False)
+            is_async = resource.get("async") is not None
+            excluded = not include_async and is_async
 
             if "relative_package_path" in resource:
                 paths = resource["relative_package_path"]
@@ -826,7 +860,7 @@ class Dash:
 
                     self.registered_paths[resource["namespace"]].add(rel_path)
 
-                    if not is_dynamic_resource:
+                    if not is_dynamic_resource and not excluded:
                         srcs.append(
                             _relative_url_path(
                                 relative_package_path=rel_path,
@@ -834,7 +868,7 @@ class Dash:
                             )
                         )
             elif "external_url" in resource:
-                if not is_dynamic_resource:
+                if not is_dynamic_resource and not excluded:
                     if isinstance(resource["external_url"], str):
                         srcs.append(resource["external_url"])
                     else:
@@ -843,14 +877,31 @@ class Dash:
                 raise Exception("Serving files from absolute_path isn't supported yet")
             elif "asset_path" in resource:
                 static_url = self.get_asset_url(resource["asset_path"])
-                # Add a cache-busting query param
-                static_url += f"?m={resource['ts']}"
-                srcs.append(static_url)
+                # Import .mjs files with type=module script tag
+                if static_url.endswith(".mjs"):
+                    srcs.append(
+                        {
+                            "src": static_url
+                            + f"?m={resource['ts']}",  # Add a cache-busting query param
+                            "type": "module",
+                        }
+                    )
+                else:
+                    srcs.append(
+                        static_url + f"?m={resource['ts']}"
+                    )  # Add a cache-busting query param
+
         return srcs
 
     def _generate_css_dist_html(self):
         external_links = self.config.external_stylesheets
-        links = self._collect_and_register_resources(self.css.get_all_css())
+
+        if self.config.dynamic_loading:
+            links = self._collect_and_register_resources(
+                self.css.get_library_css(self.config.preloaded_libraries)
+            )
+        else:
+            links = self._collect_and_register_resources(self.css.get_all_css())
 
         return "\n".join(
             [
@@ -885,20 +936,27 @@ class Dash:
                 self.scripts._resources._filter_resources(deps, dev_bundles=dev)
             )
             + self.config.external_scripts
-            + self._collect_and_register_resources(
+        )
+
+        if not self.config.dynamic_loading:
+            srcs += self._collect_and_register_resources(
                 self.scripts.get_all_scripts(dev_bundles=dev)
-                + self.scripts._resources._filter_resources(
-                    _dash_renderer._js_dist, dev_bundles=dev
+            )
+        else:
+            srcs += self._collect_and_register_resources(
+                self.scripts.get_library_scripts(
+                    self.config.preloaded_libraries, dev_bundles=dev
                 )
-                + self.scripts._resources._filter_resources(
-                    dcc._js_dist, dev_bundles=dev
-                )
-                + self.scripts._resources._filter_resources(
-                    html._js_dist, dev_bundles=dev
-                )
-                + self.scripts._resources._filter_resources(
-                    dash_table._js_dist, dev_bundles=dev
-                )
+            )
+
+        srcs += self._collect_and_register_resources(
+            self.scripts._resources._filter_resources(
+                _dash_renderer._js_dist, dev_bundles=dev
+            )
+            + self.scripts._resources._filter_resources(dcc._js_dist, dev_bundles=dev)
+            + self.scripts._resources._filter_resources(html._js_dist, dev_bundles=dev)
+            + self.scripts._resources._filter_resources(
+                dash_table._js_dist, dev_bundles=dev
             )
         )
 
@@ -1090,7 +1148,10 @@ class Dash:
         )
 
     def dependencies(self):
-        return flask.jsonify(self._callback_list)
+        return flask.Response(
+            to_json(self._callback_list),
+            content_type="application/json",
+        )
 
     def clientside_callback(self, clientside_function, *args, **kwargs):
         """Create a callback that updates the output by calling a clientside
@@ -1224,6 +1285,8 @@ class Dash:
     def dispatch(self):
         body = flask.request.get_json()
 
+        nlibs = len(ComponentRegistry.registry)
+
         g = AttributeDict({})
 
         g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
@@ -1253,6 +1316,7 @@ class Dash:
 
         try:
             cb = self.callback_map[output]
+            _allow_dynamic = cb.get("allow_dynamic_callbacks", False)
             func = cb["callback"]
             g.background_callback_manager = (
                 cb.get("manager") or self._background_manager
@@ -1304,6 +1368,7 @@ class Dash:
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg) from missing_callback_function
+
         ctx = copy_context()
         # noinspection PyArgumentList
         response.set_data(
@@ -1317,6 +1382,12 @@ class Dash:
                 )
             )
         )
+
+        if not _allow_dynamic and nlibs != len(ComponentRegistry.registry):
+            print(
+                "Warning: component library imported during callback, move to top-level for full support.",
+                file=sys.stderr,
+            )
         return response
 
     def _setup_server(self):

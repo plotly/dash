@@ -1,6 +1,12 @@
 import {batch, connect} from 'react-redux';
 import {includes, isEmpty} from 'ramda';
-import React, {useEffect, useRef, useState, createContext} from 'react';
+import React, {
+    useEffect,
+    useRef,
+    useState,
+    createContext,
+    useCallback
+} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
@@ -21,6 +27,7 @@ import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
 import wait from './utils/wait';
+import LibraryManager from './libraries/LibraryManager';
 
 export const DashContext = createContext({});
 
@@ -46,6 +53,10 @@ const UnconnectedContainer = props => {
     if (!events.current) {
         events.current = new EventEmitter();
     }
+
+    const [libraryReady, setLibraryReady] = useState(false);
+    const onLibraryReady = useCallback(() => setLibraryReady(true), []);
+
     const renderedTree = useRef(false);
 
     const propsRef = useRef({});
@@ -60,7 +71,9 @@ const UnconnectedContainer = props => {
         })
     });
 
-    useEffect(storeEffect.bind(null, props, events, setErrorLoading));
+    useEffect(
+        storeEffect.bind(null, props, events, setErrorLoading, libraryReady)
+    );
 
     useEffect(() => {
         if (renderedTree.current) {
@@ -117,14 +130,23 @@ const UnconnectedContainer = props => {
         content = <div className='_dash-loading'>Loading...</div>;
     }
 
-    return config && config.ui === true ? (
-        <GlobalErrorContainer>{content}</GlobalErrorContainer>
-    ) : (
-        content
+    return (
+        <LibraryManager
+            requests_pathname_prefix={config.requests_pathname_prefix}
+            onReady={onLibraryReady}
+            ready={libraryReady}
+            layout={layoutRequest && layoutRequest.content}
+        >
+            {config && config.ui === true ? (
+                <GlobalErrorContainer>{content}</GlobalErrorContainer>
+            ) : (
+                content
+            )}
+        </LibraryManager>
     );
 };
 
-function storeEffect(props, events, setErrorLoading) {
+function storeEffect(props, events, setErrorLoading, libraryReady) {
     const {
         appLifecycle,
         dependenciesRequest,
@@ -143,7 +165,7 @@ function storeEffect(props, events, setErrorLoading) {
             }
             dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
         } else if (layoutRequest.status === STATUS.OK) {
-            if (isEmpty(layout)) {
+            if (isEmpty(layout) && libraryReady) {
                 if (typeof hooks.layout_post === 'function') {
                     hooks.layout_post(layoutRequest.content);
                 }
@@ -166,7 +188,7 @@ function storeEffect(props, events, setErrorLoading) {
             );
         } else if (
             dependenciesRequest.status === STATUS.OK &&
-            isEmpty(graphs)
+            (isEmpty(graphs) || graphs.reset)
         ) {
             dispatch(
                 setGraphs(
@@ -186,7 +208,8 @@ function storeEffect(props, events, setErrorLoading) {
             layoutRequest.status === STATUS.OK &&
             !isEmpty(layout) &&
             // Hasn't already hydrated
-            appLifecycle === getAppState('STARTED')
+            appLifecycle === getAppState('STARTED') &&
+            libraryReady
         ) {
             let hasError = false;
             try {
@@ -235,7 +258,8 @@ const Container = connect(
         graphs: state.graphs,
         history: state.history,
         error: state.error,
-        config: state.config
+        config: state.config,
+        paths: state.paths
     }),
     dispatch => ({dispatch})
 )(UnconnectedContainer);

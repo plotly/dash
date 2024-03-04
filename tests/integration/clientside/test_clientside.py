@@ -829,3 +829,75 @@ def test_clsd019_clientside_inline_promise(dash_duo):
 
     dash_duo.start_server(app)
     dash_duo.wait_for_text_to_equal("#output-div", "initial-inline")
+
+
+def test_clsd020_clientside_callback_context_triggered_id(dash_duo):
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [
+            html.Button("btn0", id="btn0"),
+            html.Button("btn1:0", id={"btn1": 0}),
+            html.Button("btn1:1", id={"btn1": 1}),
+            html.Button("btn1:2", id={"btn1": 2}),
+            html.Div(id="output-clientside", style={"font-family": "monospace"}),
+        ]
+    )
+
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside", function_name="triggered_id_to_str"),
+        Output("output-clientside", "children"),
+        [Input("btn0", "n_clicks"), Input({"btn1": ALL}, "n_clicks")],
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#output-clientside", "")
+
+    dash_duo.find_element("#btn0").click()
+
+    dash_duo.wait_for_text_to_equal(
+        "#output-clientside",
+        "btn0",
+    )
+
+    dash_duo.find_element("button[id*='btn1\":0']").click()
+
+    dash_duo.wait_for_text_to_equal("#output-clientside", "0")
+
+    dash_duo.find_element("button[id*='btn1\":2']").click()
+
+    dash_duo.wait_for_text_to_equal("#output-clientside", "2")
+
+
+def test_clsd021_simple_clientside_module_serverside_callback(dash_duo):
+    app = Dash(__name__, assets_folder="assets")
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input"),
+            html.Div(id="output-clientside"),
+            html.Div(id="output-serverside"),
+        ]
+    )
+
+    @app.callback(Output("output-serverside", "children"), [Input("input", "value")])
+    def update_output(value):
+        return 'Server says "{}"'.format(value)
+
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside_module", function_name="display"),
+        Output("output-clientside", "children"),
+        [Input("input", "value")],
+    )
+
+    dash_duo.start_server(app)
+
+    assert dash_duo.find_element("body > footer > script[type=module]")
+
+    dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "None"')
+    dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "undefined"')
+
+    dash_duo.find_element("#input").send_keys("hello world")
+    dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "hello world"')
+    dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "hello world"')

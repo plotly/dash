@@ -1,3 +1,5 @@
+import {LibraryResource} from '../libraries/libraryTypes';
+
 type CallbackId = string | {[key: string]: any};
 
 export interface ICallbackDefinition {
@@ -13,6 +15,7 @@ export interface ICallbackDefinition {
     state: ICallbackProperty[];
     long?: LongCallbackInfo;
     dynamic_creator?: boolean;
+    running: any;
 }
 
 export interface ICallbackProperty {
@@ -102,4 +105,5 @@ export type CallbackResponseData = {
     running?: CallbackResponse;
     runningOff?: CallbackResponse;
     cancel?: ICallbackProperty[];
+    resources: LibraryResource[];
 };

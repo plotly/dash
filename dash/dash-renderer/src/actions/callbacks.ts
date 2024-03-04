@@ -34,7 +34,7 @@ import {
     CallbackResponseData
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
-import {urlBase} from './utils';
+import {crawlLayout, urlBase} from './utils';
 import {getCSRFHeader} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
@@ -44,6 +44,9 @@ import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
+import loadLibrary from '../libraries/loadLibrary';
+import fetchDist from '../libraries/fetchDist';
+import {setLibraryLoaded} from './libraries';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -262,6 +265,9 @@ async function handleClientside(
             prop_id: prop_id,
             value: inputDict[prop_id]
         }));
+        dc.callback_context.triggered_id = getTriggeredId(
+            payload.changedPropIds
+        );
         dc.callback_context.inputs_list = inputs;
         dc.callback_context.inputs = inputDict;
         dc.callback_context.states_list = state;
@@ -346,7 +352,8 @@ function handleServerside(
     long: LongCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
-    output: string
+    output: string,
+    running: any
 ): Promise<CallbackResponse> {
     if (hooks.request_pre) {
         hooks.request_pre(payload);
@@ -359,6 +366,12 @@ function handleServerside(
     let runningOff: any;
     let progressDefault: any;
     let moreArgs = additionalArgs;
+    const libraries = Object.keys(getState().libraries);
+
+    if (running) {
+        sideUpdate(running.running, dispatch, paths);
+        runningOff = running.runningOff;
+    }
 
     const fetchCallback = () => {
         const headers = getCSRFHeader() as any;
@@ -494,19 +507,46 @@ function handleServerside(
                     if (data.progress) {
                         sideUpdate(data.progress, dispatch, paths);
                     }
-                    if (data.running) {
-                        sideUpdate(data.running, dispatch, paths);
-                    }
-                    if (!runningOff && data.runningOff) {
-                        runningOff = data.runningOff;
-                    }
                     if (!progressDefault && data.progressDefault) {
                         progressDefault = data.progressDefault;
                     }
 
                     if (!long || data.response !== undefined) {
-                        completeJob();
-                        finishLine(data);
+                        const newLibs: string[] = [];
+                        Object.values(data.response as any).forEach(
+                            (newData: any) => {
+                                Object.values(newData).forEach(newProp => {
+                                    crawlLayout(newProp, (c: any) => {
+                                        if (
+                                            c.namespace &&
+                                            !libraries.includes(c.namespace) &&
+                                            !newLibs.includes(c.namespace)
+                                        ) {
+                                            newLibs.push(c.namespace);
+                                        }
+                                    });
+                                });
+                            }
+                        );
+                        if (newLibs.length) {
+                            fetchDist(
+                                getState().config.requests_pathname_prefix,
+                                newLibs
+                            )
+                                .then(data => {
+                                    return Promise.all(data.map(loadLibrary));
+                                })
+                                .then(() => {
+                                    completeJob();
+                                    finishLine(data);
+                                    dispatch(
+                                        setLibraryLoaded({libraries: newLibs})
+                                    );
+                                });
+                        } else {
+                            completeJob();
+                            finishLine(data);
+                        }
                     } else {
                         // Poll chain.
                         setTimeout(
@@ -574,6 +614,18 @@ function inputsToDict(inputs_list: any) {
         }
     }
     return inputs;
+}
+
+function getTriggeredId(triggered: string[]): string | object | undefined {
+    // for regular callbacks,  takes the first triggered prop_id, e.g.  "btn.n_clicks" and returns "btn"
+    // for pattern matching callback, e.g. '{"index":0, "type":"btn"}' and returns {index:0, type: "btn"}'
+    if (triggered && triggered.length) {
+        let componentId = triggered[0].split('.')[0];
+        if (componentId.startsWith('{')) {
+            componentId = JSON.parse(componentId);
+        }
+        return componentId;
+    }
 }
 
 export function executeCallback(
@@ -702,7 +754,8 @@ export function executeCallback(
                             long,
                             additionalArgs.length ? additionalArgs : undefined,
                             getState,
-                            cb.callback.output
+                            cb.callback.output,
+                            cb.callback.running
                         );
 
                         if (newHeaders) {
