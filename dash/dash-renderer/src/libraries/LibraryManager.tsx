@@ -7,6 +7,7 @@ import {isEmpty} from 'ramda';
 type LibrariesManagerProps = {
     children: JSX.Element;
     requests_pathname_prefix: string;
+    validation_layout: any;
     onReady: () => void;
     ready: boolean;
     layout?: any;
@@ -35,7 +36,7 @@ const LibraryProvider = (props: LibrariesManagerProps) => {
 };
 
 const LibraryManager = (props: LibrariesManagerProps) => {
-    const {children, ready, layout} = props;
+    const {children, ready, layout, validation_layout} = props;
 
     const [initialLibraries, setInitialLibraries] = useState<string[] | null>(
         null
@@ -44,14 +45,18 @@ const LibraryManager = (props: LibrariesManagerProps) => {
     useEffect(() => {
         if (layout && !isEmpty(layout) && !ready && !initialLibraries) {
             const libraries: string[] = [];
-            crawlLayout(layout, (child: any) => {
+            const addLib = (child: any) => {
                 if (child.namespace && !libraries.includes(child.namespace)) {
                     libraries.push(child.namespace);
                 }
-            });
+            };
+            crawlLayout(layout, addLib);
+            if (validation_layout) {
+                crawlLayout(validation_layout, addLib);
+            }
             setInitialLibraries(libraries);
         }
-    }, [layout, ready, initialLibraries]);
+    }, [layout, validation_layout, ready, initialLibraries]);
 
     if (!initialLibraries) {
         return children;

@@ -133,6 +133,7 @@ const UnconnectedContainer = props => {
     return (
         <LibraryManager
             requests_pathname_prefix={config.requests_pathname_prefix}
+            validation_layout={config.validation_layout}
             onReady={onLibraryReady}
             ready={libraryReady}
             layout={layoutRequest && layoutRequest.content}
