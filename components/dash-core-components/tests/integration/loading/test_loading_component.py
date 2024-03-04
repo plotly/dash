@@ -586,7 +586,7 @@ def test_ldcp013_loading_component_display_show(dash_dcc):
     )
     dash_dcc.start_server(app)
 
-    dash_dcc.find_elements(".loading .dash-spinner")
+    dash_dcc.find_element(".loading .dash-spinner")
     # mounted but hidden, so looks like no text
     dash_dcc.wait_for_text_to_equal("#div-1", "")
 
