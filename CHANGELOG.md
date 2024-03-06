@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.16.1] - 2024-03-06
+
+## Fixed
+
+- [#2783](https://github.com/plotly/dash/pull/2783) Remove dynamic loading.
+
 ## [2.16.0] - 2024-03-01
 
 ## Fixed

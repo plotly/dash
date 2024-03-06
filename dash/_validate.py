@@ -1,3 +1,4 @@
+import sys
 from collections.abc import MutableSequence
 import re
 from textwrap import dedent
@@ -356,6 +357,13 @@ def check_obsolete(kwargs):
                 See https://dash.plotly.com for details.
                 """
             )
+        if key in ["dynamic_loading", "preloaded_libraries"]:
+            # Only warns as this was only available for a short time.
+            print(
+                f"{key} has been removed and no longer a valid keyword argument in Dash.",
+                file=sys.stderr,
+            )
+            continue
         # any other kwarg mimic the built-in exception
         raise TypeError(f"Dash() got an unexpected keyword argument '{key}'")
 
