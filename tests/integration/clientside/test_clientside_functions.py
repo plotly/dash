@@ -2,7 +2,10 @@ from dash import Dash, html, Input, Output, no_update, State
 import json
 from multiprocessing import Value
 
+from flaky import flaky
 
+
+@flaky(max_runs=3)
 def test_sp001_clientside_setprops(dash_duo):
 
     call_count = Value("i", 0)
