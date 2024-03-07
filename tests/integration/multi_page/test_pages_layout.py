@@ -1,6 +1,6 @@
 import pytest
 import dash
-from dash import Dash, Input, State, dcc, html
+from dash import Dash, Input, State, dcc, html, Output
 from dash.dash import _ID_LOCATION
 from dash.exceptions import NoLayoutException
 
@@ -235,3 +235,32 @@ def test_pala005_routing_inputs(dash_duo, clear_pages_state):
     # Changing the language Input re-runs the layout function
     dash_duo.select_dcc_dropdown("#language", "fr")
     dash_duo.wait_for_text_to_equal("#contents", "Le hash dit: #123")
+
+
+def test_pala006_pages_external_library(dash_duo):
+    import dash_test_components as dt
+
+    app = Dash(use_pages=True, pages_folder="")
+
+    @app.callback(
+        Output("out", "children"),
+        Input("button", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_click(n_clicks):
+        return f"Button has been clicked {n_clicks} times"
+
+    dash.register_page(
+        "page",
+        path="/",
+        layout=html.Div(
+            [
+                dt.DelayedEventComponent(id="button"),
+                html.Div("The button has not been clicked yet", id="out"),
+            ]
+        ),
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_element("#button").click()
+    dash_duo.wait_for_text_to_equal("#out", "Button has been clicked 1 times")
