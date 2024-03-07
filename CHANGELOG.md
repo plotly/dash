@@ -12,6 +12,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - `custom_spinner`  enables using a custom component for loading messages instead of built-in spinners
   - `display`  overrides the loading status with options for "show," "hide," or "auto"
 
+## [2.16.1] - 2024-03-06
+
+## Fixed
+
+- [#2783](https://github.com/plotly/dash/pull/2783) Remove dynamic loading.
+
 ## [2.16.0] - 2024-03-01
 
 ## Fixed

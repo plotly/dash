@@ -18,7 +18,6 @@ import layout from './layout';
 import loadingMap from './loadingMap';
 import paths from './paths';
 import callbackJobs from './callbackJobs';
-import libraries from './libraries';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -48,7 +47,6 @@ function mainReducer() {
     }, apiRequests);
 
     parts.callbackJobs = callbackJobs;
-    parts.libraries = libraries;
 
     return combineReducers(parts);
 }
