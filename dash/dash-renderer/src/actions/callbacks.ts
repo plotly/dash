@@ -44,6 +44,7 @@ import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
+import {loadLibrary} from '../utils/libraries';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -508,8 +509,15 @@ function handleServerside(
                     }
 
                     if (!long || data.response !== undefined) {
-                        completeJob();
-                        finishLine(data);
+                        if (data.dist) {
+                            Promise.all(data.dist.map(loadLibrary)).then(() => {
+                                completeJob();
+                                finishLine(data);
+                            });
+                        } else {
+                            completeJob();
+                            finishLine(data);
+                        }
                     } else {
                         // Poll chain.
                         setTimeout(

@@ -9,11 +9,13 @@ from .dependencies import (
     handle_grouped_callback_args,
     Output,
 )
+from .development.base_component import ComponentRegistry
 from .exceptions import (
     PreventUpdate,
     WildcardInLongCallback,
     MissingLongCallbackManagerError,
     LongCallbackError,
+    ImportedInsideCallbackError,
 )
 
 from ._grouping import (
@@ -332,7 +334,9 @@ def register_callback(  # pylint: disable=R0914
             output_spec = kwargs.pop("outputs_list")
             app_callback_manager = kwargs.pop("long_callback_manager", None)
             callback_ctx = kwargs.pop("callback_context", {})
+            app = kwargs.pop("app", None)
             callback_manager = long and long.get("manager", app_callback_manager)
+            original_packages = set(ComponentRegistry.registry)
             _validate.validate_output_spec(insert_output, output_spec, Output)
 
             context_value.set(callback_ctx)
@@ -486,6 +490,18 @@ def register_callback(  # pylint: disable=R0914
                 raise PreventUpdate
 
             response["response"] = component_ids
+
+            if len(ComponentRegistry.registry) != len(original_packages):
+                diff_packages = list(
+                    set(ComponentRegistry.registry).difference(original_packages)
+                )
+                if not allow_dynamic_callbacks:
+                    raise ImportedInsideCallbackError(
+                        f"Component librar{'y' if len(diff_packages) == 1 else 'ies'} was imported during callback.\n"
+                        "You can set `_allow_dynamic_callbacks` to allow for development purpose only."
+                    )
+                dist = app.get_dist(diff_packages)
+                response["dist"] = dist
 
             try:
                 jsonResponse = to_json(response)
