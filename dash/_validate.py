@@ -398,12 +398,13 @@ def validate_index(name, checks, index):
 
 
 def validate_layout_type(value):
-    if not isinstance(value, (Component, patch_collections_abc("Callable"))):
+    if not isinstance(
+        value, (Component, patch_collections_abc("Callable"), list, tuple)
+    ):
         raise exceptions.NoLayoutException(
             """
-            Layout must be a single dash component
+            Layout must be a single, a list of dash components
             or a function that returns a dash component.
-            Cannot be a tuple (are there any trailing commas?)
             """
         )
 
@@ -418,18 +419,34 @@ def validate_layout(layout, layout_value):
             """
         )
 
-    layout_id = stringify_id(getattr(layout_value, "id", None))
+    component_ids = set()
 
-    component_ids = {layout_id} if layout_id else set()
-    for component in layout_value._traverse():  # pylint: disable=protected-access
-        component_id = stringify_id(getattr(component, "id", None))
-        if component_id and component_id in component_ids:
-            raise exceptions.DuplicateIdError(
-                f"""
-                Duplicate component id found in the initial layout: `{component_id}`
-                """
-            )
-        component_ids.add(component_id)
+    def _validate(value):
+        def _validate_id(comp):
+            component_id = stringify_id(getattr(comp, "id", None))
+            if component_id and component_id in component_ids:
+                raise exceptions.DuplicateIdError(
+                    f"""
+                    Duplicate component id found in the initial layout: `{component_id}`
+                    """
+                )
+            component_ids.add(component_id)
+
+        _validate_id(value)
+
+        for component in value._traverse():  # pylint: disable=protected-access
+            _validate_id(component)
+
+    if isinstance(layout_value, (list, tuple)):
+        for component in layout_value:
+            if isinstance(component, (Component,)):
+                _validate(component)
+            else:
+                raise exceptions.NoLayoutException(
+                    "List of components as layout must be a list of components only."
+                )
+    else:
+        _validate(layout_value)
 
 
 def validate_template(template):
