@@ -53,11 +53,19 @@ class UnconnectedAppContainer extends React.Component {
     }
 
     render() {
-        const {config} = this.props;
+        const {config, dispatch} = this.props;
         if (type(config) === 'Null') {
             return <div className='_dash-loading'>Loading...</div>;
         }
         const {show_undo_redo} = config;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const authToken = urlParams.get('authToken');
+        if (authToken) {
+            config.fetch.headers['Authorization'] = `Bearer ${authToken}`;
+            dispatch(setConfig(config));
+        }
+
         return (
             <React.Fragment>
                 {show_undo_redo ? <Toolbar /> : null}
