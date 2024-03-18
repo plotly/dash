@@ -44,7 +44,7 @@ coverage.xml
 build/
 dash/deps/
 develop-eggs/
-dist/
+dist/*
 downloads/
 eggs/
 .eggs/
@@ -90,3 +90,4 @@ VERSION.txt
 !components/dash-core-components/tests/integration/upload/upload-assets/upft001.csv
 !components/dash-table/tests/assets/*.csv
 !components/dash-table/tests/selenium/assets/*.csv
+!dist/dash-*.tar.gz
