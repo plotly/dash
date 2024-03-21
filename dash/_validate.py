@@ -403,7 +403,7 @@ def validate_layout_type(value):
     ):
         raise exceptions.NoLayoutException(
             """
-            Layout must be a single dash component, a list of dash components
+            Layout must be a single dash component, a list of dash components,
             or a function that returns a dash component.
             """
         )
