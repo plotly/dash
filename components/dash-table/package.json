@@ -125,6 +125,6 @@
     "npm": ">=6.1.0"
   },
   "browserslist": [
-    "last 8 years and not dead"
+    "last 9 years and not dead"
   ]
 }
