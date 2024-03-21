@@ -59,6 +59,6 @@
     "/dash_html_components/*{.js,.map}"
   ],
   "browserslist": [
-    "last 8 years and not dead"
+    "last 9 years and not dead"
   ]
 }
