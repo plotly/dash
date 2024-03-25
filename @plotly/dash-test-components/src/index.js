@@ -7,6 +7,7 @@ import MyPersistedComponentNested from './components/MyPersistedComponentNested'
 import StyledComponent from './components/StyledComponent';
 import WidthComponent from './components/WidthComponent';
 import ComponentAsProp from './components/ComponentAsProp';
+import DrawCounter from './components/DrawCounter';
 
 export {
     AsyncComponent,
@@ -18,4 +19,5 @@ export {
     StyledComponent,
     WidthComponent,
     ComponentAsProp,
+    DrawCounter,
 };
