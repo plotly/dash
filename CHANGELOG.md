@@ -14,6 +14,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - `custom_spinner`  enables using a custom component for loading messages instead of built-in spinners
   - `display`  overrides the loading status with options for "show," "hide," or "auto"
 
+## Fixed
+
+- [#2362](https://github.com/plotly/dash/pull/2362) Global namespace not polluted any more when loading clientside callbacks.
+
 ## [2.16.1] - 2024-03-06
 
 ## Fixed

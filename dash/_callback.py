@@ -502,9 +502,11 @@ def register_callback(  # pylint: disable=R0914
 
 
 _inline_clientside_template = """
-var clientside = window.dash_clientside = window.dash_clientside || {{}};
-var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
-ns["{function_name}"] = {clientside_function};
+(function() {{
+    var clientside = window.dash_clientside = window.dash_clientside || {{}};
+    var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
+    ns["{function_name}"] = {clientside_function};
+}})();
 """
 
 
