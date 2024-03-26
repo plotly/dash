@@ -8,7 +8,7 @@ import coloredlogs
 import fire
 import requests
 
-from .._utils import run_command_with_process, compute_md5, job
+from .._utils import run_command_with_process, compute_hash, job
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(
@@ -97,7 +97,8 @@ class BuildProcess:
             logger.info("bundles in %s %s", folder, copies)
 
             for copy in copies:
-                payload[f"MD5 ({copy})"] = compute_md5(self._concat(folder, copy))
+                # note md5 has been replaced with sha256, leaving string 'MD5 (hash)' as is because impacts are unclear
+                payload[f"MD5 ({copy})"] = compute_hash(self._concat(folder, copy)) 
 
         with open(self._concat(self.main, "digest.json"), "w", encoding="utf-8") as fp:
             json.dump(payload, fp, sort_keys=True, indent=4, separators=(",", ":"))

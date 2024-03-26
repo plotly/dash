@@ -142,7 +142,7 @@ def create_callback_id(output, inputs):
         _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
         if x.allow_duplicate:
             if not hashed_inputs:
-                hashed_inputs = hashlib.md5(
+                hashed_inputs = hashlib.sha256(
                     ".".join(str(x) for x in inputs).encode("utf-8")
                 ).hexdigest()
             # Actually adds on the property part.
@@ -213,9 +213,9 @@ def run_command_with_process(cmd):
                 proc.communicate()
 
 
-def compute_md5(path):
+def compute_hash(path):
     with io.open(path, encoding="utf-8") as fp:
-        return hashlib.md5(fp.read().encode("utf-8")).hexdigest()
+        return hashlib.sha256(fp.read().encode("utf-8")).hexdigest()
 
 
 def job(msg=""):

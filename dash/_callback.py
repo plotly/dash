@@ -535,7 +535,7 @@ def register_clientside_callback(
     if isinstance(clientside_function, str):
         namespace = "_dashprivate_clientside_funcs"
         # Create a hash from the function, it will be the same always
-        function_name = hashlib.md5(clientside_function.encode("utf-8")).hexdigest()
+        function_name = hashlib.sha256(clientside_function.encode("utf-8")).hexdigest()
 
         inline_scripts.append(
             _inline_clientside_template.format(

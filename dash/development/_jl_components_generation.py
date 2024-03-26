@@ -416,7 +416,7 @@ def generate_toml_file(project_shortname, pkg_data):
     u = uuid.UUID(jl_dash_uuid)
 
     package_uuid = uuid.UUID(
-        hex=u.hex[:-12] + hashlib.md5(package_name.encode("utf-8")).hexdigest()[-12:]
+        hex=u.hex[:-12] + hashlib.sha256(package_name.encode("utf-8")).hexdigest()[-12:]
     )
 
     authors_string = (
