@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from dash import Dash, html, dcc, Output, Input
 from dash.exceptions import PreventUpdate
 
@@ -11,7 +13,8 @@ sample_dropdown_options = [
 ]
 
 
-def test_ddro001_remove_option_single(dash_dcc):
+@pytest.mark.parametrize("searchable", (True, False))
+def test_ddro001_remove_option_single(dash_dcc, searchable):
     dropdown_options = sample_dropdown_options
 
     app = Dash(__name__)
@@ -22,7 +25,7 @@ def test_ddro001_remove_option_single(dash_dcc):
             dcc.Dropdown(
                 options=dropdown_options,
                 value=value,
-                searchable=False,
+                searchable=searchable,
                 id="dropdown",
             ),
             html.Button("Remove option", id="remove"),
@@ -49,7 +52,8 @@ def test_ddro001_remove_option_single(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#value-output", "None")
 
 
-def test_ddro002_remove_option_multi(dash_dcc):
+@pytest.mark.parametrize("searchable", (True, False))
+def test_ddro002_remove_option_multi(dash_dcc, searchable):
     dropdown_options = sample_dropdown_options
 
     app = Dash(__name__)
@@ -62,7 +66,7 @@ def test_ddro002_remove_option_multi(dash_dcc):
                 value=value,
                 multi=True,
                 id="dropdown",
-                searchable=False,
+                searchable=searchable,
             ),
             html.Button("Remove option", id="remove"),
             html.Div(id="value-output"),
