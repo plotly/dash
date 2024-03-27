@@ -88,6 +88,6 @@
   ],
   "prettier": "@plotly/prettier-config-dash",
   "browserslist": [
-    "last 8 years and not dead"
+    "last 9 years and not dead"
   ]
 }

@@ -21,6 +21,7 @@ import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
 import wait from './utils/wait';
+import isSimpleComponent from './isSimpleComponent';
 
 export const DashContext = createContext({});
 
@@ -97,20 +98,44 @@ const UnconnectedContainer = props => {
 
         content = (
             <DashContext.Provider value={provider.current}>
-                <TreeContainer
-                    _dashprivate_error={error}
-                    _dashprivate_layout={layout}
-                    _dashprivate_loadingState={getLoadingState(
-                        layout,
-                        [],
-                        loadingMap
-                    )}
-                    _dashprivate_loadingStateHash={getLoadingHash(
-                        [],
-                        loadingMap
-                    )}
-                    _dashprivate_path={JSON.stringify([])}
-                />
+                {Array.isArray(layout) ? (
+                    layout.map((c, i) =>
+                        isSimpleComponent(c) ? (
+                            c
+                        ) : (
+                            <TreeContainer
+                                _dashprivate_error={error}
+                                _dashprivate_layout={c}
+                                _dashprivate_loadingState={getLoadingState(
+                                    c,
+                                    [i],
+                                    loadingMap
+                                )}
+                                _dashprivate_loadingStateHash={getLoadingHash(
+                                    [i],
+                                    loadingMap
+                                )}
+                                _dashprivate_path={`[${i}]`}
+                                key={i}
+                            />
+                        )
+                    )
+                ) : (
+                    <TreeContainer
+                        _dashprivate_error={error}
+                        _dashprivate_layout={layout}
+                        _dashprivate_loadingState={getLoadingState(
+                            layout,
+                            [],
+                            loadingMap
+                        )}
+                        _dashprivate_loadingStateHash={getLoadingHash(
+                            [],
+                            loadingMap
+                        )}
+                        _dashprivate_path={'[]'}
+                    />
+                )}
             </DashContext.Provider>
         );
     } else {
@@ -216,7 +241,7 @@ UnconnectedContainer.propTypes = {
     graphs: PropTypes.object,
     hooks: PropTypes.object,
     layoutRequest: PropTypes.object,
-    layout: PropTypes.object,
+    layout: PropTypes.any,
     loadingMap: PropTypes.any,
     history: PropTypes.any,
     error: PropTypes.object,

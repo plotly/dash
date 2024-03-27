@@ -427,3 +427,87 @@ def test_inin027_multi_page_without_pages_folder(dash_duo):
     del dash.page_registry["not_found_404"]
 
     assert not dash_duo.get_logs()
+
+
+def test_inin028_layout_as_list(dash_duo):
+    app = Dash()
+
+    app.layout = [
+        html.Div("one", id="one"),
+        html.Div("two", id="two"),
+        html.Button("direct", id="direct"),
+        html.Div(id="direct-output"),
+        html.Div([html.Button("nested", id="nested"), html.Div(id="nested-output")]),
+    ]
+
+    @app.callback(
+        Output("direct-output", "children"),
+        Input("direct", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_direct_click(n_clicks):
+        return f"Clicked {n_clicks} times"
+
+    @app.callback(
+        Output("nested-output", "children"),
+        Input("nested", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_nested_click(n_clicks):
+        return f"Clicked {n_clicks} times"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#one", "one")
+    dash_duo.wait_for_text_to_equal("#two", "two")
+
+    dash_duo.wait_for_element("#direct").click()
+    dash_duo.wait_for_text_to_equal("#direct-output", "Clicked 1 times")
+
+    dash_duo.wait_for_element("#nested").click()
+    dash_duo.wait_for_text_to_equal("#nested-output", "Clicked 1 times")
+
+
+def test_inin029_layout_as_list_with_pages(dash_duo):
+    app = Dash(use_pages=True, pages_folder="")
+
+    dash.register_page(
+        "list-pages",
+        "/",
+        layout=[
+            html.Div("one", id="one"),
+            html.Div("two", id="two"),
+            html.Button("direct", id="direct"),
+            html.Div(id="direct-output"),
+            html.Div(
+                [html.Button("nested", id="nested"), html.Div(id="nested-output")]
+            ),
+        ],
+    )
+
+    @app.callback(
+        Output("direct-output", "children"),
+        Input("direct", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_direct_click(n_clicks):
+        return f"Clicked {n_clicks} times"
+
+    @app.callback(
+        Output("nested-output", "children"),
+        Input("nested", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_nested_click(n_clicks):
+        return f"Clicked {n_clicks} times"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#one", "one")
+    dash_duo.wait_for_text_to_equal("#two", "two")
+
+    dash_duo.wait_for_element("#direct").click()
+    dash_duo.wait_for_text_to_equal("#direct-output", "Clicked 1 times")
+
+    dash_duo.wait_for_element("#nested").click()
+    dash_duo.wait_for_text_to_equal("#nested-output", "Clicked 1 times")
