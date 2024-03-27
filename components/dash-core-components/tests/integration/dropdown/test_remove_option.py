@@ -41,15 +41,13 @@ def test_ddro001_remove_option_single(dash_dcc, searchable):
 
     @app.callback(Output("value-output", "children"), [Input("dropdown", "value")])
     def on_change(val):
-        if not val:
-            raise PreventUpdate
-        return val or "None"
+        return val or "Nothing Here"
 
     dash_dcc.start_server(app)
     btn = dash_dcc.wait_for_element("#remove")
     btn.click()
 
-    dash_dcc.wait_for_text_to_equal("#value-output", "None")
+    dash_dcc.wait_for_text_to_equal("#value-output", "Nothing Here")
 
 
 @pytest.mark.parametrize("searchable", (True, False))
