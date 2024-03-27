@@ -73,3 +73,31 @@ def test_dync002_dynamic_callback_without_element(dash_duo):
     dash_duo.wait_for_text_to_equal("#output", "add callbacks")
 
     assert dash_duo.get_logs() == []
+
+
+def test_dyn003_dynamic_callback_import_library(dash_duo):
+    app = Dash()
+    app.layout = html.Div(
+        [
+            html.Button("insert", id="insert"),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("insert", "n_clicks"),
+        _allow_dynamic_callbacks=True,
+        prevent_initial_call=True,
+    )
+    def on_click(_):
+        import dash_test_components as dt
+
+        return dt.StyledComponent(
+            value="inserted", id="inserted", style={"backgroundColor": "red"}
+        )
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_element("#insert").click()
+    dash_duo.wait_for_text_to_equal("#inserted", "inserted")
