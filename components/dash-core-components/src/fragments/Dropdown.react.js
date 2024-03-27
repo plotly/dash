@@ -42,12 +42,12 @@ const Dropdown = props => {
         multi,
         options,
         setProps,
+        search_value,
         style,
         loading_state,
         value,
     } = props;
     const [optionsCheck, setOptionsCheck] = useState(null);
-    const [searchValue, setSearchValue] = useState(null);
     const persistentOptions = useRef(null);
 
     if (!persistentOptions || !isEqual(options, persistentOptions.current)) {
@@ -115,14 +115,14 @@ const Dropdown = props => {
         [multi]
     );
 
-    const onInputChange = useCallback(search_value => {
-        setProps({search_value});
-        setSearchValue(search_value);
-    }, []);
+    const onInputChange = useCallback(
+        search_value => setProps({search_value}),
+        []
+    );
 
     useEffect(() => {
         if (
-            !searchValue &&
+            !search_value &&
             !isNil(sanitizedOptions) &&
             optionsCheck !== sanitizedOptions &&
             !isNil(value)
