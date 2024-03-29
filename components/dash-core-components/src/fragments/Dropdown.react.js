@@ -24,6 +24,7 @@ const TOKENIZER = {
 
 const RDProps = [
     'multi',
+    'close_on_select',
     'clearable',
     'searchable',
     'search_value',
@@ -41,6 +42,7 @@ const Dropdown = props => {
         clearable,
         searchable,
         multi,
+        close_on_select,
         options,
         setProps,
         style,
@@ -53,7 +55,9 @@ const Dropdown = props => {
     if (!persistentOptions || !isEqual(options, persistentOptions.current)) {
         persistentOptions.current = options;
     }
-
+    if (!multi) {
+        setProps({close_on_select: true});
+    }
     const [sanitizedOptions, filterOptions] = useMemo(() => {
         let sanitized = sanitizeOptions(options);
 
@@ -155,6 +159,7 @@ const Dropdown = props => {
                 filterOptions={filterOptions}
                 options={sanitizedOptions}
                 value={value}
+                closeOnSelect={close_on_select}
                 onChange={onChange}
                 onInputChange={onInputChange}
                 backspaceRemoves={clearable}
