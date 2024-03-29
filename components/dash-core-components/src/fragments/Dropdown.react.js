@@ -55,9 +55,7 @@ const Dropdown = props => {
     if (!persistentOptions || !isEqual(options, persistentOptions.current)) {
         persistentOptions.current = options;
     }
-    if (!multi) {
-        setProps({close_on_select: true});
-    }
+
     const [sanitizedOptions, filterOptions] = useMemo(() => {
         let sanitized = sanitizeOptions(options);
 
@@ -159,7 +157,7 @@ const Dropdown = props => {
                 filterOptions={filterOptions}
                 options={sanitizedOptions}
                 value={value}
-                closeOnSelect={close_on_select}
+                closeOnSelect={multi ? close_on_select : true}
                 onChange={onChange}
                 onInputChange={onInputChange}
                 backspaceRemoves={clearable}
