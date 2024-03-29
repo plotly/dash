@@ -2,6 +2,7 @@ import traceback
 from contextvars import copy_context
 
 from . import BaseLongCallbackManager
+from .._proxy_set_props import ProxySetProps
 from ..._callback_context import context_value
 from ..._utils import AttributeDict
 from ...exceptions import PreventUpdate
@@ -155,6 +156,16 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
             self.terminate_job(job)
         return result
 
+    def get_updated_props(self, key):
+        set_props_key = self._make_set_props_key(key)
+        result = self.handle.get(set_props_key, self.UNDEFINED)
+        if result is self.UNDEFINED:
+            return {}
+
+        self.clear_cache_entry(set_props_key)
+
+        return result
+
 
 def _make_job_fn(fn, cache, progress):
     def job_fn(result_key, progress_key, user_callback_args, context):
@@ -166,11 +177,15 @@ def _make_job_fn(fn, cache, progress):
 
         maybe_progress = [_set_progress] if progress else []
 
+        def _set_props(_id, props):
+            cache.set(f"{result_key}-set_props", {_id: props})
+
         ctx = copy_context()
 
         def run():
             c = AttributeDict(**context)
             c.ignore_register_page = False
+            c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
             try:
                 if isinstance(user_callback_args, dict):

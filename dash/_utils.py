@@ -131,7 +131,7 @@ class AttributeDict(dict):
             return next(iter(self), {})
 
 
-def create_callback_id(output, inputs):
+def create_callback_id(output, inputs, no_output=False):
     # A single dot within a dict id key or value is OK
     # but in case of multiple dots together escape each dot
     # with `\` so we don't mistake it for multi-outputs
@@ -148,6 +148,12 @@ def create_callback_id(output, inputs):
             # Actually adds on the property part.
             _id += f"@{hashed_inputs}"
         return _id
+
+    if no_output:
+        # No output will hash the inputs.
+        return hashlib.sha256(
+            ".".join(str(x) for x in inputs).encode("utf-8")
+        ).hexdigest()
 
     if isinstance(output, (list, tuple)):
         return ".." + "...".join(_concat(x) for x in output) + ".."

@@ -2,6 +2,7 @@ import functools
 import warnings
 import json
 import contextvars
+import typing
 
 import flask
 
@@ -247,5 +248,20 @@ class CallbackContext:
     def timing_information(self):
         return getattr(flask.g, "timing_information", {})
 
+    @has_context
+    def set_props(self, component_id: typing.Union[str, dict], props: dict):
+        ctx_value = _get_context_value()
+        if isinstance(component_id, dict):
+            ctx_value.updated_props[json.dumps(component_id)] = props
+        else:
+            ctx_value.updated_props[component_id] = props
+
 
 callback_context = CallbackContext()
+
+
+def set_props(component_id: typing.Union[str, dict], props: dict):
+    """
+    Set the props for a component not included in the callback outputs.
+    """
+    callback_context.set_props(component_id, props)

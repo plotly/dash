@@ -324,19 +324,37 @@ async function handleClientside(
     return result;
 }
 
-function sideUpdate(outputs: any, dispatch: any, paths: any) {
-    toPairs(outputs).forEach(([id, value]) => {
-        const [componentId, propName] = id.split('.');
-        const componentPath = paths.strs[componentId];
+function updateComponent(component_id: any, props: any) {
+    return function (dispatch: any, getState: any) {
+        const paths = getState().paths;
+        const componentPath = getPath(paths, component_id);
         dispatch(
             updateProps({
-                props: {[propName]: value},
+                props,
                 itempath: componentPath
             })
         );
-        dispatch(
-            notifyObservers({id: componentId, props: {[propName]: value}})
-        );
+        dispatch(notifyObservers({id: component_id, props}));
+    };
+}
+
+function sideUpdate(outputs: any, dispatch: any) {
+    toPairs(outputs).forEach(([id, value]) => {
+        let componentId, propName;
+        if (id.includes('.')) {
+            [componentId, propName] = id.split('.');
+            if (componentId.startsWith('{')) {
+                componentId = JSON.parse(componentId);
+            }
+            dispatch(updateComponent(componentId, {[propName]: value}));
+        } else {
+            if (id.startsWith('{')) {
+                componentId = JSON.parse(id);
+            } else {
+                componentId = id;
+            }
+            dispatch(updateComponent(componentId, value));
+        }
     });
 }
 
@@ -345,7 +363,6 @@ function handleServerside(
     hooks: any,
     config: any,
     payload: any,
-    paths: any,
     long: LongCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
@@ -365,7 +382,7 @@ function handleServerside(
     let moreArgs = additionalArgs;
 
     if (running) {
-        sideUpdate(running.running, dispatch, paths);
+        sideUpdate(running.running, dispatch);
         runningOff = running.runningOff;
     }
 
@@ -475,10 +492,10 @@ function handleServerside(
                     dispatch(removeCallbackJob({jobId: job}));
                 }
                 if (runningOff) {
-                    sideUpdate(runningOff, dispatch, paths);
+                    sideUpdate(runningOff, dispatch);
                 }
                 if (progressDefault) {
-                    sideUpdate(progressDefault, dispatch, paths);
+                    sideUpdate(progressDefault, dispatch);
                 }
             };
 
@@ -500,8 +517,12 @@ function handleServerside(
                         job = data.job;
                     }
 
+                    if (data.sideUpdate) {
+                        sideUpdate(data.sideUpdate, dispatch);
+                    }
+
                     if (data.progress) {
-                        sideUpdate(data.progress, dispatch, paths);
+                        sideUpdate(data.progress, dispatch);
                     }
                     if (!progressDefault && data.progressDefault) {
                         progressDefault = data.progressDefault;
@@ -696,11 +717,7 @@ export function executeCallback(
                         if (inter.length) {
                             additionalArgs.push(['cancelJob', job.jobId]);
                             if (job.progressDefault) {
-                                sideUpdate(
-                                    job.progressDefault,
-                                    dispatch,
-                                    paths
-                                );
+                                sideUpdate(job.progressDefault, dispatch);
                             }
                         }
                     }
@@ -713,7 +730,6 @@ export function executeCallback(
                             hooks,
                             newConfig,
                             payload,
-                            paths,
                             long,
                             additionalArgs.length ? additionalArgs : undefined,
                             getState,
