@@ -15,6 +15,11 @@ def test_duo001_wait_for_text_error(dash_duo):
     assert err.value.args[0] == "text -> Invalid not found within 1.0s, found: Content"
 
     with pytest.raises(TimeoutException) as err:
+        dash_duo.wait_for_text_to_equal("#content", "None", timeout=1.0)
+
+    assert err.value.args[0] == "text -> None not found within 1.0s, found: Content"
+
+    with pytest.raises(TimeoutException) as err:
         dash_duo.wait_for_text_to_equal("#none", "None", timeout=1.0)
 
     assert err.value.args[0] == "text -> None not found within 1.0s, #none not found"
@@ -25,6 +30,14 @@ def test_duo001_wait_for_text_error(dash_duo):
     assert (
         err.value.args[0]
         == "text -> invalid not found inside element within 1.0s, found: Content"
+    )
+
+    with pytest.raises(TimeoutException) as err:
+        dash_duo.wait_for_contains_text("#content", "None", timeout=1.0)
+
+    assert (
+        err.value.args[0]
+        == "text -> None not found inside element within 1.0s, found: Content"
     )
 
     with pytest.raises(TimeoutException) as err:
