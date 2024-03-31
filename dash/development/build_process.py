@@ -97,8 +97,7 @@ class BuildProcess:
             logger.info("bundles in %s %s", folder, copies)
 
             for copy in copies:
-                # note md5 has been replaced with sha256, leaving string 'MD5 (hash)' as is because impacts are unclear
-                payload[f"MD5 ({copy})"] = compute_hash(self._concat(folder, copy)) 
+                payload[f"SHA256 ({copy})"] = compute_hash(self._concat(folder, copy)) 
 
         with open(self._concat(self.main, "digest.json"), "w", encoding="utf-8") as fp:
             json.dump(payload, fp, sort_keys=True, indent=4, separators=(",", ":"))
