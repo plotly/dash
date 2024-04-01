@@ -47,3 +47,18 @@ def test_duo001_wait_for_text_error(dash_duo):
         err.value.args[0]
         == "text -> none not found inside element within 1.0s, #none not found"
     )
+
+
+def test_duo002_wait_for_text_value(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div([html.Ol([html.Li("Item", id="value-item", value="100")])])
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#value-item", "100")
+    with pytest.raises(TimeoutException) as err:
+        dash_duo.wait_for_contains_text("#value-item", "None", timeout=1.0)
+
+    assert (
+        err.value.args[0]
+        == "text -> None not found inside element within 1.0s, found: Item"
+    )

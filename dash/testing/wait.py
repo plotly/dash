@@ -62,10 +62,9 @@ class contains_text:
         try:
             elem = driver.find_element(By.CSS_SELECTOR, self.selector)
             logger.debug("contains text {%s} => expected %s", elem.text, self.text)
-            if value := elem.get_attribute("value") is not None:
+            if (value := elem.get_attribute("value")) is not None:
                 return self.text in str(elem.text) or self.text in str(value)
-            else:
-                return self.text in str(elem.text)
+            return self.text in str(elem.text)
         except WebDriverException:
             return False
 
@@ -108,10 +107,9 @@ class text_to_equal:
         try:
             elem = self._get_element(driver)
             logger.debug("text to equal {%s} => expected %s", elem.text, self.text)
-            if value := elem.get_attribute("value") is not None:
+            if (value := elem.get_attribute("value")) is not None:
                 return str(elem.text) == self.text or str(value) == self.text
-            else:
-                return str(elem.text) == self.text
+            return str(elem.text) == self.text
         except WebDriverException:
             return False
 
