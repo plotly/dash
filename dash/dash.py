@@ -366,6 +366,9 @@ class Dash:
     functions. The syntax for this parameter is a dict of State objects:
     `routing_callback_inputs={"language": Input("language", "value")}`
     NOTE: the keys "pathname_" and "search_" are reserved for internal use.
+
+    :param description:  Sets a default description for meta tags on Dash pages (use_pages=True).
+
     """
 
     _plotlyjs_url: str
@@ -404,6 +407,7 @@ class Dash:
         add_log_handler=True,
         hooks: Union[RendererHooks, None] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
+        description=None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -458,6 +462,7 @@ class Dash:
             title=title,
             update_title=update_title,
             include_pages_meta=include_pages_meta,
+            description=description,
         )
         self.config.set_read_only(
             [
