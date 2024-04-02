@@ -337,7 +337,9 @@ def register_callback(  # pylint: disable=R0914
         def add_context(*args, **kwargs):
             output_spec = kwargs.pop("outputs_list")
             app_callback_manager = kwargs.pop("long_callback_manager", None)
-            callback_ctx = kwargs.pop("callback_context", {})
+            callback_ctx = kwargs.pop(
+                "callback_context", AttributeDict({"updated_props": {}})
+            )
             callback_manager = long and long.get("manager", app_callback_manager)
             if not no_output:
                 _validate.validate_output_spec(insert_output, output_spec, Output)
