@@ -6,8 +6,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
+- [#2826](https://github.com/plotly/dash/pull/2826) When using Pages, allows for `app.title` and (new) `app.description` to be used as defaults for the page title and description.
 - [#2795](https://github.com/plotly/dash/pull/2795) Allow list of components to be passed as layout.
-- [2760](https://github.com/plotly/dash/pull/2760) New additions to dcc.Loading resolving multiple issues:
+- [#2760](https://github.com/plotly/dash/pull/2760) New additions to dcc.Loading resolving multiple issues:
   - `delay_show` and `delay_hide` props  to prevent flickering during brief loading periods (similar to Dash Bootstrap Components dbc.Spinner)
   - `overlay_style` for styling the loading overlay,  such as setting  visibility and opacity for children
   - `target_components` specifies components/props triggering the loading spinner
