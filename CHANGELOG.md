@@ -5,12 +5,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ## Added
+
+- [#2795](https://github.com/plotly/dash/pull/2795) Allow list of components to be passed as layout.
 - [2760](https://github.com/plotly/dash/pull/2760) New additions to dcc.Loading resolving multiple issues:
   - `delay_show` and `delay_hide` props  to prevent flickering during brief loading periods (similar to Dash Bootstrap Components dbc.Spinner)
   - `overlay_style` for styling the loading overlay,  such as setting  visibility and opacity for children
   - `target_components` specifies components/props triggering the loading spinner
   - `custom_spinner`  enables using a custom component for loading messages instead of built-in spinners
   - `display`  overrides the loading status with options for "show," "hide," or "auto"
+
+## Fixed
+
+- [#2362](https://github.com/plotly/dash/pull/2362) Global namespace not polluted any more when loading clientside callbacks.
 
 ## [2.16.1] - 2024-03-06
 

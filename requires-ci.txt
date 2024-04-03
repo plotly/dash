@@ -3,7 +3,7 @@ black==22.3.0
 dash-flow-example==0.0.5
 dash-dangerously-set-inner-html
 flake8==7.0.0
-flaky==3.7.0
+flaky==3.8.1
 flask-talisman==1.0.0
 mimesis<=11.1.0
 mock==4.0.3
