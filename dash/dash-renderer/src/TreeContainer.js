@@ -16,6 +16,7 @@ import {
     map,
     mapObjIndexed,
     mergeRight,
+    omit,
     pick,
     pickBy,
     propOr,
@@ -237,7 +238,7 @@ class BaseTreeContainer extends Component {
         );
     }
 
-    getComponent(_dashprivate_layout, children, loading_state, setProps, _dashextra_controlProps) {
+    getComponent(_dashprivate_layout, children, loading_state, setProps, _extraProps) {
         const {_dashprivate_config, _dashprivate_dispatch, _dashprivate_error} =
             this.props;
 
@@ -262,7 +263,7 @@ class BaseTreeContainer extends Component {
             ],
             _dashprivate_config
         );
-        let props = mergeRight(_dashextra_controlProps, dissoc('children', _dashprivate_layout.props));
+        let props = mergeRight(_extraProps, dissoc('children', _dashprivate_layout.props));
 
         for (let i = 0; i < childrenProps.length; i++) {
             const childrenProp = childrenProps[i];
@@ -476,17 +477,25 @@ class BaseTreeContainer extends Component {
 
     render() {
         const {
-            _dashprivate_error,
             _dashprivate_layout,
             _dashprivate_loadingState,
-            _dashprivate_loadingStateHash,
-            _dashprivate_path,
-            _dashprivate_config,
-            _dashprivate_dispatch,
-            _dashprivate_graphs,
-            _dashprivate_loadingMap,
-            ..._dashextra_controlProps
+            _dashprivate_path
         } = this.props;
+        
+        const _extraProps = omit(
+            [
+                '_dashprivate_error', 
+                '_dashprivate_layout',
+                '_dashprivate_loadingState',
+                '_dashprivate_loadingStateHash',
+                '_dashprivate_path',
+                '_dashprivate_config',
+                '_dashprivate_dispatch',
+                '_dashprivate_graphs',
+                '_dashprivate_loadingMap'
+            ],
+            this.props
+        );
 
         const layoutProps = this.getLayoutProps();
 
@@ -500,7 +509,7 @@ class BaseTreeContainer extends Component {
             children,
             _dashprivate_loadingState,
             this.setProps,
-            _dashextra_controlProps
+            _extraProps
         );
     }
 }
