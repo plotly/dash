@@ -242,7 +242,7 @@ def register_page(
 
     - `description`:
        (string or function) The <meta type="description"></meta>.
-       If not supplied, the app's description is used else None.
+       If not defined, the application description will be used if available.
 
     - `image`:
        The meta description image used by social media platforms.
