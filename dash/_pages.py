@@ -237,7 +237,7 @@ def register_page(
     - `title`:
        (string or function) Specifies the page title displayed in the browser tab.
         If not supplied, the app's title is used if different from the default "Dash".
-        Otherwise, the title is the supplied `name` or inferred from the module name.
+        Otherwise, the title is the given `name` or inferred from the module name.
         For example, `pages.weekly_analytics` is inferred as "Weekly Analytics".
 
     - `description`:
