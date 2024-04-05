@@ -481,7 +481,7 @@ class Dash:
             "Invalid config key. Some settings are only available "
             "via the Dash constructor"
         )
-        self.callback_fallback=callback_fallback
+        self.callback_fallback = callback_fallback
 
         _callback.GLOBAL_CALLBACK_FALLBACK = self.callback_fallback
 

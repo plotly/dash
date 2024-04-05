@@ -187,7 +187,7 @@ def callback(
         long=long_spec,
         manager=manager,
         running=running,
-        callback_fallback=callback_fallback
+        callback_fallback=callback_fallback,
     )
 
 
@@ -294,7 +294,7 @@ def register_callback(  # pylint: disable=R0914
     long = _kwargs.get("long")
     manager = _kwargs.get("manager")
     running = _kwargs.get("running")
-    callback_fallback = _kwargs.get('callback_fallback')
+    callback_fallback = _kwargs.get("callback_fallback")
     if running is not None:
         if not isinstance(running[0], (list, tuple)):
             running = [running]
@@ -320,7 +320,6 @@ def register_callback(  # pylint: disable=R0914
         dynamic_creator=allow_dynamic_callbacks,
         running=running,
     )
-
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
@@ -501,8 +500,9 @@ def register_callback(  # pylint: disable=R0914
 
         callback_map[callback_id]["callback"] = add_context
         if callback_fallback:
-            callback_map[callback_id]['callback'] = callback_fallback(insert_output)(
-                callback_map[callback_id]['callback'])
+            callback_map[callback_id]["callback"] = callback_fallback(insert_output)(
+                callback_map[callback_id]["callback"]
+            )
         return func
 
     return wrap_func
