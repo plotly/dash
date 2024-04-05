@@ -16,7 +16,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, Callable
 
 import flask
 
@@ -408,6 +408,7 @@ class Dash:
         hooks: Union[RendererHooks, None] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
         description=None,
+        callback_fallback: Optional[Union[Callable, None]] = None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -480,6 +481,9 @@ class Dash:
             "Invalid config key. Some settings are only available "
             "via the Dash constructor"
         )
+        self.callback_fallback=callback_fallback
+
+        _callback.GLOBAL_CALLBACK_FALLBACK = self.callback_fallback
 
         _get_paths.CONFIG = self.config
         _pages.CONFIG = self.config
