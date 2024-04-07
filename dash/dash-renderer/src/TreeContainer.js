@@ -238,7 +238,13 @@ class BaseTreeContainer extends Component {
         );
     }
 
-    getComponent(_dashprivate_layout, children, loading_state, setProps, _extraProps) {
+    getComponent(
+        _dashprivate_layout,
+        children,
+        loading_state,
+        setProps,
+        _extraProps
+    ) {
         const {_dashprivate_config, _dashprivate_dispatch, _dashprivate_error} =
             this.props;
 
@@ -263,7 +269,10 @@ class BaseTreeContainer extends Component {
             ],
             _dashprivate_config
         );
-        let props = mergeRight(_extraProps, dissoc('children', _dashprivate_layout.props));
+        let props = mergeRight(
+            _extraProps,
+            dissoc('children', _dashprivate_layout.props)
+        );
 
         for (let i = 0; i < childrenProps.length; i++) {
             const childrenProp = childrenProps[i];
@@ -481,10 +490,10 @@ class BaseTreeContainer extends Component {
             _dashprivate_loadingState,
             _dashprivate_path
         } = this.props;
-        
+
         const _extraProps = omit(
             [
-                '_dashprivate_error', 
+                '_dashprivate_error',
                 '_dashprivate_layout',
                 '_dashprivate_loadingState',
                 '_dashprivate_loadingStateHash',
