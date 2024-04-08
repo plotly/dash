@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 
 - [#2362](https://github.com/plotly/dash/pull/2362) Global namespace not polluted any more when loading clientside callbacks.
+- [#2817](https://github.com/plotly/dash/pull/2817) Change hashing algorithm from md5 to sha256, Fixes [#2697](https://github.com/plotly/dash/issues/2697).
 
 ## [2.16.1] - 2024-03-06
 
