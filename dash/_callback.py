@@ -351,6 +351,7 @@ def register_callback(  # pylint: disable=R0914
             )
 
             response = {"multi": True}
+            has_update = False
 
             if long is not None:
                 if not callback_manager:
@@ -455,6 +456,7 @@ def register_callback(  # pylint: disable=R0914
                 updated_props = callback_manager.get_updated_props(cache_key)
                 if len(updated_props) > 0:
                     response["sideUpdate"] = updated_props
+                    has_update = True
 
                 if output_value is callback_manager.UNDEFINED:
                     return to_json(response)
@@ -480,7 +482,6 @@ def register_callback(  # pylint: disable=R0914
                 flat_output_values = flatten_grouping(output_value, output)
 
             component_ids = collections.defaultdict(dict)
-            has_update = False
             if not no_output:
                 _validate.validate_multi_return(
                     output_spec, flat_output_values, callback_id
