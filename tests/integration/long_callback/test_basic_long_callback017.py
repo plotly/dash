@@ -5,8 +5,7 @@ def test_lcbc017_long_callback_set_props(dash_duo, manager):
     with setup_long_callback_app(manager, "app_arbitrary") as app:
         dash_duo.start_server(app)
 
-        with app.test_lock:
-            dash_duo.find_element("#start").click()
+        dash_duo.find_element("#start").click()
 
         dash_duo.wait_for_text_to_equal("#secondary", "first")
         dash_duo.wait_for_text_to_equal("#output", "initial")
