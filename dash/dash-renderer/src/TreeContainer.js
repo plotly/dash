@@ -270,8 +270,8 @@ class BaseTreeContainer extends Component {
             _dashprivate_config
         );
         let props = mergeRight(
-            _extraProps,
-            dissoc('children', _dashprivate_layout.props)
+            dissoc('children', _dashprivate_layout.props),
+            _extraProps
         );
 
         for (let i = 0; i < childrenProps.length; i++) {
@@ -493,6 +493,7 @@ class BaseTreeContainer extends Component {
 
         const _extraProps = omit(
             [
+                'id',
                 '_dashprivate_error',
                 '_dashprivate_layout',
                 '_dashprivate_loadingState',
