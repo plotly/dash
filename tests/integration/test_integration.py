@@ -511,3 +511,22 @@ def test_inin029_layout_as_list_with_pages(dash_duo):
 
     dash_duo.wait_for_element("#nested").click()
     dash_duo.wait_for_text_to_equal("#nested-output", "Clicked 1 times")
+
+
+def test_inin030_add_startup_route(dash_duo):
+    url = "my-new-route"
+    def my_route_f():
+        return "hello"
+    Dash.add_startup_route(url, my_route_f, ["POST"])
+
+    import requests
+
+    app = Dash(__name__)
+    Dash.STARTUP_ROUTES = []
+    app.layout = html.Div("Hello World")
+    dash_duo.start_server(app)
+
+    url = f"{dash_duo.server_url}{app.config.requests_pathname_prefix}_dash_startup_route/{url}"
+    response = requests.post(url)
+    assert response.status_code == 200
+    assert response.text == "hello"
