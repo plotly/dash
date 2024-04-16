@@ -372,7 +372,7 @@ class Dash:
     """
 
     _plotlyjs_url: str
-    STARTUP_ROUTES = []
+    STARTUP_ROUTES: list = []
 
     def __init__(  # pylint: disable=too-many-statements
         self,
@@ -1629,7 +1629,7 @@ class Dash:
         )
 
     @staticmethod
-    def add_startup_route(name, view_func, methods=["POST"]):
+    def add_startup_route(name, view_func, methods):
         """
         Add a route to the app to be initialized at the end of Dash initialization.
         Use this if the package requires a route to be added to the app, and you will not need to worry about at what point to add it.
