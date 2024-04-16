@@ -34,7 +34,8 @@ const clean_url = (url: string, fallback = 'about:blank') => {
     const cleaned = url
         .replace(newLines, '')
         .replace(ctrlChars, '')
-        .replace(htmlEntities, '');
+        .replace(htmlEntities, (_, dec) => String.fromCharCode(dec))
+        .trim();
     if (invalidProtocols.test(cleaned)) {
         return fallback;
     }

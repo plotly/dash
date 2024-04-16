@@ -9,7 +9,19 @@ def test_xss001_banned_protocols(dash_duo):
             dcc.Link("dcc-link", href="javascript:alert(1)", id="dcc-link"),
             html.Br(),
             html.A(
-                "html.A", href='javascr\nipt:alert(1);console.log("xss");', id="html-A"
+                "html.A",
+                href='javascr\n\nipt:alert(1);console.log("xss");',
+                id="html-A",
+            ),
+            html.A(
+                "html.A.escape",
+                id="html-A-escape",
+                href="""javascript\x09\x0a:alert(1)""",
+            ),
+            html.A(
+                "html.A.encoded",
+                id="html-A-encoded",
+                href="&#0000106&#0000097&#0000118&#0000097&#0000115&#0000099&#0000114&#0000105&#0000112&#0000116&#0000058&#0000097&#0000108&#0000101&#0000114&#0000116&#0000040&#0000039&#0000088&#0000083&#0000083&#0000039&#0000041",
             ),
             html.Br(),
             html.Form(
@@ -35,6 +47,8 @@ def test_xss001_banned_protocols(dash_duo):
     for element_id, prop in (
         ("#dcc-link", "href"),
         ("#html-A", "href"),
+        ("#html-A-escape", "href"),
+        ("#html-A-encoded", "href"),
         ("#iframe-src", "src"),
         ("#object-data", "data"),
         ("#embed-src", "src"),
