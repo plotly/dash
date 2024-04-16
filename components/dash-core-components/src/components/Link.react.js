@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 
 import React, {useEffect, useMemo} from 'react';
-import {sanitizeUrl} from '@braintree/sanitize-url';
 import {isNil} from 'ramda';
 
 /*
@@ -46,8 +45,9 @@ const Link = props => {
         refresh,
         setProps,
     } = props;
+    const cleanUrl = window.dash_clientside.clean_url;
     const sanitizedUrl = useMemo(() => {
-        return href ? sanitizeUrl(href) : undefined;
+        return href ? cleanUrl(href) : undefined;
     }, [href]);
 
     const updateLocation = e => {

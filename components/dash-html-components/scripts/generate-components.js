@@ -249,18 +249,12 @@ const customDocs = {
  * <body>.`
 };
 
-const customImportsForComponents = {
-    a: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
-    form: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
-    iframe: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
-    object: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
-    embed: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
-    button: `import {sanitizeUrl} from '@braintree/sanitize-url';`,
-}
+const customImportsForComponents = {};
 
 function createXSSProtection(propName) {
     return `
-    const ${propName} = React.useMemo(() => props.${propName} && sanitizeUrl(props.${propName}), [props.${propName}]);
+    const cleanUrl = window.dash_clientside.clean_url;
+    const ${propName} = React.useMemo(() => props.${propName} && cleanUrl(props.${propName}), [props.${propName}]);
     
     if (${propName}) {
         extraProps.${propName} = ${propName};
