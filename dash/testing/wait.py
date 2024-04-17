@@ -63,9 +63,10 @@ class contains_text:
         try:
             elem = driver.find_element(By.CSS_SELECTOR, self.selector)
             logger.debug("contains text {%s} => expected %s", elem.text, self.text)
-            if (value := elem.get_attribute("value")) is not None:
-                return self.text in str(elem.text) or self.text in str(value)
-            return self.text in str(elem.text)
+            value = elem.get_attribute("value")
+            return str(elem.text) in self.text or (
+                value is not None and str(value) in self.text
+            )
         except WebDriverException:
             return False
 
