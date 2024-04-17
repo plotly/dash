@@ -1,5 +1,6 @@
 # pylint: disable=too-few-public-methods
 """Utils methods for pytest-dash such wait_for wrappers."""
+
 import time
 import logging
 from selenium.common.exceptions import WebDriverException
@@ -108,7 +109,9 @@ class text_to_equal:
             elem = self._get_element(driver)
             logger.debug("text to equal {%s} => expected %s", elem.text, self.text)
             value = elem.get_attribute("value")
-            return str(elem.text) == self.text or (value is not None and str(value) == self.text)
+            return str(elem.text) == self.text or (
+                value is not None and str(value) == self.text
+            )
         except WebDriverException:
             return False
 
