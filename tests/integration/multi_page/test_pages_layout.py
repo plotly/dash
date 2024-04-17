@@ -264,3 +264,27 @@ def test_pala006_pages_external_library(dash_duo):
     dash_duo.start_server(app)
     dash_duo.wait_for_element("#button").click()
     dash_duo.wait_for_text_to_equal("#out", "Button has been clicked 1 times")
+
+def get_app_title_description():
+    app = Dash(
+        __name__, use_pages=True, title="App Title", description="App Description"
+    )
+    dash.register_page("home", layout=html.Div("Home"), path="/")
+    dash.register_page(
+        "page1",
+        layout=html.Div("Page1"),
+        title="Page 1 Title",
+        description="Page 1 Description",
+    )
+    app.layout = html.Div(dash.page_container)
+    return app
+
+
+def test_pala007_app_title_discription(dash_duo, clear_pages_state):
+    dash_duo.start_server(get_app_title_description())
+
+    assert dash.page_registry["home"]["title"] == "App Title"
+    assert dash.page_registry["page1"]["title"] == "Page 1 Title"
+    assert dash.page_registry["home"]["description"] == "App Description"
+    assert dash.page_registry["page1"]["description"] == "Page 1 Description"
+
