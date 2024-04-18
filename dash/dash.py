@@ -1659,6 +1659,7 @@ class Dash:
         """
         for _name, _view_func, _methods in self.STARTUP_ROUTES:
             self._add_url(f"_dash_startup_route/{_name}", _view_func, _methods)
+        self.STARTUP_ROUTES = []
 
     def _setup_dev_tools(self, **kwargs):
         debug = kwargs.get("debug", False)
