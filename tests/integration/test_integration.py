@@ -515,8 +515,10 @@ def test_inin029_layout_as_list_with_pages(dash_duo):
 
 def test_inin030_add_startup_route(dash_duo):
     url = "my-new-route"
+
     def my_route_f():
         return "hello"
+
     Dash.add_startup_route(url, my_route_f, ["POST"])
 
     import requests
