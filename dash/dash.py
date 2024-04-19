@@ -372,6 +372,7 @@ class Dash:
     """
 
     _plotlyjs_url: str
+    STARTUP_ROUTES: list = []
 
     def __init__(  # pylint: disable=too-many-statements
         self,
@@ -556,6 +557,7 @@ class Dash:
                 "JupyterDash is deprecated, use Dash instead.\n"
                 "See https://dash.plotly.com/dash-in-jupyter for more details."
             )
+        self.setup_startup_routes()
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
@@ -1625,6 +1627,39 @@ class Dash:
         return _get_paths.app_strip_relative_path(
             self.config.requests_pathname_prefix, path
         )
+
+    @staticmethod
+    def add_startup_route(name, view_func, methods):
+        """
+        Add a route to the app to be initialized at the end of Dash initialization.
+        Use this if the package requires a route to be added to the app, and you will not need to worry about at what point to add it.
+
+        :param name: The name of the route. eg "my-new-url/path".
+        :param view_func: The function to call when the route is requested. The function should return a JSON serializable object.
+        :param methods: The HTTP methods that the route should respond to. eg ["GET", "POST"] or either one.
+        """
+        if not isinstance(name, str) or name.startswith("/"):
+            raise ValueError("name must be a string and should not start with '/'")
+
+        if not callable(view_func):
+            raise ValueError("view_func must be callable")
+
+        valid_methods = {"POST", "GET"}
+        if not set(methods).issubset(valid_methods):
+            raise ValueError(f"methods should only contain {valid_methods}")
+
+        if any(route[0] == name for route in Dash.STARTUP_ROUTES):
+            raise ValueError(f"Route name '{name}' is already in use.")
+
+        Dash.STARTUP_ROUTES.append((name, view_func, methods))
+
+    def setup_startup_routes(self):
+        """
+        Initialize the startup routes stored in STARTUP_ROUTES.
+        """
+        for _name, _view_func, _methods in self.STARTUP_ROUTES:
+            self._add_url(f"_dash_startup_route/{_name}", _view_func, _methods)
+        self.STARTUP_ROUTES = []
 
     def _setup_dev_tools(self, **kwargs):
         debug = kwargs.get("debug", False)
