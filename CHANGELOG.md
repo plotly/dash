@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
+- [#2832](https://github.com/plotly/dash/pull/2832) Add dash startup route setup on Dash init.
 - [#2819](https://github.com/plotly/dash/pull/2819) Add dash subcomponents receive additional parameters passed by the parent component. Fixes [#2814](https://github.com/plotly/dash/issues/2814).
 - [#2826](https://github.com/plotly/dash/pull/2826) When using Pages, allows for `app.title` and (new) `app.description` to be used as defaults for the page title and description. Fixes [#2811](https://github.com/plotly/dash/issues/2811).
 - [#2795](https://github.com/plotly/dash/pull/2795) Allow list of components to be passed as layout.
