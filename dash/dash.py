@@ -1631,7 +1631,7 @@ class Dash:
     @staticmethod
     def add_startup_route(name, view_func, methods):
         """
-        Add a route to the app to be initialized at the end of Dash initialization.
+        Add a route to the app to be initialized at the end of Dash initialization. 
         Use this if the package requires a route to be added to the app, and you will not need to worry about at what point to add it.
 
         :param name: The name of the route. eg "my-new-url/path".
