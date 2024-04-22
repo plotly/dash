@@ -143,6 +143,13 @@ class Patch:
         value.update(F)
         self._operations.append(_operation("Merge", self._location, value=value))
 
+    def delHeat(self, index = 0, length = 0):
+        """Deletes the item at index in a Heat figure, length of the 'z' 2D array is necessary"""
+        del self['data'][0]['x'][index]
+        del self['data'][0]['y'][index]
+        for i in range(length):
+            del self['data'][0]['z'][i][index]
+
     # pylint: disable=no-self-use
     def sort(self):
         raise KeyError(
