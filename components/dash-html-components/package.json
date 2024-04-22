@@ -28,7 +28,6 @@
   "author": "Chris Parmer <chris@plotly.com>",
   "maintainer": "Alex Johnson <alex@plotly.com>",
   "dependencies": {
-    "@braintree/sanitize-url": "^7.0.0",
     "prop-types": "^15.8.1",
     "ramda": "^0.29.0"
   },
@@ -44,16 +43,16 @@
     "eslint": "^8.41.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.2",
+    "mkdirp": "^0.5.1",
     "npm-run-all": "^4.1.5",
+    "react": "^16.14.0",
     "react-docgen": "^5.4.3",
+    "react-dom": "^16.14.0",
     "request": "^2.88.2",
+    "rimraf": "^5.0.5",
     "string": "^3.3.3",
     "webpack": "^5.90.3",
-    "webpack-cli": "^5.1.4",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
-    "rimraf": "^5.0.5",
-    "mkdirp": "^0.5.1"
+    "webpack-cli": "^5.1.4"
   },
   "files": [
     "/dash_html_components/*{.js,.map}"

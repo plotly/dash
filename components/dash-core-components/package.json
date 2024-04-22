@@ -35,7 +35,6 @@
   "maintainer": "Alex Johnson <alex@plotly.com>",
   "license": "MIT",
   "dependencies": {
-    "@braintree/sanitize-url": "^7.0.0",
     "@fortawesome/fontawesome-svg-core": "1.2.36",
     "@fortawesome/free-regular-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
@@ -87,13 +86,15 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-jsx-parser": "1.21.0",
+    "rimraf": "^5.0.5",
     "style-loader": "^3.3.3",
     "styled-jsx": "^3.4.4",
     "webpack": "^5.90.3",
-    "webpack-cli": "^5.1.4",
-    "rimraf": "^5.0.5"
+    "webpack-cli": "^5.1.4"
   },
-  "optionalDependencies": { "fsevents": "*" },
+  "optionalDependencies": {
+    "fsevents": "*"
+  },
   "files": [
     "/dash_core_components/*{.js,.map}",
     "/lib/"
