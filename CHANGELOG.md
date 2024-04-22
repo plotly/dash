@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - `target_components` specifies components/props triggering the loading spinner
   - `custom_spinner`  enables using a custom component for loading messages instead of built-in spinners
   - `display`  overrides the loading status with options for "show," "hide," or "auto"
+- [#2789](https://github.com/plotly/dash/pull/2789) Add library loading capacity to `_allow_dynamic_callbacks`
 
 ## Fixed
 
