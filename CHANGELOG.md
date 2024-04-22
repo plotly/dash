@@ -6,13 +6,21 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
+- [#2832](https://github.com/plotly/dash/pull/2832) Add dash startup route setup on Dash init.
+- [#2819](https://github.com/plotly/dash/pull/2819) Add dash subcomponents receive additional parameters passed by the parent component. Fixes [#2814](https://github.com/plotly/dash/issues/2814).
+- [#2826](https://github.com/plotly/dash/pull/2826) When using Pages, allows for `app.title` and (new) `app.description` to be used as defaults for the page title and description. Fixes [#2811](https://github.com/plotly/dash/issues/2811).
 - [#2795](https://github.com/plotly/dash/pull/2795) Allow list of components to be passed as layout.
-- [2760](https://github.com/plotly/dash/pull/2760) New additions to dcc.Loading resolving multiple issues:
+- [#2760](https://github.com/plotly/dash/pull/2760) New additions to dcc.Loading resolving multiple issues:
   - `delay_show` and `delay_hide` props  to prevent flickering during brief loading periods (similar to Dash Bootstrap Components dbc.Spinner)
   - `overlay_style` for styling the loading overlay,  such as setting  visibility and opacity for children
   - `target_components` specifies components/props triggering the loading spinner
   - `custom_spinner`  enables using a custom component for loading messages instead of built-in spinners
   - `display`  overrides the loading status with options for "show," "hide," or "auto"
+
+## Fixed
+
+- [#2362](https://github.com/plotly/dash/pull/2362) Global namespace not polluted any more when loading clientside callbacks.
+- [#2833](https://github.com/plotly/dash/pull/2833) Allow data url in link props. Fixes [#2764](https://github.com/plotly/dash/issues/2764) 
 
 ## [2.16.1] - 2024-03-06
 

@@ -76,7 +76,7 @@ class BaseLongCallbackManager(ABC):
                 # Call cache function
                 hash_dict[f"cache_key_{i}"] = cache_item()
 
-        return hashlib.sha1(str(hash_dict).encode("utf-8")).hexdigest()
+        return hashlib.sha256(str(hash_dict).encode("utf-8")).hexdigest()
 
     def register(self, key, fn, progress):
         self.func_registry[key] = self.make_job_fn(fn, progress, key)
@@ -109,6 +109,6 @@ class BaseLongCallbackManager(ABC):
     def hash_function(fn, callback_id=""):
         fn_source = inspect.getsource(fn)
         fn_str = fn_source
-        return hashlib.sha1(
+        return hashlib.sha256(
             callback_id.encode("utf-8") + fn_str.encode("utf-8")
         ).hexdigest()

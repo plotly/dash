@@ -525,9 +525,11 @@ def register_callback(  # pylint: disable=R0914
 
 
 _inline_clientside_template = """
-var clientside = window.dash_clientside = window.dash_clientside || {{}};
-var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
-ns["{function_name}"] = {clientside_function};
+(function() {{
+    var clientside = window.dash_clientside = window.dash_clientside || {{}};
+    var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
+    ns["{function_name}"] = {clientside_function};
+}})();
 """
 
 
@@ -558,7 +560,7 @@ def register_clientside_callback(
     if isinstance(clientside_function, str):
         namespace = "_dashprivate_clientside_funcs"
         # Create a hash from the function, it will be the same always
-        function_name = hashlib.md5(clientside_function.encode("utf-8")).hexdigest()
+        function_name = hashlib.sha256(clientside_function.encode("utf-8")).hexdigest()
 
         inline_scripts.append(
             _inline_clientside_template.format(
