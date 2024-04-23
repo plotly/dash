@@ -343,18 +343,16 @@ function sideUpdate(outputs: any, dispatch: any) {
         let componentId, propName;
         if (id.includes('.')) {
             [componentId, propName] = id.split('.');
-            if (componentId.startsWith('{')) {
-                componentId = JSON.parse(componentId);
-            }
-            dispatch(updateComponent(componentId, {[propName]: value}));
         } else {
-            if (id.startsWith('{')) {
-                componentId = JSON.parse(id);
-            } else {
-                componentId = id;
-            }
-            dispatch(updateComponent(componentId, value));
+            componentId = id;
         }
+
+        if (componentId.startsWith('{')) {
+            componentId = JSON.parse(componentId);
+        }
+
+        const props = propName ? {[propName]: value} : value;
+        dispatch(updateComponent(componentId, props));
     });
 }
 
