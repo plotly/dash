@@ -147,14 +147,14 @@ def create_callback_id(output, inputs, no_output=False):
         _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
         if x.allow_duplicate:
             if not hashed_inputs:
-                hashed_inputs = _hash_inputs
+                hashed_inputs = _hash_inputs()
             # Actually adds on the property part.
             _id += f"@{hashed_inputs}"
         return _id
 
     if no_output:
         # No output will hash the inputs.
-        return _hash_inputs
+        return _hash_inputs()
 
     if isinstance(output, (list, tuple)):
         return ".." + "...".join(_concat(x) for x in output) + ".."
