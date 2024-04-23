@@ -137,23 +137,24 @@ def create_callback_id(output, inputs, no_output=False):
     # with `\` so we don't mistake it for multi-outputs
     hashed_inputs = None
 
+    def _hash_inputs():
+        return hashlib.sha256(
+            ".".join(str(x) for x in inputs).encode("utf-8")
+        ).hexdigest()
+
     def _concat(x):
         nonlocal hashed_inputs
         _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
         if x.allow_duplicate:
             if not hashed_inputs:
-                hashed_inputs = hashlib.sha256(
-                    ".".join(str(x) for x in inputs).encode("utf-8")
-                ).hexdigest()
+                hashed_inputs = _hash_inputs
             # Actually adds on the property part.
             _id += f"@{hashed_inputs}"
         return _id
 
     if no_output:
         # No output will hash the inputs.
-        return hashlib.sha256(
-            ".".join(str(x) for x in inputs).encode("utf-8")
-        ).hexdigest()
+        return _hash_inputs
 
     if isinstance(output, (list, tuple)):
         return ".." + "...".join(_concat(x) for x in output) + ".."
