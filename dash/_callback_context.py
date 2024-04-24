@@ -7,7 +7,7 @@ import typing
 import flask
 
 from . import exceptions
-from ._utils import AttributeDict
+from ._utils import AttributeDict, stringify_id
 
 
 context_value = contextvars.ContextVar("callback_context")
@@ -251,10 +251,8 @@ class CallbackContext:
     @has_context
     def set_props(self, component_id: typing.Union[str, dict], props: dict):
         ctx_value = _get_context_value()
-        if isinstance(component_id, dict):
-            ctx_value.updated_props[json.dumps(component_id)] = props
-        else:
-            ctx_value.updated_props[component_id] = props
+        _id = stringify_id(component_id)
+        ctx_value.updated_props[_id] = props
 
 
 callback_context = CallbackContext()
