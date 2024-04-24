@@ -340,15 +340,19 @@ function updateComponent(component_id: any, props: any) {
 
 function sideUpdate(outputs: any, dispatch: any) {
     toPairs(outputs).forEach(([id, value]) => {
-        let componentId, propName;
-        if (id.includes('.')) {
-            [componentId, propName] = id.split('.');
-        } else {
-            componentId = id;
-        }
+        let componentId = id,
+            propName;
 
-        if (componentId.startsWith('{')) {
-            componentId = JSON.parse(componentId);
+        if (id.startsWith('{')) {
+            const index = id.lastIndexOf('}');
+            if (index + 2 < id.length) {
+                propName = id.substring(index + 2);
+                componentId = JSON.parse(id.substring(0, index + 1));
+            } else {
+                componentId = JSON.parse(id);
+            }
+        } else if (id.includes('.')) {
+            [componentId, propName] = id.split('.');
         }
 
         const props = propName ? {[propName]: value} : value;
