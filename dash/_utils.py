@@ -174,8 +174,12 @@ def split_callback_id(callback_id):
 
 
 def stringify_id(id_):
+    def _json(k, v):
+        vstr = v.to_json() if hasattr(v, "to_json") else json.dumps(v)
+        return f"{json.dumps(k)}:{vstr}"
+
     if isinstance(id_, dict):
-        return json.dumps(id_, sort_keys=True, separators=(",", ":"))
+        return "{" + ",".join(_json(k, id_[k]) for k in sorted(id_)) + "}"
     return id_
 
 
