@@ -1266,6 +1266,7 @@ class Dash:
             **_kwargs,
         )
 
+    # pylint: disable=R0915
     def dispatch(self):
         body = flask.request.get_json()
 
