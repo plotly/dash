@@ -1,3 +1,6 @@
+import time
+from multiprocessing import Value
+
 from dash import Dash, Input, Output, html, set_props, register_page
 
 
@@ -30,11 +33,14 @@ def test_arb001_global_set_props(dash_duo):
 def test_arb002_no_output_callbacks(dash_duo):
     app = Dash()
 
+    counter = Value("i", 0)
+
     app.layout = html.Div(
         [
             html.Div(id="secondary-output"),
             html.Button("no-output", id="no-output"),
             html.Button("no-output2", id="no-output2"),
+            html.Button("no-output3", id="no-output3"),
         ]
     )
 
@@ -42,15 +48,23 @@ def test_arb002_no_output_callbacks(dash_duo):
         Input("no-output", "n_clicks"),
         prevent_initial_call=True,
     )
-    def no_output(_):
+    def no_output1(_):
         set_props("secondary-output", {"children": "no-output"})
 
     @app.callback(
         Input("no-output2", "n_clicks"),
         prevent_initial_call=True,
     )
-    def no_output(_):
+    def no_output2(_):
         set_props("secondary-output", {"children": "no-output2"})
+
+    @app.callback(
+        Input("no-output3", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def no_output3(_):
+        with counter.get_lock():
+            counter.value += 1
 
     dash_duo.start_server(app)
 
@@ -59,6 +73,12 @@ def test_arb002_no_output_callbacks(dash_duo):
 
     dash_duo.wait_for_element("#no-output2").click()
     dash_duo.wait_for_text_to_equal("#secondary-output", "no-output2")
+
+    dash_duo.wait_for_element("#no-output3").click()
+
+    time.sleep(1)
+    with counter.get_lock():
+        assert counter.value == 1
 
 
 def test_arb003_arbitrary_pages(dash_duo):
