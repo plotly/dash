@@ -469,14 +469,7 @@ def register_callback(  # pylint: disable=R0914
 
             component_ids = collections.defaultdict(dict)
 
-            if not has_output:
-                if output_value is not None:
-                    raise InvalidCallbackReturnValue(
-                        f"No output callback received return value: {output_value}"
-                    )
-                output_value = []
-                flat_output_values = []
-            else:
+            if has_output:
                 if not multi:
                     output_value, output_spec = [output_value], [output_spec]
                     flat_output_values = output_value
@@ -504,6 +497,13 @@ def register_callback(  # pylint: disable=R0914
                             id_str = stringify_id(speci["id"])
                             prop = clean_property_name(speci["property"])
                             component_ids[id_str][prop] = vali
+            else:
+                if output_value is not None:
+                    raise InvalidCallbackReturnValue(
+                        f"No output callback received return value: {output_value}"
+                    )
+                output_value = []
+                flat_output_values = []
 
             if not long:
                 side_update = dict(callback_ctx.updated_props)
