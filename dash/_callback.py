@@ -287,12 +287,12 @@ def register_callback(  # pylint: disable=R0914
         # Insert callback with scalar (non-multi) Output
         insert_output = output
         multi = False
-        no_output = False
+        has_output = True
     else:
         # Insert callback as multi Output
         insert_output = flatten_grouping(output)
         multi = True
-        no_output = len(output) == 0
+        has_output = len(output) > 0
 
     long = _kwargs.get("long")
     manager = _kwargs.get("manager")
@@ -321,7 +321,7 @@ def register_callback(  # pylint: disable=R0914
         manager=manager,
         dynamic_creator=allow_dynamic_callbacks,
         running=running,
-        no_output=no_output,
+        no_output=not has_output,
     )
 
     # pylint: disable=too-many-locals
@@ -342,7 +342,7 @@ def register_callback(  # pylint: disable=R0914
                 "callback_context", AttributeDict({"updated_props": {}})
             )
             callback_manager = long and long.get("manager", app_callback_manager)
-            if not no_output:
+            if has_output:
                 _validate.validate_output_spec(insert_output, output_spec, Output)
 
             context_value.set(callback_ctx)
@@ -467,27 +467,28 @@ def register_callback(  # pylint: disable=R0914
             if NoUpdate.is_no_update(output_value):
                 raise PreventUpdate
 
-            if no_output:
+            component_ids = collections.defaultdict(dict)
+
+            if not has_output:
                 if output_value is not None:
                     raise InvalidCallbackReturnValue(
                         f"No output callback received return value: {output_value}"
                     )
                 output_value = []
                 flat_output_values = []
-            elif not multi:
-                output_value, output_spec = [output_value], [output_spec]
-                flat_output_values = output_value
             else:
-                if isinstance(output_value, (list, tuple)):
-                    # For multi-output, allow top-level collection to be
-                    # list or tuple
-                    output_value = list(output_value)
+                if not multi:
+                    output_value, output_spec = [output_value], [output_spec]
+                    flat_output_values = output_value
+                else:
+                    if isinstance(output_value, (list, tuple)):
+                        # For multi-output, allow top-level collection to be
+                        # list or tuple
+                        output_value = list(output_value)
 
-                # Flatten grouping and validate grouping structure
-                flat_output_values = flatten_grouping(output_value, output)
+                    # Flatten grouping and validate grouping structure
+                    flat_output_values = flatten_grouping(output_value, output)
 
-            component_ids = collections.defaultdict(dict)
-            if not no_output:
                 _validate.validate_multi_return(
                     output_spec, flat_output_values, callback_id
                 )
