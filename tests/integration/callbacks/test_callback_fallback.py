@@ -5,6 +5,7 @@ from dash import ctx
 from dash.exceptions import PreventUpdate
 import json
 
+
 def test_cbfb001_callback_fallback(dash_duo):
     def callback_fallback(output=None):
         error_message = "error in callback"
@@ -22,7 +23,9 @@ def test_cbfb001_callback_fallback(dash_duo):
                         "children": json.loads(
                             to_json(
                                 notification(
-                                    "error", "there was an issue, IT has been notified", ctx
+                                    "error",
+                                    "there was an issue, IT has been notified",
+                                    ctx,
                                 )
                             )
                         )
@@ -50,7 +53,9 @@ def test_cbfb001_callback_fallback(dash_duo):
                         "children": json.loads(
                             to_json(
                                 notification(
-                                    "error", "I'm sorry Dave, I'm afraid I can't do that", ctx
+                                    "error",
+                                    "I'm sorry Dave, I'm afraid I can't do that",
+                                    ctx,
                                 )
                             )
                         )
@@ -68,12 +73,12 @@ def test_cbfb001_callback_fallback(dash_duo):
     )
 
     def notification(type, msg, ctx=None):
-        if type == 'error':
+        if type == "error":
             return html.Div(
-                children=msg + (f' - {ctx.triggered[0]["value"]}' if ctx else ''),
-                style={'color': 'red'}
+                children=msg + (f' - {ctx.triggered[0]["value"]}' if ctx else ""),
+                style={"color": "red"},
             )
-        return ''
+        return ""
 
     def alertError(subject, message):
         print(subject)
@@ -103,40 +108,50 @@ def test_cbfb001_callback_fallback(dash_duo):
             return rawr
         return f"I ran properly - {n}"
 
-
     app.layout = html.Div(
-                    children=[html.Div(id="app_notification"),
-                              html.Div([
-                                html.Div("When checked, the callback will fail"),
-                                      html.Button("test callback", id="click"),
-                                      dcc.Checklist([True], id="testChecked"),
-                                      html.Div(id="children")
-                                  ]
-                                ),
-                              html.Div([
-                                html.Div("When not checked, the callback will fail, callback handler is different"),
-                                      html.Button("test callback", id="click2"),
-                                      dcc.Checklist([True], id="testChecked2"),
-                                      html.Div(id="children2")
-                                  ]
-                                )
-                              ]
-                )
+        children=[
+            html.Div(id="app_notification"),
+            html.Div(
+                [
+                    html.Div("When checked, the callback will fail"),
+                    html.Button("test callback", id="click"),
+                    dcc.Checklist([True], id="testChecked"),
+                    html.Div(id="children"),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        "When not checked, the callback will fail, callback handler is different"
+                    ),
+                    html.Button("test callback", id="click2"),
+                    dcc.Checklist([True], id="testChecked2"),
+                    html.Div(id="children2"),
+                ]
+            ),
+        ]
+    )
 
     dash_duo.start_server(app)
 
     dash_duo.wait_for_text_to_equal("#click", "test callback")
-    dash_duo.find_element('#click').click()
+    dash_duo.find_element("#click").click()
     dash_duo.wait_for_text_to_equal("#children", "I ran properly - 1")
-    dash_duo.find_element('#testChecked input').click()
-    dash_duo.find_element('#click').click()
-    dash_duo.wait_for_text_to_equal("#app_notification", "there was an issue, IT has been notified - 2")
+    dash_duo.find_element("#testChecked input").click()
+    dash_duo.find_element("#click").click()
+    dash_duo.wait_for_text_to_equal(
+        "#app_notification", "there was an issue, IT has been notified - 2"
+    )
     dash_duo.wait_for_text_to_equal("#children", "I ran properly - 1")
 
-    dash_duo.find_element('#click2').click()
-    dash_duo.wait_for_text_to_equal("#app_notification", "I'm sorry Dave, I'm afraid I can't do that - 1")
+    dash_duo.find_element("#click2").click()
+    dash_duo.wait_for_text_to_equal(
+        "#app_notification", "I'm sorry Dave, I'm afraid I can't do that - 1"
+    )
     dash_duo.wait_for_text_to_equal("#children2", "")
-    dash_duo.find_element('#testChecked2 input').click()
-    dash_duo.find_element('#click2').click()
+    dash_duo.find_element("#testChecked2 input").click()
+    dash_duo.find_element("#click2").click()
     dash_duo.wait_for_text_to_equal("#children2", "I ran properly - 2")
-    dash_duo.wait_for_text_to_equal("#app_notification", "I'm sorry Dave, I'm afraid I can't do that - 1")
+    dash_duo.wait_for_text_to_equal(
+        "#app_notification", "I'm sorry Dave, I'm afraid I can't do that - 1"
+    )
