@@ -1,4 +1,4 @@
-from dash import *
+from dash import callback, Input, Output, State, dcc, html, Dash
 from dash._utils import to_json
 import traceback
 from dash import ctx
@@ -93,7 +93,7 @@ def test_cbfb001_callback_fallback(dash_duo):
     )
     def partialFailingCall(n, c):
         if c:
-            return rawr
+            return rawr  # noqa: F405
         return f"I ran properly - {n}"
 
     @callback(
@@ -105,7 +105,7 @@ def test_cbfb001_callback_fallback(dash_duo):
     )
     def partialFailingCall(n, c):
         if not c:
-            return rawr
+            return rawr  # noqa: F405
         return f"I ran properly - {n}"
 
     app.layout = html.Div(
