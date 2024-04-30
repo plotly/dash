@@ -19,7 +19,7 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - attach_workspace:
@@ -42,7 +42,7 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - run:
@@ -101,7 +101,7 @@ jobs:
       - checkout
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
@@ -191,7 +191,7 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
@@ -268,7 +268,7 @@ jobs:
       - checkout:
           path: ~/dash
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - run:
@@ -308,7 +308,7 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
@@ -377,7 +377,7 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - restore_cache:
@@ -453,7 +453,7 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - browser-tools/install-browser-tools:
@@ -507,7 +507,7 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - restore_cache:
@@ -581,7 +581,7 @@ jobs:
       - checkout:
           path: ~/dash
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires-*.txt > requires-all.txt
+      - run: cat requires/*.txt > requires-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
       - restore_cache:
