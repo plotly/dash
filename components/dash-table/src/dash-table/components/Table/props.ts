@@ -533,6 +533,7 @@ export interface IFilterFactoryProps {
 export type HeaderFactoryProps = ControlledTableProps & {
     map: Map<string, SingleColumnSyntaxTree>;
     setFilter: SetFilter;
+    placeholderHeaders?: boolean;
 };
 
 export interface ICellFactoryProps {

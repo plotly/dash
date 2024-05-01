@@ -30,7 +30,10 @@ export default class HeaderFactory {
         return this.propsFn();
     }
 
-    constructor(private readonly propsFn: () => HeaderFactoryProps) {}
+    constructor(
+        private readonly propsFn: () => HeaderFactoryProps,
+        private readonly placeholderHeaders: boolean = false
+    ) {}
 
     public createHeaders(
         headerEdges: IEdgesMatrices | undefined,
@@ -101,6 +104,8 @@ export default class HeaderFactory {
             merge_duplicate_headers
         );
 
+        const placeholderHeaders = this.placeholderHeaders;
+
         const contents = this.headerContent(
             id,
             visibleColumns,
@@ -118,7 +123,8 @@ export default class HeaderFactory {
             page_action,
             setFilter,
             setProps,
-            merge_duplicate_headers
+            merge_duplicate_headers,
+            placeholderHeaders
         );
 
         const ops = this.getHeaderOpCells(operations, opStyles, headerOpEdges);

@@ -73,21 +73,21 @@ def test_ttip001_displays_aligned_tooltip(test, fixed_rows, fixed_columns, ops):
 
     target = test.table("table")
 
-    cell = target.cell(0, 0)
+    cell = target.cell(1, 0)
     tooltip = target.tooltip
 
     target.is_ready()
     cell.move_to()
     assert tooltip.exists()
-    assert tooltip.get_text() == ";; 1-1"
+    assert tooltip.get_text() == ";; 2-1"
     assert_aligned(cell.get(), tooltip.get())
 
     mid = math.ceil(len(columns) / 2)
-    cell = target.cell(0, mid)
+    cell = target.cell(1, mid)
     cell.move_to()
     assert_aligned(cell.get(), tooltip.get())
 
-    cell = target.cell(0, len(columns) - 1)
+    cell = target.cell(1, len(columns) - 1)
     cell.move_to()
     assert_aligned(cell.get(), tooltip.get())
     assert test.get_log_errors() == []
