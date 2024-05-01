@@ -14,6 +14,7 @@ export interface ICallbackDefinition {
     long?: LongCallbackInfo;
     dynamic_creator?: boolean;
     running: any;
+    no_output?: boolean;
 }
 
 export interface ICallbackProperty {

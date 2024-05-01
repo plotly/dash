@@ -302,12 +302,19 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             }
 
             if (error !== undefined) {
-                const outputs = payload
-                    ? map(combineIdAndProp, flatten([payload.outputs])).join(
-                          ', '
-                      )
-                    : output;
-                let message = `Callback error updating ${outputs}`;
+                let message;
+                if (cb.callback.no_output) {
+                    const inpts = keys(cb.changedPropIds).join(', ');
+                    message = `Callback error with no output from input ${inpts}`;
+                } else {
+                    const outputs = payload
+                        ? map(
+                              combineIdAndProp,
+                              flatten([payload.outputs])
+                          ).join(', ')
+                        : output;
+                    message = `Callback error updating ${outputs}`;
+                }
                 if (clientside_function) {
                     const {namespace: ns, function_name: fn} =
                         clientside_function;

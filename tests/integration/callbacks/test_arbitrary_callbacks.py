@@ -141,3 +141,27 @@ def test_arb004_wildcard_set_props(dash_duo):
 
     dash_duo.wait_for_element("#click").click()
     dash_duo.wait_for_text_to_equal("#output", "Clicked 1 times")
+
+
+def test_arb005_no_output_error(dash_duo):
+    app = Dash()
+
+    app.layout = html.Div([html.Button("start", id="start")])
+
+    @app.callback(Input("start", "n_clicks"), prevent_initial_call=True)
+    def on_click(clicked):
+        return f"clicked {clicked}"
+
+    dash_duo.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    dash_duo.wait_for_element("#start").click()
+    dash_duo.wait_for_text_to_equal(
+        ".dash-fe-error__title",
+        "Callback error with no output from input start.n_clicks",
+    )
