@@ -500,7 +500,7 @@ def register_callback(  # pylint: disable=R0914
             else:
                 if output_value is not None:
                     raise InvalidCallbackReturnValue(
-                        f"No output callback received return value: {output_value}"
+                        f"No-output callback received return value: {output_value}"
                     )
                 output_value = []
                 flat_output_values = []
