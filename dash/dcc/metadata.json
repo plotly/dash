@@ -3499,7 +3499,7 @@
           ]
         },
         "required": false,
-        "description": "Property that determines which spinner to show\none of 'graph', 'cube', 'circle', 'dot', or 'default'.",
+        "description": "Property that determines which built-in spinner to show\none of 'graph', 'cube', 'circle', 'dot', or 'default'.",
         "defaultValue": {
           "value": "'default'",
           "computed": false
@@ -3510,21 +3510,21 @@
           "name": "bool"
         },
         "required": false,
-        "description": "Boolean that makes the spinner display full-screen"
+        "description": "Boolean that makes the built-in spinner display full-screen"
       },
       "debug": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If true, the spinner will display the component_name and prop_name\nwhile loading"
+        "description": "If true, the built-in spinner will display the component_name and prop_name\nwhile loading"
       },
       "className": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Additional CSS class for the spinner root DOM node"
+        "description": "Additional CSS class for the built-in spinner root DOM node"
       },
       "parent_className": {
         "type": {
@@ -3538,7 +3538,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "Additional CSS styling for the spinner root DOM node"
+        "description": "Additional CSS styling for the built-in spinner root DOM node"
       },
       "parent_style": {
         "type": {
@@ -3547,12 +3547,19 @@
         "required": false,
         "description": "Additional CSS styling for the outermost dcc.Loading parent div DOM node"
       },
+      "overlay_style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Additional CSS styling for the spinner overlay. This is applied to the\ndcc.Loading children while the spinner is active.  The default is `{'visibility': 'hidden'}`"
+      },
       "color": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Primary colour used for the loading spinners",
+        "description": "Primary color used for the built-in loading spinners",
         "defaultValue": {
           "value": "'#119DFF'",
           "computed": false
@@ -3581,6 +3588,92 @@
         },
         "required": false,
         "description": "Object that holds the loading state object coming from dash-renderer"
+      },
+      "display": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'auto'",
+              "computed": false
+            },
+            {
+              "value": "'show'",
+              "computed": false
+            },
+            {
+              "value": "'hide'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Setting display to  \"show\" or \"hide\"  will override the loading state coming from dash-renderer",
+        "defaultValue": {
+          "value": "'auto'",
+          "computed": false
+        }
+      },
+      "delay_hide": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Add a time delay (in ms) to the spinner being removed to prevent flickering.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "delay_show": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Add a time delay (in ms) to the spinner being shown after the loading_state\nis set to True.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "show_initially": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Whether the Spinner should show on app start-up before the loading state\nhas been determined. Default True.  Use when also setting `delay_show`.",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      },
+      "target_components": {
+        "type": {
+          "name": "objectOf",
+          "value": {
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "arrayOf",
+                "value": {
+                  "name": "string"
+                }
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "Specify component and prop to trigger showing the loading spinner\nexample: `{\"output-container\": \"children\", \"grid\": [\"rowData\", \"columnDefs]}`"
+      },
+      "custom_spinner": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": "Component to use rather than the built-in spinner specified in the `type` prop."
       }
     }
   },
