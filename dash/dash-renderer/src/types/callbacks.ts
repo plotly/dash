@@ -14,6 +14,7 @@ export interface ICallbackDefinition {
     long?: LongCallbackInfo;
     dynamic_creator?: boolean;
     running: any;
+    no_output?: boolean;
 }
 
 export interface ICallbackProperty {
@@ -103,4 +104,5 @@ export type CallbackResponseData = {
     running?: CallbackResponse;
     runningOff?: CallbackResponse;
     cancel?: ICallbackProperty[];
+    sideUpdate?: any;
 };

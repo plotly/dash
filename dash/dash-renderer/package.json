@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "1.19.1",
+  "version": "1.20.0",
   "description": "render dash components in react",
   "main": "build/dash_renderer.min.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "@babel/polyfill": "^7.12.1",
     "@plotly/dash-component-plugins": "^1.2.3",
     "cookie": "^0.6.0",
-    "cytoscape": "^3.27.0",
+    "cytoscape": "^3.29.2",
     "cytoscape-dagre": "^2.5.0",
     "cytoscape-fcose": "^2.2.0",
     "dependency-graph": "^0.11.0",
@@ -43,16 +43,16 @@
     "regenerator-runtime": "^0.13.11"
   },
   "devDependencies": {
-    "@babel/cli": "^7.23.9",
-    "@babel/core": "^7.24.0",
+    "@babel/cli": "^7.24.5",
+    "@babel/core": "^7.24.5",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/preset-env": "^7.24.0",
-    "@babel/preset-react": "^7.23.3",
-    "@babel/preset-typescript": "^7.23.3",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-react": "^7.24.1",
+    "@babel/preset-typescript": "^7.24.1",
     "@plotly/prettier-config-dash": "0.0.1",
     "@svgr/webpack": "^8.1.0",
     "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
+    "@types/mocha": "^10.0.6",
     "@types/ramda": "0.29.1",
     "@types/react": "^16.14.8",
     "@types/redux": "^3.6.31",
@@ -67,17 +67,17 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.2",
-    "karma": "^6.4.2",
+    "karma": "^6.4.3",
     "karma-chrome-launcher": "^3.2.0",
     "karma-mocha": "^2.0.1",
     "karma-webpack": "^5.0.0",
-    "mocha": "^10.2.0",
+    "mocha": "^10.4.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.8.8",
     "style-loader": "^3.3.3",
     "ts-loader": "^9.5.1",
     "typescript": "^5.1.6",
-    "webpack": "^5.90.3",
+    "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4",
     "rimraf": "^5.0.5",
     "whatwg-fetch": "^3.6.19"
@@ -88,6 +88,6 @@
   ],
   "prettier": "@plotly/prettier-config-dash",
   "browserslist": [
-    "last 8 years and not dead"
+    "last 9 years and not dead"
   ]
 }

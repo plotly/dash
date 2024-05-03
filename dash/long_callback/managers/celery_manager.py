@@ -7,6 +7,7 @@ from _plotly_utils.utils import PlotlyJSONEncoder
 from dash._callback_context import context_value
 from dash._utils import AttributeDict
 from dash.exceptions import PreventUpdate
+from dash.long_callback._proxy_set_props import ProxySetProps
 from dash.long_callback.managers import BaseLongCallbackManager
 
 
@@ -124,6 +125,15 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         self.terminate_job(job)
         return result
 
+    def get_updated_props(self, key):
+        updated_props = self.handle.backend.get(self._make_set_props_key(key))
+        if updated_props is None:
+            return {}
+
+        self.clear_cache_entry(key)
+
+        return json.loads(updated_props)
+
 
 def _make_job_fn(fn, celery_app, progress, key):
     cache = celery_app.backend
@@ -138,11 +148,18 @@ def _make_job_fn(fn, celery_app, progress, key):
 
         maybe_progress = [_set_progress] if progress else []
 
+        def _set_props(_id, props):
+            cache.set(
+                f"{result_key}-set_props",
+                json.dumps({_id: props}, cls=PlotlyJSONEncoder),
+            )
+
         ctx = copy_context()
 
         def run():
             c = AttributeDict(**context)
             c.ignore_register_page = False
+            c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
             try:
                 if isinstance(user_callback_args, dict):

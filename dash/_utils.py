@@ -131,23 +131,30 @@ class AttributeDict(dict):
             return next(iter(self), {})
 
 
-def create_callback_id(output, inputs):
+def create_callback_id(output, inputs, no_output=False):
     # A single dot within a dict id key or value is OK
     # but in case of multiple dots together escape each dot
     # with `\` so we don't mistake it for multi-outputs
     hashed_inputs = None
+
+    def _hash_inputs():
+        return hashlib.sha256(
+            ".".join(str(x) for x in inputs).encode("utf-8")
+        ).hexdigest()
 
     def _concat(x):
         nonlocal hashed_inputs
         _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
         if x.allow_duplicate:
             if not hashed_inputs:
-                hashed_inputs = hashlib.md5(
-                    ".".join(str(x) for x in inputs).encode("utf-8")
-                ).hexdigest()
+                hashed_inputs = _hash_inputs()
             # Actually adds on the property part.
             _id += f"@{hashed_inputs}"
         return _id
+
+    if no_output:
+        # No output will hash the inputs.
+        return _hash_inputs()
 
     if isinstance(output, (list, tuple)):
         return ".." + "...".join(_concat(x) for x in output) + ".."
@@ -167,8 +174,12 @@ def split_callback_id(callback_id):
 
 
 def stringify_id(id_):
+    def _json(k, v):
+        vstr = v.to_json() if hasattr(v, "to_json") else json.dumps(v)
+        return f"{json.dumps(k)}:{vstr}"
+
     if isinstance(id_, dict):
-        return json.dumps(id_, sort_keys=True, separators=(",", ":"))
+        return "{" + ",".join(_json(k, id_[k]) for k in sorted(id_)) + "}"
     return id_
 
 
@@ -213,9 +224,9 @@ def run_command_with_process(cmd):
                 proc.communicate()
 
 
-def compute_md5(path):
+def compute_hash(path):
     with io.open(path, encoding="utf-8") as fp:
-        return hashlib.md5(fp.read().encode("utf-8")).hexdigest()
+        return hashlib.sha256(fp.read().encode("utf-8")).hexdigest()
 
 
 def job(msg=""):
