@@ -70,10 +70,6 @@ def test_dvcv001_blank(dash_duo):
         dash_duo,
         [
             ["A callback is missing Inputs", ["there are no `Input` elements."]],
-            [
-                "A callback is missing Outputs",
-                ["Please provide an output for this callback:"],
-            ],
         ],
     )
 

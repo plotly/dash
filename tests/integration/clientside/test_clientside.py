@@ -35,6 +35,10 @@ def test_clsd001_simple_clientside_serverside_callback(dash_duo):
     dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "hello world"')
     dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "hello world"')
 
+    assert dash_duo.driver.execute_script("return 'dash_clientside' in window")
+    assert dash_duo.driver.execute_script("return !('clientside' in window)")
+    assert dash_duo.driver.execute_script("return !('ns' in window)")
+
 
 def test_clsd002_chained_serverside_clientside_callbacks(dash_duo):
     app = Dash(__name__, assets_folder="assets")

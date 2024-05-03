@@ -18,17 +18,33 @@ class Loading(Component):
         in an app.
 
     - className (string; optional):
-        Additional CSS class for the spinner root DOM node.
+        Additional CSS class for the built-in spinner root DOM node.
 
     - color (string; default '#119DFF'):
-        Primary colour used for the loading spinners.
+        Primary color used for the built-in loading spinners.
+
+    - custom_spinner (a list of or a singular dash component, string or number; optional):
+        Component to use rather than the built-in spinner specified in the
+        `type` prop.
 
     - debug (boolean; optional):
-        If True, the spinner will display the component_name and prop_name
-        while loading.
+        If True, the built-in spinner will display the component_name and
+        prop_name while loading.
+
+    - delay_hide (number; default 0):
+        Add a time delay (in ms) to the spinner being removed to prevent
+        flickering.
+
+    - delay_show (number; default 0):
+        Add a time delay (in ms) to the spinner being shown after the
+        loading_state is set to True.
+
+    - display (a value equal to: 'auto', 'show', 'hide'; default 'auto'):
+        Setting display to  \"show\" or \"hide\"  will override the
+        loading state coming from dash-renderer.
 
     - fullscreen (boolean; optional):
-        Boolean that makes the spinner display full-screen.
+        Boolean that makes the built-in spinner display full-screen.
 
     - loading_state (dict; optional):
         Object that holds the loading state object coming from
@@ -45,6 +61,11 @@ class Loading(Component):
         - prop_name (string; optional):
             Holds which property is loading.
 
+    - overlay_style (dict; optional):
+        Additional CSS styling for the spinner overlay. This is applied to
+        the dcc.Loading children while the spinner is active.  The default
+        is `{'visibility': 'hidden'}`.
+
     - parent_className (string; optional):
         Additional CSS class for the outermost dcc.Loading parent div DOM
         node.
@@ -53,15 +74,25 @@ class Loading(Component):
         Additional CSS styling for the outermost dcc.Loading parent div
         DOM node.
 
+    - show_initially (boolean; default True):
+        Whether the Spinner should show on app start-up before the loading
+        state has been determined. Default True.  Use when also setting
+        `delay_show`.
+
     - style (dict; optional):
-        Additional CSS styling for the spinner root DOM node.
+        Additional CSS styling for the built-in spinner root DOM node.
+
+    - target_components (dict with strings as keys and values of type string | list of strings; optional):
+        Specify component and prop to trigger showing the loading spinner
+        example: `{\"output-container\": \"children\", \"grid\":
+        [\"rowData\", \"columnDefs]}`.
 
     - type (a value equal to: 'graph', 'cube', 'circle', 'dot', 'default'; default 'default'):
-        Property that determines which spinner to show one of 'graph',
-        'cube', 'circle', 'dot', or 'default'."""
+        Property that determines which built-in spinner to show one of
+        'graph', 'cube', 'circle', 'dot', or 'default'."""
 
-    _children_props = []
-    _base_nodes = ["children"]
+    _children_props = ["custom_spinner"]
+    _base_nodes = ["custom_spinner", "children"]
     _namespace = "dash_core_components"
     _type = "Loading"
 
@@ -77,8 +108,15 @@ class Loading(Component):
         parent_className=Component.UNDEFINED,
         style=Component.UNDEFINED,
         parent_style=Component.UNDEFINED,
+        overlay_style=Component.UNDEFINED,
         color=Component.UNDEFINED,
         loading_state=Component.UNDEFINED,
+        display=Component.UNDEFINED,
+        delay_hide=Component.UNDEFINED,
+        delay_show=Component.UNDEFINED,
+        show_initially=Component.UNDEFINED,
+        target_components=Component.UNDEFINED,
+        custom_spinner=Component.UNDEFINED,
         **kwargs
     ):
         self._prop_names = [
@@ -86,12 +124,19 @@ class Loading(Component):
             "id",
             "className",
             "color",
+            "custom_spinner",
             "debug",
+            "delay_hide",
+            "delay_show",
+            "display",
             "fullscreen",
             "loading_state",
+            "overlay_style",
             "parent_className",
             "parent_style",
+            "show_initially",
             "style",
+            "target_components",
             "type",
         ]
         self._valid_wildcard_attributes = []
@@ -100,12 +145,19 @@ class Loading(Component):
             "id",
             "className",
             "color",
+            "custom_spinner",
             "debug",
+            "delay_hide",
+            "delay_show",
+            "display",
             "fullscreen",
             "loading_state",
+            "overlay_style",
             "parent_className",
             "parent_style",
+            "show_initially",
             "style",
+            "target_components",
             "type",
         ]
         self.available_wildcard_properties = []
