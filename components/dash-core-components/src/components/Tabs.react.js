@@ -159,7 +159,7 @@ export default class Tabs extends Component {
     parseChildrenToArray() {
         if (this.props.children && !is(Array, this.props.children)) {
             // if dcc.Tabs.children contains just one single element, it gets passed as an object
-            // instead of an array - so we put in in a array ourselves!
+            // instead of an array - so we put it in an array ourselves!
             return [this.props.children];
         }
         return this.props.children;
