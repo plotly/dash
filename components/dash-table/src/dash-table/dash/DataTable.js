@@ -700,7 +700,7 @@ export const propTypes = {
     /**
      * Denotes the format of the headers in the export data file.
      * If `'none'`, there will be no header. If `'display'`, then the header
-     * of the data file will be be how it is currently displayed. Note that
+     * of the data file will be how it is currently displayed. Note that
      * `'display'` is only supported for `'xlsx'` export_format and will behave
      * like `'names'` for `'csv'` export format. If `'ids'` or `'names'`,
      * then the headers of data file will be the column id or the column
@@ -802,7 +802,7 @@ export const propTypes = {
      * If `'native'`, then the sorting UI is displayed and the sorting
      * logic is handled by the table. That is, it is performed on the data
      * that exists in the `data` property.
-     * If `'custom'`, the the sorting UI is displayed but it is the
+     * If `'custom'`, the sorting UI is displayed but it is the
      * responsibility of the developer to program the sorting
      * through a callback (where `sort_by` would be the input and `data`
      * would be the output).
