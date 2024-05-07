@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [2.17.0] - 2024-05-03
 
 ## Added
 
@@ -16,11 +16,17 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - `target_components` specifies components/props triggering the loading spinner
   - `custom_spinner`  enables using a custom component for loading messages instead of built-in spinners
   - `display`  overrides the loading status with options for "show," "hide," or "auto"
+- [#2822](https://github.com/plotly/dash/pull/2822) Support no output callbacks. Fixes [#1549](https://github.com/plotly/dash/issues/1549)
+- [#2822](https://github.com/plotly/dash/pull/2822) Add global set_props. Fixes [#2803](https://github.com/plotly/dash/issues/2803)
 
 ## Fixed
 
 - [#2362](https://github.com/plotly/dash/pull/2362) Global namespace not polluted any more when loading clientside callbacks.
 - [#2833](https://github.com/plotly/dash/pull/2833) Allow data url in link props. Fixes [#2764](https://github.com/plotly/dash/issues/2764) 
+- [#2822](https://github.com/plotly/dash/pull/2822) Fix side update (running/progress/cancel) dict ids. Fixes [#2111](https://github.com/plotly/dash/issues/2111)
+- [#2817](https://github.com/plotly/dash/pull/2817) Change hashing algorithm from md5 to sha256, Fixes [#2697](https://github.com/plotly/dash/issues/2697).
+- [#2816](https://github.com/plotly/dash/pull/2816) Fix dcc.Dropdown value not updated when option is removed. Fixes [#2733](https://github.com/plotly/dash/issues/2733).
+- [#2823](https://github.com/plotly/dash/pull/2823) Fix None in "wait" methods causing incorrectly passing tests. Fixes [#2818](https://github.com/plotly/dash/issues/2818)
 
 ## [2.16.1] - 2024-03-06
 
