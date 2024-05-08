@@ -1,4 +1,4 @@
-import {isNil, pluck, without, pick} from 'ramda';
+import {isNil, pluck, without, pick, isEmpty} from 'ramda';
 import React, {useState, useCallback, useEffect, useMemo, useRef} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
@@ -125,7 +125,8 @@ const Dropdown = props => {
             !search_value &&
             !isNil(sanitizedOptions) &&
             optionsCheck !== sanitizedOptions &&
-            !isNil(value)
+            !isNil(value) &&
+            !isEmpty(value)
         ) {
             const values = sanitizedOptions.map(option => option.value);
             if (multi && Array.isArray(value)) {
