@@ -8,6 +8,9 @@ def test_lcbc017_long_callback_set_props(dash_duo, manager):
         dash_duo.find_element("#start").click()
 
         dash_duo.wait_for_text_to_equal("#secondary", "first")
+        dash_duo.wait_for_style_to_equal(
+            "#secondary", "background-color", "rgba(255, 0, 0, 1)"
+        )
         dash_duo.wait_for_text_to_equal("#output", "initial")
         dash_duo.wait_for_text_to_equal("#secondary", "second")
         dash_duo.wait_for_text_to_equal("#output", "completed")

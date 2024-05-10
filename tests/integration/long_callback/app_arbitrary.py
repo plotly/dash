@@ -25,9 +25,11 @@ app.layout = html.Div(
     Input("start", "n_clicks"),
     prevent_initial_call=True,
     background=True,
+    interval=500,
 )
 def on_click(_):
     set_props("secondary", {"children": "first"})
+    set_props("secondary", {"style": {"background": "red"}})
     time.sleep(2)
     set_props("secondary", {"children": "second"})
     return "completed"
