@@ -165,3 +165,26 @@ def test_arb005_no_output_error(dash_duo):
         ".dash-fe-error__title",
         "Callback error with no output from input start.n_clicks",
     )
+
+
+def test_arb006_multi_set_props(dash_duo):
+    app = Dash()
+
+    app.layout = [
+        html.Button("start", id="start"),
+        html.Div("initial", id="output"),
+    ]
+
+    @app.callback(
+        Input("start", "n_clicks"),
+    )
+    def on_click(_):
+        set_props("output", {"children": "changed"})
+        set_props("output", {"style": {"background": "rgb(255,0,0)"}})
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_element("#start").click()
+    dash_duo.wait_for_text_to_equal("#output", "changed")
+    dash_duo.wait_for_style_to_equal(
+        "#output", "background-color", "rgba(255, 0, 0, 1)"
+    )
