@@ -452,3 +452,95 @@ def test_pch005_clientside_duplicate(dash_duo):
 
     dash_duo.find_element("#click2").click()
     dash_duo.wait_for_text_to_equal("#output", "click2")
+
+
+def test_pch006_base_operators(dash_duo):
+    app = Dash()
+
+    app.layout = [
+        dcc.Store(data=2, id="store"),
+        html.Button("add-one", id="add-one"),
+        html.Button("remove-one", id="remove-one"),
+        html.Button("mul-two", id="mul-two"),
+        html.Button("div-two", id="div-two"),
+        html.Button("merge", id="merge"),
+        dcc.Store(data={"initial": "initial"}, id="dict-store"),
+        html.Div(id="store-output"),
+        html.Div(id="dict-store-output"),
+    ]
+
+    @app.callback(
+        Output("store", "data"), Input("add-one", "n_clicks"), prevent_initial_call=True
+    )
+    def on_add(_):
+        patched = Patch()
+        patched += 1
+        return patched
+
+    @app.callback(
+        Output("store", "data", allow_duplicate=True),
+        Input("remove-one", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_remove(_):
+        patched = Patch()
+        patched -= 1
+        return patched
+
+    @app.callback(
+        Output("store", "data", allow_duplicate=True),
+        Input("mul-two", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_mul(_):
+        patched = Patch()
+        patched *= 2
+        return patched
+
+    @app.callback(
+        Output("store", "data", allow_duplicate=True),
+        Input("div-two", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_div(_):
+        patched = Patch()
+        patched /= 2
+        return patched
+
+    @app.callback(
+        Output("dict-store", "data", allow_duplicate=True),
+        Input("merge", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_merge(_):
+        patched = Patch()
+        patched |= {"merged": "merged"}
+        return patched
+
+    app.clientside_callback(
+        "data => data", Output("store-output", "children"), Input("store", "data")
+    )
+    app.clientside_callback(
+        "data => JSON.stringify(data)",
+        Output("dict-store-output", "children"),
+        Input("dict-store", "data"),
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#add-one").click()
+    dash_duo.wait_for_text_to_equal("#store-output", "3")
+
+    dash_duo.find_element("#remove-one").click()
+    dash_duo.wait_for_text_to_equal("#store-output", "2")
+
+    dash_duo.find_element("#mul-two").click()
+    dash_duo.wait_for_text_to_equal("#store-output", "4")
+
+    dash_duo.find_element("#div-two").click()
+    dash_duo.wait_for_text_to_equal("#store-output", "2")
+
+    dash_duo.find_element("#merge").click()
+    dash_duo.wait_for_text_to_equal(
+        "#dict-store-output", '{"initial":"initial","merged":"merged"}'
+    )
