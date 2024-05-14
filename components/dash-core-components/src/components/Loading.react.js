@@ -5,7 +5,6 @@ import DefaultSpinner from '../fragments/Loading/spinners/DefaultSpinner.jsx';
 import CubeSpinner from '../fragments/Loading/spinners/CubeSpinner.jsx';
 import CircleSpinner from '../fragments/Loading/spinners/CircleSpinner.jsx';
 import DotSpinner from '../fragments/Loading/spinners/DotSpinner.jsx';
-import {mergeRight} from 'ramda';
 
 const spinnerComponentOptions = {
     graph: GraphSpinner,
@@ -49,10 +48,6 @@ const Loading = ({
         justifyContent: 'center',
         alignItems: 'center',
     };
-    const hiddenContainer = mergeRight(
-        {visibility: 'hidden', position: 'relative'},
-        overlay_style
-    );
 
     /* Overrides default Loading behavior if target_components is set. By default,
      *  Loading fires when any recursive child enters loading state. This makes loading
@@ -135,11 +130,17 @@ const Loading = ({
             className={parent_className}
             style={
                 showSpinner
-                    ? mergeRight(hiddenContainer, parent_style)
+                    ? {position: 'relative', ...parent_style}
                     : parent_style
             }
         >
-            {children}
+            <div
+                style={
+                    showSpinner ? {visibility: 'hidden', ...overlay_style} : {}
+                }
+            >
+                {children}
+            </div>
             <div style={showSpinner ? coveringSpinner : {}}>
                 {showSpinner &&
                     (custom_spinner || (
