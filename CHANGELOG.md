@@ -6,7 +6,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 
-
 - [#2860](https://github.com/plotly/dash/pull/2860) Fix dcc.Loading to apply overlay_style only to the children and not the spinner. Fixes [#2858](https://github.com/plotly/dash/issues/2858)
 - [#2854](https://github.com/plotly/dash/pull/2854) Fix dcc.Dropdown resetting empty values to null and triggering callbacks. Fixes [#2850](https://github.com/plotly/dash/issues/2850)
 - [#2859](https://github.com/plotly/dash/pull/2859) Fix base patch operators. fixes [#2855](https://github.com/plotly/dash/issues/2855)
