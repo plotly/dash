@@ -127,16 +127,19 @@ const Loading = ({
 
     return (
         <div
+            style={{position: 'relative', ...parent_style}}
             className={parent_className}
-            style={
-                showSpinner
-                    ? {position: 'relative', ...parent_style}
-                    : parent_style
-            }
         >
             <div
+                className={parent_className}
                 style={
-                    showSpinner ? {visibility: 'hidden', ...overlay_style} : {}
+                    showSpinner
+                        ? {
+                              visibility: 'hidden',
+                              ...overlay_style,
+                              ...parent_style,
+                          }
+                        : parent_style
                 }
             >
                 {children}
