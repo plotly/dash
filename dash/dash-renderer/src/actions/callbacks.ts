@@ -278,16 +278,18 @@ async function handleClientside(
             returnValue = await returnValue;
         }
 
-        zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
-            zipIfArray(outi, reti).forEach(([outij, retij]) => {
-                const {id, property} = outij;
-                const idStr = stringifyId(id);
-                const dataForId = (result[idStr] = result[idStr] || {});
-                if (retij !== dc.no_update) {
-                    dataForId[cleanOutputProp(property)] = retij;
-                }
+        if (outputs) {
+            zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
+                zipIfArray(outi, reti).forEach(([outij, retij]) => {
+                    const {id, property} = outij;
+                    const idStr = stringifyId(id);
+                    const dataForId = (result[idStr] = result[idStr] || {});
+                    if (retij !== dc.no_update) {
+                        dataForId[cleanOutputProp(property)] = retij;
+                    }
+                });
             });
-        });
+        }
     } catch (e) {
         if (e === dc.PreventUpdate) {
             status = STATUS.PREVENT_UPDATE;
