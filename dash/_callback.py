@@ -549,6 +549,7 @@ def register_clientside_callback(
     **kwargs,
 ):
     output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
+    no_output = isinstance(output, (list,)) and len(output) == 0
     insert_callback(
         callback_list,
         callback_map,
@@ -559,6 +560,7 @@ def register_clientside_callback(
         state,
         None,
         prevent_initial_call,
+        no_output=no_output,
     )
 
     # If JS source is explicitly given, create a namespace and function

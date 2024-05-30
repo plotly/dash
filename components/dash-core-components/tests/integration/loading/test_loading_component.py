@@ -406,7 +406,7 @@ def test_ldcp009_loading_component_overlay_style(dash_dcc):
         dash_dcc.find_element(".loading .dash-spinner")
         # unlike the default, the content should be visible
         dash_dcc.wait_for_text_to_equal("#div-1", "content")
-        dash_dcc.wait_for_style_to_equal("#root > div", "opacity", "0.5")
+        dash_dcc.wait_for_style_to_equal("#root > div > div", "opacity", "0.5")
 
     dash_dcc.wait_for_text_to_equal("#div-1", "changed")
 
