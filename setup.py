@@ -7,7 +7,7 @@ exec(open("dash/version.py", encoding="utf-8").read(), main_ns)  # pylint: disab
 
 
 def read_req_file(req_type):
-    with open(os.path.join("requires", f"{req_type}.txt"), encoding="utf-8") as fp:
+    with open(os.path.join("requirements", f"{req_type}.txt"), encoding="utf-8") as fp:
         requires = (line.strip() for line in fp)
         return [req for req in requires if req and not req.startswith("#")]
 

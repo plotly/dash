@@ -19,9 +19,9 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
@@ -42,9 +42,9 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - run:
           name: 🏁 Build Component Packages & Update Dependencies/Artifacts
           command: |
@@ -67,7 +67,7 @@ jobs:
               cat /home/circleci/.npm/_logs/*
             fi
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
           paths:
             - venv
       - persist_to_workspace:
@@ -101,9 +101,9 @@ jobs:
       - checkout
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - browser-tools/install-browser-tools:
           chrome-version: 120.0.6099.71
       - run:
@@ -191,9 +191,9 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - browser-tools/install-browser-tools:
           chrome-version: 120.0.6099.71
           install-firefox: false
@@ -268,9 +268,9 @@ jobs:
       - checkout:
           path: ~/dash
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - run:
           name: 🌸 Lint
           command: |
@@ -308,9 +308,9 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - browser-tools/install-browser-tools:
           chrome-version: 120.0.6099.71
           install-firefox: false
@@ -377,9 +377,9 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - restore_cache:
           key: html-{{ checksum "components/dash-html-components/package.json" }}-{{ checksum "components/dash-html-components/package-lock.json" }}
       - browser-tools/install-browser-tools:
@@ -453,9 +453,9 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - browser-tools/install-browser-tools:
           chrome-version: 120.0.6099.71
           install-firefox: false
@@ -507,9 +507,9 @@ jobs:
           path: ~/dash
       - run: sudo apt-get update
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - restore_cache:
           key: table-{{ checksum "components/dash-table/package.json" }}-{{ checksum "components/dash-table/package-lock.json" }}
       - browser-tools/install-browser-tools:
@@ -581,9 +581,9 @@ jobs:
       - checkout:
           path: ~/dash
       - run: echo $PYVERSION > ver.txt
-      - run: cat requires/*.txt > requires-all.txt
+      - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "components/dash-table/package-lock.json" }}-{{ checksum "components/dash-table/package.json" }}
       - run:
