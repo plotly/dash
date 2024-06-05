@@ -72,6 +72,7 @@ export interface IStoredCallback extends IExecutedCallback {
 
 export interface ICallbackPayload {
     changedPropIds: any[];
+    parsedChangedPropsIds: any[];
     inputs: any[];
     output: string;
     outputs: any[];
