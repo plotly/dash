@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## UNRELEASED
 
+## Added
+
+- [#2881](https://github.com/plotly/dash/pull/2881) Add outputs and outputs_list to window.dash_clientside.callback_context. Fixes [#2877](https://github.com/plotly/dash/issues/2877).
+
 ## Fixed
 
 - [#2860](https://github.com/plotly/dash/pull/2860) Fix dcc.Loading to apply overlay_style only to the children and not the spinner. Fixes [#2858](https://github.com/plotly/dash/issues/2858)
