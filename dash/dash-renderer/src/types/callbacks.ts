@@ -107,3 +107,7 @@ export type CallbackResponseData = {
     cancel?: ICallbackProperty[];
     sideUpdate?: any;
 };
+
+export type SideUpdateOutput = {
+    [key: string]: any;
+};

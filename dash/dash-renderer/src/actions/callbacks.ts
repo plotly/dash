@@ -1,7 +1,5 @@
 import {
     concat,
-    dissoc,
-    equals,
     flatten,
     intersection,
     keys,
@@ -33,7 +31,8 @@ import {
     IPrioritizedCallback,
     LongCallbackInfo,
     CallbackResponse,
-    CallbackResponseData
+    CallbackResponseData,
+    SideUpdateOutput
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
@@ -46,6 +45,8 @@ import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
+import {parsePMCId} from './patternMatching';
+import {replacePMC} from './patternMatching';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -342,19 +343,14 @@ function updateComponent(component_id: any, props: any) {
     };
 }
 
-function parsePMCId(id: string) {
-    let componentId, propName;
-    const index = id.lastIndexOf('}');
-    if (index + 2 < id.length) {
-        propName = id.substring(index + 2);
-        componentId = JSON.parse(id.substring(0, index + 1));
-    } else {
-        componentId = JSON.parse(id);
-    }
-    return [componentId, propName];
-}
-
-function sideUpdate(outputs: any, cb: ICallbackPayload) {
+/**
+ * Update a component props with `running`/`progress`/`set_props` calls.
+ *
+ * @param outputs Props to update.
+ * @param cb The originating callback info.
+ * @returns
+ */
+function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
     return function (dispatch: any, getState: any) {
         toPairs(outputs)
             .reduce((acc, [id, value], i) => {
@@ -387,56 +383,6 @@ function sideUpdate(outputs: any, cb: ICallbackPayload) {
                 dispatch(updateComponent(id, idProps));
             });
     };
-}
-
-function getAllPMCIds(id: any, state: any, triggerKey: string) {
-    const keysOfIds = keys(id);
-    const idKey = keysOfIds.join(',');
-    return state.paths.objs[idKey]
-        .map((obj: any) =>
-            keysOfIds.reduce((acc, key, i) => {
-                acc[key] = obj.values[i];
-                return acc;
-            }, {} as any)
-        )
-        .filter((obj: any) =>
-            equals(dissoc(triggerKey, obj), dissoc(triggerKey, id))
-        );
-}
-
-function replacePMC(
-    id: any,
-    cb: ICallbackPayload,
-    index: number,
-    getState: any
-) {
-    let extras: any = [];
-    const replaced: any = {};
-    toPairs(id).forEach(([key, value]) => {
-        if (extras.length) {
-            // All done.
-            return;
-        }
-        if (Array.isArray(value)) {
-            const triggerValue = (cb.parsedChangedPropsIds[index] ||
-                cb.parsedChangedPropsIds[0])[key];
-            if (value.includes('MATCH')) {
-                replaced[key] = triggerValue;
-            } else if (value.includes('ALL')) {
-                extras = getAllPMCIds(id, getState(), key);
-            } else if (value.includes('ALLSMALLER')) {
-                extras = getAllPMCIds(id, getState(), key).filter(
-                    (obj: any) => obj[key] < triggerValue
-                );
-            }
-        } else {
-            replaced[key] = value;
-        }
-    });
-    if (extras.length) {
-        return extras;
-    }
-    return [replaced];
 }
 
 function handleServerside(
