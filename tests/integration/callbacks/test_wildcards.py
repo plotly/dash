@@ -2,7 +2,7 @@ import pytest
 import re
 from selenium.webdriver.common.keys import Keys
 import json
-import time
+from multiprocessing import Lock
 
 from dash.testing import wait
 import dash
@@ -556,6 +556,7 @@ def test_cbwc007_pmc_update_subtree_ordering(dash_duo):
 
 
 def test_cbwc008_running_match(dash_duo):
+    lock = Lock()
     app = dash.Dash()
 
     app.layout = [
@@ -590,21 +591,24 @@ def test_cbwc008_running_match(dash_duo):
         prevent_initial_call=True,
     )
     def on_click(_) -> str:
-        time.sleep(1)
-        return "done"
+        with lock:
+            return "done"
 
     dash_duo.start_server(app)
 
     for i in range(1, 3):
-        dash_duo.find_element(f"#buttons button:nth-child({i})").click()
-        dash_duo.wait_for_text_to_equal(f"#buttons button:nth-child({i})", "running")
-        # verify all the buttons were disabled.
-        assert dash_duo.find_element("#buttons button:nth-child(1)").get_attribute(
-            "disabled"
-        )
-        assert dash_duo.find_element("#buttons button:nth-child(2)").get_attribute(
-            "disabled"
-        )
+        with lock:
+            dash_duo.find_element(f"#buttons button:nth-child({i})").click()
+            dash_duo.wait_for_text_to_equal(
+                f"#buttons button:nth-child({i})", "running"
+            )
+            # verify all the buttons were disabled.
+            assert dash_duo.find_element("#buttons button:nth-child(1)").get_attribute(
+                "disabled"
+            )
+            assert dash_duo.find_element("#buttons button:nth-child(2)").get_attribute(
+                "disabled"
+            )
 
         dash_duo.wait_for_text_to_equal(f"#output{i}", "done")
         dash_duo.wait_for_text_to_equal(f"#buttons button:nth-child({i})", "finished")
