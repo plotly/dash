@@ -946,7 +946,7 @@
           ]
         },
         "required": false,
-        "description": "Denotes the format of the headers in the export data file.\nIf `'none'`, there will be no header. If `'display'`, then the header\nof the data file will be be how it is currently displayed. Note that\n`'display'` is only supported for `'xlsx'` export_format and will behave\nlike `'names'` for `'csv'` export format. If `'ids'` or `'names'`,\nthen the headers of data file will be the column id or the column\nnames, respectively"
+        "description": "Denotes the format of the headers in the export data file.\nIf `'none'`, there will be no header. If `'display'`, then the header\nof the data file will be how it is currently displayed. Note that\n`'display'` is only supported for `'xlsx'` export_format and will behave\nlike `'names'` for `'csv'` export format. If `'ids'` or `'names'`,\nthen the headers of data file will be the column id or the column\nnames, respectively"
       },
       "page_action": {
         "type": {
@@ -1128,7 +1128,7 @@
           ]
         },
         "required": false,
-        "description": "The `sort_action` property enables data to be\nsorted on a per-column basis.\nIf `'none'`, then the sorting UI is not displayed.\nIf `'native'`, then the sorting UI is displayed and the sorting\nlogic is handled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, the the sorting UI is displayed but it is the\nresponsibility of the developer to program the sorting\nthrough a callback (where `sort_by` would be the input and `data`\nwould be the output).\nClicking on the sort arrows will update the\n`sort_by` property.",
+        "description": "The `sort_action` property enables data to be\nsorted on a per-column basis.\nIf `'none'`, then the sorting UI is not displayed.\nIf `'native'`, then the sorting UI is displayed and the sorting\nlogic is handled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, the sorting UI is displayed but it is the\nresponsibility of the developer to program the sorting\nthrough a callback (where `sort_by` would be the input and `data`\nwould be the output).\nClicking on the sort arrows will update the\n`sort_by` property.",
         "defaultValue": {
           "value": "'none'",
           "computed": false

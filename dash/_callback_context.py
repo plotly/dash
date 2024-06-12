@@ -252,7 +252,11 @@ class CallbackContext:
     def set_props(self, component_id: typing.Union[str, dict], props: dict):
         ctx_value = _get_context_value()
         _id = stringify_id(component_id)
-        ctx_value.updated_props[_id] = props
+        existing = ctx_value.updated_props.get(_id)
+        if existing is not None:
+            ctx_value.updated_props[_id] = {**existing, **props}
+        else:
+            ctx_value.updated_props[_id] = props
 
 
 callback_context = CallbackContext()

@@ -1,7 +1,15 @@
 import time
 from multiprocessing import Value
 
-from dash import Dash, Input, Output, html, set_props, register_page
+from dash import (
+    Dash,
+    Input,
+    Output,
+    html,
+    set_props,
+    register_page,
+    clientside_callback,
+)
 
 
 def test_arb001_global_set_props(dash_duo):
@@ -165,3 +173,62 @@ def test_arb005_no_output_error(dash_duo):
         ".dash-fe-error__title",
         "Callback error with no output from input start.n_clicks",
     )
+
+
+def test_arb006_multi_set_props(dash_duo):
+    app = Dash()
+
+    app.layout = [
+        html.Button("start", id="start"),
+        html.Div("initial", id="output"),
+    ]
+
+    @app.callback(
+        Input("start", "n_clicks"),
+    )
+    def on_click(_):
+        set_props("output", {"children": "changed"})
+        set_props("output", {"style": {"background": "rgb(255,0,0)"}})
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_element("#start").click()
+    dash_duo.wait_for_text_to_equal("#output", "changed")
+    dash_duo.wait_for_style_to_equal(
+        "#output", "background-color", "rgba(255, 0, 0, 1)"
+    )
+
+
+def test_arb007_clientside_no_output(dash_duo):
+    app = Dash()
+
+    app.layout = [
+        html.Button("start", id="start1"),
+        html.Button("start2", id="start2"),
+        html.Div(id="output"),
+    ]
+
+    clientside_callback(
+        """
+        function(_) {
+            dash_clientside.set_props('output', {children: 'start1'})
+        }
+        """,
+        Input("start1", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    clientside_callback(
+        """
+        function(_) {
+            dash_clientside.set_props('output', {children: 'start2'})
+        }
+        """,
+        Input("start2", "n_clicks"),
+        prevent_initial_call=True,
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#start1").click()
+    dash_duo.wait_for_text_to_equal("#output", "start1")
+    dash_duo.find_element("#start2").click()
+    dash_duo.wait_for_text_to_equal("#output", "start2")
