@@ -31,7 +31,8 @@ import {
     IPrioritizedCallback,
     LongCallbackInfo,
     CallbackResponse,
-    CallbackResponseData
+    CallbackResponseData,
+    SideUpdateOutput
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
@@ -44,6 +45,8 @@ import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
+import {parsePMCId} from './patternMatching';
+import {replacePMC} from './patternMatching';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -340,33 +343,53 @@ function updateComponent(component_id: any, props: any) {
     };
 }
 
-function sideUpdate(outputs: any, dispatch: any) {
-    toPairs(outputs).forEach(([id, value]) => {
-        let componentId = id,
-            propName;
+/**
+ * Update a component props with `running`/`progress`/`set_props` calls.
+ *
+ * @param outputs Props to update.
+ * @param cb The originating callback info.
+ * @returns
+ */
+function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
+    return function (dispatch: any, getState: any) {
+        toPairs(outputs)
+            .reduce((acc, [id, value], i) => {
+                let componentId = id,
+                    propName,
+                    replacedIds = [];
 
-        if (id.startsWith('{')) {
-            const index = id.lastIndexOf('}');
-            if (index + 2 < id.length) {
-                propName = id.substring(index + 2);
-                componentId = JSON.parse(id.substring(0, index + 1));
-            } else {
-                componentId = JSON.parse(id);
-            }
-        } else if (id.includes('.')) {
-            [componentId, propName] = id.split('.');
-        }
+                if (id.startsWith('{')) {
+                    [componentId, propName] = parsePMCId(id);
+                    replacedIds = replacePMC(componentId, cb, i, getState);
+                } else if (id.includes('.')) {
+                    [componentId, propName] = id.split('.');
+                }
 
-        const props = propName ? {[propName]: value} : value;
-        dispatch(updateComponent(componentId, props));
-    });
+                const props = propName ? {[propName]: value} : value;
+
+                if (replacedIds.length === 0) {
+                    acc.push([componentId, props]);
+                } else if (replacedIds.length === 1) {
+                    acc.push([replacedIds[0], props]);
+                } else {
+                    replacedIds.forEach((rep: any) => {
+                        acc.push([rep, props]);
+                    });
+                }
+
+                return acc;
+            }, [] as any[])
+            .forEach(([id, idProps]) => {
+                dispatch(updateComponent(id, idProps));
+            });
+    };
 }
 
 function handleServerside(
     dispatch: any,
     hooks: any,
     config: any,
-    payload: any,
+    payload: ICallbackPayload,
     long: LongCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
@@ -386,7 +409,7 @@ function handleServerside(
     let moreArgs = additionalArgs;
 
     if (running) {
-        sideUpdate(running.running, dispatch);
+        dispatch(sideUpdate(running.running, payload));
         runningOff = running.runningOff;
     }
 
@@ -496,10 +519,10 @@ function handleServerside(
                     dispatch(removeCallbackJob({jobId: job}));
                 }
                 if (runningOff) {
-                    sideUpdate(runningOff, dispatch);
+                    dispatch(sideUpdate(runningOff, payload));
                 }
                 if (progressDefault) {
-                    sideUpdate(progressDefault, dispatch);
+                    dispatch(sideUpdate(progressDefault, payload));
                 }
             };
 
@@ -522,11 +545,11 @@ function handleServerside(
                     }
 
                     if (data.sideUpdate) {
-                        sideUpdate(data.sideUpdate, dispatch);
+                        dispatch(sideUpdate(data.sideUpdate, payload));
                     }
 
                     if (data.progress) {
-                        sideUpdate(data.progress, dispatch);
+                        dispatch(sideUpdate(data.progress, payload));
                     }
                     if (!progressDefault && data.progressDefault) {
                         progressDefault = data.progressDefault;
@@ -671,11 +694,19 @@ export function executeCallback(
 
         const __execute = async (): Promise<CallbackResult> => {
             try {
+                const changedPropIds = keys<string>(cb.changedPropIds);
+                const parsedChangedPropsIds = changedPropIds.map(propId => {
+                    if (propId.startsWith('{')) {
+                        return parsePMCId(propId)[0];
+                    }
+                    return propId;
+                });
                 const payload: ICallbackPayload = {
                     output,
                     outputs: isMultiOutputProp(output) ? outputs : outputs[0],
                     inputs: inVals,
-                    changedPropIds: keys(cb.changedPropIds),
+                    changedPropIds,
+                    parsedChangedPropsIds,
                     state: cb.callback.state.length
                         ? fillVals(paths, layout, cb, state, 'State')
                         : undefined
@@ -721,7 +752,9 @@ export function executeCallback(
                         if (inter.length) {
                             additionalArgs.push(['cancelJob', job.jobId]);
                             if (job.progressDefault) {
-                                sideUpdate(job.progressDefault, dispatch);
+                                dispatch(
+                                    sideUpdate(job.progressDefault, payload)
+                                );
                             }
                         }
                     }

@@ -2,6 +2,7 @@ import pytest
 import re
 from selenium.webdriver.common.keys import Keys
 import json
+from multiprocessing import Lock
 
 from dash.testing import wait
 import dash
@@ -552,3 +553,69 @@ def test_cbwc007_pmc_update_subtree_ordering(dash_duo):
     dash_duo.wait_for_text_to_equal(
         "#selected-values", "['option0-2', 'option1-2', 'option2-2']"
     )
+
+
+def test_cbwc008_running_match(dash_duo):
+    lock = Lock()
+    app = dash.Dash()
+
+    app.layout = [
+        html.Div(
+            [
+                html.Button(
+                    "Test1",
+                    id={"component": "button", "index": "1"},
+                ),
+                html.Button(
+                    "Test2",
+                    id={"component": "button", "index": "2"},
+                ),
+            ],
+            id="buttons",
+        ),
+        html.Div(html.Div(id={"component": "output", "index": "1"}), id="output1"),
+        html.Div(html.Div(id={"component": "output", "index": "2"}), id="output2"),
+    ]
+
+    @app.callback(
+        Output({"component": "output", "index": MATCH}, "children"),
+        Input({"component": "button", "index": MATCH}, "n_clicks"),
+        running=[
+            (
+                Output({"component": "button", "index": MATCH}, "children"),
+                "running",
+                "finished",
+            ),
+            (Output({"component": "button", "index": ALL}, "disabled"), True, False),
+        ],
+        prevent_initial_call=True,
+    )
+    def on_click(_) -> str:
+        with lock:
+            return "done"
+
+    dash_duo.start_server(app)
+
+    for i in range(1, 3):
+        with lock:
+            dash_duo.find_element(f"#buttons button:nth-child({i})").click()
+            dash_duo.wait_for_text_to_equal(
+                f"#buttons button:nth-child({i})", "running"
+            )
+            # verify all the buttons were disabled.
+            assert dash_duo.find_element("#buttons button:nth-child(1)").get_attribute(
+                "disabled"
+            )
+            assert dash_duo.find_element("#buttons button:nth-child(2)").get_attribute(
+                "disabled"
+            )
+
+        dash_duo.wait_for_text_to_equal(f"#output{i}", "done")
+        dash_duo.wait_for_text_to_equal(f"#buttons button:nth-child({i})", "finished")
+
+        assert not dash_duo.find_element("#buttons button:nth-child(1)").get_attribute(
+            "disabled"
+        )
+        assert not dash_duo.find_element("#buttons button:nth-child(2)").get_attribute(
+            "disabled"
+        )

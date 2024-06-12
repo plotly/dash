@@ -95,6 +95,7 @@ def test_rdrh001_request_hooks(dash_duo):
         "output": "output-1.children",
         "outputs": {"id": "output-1", "property": "children"},
         "changedPropIds": ["input.value"],
+        "parsedChangedPropsIds": ["input.value"],
         "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}],
     }
 
@@ -102,6 +103,7 @@ def test_rdrh001_request_hooks(dash_duo):
         "output": "output-1.children",
         "outputs": {"id": "output-1", "property": "children"},
         "changedPropIds": ["input.value"],
+        "parsedChangedPropsIds": ["input.value"],
         "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}],
     }
 
