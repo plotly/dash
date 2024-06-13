@@ -244,7 +244,7 @@ async function handleClientside(
         });
     }
 
-    const {inputs, output, outputs, state} = payload;
+    const {inputs, outputs, state} = payload;
     const requestTime = Date.now();
 
     const inputDict = inputsToDict(inputs);
@@ -272,11 +272,7 @@ async function handleClientside(
         dc.callback_context.inputs = inputDict;
         dc.callback_context.states_list = state;
         dc.callback_context.states = stateDict;
-        dc.callback_context.outputs_list =
-            Object.prototype.toString.call(outputs) === '[object Object]'
-                ? [outputs]
-                : outputs;
-        dc.callback_context.outputs = output;
+        dc.callback_context.outputs_list = outputs;
 
         let returnValue = dc[namespace][function_name](...args);
 
