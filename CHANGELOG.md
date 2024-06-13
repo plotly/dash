@@ -2,11 +2,13 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.17.1] - 2024-06-12
+## [UNRELEASED]
 
 ## Added
 
 - [#2881](https://github.com/plotly/dash/pull/2881) Add outputs_list to window.dash_clientside.callback_context. Fixes [#2877](https://github.com/plotly/dash/issues/2877).
+
+## [2.17.1] - 2024-06-12
 
 ## Fixed
 
