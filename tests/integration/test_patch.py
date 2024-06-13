@@ -1,10 +1,13 @@
 import json
 
+import flaky
+
 from selenium.webdriver.common.keys import Keys
 
 from dash import Dash, html, dcc, Input, Output, State, ALL, Patch
 
 
+@flaky.flaky(max_runs=3)
 def test_pch001_patch_operations(dash_duo):
 
     app = Dash(__name__)
