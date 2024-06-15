@@ -24,6 +24,7 @@ const Loading = ({
     loading_state,
     display,
     color,
+    id,
     className,
     style,
     parent_className,
@@ -148,6 +149,7 @@ const Loading = ({
                 {showSpinner &&
                     (custom_spinner || (
                         <Spinner
+                            id={id}
                             className={className}
                             style={style}
                             status={loading_state}
