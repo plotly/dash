@@ -145,11 +145,10 @@ const Loading = ({
             >
                 {children}
             </div>
-            <div style={showSpinner ? coveringSpinner : {}}>
+            <div id={id} style={showSpinner ? coveringSpinner : {}}>
                 {showSpinner &&
                     (custom_spinner || (
                         <Spinner
-                            id={id}
                             className={className}
                             style={style}
                             status={loading_state}
