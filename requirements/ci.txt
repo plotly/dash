@@ -7,11 +7,11 @@ flaky==3.8.1
 flask-talisman==1.0.0
 mimesis<=11.1.0
 mock==4.0.3
-numpy<=1.26.3
+numpy>=2.0.0
 orjson==3.10.3
 openpyxl
-pandas>=1.4.0
-pyarrow
+pandas>=2.2.0
+pyarrow>=16.1.0
 pylint==3.0.3
 pytest-mock
 pytest-sugar==0.9.6
