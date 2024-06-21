@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#2881](https://github.com/plotly/dash/pull/2881) Add outputs_list to window.dash_clientside.callback_context. Fixes [#2877](https://github.com/plotly/dash/issues/2877).
 
+## Fixed
+
+- [#2898](https://github.com/plotly/dash/pull/2898) Fix error thrown when using non-existent components in callback running keyword. Fixes [#2897](https://github.com/plotly/dash/issues/2897).
+
 ## [2.17.1] - 2024-06-12
 
 ## Fixed
