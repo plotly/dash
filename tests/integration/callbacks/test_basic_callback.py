@@ -823,3 +823,38 @@ def test_cbsc019_callback_running(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#output", "done")
     dash_duo.wait_for_text_to_equal("#running", "off")
+
+
+def test_cbsc020_callback_running_non_existing_component(dash_duo):
+    lock = Lock()
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("start", id="start"),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("start", "n_clicks"),
+        running=[
+            [
+                Output("non_existent_component", "children"),
+                html.B("on", id="content"),
+                "off",
+            ]
+        ],
+        prevent_initial_call=True,
+    )
+    def on_click(_):
+        with lock:
+            pass
+        return "done"
+
+    dash_duo.start_server(app)
+    with lock:
+        dash_duo.find_element("#start").click()
+
+    dash_duo.wait_for_text_to_equal("#output", "done")
