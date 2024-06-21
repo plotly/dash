@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 
 - [#2892](https://github.com/plotly/dash/pull/2860) Fix ensures dcc.Dropdown menu maxHeight option works with Datatable. Fixes [#2529](https://github.com/plotly/dash/issues/2529) [#2225](https://github.com/plotly/dash/issues/2225)
+- [#2896](https://github.com/plotly/dash/pull/2896) The tabIndex parameter of Div can accept number or string type. Fixes [#2891](https://github.com/plotly/dash/issues/2891)
 
 ## [2.17.1] - 2024-06-12
 
