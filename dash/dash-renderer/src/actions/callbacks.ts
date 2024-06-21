@@ -334,6 +334,11 @@ function updateComponent(component_id: any, props: any) {
     return function (dispatch: any, getState: any) {
         const paths = getState().paths;
         const componentPath = getPath(paths, component_id);
+        if (typeof componentPath === 'undefined') {
+            // Can't find the component that was defined in the running keyword,
+            // Let's skip the component to prevent the dashboard from crashing.
+            return;
+        }
         dispatch(
             updateProps({
                 props,
