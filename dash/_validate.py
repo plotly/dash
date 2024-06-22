@@ -1,6 +1,7 @@
 import sys
 from collections.abc import MutableSequence
 import re
+import warnings
 from textwrap import dedent
 from keyword import iskeyword
 import flask
@@ -422,6 +423,15 @@ def validate_layout(layout, layout_value):
     component_ids = set()
 
     def _validate(value):
+        def _validate_type(comp):
+            deprecated_types = ["LogoutButton"]
+            component_type = getattr(comp, "_type", None)
+            if component_type and component_type in deprecated_types:
+                warnings.warn(
+                    f"{component_type} is deprecated, use a different component type instead",
+                    DeprecationWarning,
+                )
+
         def _validate_id(comp):
             component_id = stringify_id(getattr(comp, "id", None))
             if component_id and component_id in component_ids:
@@ -432,9 +442,11 @@ def validate_layout(layout, layout_value):
                 )
             component_ids.add(component_id)
 
+        _validate_type(value)
         _validate_id(value)
 
         for component in value._traverse():  # pylint: disable=protected-access
+            _validate_type(component)
             _validate_id(component)
 
     if isinstance(layout_value, (list, tuple)):
