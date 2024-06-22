@@ -1,6 +1,7 @@
 from dash.exceptions import PreventUpdate
 from dash import Dash, Input, Output, dcc, html
 import flask
+import pytest
 import time
 
 
@@ -33,15 +34,19 @@ def test_llgo001_location_logout(dash_dcc):
 
             return dcc.LogoutButton(id="logout-btn", logout_url="/_logout")
 
-    dash_dcc.start_server(app)
-    time.sleep(1)
-    dash_dcc.percy_snapshot("Core Logout button")
+    with pytest.warns(
+        DeprecationWarning,
+        match="LogoutButton is deprecated, use a different component type instead",
+    ):
+        dash_dcc.start_server(app)
+        time.sleep(1)
+        dash_dcc.percy_snapshot("Core Logout button")
 
-    assert dash_dcc.driver.get_cookie("logout-cookie")["value"] == "logged-in"
+        assert dash_dcc.driver.get_cookie("logout-cookie")["value"] == "logged-in"
 
-    dash_dcc.wait_for_element("#logout-btn").click()
-    dash_dcc.wait_for_text_to_equal("#content", "Logged out")
+        dash_dcc.wait_for_element("#logout-btn").click()
+        dash_dcc.wait_for_text_to_equal("#content", "Logged out")
 
-    assert not dash_dcc.driver.get_cookie("logout-cookie")
+        assert not dash_dcc.driver.get_cookie("logout-cookie")
 
-    assert dash_dcc.get_logs() == []
+        assert dash_dcc.get_logs() == []
