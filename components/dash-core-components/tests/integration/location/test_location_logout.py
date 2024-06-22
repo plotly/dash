@@ -5,7 +5,8 @@ import pytest
 import time
 
 
-def test_llgo001_location_logout(dash_dcc):
+@pytest.mark.parametrize("add_initial_logout_button", [False, True])
+def test_llgo001_location_logout(dash_dcc, add_initial_logout_button):
     app = Dash(__name__)
 
     @app.server.route("/_logout", methods=["POST"])
@@ -14,9 +15,14 @@ def test_llgo001_location_logout(dash_dcc):
         rep.set_cookie("logout-cookie", "", 0)
         return rep
 
-    app.layout = html.Div(
-        [html.H2("Logout test"), dcc.Location(id="location"), html.Div(id="content")]
-    )
+    layout_children = [
+        html.H2("Logout test"),
+        dcc.Location(id="location"),
+        html.Div(id="content"),
+    ]
+    if add_initial_logout_button:
+        layout_children.append(dcc.LogoutButton())
+    app.layout = html.Div(layout_children)
 
     @app.callback(Output("content", "children"), [Input("location", "pathname")])
     def on_location(location_path):
