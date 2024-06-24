@@ -1,4 +1,4 @@
-from dash import Dash, Input, Output, State, html, clientside_callback
+from dash import Dash, Input, Output, State, html, clientside_callback, no_update
 import time
 
 from tests.integration.long_callback.utils import get_long_callback_manager
@@ -36,7 +36,9 @@ clientside_callback(
 )
 def on_bg_progress(set_progress, _):
     set_progress("start")
-    time.sleep(2)
+    time.sleep(1)
+    set_progress(no_update)
+    time.sleep(1)
     set_progress("stop")
     return "done"
 
