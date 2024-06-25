@@ -71,7 +71,6 @@ Open a Bash terminal in the `dash` repository, Git Bash terminal for example on 
   # Skip this if you manage the Python Interpreter via Pycharm.
   # Create and activate virtual environment
   $ python -m venv .venv/dev
-  # on some linux / mac environments, use `.` instead of `source`
   $ source .venv/dev/scripts/activate
 ########
 
