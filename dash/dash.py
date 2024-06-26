@@ -17,6 +17,9 @@ import base64
 import traceback
 from urllib.parse import urlparse
 from typing import Dict, Optional, Union
+from typing import List, Dict, Union, Optional
+
+# from typing import List, Dict, Union
 
 import flask
 
@@ -375,40 +378,43 @@ class Dash:
     STARTUP_ROUTES: list = []
 
     def __init__(  # pylint: disable=too-many-statements
-        self,
-        name=None,
-        server=True,
-        assets_folder="assets",
-        pages_folder="pages",
-        use_pages=None,
-        assets_url_path="assets",
-        assets_ignore="",
-        assets_external_path=None,
-        eager_loading=False,
-        include_assets_files=True,
-        include_pages_meta=True,
-        url_base_pathname=None,
-        requests_pathname_prefix=None,
-        routes_pathname_prefix=None,
-        serve_locally=True,
-        compress=None,
-        meta_tags=None,
-        index_string=_default_index,
-        external_scripts=None,
-        external_stylesheets=None,
-        suppress_callback_exceptions=None,
-        prevent_initial_callbacks=False,
-        show_undo_redo=False,
-        extra_hot_reload_paths=None,
-        plugins=None,
-        title="Dash",
-        update_title="Updating...",
-        long_callback_manager=None,
-        background_callback_manager=None,
-        add_log_handler=True,
-        hooks: Union[RendererHooks, None] = None,
+        name: Optional[str] = None,
+        server: Union[bool, flask.Flask] = True,
+        assets_folder: str = "assets",
+        pages_folder: str = "pages",
+        use_pages: Optional[bool] = None,
+        assets_url_path: str = "assets",
+        assets_ignore: str = "",
+        assets_external_path: Optional[str] = None,
+        eager_loading: bool = False,
+        include_assets_files: bool = True,
+        include_pages_meta: bool = True,
+        url_base_pathname: Optional[str] = None,
+        requests_pathname_prefix: Optional[str] = None,
+        routes_pathname_prefix: Optional[str] = None,
+        serve_locally: bool = True,
+        compress: Optional[bool] = None,
+        meta_tags: Optional[List[Dict[str, Any]]] = None,
+        index_string: str = _default_index,
+        external_scripts: Optional[List[Union[str, Dict[str, Any]]]] = None,
+        external_stylesheets: Optional[List[Union[str, Dict[str, Any]]]] = None,
+        suppress_callback_exceptions: Optional[bool] = None,
+        prevent_initial_callbacks: bool = False,
+        show_undo_redo: bool = False,
+        extra_hot_reload_paths: Optional[List[str]] = None,
+        plugins: Optional[List[Dict[str, Any]]] = None,
+        title: str = "Dash",
+        update_title: str = "Updating...",
+        long_callback_manager: Optional[
+            Any
+        ] = None,  # Type should be specified if possible
+        background_callback_manager: Optional[
+            Any
+        ] = None,  # Type should be specified if possible
+        add_log_handler: bool = True,
+        hooks: Optional[RendererHooks] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
-        description=None,
+        description: Optional[str] = None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
