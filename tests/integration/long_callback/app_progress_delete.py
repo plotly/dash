@@ -36,12 +36,13 @@ clientside_callback(
 )
 def on_bg_progress(set_progress, _):
     set_progress("start")
-    time.sleep(1)
-    set_progress(no_update)
-    time.sleep(1)
+    time.sleep(2)
     set_progress("stop")
+    time.sleep(2)
+    set_progress(no_update)
     return "done"
 
 
 if __name__ == "__main__":
     app.run_server(debug=True)
+application = app.server
