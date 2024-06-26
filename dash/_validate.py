@@ -439,11 +439,13 @@ def validate_layout(layout, layout_value):
 
     if isinstance(layout_value, (list, tuple)):
         for component in layout_value:
+            if isinstance(component, (str,)):
+                continue
             if isinstance(component, (Component,)):
                 _validate(component)
             else:
                 raise exceptions.NoLayoutException(
-                    "List of components as layout must be a list of components only."
+                    "Only strings and components are allowed in a list layout."
                 )
     else:
         _validate(layout_value)
