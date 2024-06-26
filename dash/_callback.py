@@ -1,6 +1,7 @@
 import collections
 import hashlib
 from functools import wraps
+from typing import Callable, Optional, Any
 
 import flask
 
@@ -67,6 +68,7 @@ def callback(
     cancel=None,
     manager=None,
     cache_args_to_ignore=None,
+    on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
 ):
     """
@@ -137,6 +139,10 @@ def callback(
             this should be a list of argument indices as integers.
         :param interval:
             Time to wait between the long callback update requests.
+        :param on_error:
+            Function to call when the callback raises an exception. Receives the
+            exception object as first argument. The callback_context can be used
+            to access the original callback inputs, states and output.
     """
 
     long_spec = None
@@ -186,6 +192,7 @@ def callback(
         long=long_spec,
         manager=manager,
         running=running,
+        on_error=on_error,
     )
 
 
@@ -272,8 +279,8 @@ def insert_callback(
     return callback_id
 
 
-# pylint: disable=R0912, R0915
-def register_callback(  # pylint: disable=R0914
+# pylint: disable=too-many-branches,too-many-statements
+def register_callback(
     callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
 ):
     (
@@ -297,6 +304,7 @@ def register_callback(  # pylint: disable=R0914
     long = _kwargs.get("long")
     manager = _kwargs.get("manager")
     running = _kwargs.get("running")
+    on_error = _kwargs.get("on_error")
     if running is not None:
         if not isinstance(running[0], (list, tuple)):
             running = [running]
@@ -342,6 +350,8 @@ def register_callback(  # pylint: disable=R0914
                 "callback_context", AttributeDict({"updated_props": {}})
             )
             callback_manager = long and long.get("manager", app_callback_manager)
+            app_on_error = kwargs.pop("app_on_error", None)
+
             if has_output:
                 _validate.validate_output_spec(insert_output, output_spec, Output)
 
@@ -403,6 +413,7 @@ def register_callback(  # pylint: disable=R0914
                             triggered_inputs=callback_ctx.triggered_inputs,
                             ignore_register_page=True,
                         ),
+                        on_error=on_error or app_on_error,
                     )
 
                     data = {
@@ -462,7 +473,15 @@ def register_callback(  # pylint: disable=R0914
                 if output_value is callback_manager.UNDEFINED:
                     return to_json(response)
             else:
-                output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                try:
+                    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                except Exception as err:  # pylint: disable=broad-exception-caught
+                    if on_error:
+                        output_value = on_error(err)
+                    elif app_on_error:
+                        output_value = app_on_error(err)
+                    else:
+                        raise err
 
             if NoUpdate.is_no_update(output_value):
                 raise PreventUpdate

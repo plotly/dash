@@ -89,7 +89,7 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
     def clear_cache_entry(self, key):
         self.handle.backend.delete(key)
 
-    def call_job_fn(self, key, job_fn, args, context):
+    def call_job_fn(self, key, job_fn, args, context, on_error=None):
         task = job_fn.delay(key, self._make_progress_key(key), args, context)
         return task.task_id
 
@@ -139,7 +139,9 @@ def _make_job_fn(fn, celery_app, progress, key):
     cache = celery_app.backend
 
     @celery_app.task(name=f"long_callback_{key}")
-    def job_fn(result_key, progress_key, user_callback_args, context=None):
+    def job_fn(
+        result_key, progress_key, user_callback_args, context=None, on_error=None
+    ):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
@@ -161,6 +163,7 @@ def _make_job_fn(fn, celery_app, progress, key):
             c.ignore_register_page = False
             c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
+            errored = False
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = fn(*maybe_progress, **user_callback_args)
@@ -170,6 +173,7 @@ def _make_job_fn(fn, celery_app, progress, key):
                     user_callback_output = fn(*maybe_progress, user_callback_args)
             except PreventUpdate:
                 # Put NoUpdate dict directly to avoid circular imports.
+                errored = True
                 cache.set(
                     result_key,
                     json.dumps(
@@ -177,18 +181,23 @@ def _make_job_fn(fn, celery_app, progress, key):
                     ),
                 )
             except Exception as err:  # pylint: disable=broad-except
-                cache.set(
-                    result_key,
-                    json.dumps(
-                        {
-                            "long_callback_error": {
-                                "msg": str(err),
-                                "tb": traceback.format_exc(),
-                            }
-                        },
-                    ),
-                )
-            else:
+                if on_error:
+                    user_callback_output = on_error(err)
+                else:
+                    errored = True
+                    cache.set(
+                        result_key,
+                        json.dumps(
+                            {
+                                "long_callback_error": {
+                                    "msg": str(err),
+                                    "tb": traceback.format_exc(),
+                                }
+                            },
+                        ),
+                    )
+
+            if not errored:
                 cache.set(
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
                 )
