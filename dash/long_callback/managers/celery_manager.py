@@ -90,7 +90,7 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         self.handle.backend.delete(key)
 
     def call_job_fn(self, key, job_fn, args, context, on_error=None):
-        task = job_fn.delay(key, self._make_progress_key(key), args, context)
+        task = job_fn.delay(key, self._make_progress_key(key), args, context, on_error)
         return task.task_id
 
     def get_progress(self, key):

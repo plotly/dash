@@ -1,7 +1,7 @@
 from tests.integration.long_callback.utils import setup_long_callback_app
 
 
-def test_lcbc017_long_callback_set_props(dash_duo, manager):
+def test_lcbc018_background_callback_on_error(dash_duo, manager):
     with setup_long_callback_app(manager, "app_bg_on_error") as app:
         dash_duo.start_server(app)
 
