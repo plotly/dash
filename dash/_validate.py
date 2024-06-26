@@ -445,7 +445,7 @@ def validate_layout(layout, layout_value):
                 _validate(component)
             else:
                 raise exceptions.NoLayoutException(
-                    "List of components as layout must be a list of strings and components only."
+                    "Only strings and components are allowed in a list layout."
                 )
     else:
         _validate(layout_value)
