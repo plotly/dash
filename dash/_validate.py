@@ -1,4 +1,5 @@
 import sys
+from collections import defaultdict
 from collections.abc import MutableSequence
 import re
 import warnings
@@ -424,13 +425,19 @@ def validate_layout(layout, layout_value):
 
     def _validate(value):
         def _validate_type(comp):
-            deprecated_types = ["LogoutButton"]
-            component_type = getattr(comp, "_type", None)
-            if component_type and component_type in deprecated_types:
-                warnings.warn(
-                    f"{component_type} is deprecated, use a different component type instead",
-                    DeprecationWarning,
-                )
+            deprecated_components = defaultdict(lambda: defaultdict(dict))
+            deprecated_components["dash_core_components"][
+                "LogoutButton"
+            ] = """
+                The Logout Button is no longer used with Dash Enterprise and can be replaced with a html.Button or html.A.
+                eg: html.A(href=os.getenv('DASH_LOGOUT_URL'))
+            """
+
+            _type = getattr(comp, "_type", "")
+            _ns = getattr(comp, "_namespace", "")
+            deprecation_message = deprecated_components[_ns][_type]
+            if deprecation_message:
+                warnings.warn(dedent(deprecation_message), DeprecationWarning)
 
         def _validate_id(comp):
             component_id = stringify_id(getattr(comp, "id", None))

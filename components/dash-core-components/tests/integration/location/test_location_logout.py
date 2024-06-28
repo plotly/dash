@@ -42,7 +42,7 @@ def test_llgo001_location_logout(dash_dcc, add_initial_logout_button):
 
     with pytest.warns(
         DeprecationWarning,
-        match="LogoutButton is deprecated, use a different component type instead",
+        match="The Logout Button is no longer used with Dash Enterprise and can be replaced with a html.Button or html.A.",
     ):
         dash_dcc.start_server(app)
         time.sleep(1)
