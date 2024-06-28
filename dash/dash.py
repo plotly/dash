@@ -2109,6 +2109,12 @@ class Dash:
             dev_tools_prune_errors,
         )
 
+        # Evaluate the env variables at runtime
+
+        host = os.getenv("HOST", host)
+        port = os.getenv("PORT", port)
+        proxy = os.getenv("DASH_PROXY", proxy)
+
         # Verify port value
         try:
             port = int(port)
