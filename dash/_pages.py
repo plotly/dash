@@ -1,6 +1,7 @@
 import collections
 import importlib
 import os
+import pkgutil
 import re
 import sys
 from fnmatch import fnmatch
@@ -426,6 +427,15 @@ def _page_meta_tags(app):
     ]
 
 
+def _ensure_layout_is_loaded(module_name, page_module):
+    if (
+        module_name in PAGE_REGISTRY
+        and not PAGE_REGISTRY[module_name]["supplied_layout"]
+    ):
+        _validate.validate_pages_layout(module_name, page_module)
+        PAGE_REGISTRY[module_name]["layout"] = getattr(page_module, "layout")
+
+
 def _import_layouts_from_pages(pages_folder):
     for root, dirs, files in os.walk(pages_folder):
         dirs[:] = [d for d in dirs if not d.startswith(".") and not d.startswith("_")]
@@ -443,10 +453,13 @@ def _import_layouts_from_pages(pages_folder):
             page_module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(page_module)
             sys.modules[module_name] = page_module
+            _ensure_layout_is_loaded(module_name, page_module)
 
-            if (
-                module_name in PAGE_REGISTRY
-                and not PAGE_REGISTRY[module_name]["supplied_layout"]
-            ):
-                _validate.validate_pages_layout(module_name, page_module)
-                PAGE_REGISTRY[module_name]["layout"] = getattr(page_module, "layout")
+
+def _import_layouts_from_package(pages_package):
+    modules = pkgutil.walk_packages(
+        pages_package.__path__, prefix=pages_package.__name__ + "."
+    )
+    for module in modules:
+        page_module = importlib.import_module(module.name)
+        _ensure_layout_is_loaded(module.name, page_module)

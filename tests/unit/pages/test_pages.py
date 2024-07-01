@@ -76,3 +76,12 @@ def test_import_layouts_from_pages(
 
     page_entry = list(dash.page_registry.values())[0]
     assert page_entry["module"] == expected_module_name
+
+
+def test_import_layouts_from_package(clear_pages_state):
+    from . import custom_pages
+
+    _ = Dash(__package__, use_pages=True, pages_folder="", pages_package=custom_pages)
+    page_entries = list(dash.page_registry.values())
+    assert len(page_entries) == 1
+    assert page_entries[0]["module"] == "pages.custom_pages.page"
