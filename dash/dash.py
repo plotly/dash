@@ -16,7 +16,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 import flask
 
@@ -369,6 +369,10 @@ class Dash:
 
     :param description:  Sets a default description for meta tags on Dash pages (use_pages=True).
 
+    :param on_error: Global callback error handler to call when
+        an exception is raised. Receives the exception object as first argument.
+        The callback_context can be used to access the original callback inputs,
+        states and output.
     """
 
     _plotlyjs_url: str
@@ -409,6 +413,7 @@ class Dash:
         hooks: Union[RendererHooks, None] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
         description=None,
+        on_error: Optional[Callable[[Exception], Any]] = None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -520,6 +525,7 @@ class Dash:
         self._layout = None
         self._layout_is_function = False
         self.validation_layout = None
+        self._on_error = on_error
         self._extra_components = []
 
         self._setup_dev_tools()
@@ -1377,6 +1383,7 @@ class Dash:
                     outputs_list=outputs_list,
                     long_callback_manager=self._background_manager,
                     callback_context=g,
+                    app_on_error=self._on_error,
                 )
             )
         )
