@@ -475,6 +475,8 @@ def register_callback(
             else:
                 try:
                     output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                except PreventUpdate as err:
+                    raise err
                 except Exception as err:  # pylint: disable=broad-exception-caught
                     if on_error:
                         output_value = on_error(err)
