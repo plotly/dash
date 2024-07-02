@@ -8,7 +8,7 @@ flask-talisman==1.0.0
 mimesis<=11.1.0
 mock==4.0.3
 numpy<=1.26.3
-orjson==3.9.12
+orjson==3.10.3
 openpyxl
 pandas>=1.4.0
 pyarrow

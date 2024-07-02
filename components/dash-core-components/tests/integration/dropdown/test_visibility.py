@@ -50,7 +50,10 @@ def test_ddvi001_fixed_table(dash_duo):
 def test_ddvi002_maxHeight(dash_duo):
     app = Dash(__name__)
     app.layout = Div(
-        [Dropdown([str(i) for i in range(100)], "1", id="dropdown", maxHeight=800)]
+        [
+            DataTable(),  # ensure datatable css does not override maxHeight #2529
+            Dropdown([str(i) for i in range(100)], "1", id="dropdown", maxHeight=800),
+        ]
     )
 
     dash_duo.start_server(app)
