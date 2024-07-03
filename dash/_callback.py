@@ -233,7 +233,7 @@ def insert_callback(
     long=None,
     manager=None,
     running=None,
-    dynamic_creator=False,
+    dynamic_creator: Optional[bool] = False,
     no_output=False,
 ):
     if prevent_initial_call is None:
@@ -277,6 +277,14 @@ def insert_callback(
     callback_list.append(callback_spec)
 
     return callback_id
+
+
+def _set_side_update(ctx, response) -> bool:
+    side_update = dict(ctx.updated_props)
+    if len(side_update) > 0:
+        response["sideUpdate"] = side_update
+        return True
+    return False
 
 
 # pylint: disable=too-many-branches,too-many-statements
@@ -350,7 +358,7 @@ def register_callback(
                 "callback_context", AttributeDict({"updated_props": {}})
             )
             callback_manager = long and long.get("manager", app_callback_manager)
-            app_on_error = kwargs.pop("app_on_error", None)
+            error_handler = on_error or kwargs.pop("app_on_error", None)
 
             if has_output:
                 _validate.validate_output_spec(insert_output, output_spec, Output)
@@ -361,7 +369,7 @@ def register_callback(
                 args, inputs_state_indices
             )
 
-            response = {"multi": True}
+            response: dict = {"multi": True}
             has_update = False
 
             if long is not None:
@@ -413,7 +421,6 @@ def register_callback(
                             triggered_inputs=callback_ctx.triggered_inputs,
                             ignore_register_page=True,
                         ),
-                        on_error=on_error or app_on_error,
                     )
 
                     data = {
@@ -451,10 +458,19 @@ def register_callback(
                     isinstance(output_value, dict)
                     and "long_callback_error" in output_value
                 ):
-                    error = output_value.get("long_callback_error")
-                    raise LongCallbackError(
+                    error = output_value.get("long_callback_error", {})
+                    exc = LongCallbackError(
                         f"An error occurred inside a long callback: {error['msg']}\n{error['tb']}"
                     )
+                    if error_handler:
+                        error_handler(exc)
+                        output_value = NoUpdate()
+                        # set_props from the error handler uses the original ctx
+                        # instead of manager.get_updated_props since it runs in the
+                        # request process.
+                        has_update = _set_side_update(callback_ctx, response)
+                    else:
+                        raise exc
 
                 if job_running and output_value is not callback_manager.UNDEFINED:
                     # cached results.
@@ -478,15 +494,14 @@ def register_callback(
                 except PreventUpdate as err:
                     raise err
                 except Exception as err:  # pylint: disable=broad-exception-caught
-                    if on_error:
-                        output_value = on_error(err)
-                    elif app_on_error:
-                        output_value = app_on_error(err)
+                    if error_handler:
+                        error_handler(err)
+                        if not multi:
+                            output_value = NoUpdate()
+                        else:
+                            output_value = [NoUpdate for _ in output_spec]
                     else:
                         raise err
-
-            if NoUpdate.is_no_update(output_value):
-                raise PreventUpdate
 
             component_ids = collections.defaultdict(dict)
 
@@ -508,12 +523,12 @@ def register_callback(
                 )
 
                 for val, spec in zip(flat_output_values, output_spec):
-                    if isinstance(val, NoUpdate):
+                    if NoUpdate.is_no_update(val):
                         continue
                     for vali, speci in (
                         zip(val, spec) if isinstance(spec, list) else [[val, spec]]
                     ):
-                        if not isinstance(vali, NoUpdate):
+                        if not NoUpdate.is_no_update(vali):
                             has_update = True
                             id_str = stringify_id(speci["id"])
                             prop = clean_property_name(speci["property"])
@@ -527,10 +542,7 @@ def register_callback(
                 flat_output_values = []
 
             if not long:
-                side_update = dict(callback_ctx.updated_props)
-                if len(side_update) > 0:
-                    has_update = True
-                    response["sideUpdate"] = side_update
+                has_update = _set_side_update(callback_ctx, response) or has_update
 
             if not has_update:
                 raise PreventUpdate

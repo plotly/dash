@@ -1,9 +1,9 @@
-from dash import Dash, html, Input, Output
+from dash import Dash, html, Input, Output, set_props
 
 
 def test_cber001_error_handler(dash_duo):
     def global_callback_error_handler(err):
-        return f"global: {err}"
+        set_props("output-global", {"children": f"global: {err}"})
 
     app = Dash(on_error=global_callback_error_handler)
 
@@ -15,7 +15,7 @@ def test_cber001_error_handler(dash_duo):
     ]
 
     def on_callback_error(err):
-        return f"callback: {err}"
+        set_props("output", {"children": f"callback: {err}"})
 
     @app.callback(
         Output("output", "children"),

@@ -7,7 +7,7 @@ def test_lcbc018_background_callback_on_error(dash_duo, manager):
 
         dash_duo.find_element("#start-cb-onerror").click()
 
-        dash_duo.wait_for_text_to_equal("#cb-output", "callback: callback error")
+        dash_duo.wait_for_contains_text("#cb-output", "callback error")
 
         dash_duo.find_element("#start-global-onerror").click()
-        dash_duo.wait_for_text_to_equal("#global-output", "global: global error")
+        dash_duo.wait_for_contains_text("#global-output", "global error")

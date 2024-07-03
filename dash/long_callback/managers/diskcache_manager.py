@@ -115,14 +115,14 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
         self.handle.delete(key)
 
     # noinspection PyUnresolvedReferences
-    def call_job_fn(self, key, job_fn, args, context, on_error=None):
+    def call_job_fn(self, key, job_fn, args, context):
         # pylint: disable-next=import-outside-toplevel,no-name-in-module,import-error
         from multiprocess import Process
 
         # pylint: disable-next=not-callable
         proc = Process(
             target=job_fn,
-            args=(key, self._make_progress_key(key), args, context, on_error),
+            args=(key, self._make_progress_key(key), args, context),
         )
         proc.start()
         return proc.pid
@@ -169,7 +169,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 
 
 def _make_job_fn(fn, cache, progress):
-    def job_fn(result_key, progress_key, user_callback_args, context, on_error):
+    def job_fn(result_key, progress_key, user_callback_args, context):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
@@ -200,19 +200,16 @@ def _make_job_fn(fn, cache, progress):
                 errored = True
                 cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
             except Exception as err:  # pylint: disable=broad-except
-                if on_error:
-                    user_callback_output = on_error(err)
-                else:
-                    errored = True
-                    cache.set(
-                        result_key,
-                        {
-                            "long_callback_error": {
-                                "msg": str(err),
-                                "tb": traceback.format_exc(),
-                            }
-                        },
-                    )
+                errored = True
+                cache.set(
+                    result_key,
+                    {
+                        "long_callback_error": {
+                            "msg": str(err),
+                            "tb": traceback.format_exc(),
+                        }
+                    },
+                )
 
             if not errored:
                 cache.set(result_key, user_callback_output)

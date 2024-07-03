@@ -18,8 +18,14 @@ class TestDiskCacheManager(DiskcacheManager):
         super().__init__(cache=cache, cache_by=cache_by, expire=expire)
         self.running_jobs = []
 
-    def call_job_fn(self, key, job_fn, args, context, on_error=None):
-        pid = super().call_job_fn(key, job_fn, args, context, on_error=on_error)
+    def call_job_fn(
+        self,
+        key,
+        job_fn,
+        args,
+        context,
+    ):
+        pid = super().call_job_fn(key, job_fn, args, context)
         self.running_jobs.append(pid)
         return pid
 

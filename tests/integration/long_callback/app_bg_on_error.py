@@ -1,4 +1,4 @@
-from dash import Dash, Input, Output, html
+from dash import Dash, Input, Output, html, set_props
 from tests.integration.long_callback.utils import get_long_callback_manager
 
 long_callback_manager = get_long_callback_manager()
@@ -6,8 +6,7 @@ handle = long_callback_manager.handle
 
 
 def global_error_handler(err):
-
-    return f"global: {err}"
+    set_props("global-output", {"children": f"global: {err}"})
 
 
 app = Dash(
@@ -23,7 +22,7 @@ app.layout = [
 
 
 def callback_on_error(err):
-    return f"callback: {err}"
+    set_props("cb-output", {"children": f"callback: {err}"})
 
 
 @app.callback(

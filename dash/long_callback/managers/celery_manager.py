@@ -89,8 +89,8 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
     def clear_cache_entry(self, key):
         self.handle.backend.delete(key)
 
-    def call_job_fn(self, key, job_fn, args, context, on_error=None):
-        task = job_fn.delay(key, self._make_progress_key(key), args, context, on_error)
+    def call_job_fn(self, key, job_fn, args, context):
+        task = job_fn.delay(key, self._make_progress_key(key), args, context)
         return task.task_id
 
     def get_progress(self, key):
@@ -139,9 +139,7 @@ def _make_job_fn(fn, celery_app, progress, key):
     cache = celery_app.backend
 
     @celery_app.task(name=f"long_callback_{key}")
-    def job_fn(
-        result_key, progress_key, user_callback_args, context=None, on_error=None
-    ):
+    def job_fn(result_key, progress_key, user_callback_args, context=None):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
@@ -181,21 +179,18 @@ def _make_job_fn(fn, celery_app, progress, key):
                     ),
                 )
             except Exception as err:  # pylint: disable=broad-except
-                if on_error:
-                    user_callback_output = on_error(err)
-                else:
-                    errored = True
-                    cache.set(
-                        result_key,
-                        json.dumps(
-                            {
-                                "long_callback_error": {
-                                    "msg": str(err),
-                                    "tb": traceback.format_exc(),
-                                }
-                            },
-                        ),
-                    )
+                errored = True
+                cache.set(
+                    result_key,
+                    json.dumps(
+                        {
+                            "long_callback_error": {
+                                "msg": str(err),
+                                "tb": traceback.format_exc(),
+                            }
+                        },
+                    ),
+                )
 
             if not errored:
                 cache.set(
