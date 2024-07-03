@@ -1981,9 +1981,9 @@ class Dash:
 
     def run(
         self,
-        host=os.getenv("HOST", "127.0.0.1"),
-        port=os.getenv("PORT", "8050"),
-        proxy=os.getenv("DASH_PROXY", None),
+        host=None,
+        port=None,
+        proxy=None,
         debug=None,
         jupyter_mode: JupyterDisplayMode = None,
         jupyter_width="100%",
