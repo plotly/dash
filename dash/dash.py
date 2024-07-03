@@ -1981,9 +1981,9 @@ class Dash:
 
     def run(
         self,
-        host=os.getenv("HOST", "127.0.0.1"),
-        port=os.getenv("PORT", "8050"),
-        proxy=os.getenv("DASH_PROXY", None),
+        host="127.0.0.1",
+        port="8050",
+        proxy=None,
         debug=None,
         jupyter_mode: JupyterDisplayMode = None,
         jupyter_width="100%",
@@ -2108,6 +2108,12 @@ class Dash:
             dev_tools_silence_routes_logging,
             dev_tools_prune_errors,
         )
+
+        # Evaluate the env variables at runtime
+
+        host = os.getenv("HOST", host)
+        port = os.getenv("PORT", port)
+        proxy = os.getenv("DASH_PROXY", proxy)
 
         # Verify port value
         try:
