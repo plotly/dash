@@ -433,6 +433,8 @@ def test_inin028_layout_as_list(dash_duo):
     app = Dash()
 
     app.layout = [
+        "string1",
+        "string2",
         html.Div("one", id="one"),
         html.Div("two", id="two"),
         html.Button("direct", id="direct"),
@@ -457,6 +459,9 @@ def test_inin028_layout_as_list(dash_duo):
         return f"Clicked {n_clicks} times"
 
     dash_duo.start_server(app)
+
+    dash_duo.wait_for_contains_text("#react-entry-point", "string1")
+    dash_duo.wait_for_contains_text("#react-entry-point", "string2")
 
     dash_duo.wait_for_text_to_equal("#one", "one")
     dash_duo.wait_for_text_to_equal("#two", "two")
