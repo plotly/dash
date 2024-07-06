@@ -733,6 +733,10 @@ class Dash:
                 return cls(**props)
 
             layout_value = self._layout_value()
+
+            if isinstance(layout_value, (list, tuple)):
+                layout_value = html.Div(children=layout_value)
+
             _validate.validate_layout(value, layout_value)
             self.validation_layout = simple_clone(
                 # pylint: disable=protected-access
