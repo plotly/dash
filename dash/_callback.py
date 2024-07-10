@@ -463,12 +463,17 @@ def register_callback(
                         f"An error occurred inside a long callback: {error['msg']}\n{error['tb']}"
                     )
                     if error_handler:
-                        error_handler(exc)
-                        output_value = NoUpdate()
+                        output_value = error_handler(exc)
+
+                        if output_value is None:
+                            output_value = NoUpdate()
                         # set_props from the error handler uses the original ctx
                         # instead of manager.get_updated_props since it runs in the
                         # request process.
-                        has_update = _set_side_update(callback_ctx, response)
+                        has_update = (
+                            _set_side_update(callback_ctx, response)
+                            or output_value is not None
+                        )
                     else:
                         raise exc
 
@@ -495,11 +500,14 @@ def register_callback(
                     raise err
                 except Exception as err:  # pylint: disable=broad-exception-caught
                     if error_handler:
-                        error_handler(err)
-                        if not multi:
-                            output_value = NoUpdate()
-                        else:
-                            output_value = [NoUpdate for _ in output_spec]
+                        output_value = error_handler(err)
+
+                        # If the error returns nothing, automatically puts NoUpdate for response.
+                        if output_value is None:
+                            if not multi:
+                                output_value = NoUpdate()
+                            else:
+                                output_value = [NoUpdate for _ in output_spec]
                     else:
                         raise err
 
