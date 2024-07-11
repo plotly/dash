@@ -12,10 +12,12 @@ def test_cber001_error_handler(dash_duo):
         html.Button("start-global", id="start-global"),
         html.Div(id="output"),
         html.Div(id="output-global"),
+        html.Div(id="error-message"),
     ]
 
     def on_callback_error(err):
-        set_props("output", {"children": f"callback: {err}"})
+        set_props("error-message", {"children": f"message: {err}"})
+        return f"callback: {err}"
 
     @app.callback(
         Output("output", "children"),
@@ -38,6 +40,7 @@ def test_cber001_error_handler(dash_duo):
     dash_duo.find_element("#start-local").click()
 
     dash_duo.wait_for_text_to_equal("#output", "callback: local error")
+    dash_duo.wait_for_text_to_equal("#error-message", "message: local error")
 
     dash_duo.find_element("#start-global").click()
     dash_duo.wait_for_text_to_equal("#output-global", "global: global error")
