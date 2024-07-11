@@ -161,6 +161,7 @@ def _make_job_fn(fn, celery_app, progress, key):
             c.ignore_register_page = False
             c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
+            errored = False
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = fn(*maybe_progress, **user_callback_args)
@@ -170,6 +171,7 @@ def _make_job_fn(fn, celery_app, progress, key):
                     user_callback_output = fn(*maybe_progress, user_callback_args)
             except PreventUpdate:
                 # Put NoUpdate dict directly to avoid circular imports.
+                errored = True
                 cache.set(
                     result_key,
                     json.dumps(
@@ -177,6 +179,7 @@ def _make_job_fn(fn, celery_app, progress, key):
                     ),
                 )
             except Exception as err:  # pylint: disable=broad-except
+                errored = True
                 cache.set(
                     result_key,
                     json.dumps(
@@ -188,7 +191,8 @@ def _make_job_fn(fn, celery_app, progress, key):
                         },
                     ),
                 )
-            else:
+
+            if not errored:
                 cache.set(
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
                 )
