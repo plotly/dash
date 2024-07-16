@@ -57,7 +57,6 @@ def test_dada001_assets(dash_duo):
 def test_dada002_external_files_init(dash_duo):
     js_files = [
         "https://www.google-analytics.com/analytics.js",
-        {"src": "https://cdn.polyfill.io/v2/polyfill.min.js"},
         {
             "src": "https://cdnjs.cloudflare.com/ajax/libs/ramda/0.26.1/ramda.min.js",
             "integrity": "sha256-43x9r7YRdZpZqTjDT5E0Vfrxn1ajIZLyYWtfAXsargA=",
