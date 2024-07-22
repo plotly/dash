@@ -5,7 +5,17 @@ import PropTypes from 'prop-types';
  * Part of dcc.Tabs - this is the child Tab component used to render a tabbed page.
  * Its children will be set as the content of that tab, which if clicked will become visible.
  */
-const Tab = ({children}) => <Fragment>{children}</Fragment>;
+
+/* eslint-disable no-unused-vars */
+const Tab = ({
+    children,
+    disabled = false,
+    disabled_style = {color: '#d6d6d6'},
+}) => <Fragment>{children}</Fragment>;
+/* eslint-enable no-unused-vars */
+
+// Default props are defined above for proper docstring generation in React 18.
+// The actual default values are set in Tabs.react.js.
 
 Tab.propTypes = {
     /**
@@ -82,13 +92,6 @@ Tab.propTypes = {
          */
         component_name: PropTypes.string,
     }),
-};
-
-Tab.defaultProps = {
-    disabled: false,
-    disabled_style: {
-        color: '#d6d6d6',
-    },
 };
 
 export default Tab;
