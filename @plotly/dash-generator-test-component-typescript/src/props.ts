@@ -32,7 +32,7 @@ export type TypescriptComponentProps = {
     array_elements?: JSX.Element[];
 
     string_default?: string;
-    number_default?: string;
+    number_default?: number;
     obj_default?: {a: string; b: number};
     bool_default?: boolean;
     null_default?: any;
