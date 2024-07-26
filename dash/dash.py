@@ -713,36 +713,10 @@ class Dash:
             and not self.validation_layout
             and not self.config.suppress_callback_exceptions
         ):
-
-            def simple_clone(c, children=None):
-                cls = type(c)
-                # in Py3 we can use the __init__ signature to reduce to just
-                # required args and id; in Py2 this doesn't work so we just
-                # empty out children.
-                sig = getattr(cls.__init__, "__signature__", None)
-                props = {
-                    p: getattr(c, p)
-                    for p in c._prop_names  # pylint: disable=protected-access
-                    if hasattr(c, p)
-                    and (
-                        p == "id" or not sig or sig.parameters[p].default == c.REQUIRED
-                    )
-                }
-                if props.get("children", children):
-                    props["children"] = children or []
-                return cls(**props)
-
+            
             layout_value = self._layout_value()
-
-            if isinstance(layout_value, (list, tuple)):
-                layout_value = html.Div(children=layout_value)
-
             _validate.validate_layout(value, layout_value)
-            self.validation_layout = simple_clone(
-                # pylint: disable=protected-access
-                layout_value,
-                [simple_clone(c) for c in layout_value._traverse_ids()],
-            )
+            self.validation_layout = layout_value
 
     @property
     def index_string(self):
