@@ -37,7 +37,7 @@ if (!src.length) {
 }
 
 if (fs.existsSync('tsconfig.json')) {
-    tsconfig = ts.getParsedCommandLineOfConfigFile('tsconfig.json', {}, ts.sys);
+    tsconfig = ts.getParsedCommandLineOfConfigFile('tsconfig.json', { esModuleInterop: true }, ts.sys);
 }
 
 let failedBuild = false;
@@ -187,7 +187,7 @@ function gatherComponents(sources, components = {}) {
         return components;
     }
 
-    const program = ts.createProgram(filepaths, {...tsconfig, esModuleInterop: true});
+    const program = ts.createProgram(filepaths, tsconfig);
     const checker = program.getTypeChecker();
 
     const coerceValue = t => {
