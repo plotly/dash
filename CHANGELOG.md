@@ -4,10 +4,238 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## Added
+
+- [#2881](https://github.com/plotly/dash/pull/2881) Add outputs_list to window.dash_clientside.callback_context. Fixes [#2877](https://github.com/plotly/dash/issues/2877).
+
+## Fixed
+
+- [#2898](https://github.com/plotly/dash/pull/2898) Fix error thrown when using non-existent components in callback running keyword. Fixes [#2897](https://github.com/plotly/dash/issues/2897).
+- [#2892](https://github.com/plotly/dash/pull/2860) Fix ensures dcc.Dropdown menu maxHeight option works with Datatable. Fixes [#2529](https://github.com/plotly/dash/issues/2529) [#2225](https://github.com/plotly/dash/issues/2225)
+- [#2896](https://github.com/plotly/dash/pull/2896) The tabIndex parameter of Div can accept number or string type. Fixes [#2891](https://github.com/plotly/dash/issues/2891)
+- [#2900](https://github.com/plotly/dash/pull/2900) Allow strings in layout list. Fixes [#2890](https://github.com/plotly/dash/issues/2890)
+- [#2908](https://github.com/plotly/dash/pull/2908) Fix when environment variables are ignored by Dash.run() at runtime. Fixes [#2902](https://github.com/plotly/dash/issues/2902)
+
+## [2.17.1] - 2024-06-12
+
+## Fixed
+
+- [#2860](https://github.com/plotly/dash/pull/2860) Fix dcc.Loading to apply overlay_style only to the children and not the spinner. Fixes [#2858](https://github.com/plotly/dash/issues/2858)
+- [#2854](https://github.com/plotly/dash/pull/2854) Fix dcc.Dropdown resetting empty values to null and triggering callbacks. Fixes [#2850](https://github.com/plotly/dash/issues/2850)
+- [#2859](https://github.com/plotly/dash/pull/2859) Fix base patch operators. fixes [#2855](https://github.com/plotly/dash/issues/2855)
+- [#2856](https://github.com/plotly/dash/pull/2856) Fix multiple consecutive calls with same id to set_props only keeping the last props. Fixes [#2852](https://github.com/plotly/dash/issues/2852)
+- [#2867](https://github.com/plotly/dash/pull/2867) Fix clientside no output callback. Fixes [#2866](https://github.com/plotly/dash/issues/2866)
+- [#2876](https://github.com/plotly/dash/pull/2876) Fix pattern matching in callback running argument. Fixes [#2863](https://github.com/plotly/dash/issues/2863)
+
+## [2.17.0] - 2024-05-03
+
+## Added
+
+- [#2832](https://github.com/plotly/dash/pull/2832) Add dash startup route setup on Dash init.
+- [#2819](https://github.com/plotly/dash/pull/2819) Add dash subcomponents receive additional parameters passed by the parent component. Fixes [#2814](https://github.com/plotly/dash/issues/2814).
+- [#2826](https://github.com/plotly/dash/pull/2826) When using Pages, allows for `app.title` and (new) `app.description` to be used as defaults for the page title and description. Fixes [#2811](https://github.com/plotly/dash/issues/2811).
+- [#2795](https://github.com/plotly/dash/pull/2795) Allow list of components to be passed as layout.
+- [#2760](https://github.com/plotly/dash/pull/2760) New additions to dcc.Loading resolving multiple issues:
+  - `delay_show` and `delay_hide` props  to prevent flickering during brief loading periods (similar to Dash Bootstrap Components dbc.Spinner)
+  - `overlay_style` for styling the loading overlay,  such as setting  visibility and opacity for children
+  - `target_components` specifies components/props triggering the loading spinner
+  - `custom_spinner`  enables using a custom component for loading messages instead of built-in spinners
+  - `display`  overrides the loading status with options for "show," "hide," or "auto"
+- [#2822](https://github.com/plotly/dash/pull/2822) Support no output callbacks. Fixes [#1549](https://github.com/plotly/dash/issues/1549)
+- [#2822](https://github.com/plotly/dash/pull/2822) Add global set_props. Fixes [#2803](https://github.com/plotly/dash/issues/2803)
+
+## Fixed
+
+- [#2362](https://github.com/plotly/dash/pull/2362) Global namespace not polluted any more when loading clientside callbacks.
+- [#2833](https://github.com/plotly/dash/pull/2833) Allow data url in link props. Fixes [#2764](https://github.com/plotly/dash/issues/2764) 
+- [#2822](https://github.com/plotly/dash/pull/2822) Fix side update (running/progress/cancel) dict ids. Fixes [#2111](https://github.com/plotly/dash/issues/2111)
+- [#2817](https://github.com/plotly/dash/pull/2817) Change hashing algorithm from md5 to sha256, Fixes [#2697](https://github.com/plotly/dash/issues/2697).
+- [#2816](https://github.com/plotly/dash/pull/2816) Fix dcc.Dropdown value not updated when option is removed. Fixes [#2733](https://github.com/plotly/dash/issues/2733).
+- [#2823](https://github.com/plotly/dash/pull/2823) Fix None in "wait" methods causing incorrectly passing tests. Fixes [#2818](https://github.com/plotly/dash/issues/2818)
+
+## [2.16.1] - 2024-03-06
+
+## Fixed
+
+- [#2783](https://github.com/plotly/dash/pull/2783) Remove dynamic loading.
+
+## [2.16.0] - 2024-03-01
+
+## Fixed
+
+- [#2756](https://github.com/plotly/dash/pull/2756) Prevent false dangerous link warning. Fixes [#2743](https://github.com/plotly/dash/issues/2743)
+- [#2752](https://github.com/plotly/dash/pull/2752) Fixed issue with Windows build, for first time build on Windows, the dev needs to use `npm run first-build`
+
+## Changed
+
+- [#2734](https://github.com/plotly/dash/pull/2734) Configure CI for Python 3.10 [#1863](https://github.com/plotly/dash/issues/1863)
+- [#2735](https://github.com/plotly/dash/pull/2735) Configure CI for Python 3.8 and 3.12, drop support for Python 3.6 and Python 3.7 [#2736](https://github.com/plotly/dash/issues/2736)
+
+## Added
+- [#2762](https://github.com/plotly/dash/pull/2762) Add dynamic loading of component libraries.
+  - Add `dynamic_loading=True` to dash init.
+  - Add `preloaded_libraries=[]` to dash init, included libraries names will be loaded on the index like before. 
+- [#2758](https://github.com/plotly/dash/pull/2758)
+  - exposing `setProps` to `dash_clientside.clientSide_setProps` to allow for JS code to interact directly with the dash eco-system
+- [#2730](https://github.com/plotly/dash/pull/2721) Load script files with `.mjs` ending as js modules
+- [#2770](https://github.com/plotly/dash/pull/2770) Add running to regular callbacks.
+
+## [2.15.0] - 2024-01-31
+
+## Added
+- [#2695](https://github.com/plotly/dash/pull/2695) Adds  `triggered_id` to `dash_clientside.callback_context`.  Fixes [#2692](https://github.com/plotly/dash/issues/2692)
+- [#2723](https://github.com/plotly/dash/pull/2723) Improve dcc Slider/RangeSlider tooltips. Fixes [#1846](https://github.com/plotly/dash/issues/1846)
+  - Add `tooltip.template` a string for the format template, {value} will be formatted with the actual value.
+  - Add `tooltip.style` a style object to give to the div of the tooltip.
+  - Add `tooltip.transform` a reference to a function in the `window.dccFunctions` namespace.
+- [#2732](https://github.com/plotly/dash/pull/2732) Add special key `_dash_error` to `setProps`, allowing component developers to send error without throwing in render. Usage `props.setProps({_dash_error: new Error("custom error")})`
+
+## Fixed
+
+- [#2732](https://github.com/plotly/dash/pull/2732) Sanitize html props that are vulnerable to xss vulnerability if user data is inserted. Fix Validate url to prevent XSS attacks [#2729](https://github.com/plotly/dash/issues/2729)
+
+## Changed
+- [#2652](https://github.com/plotly/dash/pull/2652) dcc.Clipboard supports htm_content and triggers a copy to clipboard when n_clicks are changed
+- [#2721](https://github.com/plotly/dash/pull/2721) Remove ansi2html, fixes [#2613](https://github.com/plotly/dash/issues/2713)
+
+## [2.14.2] - 2023-11-27
+
+## Fixed
+
+- [#2700](https://github.com/plotly/dash/pull/2700) Fix `_allow_dynamic_callbacks` for newly-added components.
+
+## [2.14.1] - 2023-10-26
+
+## Fixed
+
+- [#2672](https://github.com/plotly/dash/pull/2672) Fix `get_caller_name` in case the source is not available.
+
+## Changed
+
+- [#2674](https://github.com/plotly/dash/pull/2674) Raise flask & werkzeug limits to <3.1
+
+## [2.14.0] - 2023-10-11
+
+## Fixed
+
+- [#2634](https://github.com/plotly/dash/pull/2634) Fix deprecation warning on pkg_resources, fix [#2631](https://github.com/plotly/dash/issues/2631)
+
+## Changed
+
+- [#2635](https://github.com/plotly/dash/pull/2635) Get proper app module name, remove need to give `__name__` to Dash constructor.
+
+## Added
+
+- [#2647](https://github.com/plotly/dash/pull/2647) `routing_callback_inputs` allowing to pass more Input and/or State arguments to the pages routing callback
+- [#2649](https://github.com/plotly/dash/pull/2649) Add `_allow_dynamic_callbacks`, register new callbacks inside other callbacks.
+  **WARNING: dynamic callback creation can be dangerous, use at you own risk. It is not intended for use in a production app, multi-user or multiprocess use as it only works for a single user.**
+
+## [2.13.0] 2023-08-28
+## Changed
+
+- [#2610](https://github.com/plotly/dash/pull/2610) Load plotly.js bundle/version from plotly.py
+
+## Added
+
+- [#2630](https://github.com/plotly/dash/pull/2630) New layout hooks in the renderer
+
+## [2.12.1] - 2023-08-16
+
+## Fixed
+
+- [#2625](https://github.com/plotly/dash/pull/2625) Fix background callbacks without cancel arguments failing setup, fix [#2624](https://github.com/plotly/dash/issues/2624)
+
+## [2.12.0] - 2023-08-14
+
+## Fixed
+
+- [#2619](https://github.com/plotly/dash/pull/2619) Fix for dash-table column IDs containing special characters
+- [#2616](https://github.com/plotly/dash/pull/2616) Add mapping of tsconfig compiler option `moduleResolution`, fixes [#2618](https://github.com/plotly/dash/issues/2618)
+- [#2596](https://github.com/plotly/dash/pull/2596) Fix react-dom throwing unique key prop error for markdown table, fix [#1433](https://github.com/plotly/dash/issues/1433)
+- [#2589](https://github.com/plotly/dash/pull/2589) CSS for input elements not scoped to Dash application
+- [#2599](https://github.com/plotly/dash/pull/2599) Fix background callback cancel inputs used in multiple callbacks and mixed cancel inputs across pages.
+
+## Changed
+
+- [#2593](https://github.com/plotly/dash/pull/2593) dcc.Input accepts a number for its debounce argument
+
+## Updated
+
+- [#2621](https://github.com/plotly/dash/pull/2621) Update plotly.js to 2.25.2 from 2.24.2
+  - Feature release [2.25.0](https://github.com/plotly/plotly.js/releases/tag/v2.25.0), Add "Equal Earth" project, options to include legends for shapes, Plotly.deleteActivateShape.
+  - Patch release [2.24.3](https://github.com/plotly/plotly.js/releases/tag/v2.24.3) Fix for doubles clicks and legend group.
+  - Patch release [2.25.1](https://github.com/plotly/plotly.js/releases/tag/v2.25.1) Fix clearing legend using react.
+  - Patch release [2.25.2](https://github.com/plotly/plotly.js/releases/tag/v2.25.2) Fix potential prototype pollution in plot API calls.
+
+## [2.11.1] - 2023-06-29
+
+## Fixed
+
+- [#2573](https://github.com/plotly/dash/pull/2578) Disable jupyter dash in Databricks, as the implementation here does not work in a Databricks notebook. Dash Enterprise customers can use the separate databricks-dash package for this purpose.
+
+## Changed
+
+- [#2573](https://github.com/plotly/dash/pull/2573) Use `julia --project` command inside `JuliaRunner`.
+- [#2579](https://github.com/plotly/dash/pull/2579) Add warning if using `JupyterDash`
+
+## [2.11.0] - 2023-06-23
+
+## Added
+
+- [#2530](https://github.com/plotly/dash/pull/2530) Merge JupyterDash repository with Dash.
+  - Add `jupyter_mode` argument to `app.run`, defaults to `inline` and configurable via `jupyter_dash.default_mode`.
+  - Add prefixed arguments from `JupyterDash` to `app.run`: `jupyter_width`, `jupyter_height`, `jupyter_server_url`.
+
+## Fixed
+
+- [#2555](https://github.com/plotly/dash/pull/2555) Fix browser back button when removing one of multiple location components from layout, fix [#1312](https://github.com/plotly/dash/issues/1312)
+- [#2565](https://github.com/plotly/dash/pull/2565) Fix sorting for > 10 pages, fix [#2564](https://github.com/plotly/dash/issues/2564)
+
+## Updated
+
+- [#2474](https://github.com/plotly/dash/pull/2574) Update plotly js to 2.24.2 from 2.23.2
+  - Feature release [2.24.0](https://github.com/plotly/plotly.js/releases/tag/v2.24.0) add pattern to pie, funnelarea, sunburst, icicle and treemap traces
+  - Patch release [2.24.1](https://github.com/plotly/plotly.js/releases/tag/v2.24.1) and [2.24.2](https://github.com/plotly/plotly.js/releases/tag/v2.24.2)
+
+## [2.10.2] - 2023-05-31
+
+## Changed
+
+- Set Flask and Werkzeug version upper bound to `<2.3`.
+
+## [2.10.1] - 2023-05-30
+
+## Fixed
+
+- [#2545](https://github.com/plotly/dash/pull/2545) Fix typescript objectOf generation.
+- [#2548](https://github.com/plotly/dash/pull/2548) Fix component as props callback triggering other callbacks not in response, fix [#2487](https://github.com/plotly/dash/issues/2487).
+
+## [2.10.0] - 2023-05-25
+
+## Changed
+
+- [#2538](https://github.com/plotly/dash/pull/2538) Add an upper bound to Flask and Werkzeug versions at `<2.2.3` because we expect the Dash ecosystem to be incompatible with the next minor release of Flask (this excludes the current latest Flask release 2.3.x). We will raise the upper bound to `<2.4` after we fix incompatibilities elsewhere in the Dash ecosystem.
+
+## Added
+
+- [#2540](https://github.com/plotly/dash/pull/2540) Add `include_pages_meta=True` to `Dash` constructor, and fix a security issue in pages meta tags [#2536](https://github.com/plotly/dash/issues/2536).
+
 ## Fixed
 
 - [#2508](https://github.com/plotly/dash/pull/2508) Fix error message, when callback output has different length than spec
 - [#2207](https://github.com/plotly/dash/pull/2207) Fix object of components support.
+- [#2500](https://github.com/plotly/dash/pull/2500) Passing customdata by click for scattermapbox, fix [#2493](https://github.com/plotly/dash/issues/2493)
+- [#2513](https://github.com/plotly/dash/pull/2513) Raise error when iterating over patch objects, fix [#2512](https://github.com/plotly/dash/issues/2512)
+
+## Updated
+
+- [#2533](https://github.com/plotly/dash/pull/2533) and [#2538](https://github.com/plotly/dash/pull/2538) Update Plotly.js to v2.23.2 from v2.20.0.
+  - Feature release [2.23.0](https://github.com/plotly/plotly.js/releases/tag/v2.23.0) adds legend/colorbar xref/yref.
+  - Feature release [2.22.0](https://github.com/plotly/plotly.js/releases/tag/v2.22.0) adds `legend` references to traces.
+  - Feature release [2.21.0](https://github.com/plotly/plotly.js/releases/tag/v2.21.0) adds `label.texttemplate` to parametric shapes.
+  - Patch releases [2.23.1](https://github.com/plotly/plotly.js/releases/tag/v2.23.1) and [2.23.2](https://github.com/plotly/plotly.js/releases/tag/v2.23.2) fix heatmap rendering on iOS and Safari when zsmooth is set to false and shape text when drawing a new shape.
+
+- [#2538](https://github.com/plotly/dash/pull/2538) Update JS dependencies in dcc, html, dash-table, dash-renderer, and dash
 
 ## [2.9.3] - 2023-04-13
 
@@ -51,6 +279,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2260](https://github.com/plotly/dash/pull/2260) Experimental support for React 18. The default is still React v16.14.0, but to use React 18 you can either set the environment variable `REACT_VERSION=18.2.0` before running your app, or inside the app call `dash._dash_renderer._set_react_version("18.2.0")`. THIS FEATURE IS EXPERIMENTAL. It has not been tested with component suites outside the Dash core, and we may add or remove available React versions in any future release.
 - [#2414](https://github.com/plotly/dash/pull/2414) Add `dash.Patch`for partial update Output props without transferring the previous value in a State.
 - [#2414](https://github.com/plotly/dash/pull/2414) Add `allow_duplicate` to `Output` arguments allowing duplicate callbacks to target the same prop.
+- [#2349](https://github.com/plotly/dash/pull/2349) Added new `dcc.Geolocation` component
 
 ## Fixed
 
@@ -123,7 +352,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- [#2349](https://github.com/plotly/dash/pull/2349) Added new `dcc.Geolocation` component
 - [#2261](https://github.com/plotly/dash/pull/2261) Added new `placeholder_text` property to `filterOptions` for DataTable which allows overriding the default filter field placeholder.
 
 ### Updated

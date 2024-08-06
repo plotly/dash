@@ -55,6 +55,9 @@ const INNER_STYLE = {
     minWidth: '100%'
 };
 
+const columnSelector = (column_id: string) =>
+    `[data-dash-column="${CSS.escape(column_id)}"]:not(.phantom-cell)`;
+
 export default class ControlledTable extends PureComponent<ControlledTableProps> {
     private readonly menuRef = React.createRef<HTMLDivElement>();
     private readonly stylesheet: Stylesheet = new Stylesheet(
@@ -176,8 +179,9 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 (active.column_id !== active_cell?.column_id ||
                     active.row !== active_cell?.row)
             ) {
+                const {column_id, row} = active_cell;
                 const target = this.$el.querySelector(
-                    `td[data-dash-row="${active_cell.row}"][data-dash-column="${active_cell.column_id}"]:not(.phantom-cell)`
+                    `td[data-dash-row="${row}"]${columnSelector(column_id)}`
                 ) as HTMLElement;
                 if (target) {
                     target.focus();
@@ -1166,15 +1170,11 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         const {table, tooltip: t} = this.refs as {[key: string]: any};
 
         if (t) {
-            const cell = header
-                ? table.querySelector(
-                      `tr:nth-of-type(${
-                          row + 1
-                      }) th[data-dash-column="${id}"]:not(.phantom-cell)`
-                  )
-                : table.querySelector(
-                      `td[data-dash-column="${id}"][data-dash-row="${row}"]:not(.phantom-cell)`
-                  );
+            const cell = table.querySelector(
+                header
+                    ? `tr:nth-of-type(${row + 1}) th${columnSelector(id)}`
+                    : `td[data-dash-row="${row}"]${columnSelector(id)}`
+            );
 
             (this.refs.tooltip as TableTooltip).updateBounds(cell);
         }
@@ -1207,15 +1207,15 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     ) => {
         const {columns, hidden_columns: base, setProps} = this.props;
 
-        const ids: string[] = actions.getColumnIds(
+        const ids = actions.getColumnIds(
             column,
             columns,
             headerRowIndex,
             mergeDuplicateHeaders
-        );
+        ) as string[];
 
         const hidden_columns = base ? base.slice(0) : [];
-        R.forEach(id => {
+        ids.forEach(id => {
             const cIndex = hidden_columns.indexOf(id);
 
             if (cIndex >= 0) {
@@ -1223,7 +1223,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             } else {
                 hidden_columns.push(id);
             }
-        }, ids);
+        });
 
         setProps({hidden_columns});
     };

@@ -2,6 +2,7 @@ import traceback
 from contextvars import copy_context
 
 from . import BaseLongCallbackManager
+from .._proxy_set_props import ProxySetProps
 from ..._callback_context import context_value
 from ..._utils import AttributeDict
 from ...exceptions import PreventUpdate
@@ -120,7 +121,8 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 
         # pylint: disable-next=not-callable
         proc = Process(
-            target=job_fn, args=(key, self._make_progress_key(key), args, context)
+            target=job_fn,
+            args=(key, self._make_progress_key(key), args, context),
         )
         proc.start()
         return proc.pid
@@ -155,6 +157,16 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
             self.terminate_job(job)
         return result
 
+    def get_updated_props(self, key):
+        set_props_key = self._make_set_props_key(key)
+        result = self.handle.get(set_props_key, self.UNDEFINED)
+        if result is self.UNDEFINED:
+            return {}
+
+        self.clear_cache_entry(set_props_key)
+
+        return result
+
 
 def _make_job_fn(fn, cache, progress):
     def job_fn(result_key, progress_key, user_callback_args, context):
@@ -166,12 +178,17 @@ def _make_job_fn(fn, cache, progress):
 
         maybe_progress = [_set_progress] if progress else []
 
+        def _set_props(_id, props):
+            cache.set(f"{result_key}-set_props", {_id: props})
+
         ctx = copy_context()
 
         def run():
             c = AttributeDict(**context)
             c.ignore_register_page = False
+            c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
+            errored = False
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = fn(*maybe_progress, **user_callback_args)
@@ -180,8 +197,10 @@ def _make_job_fn(fn, cache, progress):
                 else:
                     user_callback_output = fn(*maybe_progress, user_callback_args)
             except PreventUpdate:
+                errored = True
                 cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
             except Exception as err:  # pylint: disable=broad-except
+                errored = True
                 cache.set(
                     result_key,
                     {
@@ -191,7 +210,8 @@ def _make_job_fn(fn, cache, progress):
                         }
                     },
                 )
-            else:
+
+            if not errored:
                 cache.set(result_key, user_callback_output)
 
         ctx.run(run)

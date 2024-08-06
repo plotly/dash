@@ -16,6 +16,7 @@ import {
     map,
     mapObjIndexed,
     mergeRight,
+    omit,
     pick,
     pickBy,
     propOr,
@@ -23,7 +24,7 @@ import {
     pathOr,
     type
 } from 'ramda';
-import {notifyObservers, updateProps} from './actions';
+import {notifyObservers, updateProps, onError} from './actions';
 import isSimpleComponent from './isSimpleComponent';
 import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
@@ -35,6 +36,7 @@ import {
     validateComponent
 } from './utils/TreeContainer';
 import {DashContext} from './APIController.react';
+import {batch} from 'react-redux';
 
 const NOT_LOADING = {
     is_loading: false
@@ -130,48 +132,60 @@ class BaseTreeContainer extends Component {
     }
 
     setProps(newProps) {
-        const {
-            _dashprivate_graphs,
-            _dashprivate_dispatch,
-            _dashprivate_path,
-            _dashprivate_layout
-        } = this.props;
+        const {_dashprivate_dispatch, _dashprivate_path, _dashprivate_layout} =
+            this.props;
 
         const oldProps = this.getLayoutProps();
         const {id} = oldProps;
+        const {_dash_error, ...rest} = newProps;
         const changedProps = pickBy(
             (val, key) => !equals(val, oldProps[key]),
-            newProps
+            rest
         );
-        if (!isEmpty(changedProps)) {
-            // Identify the modified props that are required for callbacks
-            const watchedKeys = getWatchedKeys(
-                id,
-                keys(changedProps),
-                _dashprivate_graphs
-            );
 
-            // setProps here is triggered by the UI - record these changes
-            // for persistence
-            recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
-
-            // Only dispatch changes to Dash if a watched prop changed
-            if (watchedKeys.length) {
-                _dashprivate_dispatch(
-                    notifyObservers({
-                        id,
-                        props: pick(watchedKeys, changedProps)
-                    })
-                );
-            }
-
-            // Always update this component's props
+        if (_dash_error) {
             _dashprivate_dispatch(
-                updateProps({
-                    props: changedProps,
-                    itempath: _dashprivate_path
+                onError({
+                    type: 'frontEnd',
+                    error: _dash_error
                 })
             );
+        }
+
+        if (!isEmpty(changedProps)) {
+            _dashprivate_dispatch((dispatch, getState) => {
+                const {graphs} = getState();
+                // Identify the modified props that are required for callbacks
+                const watchedKeys = getWatchedKeys(
+                    id,
+                    keys(changedProps),
+                    graphs
+                );
+
+                batch(() => {
+                    // setProps here is triggered by the UI - record these changes
+                    // for persistence
+                    recordUiEdit(_dashprivate_layout, newProps, dispatch);
+
+                    // Only dispatch changes to Dash if a watched prop changed
+                    if (watchedKeys.length) {
+                        dispatch(
+                            notifyObservers({
+                                id,
+                                props: pick(watchedKeys, changedProps)
+                            })
+                        );
+                    }
+
+                    // Always update this component's props
+                    dispatch(
+                        updateProps({
+                            props: changedProps,
+                            itempath: _dashprivate_path
+                        })
+                    );
+                });
+            });
         }
     }
 
@@ -224,7 +238,13 @@ class BaseTreeContainer extends Component {
         );
     }
 
-    getComponent(_dashprivate_layout, children, loading_state, setProps) {
+    getComponent(
+        _dashprivate_layout,
+        children,
+        loading_state,
+        setProps,
+        _extraProps
+    ) {
         const {_dashprivate_config, _dashprivate_dispatch, _dashprivate_error} =
             this.props;
 
@@ -249,7 +269,10 @@ class BaseTreeContainer extends Component {
             ],
             _dashprivate_config
         );
-        let props = dissoc('children', _dashprivate_layout.props);
+        let props = mergeRight(
+            dissoc('children', _dashprivate_layout.props),
+            _extraProps
+        );
 
         for (let i = 0; i < childrenProps.length; i++) {
             const childrenProp = childrenProps[i];
@@ -468,6 +491,22 @@ class BaseTreeContainer extends Component {
             _dashprivate_path
         } = this.props;
 
+        const _extraProps = omit(
+            [
+                'id',
+                '_dashprivate_error',
+                '_dashprivate_layout',
+                '_dashprivate_loadingState',
+                '_dashprivate_loadingStateHash',
+                '_dashprivate_path',
+                '_dashprivate_config',
+                '_dashprivate_dispatch',
+                '_dashprivate_graphs',
+                '_dashprivate_loadingMap'
+            ],
+            this.props
+        );
+
         const layoutProps = this.getLayoutProps();
 
         const children = this.getChildren(
@@ -479,7 +518,8 @@ class BaseTreeContainer extends Component {
             _dashprivate_layout,
             children,
             _dashprivate_loadingState,
-            this.setProps
+            this.setProps,
+            _extraProps
         );
     }
 }

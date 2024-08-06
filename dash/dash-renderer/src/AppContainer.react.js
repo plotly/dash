@@ -13,6 +13,8 @@ class UnconnectedAppContainer extends React.Component {
     constructor(props) {
         super(props);
         if (
+            props.hooks.layout_pre !== null ||
+            props.hooks.layout_post !== null ||
             props.hooks.request_pre !== null ||
             props.hooks.request_post !== null ||
             props.hooks.callback_resolved !== null ||

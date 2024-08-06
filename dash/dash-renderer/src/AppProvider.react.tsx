@@ -16,6 +16,8 @@ const AppProvider = ({hooks}: any) => {
 
 AppProvider.propTypes = {
     hooks: PropTypes.shape({
+        layout_pre: PropTypes.func,
+        layout_post: PropTypes.func,
         request_pre: PropTypes.func,
         request_post: PropTypes.func,
         callback_resolved: PropTypes.func,
@@ -25,6 +27,8 @@ AppProvider.propTypes = {
 
 AppProvider.defaultProps = {
     hooks: {
+        layout_pre: null,
+        layout_post: null,
         request_pre: null,
         request_post: null,
         callback_resolved: null,

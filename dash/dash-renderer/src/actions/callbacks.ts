@@ -31,17 +31,22 @@ import {
     IPrioritizedCallback,
     LongCallbackInfo,
     CallbackResponse,
-    CallbackResponseData
+    CallbackResponseData,
+    SideUpdateOutput
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
-import {getCSRFHeader} from '.';
+import {getCSRFHeader, dispatchError} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
 import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
+
+import {requestDependencies} from './requestDependencies';
+import {parsePMCId} from './patternMatching';
+import {replacePMC} from './patternMatching';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -260,10 +265,14 @@ async function handleClientside(
             prop_id: prop_id,
             value: inputDict[prop_id]
         }));
+        dc.callback_context.triggered_id = getTriggeredId(
+            payload.changedPropIds
+        );
         dc.callback_context.inputs_list = inputs;
         dc.callback_context.inputs = inputDict;
         dc.callback_context.states_list = state;
         dc.callback_context.states = stateDict;
+        dc.callback_context.outputs_list = outputs;
 
         let returnValue = dc[namespace][function_name](...args);
 
@@ -273,16 +282,18 @@ async function handleClientside(
             returnValue = await returnValue;
         }
 
-        zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
-            zipIfArray(outi, reti).forEach(([outij, retij]) => {
-                const {id, property} = outij;
-                const idStr = stringifyId(id);
-                const dataForId = (result[idStr] = result[idStr] || {});
-                if (retij !== dc.no_update) {
-                    dataForId[cleanOutputProp(property)] = retij;
-                }
+        if (outputs) {
+            zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
+                zipIfArray(outi, reti).forEach(([outij, retij]) => {
+                    const {id, property} = outij;
+                    const idStr = stringifyId(id);
+                    const dataForId = (result[idStr] = result[idStr] || {});
+                    if (retij !== dc.no_update) {
+                        dataForId[cleanOutputProp(property)] = retij;
+                    }
+                });
             });
-        });
+        }
     } catch (e) {
         if (e === dc.PreventUpdate) {
             status = STATUS.PREVENT_UPDATE;
@@ -319,32 +330,91 @@ async function handleClientside(
     return result;
 }
 
-function sideUpdate(outputs: any, dispatch: any, paths: any) {
-    toPairs(outputs).forEach(([id, value]) => {
-        const [componentId, propName] = id.split('.');
-        const componentPath = paths.strs[componentId];
+function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
+    return function (dispatch: any, getState: any) {
+        const {paths, config} = getState();
+        const componentPath = getPath(paths, component_id);
+        if (!componentPath) {
+            if (!config.suppress_callback_exceptions) {
+                dispatchError(dispatch)(
+                    'ID running component not found in layout',
+                    [
+                        'Component defined in running keyword not found in layout.',
+                        `Component id: "${stringifyId(component_id)}"`,
+                        'This ID was used in the callback(s) for Output(s):',
+                        `${cb.output}`,
+                        'You can suppress this exception by setting',
+                        '`suppress_callback_exceptions=True`.'
+                    ]
+                );
+            }
+            // We need to stop further processing because functions further on
+            // can't operate on an 'undefined' object, and they will throw an
+            // error.
+            return;
+        }
         dispatch(
             updateProps({
-                props: {[propName]: value},
+                props,
                 itempath: componentPath
             })
         );
-        dispatch(
-            notifyObservers({id: componentId, props: {[propName]: value}})
-        );
-    });
+        dispatch(notifyObservers({id: component_id, props}));
+    };
+}
+
+/**
+ * Update a component props with `running`/`progress`/`set_props` calls.
+ *
+ * @param outputs Props to update.
+ * @param cb The originating callback info.
+ * @returns
+ */
+function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
+    return function (dispatch: any, getState: any) {
+        toPairs(outputs)
+            .reduce((acc, [id, value], i) => {
+                let componentId = id,
+                    propName,
+                    replacedIds = [];
+
+                if (id.startsWith('{')) {
+                    [componentId, propName] = parsePMCId(id);
+                    replacedIds = replacePMC(componentId, cb, i, getState);
+                } else if (id.includes('.')) {
+                    [componentId, propName] = id.split('.');
+                }
+
+                const props = propName ? {[propName]: value} : value;
+
+                if (replacedIds.length === 0) {
+                    acc.push([componentId, props]);
+                } else if (replacedIds.length === 1) {
+                    acc.push([replacedIds[0], props]);
+                } else {
+                    replacedIds.forEach((rep: any) => {
+                        acc.push([rep, props]);
+                    });
+                }
+
+                return acc;
+            }, [] as any[])
+            .forEach(([id, idProps]) => {
+                dispatch(updateComponent(id, idProps, cb));
+            });
+    };
 }
 
 function handleServerside(
     dispatch: any,
     hooks: any,
     config: any,
-    payload: any,
-    paths: any,
+    payload: ICallbackPayload,
     long: LongCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
-    output: string
+    output: string,
+    running: any
 ): Promise<CallbackResponse> {
     if (hooks.request_pre) {
         hooks.request_pre(payload);
@@ -357,6 +427,11 @@ function handleServerside(
     let runningOff: any;
     let progressDefault: any;
     let moreArgs = additionalArgs;
+
+    if (running) {
+        dispatch(sideUpdate(running.running, payload));
+        runningOff = running.runningOff;
+    }
 
     const fetchCallback = () => {
         const headers = getCSRFHeader() as any;
@@ -464,10 +539,10 @@ function handleServerside(
                     dispatch(removeCallbackJob({jobId: job}));
                 }
                 if (runningOff) {
-                    sideUpdate(runningOff, dispatch, paths);
+                    dispatch(sideUpdate(runningOff, payload));
                 }
                 if (progressDefault) {
-                    sideUpdate(progressDefault, dispatch, paths);
+                    dispatch(sideUpdate(progressDefault, payload));
                 }
             };
 
@@ -489,14 +564,12 @@ function handleServerside(
                         job = data.job;
                     }
 
+                    if (data.sideUpdate) {
+                        dispatch(sideUpdate(data.sideUpdate, payload));
+                    }
+
                     if (data.progress) {
-                        sideUpdate(data.progress, dispatch, paths);
-                    }
-                    if (data.running) {
-                        sideUpdate(data.running, dispatch, paths);
-                    }
-                    if (!runningOff && data.runningOff) {
-                        runningOff = data.runningOff;
+                        dispatch(sideUpdate(data.progress, payload));
                     }
                     if (!progressDefault && data.progressDefault) {
                         progressDefault = data.progressDefault;
@@ -574,6 +647,18 @@ function inputsToDict(inputs_list: any) {
     return inputs;
 }
 
+function getTriggeredId(triggered: string[]): string | object | undefined {
+    // for regular callbacks,  takes the first triggered prop_id, e.g.  "btn.n_clicks" and returns "btn"
+    // for pattern matching callback, e.g. '{"index":0, "type":"btn"}' and returns {index:0, type: "btn"}'
+    if (triggered && triggered.length) {
+        let componentId = triggered[0].split('.')[0];
+        if (componentId.startsWith('{')) {
+            componentId = JSON.parse(componentId);
+        }
+        return componentId;
+    }
+}
+
 export function executeCallback(
     cb: IPrioritizedCallback,
     config: any,
@@ -584,7 +669,8 @@ export function executeCallback(
     dispatch: any,
     getState: any
 ): IExecutingCallback {
-    const {output, inputs, state, clientside_function, long} = cb.callback;
+    const {output, inputs, state, clientside_function, long, dynamic_creator} =
+        cb.callback;
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
 
@@ -628,11 +714,19 @@ export function executeCallback(
 
         const __execute = async (): Promise<CallbackResult> => {
             try {
+                const changedPropIds = keys<string>(cb.changedPropIds);
+                const parsedChangedPropsIds = changedPropIds.map(propId => {
+                    if (propId.startsWith('{')) {
+                        return parsePMCId(propId)[0];
+                    }
+                    return propId;
+                });
                 const payload: ICallbackPayload = {
                     output,
                     outputs: isMultiOutputProp(output) ? outputs : outputs[0],
                     inputs: inVals,
-                    changedPropIds: keys(cb.changedPropIds),
+                    changedPropIds,
+                    parsedChangedPropsIds,
                     state: cb.callback.state.length
                         ? fillVals(paths, layout, cb, state, 'State')
                         : undefined
@@ -678,10 +772,8 @@ export function executeCallback(
                         if (inter.length) {
                             additionalArgs.push(['cancelJob', job.jobId]);
                             if (job.progressDefault) {
-                                sideUpdate(
-                                    job.progressDefault,
-                                    dispatch,
-                                    paths
+                                dispatch(
+                                    sideUpdate(job.progressDefault, payload)
                                 );
                             }
                         }
@@ -695,11 +787,11 @@ export function executeCallback(
                             hooks,
                             newConfig,
                             payload,
-                            paths,
                             long,
                             additionalArgs.length ? additionalArgs : undefined,
                             getState,
-                            cb.callback.output
+                            cb.callback.output,
+                            cb.callback.running
                         );
 
                         if (newHeaders) {
@@ -727,6 +819,13 @@ export function executeCallback(
                                 );
                             }
                         });
+
+                        if (dynamic_creator) {
+                            setTimeout(
+                                () => dispatch(requestDependencies()),
+                                0
+                            );
+                        }
 
                         return {data, payload};
                     } catch (res: any) {

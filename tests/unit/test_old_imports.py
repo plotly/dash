@@ -12,6 +12,7 @@ def filter_dir(package):
         "package_name",
         "f",
         "express",
+        "get_plotlyjs_version",
     ]
     return sorted(
         [

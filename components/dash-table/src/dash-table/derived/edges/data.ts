@@ -1,5 +1,3 @@
-import * as R from 'ramda';
-
 import Environment from 'core/environment';
 import {memoizeOneFactory} from 'core/memoizer';
 
@@ -82,7 +80,7 @@ const getter = (
     const selectedStyles = styles.filter(style => style.checksStateSelected());
     const activeStyles = styles.filter(style => style.checksStateActive());
 
-    R.forEach(({row: i, column: j}) => {
+    cells.forEach(({row: i, column: j}) => {
         const iWithOffset = i - offset.rows;
         const jWithOffset = j - offset.columns;
 
@@ -131,7 +129,7 @@ const getter = (
         };
 
         edges.setEdges(iWithOffset, j, style);
-    }, cells);
+    });
 
     return edges;
 };

@@ -128,6 +128,8 @@ def test_grva002_graphs_with_different_figures(dash_dcc, is_eager):
 
     dash_dcc.start_server(app)
 
+    time.sleep(1)
+
     # use this opportunity to test restyleData, since there are multiple
     # traces on this graph
     legendToggle = dash_dcc.find_element(

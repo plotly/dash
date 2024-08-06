@@ -159,8 +159,8 @@ class Browser(DashPageMixin):
         """
         if widths is None:
             widths = [1280]
-        snapshot_name = f"{name} - py{sys.version_info.major}.{sys.version_info.minor}"
-        logger.info("taking snapshot name => %s", snapshot_name)
+
+        logger.info("taking snapshot name => %s", name)
         try:
             if wait_for_callbacks:
                 # the extra one second sleep adds safe margin in the context
@@ -196,7 +196,7 @@ class Browser(DashPageMixin):
             )
 
         try:
-            self.percy_runner.snapshot(name=snapshot_name, widths=widths)
+            self.percy_runner.snapshot(name=name, widths=widths)
         except requests.HTTPError as err:
             # Ignore retries.
             if err.request.status_code != 400:
@@ -603,7 +603,7 @@ class Browser(DashPageMixin):
 
         Chrome only
         """
-        if self.driver.name.lower() == "chrome":
+        if self._browser == "chrome":
             return [
                 entry
                 for entry in self.driver.get_log("browser")
@@ -614,7 +614,7 @@ class Browser(DashPageMixin):
 
     def reset_log_timestamp(self):
         """reset_log_timestamp only work with chrome webdriver."""
-        if self.driver.name.lower() == "chrome":
+        if self._browser == "chrome":
             entries = self.driver.get_log("browser")
             if entries:
                 self._last_ts = entries[-1]["timestamp"]

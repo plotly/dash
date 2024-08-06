@@ -321,3 +321,51 @@ def test_grbs006_graph_update_frames(dash_dcc):
     assert dash_dcc.wait_for_text_to_equal(
         "#relayout-data", "[0, -1, -2]"
     ), "graph data must contain frame [0,-1,-2]"
+
+
+def test_grbs007_graph_scatter_lines_customdata(dash_dcc):
+    app = Dash(__name__)
+
+    expected_value = "obj-1"
+
+    scatter_figures = go.Figure(
+        data=[
+            go.Scatter(
+                x=[0, 1, 1, 0, 0],
+                y=[1, 1, 2, 2, 1],
+                mode="lines",
+                fill="toself",
+                customdata=[expected_value],
+            )
+        ]
+    )
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="scatter-lines",
+                figure=scatter_figures,
+                style={"width": 600, "height": 300},
+            ),
+            dcc.Textarea(id="test-text-area"),
+        ],
+        style={"width": 1000, "height": 500},
+    )
+
+    @app.callback(
+        Output("test-text-area", "value"), Input("scatter-lines", "clickData")
+    )
+    def handleClick(clickData):
+        return json.dumps(clickData)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#scatter-lines")
+
+    dash_dcc.find_elements("g .xy")[0].click()
+
+    data = dash_dcc.wait_for_element("#test-text-area").get_attribute("value")
+    assert data != "", "graph clickData must contain data"
+
+    data = json.loads(data)
+    assert "customdata" in data["points"][0], "graph clickData must contain customdata"
+    assert data["points"][0]["customdata"][0] == expected_value

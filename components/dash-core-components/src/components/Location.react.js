@@ -112,7 +112,7 @@ export default class Location extends Component {
     }
 
     componentDidMount() {
-        window.onpopstate = this.onLocationChange;
+        window.addEventListener('popstate', this.onLocationChange);
 
         window.addEventListener(
             '_dashprivate_pushstate',
@@ -122,7 +122,7 @@ export default class Location extends Component {
     }
 
     componentWillUnmount() {
-        window.onpopstate = () => {};
+        window.removeEventListener('popstate', this.onLocationChange);
         window.removeEventListener(
             '_dashprivate_pushstate',
             this.onLocationChange

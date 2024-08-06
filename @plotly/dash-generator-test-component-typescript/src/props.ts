@@ -43,6 +43,9 @@ export type TypescriptComponentProps = {
     nested?: Nested;
 
     a_tuple?: [number, string];
+
+    object_of_string?: {[k: string]: string};
+    object_of_components?: {[k: string]: JSX.Element};
 };
 
 export type WrappedHTMLProps = {

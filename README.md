@@ -5,8 +5,6 @@
 [![PyPI](https://img.shields.io/pypi/v/dash.svg?color=dark-green)](https://pypi.org/project/dash/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash.svg?color=dark-green)](https://pypi.org/project/dash/)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/plotly/dash.svg?color=dark-green)](https://github.com/plotly/dash/graphs/contributors)
-[![LGTM Alerts](https://img.shields.io/lgtm/alerts/g/plotly/dash.svg)](https://lgtm.com/projects/g/plotly/dash/alerts)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/python/g/plotly/dash.svg)](https://lgtm.com/projects/g/plotly/dash/context:python)
 
 #### *Dash is the most downloaded, trusted Python framework for building ML & data science web apps*.
 
@@ -15,6 +13,13 @@ Built on top of [Plotly.js](https://github.com/plotly/plotly.js), [React](https:
 - [Docs](https://dash.plotly.com/getting-started): Create your first Dash app in under 5 minutes
 
 - [dash.gallery](https://dash.gallery): Dash app gallery with Python & R code
+
+<div align="center">
+  <a href="https://dash.plotly.com/project-maintenance">
+    <img src="https://dash.plotly.com/assets/images/maintained-by-plotly.png" width="400px" alt="Maintained by Plotly">
+  </a>
+</div>
+
 
 ### Dash App Examples
 

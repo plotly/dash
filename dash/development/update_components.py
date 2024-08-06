@@ -19,6 +19,19 @@ coloredlogs.install(
     fmt="%(asctime)s,%(msecs)03d %(levelname)s - %(message)s", datefmt="%H:%M:%S"
 )
 
+dest_dir_map = {
+    "dash-core-components": "dcc",
+    "dash-html-components": "html",
+    "dash-table": "dash_table",
+}
+
+
+def status_print(msg, **kwargs):
+    try:
+        print(msg, **kwargs)
+    except UnicodeEncodeError:
+        print(msg.encode("ascii", "ignore"), **kwargs)
+
 
 def bootstrap_components(components_source, concurrency, install_type):
 
@@ -27,12 +40,12 @@ def bootstrap_components(components_source, concurrency, install_type):
     source_glob = (
         components_source
         if components_source != "all"
-        else "dash-core-components|dash-html-components|dash-table"
+        else "{dash-core-components,dash-html-components,dash-table}"
     )
 
-    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope *@({source_glob})* -- npm {install_type}"
+    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope='{source_glob}' -- npm {install_type}"
     cmd = shlex.split(cmdstr, posix=not is_windows)
-    print(cmdstr)
+    status_print(cmdstr)
 
     with subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
@@ -41,16 +54,16 @@ def bootstrap_components(components_source, concurrency, install_type):
         status = proc.poll()
 
     if err:
-        print(("🛑 " if status else "") + err.decode(), file=sys.stderr)
+        status_print(("🛑 " if status else "") + err.decode(), file=sys.stderr)
 
     if status or not out:
-        print(
+        status_print(
             f"🚨 Failed installing npm dependencies for component packages: {source_glob} (status={status}) 🚨",
             file=sys.stderr,
         )
         sys.exit(1)
     else:
-        print(
+        status_print(
             f"🟢 Finished installing npm dependencies for component packages: {source_glob} 🟢",
             file=sys.stderr,
         )
@@ -63,12 +76,12 @@ def build_components(components_source, concurrency):
     source_glob = (
         components_source
         if components_source != "all"
-        else "dash-core-components|dash-html-components|dash-table"
+        else "{dash-core-components,dash-html-components,dash-table}"
     )
 
-    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope *@({source_glob})* -- npm run build"
+    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope='{source_glob}' -- npm run build"
     cmd = shlex.split(cmdstr, posix=not is_windows)
-    print(cmdstr)
+    status_print(cmdstr)
 
     with subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
@@ -77,27 +90,24 @@ def build_components(components_source, concurrency):
         status = proc.poll()
 
     if err:
-        print(("🛑 " if status else "") + err.decode(), file=sys.stderr)
+        status_print(("🛑 " if status else "") + err.decode(), file=sys.stderr)
 
     if status or not out:
-        print(
+        status_print(
             f"🚨 Finished updating component packages: {source_glob} (status={status}) 🚨",
             file=sys.stderr,
         )
         sys.exit(1)
 
-    for package in source_glob.split("|"):
+    if "{" in source_glob:
+        source_glob = source_glob.split("{")[1].split("}")[0]
+
+    for package in source_glob.split(","):
         build_directory = os.path.join(
             "components", package, package.replace("-", "_").rstrip("/\\")
         )
 
-        dest_dir = (
-            "dcc"
-            if package == "dash-core-components"
-            else "html"
-            if package == "dash-html-components"
-            else "dash_table"
-        )
+        dest_dir = dest_dir_map.get(package) or package
 
         dest_path = os.path.join("dash", dest_dir)
 
@@ -109,19 +119,21 @@ def build_components(components_source, concurrency):
                 sys.exit(1)
 
         if not os.path.exists(build_directory):
-            print(
+            status_print(
                 "🚨 Could not locate build artifacts."
                 + " Check that the npm build process completed"
                 + f" successfully for package: {package} 🚨"
             )
             sys.exit(1)
         else:
-            print(f"🚚 Moving build artifacts from {build_directory} to Dash 🚚")
+            status_print(f"🚚 Moving build artifacts from {build_directory} to Dash 🚚")
             shutil.rmtree(dest_path)
             shutil.copytree(build_directory, dest_path)
             with open(os.path.join(dest_path, ".gitkeep"), "w", encoding="utf-8"):
                 pass
-            print(f"🟢 Finished moving build artifacts from {build_directory} to Dash 🟢")
+            status_print(
+                f"🟢 Finished moving build artifacts from {build_directory} to Dash 🟢"
+            )
 
 
 def cli():
@@ -151,6 +163,11 @@ def cli():
     )
 
     args = parser.parse_args()
+
+    if sys.platform == "win32":
+        args.components_source = args.components_source.replace('"', "").replace(
+            "'", ""
+        )
 
     bootstrap_components(
         args.components_source, args.concurrency, "ci" if args.ci == "True" else "i"

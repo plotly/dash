@@ -19,6 +19,8 @@ type Config = {
             'Content-Type': string;
         };
     };
+    serve_locally?: boolean;
+    plotlyjs_url?: string;
 };
 
 export default function getConfigFromDOM(): Config {

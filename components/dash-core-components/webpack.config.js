@@ -49,8 +49,10 @@ module.exports = (env, argv) => {
             path: path.resolve(__dirname, dashLibraryName),
             chunkFilename: '[name].js',
             filename,
-            library: dashLibraryName,
-            libraryTarget: 'window',
+            library: {
+                name: dashLibraryName,
+                type: 'window',
+            }
         },
         externals,
         module: {

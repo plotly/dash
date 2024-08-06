@@ -155,9 +155,9 @@ function getReadonlyState() {
     state.tableProps.editable = false;
     state.tableProps.row_deletable = false;
 
-    R.forEach(column => {
+    (state.tableProps.columns || []).forEach(column => {
         column.editable = false;
-    }, state.tableProps.columns || []);
+    });
 
     return state;
 }
@@ -167,9 +167,9 @@ function getSomeReadonlyState() {
     state.tableProps.editable = true;
     state.tableProps.row_deletable = false;
 
-    R.forEach(column => {
+    (state.tableProps.columns || []).forEach(column => {
         column.editable = !R.includes(column.id, ['bbb', 'eee', 'fff']);
-    }, state.tableProps.columns || []);
+    });
 
     return state;
 }
@@ -190,43 +190,43 @@ function getTooltipsState() {
         {
             ccc: {
                 type: TooltipSyntax.Markdown,
-                value: `### Go Proverb\nThe enemy's key point is yours`
+                value: "### Go Proverb\nThe enemy's key point is yours"
             }
         },
         {
             ccc: {
                 type: TooltipSyntax.Markdown,
-                value: `### Go Proverb\nPlay on the point of symmetry`
+                value: '### Go Proverb\nPlay on the point of symmetry'
             }
         },
         {
             ccc: {
                 type: TooltipSyntax.Markdown,
-                value: `### Go Proverb\nSente gains nothing`
+                value: '### Go Proverb\nSente gains nothing'
             }
         },
         {
             ccc: {
                 type: TooltipSyntax.Text,
-                value: `Beware of going back to patch up`
+                value: 'Beware of going back to patch up'
             }
         },
-        {ccc: {type: TooltipSyntax.Text, value: `When in doubt, Tenuki`}},
-        {ccc: `People in glass houses should not throw stones`}
+        {ccc: {type: TooltipSyntax.Text, value: 'When in doubt, Tenuki'}},
+        {ccc: 'People in glass houses should not throw stones'}
     ];
     state.tableProps.tooltip = {
-        ccc: {type: TooltipSyntax.Text, value: `There is death in the hane`},
-        ddd: {type: TooltipSyntax.Markdown, value: `Hane, Cut, Placement`},
-        rows: `Learn the eyestealing tesuji`
+        ccc: {type: TooltipSyntax.Text, value: 'There is death in the hane'},
+        ddd: {type: TooltipSyntax.Markdown, value: 'Hane, Cut, Placement'},
+        rows: 'Learn the eyestealing tesuji'
     };
     state.tableProps.tooltip_conditional = [
         {
             if: {
                 column_id: 'aaa-readonly',
-                filter_query: `{aaa} is prime`
+                filter_query: '{aaa} is prime'
             },
             type: TooltipSyntax.Markdown,
-            value: `### Go Proverbs\nCapture three to get an eye`
+            value: '### Go Proverbs\nCapture three to get an eye'
         },
         {
             if: {
@@ -234,14 +234,14 @@ function getTooltipsState() {
                 row_index: 'odd'
             },
             type: TooltipSyntax.Markdown,
-            value: `### Go Proverbs\nSix die but eight live`
+            value: '### Go Proverbs\nSix die but eight live'
         },
         {
             if: {
                 column_id: 'bbb-readonly'
             },
             type: TooltipSyntax.Markdown,
-            value: `### Go Proverbs\nUrgent points before big points\n![Sensei](https://senseis.xmp.net/images/stone-hello.png)`
+            value: '### Go Proverbs\nUrgent points before big points\n![Sensei](https://senseis.xmp.net/images/stone-hello.png)'
         }
     ];
 
@@ -251,12 +251,12 @@ function getTooltipsState() {
 function getTypedState() {
     const state = getDefaultState();
 
-    R.forEach(column => {
+    (state.tableProps.columns || []).forEach(column => {
         column.on_change = {
             action: ChangeAction.Coerce,
             failure: ChangeFailure.Reject
         };
-    }, state.tableProps.columns || []);
+    });
 
     return state;
 }
@@ -264,11 +264,11 @@ function getTypedState() {
 function getSingleHeaderState() {
     const state = getDefaultState();
 
-    R.forEach(column => {
+    (state.tableProps.columns || []).forEach(column => {
         if (Array.isArray(column.name)) {
             column.name = column.name[column.name.length - 1];
         }
-    }, state.tableProps.columns || []);
+    });
 
     return state;
 }
@@ -277,11 +277,11 @@ function getActionableState() {
     const state = getDefaultState();
     state.tableProps.filter_action = TableAction.Native;
 
-    R.forEach(c => {
+    (state.tableProps.columns || []).forEach(c => {
         c.clearable = true;
         c.hideable = 'last';
         c.selectable = true;
-    }, state.tableProps.columns || []);
+    });
 
     return state;
 }

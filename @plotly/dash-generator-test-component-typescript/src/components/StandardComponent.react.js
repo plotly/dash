@@ -17,4 +17,4 @@ StandardComponent.propTypes  = {
     children: PropTypes.node,
 }
 
-export default StandardComponent
+export default React.memo(StandardComponent, (prevProps,nextProps) => true)

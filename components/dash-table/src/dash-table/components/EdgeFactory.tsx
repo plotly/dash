@@ -1,5 +1,3 @@
-import * as R from 'ramda';
-
 import {memoizeOne} from 'core/memoizer';
 
 import {
@@ -81,7 +79,7 @@ export default class EdgeFactory {
         const iPrevious = hPrevious.rows - 1;
         const iTarget = 0;
 
-        R.forEach(j => {
+        for (let j = 0; j < hPrevious.columns; j++) {
             if (
                 EdgeFactory.hasPrecedence(
                     hPrevious.getWeight(iPrevious, j),
@@ -98,7 +96,7 @@ export default class EdgeFactory {
                 );
             }
             hPrevious.setEdge(iPrevious, j, 'none', -Infinity, true);
-        }, R.range(0, hPrevious.columns));
+        }
     }
 
     private vOverride(
@@ -116,7 +114,7 @@ export default class EdgeFactory {
         const jPrevious = hPrevious.columns - 1;
         const jTarget = 0;
 
-        R.forEach(i => {
+        for (let i = 0; i < hPrevious.rows; i++) {
             if (
                 EdgeFactory.hasPrecedence(
                     hPrevious.getWeight(i, jPrevious),
@@ -133,7 +131,7 @@ export default class EdgeFactory {
                 );
             }
             hPrevious.setEdge(i, jPrevious, 'none', -Infinity, true);
-        }, R.range(0, hPrevious.rows));
+        }
     }
 
     private hReconcile(
@@ -155,15 +153,17 @@ export default class EdgeFactory {
             return;
         }
 
-        R.forEach(
-            j =>
+        for (let j = 0; j < hTarget.columns; j++) {
+            if (
                 !EdgeFactory.hasPrecedence(
                     hTarget.getWeight(iTarget, j),
                     hNext.getWeight(iNext, j),
                     cutoffWeight
-                ) && hTarget.setEdge(iTarget, j, 'none', -Infinity, true),
-            R.range(0, hTarget.columns)
-        );
+                )
+            ) {
+                hTarget.setEdge(iTarget, j, 'none', -Infinity, true);
+            }
+        }
     }
 
     private vReconcile(
@@ -181,15 +181,17 @@ export default class EdgeFactory {
         const jNext = 0;
         const jTarget = vTarget.columns - 1;
 
-        R.forEach(
-            i =>
+        for (let i = 0; i < vTarget.rows; i++) {
+            if (
                 !EdgeFactory.hasPrecedence(
                     vTarget.getWeight(i, jTarget),
                     vNext.getWeight(i, jNext),
                     cutoffWeight
-                ) && vTarget.setEdge(i, jTarget, 'none', -Infinity, true),
-            R.range(0, vTarget.rows)
-        );
+                )
+            ) {
+                vTarget.setEdge(i, jTarget, 'none', -Infinity, true);
+            }
+        }
     }
 
     private get props() {

@@ -15,8 +15,10 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, dashLibraryName),
         filename: `${dashLibraryName}.js`,
-        library: dashLibraryName,
-        libraryTarget: 'window',
+        library: {
+            name: dashLibraryName,
+            type: 'window',
+        }
     },
     module: {
         rules: [

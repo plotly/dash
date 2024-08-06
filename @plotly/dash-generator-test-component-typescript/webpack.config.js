@@ -10,8 +10,10 @@ module.exports = function (env, argv) {
     const output = {
         path: path.resolve(__dirname, dashLibraryName),
         filename: `${dashLibraryName}.js`,
-        library: dashLibraryName,
-        libraryTarget: 'umd',
+        library: {
+            name: dashLibraryName,
+            type: 'umd',
+        }
     }
 
     const externals = {

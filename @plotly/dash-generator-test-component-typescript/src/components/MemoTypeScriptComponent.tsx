@@ -14,4 +14,4 @@ const MemoTypeScriptComponent = (props: TypescriptComponentProps) => (
     <div id={props.id}>{props.required_string}</div>
 );
 
-export default React.memo(MemoTypeScriptComponent);
+export default React.memo(MemoTypeScriptComponent, () => true);

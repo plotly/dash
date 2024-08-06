@@ -106,7 +106,15 @@ describe('Test Typescript component metadata generation', () => {
         test(
             `${componentName} tuple tuple`,
             testTypeFactory('a_tuple', 'tuple')
-        )
+        );
+        test(
+            `${componentName} object of string`,
+            testTypeFactory('object_of_string', 'objectOf')
+        );
+        test(
+            `${componentName} object of components`,
+            testTypeFactory('object_of_components', 'objectOf')
+        );
     });
 
     describe('Test prop attributes', () => {
@@ -251,6 +259,17 @@ describe('Test Typescript component metadata generation', () => {
                 expect(
                     R.path(tuplePath.concat(1, 'name'), metadata)
                 ).toBe('string');
+            }
+        );
+
+        test(
+            'objectOf node', () => {
+                const objectOfComponents = R.path(
+                    propPath("TypeScriptComponent", "object_of_components")
+                        .concat(["type", "value", "name"]),
+                    metadata
+                );
+                expect(objectOfComponents).toBe("node");
             }
         )
     });

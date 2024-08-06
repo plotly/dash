@@ -26,8 +26,10 @@ module.exports = (options = {}) => {
         output: {
             path: path.resolve(__dirname, `./../../${dashLibraryName}`),
             filename: '[name].js',
-            library: dashLibraryName,
-            libraryTarget: 'window'
+            library: {
+                name: dashLibraryName,
+                type: 'window',
+            }
         },
         devtool: 'source-map',
         externals: {
