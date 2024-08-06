@@ -1,13 +1,13 @@
-import json
 import functools
+import json
+
 import flask
 import pytest
-
 from flaky import flaky
-
-from dash import Dash, Output, Input, html, dcc
-from dash.types import RendererHooks
 from werkzeug.exceptions import HTTPException
+
+from dash import Dash, Input, Output, dcc, html
+from dash.types import RendererHooks
 
 
 def test_rdrh001_request_hooks(dash_duo):
@@ -327,3 +327,103 @@ def test_rdrh004_layout_hooks(dash_duo):
     dash_duo.wait_for_text_to_equal("#layout", "layout_post generated this text")
 
     assert dash_duo.get_logs() == []
+
+
+@flaky(max_runs=3)
+@pytest.mark.parametrize("expiry_code", [401, 400])
+def test_rdrh003_refresh_jwt_json(expiry_code, dash_duo):
+    app = Dash(__name__)
+
+    app.index_string = """<!DOCTYPE html>
+    <html>
+        <head>
+            {%metas%}
+            <title>{%title%}</title>
+            {%favicon%}
+            {%css%}
+        </head>
+        <body>
+            <div>Testing custom DashRenderer</div>
+            {%app_entry%}
+            <footer>
+                {%config%}
+                {%scripts%}
+                <script id="_dash-renderer" type"application/json">
+                    const renderer = new DashRenderer({
+                        request_refresh_jwt: (old_token) => {
+                            console.log("refreshing token", old_token);
+                            var new_token = "." + (old_token || "");
+                            var output = document.getElementById('output-token')
+                            if(output) {
+                                output.innerHTML = new_token;
+                            }
+                            return new_token;
+                        }
+                    })
+                </script>
+            </footer>
+            <div>With request hooks</div>
+        </body>
+    </html>"""
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value="initial value"),
+            html.Div(html.Div([html.Div(id="output-1"), html.Div(id="output-token")])),
+        ]
+    )
+
+    @app.callback(Output("output-1", "children"), [Input("input", "value")])
+    def update_output(value):
+        return value
+
+    required_jwt_len = 0
+
+    # test with an auth layer that requires a JWT with a certain length
+    def protect_route(func):
+        @functools.wraps(func)
+        def wrap(*args, **kwargs):
+            try:
+                if flask.request.method == "OPTIONS":
+                    return func(*args, **kwargs)
+                token = flask.request.headers.environ.get("HTTP_AUTHORIZATION")
+                if required_jwt_len and (
+                    not token or len(token) != required_jwt_len + len("Bearer ")
+                ):
+                    response = flask.jsonify({'error': 'JWT Expired ' + str(token)})
+                    flask.abort(response, expiry_code)
+            except HTTPException:
+                return flask.jsonify({'error': "JWT Expired " + str(token)}), expiry_code
+            return func(*args, **kwargs)
+
+        return wrap
+
+    # wrap all API calls with auth.
+    for name, method in (
+        (x, app.server.view_functions[x])
+        for x in app.routes
+        if x in app.server.view_functions
+    ):
+        app.server.view_functions[name] = protect_route(method)
+
+    dash_duo.start_server(app)
+
+    _in = dash_duo.find_element("#input")
+    dash_duo.clear_input(_in)
+
+    required_jwt_len = 1
+
+    _in.send_keys("fired request")
+
+    dash_duo.wait_for_text_to_equal("#output-1", "fired request")
+    dash_duo.wait_for_text_to_equal("#output-token", ".")
+
+    required_jwt_len = 2
+
+    dash_duo.clear_input(_in)
+    _in.send_keys("fired request again")
+
+    dash_duo.wait_for_text_to_equal("#output-1", "fired request again")
+    dash_duo.wait_for_text_to_equal("#output-token", "..")
+
+    assert len(dash_duo.get_logs()) == 2

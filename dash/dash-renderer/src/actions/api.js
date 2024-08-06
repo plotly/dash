@@ -1,8 +1,8 @@
-import {mergeDeepRight, once} from 'ramda';
-import {getCSRFHeader, handleAsyncError, addHttpHeaders} from '../actions';
-import {urlBase} from './utils';
-import {MAX_AUTH_RETRIES} from './constants';
-import {JWT_EXPIRED_MESSAGE, STATUS} from '../constants/constants';
+import { mergeDeepRight, once } from 'ramda';
+import { getCSRFHeader, handleAsyncError, addHttpHeaders } from '../actions';
+import { urlBase } from './utils';
+import { MAX_AUTH_RETRIES } from './constants';
+import { JWT_EXPIRED_MESSAGE, STATUS } from '../constants/constants';
 
 /* eslint-disable-next-line no-console */
 const logWarningOnce = once(console.warn);
@@ -28,11 +28,11 @@ function POST(path, fetchConfig, body = {}) {
     );
 }
 
-const request = {GET, POST};
+const request = { GET, POST };
 
 export default function apiThunk(endpoint, method, store, id, body) {
     return async (dispatch, getState) => {
-        let {config, hooks} = getState();
+        let { config, hooks } = getState();
         let newHeaders = null;
 
         const url = `${urlBase(config)}${endpoint}`;
@@ -48,7 +48,7 @@ export default function apiThunk(endpoint, method, store, id, body) {
 
         dispatch({
             type: store,
-            payload: {id, status: 'loading'}
+            payload: { id, status: 'loading' }
         });
 
         try {
@@ -71,8 +71,24 @@ export default function apiThunk(endpoint, method, store, id, body) {
                     res.status === STATUS.BAD_REQUEST
                 ) {
                     if (hooks.request_refresh_jwt) {
-                        const body = await res.text();
-                        if (body.includes(JWT_EXPIRED_MESSAGE)) {
+                        let body;
+                        try {
+                            body = await res.text();
+                        } catch (e) {
+                            body = await res.json();
+                        }
+                        let jwtExpired = false;
+                        if (typeof body == 'string') {
+                            jwtExpired = body.includes(JWT_EXPIRED_MESSAGE);
+                        } else if (typeof body == 'object') {
+                            for (const key in body) {
+                                if (body[key] && typeof body[key] == 'string' && body[key].includes(JWT_EXPIRED_MESSAGE)) {
+                                    jwtExpired = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (jwtExpired) {
                             const newJwt = await hooks.request_refresh_jwt(
                                 config.fetch.headers.Authorization.substr(
                                     'Bearer '.length
