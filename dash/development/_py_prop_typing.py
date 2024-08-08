@@ -1,6 +1,8 @@
+import collections
 import json
 import string
 import textwrap
+
 import stringcase
 
 
@@ -10,6 +12,7 @@ shape_template = """{name} = TypedDict(
     {values}
 )
 """
+custom_imports = collections.defaultdict(lambda: collections.defaultdict(list))
 
 
 def _clean_key(key):
@@ -115,10 +118,31 @@ def generate_enum(type_info, *_):
     return f"Literal[{', '.join(values)}]"
 
 
-def get_prop_typing(type_name: str, component_name: str, prop_name: str, type_info):
-    return PROP_TYPING.get(type_name, generate_any)(
+def get_prop_typing(
+    type_name: str, component_name: str, prop_name: str, type_info, namespace=None
+):
+    if namespace:
+        # Only check the namespace once
+        special = (
+            special_cases.get(namespace, {}).get(component_name, {}).get(prop_name)
+        )
+        if special:
+            return special(type_info, component_name, prop_name)
+
+    prop_type = PROP_TYPING.get(type_name, generate_any)(
         type_info, component_name, prop_name
     )
+    return prop_type
+
+
+def generate_plotly_figure(*_):
+    custom_imports["dash_core_components"]["Graph"].append(
+        "from plotly.graph_objects import Figure"
+    )
+    return "typing.Union[Figure, dict]"
+
+
+special_cases = {"dash_core_components": {"Graph": {"figure": generate_plotly_figure}}}
 
 
 PROP_TYPING = {

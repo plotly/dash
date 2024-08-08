@@ -10,7 +10,7 @@ from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from ._collect_nodes import collect_nodes, filter_base_nodes
-from ._py_prop_typing import get_prop_typing, shapes
+from ._py_prop_typing import get_prop_typing, shapes, custom_imports
 from .base_component import Component
 
 
@@ -150,7 +150,7 @@ def generate_class_string(
 
         type_name = type_info.get("name")
 
-        typed = get_prop_typing(type_name, typename, prop_key, type_info)
+        typed = get_prop_typing(type_name, typename, prop_key, type_info, namespace)
 
         arg_value = f"{prop_key}: {typed} = {default_value}"
 
@@ -220,6 +220,12 @@ def generate_class_file(
     class_string = generate_class_string(
         typename, props, description, namespace, prop_reorder_exceptions, max_props
     )
+
+    custom_imp = custom_imports[namespace][typename]
+    if custom_imports:
+        import_string += "\n".join(custom_imp)
+        import_string += "\n\n"
+
     file_name = f"{typename:s}.py"
 
     file_path = os.path.join(namespace, file_name)
