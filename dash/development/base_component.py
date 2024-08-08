@@ -410,13 +410,12 @@ class Component(metaclass=ComponentMeta):
         return f"{self._type}({props_string})"
 
 
+# This wrapper adds an argument given to generated Component.__init__
+# with the actual given parameters by the user as a list of string.
+# This is then checked in the generated init to check if required
+# props were provided.
 def _explicitize_args(func):
-    # Python 2
-    if hasattr(func, "func_code"):
-        varnames = func.func_code.co_varnames
-    # Python 3
-    else:
-        varnames = func.__code__.co_varnames
+    varnames = func.__code__.co_varnames
 
     def wrapper(*args, **kwargs):
         if "_explicit_args" in kwargs:
@@ -428,11 +427,8 @@ def _explicitize_args(func):
             kwargs["_explicit_args"].remove("self")
         return func(*args, **kwargs)
 
-    # If Python 3, we can set the function signature to be correct
-    if hasattr(inspect, "signature"):
-        # pylint: disable=no-member
-        new_sig = inspect.signature(wrapper).replace(
-            parameters=inspect.signature(func).parameters.values()
-        )
-        wrapper.__signature__ = new_sig
+    new_sig = inspect.signature(wrapper).replace(
+        parameters=list(inspect.signature(func).parameters.values())
+    )
+    wrapper.__signature__ = new_sig
     return wrapper
