@@ -76,6 +76,9 @@ def _check_if_has_indexable_children(item):
 class Component(metaclass=ComponentMeta):
     _children_props = []
     _base_nodes = ["children"]
+    _namespace: str
+    _type: str
+    _prop_names: list[str]
 
     _valid_wildcard_attributes: typing.List[str]
     available_wildcard_properties: typing.List[str]
@@ -101,7 +104,6 @@ class Component(metaclass=ComponentMeta):
     def __init__(self, **kwargs):
         import dash  # pylint: disable=import-outside-toplevel, cyclic-import
 
-        # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
             # pylint: disable=no-member
             k_in_propnames = k in self._prop_names
@@ -408,6 +410,9 @@ class Component(metaclass=ComponentMeta):
         else:
             props_string = repr(getattr(self, "children", None))
         return f"{self._type}({props_string})"
+
+
+ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 # This wrapper adds an argument given to generated Component.__init__

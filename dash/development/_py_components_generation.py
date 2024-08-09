@@ -11,7 +11,7 @@ from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from ._collect_nodes import collect_nodes, filter_base_nodes
 from ._py_prop_typing import get_prop_typing, shapes, custom_imports
-from .base_component import Component
+from .base_component import Component, ComponentType
 
 
 # pylint: disable=unused-argument,too-many-locals,too-many-branches
@@ -213,6 +213,7 @@ def generate_class_file(
         "import typing  # noqa: F401\n"
         "import numbers # noqa: F401\n"
         "from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401\n"
+        "from dash.development.base_component import ComponentType # noqa: F401\n"
         "from dash.development.base_component import "
         "Component, _explicitize_args\n\n\n"
     )
@@ -282,6 +283,7 @@ def generate_class(
     )
     scope = {
         "Component": Component,
+        "ComponentType": ComponentType,
         "_explicitize_args": _explicitize_args,
         "typing": typing,
         "numbers": numbers,
