@@ -713,7 +713,7 @@ class Dash:
             and not self.validation_layout
             and not self.config.suppress_callback_exceptions
         ):
-            
+
             layout_value = self._layout_value()
             _validate.validate_layout(value, layout_value)
             self.validation_layout = layout_value
