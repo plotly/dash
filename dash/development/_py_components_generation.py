@@ -102,9 +102,9 @@ def generate_class_string(
     prop_keys = list(props.keys())
     if "children" in props and "children" in list_of_valid_keys:
         prop_keys.remove("children")
-        default_argtext = (
-            f"children: {get_prop_typing('node', '', '', {})} = None,\n        "
-        )
+        # TODO For dash 3.0, remove the Optional and = None for proper typing.
+        #  Also add the other required props after children.
+        default_argtext = f"children: typing.Optional[{get_prop_typing('node', '', '', {})}] = None,\n        "
         args = "{k: _locals[k] for k in _explicit_args if k != 'children'}"
         argtext = "children=children, **args"
     else:
@@ -138,21 +138,19 @@ def generate_class_string(
             or prop_key == "setProps"
         ):
             continue
-        required = prop.get("required")
-        type_info = prop.get("type")
 
-        default_value = "Component.REQUIRED" if required else "Component.UNDEFINED"
+        type_info = prop.get("type")
 
         if not type_info:
             print(f"Invalid prop type for typing: {prop_key}")
-            default_arglist.append(f"{prop_key} = {default_value}")
+            default_arglist.append(f"{prop_key} = None")
             continue
 
         type_name = type_info.get("name")
 
         typed = get_prop_typing(type_name, typename, prop_key, type_info, namespace)
 
-        arg_value = f"{prop_key}: {typed} = {default_value}"
+        arg_value = f"{prop_key}: typing.Optional[{typed}] = None"
 
         default_arglist.append(arg_value)
 
