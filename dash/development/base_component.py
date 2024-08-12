@@ -78,7 +78,7 @@ class Component(metaclass=ComponentMeta):
     _base_nodes = ["children"]
     _namespace: str
     _type: str
-    _prop_names: list[str]
+    _prop_names: typing.List[str]
 
     _valid_wildcard_attributes: typing.List[str]
     available_wildcard_properties: typing.List[str]
