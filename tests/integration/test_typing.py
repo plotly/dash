@@ -12,7 +12,7 @@ t = TypeScriptComponent({0})
 """
 
 
-def run_pyright(codefile):
+def run_pyright(codefile: str):
 
     cmd = shlex.split(
         f"pyright {codefile}",
@@ -33,14 +33,14 @@ def run_pyright(codefile):
 
 
 def assert_pyright_output(
-    codefile, expected_outputs=tuple(), expected_errors=tuple(), expected_status=0
+    codefile: str, expected_outputs=tuple(), expected_errors=tuple(), expected_status=0
 ):
     output, error, status = run_pyright(codefile)
     assert (
         status == expected_status
     ), f"Status: {status}\nOutput: {output}\nError: {error}"
     for ex_out in expected_outputs:
-        assert ex_out in output
+        assert ex_out in output, f"Invalid output:\n {output}"
     for ex_err in expected_errors:
         assert ex_err in error
 
@@ -54,7 +54,7 @@ def assert_pyright_output(
             {
                 "expected_status": 1,
                 "expected_outputs": [
-                    'Argument of type "Literal[4]" cannot be assigned to parameter "a_string" of type "str"'
+                    'Argument of type "Literal[4]" cannot be assigned to parameter "a_string" of type "str | None"'
                 ],
             },
         ),
@@ -70,7 +70,7 @@ def assert_pyright_output(
                 "expected_status": 1,
                 "expected_outputs": [
                     'Argument of type "Literal[\'\']" cannot be assigned to parameter "a_number" '
-                    'of type "int | float | Number"'
+                    'of type "int | float | Number | None"'
                 ],
             },
         ),
@@ -104,7 +104,7 @@ def assert_pyright_output(
                 "expected_status": 1,
                 "expected_outputs": [
                     'Argument of type "dict[Any, Any]" cannot be assigned to parameter "array_string" '
-                    'of type "List[str] | Tuple[Unknown, ...]"'
+                    'of type "Sequence[str] | Tuple[Unknown, ...] | None"'
                 ],
             },
         ),
@@ -204,7 +204,7 @@ def assert_pyright_output(
                 "expected_status": 1,
                 "expected_outputs": [
                     'Argument of type "tuple[Literal[1], Literal[2]]" cannot be assigned '
-                    'to parameter "a_tuple" of type "Tuple[int | float | Number, str]"'
+                    'to parameter "a_tuple" of type "Tuple[int | float | Number, str] | None"'
                 ],
             },
         ),
@@ -224,14 +224,16 @@ def assert_pyright_output(
             "obj={}",
             {
                 "expected_status": 1,
-                "expected_outputs": ['"value" is required in "Obj"'],
+                "expected_outputs": ['"dict[Any, Any]" is incompatible with "Obj"'],
             },
         ),
         (
             "obj={'value': 'a', 'label': 1}",
             {
                 "expected_status": 1,
-                "expected_outputs": ['"Literal[1]" is incompatible with "str"'],
+                "expected_outputs": [
+                    '"dict[str, str | int]" is incompatible with "Obj"'
+                ],
             },
         ),
         (
