@@ -2,37 +2,47 @@
 
 ## Getting Started
 
-Glad that you decided to make your contribution in Dash, to set up your development environment, run the following commands:
-
+To set up your development environment, start by cloning the repo and creating a virtual environment:
 ```bash
 # in your working directory
-$ git clone git@github.com:plotly/dash.git
-$ cd dash
-$ python3 -m venv .venv/dev
-# activate the virtualenv
-# on windows `.venv\dev\scripts\activate`
-# on some linux / mac environments, use `.` instead of `source`
-$ source .venv/dev/bin/activate
-# install dash and dependencies
-$ pip install -e .[ci,dev,testing,celery,diskcache]  # in some shells you need \ to escape []
-$ npm ci
-# this script will build the dash-core-components, dash-html-components, dash-table,
-# and renderer bundles; this will build all bundles from source code in their
-# respective directories. The only true source of npm version is defined
-# in package.json for each package.
-#
-$ npm run build  # runs `renderer build` and `npm build` in dcc, html, table
-# build and install components used in tests
-# on windows, the developer will need to use `npm run first-build` this performs additional first steps
-#
-# Alternatively one could run part of the build process e.g.
-$ dash-update-components "dash-core-components"
-# to only build dcc when developing dcc
-# But when you first clone check out a new branch, you must run the full build as above.
-#
-$ npm run setup-tests.py # or npm run setup-tests.R
-# you should see dash points to a local source repo
-$ pip list | grep dash
+git clone git@github.com:plotly/dash.git
+cd dash
+python3 -m venv .venv/dev
+# Activate the virtualenv on windows `.venv\dev\scripts\activate`.
+# On some linux / mac environments, use `.` instead of `source`.
+source .venv/dev/bin/activate
+```
+
+Install dash and dependencies:
+```bash
+pip install -e ".[ci,dev,testing,celery,diskcache]"  # in some shells you need \ to escape []
+npm ci
+```
+
+This script will build the dash-core-components, dash-html-components, dash-table, and renderer bundles; this will build all bundles from source code in their respective directories. The only true source of npm version is defined in package.json for each package.
+```bash
+npm run build  # runs `renderer build` and `npm build` in dcc, html, table
+```
+To build and install components used in tests on windows, the developer will need to use `npm run first-build` this performs additional first steps.
+
+Alternatively one could run part of the build process e.g.
+```bash
+dash-update-components "dash-core-components"
+```
+to only build dcc when developing dcc. But when you first clone check out a new branch, you must run the full build as above.
+
+To set up tests, run:
+```bash
+npm run setup-tests.py # or npm run setup-tests.R
+```
+
+Finally, check that the installation succeeded by checking the output of this command:
+```bash
+pip list | grep dash
+```
+The output should look like this:
+```bash
+dash                            2.17.1                     /path/to/local/dash/repo/
 ```
 
 ### Dash-Renderer Beginner Guide
