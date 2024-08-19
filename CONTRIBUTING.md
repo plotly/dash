@@ -23,7 +23,7 @@ This script will build the dash-core-components, dash-html-components, dash-tabl
 ```bash
 npm run build  # runs `renderer build` and `npm build` in dcc, html, table
 ```
-To build and install components used in tests on windows, the developer will need to use `npm run first-build` this performs additional first steps.
+On windows, to build and install components used in tests, the developer will need to use `npm run first-build` this performs additional first steps.
 
 Alternatively one could run part of the build process e.g.
 ```bash
