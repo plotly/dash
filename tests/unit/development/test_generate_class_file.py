@@ -17,6 +17,7 @@ import_string = (
     "import typing  # noqa: F401\n"
     "import numbers # noqa: F401\n"
     "from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401\n"
+    "from dash.development.base_component import ComponentType # noqa: F401\n"
     "from dash.development.base_component import "
     "Component, _explicitize_args\n\n\n"
 )

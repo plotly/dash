@@ -221,7 +221,7 @@ def generate_class_file(
     )
 
     custom_imp = custom_imports[namespace][typename]
-    if custom_imports:
+    if custom_imp:
         import_string += "\n".join(custom_imp)
         import_string += "\n\n"
 

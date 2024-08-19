@@ -3,6 +3,7 @@
 import typing  # noqa: F401
 import numbers # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
+from dash.development.base_component import ComponentType # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
 
 
@@ -96,7 +97,7 @@ Keyword arguments:
     OptionalObjectWithExactAndNestedDescriptionFigure = TypedDict(
         "OptionalObjectWithExactAndNestedDescriptionFigure",
             {
-            "data": NotRequired[typing.Union[typing.List[dict], typing.Tuple]],
+            "data": NotRequired[typing.Union[typing.Sequence[dict], typing.Tuple]],
             "layout": NotRequired[dict]
         }
     )
@@ -113,7 +114,7 @@ Keyword arguments:
     OptionalObjectWithShapeAndNestedDescriptionFigure = TypedDict(
         "OptionalObjectWithShapeAndNestedDescriptionFigure",
             {
-            "data": NotRequired[typing.Union[typing.List[dict], typing.Tuple]],
+            "data": NotRequired[typing.Union[typing.Sequence[dict], typing.Tuple]],
             "layout": NotRequired[dict]
         }
     )
@@ -130,27 +131,27 @@ Keyword arguments:
     @_explicitize_args
     def __init__(
         self,
-        children: typing.Union[str, int, float, Component, typing.List[typing.Union[str, int, float, Component]]] = None,
-        optionalArray: typing.Union[typing.List, typing.Tuple] = Component.UNDEFINED,
-        optionalBool: bool = Component.UNDEFINED,
-        optionalFunc: typing.Any = Component.UNDEFINED,
-        optionalNumber: typing.Union[int, float, numbers.Number] = Component.UNDEFINED,
-        optionalObject: dict = Component.UNDEFINED,
-        optionalString: str = Component.UNDEFINED,
-        optionalSymbol: typing.Any = Component.UNDEFINED,
-        optionalNode: typing.Union[str, int, float, Component, typing.List[typing.Union[str, int, float, Component]]] = Component.UNDEFINED,
-        optionalElement: Component = Component.UNDEFINED,
-        optionalMessage: typing.Any = Component.UNDEFINED,
-        optionalEnum: Literal["News", "Photos"] = Component.UNDEFINED,
-        optionalUnion: typing.Union[str, typing.Union[int, float, numbers.Number], typing.Any] = Component.UNDEFINED,
-        optionalArrayOf: typing.Union[typing.List[typing.Union[int, float, numbers.Number]], typing.Tuple] = Component.UNDEFINED,
-        optionalObjectOf: typing.Dict[typing.Union[str, float, int], typing.Union[int, float, numbers.Number]] = Component.UNDEFINED,
-        optionalObjectWithExactAndNestedDescription: "OptionalObjectWithExactAndNestedDescription" = Component.UNDEFINED,
-        optionalObjectWithShapeAndNestedDescription: "OptionalObjectWithShapeAndNestedDescription" = Component.UNDEFINED,
-        optionalAny: typing.Any = Component.UNDEFINED,
-        customProp: typing.Any = Component.UNDEFINED,
-        customArrayProp: typing.Union[typing.List[typing.Any], typing.Tuple] = Component.UNDEFINED,
-        id: str = Component.UNDEFINED,
+        children: typing.Optional[typing.Union[str, int, float, ComponentType, typing.Sequence[typing.Union[str, int, float, ComponentType]]]] = None,
+        optionalArray: typing.Optional[typing.Union[typing.Sequence, typing.Tuple]] = None,
+        optionalBool: typing.Optional[bool] = None,
+        optionalFunc: typing.Optional[typing.Any] = None,
+        optionalNumber: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        optionalObject: typing.Optional[dict] = None,
+        optionalString: typing.Optional[str] = None,
+        optionalSymbol: typing.Optional[typing.Any] = None,
+        optionalNode: typing.Optional[typing.Union[str, int, float, ComponentType, typing.Sequence[typing.Union[str, int, float, ComponentType]]]] = None,
+        optionalElement: typing.Optional[ComponentType] = None,
+        optionalMessage: typing.Optional[typing.Any] = None,
+        optionalEnum: typing.Optional[Literal["News", "Photos"]] = None,
+        optionalUnion: typing.Optional[typing.Union[str, typing.Union[int, float, numbers.Number], typing.Any]] = None,
+        optionalArrayOf: typing.Optional[typing.Union[typing.Sequence[typing.Union[int, float, numbers.Number]], typing.Tuple]] = None,
+        optionalObjectOf: typing.Optional[typing.Dict[typing.Union[str, float, int], typing.Union[int, float, numbers.Number]]] = None,
+        optionalObjectWithExactAndNestedDescription: typing.Optional["OptionalObjectWithExactAndNestedDescription"] = None,
+        optionalObjectWithShapeAndNestedDescription: typing.Optional["OptionalObjectWithShapeAndNestedDescription"] = None,
+        optionalAny: typing.Optional[typing.Any] = None,
+        customProp: typing.Optional[typing.Any] = None,
+        customArrayProp: typing.Optional[typing.Union[typing.Sequence[typing.Any], typing.Tuple]] = None,
+        id: typing.Optional[str] = None,
         **kwargs
     ):
         self._prop_names = ['children', 'id', 'aria-*', 'customArrayProp', 'customProp', 'data-*', 'in', 'optionalAny', 'optionalArray', 'optionalArrayOf', 'optionalBool', 'optionalElement', 'optionalEnum', 'optionalNode', 'optionalNumber', 'optionalObject', 'optionalObjectOf', 'optionalObjectWithExactAndNestedDescription', 'optionalObjectWithShapeAndNestedDescription', 'optionalString', 'optionalUnion']
