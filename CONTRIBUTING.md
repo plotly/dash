@@ -29,7 +29,7 @@ Alternatively one could run part of the build process e.g.
 ```bash
 dash-update-components "dash-core-components"
 ```
-to only build dcc when developing dcc. But when you first clone check out a new branch, you must run the full build as above.
+to only build dcc when developing dcc. But when you first clone or check out a new branch, you must run the full build as above.
 
 To set up tests, run:
 ```bash
