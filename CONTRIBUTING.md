@@ -42,7 +42,7 @@ pip list | grep dash
 ```
 The output should look like this:
 ```bash
-dash                            2.17.1                     /path/to/local/dash/repo/
+dash                            <version number>                     /path/to/local/dash/repo/
 ```
 
 ### Dash-Renderer Beginner Guide
