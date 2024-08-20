@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2896](https://github.com/plotly/dash/pull/2896) The tabIndex parameter of Div can accept number or string type. Fixes [#2891](https://github.com/plotly/dash/issues/2891)
 - [#2900](https://github.com/plotly/dash/pull/2900) Allow strings in layout list. Fixes [#2890](https://github.com/plotly/dash/issues/2890)
 - [#2908](https://github.com/plotly/dash/pull/2908) Fix when environment variables are ignored by Dash.run() at runtime. Fixes [#2902](https://github.com/plotly/dash/issues/2902)
+- [#2915](https://github.com/plotly/dash/pull/2915) Fix 'AttributeError' when layout is a function that returns a list of components. Fixes [#2905](https://github.com/plotly/dash/issues/2905)
 
 ## [2.17.1] - 2024-06-12
 
