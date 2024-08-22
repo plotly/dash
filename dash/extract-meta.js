@@ -21,8 +21,6 @@ const reservedPatterns = args[1]
     ? args[1].split('|').map(part => new RegExp(part))
     : [];
 
-let tsconfig = {};
-
 function help() {
     console.error('usage: ');
     console.error(
@@ -36,8 +34,15 @@ if (!src.length) {
     process.exit(1);
 }
 
-if (fs.existsSync('tsconfig.json')) {
-    tsconfig = ts.getParsedCommandLineOfConfigFile('tsconfig.json', { esModuleInterop: true }, ts.sys);
+function getTsConfigCompilerOptions() {
+    // Since extract-meta can be run on JavaScript sources, if trying to get the
+    // config doesn't work, we can fall back gracefully.
+    try {
+        const tsconfig = ts.getParsedCommandLineOfConfigFile('tsconfig.json', { esModuleInterop: true }, ts.sys);
+        return tsconfig?.options ?? {};
+    } catch {
+        return {};
+    }
 }
 
 let failedBuild = false;
@@ -187,7 +192,7 @@ function gatherComponents(sources, components = {}) {
         return components;
     }
 
-    const program = ts.createProgram(filepaths, tsconfig);
+    const program = ts.createProgram(filepaths, getTsConfigCompilerOptions());
     const checker = program.getTypeChecker();
 
     const coerceValue = t => {
