@@ -6,7 +6,7 @@ Glad that you decided to make your contribution in Dash. This guide provides ins
 ### Fork the Dash repository
 When contributing to the Dash repository you should always work in your own copy of the Dash repository. Create a fork of the `dev`-branch, to create a copy of the Dash repository in your own GitHub account. See official instructions for [creating a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) if needed.
 
-Clone the forked repository (either of both options will work). Replace `<your_user_name>` with your user name. 
+Clone the forked repository (either option will work). Replace `<your_user_name>` with your user name. 
 ```
 git clone https://github.com/<your_user_name>/dash.git
 ```
@@ -17,24 +17,28 @@ git clone git@github.com:<your_user_name>/dash.git
 
 When working on a new feature, always create a new branch and create the feature in that branch. For more best practices, read the [Git section](#git).
 
-## Building Dash
+### Configuring your system
 
-### Windows configuration
-The scripts that run during the build process are designed for a Bash terminal. The default terminals on Windows systems are either PowerShell or Command Prompt. However, the build process will fail (potentially bricking you Node environment) when using these terminals. The listed commands should be executed from a Bash terminal, e.g. you can use the Git Bash terminal (which should be installed when installing Git under default settings). Otherwise, you need to find another way to access a Bash terminal. 
+<details>
+  <summary>For JavaScript beginners: What are nvm, npm and Node?</summary>
+  
+  If you are new to JavaScript, many aspects of setting up a working environment and working with the new ecosystem can be a bit overwhelming. Especially if Plotly Dash is your first experience with the JavaScript ecosystem. This section explains common terms that are used when working with JavaScript environments: `nvm`, `Node`, and `npm`
+  - `nvm` stands for Node Version Manager. This is a tool that allows you to manage Node installations. Quite convenient if you are working on multiple tools that require different versions of Node.js. `nvm` allows you to switch between Node installations with a single command. 
+  - `Node.js` is the actual JavaScript runtime environment. Visit the [official site](https://nodejs.org/en) for more info. Don't download Node just yet, install it through `nvm`.
+  - `npm` stands for Node Package Manager. This is the largest software registry for JavaScript packages. Check the [official site](https://docs.npmjs.com/about-npm) for more info.
+
+  ---
+</details>
 
 <details>
   
-<summary>Set up JavaScript environment (for JavaScript beginners)</summary>
+<summary>Installing JavaScript on your system</summary>
 
-#### JavaScript introduction
-  If you are new to JavaScript, many aspects of setting up a working environment and working with the new ecosystem can be a bit overwhelming. Especially if Plotly Dash is your first experience with the JavaScript ecosystem. This section is intended to help you set up your JavaScript environment so you can start working with Dash. When setting up JavaScript you will encounter terms as `nvm`, `Node`, and `npm`
-  - `nvm` stands for Node Version Manager. This is a tool that allows you to manage Node installations. Quite convenient if you are working on multiple tools that require different versions of Node.js. `nvm` will allow you to switch between Node installations with a single command. `nvm` is not integrated in Windows so a third-party tool needs to be used. If you don't have one yet, you can start with [NVM for Windows](https://github.com/coreybutler/nvm-windows) (`nvm-windows`). This version manager is widely used and is well recommended.
-  - `Node.js` is the actual JavaScript runtime environment. Visit the [official site](https://nodejs.org/en) for more info. Don't download Node just yet, install it through `nvm`.
-  - `npm` stands for Node Package Manager. This is the largest software registry for JavaScript packages. Check the [official site](https://docs.npmjs.com/about-npm) for more info.
-  
-  #### JavaScript Installation
-  Carefully follow the installation instructions on the [GitHub page](https://github.com/coreybutler/nvm-windows) for NVM for Windows. As recommended by the installation instructions there: uninstall any pre-existsing Node installations. You will run into permission errors otherwise. 
-  After NVM for Windows has been installed, open any terminal of your preference and install Node and npm:
+  > **For Windows users**: `nvm` is not integrated in Windows so a third-party tool needs to be used. If you don't have one yet, you can start with [NVM for Windows](https://github.com/coreybutler/nvm-windows) (`nvm-windows`). This version manager is widely used and is well recommended.
+  >
+  > Carefully follow the installation instructions listed on the GitHub page. As recommended by the installation instructions there: uninstall any pre-existsing Node installations. You will run into permission errors otherwise.
+
+  With `nvm` available from the command line open any terminal of your preference and install Node and npm:
   ```
   nvm install latest
   ```
@@ -48,16 +52,28 @@ The scripts that run during the build process are designed for a Bash terminal. 
   npm -v
   ```
   If these commands are not recognized, close the terminal, re-open a new instance and retry. If the commands return a version number, you have set up your JavaScript environment successfully!
+  
+  ---
 </details>
 
-<details>
-  <summary> Working with Pycharm </summary>
-  
-  If you work in Pycharm you can open the Dash repo directory as a project (`File -> Open` then browse search for the `dash` directory containing your dash repo, and open the directory as a project). You can configure your Python virtual environment using the Python Interpreter tool. Secondly, you can open the Git Bash terminal in Pycharm and it will automatically activate your selected Python Interpreter in the terminal. You can verify this by executing `pip --version` in the Git Bash terminal, it will show you the path from where pip is run, which is the path where your virtual environment is installed. If you follow these steps, you can skip the first few steps in the overview below.
-</details>
+## Building Dash
+### For Windows users: use a Bash terminal
+The scripts that run during the build process are designed for a Bash terminal. The default terminals on Windows systems are either PowerShell or Command Prompt. However, the build process will fail (potentially bricking your Node environment) when using these terminals. 
+
+The listed commands should be executed from a Bash terminal, e.g. you can use the Git Bash terminal (which is normally installed when installing Git using the default settings). Otherwise, you need to find another way to access a Bash terminal. 
 
 ### Build process
 The build process is mostly the same for Windows and Linux systems. Wherever there are differences between the operating systems, it is marked. 
+
+<details>
+  <summary> Pycharm automatically loads Python environments! </summary>
+  
+  If you work in Pycharm you can open the Dash repo directory as a project (`File -> Open` then browse for the `dash` directory containing your dash repo, and open the directory as a project). You can configure your Python virtual environment using the Python Interpreter tool. 
+  
+  Secondly, you can open the Git Bash terminal in Pycharm and it will automatically activate your selected Python Interpreter in the terminal. You can verify this by executing `pip --version` in the Git Bash terminal, it will show you the path from where pip is run, which is the path where your virtual environment is installed. If you follow these steps, you can skip the first few steps in the overview below.
+  
+  ---
+</details>
 
 Open a Bash terminal in the `dash` repository, Git Bash terminal for example on Windows:
 
