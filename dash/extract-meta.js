@@ -97,7 +97,7 @@ const isUnionLiteral = typeObj =>
 
 function logError(error, filePath) {
     if (filePath) {
-        process.stderr.write(`Error with path ${filePath}`);
+        process.stderr.write(`Error with path ${filePath}\n`);
     }
     process.stderr.write(error + '\n');
     if (error instanceof Error) {
@@ -157,7 +157,7 @@ function parseJSX(filepath) {
         docstringWarning(doc);
         return doc;
     } catch (error) {
-        logError(error);
+        logError(error, filepath);
     }
 }
 
