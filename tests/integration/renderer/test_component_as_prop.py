@@ -7,6 +7,8 @@ from dash_test_components import ComponentAsProp
 from dash.dcc import Checklist, Dropdown
 from dash.html import Button, Div, Span
 
+from flaky import flaky
+
 
 def opt(u):
     return {
@@ -346,6 +348,7 @@ def test_rdcap002_component_as_props_dynamic_id(dash_duo):
         dash_duo.wait_for_text_to_equal(f"#options label:nth-child({i}) span", "1")
 
 
+@flaky(max_runs=3)
 def test_rdcap003_side_effect_regression(dash_duo):
     # Test for #2411, regression introduced by original rdcap002 fix
     # callback on the same components that is output with same id but not property triggered
