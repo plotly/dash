@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Added
 
 - [#2881](https://github.com/plotly/dash/pull/2881) Add outputs_list to window.dash_clientside.callback_context. Fixes [#2877](https://github.com/plotly/dash/issues/2877).
+- [#2936](https://github.com/plotly/dash/pull/2936) Adds support for TypeScript 5.5+.
 
 ## Fixed
 
