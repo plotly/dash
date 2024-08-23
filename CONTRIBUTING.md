@@ -75,51 +75,60 @@ The build process is mostly the same for Windows and Linux systems. Wherever the
   ---
 </details>
 
-Open a Bash terminal in the `dash` repository, Git Bash terminal for example on Windows:
+Open a Bash terminal in the `dash` repository, Git Bash terminal for example on Windows. Create and activate virtual environment (skip this part if you manage the Python Interpreter via Pycharm):
+- Linux/Mac:
 
-```bash
-# Create and activate virtual environment
-#### LINUX ####
+  On some Linux/Mac environments, use `.` instead of `source`
+  ```bash
   $ python3 -m venv .venv/dev
-  # on some linux / mac environments, use `.` instead of `source`
   $ source .venv/dev/bin/activate
-#### WINDOWS ####
-  # Skip this if you manage the Python Interpreter via Pycharm.
-  # Create and activate virtual environment
+  ```
+- Windows:
+  ```bash
   $ python -m venv .venv/dev
   $ source .venv/dev/scripts/activate
-########
+  ```
 
-# install dash and dependencies
+Install dash and dependencies:
+```bash
 $ pip install -e .[ci,dev,testing,celery,diskcache]  # in some shells you need \ to escape []
-
-# Do a clean install of all packages listed in package-lock.json. Package versions will be
-# exactly like stated in the file
 $ npm ci
+```
+`npm ci` does a clean install of all packages listed in package-lock.json. Package versions will be exactly like stated in the file.
 
-# Build dash-core-components, dash-html-components, dash-table,
-# and renderer bundles; this will build all bundles from source code in their
-# respective directories. The only true source of npm version is defined
-# in package.json for each package.
-#### LINUX ####
+Next, build dash-core-components, dash-html-components, dash-table, and renderer bundles. This will build all bundles from source code in their respective directories. The only true source of npm version is defined in package.json for each package:
+- Linux/Mac:
+  ```bash
   $ npm run build  # runs `renderer build` and `npm build` in dcc, html, table
-#### WINDOWS ####
-  # On Windows the build is done via the first-build script. This adds extra steps
-  # that are automatically applied on Linux systems, but not on Windows systems.
+  ```
+
+- Windows:
+  
+  On Windows the build is done via the first-build script. This adds extra steps that are automatically applied on Linux systems, but not on Windows systems:
+  ```bash
   $ npm run first-build
-########
+  ```
 
-# When you first clone the repository, and check out a new branch, you must
-# run the full build as above. Later on, when you only work in one part of
-# the library, you could run part of the build process e.g.
-#    $ dash-update-components "dash-core-components"
-# to only build dcc when developing dcc
+When you first clone the repository, and check out a new branch, you must run the full build as above. Later on, when you only work in one part of the library, you could run part of the build process e.g.
+```bash
+$ dash-update-components "dash-core-components"
 
-# Build and install components used in tests
+```
+to only build dcc when developing dcc.
+
+Build and install components used in tests:
+```bash
 $ npm run setup-tests.py # or npm run setup-tests.R
+```
 
-# Verify that Dash is refering to a local source repo
+Finally, check that the installation succeeded by checking the output of this command:
+```bash
 $ pip list | grep dash
+```
+
+The output should look like this:
+```bash
+dash                            <version number>                     /path/to/local/dash/repo/
 ```
 
 ### Dash-Renderer Beginner Guide
