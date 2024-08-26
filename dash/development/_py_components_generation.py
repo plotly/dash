@@ -13,6 +13,20 @@ from ._collect_nodes import collect_nodes, filter_base_nodes
 from ._py_prop_typing import get_prop_typing, shapes, custom_imports
 from .base_component import Component, ComponentType
 
+import_string = """# AUTO GENERATED FILE - DO NOT EDIT
+
+import typing  # noqa: F401
+import numbers # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
+from dash.development.base_component import Component, _explicitize_args
+try:
+    from dash.development.base_component import ComponentType # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+
+
+"""
+
 
 # pylint: disable=unused-argument,too-many-locals,too-many-branches
 def generate_class_string(
@@ -206,15 +220,7 @@ def generate_class_file(
     Returns
     -------
     """
-    import_string = (
-        "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
-        "import typing  # noqa: F401\n"
-        "import numbers # noqa: F401\n"
-        "from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401\n"
-        "from dash.development.base_component import ComponentType # noqa: F401\n"
-        "from dash.development.base_component import "
-        "Component, _explicitize_args\n\n\n"
-    )
+    imports = import_string
 
     class_string = generate_class_string(
         typename, props, description, namespace, prop_reorder_exceptions, max_props
@@ -222,14 +228,14 @@ def generate_class_file(
 
     custom_imp = custom_imports[namespace][typename]
     if custom_imp:
-        import_string += "\n".join(custom_imp)
-        import_string += "\n\n"
+        imports += "\n".join(custom_imp)
+        imports += "\n\n"
 
     file_name = f"{typename:s}.py"
 
     file_path = os.path.join(namespace, file_name)
     with open(file_path, "w", encoding="utf-8") as f:
-        f.write(import_string)
+        f.write(imports)
         f.write(class_string)
 
     print(f"Generated {file_name}")
