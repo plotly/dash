@@ -82,7 +82,7 @@ def generate_array_of(
     typed = get_prop_typing(
         type_info["value"]["name"], component_name, prop_name, type_info["value"]
     )
-    return f"typing.Union[typing.Sequence[{typed}], typing.Tuple]"
+    return f"typing.Sequence[{typed}]"
 
 
 def generate_object_of(type_info, component_name: str, prop_name: str):
@@ -146,7 +146,7 @@ special_cases = {"dash_core_components": {"Graph": {"figure": generate_plotly_fi
 
 
 PROP_TYPING = {
-    "array": generate_type("typing.Union[typing.Sequence, typing.Tuple]"),
+    "array": generate_type("typing.Sequence"),
     "arrayOf": generate_array_of,
     "object": generate_type("dict"),
     "shape": generate_shape,
