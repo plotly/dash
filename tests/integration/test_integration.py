@@ -433,6 +433,8 @@ def test_inin028_layout_as_list(dash_duo):
     app = Dash()
 
     app.layout = [
+        "string1",
+        "string2",
         html.Div("one", id="one"),
         html.Div("two", id="two"),
         html.Button("direct", id="direct"),
@@ -457,6 +459,9 @@ def test_inin028_layout_as_list(dash_duo):
         return f"Clicked {n_clicks} times"
 
     dash_duo.start_server(app)
+
+    dash_duo.wait_for_contains_text("#react-entry-point", "string1")
+    dash_duo.wait_for_contains_text("#react-entry-point", "string2")
 
     dash_duo.wait_for_text_to_equal("#one", "one")
     dash_duo.wait_for_text_to_equal("#two", "two")
@@ -511,3 +516,24 @@ def test_inin029_layout_as_list_with_pages(dash_duo):
 
     dash_duo.wait_for_element("#nested").click()
     dash_duo.wait_for_text_to_equal("#nested-output", "Clicked 1 times")
+
+
+def test_inin030_add_startup_route(dash_duo):
+    url = "my-new-route"
+
+    def my_route_f():
+        return "hello"
+
+    Dash.add_startup_route(url, my_route_f, ["POST"])
+
+    import requests
+
+    app = Dash(__name__)
+    Dash.STARTUP_ROUTES = []
+    app.layout = html.Div("Hello World")
+    dash_duo.start_server(app)
+
+    url = f"{dash_duo.server_url}{app.config.requests_pathname_prefix}_dash_startup_route/{url}"
+    response = requests.post(url)
+    assert response.status_code == 200
+    assert response.text == "hello"

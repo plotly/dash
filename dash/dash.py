@@ -16,7 +16,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 import flask
 
@@ -366,9 +366,17 @@ class Dash:
     functions. The syntax for this parameter is a dict of State objects:
     `routing_callback_inputs={"language": Input("language", "value")}`
     NOTE: the keys "pathname_" and "search_" are reserved for internal use.
+
+    :param description:  Sets a default description for meta tags on Dash pages (use_pages=True).
+
+    :param on_error: Global callback error handler to call when
+        an exception is raised. Receives the exception object as first argument.
+        The callback_context can be used to access the original callback inputs,
+        states and output.
     """
 
     _plotlyjs_url: str
+    STARTUP_ROUTES: list = []
 
     def __init__(  # pylint: disable=too-many-statements
         self,
@@ -404,6 +412,8 @@ class Dash:
         add_log_handler=True,
         hooks: Union[RendererHooks, None] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
+        description=None,
+        on_error: Optional[Callable[[Exception], Any]] = None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -458,6 +468,7 @@ class Dash:
             title=title,
             update_title=update_title,
             include_pages_meta=include_pages_meta,
+            description=description,
         )
         self.config.set_read_only(
             [
@@ -514,6 +525,7 @@ class Dash:
         self._layout = None
         self._layout_is_function = False
         self.validation_layout = None
+        self._on_error = on_error
         self._extra_components = []
 
         self._setup_dev_tools()
@@ -551,6 +563,7 @@ class Dash:
                 "JupyterDash is deprecated, use Dash instead.\n"
                 "See https://dash.plotly.com/dash-in-jupyter for more details."
             )
+        self.setup_startup_routes()
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
@@ -701,31 +714,9 @@ class Dash:
             and not self.config.suppress_callback_exceptions
         ):
 
-            def simple_clone(c, children=None):
-                cls = type(c)
-                # in Py3 we can use the __init__ signature to reduce to just
-                # required args and id; in Py2 this doesn't work so we just
-                # empty out children.
-                sig = getattr(cls.__init__, "__signature__", None)
-                props = {
-                    p: getattr(c, p)
-                    for p in c._prop_names  # pylint: disable=protected-access
-                    if hasattr(c, p)
-                    and (
-                        p == "id" or not sig or sig.parameters[p].default == c.REQUIRED
-                    )
-                }
-                if props.get("children", children):
-                    props["children"] = children or []
-                return cls(**props)
-
             layout_value = self._layout_value()
             _validate.validate_layout(value, layout_value)
-            self.validation_layout = simple_clone(
-                # pylint: disable=protected-access
-                layout_value,
-                [simple_clone(c) for c in layout_value._traverse_ids()],
-            )
+            self.validation_layout = layout_value
 
     @property
     def index_string(self):
@@ -1258,6 +1249,7 @@ class Dash:
             **_kwargs,
         )
 
+    # pylint: disable=R0915
     def dispatch(self):
         body = flask.request.get_json()
 
@@ -1270,7 +1262,7 @@ class Dash:
             "state", []
         )
         output = body["output"]
-        outputs_list = body.get("outputs") or split_callback_id(output)
+        outputs_list = body.get("outputs")
         g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
 
         g.input_values = (  # pylint: disable=assigning-non-slot
@@ -1301,6 +1293,12 @@ class Dash:
             inputs_state = inputs + state
             inputs_state = convert_to_AttributeDict(inputs_state)
 
+            if cb.get("no_output"):
+                outputs_list = []
+            elif not outputs_list:
+                # FIXME Old renderer support?
+                split_callback_id(output)
+
             # update args_grouping attributes
             for s in inputs_state:
                 # check for pattern matching: list of inputs or state
@@ -1329,14 +1327,21 @@ class Dash:
             else:
                 flat_outputs = outputs_list
 
-            outputs_grouping = map_grouping(
-                lambda ind: flat_outputs[ind], outputs_indices
-            )
-            g.outputs_grouping = outputs_grouping  # pylint: disable=assigning-non-slot
-            g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
-                not isinstance(outputs_indices, int)
-                and outputs_indices != list(range(grouping_len(outputs_indices)))
-            )
+            if len(flat_outputs) > 0:
+                outputs_grouping = map_grouping(
+                    lambda ind: flat_outputs[ind], outputs_indices
+                )
+                g.outputs_grouping = (
+                    outputs_grouping  # pylint: disable=assigning-non-slot
+                )
+                g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
+                    not isinstance(outputs_indices, int)
+                    and outputs_indices != list(range(grouping_len(outputs_indices)))
+                )
+            else:
+                g.outputs_grouping = []
+                g.using_outputs_grouping = []
+            g.updated_props = {}
 
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
@@ -1353,6 +1358,7 @@ class Dash:
                     long_callback_manager=self._background_manager,
                     callback_context=g,
                     app=self,
+                    app_on_error=self._on_error,
                 )
             )
         )
@@ -1611,6 +1617,39 @@ class Dash:
         return _get_paths.app_strip_relative_path(
             self.config.requests_pathname_prefix, path
         )
+
+    @staticmethod
+    def add_startup_route(name, view_func, methods):
+        """
+        Add a route to the app to be initialized at the end of Dash initialization.
+        Use this if the package requires a route to be added to the app, and you will not need to worry about at what point to add it.
+
+        :param name: The name of the route. eg "my-new-url/path".
+        :param view_func: The function to call when the route is requested. The function should return a JSON serializable object.
+        :param methods: The HTTP methods that the route should respond to. eg ["GET", "POST"] or either one.
+        """
+        if not isinstance(name, str) or name.startswith("/"):
+            raise ValueError("name must be a string and should not start with '/'")
+
+        if not callable(view_func):
+            raise ValueError("view_func must be callable")
+
+        valid_methods = {"POST", "GET"}
+        if not set(methods).issubset(valid_methods):
+            raise ValueError(f"methods should only contain {valid_methods}")
+
+        if any(route[0] == name for route in Dash.STARTUP_ROUTES):
+            raise ValueError(f"Route name '{name}' is already in use.")
+
+        Dash.STARTUP_ROUTES.append((name, view_func, methods))
+
+    def setup_startup_routes(self):
+        """
+        Initialize the startup routes stored in STARTUP_ROUTES.
+        """
+        for _name, _view_func, _methods in self.STARTUP_ROUTES:
+            self._add_url(f"_dash_startup_route/{_name}", _view_func, _methods)
+        self.STARTUP_ROUTES = []
 
     def _setup_dev_tools(self, **kwargs):
         debug = kwargs.get("debug", False)
@@ -1918,9 +1957,9 @@ class Dash:
 
     def run(
         self,
-        host=os.getenv("HOST", "127.0.0.1"),
-        port=os.getenv("PORT", "8050"),
-        proxy=os.getenv("DASH_PROXY", None),
+        host="127.0.0.1",
+        port="8050",
+        proxy=None,
         debug=None,
         jupyter_mode: JupyterDisplayMode = None,
         jupyter_width="100%",
@@ -2045,6 +2084,12 @@ class Dash:
             dev_tools_silence_routes_logging,
             dev_tools_prune_errors,
         )
+
+        # Evaluate the env variables at runtime
+
+        host = os.getenv("HOST", host)
+        port = os.getenv("PORT", port)
+        proxy = os.getenv("DASH_PROXY", proxy)
 
         # Verify port value
         try:

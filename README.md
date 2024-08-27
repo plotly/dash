@@ -14,6 +14,13 @@ Built on top of [Plotly.js](https://github.com/plotly/plotly.js), [React](https:
 
 - [dash.gallery](https://dash.gallery): Dash app gallery with Python & R code
 
+<div align="center">
+  <a href="https://dash.plotly.com/project-maintenance">
+    <img src="https://dash.plotly.com/assets/images/maintained-by-plotly.png" width="400px" alt="Maintained by Plotly">
+  </a>
+</div>
+
+
 ### Dash App Examples
 
 | Dash App | Description |

@@ -1,6 +1,7 @@
 import collections
 import hashlib
 from functools import wraps
+from typing import Callable, Optional, Any
 
 import flask
 
@@ -11,6 +12,7 @@ from .dependencies import (
 )
 from .development.base_component import ComponentRegistry
 from .exceptions import (
+    InvalidCallbackReturnValue,
     PreventUpdate,
     WildcardInLongCallback,
     MissingLongCallbackManagerError,
@@ -68,6 +70,7 @@ def callback(
     cancel=None,
     manager=None,
     cache_args_to_ignore=None,
+    on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
 ):
     """
@@ -138,6 +141,10 @@ def callback(
             this should be a list of argument indices as integers.
         :param interval:
             Time to wait between the long callback update requests.
+        :param on_error:
+            Function to call when the callback raises an exception. Receives the
+            exception object as first argument. The callback_context can be used
+            to access the original callback inputs, states and output.
     """
 
     long_spec = None
@@ -187,6 +194,7 @@ def callback(
         long=long_spec,
         manager=manager,
         running=running,
+        on_error=on_error,
     )
 
 
@@ -227,7 +235,8 @@ def insert_callback(
     long=None,
     manager=None,
     running=None,
-    dynamic_creator=False,
+    dynamic_creator: Optional[bool] = False,
+    no_output=False,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -236,7 +245,7 @@ def insert_callback(
         output, prevent_initial_call, config_prevent_initial_callbacks
     )
 
-    callback_id = create_callback_id(output, inputs)
+    callback_id = create_callback_id(output, inputs, no_output)
     callback_spec = {
         "output": callback_id,
         "inputs": [c.to_dict() for c in inputs],
@@ -250,6 +259,7 @@ def insert_callback(
             "interval": long["interval"],
         },
         "dynamic_creator": dynamic_creator,
+        "no_output": no_output,
     }
     if running:
         callback_spec["running"] = running
@@ -264,14 +274,23 @@ def insert_callback(
         "raw_inputs": inputs,
         "manager": manager,
         "allow_dynamic_callbacks": dynamic_creator,
+        "no_output": no_output,
     }
     callback_list.append(callback_spec)
 
     return callback_id
 
 
-# pylint: disable=R0912, R0915
-def register_callback(  # pylint: disable=R0914
+def _set_side_update(ctx, response) -> bool:
+    side_update = dict(ctx.updated_props)
+    if len(side_update) > 0:
+        response["sideUpdate"] = side_update
+        return True
+    return False
+
+
+# pylint: disable=too-many-branches,too-many-statements
+def register_callback(
     callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
 ):
     (
@@ -285,14 +304,17 @@ def register_callback(  # pylint: disable=R0914
         # Insert callback with scalar (non-multi) Output
         insert_output = output
         multi = False
+        has_output = True
     else:
         # Insert callback as multi Output
         insert_output = flatten_grouping(output)
         multi = True
+        has_output = len(output) > 0
 
     long = _kwargs.get("long")
     manager = _kwargs.get("manager")
     running = _kwargs.get("running")
+    on_error = _kwargs.get("on_error")
     if running is not None:
         if not isinstance(running[0], (list, tuple)):
             running = [running]
@@ -317,6 +339,7 @@ def register_callback(  # pylint: disable=R0914
         manager=manager,
         dynamic_creator=allow_dynamic_callbacks,
         running=running,
+        no_output=not has_output,
     )
 
     # pylint: disable=too-many-locals
@@ -333,11 +356,16 @@ def register_callback(  # pylint: disable=R0914
         def add_context(*args, **kwargs):
             output_spec = kwargs.pop("outputs_list")
             app_callback_manager = kwargs.pop("long_callback_manager", None)
-            callback_ctx = kwargs.pop("callback_context", {})
-            app = kwargs.pop("app", None)
+
+            callback_ctx = kwargs.pop(
+                "callback_context", AttributeDict({"updated_props": {}})
+            )
             callback_manager = long and long.get("manager", app_callback_manager)
+            error_handler = on_error or kwargs.pop("app_on_error", None)
             original_packages = set(ComponentRegistry.registry)
-            _validate.validate_output_spec(insert_output, output_spec, Output)
+
+            if has_output:
+                _validate.validate_output_spec(insert_output, output_spec, Output)
 
             context_value.set(callback_ctx)
 
@@ -345,7 +373,8 @@ def register_callback(  # pylint: disable=R0914
                 args, inputs_state_indices
             )
 
-            response = {"multi": True}
+            response: dict = {"multi": True}
+            has_update = False
 
             if long is not None:
                 if not callback_manager:
@@ -433,10 +462,24 @@ def register_callback(  # pylint: disable=R0914
                     isinstance(output_value, dict)
                     and "long_callback_error" in output_value
                 ):
-                    error = output_value.get("long_callback_error")
-                    raise LongCallbackError(
+                    error = output_value.get("long_callback_error", {})
+                    exc = LongCallbackError(
                         f"An error occurred inside a long callback: {error['msg']}\n{error['tb']}"
                     )
+                    if error_handler:
+                        output_value = error_handler(exc)
+
+                        if output_value is None:
+                            output_value = NoUpdate()
+                        # set_props from the error handler uses the original ctx
+                        # instead of manager.get_updated_props since it runs in the
+                        # request process.
+                        has_update = (
+                            _set_side_update(callback_ctx, response)
+                            or output_value is not None
+                        )
+                    else:
+                        raise exc
 
                 if job_running and output_value is not callback_manager.UNDEFINED:
                     # cached results.
@@ -447,44 +490,71 @@ def register_callback(  # pylint: disable=R0914
                         NoUpdate() if NoUpdate.is_no_update(r) else r
                         for r in output_value
                     ]
+                updated_props = callback_manager.get_updated_props(cache_key)
+                if len(updated_props) > 0:
+                    response["sideUpdate"] = updated_props
+                    has_update = True
 
                 if output_value is callback_manager.UNDEFINED:
                     return to_json(response)
             else:
-                output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                try:
+                    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                except PreventUpdate as err:
+                    raise err
+                except Exception as err:  # pylint: disable=broad-exception-caught
+                    if error_handler:
+                        output_value = error_handler(err)
 
-            if NoUpdate.is_no_update(output_value):
-                raise PreventUpdate
-
-            if not multi:
-                output_value, output_spec = [output_value], [output_spec]
-                flat_output_values = output_value
-            else:
-                if isinstance(output_value, (list, tuple)):
-                    # For multi-output, allow top-level collection to be
-                    # list or tuple
-                    output_value = list(output_value)
-
-                # Flatten grouping and validate grouping structure
-                flat_output_values = flatten_grouping(output_value, output)
-
-            _validate.validate_multi_return(
-                output_spec, flat_output_values, callback_id
-            )
+                        # If the error returns nothing, automatically puts NoUpdate for response.
+                        if output_value is None:
+                            if not multi:
+                                output_value = NoUpdate()
+                            else:
+                                output_value = [NoUpdate for _ in output_spec]
+                    else:
+                        raise err
 
             component_ids = collections.defaultdict(dict)
-            has_update = False
-            for val, spec in zip(flat_output_values, output_spec):
-                if isinstance(val, NoUpdate):
-                    continue
-                for vali, speci in (
-                    zip(val, spec) if isinstance(spec, list) else [[val, spec]]
-                ):
-                    if not isinstance(vali, NoUpdate):
-                        has_update = True
-                        id_str = stringify_id(speci["id"])
-                        prop = clean_property_name(speci["property"])
-                        component_ids[id_str][prop] = vali
+
+            if has_output:
+                if not multi:
+                    output_value, output_spec = [output_value], [output_spec]
+                    flat_output_values = output_value
+                else:
+                    if isinstance(output_value, (list, tuple)):
+                        # For multi-output, allow top-level collection to be
+                        # list or tuple
+                        output_value = list(output_value)
+
+                    # Flatten grouping and validate grouping structure
+                    flat_output_values = flatten_grouping(output_value, output)
+
+                _validate.validate_multi_return(
+                    output_spec, flat_output_values, callback_id
+                )
+
+                for val, spec in zip(flat_output_values, output_spec):
+                    if NoUpdate.is_no_update(val):
+                        continue
+                    for vali, speci in (
+                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]
+                    ):
+                        if not NoUpdate.is_no_update(vali):
+                            has_update = True
+                            id_str = stringify_id(speci["id"])
+                            prop = clean_property_name(speci["property"])
+                            component_ids[id_str][prop] = vali
+            else:
+                if output_value is not None:
+                    raise InvalidCallbackReturnValue(
+                        f"No-output callback received return value: {output_value}"
+                    )
+                output_value = []
+                flat_output_values = []
+
+            if not long:
+                has_update = _set_side_update(callback_ctx, response) or has_update
 
             if not has_update:
                 raise PreventUpdate
@@ -518,9 +588,11 @@ def register_callback(  # pylint: disable=R0914
 
 
 _inline_clientside_template = """
-var clientside = window.dash_clientside = window.dash_clientside || {{}};
-var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
-ns["{function_name}"] = {clientside_function};
+(function() {{
+    var clientside = window.dash_clientside = window.dash_clientside || {{}};
+    var ns = clientside["{namespace}"] = clientside["{namespace}"] || {{}};
+    ns["{function_name}"] = {clientside_function};
+}})();
 """
 
 
@@ -534,6 +606,7 @@ def register_clientside_callback(
     **kwargs,
 ):
     output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
+    no_output = isinstance(output, (list,)) and len(output) == 0
     insert_callback(
         callback_list,
         callback_map,
@@ -544,6 +617,7 @@ def register_clientside_callback(
         state,
         None,
         prevent_initial_call,
+        no_output=no_output,
     )
 
     # If JS source is explicitly given, create a namespace and function
@@ -551,7 +625,7 @@ def register_clientside_callback(
     if isinstance(clientside_function, str):
         namespace = "_dashprivate_clientside_funcs"
         # Create a hash from the function, it will be the same always
-        function_name = hashlib.md5(clientside_function.encode("utf-8")).hexdigest()
+        function_name = hashlib.sha256(clientside_function.encode("utf-8")).hexdigest()
 
         inline_scripts.append(
             _inline_clientside_template.format(

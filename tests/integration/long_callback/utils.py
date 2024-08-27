@@ -18,7 +18,13 @@ class TestDiskCacheManager(DiskcacheManager):
         super().__init__(cache=cache, cache_by=cache_by, expire=expire)
         self.running_jobs = []
 
-    def call_job_fn(self, key, job_fn, args, context):
+    def call_job_fn(
+        self,
+        key,
+        job_fn,
+        args,
+        context,
+    ):
         pid = super().call_job_fn(key, job_fn, args, context)
         self.running_jobs.append(pid)
         return pid
@@ -135,8 +141,9 @@ def setup_long_callback_app(manager_name, app_name):
             # Sleep for a couple of intervals
             time.sleep(2.0)
 
-            for job in manager.running_jobs:
-                manager.terminate_job(job)
+            if hasattr(manager, "running_jobs"):
+                for job in manager.running_jobs:
+                    manager.terminate_job(job)
 
             shutil.rmtree(cache_directory, ignore_errors=True)
             os.environ.pop("LONG_CALLBACK_MANAGER")
