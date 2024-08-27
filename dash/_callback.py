@@ -360,6 +360,7 @@ def register_callback(
             callback_ctx = kwargs.pop(
                 "callback_context", AttributeDict({"updated_props": {}})
             )
+            app = kwargs.pop("app", None)
             callback_manager = long and long.get("manager", app_callback_manager)
             error_handler = on_error or kwargs.pop("app_on_error", None)
             original_packages = set(ComponentRegistry.registry)

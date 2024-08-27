@@ -51,7 +51,6 @@ import {loadLibrary} from '../utils/libraries';
 import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
 
-
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
 );
