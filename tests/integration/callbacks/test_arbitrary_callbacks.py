@@ -11,8 +11,6 @@ from dash import (
     clientside_callback,
 )
 
-from flaky import flaky
-
 
 def test_arb001_global_set_props(dash_duo):
     app = Dash()
@@ -91,8 +89,7 @@ def test_arb002_no_output_callbacks(dash_duo):
         assert counter.value == 1
 
 
-@flaky(max_runs=3)
-def test_arb003_arbitrary_pages(dash_duo):
+def test_arb003_arbitrary_pages(dash_duo, clear_pages_state):
     app = Dash(use_pages=True, pages_folder="")
 
     register_page(
