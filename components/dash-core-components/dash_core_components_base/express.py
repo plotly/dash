@@ -2,8 +2,6 @@ import io
 import ntpath
 import base64
 
-# region Utils for Download component
-
 
 def send_file(path, filename=None, type=None):
     """
