@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Added
 
 - [#2881](https://github.com/plotly/dash/pull/2881) Add outputs_list to window.dash_clientside.callback_context. Fixes [#2877](https://github.com/plotly/dash/issues/2877).
+- [#2903](https://github.com/plotly/dash/pull/2903) Add callback on_error handler, either globally on Dash init or per callback basis. Receives the exception as first argument, can return output(s) or None for `no_update`. Access to original callback context is preserved and `set_props` works inside the error handler.
 - [#2936](https://github.com/plotly/dash/pull/2936) Adds support for TypeScript 5.5+.
 - [#2789](https://github.com/plotly/dash/pull/2789) Add library loading capacity to `_allow_dynamic_callbacks`
 
@@ -17,6 +18,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2896](https://github.com/plotly/dash/pull/2896) The tabIndex parameter of Div can accept number or string type. Fixes [#2891](https://github.com/plotly/dash/issues/2891)
 - [#2900](https://github.com/plotly/dash/pull/2900) Allow strings in layout list. Fixes [#2890](https://github.com/plotly/dash/issues/2890)
 - [#2908](https://github.com/plotly/dash/pull/2908) Fix when environment variables are ignored by Dash.run() at runtime. Fixes [#2902](https://github.com/plotly/dash/issues/2902)
+- [#2888](https://github.com/plotly/dash/pull/2888) Add id to dcc.Loading DOM. Fixes [#2878](https://github.com/plotly/dash/issues/2878)
+- [#2922](https://github.com/plotly/dash/pull/2922) Fix background callback hash_function when source is unavailable. Fixes [#1885](https://github.com/plotly/dash/issues/1885)
 - [#2915](https://github.com/plotly/dash/pull/2915) Fix 'AttributeError' when layout is a function that returns a list of components. Fixes [#2905](https://github.com/plotly/dash/issues/2905)
 - [#2956](https://github.com/plotly/dash/pull/2956) Add missing useEffect dependency to dcc.Loading component.
 
