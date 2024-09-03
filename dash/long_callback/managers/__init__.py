@@ -107,8 +107,11 @@ class BaseLongCallbackManager(ABC):
 
     @staticmethod
     def hash_function(fn, callback_id=""):
-        fn_source = inspect.getsource(fn)
-        fn_str = fn_source
+        try:
+            fn_source = inspect.getsource(fn)
+            fn_str = fn_source
+        except OSError:  # pylint: disable=too-broad-exception
+            fn_str = getattr(fn, "__name__", "")
         return hashlib.sha256(
             callback_id.encode("utf-8") + fn_str.encode("utf-8")
         ).hexdigest()
