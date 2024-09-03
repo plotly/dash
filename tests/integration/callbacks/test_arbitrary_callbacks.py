@@ -89,7 +89,7 @@ def test_arb002_no_output_callbacks(dash_duo):
         assert counter.value == 1
 
 
-def test_arb003_arbitrary_pages(dash_duo):
+def test_arb003_arbitrary_pages(dash_duo, clear_pages_state):
     app = Dash(use_pages=True, pages_folder="")
 
     register_page(
