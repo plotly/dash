@@ -1,6 +1,7 @@
 import collections
 import hashlib
 from functools import wraps
+from typing import Callable, Optional, Any
 
 import flask
 
@@ -9,12 +10,14 @@ from .dependencies import (
     handle_grouped_callback_args,
     Output,
 )
+from .development.base_component import ComponentRegistry
 from .exceptions import (
     InvalidCallbackReturnValue,
     PreventUpdate,
     WildcardInLongCallback,
     MissingLongCallbackManagerError,
     LongCallbackError,
+    ImportedInsideCallbackError,
 )
 
 from ._grouping import (
@@ -67,6 +70,7 @@ def callback(
     cancel=None,
     manager=None,
     cache_args_to_ignore=None,
+    on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
 ):
     """
@@ -137,6 +141,10 @@ def callback(
             this should be a list of argument indices as integers.
         :param interval:
             Time to wait between the long callback update requests.
+        :param on_error:
+            Function to call when the callback raises an exception. Receives the
+            exception object as first argument. The callback_context can be used
+            to access the original callback inputs, states and output.
     """
 
     long_spec = None
@@ -186,6 +194,7 @@ def callback(
         long=long_spec,
         manager=manager,
         running=running,
+        on_error=on_error,
     )
 
 
@@ -226,7 +235,7 @@ def insert_callback(
     long=None,
     manager=None,
     running=None,
-    dynamic_creator=False,
+    dynamic_creator: Optional[bool] = False,
     no_output=False,
 ):
     if prevent_initial_call is None:
@@ -272,8 +281,16 @@ def insert_callback(
     return callback_id
 
 
-# pylint: disable=R0912, R0915
-def register_callback(  # pylint: disable=R0914
+def _set_side_update(ctx, response) -> bool:
+    side_update = dict(ctx.updated_props)
+    if len(side_update) > 0:
+        response["sideUpdate"] = side_update
+        return True
+    return False
+
+
+# pylint: disable=too-many-branches,too-many-statements
+def register_callback(
     callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
 ):
     (
@@ -297,6 +314,7 @@ def register_callback(  # pylint: disable=R0914
     long = _kwargs.get("long")
     manager = _kwargs.get("manager")
     running = _kwargs.get("running")
+    on_error = _kwargs.get("on_error")
     if running is not None:
         if not isinstance(running[0], (list, tuple)):
             running = [running]
@@ -338,10 +356,15 @@ def register_callback(  # pylint: disable=R0914
         def add_context(*args, **kwargs):
             output_spec = kwargs.pop("outputs_list")
             app_callback_manager = kwargs.pop("long_callback_manager", None)
+
             callback_ctx = kwargs.pop(
                 "callback_context", AttributeDict({"updated_props": {}})
             )
+            app = kwargs.pop("app", None)
             callback_manager = long and long.get("manager", app_callback_manager)
+            error_handler = on_error or kwargs.pop("app_on_error", None)
+            original_packages = set(ComponentRegistry.registry)
+
             if has_output:
                 _validate.validate_output_spec(insert_output, output_spec, Output)
 
@@ -351,7 +374,7 @@ def register_callback(  # pylint: disable=R0914
                 args, inputs_state_indices
             )
 
-            response = {"multi": True}
+            response: dict = {"multi": True}
             has_update = False
 
             if long is not None:
@@ -440,10 +463,24 @@ def register_callback(  # pylint: disable=R0914
                     isinstance(output_value, dict)
                     and "long_callback_error" in output_value
                 ):
-                    error = output_value.get("long_callback_error")
-                    raise LongCallbackError(
+                    error = output_value.get("long_callback_error", {})
+                    exc = LongCallbackError(
                         f"An error occurred inside a long callback: {error['msg']}\n{error['tb']}"
                     )
+                    if error_handler:
+                        output_value = error_handler(exc)
+
+                        if output_value is None:
+                            output_value = NoUpdate()
+                        # set_props from the error handler uses the original ctx
+                        # instead of manager.get_updated_props since it runs in the
+                        # request process.
+                        has_update = (
+                            _set_side_update(callback_ctx, response)
+                            or output_value is not None
+                        )
+                    else:
+                        raise exc
 
                 if job_running and output_value is not callback_manager.UNDEFINED:
                     # cached results.
@@ -462,10 +499,22 @@ def register_callback(  # pylint: disable=R0914
                 if output_value is callback_manager.UNDEFINED:
                     return to_json(response)
             else:
-                output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                try:
+                    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                except PreventUpdate as err:
+                    raise err
+                except Exception as err:  # pylint: disable=broad-exception-caught
+                    if error_handler:
+                        output_value = error_handler(err)
 
-            if NoUpdate.is_no_update(output_value):
-                raise PreventUpdate
+                        # If the error returns nothing, automatically puts NoUpdate for response.
+                        if output_value is None:
+                            if not multi:
+                                output_value = NoUpdate()
+                            else:
+                                output_value = [NoUpdate() for _ in output_spec]
+                    else:
+                        raise err
 
             component_ids = collections.defaultdict(dict)
 
@@ -487,12 +536,12 @@ def register_callback(  # pylint: disable=R0914
                 )
 
                 for val, spec in zip(flat_output_values, output_spec):
-                    if isinstance(val, NoUpdate):
+                    if NoUpdate.is_no_update(val):
                         continue
                     for vali, speci in (
                         zip(val, spec) if isinstance(spec, list) else [[val, spec]]
                     ):
-                        if not isinstance(vali, NoUpdate):
+                        if not NoUpdate.is_no_update(vali):
                             has_update = True
                             id_str = stringify_id(speci["id"])
                             prop = clean_property_name(speci["property"])
@@ -506,15 +555,24 @@ def register_callback(  # pylint: disable=R0914
                 flat_output_values = []
 
             if not long:
-                side_update = dict(callback_ctx.updated_props)
-                if len(side_update) > 0:
-                    has_update = True
-                    response["sideUpdate"] = side_update
+                has_update = _set_side_update(callback_ctx, response) or has_update
 
             if not has_update:
                 raise PreventUpdate
 
             response["response"] = component_ids
+
+            if len(ComponentRegistry.registry) != len(original_packages):
+                diff_packages = list(
+                    set(ComponentRegistry.registry).difference(original_packages)
+                )
+                if not allow_dynamic_callbacks:
+                    raise ImportedInsideCallbackError(
+                        f"Component librar{'y' if len(diff_packages) == 1 else 'ies'} was imported during callback.\n"
+                        "You can set `_allow_dynamic_callbacks` to allow for development purpose only."
+                    )
+                dist = app.get_dist(diff_packages)
+                response["dist"] = dist
 
             try:
                 jsonResponse = to_json(response)

@@ -97,3 +97,7 @@ class MissingLongCallbackManagerError(DashException):
 
 class PageError(DashException):
     pass
+
+
+class ImportedInsideCallbackError(DashException):
+    pass
