@@ -32,12 +32,20 @@ export default class DashMarkdown extends Component {
     }
 
     highlightCode() {
+        const isHighlighted = node => {
+            // a highlighted node will have <span> children which are what color the text
+            return node.children.length > 0;
+        };
+
         if (this.mdContainer) {
             const nodes = this.mdContainer.querySelectorAll('pre code');
 
             if (MarkdownHighlighter.hljs) {
                 for (let i = 0; i < nodes.length; i++) {
-                    MarkdownHighlighter.hljs.highlightElement(nodes[i]);
+                    if (!isHighlighted(nodes[i])) {
+                        nodes[i].removeAttribute('data-highlighted');
+                        MarkdownHighlighter.hljs.highlightElement(nodes[i]);
+                    }
                 }
             } else {
                 MarkdownHighlighter.loadhljs();
