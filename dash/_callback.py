@@ -512,7 +512,7 @@ def register_callback(
                             if not multi:
                                 output_value = NoUpdate()
                             else:
-                                output_value = [NoUpdate for _ in output_spec]
+                                output_value = [NoUpdate() for _ in output_spec]
                     else:
                         raise err
 
