@@ -10,7 +10,8 @@ def test_ldcp001_loading_component_initialization(dash_dcc):
     app = Dash(__name__)
 
     app.layout = html.Div(
-        [dcc.Loading([html.Div(id="div-1")], className="loading")], id="root"
+        [dcc.Loading([html.Div(id="div-1")], id="loading", className="loading")],
+        id="root",
     )
 
     @app.callback(Output("div-1", "children"), [Input("root", "n_clicks")])
@@ -20,7 +21,7 @@ def test_ldcp001_loading_component_initialization(dash_dcc):
 
     with lock:
         dash_dcc.start_server(app)
-        dash_dcc.find_element(".loading .dash-spinner")
+        dash_dcc.find_element("#loading .loading .dash-spinner")
         # ensure inner component is also mounted
         dash_dcc.wait_for_text_to_equal("#div-1", "")
 

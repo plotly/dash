@@ -121,7 +121,8 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 
         # pylint: disable-next=not-callable
         proc = Process(
-            target=job_fn, args=(key, self._make_progress_key(key), args, context)
+            target=job_fn,
+            args=(key, self._make_progress_key(key), args, context),
         )
         proc.start()
         return proc.pid
@@ -187,6 +188,7 @@ def _make_job_fn(fn, cache, progress):
             c.ignore_register_page = False
             c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
+            errored = False
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = fn(*maybe_progress, **user_callback_args)
@@ -195,8 +197,10 @@ def _make_job_fn(fn, cache, progress):
                 else:
                     user_callback_output = fn(*maybe_progress, user_callback_args)
             except PreventUpdate:
+                errored = True
                 cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
             except Exception as err:  # pylint: disable=broad-except
+                errored = True
                 cache.set(
                     result_key,
                     {
@@ -206,7 +210,8 @@ def _make_job_fn(fn, cache, progress):
                         }
                     },
                 )
-            else:
+
+            if not errored:
                 cache.set(result_key, user_callback_output)
 
         ctx.run(run)
