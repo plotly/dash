@@ -56,7 +56,8 @@ const NUMERIC_PROPERTIES = [
     'cols',
     'colSpan',
     'size',
-    'step'
+    'step',
+    'tabIndex'
 ];
 
 const PROP_TYPES = {
