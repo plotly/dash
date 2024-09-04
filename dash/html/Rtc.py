@@ -91,7 +91,7 @@ class Rtc(Component):
     - style (dict; optional):
         Defines CSS styles which will override styles previously set.
 
-    - tabIndex (string; optional):
+    - tabIndex (string | number; optional):
         Overrides the browser's default tab order and follows the one
         specified instead.
 

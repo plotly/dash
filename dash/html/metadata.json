@@ -214,7 +214,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -418,7 +426,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -622,7 +638,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -826,7 +850,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -1093,7 +1125,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -1297,7 +1337,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -1501,7 +1549,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -1830,7 +1886,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -2034,7 +2098,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -2252,7 +2324,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -2456,7 +2536,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -2660,7 +2748,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -2864,7 +2960,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -3068,7 +3172,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -3272,7 +3384,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -3483,7 +3603,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -3687,7 +3815,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -4030,7 +4166,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -4264,7 +4408,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -4468,7 +4620,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -4672,7 +4832,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -4876,7 +5044,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -5080,7 +5256,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -5291,7 +5475,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -5502,7 +5694,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -5706,7 +5906,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -5917,7 +6125,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -6121,7 +6337,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -6325,7 +6549,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -6543,7 +6775,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -6772,7 +7012,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -6976,7 +7224,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -7205,7 +7461,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -7409,7 +7673,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -7613,7 +7885,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -7817,7 +8097,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -8021,7 +8309,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -8269,7 +8565,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -8512,7 +8816,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -8716,7 +9028,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -8920,7 +9240,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -9124,7 +9452,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -9328,7 +9664,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -9617,7 +9961,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -9821,7 +10173,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -10025,7 +10385,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -10229,7 +10597,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -10433,7 +10809,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -10637,7 +11021,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -10841,7 +11233,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -11045,7 +11445,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -11249,7 +11657,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -11453,7 +11869,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -11657,7 +12081,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -11861,7 +12293,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -12065,7 +12505,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -12341,7 +12789,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -12624,7 +13080,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -12842,7 +13306,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -13046,7 +13518,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -13250,7 +13730,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -13468,7 +13956,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -13672,7 +14168,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -13883,7 +14387,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -14150,7 +14662,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -14354,7 +14874,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -14565,7 +15093,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -14769,7 +15305,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -14998,7 +15542,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -15230,7 +15782,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -15499,7 +16059,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -15703,7 +16271,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -15907,7 +16483,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -16111,7 +16695,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -16380,7 +16972,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -16623,7 +17223,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -16859,7 +17467,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -17127,7 +17743,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -17352,7 +17976,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -17556,7 +18188,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -17774,7 +18414,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -17978,7 +18626,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -18182,7 +18838,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -18386,7 +19050,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -18619,7 +19291,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -18830,7 +19510,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -19034,7 +19722,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -19238,7 +19934,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -19442,7 +20146,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -19646,7 +20358,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -19850,7 +20570,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -20054,7 +20782,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -20258,7 +20994,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -20547,7 +21291,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -20751,7 +21503,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -21095,7 +21855,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -21299,7 +22067,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -21503,7 +22279,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -21707,7 +22491,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -21946,7 +22738,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -22150,7 +22950,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -22354,7 +23162,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -22558,7 +23374,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -22762,7 +23586,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -22966,7 +23798,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -23170,7 +24010,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -23374,7 +24222,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -23578,7 +24434,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -23782,7 +24646,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -24023,7 +24895,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -24227,7 +25107,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -24619,7 +25507,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -24823,7 +25719,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -25071,7 +25975,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -25275,7 +26187,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -25486,7 +26406,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -25690,7 +26618,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -25894,7 +26830,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -26151,7 +27095,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -26355,7 +27307,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -26559,7 +27519,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -26763,7 +27731,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -27129,7 +28105,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -27333,7 +28317,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -27537,7 +28529,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
