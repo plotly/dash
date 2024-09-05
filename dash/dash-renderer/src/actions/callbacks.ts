@@ -36,7 +36,7 @@ import {
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
-import {getCSRFHeader} from '.';
+import {getCSRFHeader, dispatchError} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
@@ -45,6 +45,9 @@ import {handlePatch, isPatch} from './patch';
 import {getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
+
+import {loadLibrary} from '../utils/libraries';
+
 import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
 
@@ -330,10 +333,29 @@ async function handleClientside(
     return result;
 }
 
-function updateComponent(component_id: any, props: any) {
+function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
     return function (dispatch: any, getState: any) {
-        const paths = getState().paths;
+        const {paths, config} = getState();
         const componentPath = getPath(paths, component_id);
+        if (!componentPath) {
+            if (!config.suppress_callback_exceptions) {
+                dispatchError(dispatch)(
+                    'ID running component not found in layout',
+                    [
+                        'Component defined in running keyword not found in layout.',
+                        `Component id: "${stringifyId(component_id)}"`,
+                        'This ID was used in the callback(s) for Output(s):',
+                        `${cb.output}`,
+                        'You can suppress this exception by setting',
+                        '`suppress_callback_exceptions=True`.'
+                    ]
+                );
+            }
+            // We need to stop further processing because functions further on
+            // can't operate on an 'undefined' object, and they will throw an
+            // error.
+            return;
+        }
         dispatch(
             updateProps({
                 props,
@@ -381,7 +403,7 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 return acc;
             }, [] as any[])
             .forEach(([id, idProps]) => {
-                dispatch(updateComponent(id, idProps));
+                dispatch(updateComponent(id, idProps, cb));
             });
     };
 }
@@ -557,8 +579,15 @@ function handleServerside(
                     }
 
                     if (!long || data.response !== undefined) {
-                        completeJob();
-                        finishLine(data);
+                        if (data.dist) {
+                            Promise.all(data.dist.map(loadLibrary)).then(() => {
+                                completeJob();
+                                finishLine(data);
+                            });
+                        } else {
+                            completeJob();
+                            finishLine(data);
+                        }
                     } else {
                         // Poll chain.
                         setTimeout(
